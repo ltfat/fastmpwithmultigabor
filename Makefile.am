@@ -43,6 +43,6 @@ EXTRA_DIST = README INSTALL COPYING CHANGES AUTHORS make_configure.sh doc extras
 # Before packaging, remove the unnecessary files from the doc and extras directories.
 #
 dist-hook:
-	rm -rf `find $(distdir) -name CVS -print , -name auto -print , -name '*~' -print`
+	rm -rf `find $(distdir) -name '\.svn' -print , -name auto -print , -name '*~' -print`
 	rm -rf `find $(distdir) -name '*.log' -print , -name '*.bbl' -print , -name '*.blg' -print`
 	rm -rf `find $(distdir) -name '*.toc' -print , -name '*.dvi' -print , -name '*.aux' -print`
