@@ -1,0 +1,290 @@
+%{
+
+/******************************************************************************/
+/*                                                                            */
+/*                             dict_scanner.cpp                               */
+/*                                                                            */
+/*                        Matching Pursuit Library                            */
+/*                                                                            */
+/* Rémi Gribonval                                                             */
+/* Sacha Krstulovic                                           Mon Feb 21 2005 */
+/* -------------------------------------------------------------------------- */
+/*                                                                            */
+/*  Copyright (C) 2005 IRISA                                                  */
+/*                                                                            */
+/*  This program is free software; you can redistribute it and/or             */
+/*  modify it under the terms of the GNU General Public License               */
+/*  as published by the Free Software Foundation; either version 2            */
+/*  of the License, or (at your option) any later version.                    */
+/*                                                                            */
+/*  This program is distributed in the hope that it will be useful,           */
+/*  but WITHOUT ANY WARRANTY; without even the implied warranty of            */
+/*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the             */
+/*  GNU General Public License for more details.                              */
+/*                                                                            */
+/*  You should have received a copy of the GNU General Public License         */
+/*  along with this program; if not, write to the Free Software               */
+/*  Foundation, Inc., 59 Temple Place - Suite 330,                            */
+/*  Boston, MA  02111-1307, USA.                                              */
+/*                                                                            */
+/******************************************************************************/
+/*
+ * CVS log:
+ *
+ * $Author: sacha $
+ * $Date: 2005/05/17 10:39:30 $
+ * $Revision: 1.3 $
+ *
+ */
+
+/* The dict_scanner.cpp source is automatically generated from
+   the dict_scanner.l template, using the FLEX lexical scanner generator.
+   Any manual change will be lost at the next build. Changes should be introduced
+   in the dict_scanner.l file. See "man flex" for more info. */
+
+#include "matchp.h"
+#include "system.h"
+
+#include <dsp_windows.h>
+
+/* Redefine yylex to take a MP_Scan_Info_c* as input */
+#define YY_DECL int yylex( MP_Scan_Info_c *scanInfo )
+
+/* A few global variables */
+unsigned long int *ulongPtr = NULL;
+unsigned int *uintPtr = NULL;
+double *doublePtr = NULL;
+unsigned char *ucharPtr = NULL;
+bool *boolPtr = NULL;
+bool *boolPtr2 = NULL;
+
+%}
+
+%option noyywrap
+%option stack
+
+%x SCAN_ULONG
+%x SCAN_UINT
+%x SCAN_DOUBLE
+
+%s SCAN_WINDOW
+%x SCAN_WINDOWTYPE
+
+%s SCAN_LIBVERSION
+%s SCAN_BLOCKTYPE
+%s SCAN_PAR
+%s SCAN_GLOB
+
+%%
+
+[[:space:]]+	/* Trash the isolated series of blank spaces */ ;
+
+\<\?xml.*\?\>	/* Ignore the XML declaration line */ ;
+
+\<!--(.|\n)*--\>	/* Trash any XML style comments */ ;
+
+#.*$		/* Trash any shell-style comments */ ;
+
+
+
+<SCAN_ULONG>[[:space:]]*[0-9]+    {
+				    if (ulongPtr) {
+				       *ulongPtr = strtoul( yytext, NULL, 10 );
+				       *boolPtr = true;
+				    }
+				    else {
+					 fprintf( stderr, "mplib error -- yylex() - Tried to read an unsigned long into"
+						  " a NULL pointer.\n" );
+					 return( ERROR_EVENT );
+				    }
+				    yy_pop_state();
+				}
+
+<SCAN_UINT>[[:space:]]*[0-9]+    {
+				    if (uintPtr) {
+				       *uintPtr = (unsigned int)(strtoul( yytext, NULL, 10 ));
+				       *boolPtr = true;
+				    }
+				    else {
+					 fprintf( stderr, "mplib error -- yylex() - Tried to read an unsigned int into"
+						  " a NULL pointer.\n" );
+					 return( ERROR_EVENT );
+				    }
+				    yy_pop_state();
+				}
+
+<SCAN_DOUBLE>[[:space:]]*[0-9\.eE\+-]+    {
+					    if (doublePtr) {
+					       *doublePtr = strtod( yytext, NULL );
+					       *boolPtr = true;
+					    }
+					    else {
+						 fprintf( stderr, "mplib error -- yylex() - Tried to read a double into"
+							  " a NULL pointer.\n" );
+						 return( ERROR_EVENT );
+					    }
+					    yy_pop_state();
+					  }
+
+
+
+\<[[:space:]]*libVersion[[:space:]]*\>	{ /* <libVersion>: launch the Lib Version scanning */
+					    BEGIN(SCAN_LIBVERSION);
+					}
+
+<SCAN_LIBVERSION>[[:space:]]*[a-zA-Z0-9\.\+-]+[[:space:]]*    { /* Copy the libVersion in scanInfo, then continue scanning. */
+								strcpy( scanInfo->libVersion, yytext );
+								BEGIN(INITIAL);
+							      }
+
+\<[[:space:]]*\/[[:space:]]*libVersion[[:space:]]*\>	{ /* </libVersion>: trash the ending
+							     libVersion tag and continue scanning. */ ;
+							}
+
+
+
+\<[[:space:]]*block[[:space:]]*type[[:space:]]*=[[:space:]]*\"	{ /* <block type=": count the block
+								     and scan the block type */
+								  scanInfo->blockCount++;
+								  yy_push_state(SCAN_BLOCKTYPE);
+								}
+
+<SCAN_BLOCKTYPE>[[:space:]]*[a-z]+[[:space:]]*  { /* Copy the block type in scanInfo, then continue scanning. */
+						  strcpy( scanInfo->type, yytext );
+						  yy_pop_state();
+						}
+
+
+\<[[:space:]]*par[[:space:]]*type[[:space:]]*=[[:space:]]*\" { /* <par type=" : launch the scanning of a local parameter. */
+							       BEGIN( SCAN_PAR ); }
+
+\<[[:space:]]*glob[[:space:]]*type[[:space:]]*=[[:space:]]*\" { /* <glob type=" : launch the scanning of a global parameter. */
+								BEGIN( SCAN_GLOB ); }
+
+<SCAN_PAR>windowLen { ulongPtr = &(scanInfo->windowLen);
+		      boolPtr = &(scanInfo->windowLenIsSet);
+		      yy_push_state(SCAN_ULONG); }
+
+<SCAN_GLOB>windowLen { ulongPtr = &(scanInfo->globWindowLen);
+		       boolPtr = &(scanInfo->globWindowLenIsSet);
+		       yy_push_state(SCAN_ULONG); }
+
+<SCAN_PAR>windowShift { ulongPtr = &(scanInfo->windowShift);
+			boolPtr = &(scanInfo->windowShiftIsSet);
+			yy_push_state(SCAN_ULONG); }
+
+<SCAN_GLOB>windowShift { ulongPtr = &(scanInfo->globWindowShift);
+			 boolPtr = &(scanInfo->globWindowShiftIsSet);
+			 yy_push_state(SCAN_ULONG); }
+
+<SCAN_PAR>windowRate { doublePtr = &(scanInfo->windowRate);
+		       boolPtr = &(scanInfo->windowRateIsSet);
+		       yy_push_state(SCAN_DOUBLE); }
+
+<SCAN_GLOB>windowRate { doublePtr = &(scanInfo->globWindowRate);
+			boolPtr = &(scanInfo->globWindowRateIsSet);
+			yy_push_state(SCAN_DOUBLE); }
+
+<SCAN_PAR>fftSize { ulongPtr = &(scanInfo->fftSize);
+		    boolPtr = &(scanInfo->fftSizeIsSet);
+		    yy_push_state(SCAN_ULONG); }
+
+<SCAN_GLOB>fftSize { ulongPtr = &(scanInfo->globFftSize);
+		     boolPtr = &(scanInfo->globFftSizeIsSet);
+		     yy_push_state(SCAN_ULONG); }
+
+<SCAN_PAR>f0Min { doublePtr = &(scanInfo->f0Min);
+		  boolPtr = &(scanInfo->f0MinIsSet);
+		  yy_push_state(SCAN_DOUBLE); }
+
+<SCAN_GLOB>f0Min { doublePtr = &(scanInfo->globF0Min);
+		   boolPtr = &(scanInfo->globF0MinIsSet);
+		   yy_push_state(SCAN_DOUBLE); }
+
+<SCAN_PAR>f0Max { doublePtr = &(scanInfo->f0Max);
+		  boolPtr = &(scanInfo->f0MaxIsSet);
+		  yy_push_state(SCAN_DOUBLE); }
+
+<SCAN_GLOB>f0Max { doublePtr = &(scanInfo->globF0Max);
+		   boolPtr = &(scanInfo->globF0MaxIsSet);
+		   yy_push_state(SCAN_DOUBLE); }
+
+<SCAN_PAR>numPartials { uintPtr = &(scanInfo->numPartials);
+			boolPtr = &(scanInfo->numPartialsIsSet);
+			yy_push_state(SCAN_UINT); }
+
+<SCAN_GLOB>numPartials { uintPtr = &(scanInfo->globNumPartials);
+			 boolPtr = &(scanInfo->globNumPartialsIsSet);
+			 yy_push_state(SCAN_UINT); }
+
+<*>\"[[:space:]]*\>  /* Ignore the tag endings after scanning any attribute
+			(e.g., after SCAN_BLOCKTYPE, SCAN_PAR etc.). */ ;
+
+<SCAN_GLOB,SCAN_PAR>\<[[:space:]]*\/[[:space:]]*((glob)|(par))[[:space:]]*\> { /* </par>: When exiting a parameter, reset
+						       the output value pointers and continue scanning. */
+						       ulongPtr = NULL;
+						       uintPtr = NULL;
+						       doublePtr = NULL;
+						       boolPtr = NULL;
+						       BEGIN(INITIAL);
+						     }
+
+
+\<[[:space:]]*window[[:space:]]* { /* <window: launch the scanning of a window. */
+				   ucharPtr = &(scanInfo->windowType);
+				   boolPtr2 = &(scanInfo->windowTypeIsSet);
+				   doublePtr = &(scanInfo->windowOption);
+				   boolPtr = &(scanInfo->windowOptionIsSet);
+				   BEGIN( SCAN_WINDOW ); }
+
+\<[[:space:]]*glob[[:space:]]*window[[:space:]]* { /* <glob window: launch the scanning of a glob window. */
+						      ucharPtr = &(scanInfo->globWindowType);
+						      boolPtr2 = &(scanInfo->globWindowTypeIsSet);
+						      doublePtr = &(scanInfo->globWindowOption);
+						      boolPtr = &(scanInfo->globWindowOptionIsSet);
+						      BEGIN( SCAN_WINDOW ); }
+
+<SCAN_WINDOW>[[:space:]]*type[[:space:]]*=[[:space:]]*\" { /* type=" : launch the scanning of the type. */
+							   yy_push_state( SCAN_WINDOWTYPE ); }
+
+<SCAN_WINDOW>[[:space:]]*opt[[:space:]]*=[[:space:]]*\" { /* opt=" : launch the scanning of the type. */
+							  yy_push_state( SCAN_DOUBLE ); }
+
+<SCAN_WINDOWTYPE>[[:space:]]*[a-z]+    { *ucharPtr = window_type( yytext ); ucharPtr = NULL;
+					 *boolPtr2 = true;                  boolPtr2 = NULL;
+					 yy_pop_state(); }
+
+<SCAN_WINDOW>\"[[:space:]]*  { /* Skip the isolated attribute endings. */ ; }
+
+<SCAN_WINDOW>\"[[:space:]]*\>\<[[:space:]]*\/[[:space:]]*window[[:space:]]*\>  { /* Skip the tag ending
+										 and return to the INITIAL
+										 scanning state */
+										 BEGIN(INITIAL); }
+
+
+\<[[:space:]]*\/[[:space:]]*block[[:space:]]*\>    { /* </block>: Return after the closing block tag. */
+						     return( COMPLETED_BLOCK ); }
+
+
+
+\<[[:space:]]*dict[[:space:]]*\>	/* <dict>: ignore the tag. */ ;
+
+\<[[:space:]]*\/[[:space:]]*dict[[:space:]]*\>   { /* </dict>: Return after the closing dict tag. */
+						   return( DICT_CLOSE ); }
+
+
+<<EOF>>  { /* Inform the outside world that we reached the end of the file. */
+	   return( REACHED_END_OF_FILE );
+	 }
+
+%%
+
+
+int dict_scanner( FILE *fid, MP_Scan_Info_c *scanInfo ) {
+
+    yyin = fid;
+    yyout = stderr;
+
+    return( yylex( scanInfo ) );
+}
+

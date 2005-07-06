@@ -1,0 +1,111 @@
+/******************************************************************************/
+/*                                                                            */
+/*                              dirac_atom.h                               */
+/*                                                                            */
+/*                        Matching Pursuit Library                            */
+/*                                                                            */
+/* Rémi Gribonval                                                             */
+/* Sacha Krstulovic                                           Mon Feb 21 2005 */
+/* -------------------------------------------------------------------------- */
+/*                                                                            */
+/*  Copyright (C) 2005 IRISA                                                  */
+/*                                                                            */
+/*  This program is free software; you can redistribute it and/or             */
+/*  modify it under the terms of the GNU General Public License               */
+/*  as published by the Free Software Foundation; either version 2            */
+/*  of the License, or (at your option) any later version.                    */
+/*                                                                            */
+/*  This program is distributed in the hope that it will be useful,           */
+/*  but WITHOUT ANY WARRANTY; without even the implied warranty of            */
+/*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the             */
+/*  GNU General Public License for more details.                              */
+/*                                                                            */
+/*  You should have received a copy of the GNU General Public License         */
+/*  along with this program; if not, write to the Free Software               */
+/*  Foundation, Inc., 59 Temple Place - Suite 330,                            */
+/*  Boston, MA  02111-1307, USA.                                              */
+/*                                                                            */
+/******************************************************************************/
+
+/*****************************************************/
+/*                                                   */
+/* DEFINITION OF THE DIRAC ATOM CLASS,               */
+/*                                                   */
+/*****************************************************/
+/*
+ * CVS log:
+ *
+ * $Author: sacha $
+ * $Date: 2005/05/16 14:42:02 $
+ * $Revision: 1.1 $
+ *
+ */
+
+
+#ifndef __dirac_atom_h_
+#define __dirac_atom_h_
+
+
+/*********************/
+/* DIRAC ATOM CLASS  */
+/*********************/
+
+/**
+ * \brief Diracs are the most basic atoms of the MP_Atom_c class.
+ *
+ * A (multichannel) dirac atom is an atom which waveform has
+ * a single nonzero coefficient on each channel
+ */
+class MP_Dirac_Atom_c: public MP_Atom_c {
+
+  /********/
+  /* DATA */
+  /********/
+
+public:
+  /** \brief An array of numChans positive or negative amplitude
+   * corresponding to the nonzero sample value of the atom on each channel */
+  MP_Real_t *amp;
+
+  /***********/
+  /* METHODS */
+  /***********/
+
+  /***************************/
+  /* CONSTRUCTORS/DESTRUCTOR */
+  /***************************/
+
+  /* Void constructor */
+  MP_Dirac_Atom_c( void );
+  /* Specific constructor */
+  MP_Dirac_Atom_c( const unsigned int setNumChans );
+  /* File constructor */
+  MP_Dirac_Atom_c( FILE *fid, const char mode );
+  /* Destructor */
+  virtual ~MP_Dirac_Atom_c( void );
+
+
+  /***************************/
+  /* OUTPUT METHOD           */
+  /***************************/
+  virtual int write( FILE *fid, const char mode );
+
+
+  /***************************/
+  /* OTHER METHODS           */
+  /***************************/
+  virtual char * type_name(void);
+
+  virtual int info( FILE *fid );
+
+  virtual void build_waveform( MP_Sample_t *outBuffer );
+
+  virtual char add_to_tfmap( MP_TF_Map_c *tfmap );
+
+  virtual char      has_field( char field );
+  virtual MP_Real_t get_field( char field , int chanIdx );
+
+};
+
+
+#endif /* __dirac_atom_h_ */

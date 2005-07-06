@@ -1,0 +1,41 @@
+
+* If you obtained Matching Pursuit as an archive, and you have fftw3 and libsndfile
+  installed in specific directories, such as $FFTW3_DIR and $LIBSNDFILE_DIR :
+
+    gtar zxvf mptk-?.?.tar.gz
+    cd mptk-?.?/
+    ./configure --with-fftw3=$FFTW3-DIR --with-libsndfile=$LIBSNDFILE_DIR
+    make
+    make install
+
+
+* If you obtained Matching Pursuit as an archive, and you have fftw3 and libsndfile
+  installed on your system:
+
+    gtar zxvf mptk-?.?.tar.gz
+    cd mptk-?.?/
+    ./configure
+    make
+    make install
+
+
+* If you want to install in a non-system location, such as directory $MYDIR
+  instead of /usr/local, add --prefix=$MYDIR (e.g., --prefix=$HOME/local)
+  to the configure switches.
+
+
+* If you obtained Matching Pursuit from a CVS checkout :
+
+    cvs checkout mptk
+    cd mptk
+    ./make_configure.sh
+    ./configure  --with-fftw3=$FFTW3-DIR --with-libsndfile=$LIBSNDFILE_DIR
+    make
+
+* By default, everything is linked as non-static. If you don't want to mess up
+  with LD_LIBRARY_PATH and want to have everything statically linked in libmp.a,
+  add --enable-static to the configure switches.
+
+
+Enjoy !
+

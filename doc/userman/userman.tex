@@ -1,0 +1,778 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage{a4wide}
+\usepackage{epsfig}
+
+\title{The Matching Pursuit Tool Kit \\ User Manual and Developer's Notes}
+
+\author{Sacha Krstulovi\'c and R\'emi Gribonval}
+\date{\today, $Revision: 1.4 $}
+
+\begin{document}
+
+\maketitle
+
+\vfill
+
+\tableofcontents
+
+\vfill
+
+\clearpage
+
+\noindent This document aims at describing the basic principles of the Matching
+Pursuit Tool Kit, and some basic guidelines about how to use it.  The appendix
+also provides the potential contributor with notes about the insides of our
+implementation, plus guidelines about some of the development conventions that
+we have adopted. For a more detailed documentation of the code, see the
+automatically generated reference manual.
+
+%%%%%%%%%
+\section{General principles \label{gen}}
+%%%%%%%%%
+
+%%%%%%%%%
+\subsection{Terminology \label{term}}
+%%
+\paragraph{Atom --} An elementary piece of signal. An atom is characterized by
+its class (e.g., Gabor atoms, harmonic atoms etc.) and a set of parameters
+(e.g., for a Gabor atom, its time location and length, its frequency, its
+amplitude, a chirp factor and a given shaping window). In our code, the
+corresponding object knows how to subtract itself from a signal, and how to
+generate its own waveform.
+
+\paragraph{Block --} A block operates a time-frequency transform
+along the whole support of a signal. The time-frequency transform could be of
+any type (STFT, wavelets etc.) provided it can be interpreted as a set of
+correlations between the signal and a set of atoms which cover the
+time-frequency plane. For the moment, only Gabor blocks and Harmonic blocks are
+implemented, based on Short-Term Fourier Transforms\footnote{Dirac blocks are
+  also available. They provide no particular time-frequency transform, they
+  just find signal sample with a high energy.}. In this case, one block equals
+one STFT with a given scale.
+
+Several blocks corresponding to various scales or various transforms can be
+concurrently applied to the same signal, thus providing for multi-scale or
+multiple-basis analysis.
+
+Each block object can search for the location of the maximum correlation
+between the atoms and the signal, and can thus deduce which atom contributes
+the most energy to the analyzed signal.
+
+\paragraph{Dictionary --} A dictionary contains a collection of blocks plus
+the signal on which they operate. It can search across all the blocks (i.e.,
+all the scales and all the bases) for the atom which brings the most energy to
+the analyzed signal.
+
+\paragraph{Book --} A book is a collection of atoms. Summing all the atoms in
+a book gives a signal.
+
+\bigskip
+
+\begin{figure}[p]
+\centerline{\psfig{figure=mpcycle.eps, width=15cm}}
+\caption{\label{mpcycle}Our implementation of Matching Pursuit. \newline
+  (See sections~\ref{term} and~\ref{algo} for a detailed explanation.)}
+\end{figure}
+%
+Figure~\ref{mpcycle} illustrates the fact that a dictionary contains a signal
+and a collection of blocks, and that a books contains a collection of atoms.
+The algorithm linking these objects will be explained in the next section.
+
+
+%%%%%%%%%
+\subsection{Algorithm \label{algo}}
+%%
+Our implementation of the Matching Pursuit algorithm uses roughly 3 steps, as
+illustrated in figure~\ref{mpcycle}:
+\begin{enumerate}
+\item update the correlations in the blocks, by applying the relevant
+  time-frequency transforms to the analyzed signal, and find the maximum
+  correlation in the same loop;
+\item create the atom which corresponds to the maximum correlation with the
+  signal (and store this atom in the book);
+\item subtract the created atom from the analyzed signal, thus obtaining a
+  residual signal, and re-iterate the analysis on this residual.
+\end{enumerate}
+At each step, the original signal can be rebuilt exactly by summing all the
+atoms of the book and adding them to the residual signal.
+
+
+%%%%%%%%%
+\section{User manual for the standalone utilities \label{man}}
+%%%%%%%%%
+
+%%%%%%%%%
+\subsection{Introduction}
+
+The Matching Pursuit standalone utilities are designed so that a typical
+processing task decomposes into a chain of commands which can be connected by
+pipes. The signal decomposition is performed by {\tt mpd}. The atoms stored in
+the resulting books can be filtered (i.e., sorted and selected) with the
+command {\tt mpf}. Several books can then be concatenated with the command {\tt
+  mpcat}. Once a desired book is obtained, a corresponding approximant signal
+can be rebuilt using {\tt mpr}, with the optional addition of a residual signal
+(or in addition to any other signal). Alternately, the {\tt mpd\_demix} utility
+provides blind source separation using Matching Pursuit when the mixing matrix
+is known. Each of the cited utilities have a {\tt -h} switch to get
+command-line help.
+
+\bigskip
+
+\noindent Some typical processing chains include:
+\begin{itemize}
+\item Signal approximation with N atoms: \\
+      \mbox{\tt mpd -D dictionary -n N soundFile.wav book.bin;} \\
+      \mbox{\tt mpr book.bin approx.wav} \\
+      -- or -- \\
+      \mbox{\tt mpd -D dictionary -n N soundFile.wav - | mpr - approx.wav}
+\item Exact reconstruction: \\
+      \mbox{\tt mpd -D dictionary -n N soundFile.wav book.bin residual.wav;} \\
+      \mbox{\tt mpr book.bin approx.wav residual.wav}
+\item Signal approximation, using only the short atoms (e.g., of less than
+128~samples) \linebreak and ignoring the residual: \\
+      \mbox{\tt mpd -D dictionary -n N soundFile.wav book.bin;} \\
+      \mbox{\tt mpf --length=[0:128] book.bin bookShort.bin;} \\
+      \mbox{\tt mpr bookShort.bin approx.wav}
+\item Blind source separation and rebuilding an approximation of one of the
+  sources (e.g., the~3rd one): \\
+      \mbox{\tt mpd\_demix -D dictionary -M matrix.txt -n N mix.wav bookFile;} \\
+      \mbox{\tt mpr bookFile\_3.bin approxOfSource3.wav}
+\end{itemize}
+Lots of other combinations are possible. The relevant utilities are described
+with more detail in the next sections.
+
+%%%%%%%%%
+\clearpage
+\subsection{mpd: signal decomposition}
+
+\subsubsection*{Usage:}
+\begin{verbatim}
+mpd [options] -D dictFILE.txt (-n N|-s SNR) (sndFILE.wav|-) (bookFILE.bin|-) ...
+              ... [residualFILE.wav]
+\end{verbatim}
+
+\subsubsection*{Synopsis:}
+Iterates Matching Pursuit on signal sndFILE.wav with dictionary dictFile.txt
+and gives the resulting book bookFILE.bin (and an optional residual signal)
+after N iterations or after reaching the signal-to-residual ratio SNR.  See
+section~\ref{dict_format} for a description of the syntax of the dictionary
+files.
+
+
+\subsubsection*{Mandatory arguments:}
+\begin{verbatim}
+     -D<FILE>, --dictionary=<FILE>  Read the dictionary from text file FILE.
+
+     -n<N>, --num-iter=<N>|--num-atoms=<N>    Stop after N iterations.
+AND/OR -s<SNR>, --snr=<SNR>                   Stop when the SNR value SNR
+                                              is reached. If both options are
+                                              used together, the algorithm stops
+                                              as soon as either one is reached.
+
+     (sndFILE.wav|-)                          The signal to analyze or stdin
+                                              (in WAV format).
+     (bookFILE.bin|-)                         The file to store the resulting
+                                              book of atoms, or stdout.
+\end{verbatim}
+
+\subsubsection*{Optional arguments:}
+\begin{verbatim}
+     -E<FILE>, --energy-decay=<FILE>  Save the energy decay as doubles
+                                      to file FILE.
+     -R<N>,    --report-hit=<N>       Report some progress info (in stderr)
+                                      every N iterations.
+     -S<N>,    --save-hit=<N>         Save the output files every N iterations.
+     -T<N>,    --snr-hit=<N>          Test the SNR every N iterations only
+                                      (instead of each iteration).
+
+     residualFILE.wav                The residual signal after subtraction
+                                     of the atoms.
+
+     -q, --quiet                    No text output.
+     -v, --verbose                  Verbose.
+     -V, --version                  Output the version and exit.
+     -h, --help                     This help.
+\end{verbatim}
+
+
+
+\clearpage
+%%%%%%%%%
+\subsection{Format of the dictionary files \label{dict_format}}
+%%%%%%%%%
+The dictionary files use a syntax ``\`a la XML'', with tags enclosed between
+angle brackets. Strict XML compliance is not mandatory, it is just provided as
+a convenience for interested users or for easy checking of the dictionary's
+syntax\footnote{Uh, that is, when the DTD is ready.}.
+
+\subsubsection*{General rules}
+A dictionary should include, in the following order:
+\begin{enumerate}
+\item an optional XML declaration line;
+\item an optional library version tag;
+\item a mandatory dictionary opening tag;
+\item a list of blocks with their parameters (some parameters being mandatory,
+  some admitting default values);
+\item a dictionary closing tag.
+\end{enumerate}
+Any text included after the dictionary closing tag will be ignored. Blank
+spaces and line breaks are ignored. Any part of the file can be commented out
+either by enclosing it between \verb+<!--+ and \verb+-->+ (XML style), or by
+adding a '\verb+#+' at the beginning of the commented lines (shell style, NOT
+XML compliant). The parser will send any text it can't match to stderr.
+Therefore, in the event of syntax errors, spurious text output will show up in
+stderr.
+
+
+\subsubsection*{Valid tags}
+\begin{itemize}
+
+\item \verb+<?xml version="1.0" encoding="ISO-8859-1"?>+ [optional]: the XML
+  declaration line. It is ignored by the parser.
+  
+\item \verb+<libVersion>+blah\verb+</libVersion>+ [optional]: the library
+  version declaration. This is provided for backward compatibility if we ever
+  change the dictionary syntax. When absent, the library version is taken to be
+  the current one.
+
+\item \verb+<dict>+List of blocks\verb+</dict>+: the opening and closing tags
+  for the dictionary. Anything coming after the \verb+</dict>+ tag will be
+  ignored by the parser.
+
+\item \verb+<block type="VALID_TYPE">+List of block
+  parameters\verb+</block>+: the opening and closing tags for a block.
+  \verb+VALID_TYPE+ should be one of \verb+dirac+, \verb+gabor+ or
+  \verb+harmonic+.
+  
+\item \verb+<par type="VALID_TYPE">+Value\verb+</par>+: a block parameter. The
+  \verb+VALID_TYPE+, corresponding values types and relevant block types
+  (G==gabor, H==harmonic) are given below:
+  \begin{itemize}
+
+  \item \verb+windowLen+ with an unsigned long int value (G,H): the atom length
+    (i.e., the window length in the STFT).
+
+  \item \verb+windowShift+ with an unsigned long int value (G,H): the atom
+    shift (i.e., the window shift in the STFT).
+    
+  \item \verb+windowRate+ with a double value between 0.0 and 1.0 (G,H): an
+    alternate way to specify the window shift, as a proportion of the
+    windowLen.  If both are present, \verb+windowShift+ has precedence over
+    \verb+windowRate+.
+    
+  \item \verb+fftSize+ with an unsigned long value (G,H): the frequency
+    resolution in terms of FFT size. It has to be greater or equal to
+    \verb+windowLen+ if \verb+windowLen+ is even, or $\geq$\verb2(windowLen+1)2
+    if \verb+windowLen+ is odd. If absent, defaults to \verb+windowLen+ (or
+    \verb2windowLen+12).
+    
+  \item \verb+f0Min+ with a double value (H): minimum frequency (in Hz) from
+    which the fundamental frequency of the harmonic atoms is searched. Defaults
+    to the first non-null FFT frequency.
+    
+  \item \verb+f0Max+ with a double value (H): maximum frequency (in Hz) at
+    which the fundamental frequency of the harmonic atoms is searched.
+    Defaults to the Nyquist frequency of the considered signal.
+    
+  \item \verb+numPartials+ with an unsigned int value (H): number of partials
+    considered when tracking the harmonic atoms.
+
+  \end{itemize}
+  Note that the \verb+dirac+ blocks don't need any parameter (they just match
+  signal samples).
+ 
+\item \verb+<window type="VALID_WINDOW_TYPE" opt="OPTIONAL_VALUE"></window>+: a
+  window specification to be included among the block parameters.
+  
+  The following \verb+VALID_WINDOW_TYPE+s do not require the \verb+opt=""+
+  attribute: \\ \verb+rectangle+, \verb+triangle+, \verb+cosine+, \verb+hanning+,
+  \verb+hamming+, \verb+blackman+, \verb+flattop+, \verb+fof+.
+  
+  The following \verb+VALID_WINDOW_TYPE+s do require the \verb+opt=""+
+  attribute: \\ \verb+hamgen+, \verb+gauss+, \verb+exponential+. \\
+  The meaning of the optional parameter varies according to the window type.
+  See the reference manual for more info.
+  
+  For the moment, nothing is needed between the opening and closing
+  \verb+<window>+ tags, and the \verb+</window>+ tag can be safely omitted
+  unless you want to be strictly XML compliant. This may change in future
+  versions (we reserve the \verb+</window>+ tag for the case of specifying
+  arbitrary windows, unimplemented yet).
+
+\end{itemize}
+
+
+\subsubsection*{Global variables}
+
+The block parameters can be made global using some \verb+<glob>+ tags having
+the same syntax as the \verb+<par>+ tags. For example, \verb+<glob type="windowLen">32</glob>+
+creates a global \verb+windowLen+ value of 32. In
+the blocks following the declaration of a global value, any parameter
+corresponding to a preset global value can be omitted and will be automatically
+replaced by the relevant global value. In our example, any block following the
+global definition of \verb+windowLen+, and which doesn't have a local
+\verb+<par type="windowLen">xxx</par>+ definition, will have its \verb+windowLen+ parameter
+set to 32.
+
+Similarly, a window can be made global using \verb+<glob window type="...">+
+instead of \linebreak \verb+<window type="...">+.
+
+The scope of a global value starts after its declaration. Global values can't
+be un-globalized. A new setting of a particular \verb+glob+ will overwrite its
+former value. Local \verb+<par>+ or \verb+<window>+ declarations have
+precedence over the global values.
+
+
+\subsubsection*{Example}
+
+\begin{verbatim}
+<?xml version="1.0" encoding="ISO-8859-1"?>        <= The optional XML
+                                                      declaration line.
+<libVersion>0.2</libVersion>                       <= The optional library version.
+<dict>                                             <= The dictionary opening tag.
+        <block type="gabor">                       <= A new block.
+                <par type="windowLen">32</par>
+                <par type="windowShift">32</par>
+                <par type="fftSize">32</par>
+                <window type="hamming" opt="0"></window> <= The hamming window
+                                                            ignores the opt="0"
+                                                            attribute.
+        </block>
+        <block type="gabor">
+                <par type="windowLen">64</par>
+                <par type="windowRate">0.25</par>   <= This is equivalent to
+                                                       setting windowShift=16.
+                <par type="fftSize">64</par>
+                <window type="hamming"></window>    <= The hamming window works
+                                                       without the opt attribute.
+        </block>
+        <glob type="windowShift">32</glob>           <= A global value for the
+                                                        window shift.
+        <block type="gabor">
+                <par type="windowLen">128</par>
+<!--              <par type="windowShift">32</par>      <= These lines are
+                  <par type="fftSize">128</par>   -->      commented out.
+                                                           This block will use
+                                                           the default glob
+                                                           windowShift from
+                                                           above, and will default
+                                                           fftSize to windowLen.
+                <window type="hamming">                 <= This works, too, but
+                                                           is not XML compliant.
+        </block>
+        <block type="gabor">
+                <par type="windowLen">256</par>
+##              <par type="windowShift">32</par>         <= These lines are
+##              <par type="fftSize">256</par>               commented out
+                                                            "shell style", thus
+                                                            breaking the XML
+                                                            compliance.
+                <window type="hamming" opt="0"></window>
+        </block>
+        <glob window type="blackman"></window>            <= A global window.
+        <block type="harmonic">
+                <par type="windowLen">256</par>
+                <par type="windowShift">32</par>
+                <par type="fftSize">256</par>
+                <window type="gauss" opt="0.02"></window> <= Gauss windows need
+                                                             a parameter
+                <par type="f0Min">440</par>
+                <par type="f0Max">1000</par>
+                <par type="numPartials">15</par>
+        </block>
+        <block type="harmonic">                           <= This harmonic block
+                <par type="windowLen">512</par>              will use the global
+                <par type="windowShift">32</par>             blackman window
+                <par type="f0Min">440</par>                  defined above.
+                <par type="f0Max">1000</par>
+                <par type="numPartials">15</par>
+        </block>
+</dict>
+This is that great dictionary I used for obtaining        <= This text is ignored
+these wonderful experimental results thanks to the           by the parser.
+Matching Pursuit Library ...
+\end{verbatim}
+
+
+%%%%%%%%%
+\clearpage
+\subsection{mpf: filtering of the book files}
+
+\subsubsection*{Usage:}
+\begin{verbatim}
+     mpf --PROPERTY1=[min:max] ... --PROPERTY_N=[min:max] (bookIn.bin|-) ...
+         [bookYes.bin|-] [bookNo.bin]
+\end{verbatim}
+
+\subsubsection*{Synopsis:}
+Filters the atoms contained in bookIn.bin (or stdin), stores those which
+satisfy the indicated properties in bookYes.bin (or stdout) and the others in
+bookNo.bin.
+
+\subsubsection*{Mandatory arguments:}
+\begin{verbatim}
+  (bookIn.bin|-)      A book of input atoms, or stdin.
+\end{verbatim}
+
+\subsubsection*{Optional arguments:}
+\begin{verbatim}
+  (bookYes.bin|-)     A file (or stdout) to store the book of atoms which
+                      satisfy the indicates properties.
+  bookNo.bin          A file to store a book of atoms which do not satisfy
+                      the indicated properties.
+  If no output files are given, the atoms are just counted and their number
+  is reported in stderr.
+
+  One or more of the following switches:
+  --index=[min:max]    / -i [min:max] : keep the atoms ordered from min to max
+                                        in the book
+  --length=[min:max]   / -l [min:max] : keep a specific range of atom lengths
+                                        (in number of samples)
+  --Length=[min:max]   / -L [min:max] : keep a specific range of atom lengths
+                                        (in seconds)
+  --position=[min:max] / -p [min:max] : keep a specific range of atom positions
+                                        (in number of samples)
+  --Position=[min:max] / -P [min:max] : keep a specific range of atom positions
+                                        (in seconds)
+  --freq=[min:max]     / -f [min:max] : keep a specific frequency range (in
+                                        normalized values between 0 and 0.5)
+  --Freq=[min:max]     / -F [min:max] : keep a specific frequency range (in Hz)
+  --amp=[min:max]      / -a [min:max] : keep a specific range of amplitudes
+  --chirp=[min:max]    / -c [min:max] : keep a specific range of chirp factors
+
+  The intervals can exclude the min or max value by using reverted braces,
+  e.g. ]min:max] will exclude the min value.
+  The intervals can be negated with prepending the '^' character,
+  e.g. ^[min:max].
+
+  The atom's type can be tested with:
+  --type=gabor|harmonic|dirac / -t gabor|harmonic|dirac
+
+ Other optional arguments are:
+
+  -q, --quiet          No text output.
+  -v, --verbose        Verbose.
+  -V, --version        Output the version and exit.
+  -h, --help           This help.
+\end{verbatim}
+
+\subsubsection*{Example:}
+Take all the atoms with a frequency lower than 50Hz and higher than 1000Hz
+among the first 100 atoms of bookIn.bin, store them in bookYes.bin and store
+all the others in bookNo.bin:
+\begin{verbatim}
+  mpf --index=[0:100[ --Freq=^[50:1000] bookIn.bin bookYes.bin bookNo.bin
+\end{verbatim}
+
+\subsubsection*{Note:}
+Only one instance of each property is allowed. If you want to elaborate more
+complicated domains, use a pipe.
+
+
+%%%%%%%%%
+\clearpage
+\subsection{mpcat: concatenation of book files}
+
+\subsubsection*{Usage:}
+\begin{verbatim}
+     mpcat (book1.bin|-) (book2.bin|-) ... (bookN.bin|-) (bookOut.bin|-)
+\end{verbatim}
+
+\subsubsection*{Synopsis:}
+Concatenates the N books book1.bin...bookN.bin into the book file bookOut.bin.
+
+\subsubsection*{Mandatory arguments:}
+\begin{verbatim}
+     (bookN.bin|-)        At least 2 books (or stdin) to concatenate.
+     (bookOut.bin|-)      A book where to store the concatenated books,
+                          or stdout
+\end{verbatim}
+
+\subsubsection*{Optional arguments:}
+\begin{verbatim}
+     -f, --force          Force the overwriting of bookOut.bin.
+
+     -q, --quiet          No text output.
+     -v, --verbose        Verbose.
+     -V, --version        Output the version and exit.
+     -h, --help           This help.
+\end{verbatim}
+
+
+%%%%%%%%%
+\clearpage
+\subsection{mpr: signal reconstruction}
+
+\subsubsection*{Usage:}
+\begin{verbatim}
+     mpr (bookFILE.bin|-) (reconsFILE.wav|-) [residualFILE.wav]
+\end{verbatim}
+
+\subsubsection*{Synopsis:}
+Rebuilds a signal reconsFile.wav from the atoms contained in the book file
+bookFile.bin.  An optional residual can be added.
+
+\subsubsection*{Mandatory arguments:}
+\begin{verbatim}
+     (bookFILE.bin|-)     A book of atoms, or stdin.
+     (reconsFILE.wav|-)   A file to store the rebuilt signal, or stdout
+                          (in WAV format).
+\end{verbatim}
+
+\subsubsection*{Optional arguments:}
+\begin{verbatim}
+    residualFILE.wav     A residual signal that was obtained from
+                         a Matching Pursuit decomposition.
+
+     -q, --quiet          No text output.
+     -v, --verbose        Verbose.
+     -V, --version        Output the version and exit.
+     -h, --help           This help.
+\end{verbatim}
+
+
+%%%%%%%%%
+\clearpage
+\subsection{mpd\_demix: blind source separation with a known mixing matrix}
+
+\subsubsection*{Usage:}
+\begin{verbatim}
+     mpd_demix [options] -D dictFILE.txt -M matrix.txt (-n N|-s SNR) ...
+               (sndFILE.wav|-) (bookFILE) [residualFILE.wav]
+\end{verbatim}
+
+\subsubsection*{Synopsis:}
+Performs Blind Source Separation on signal sndFILE.wav with dictionary
+dictFile.txt and with the known mixer matrix mixFILE.txt. The result is stored
+in as many books as estimated sources (plus an optional residual signal), after
+N iterations or after reaching the signal-to-residual ratio SNR.
+
+\subsubsection*{Mandatory arguments:}
+\begin{verbatim}
+  -M<FILE>, --mix-matrix=<FILE>  Read the mixer matrix from text file FILE.
+                                 The first line of the file should indicate
+                                 the number of rows and the number of columns,
+                                 and the following lines should give space
+                                 separated values, with a line break after
+                                 each row.
+                                 EXAMPLE:
+                                  2 3
+                                  0.92  0.38  0.71
+                                  0.71  0.77  1.85
+
+  -n<N>, --num-iter=<N>|--num-atoms=<N>    Stop after N iterations.
+AND/OR -s<SNR>, --snr=<SNR>                Stop when the SNR value SNR
+                                           is reached.
+                                           If both options are used together,
+                                           the algorithm stops as soon as
+                                           either one is reached.
+
+  (sndFILE.wav|-)                          The signal to analyze or stdin
+                                           (in WAV format).
+  (bookFILE)                               The base name of the files to store
+                                           the books of atoms_n corresponding
+                                           to the N estimated sources. These
+                                           N books will be named bookFILE_n.bin,
+                                           n=[0,...,N-1].
+\end{verbatim}
+
+\subsubsection*{Optional arguments:}
+\begin{verbatim}
+  -D<FILE>, --dictionary=<FILE>    Read the dictionary from text file FILE.
+                                   If no dictionary is given, a default
+                                   dictionary is used.
+                                   (Use -v to see the structure of the default
+                                   dictionary reported in the verbose information.)
+  -E<FILE>, --energy-decay=<FILE>  Save the energy decay as doubles to file FILE.
+  -Q<FILE>, --src-sequence=<FILE>  Save the source sequence as unsigned short ints
+                                   to file FILE.
+  -R<N>,    --report-hit=<N>       Report some progress info (in stderr) every
+                                   N iterations.
+  -S<N>,    --save-hit=<N>         Save the output files every N iterations.
+  -T<N>,    --snr-hit=<N>          Test the SNR every N iterations only
+                                   (instead of each iteration).
+
+  residualFILE.wav                 The residual signal after subtraction
+                                   of the atoms.
+
+  -q, --quiet                      No text output.
+  -v, --verbose                    Verbose.
+  -V, --version                    Output the version and exit.
+  -h, --help                       This help.
+\end{verbatim}
+
+
+%%%%%%%%%
+\clearpage
+\subsection{mpview: UNDER DEVELOPMENT, generation of a time-frequency map from
+  a book}
+
+\subsubsection*{Usage:}
+\begin{verbatim}
+  mpview (IN|-) numCols numRows OUT.flt
+\end{verbatim}
+
+\subsubsection*{Synopsis:}
+Displays a book in a pixmap of numCols x numRows pixels Returns nonzero in case
+of failure, zero otherwise
+
+
+%%%%%%%%%
+\clearpage
+\section{Extra utilities: visualization of MP books under Matlab \label{matlab}}
+%%%%%%%%%
+
+Some Matlab utilities are bundled with the distribution to help loading and
+visualizing books under Matlab. They can be found in the ./extras/matlab/
+directory of the source tree. They are not automatically installed by the
+configure system: you should copy them manually to a location accessible to
+your MATLABPATH.
+
+\bigskip
+
+\noindent The included files are:
+\begin{itemize}
+\item bookread.m: to load a binary book into Matlab;
+\item bookplot.m: to plot a book in a spectrogram-like fashion;
+\item bookover.m: to overlay a book plot on a STFT spectrogram.
+\item dictread.m: under development. Don't use.
+\end{itemize}
+Each of these functions is equipped with some help info, e.g. to get help about
+bookplot use:\\
+\verb+    >> help bookplot+ \\
+under Matlab.
+
+
+%%%%%%%%%
+\appendix
+%%%%%%%%%
+
+%%%%%%%%%
+\clearpage
+\section{Development tricks}
+%%%%%%%%%
+
+%%%%%%%%%
+\subsection{Interfacing and code factorization}
+%%
+To allow the dictionary to manage every class of blocks (i.e., every different
+time-frequency transform) in the same way, every specific block class
+inherits from a generic block class which implements some mandatory methods.
+(Refer to the reference manual for details.)
+
+Similarly, all the atoms inherit from a generic atom class, so that they can
+perform a certain number of standard operations and so that they can be stored
+in books.
+
+
+%%%%%%%%%
+\subsection{Speed tricks}
+%%
+Our general philosophy is to avoid as much as possible to compute the same
+operation twice.
+
+For example, in the blocks, the update of the time-frequency transforms is
+executed only along the part of the signal that were modified by subtracting an
+atom at the previous step.
+
+Similarly, the outcome of the time-frequency transforms is stored as a single
+dimension vector. After each update of the time-frequency transforms, the
+location of the maximum correlation can be anywhere along the vector. To avoid
+browsing the whole length of it each time we perform a max correlation search,
+we use a tree structure which keeps track of local maxima.
+
+Finally, the signal processing windows are tabulated in a window server (called
+by the blocks and the atoms) which has global scope over the whole code.
+
+
+%%%%%%%%%
+\clearpage
+\section{Development conventions}
+%%%%%%%%%
+
+%%%%%%%%%
+\subsection{Typographic conventions}
+Throughout the source code, the following typographic conventions are
+preferably adopted:
+\begin{itemize}
+\item {\bf myVar} for variables;
+\item {\bf my\_function} for functions;
+\item {\bf MP\_MY\_CONST} for constants (\#define) and for global variables;
+\item {\bf MP\_My\_Type\_t} for types;
+\item {\bf MP\_My\_Class\_c} for classes.
+\end{itemize}
+
+%%%%%%%%%
+\subsection{Memory allocation conventions}
+The arrays are allocated using malloc (NOT new[]) and freed using free (NOT
+delete[]). Conversely, the objects are created and deleted using new and
+delete.
+
+%%%%%%%%%
+\subsection{Source code locations}
+From the source tree, the doc sources are stored in doc/, and the code sources
+in src/. Then\,:
+\begin{itemize}
+\item the bulk of the Matching Pursuit library is stored in src/libmp/.
+  Specifically, the implementation of blocks and atoms related to specific
+  time-frequency transforms should be located in src/libmp/atom\_classes/. As a
+  matter of fact, you should not have to modify other parts of the code when
+  adding new classes of blocks and atoms. Think of it as a sort of plugin
+  logic;
+\item a standalone library (in C) to compute standard signal processing windows
+  is stored in src/libdsp\_windows/;
+\item the applications are stored in src/utils/;
+\item a test suite is stored in src/tests/.
+\end{itemize}
+For the implementation of each class, we use one .h header file to declare the
+class, plus a corresponding .cpp source with the same base name to implement
+its methods. During a build, the .h headers are concatenated in one global
+mptk.h header which should be the one included in all the individual .cpp
+files.
+
+A notable exception is the lexical scanner for the dictionary, which is written
+in flex. A dict\_scanner.cpp source is automatically generated from the
+dict\_scanner.lpp flex template. It has no corresponding .h header file.
+
+
+%%%%%%%%%
+\pagebreak
+\subsection{Building and portability}
+We use the automake/autoconf system to automatically adapt the building process
+to your particular flavor of Unix. Therefore, every system call should be
+performed through the ``system.h'' header files located at relevant places in
+the source tree.
+
+\paragraph{Known portability flaws --} The byte-order is not forced (yet) when
+reading or writing binary data (mostly books and signals). Hence, books created
+on a low-endian will crash on a big-endian and vice-versa. This will be
+corrected in a future release.
+
+
+%%%%%%%%%
+\clearpage
+\section{References}
+%%%%%%%%%
+\paragraph{Algorithmic aspects} For more information about the algorithmic
+aspects of the Matching Pursuit algorithm, see: \newline \cite{Zhang93},
+\cite{MZ93}, \cite{PRK93}, \cite{Davis94}, \cite{Bergeaud},
+\cite{BM96}, \linebreak \cite{HRP}, \cite{HRMP1}, \cite{HRMP2}, \cite{DMA97},
+\cite{goodwin99:_match}, \cite{MaThese}, \cite{Grib2001},
+\cite{Grib2002a}, \cite{gribonval03:_harmon_decom_audio_signal_match_pursuit},
+\cite{SPIE03:GribA}.
+
+\paragraph{Theoretic aspects} For more information about the theoretic aspects
+of the Matching Pursuit algorithm, see: \newline
+\cite{Grib2001b}, \cite{GN2001}, \cite{Grib2001c}, \cite{ICIP03:GN},
+\cite{gribonval03:_spars}, \cite{IRISA03:GV}, \cite{gribonval03:_highl},
+\cite{GribFig}.
+
+
+%%%%%%%%%
+{\bibliographystyle{frealfullname}
+\bibliography{biblio_MP}}
+
+\end{document}
+
+

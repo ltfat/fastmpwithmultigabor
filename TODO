@@ -1,0 +1,56 @@
+TODO:
+
+* PRE-RELEASE:
+  - include the amplitudes in the MP_Atom_c class and remove MP_Dirac_c
+  - Dict/block/book/atom I/O:
+      + do more error checks on writes
+      + decide upon a strategy for the book parsing in binary and text
+  - factor the computations of touchFrame and loop on frames in a generic 
+    virtual update_ip, using a virtual update_frame(frameIdx) function
+  - MANAGE THE ENDIANNESS: P.Leveau got endianness problems with MacOSX.
+
+* BUGS:
+  - (None known at the moment)
+
+
+* GENERAL IMPROVEMENTS:
+  - get rid of libsndfile to read wav files
+  - define levels for #ifndef NDEBUG to allow for a finer tuning of the
+    quantity of debugging text output; verify if some is more relevant to some
+    VERBOSE.
+  - replace MP_Sample_t with MP_Real_t and remove the unnecessary castings
+  - (BOOKS only:) replace file constructors by factory functions to improve
+    the robustness to corrupted input files. (Done for dictionaries.)
+  - mpd/mpr/mpf/mpcat/mpd_demix: leave choice between binary or text when
+    reading or writing from/to a pipe?
+  - check the divergence between signal.compute_energy() and signal.energy
+  - redesign the test suite 
+  - use try/catch to handle the errors in the file constructors (and elsewhere?)
+
+
+* SPEED:
+  - OPTIONAL: tabulate the cosines in a "cosines server" ?
+    Note:
+       cos( omega*t + phi ) = cos( omega*t )cos( phi ) - sin( omega*t )sin( phi )
+    => compute cos(phi)/sin(phi) once, get some tabulated cos(omega*t)/sin(omega*t).
+
+
+* OPTIONAL:
+  - options in autoconf/automake to build a shared lib ?
+  - turn MP_Support_t into a class to get constructors (especially a clean copy
+    constructor) and nicer toFrame/fromFrame stuff ? Or make a merge_support
+    function to get a mono-channel support which merges the supports across the
+    channels ?
+  - make a mpmix util to mix sound sources directly in C++ ?
+
+
+* MID TERM:
+  - allow for chirp detection in gabor and harmonic blocks
+
+
+* LONG TERM:
+  - create a MP_Mixer_c class
+  - new atom classes: chirps, wavelets, arbitrary waveform templates,
+    LPC-style spectral envelopes for unvoiced sounds
+  - finalize the tfmap concept/functions/utilities (mpview) + related
+    Matlab and/or Lastwave interface

@@ -1,0 +1,226 @@
+#############################################################################
+##                                                                         ##
+##                              configure.in                               ##
+##                                                                         ##
+##                        Matching Pursuit Library                         ##
+##                                                                         ##
+## Rémi Gribonval                                                          ##
+## Sacha Krstulovic                                        Mon Feb 21 2005 ##
+## ----------------------------------------------------------------------- ##
+##                                                                         ##
+##  Copyright (C) 2005 IRISA                                               ##
+##                                                                         ##
+##  This program is free software; you can redistribute it and/or modify   ##
+##  it under the terms of the GNU General Public License as published by   ##
+##  the Free Software Foundation; either version 2, or (at your option)    ##
+##  any later version.                                                     ##
+##                                                                         ##
+##  This program is distributed in the hope that it will be useful,        ##
+##  but WITHOUT ANY WARRANTY; without even the implied warranty of         ##
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          ##
+##  GNU General Public License for more details.                           ##
+##                                                                         ##
+##  You should have received a copy of the GNU General Public License      ##
+##  along with this program; if not, write to the Free Software            ##
+##  Foundation, Inc., 59 Temple Place - Suite 330,                         ##
+##  Boston, MA 02111-1307, USA.                                            ##
+##                                                                         ##
+#############################################################################
+##
+## CVS log:
+##
+##   $Author: sacha $
+##   $Date: 2005/07/04 13:32:34 $
+##   $Revision: 1.21 $
+##
+
+dnl Process this file with autoconf to produce a configure script.
+
+AC_INIT(mptk,0.4beta)
+AC_REVISION($Revision: 1.21 $)
+AM_INIT_AUTOMAKE(mptk,0.4beta)
+AM_CONFIG_HEADER(config.h)
+
+dnl Checks for usefuls programs (like a compiler, a precompiler, a linker...)
+AC_PROG_INSTALL
+AC_PROG_CC
+AM_PROG_CC_STDC
+AC_PROG_CXX
+AM_PROG_LEX
+#AM_PROG_LIBTOOL
+AC_PROG_RANLIB
+
+dnl defined sizeof standard types
+AC_CHECK_SIZEOF(unsigned int)
+AC_CHECK_SIZEOF(float)
+AC_CHECK_SIZEOF(unsigned long int)
+AC_CHECK_SIZEOF(double)
+
+dnl Checks for header files
+AC_HEADER_STDC
+AC_CHECK_HEADERS(math.h limits.h assert.h)
+
+dnl ------------------------------------------------------------
+dnl -- Export some locations for created includes and libs
+dnl ------------------------------------------------------------
+
+LIBDSP_WIN_DIR='$(top_builddir)/src/libdsp_windows'
+AC_SUBST(LIBDSP_WIN_DIR)
+LIBDSP_WIN_LIB='-L$(top_builddir)/src/libdsp_windows -ldsp_windows'
+AC_SUBST(LIBDSP_WIN_LIB)
+
+LIBMP_DIR='$(top_builddir)/src/libmptk'
+AC_SUBST(LIBMP_DIR)
+LIBMP_LIB='-L$(top_builddir)/src/libmptk -lmptk'
+AC_SUBST(LIBMP_LIB)
+
+LIBDSP_WIN_H_DIR='$(top_srcdir)/src/libdsp_windows'
+LIBMP_H_DIR='$(top_srcdir)/src/libmptk'
+AC_SUBST(LIBMP_H_DIR)
+
+INCLUDES="$INCLUDES -I$LIBDSP_WIN_H_DIR -I$LIBMP_H_DIR"
+
+dnl ------------------------------------------------------------
+dnl check for FFTW and add the corresponding options to LIBS and CFLAGS
+dnl ------------------------------------------------------------
+AC_ARG_WITH(
+  fftw3,
+  [  --with-fftw3            tell where fftw3 was installed],
+  [
+    if test "x$with_fftw3" = "xno"; then
+      AC_MSG_ERROR(cannot build libmptk without fftw3)
+    fi
+    if test "x$with_fftw3" != "xyes"; then
+      FFTW3_CXXFLAGS="-I$with_fftw3/include"
+      FFTW3_LIBS="-L$with_fftw3/lib -lfftw3"
+    else
+      FFTW3_LIBS="-lfftw3"
+    fi
+  ],
+  [
+    AC_CHECK_LIB(fftw3, main,
+      [FFTW3_LIBS="-lfftw3"],
+      [AC_MSG_ERROR(FFTW3 library not found -- cannot build libmptk without FFTW3)],
+      [$FFTW3_LIBS]
+    )
+  ]
+)
+AC_SUBST(FFTW3_LIBS)
+AC_SUBST(FFTW3_CXXFLAGS)
+INCLUDES="$INCLUDES $FFTW3_CXXFLAGS"
+
+
+
+dnl ------------------------------------------------------------
+dnl check for LIBSNDFILE and add the corresponding options to LIBS and CFLAGS
+dnl ------------------------------------------------------------
+AC_ARG_WITH(
+  libsndfile,
+  [  --with-libsndfile       tell where libsndfile was installed],
+  [
+    if test "x$with_libsndfile" = "xno"; then
+      AC_MSG_ERROR(cannot build libmptk without libsndfile)
+    fi
+    if test "x$with_libsndfile" != "xyes"; then
+      LIBSNDFILE_CXXFLAGS="-I$with_libsndfile/include"
+      LIBSNDFILE_LIBS="-L$with_libsndfile/lib -lsndfile"
+    else
+      LIBSNDFILE_LIBS="-lsndfile"
+    fi
+  ],
+  [
+    AC_CHECK_LIB(libsndfile, main,
+      [LIBSNDFILE_LIBS="-lsndfile"],
+      [AC_MSG_ERROR(LIBSNDFILE library not found -- cannot build libmptk without LIBSNDFILE)],
+      [$LIBSNDFILE_LIBS]
+    )
+  ]
+)
+AC_SUBST(LIBSNDFILE_LIBS)
+AC_SUBST(LIBSNDFILE_CXXFLAGS)
+INCLUDES="$INCLUDES $LIBSNDFILE_CXXFLAGS"
+
+
+dnl ------------------------------------------------------------
+dnl check for DOXYGEN
+dnl ------------------------------------------------------------
+AC_CHECK_PROG( DOXYGEN, doxygen, doxygen, no )
+
+
+dnl ------------------------------------------------------------
+dnl -- Compilation options
+dnl ------------------------------------------------------------
+
+dnl -----------------
+dnl -- Default values
+dnl -----------------
+CC="gcc"
+CFLAGS="-O3 -Wall -W"
+
+CXX="g++"
+CXXFLAGS="-O3 -Wall -Wno-deprecated -W"
+
+dnl ---------------------------------------------------
+dnl -- Add debugging options to the compilation process
+dnl ---------------------------------------------------
+AC_ARG_ENABLE(debug,
+[  --enable-debug          Switches on -g to allow debugging],
+if test $enableval = "yes" ; then
+  CXXFLAGS="$CXXFLAGS -g"
+  CFLAGS="$CFLAGS -g"
+fi)
+
+dnl ---------------------------------------------------
+dnl -- Add profiling options to the compilation process
+dnl ---------------------------------------------------
+AC_ARG_ENABLE(profile,
+[  --enable-profile        Switches on -g -pg to allow profiling],
+if test $enableval = "yes" ; then
+   CXXFLAGS="$CXXFLAGS -g -pg";
+   CFLAGS="$CFLAGS -g -pg"
+fi)
+
+dnl ---------------------------------------------------
+dnl -- Force the removal of debugging output and assertions
+dnl ---------------------------------------------------
+AC_ARG_ENABLE(ndebug,
+[  --disable-ndebug        Removes the default -DNDEBUG switch (to get the assertions and some debugging output)],
+if test $enableval = "yes" ; then
+   CXXFLAGS="$CXXFLAGS -DNDEBUG";
+   CFLAGS="$CFLAGS -DNDEBUG"
+fi,
+CXXFLAGS="$CXXFLAGS -DNDEBUG";
+CFLAGS="$CFLAGS -DNDEBUG"
+)
+
+dnl ---------------------------------------------------
+dnl -- Force the static linking of external libraries
+dnl ---------------------------------------------------
+AC_ARG_ENABLE(static,
+[  --enable-static         If enabled, forces the static linking of external libraries],
+if test $enableval = "yes" ; then
+  LDFLAGS="$LDFLAGS -static"
+fi)
+
+dnl ------------------
+dnl -- Clean the house
+dnl ------------------
+ 
+dnl -- Export relevant info
+AC_SUBST(CC)
+AC_SUBST(CFLAGS)
+AC_SUBST(CXX)
+AC_SUBST(CXXFLAGS)
+AC_SUBST(INCLUDES)
+AC_SUBST(LDFLAGS)
+
+dnl ------------------------------------------------------------
+AC_OUTPUT( Makefile                        \
+           src/Makefile                    \
+           src/libdsp_windows/Makefile     \
+           src/libmptk/Makefile            \
+           src/utils/Makefile              \
+           src/tests/Makefile              \
+	   src/tests/signals/Makefile      \
+           doc/Makefile                    )
+dnl ------------------------------------------------------------
