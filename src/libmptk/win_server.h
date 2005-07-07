@@ -92,12 +92,12 @@ public:
    *
    * For example numberOf[DSP_GAUSS_WIN] gives the number of Gaussian windows currently stored.
    */
-  unsigned short int numberOf[DSP_NUM_WINDOWS];
+  unsigned long int numberOf[DSP_NUM_WINDOWS];
   /** \brief size available in the storage space for windows of the various types 
    *
    * For example maxNumberOf[DSP_GAUSS_WIN] gives the number of Gaussian windows that can be stored.
    */
-  unsigned short int maxNumberOf[DSP_NUM_WINDOWS];
+  unsigned long int maxNumberOf[DSP_NUM_WINDOWS];
   /** \brief storage space for windows of various types 
    *
    * For example window[DSP_GAUSS_WIN] is an array of numberOf[DSP_GAUSS_WIN] 

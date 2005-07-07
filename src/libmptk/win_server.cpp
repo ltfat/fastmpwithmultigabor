@@ -96,7 +96,7 @@ MP_Win_Server_c::~MP_Win_Server_c() {
 void MP_Win_Server_c::release( void ) {
 
   unsigned short int i;
-  unsigned short int n;
+  unsigned long int n;
 
 #ifndef NDEBUG
   fprintf( stderr, "mplib DEBUG -- MP_Win_Server_c::release() -- Entering.\n" );
@@ -134,8 +134,8 @@ unsigned long int MP_Win_Server_c::get_window( MP_Real_t **out,
 					       const unsigned long int length,
 					       const unsigned char type,
 					       double optional ) {
-  unsigned short int n;
-  unsigned short int num;
+  unsigned long int n;
+  unsigned long int num;
   MP_Win_t* ptrWin;
   Dsp_Win_t buffer[length];
   Dsp_Win_t* ptrWinT;
