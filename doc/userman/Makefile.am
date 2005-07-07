@@ -30,10 +30,18 @@
 ## CVS log:
 ##
 ##   $Author: sacha $
-##   $Date: 2005/07/04 15:30:17 $
-##   $Revision: 1.11 $
+##   $Date: 2005/07/04 15:30:21 $
+##   $Revision: 1.5 $
 ##
 
-SUBDIRS = src doc extras
+EXTRA_DIST = userman.tex  atom.ps  biblio_MP.bib  mpcycle.eps  mpcycle.fig  plonk.ps
 
-EXTRA_DIST = README INSTALL COPYING CHANGES AUTHORS make_configure.sh
+## DIST HOOK:
+#
+#  Before packaging, force a complete re-compiling of the doc.
+#
+dist-hook:
+	cd $(top_srcdir)/doc/userman; latex userman; latex userman; bibtex userman; \
+	latex userman; latex userman; dvips userman -o; ps2pdf userman.ps userman.pdf;
+	cp -fu $(top_srcdir)/doc/userman/userman.ps  $(distdir)/$(PACKAGE)-$(VERSION)-userman.ps;
+	cp -fu $(top_srcdir)/doc/userman/userman.pdf $(distdir)/$(PACKAGE)-$(VERSION)-userman.pdf;

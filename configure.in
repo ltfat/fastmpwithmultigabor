@@ -222,5 +222,9 @@ AC_OUTPUT( Makefile                        \
            src/utils/Makefile              \
            src/tests/Makefile              \
 	   src/tests/signals/Makefile      \
-           doc/Makefile                    )
+           doc/Makefile                    \
+           doc/userman/Makefile            \
+           doc/short_description/Makefile  \
+           extras/Makefile                 \
+           extras/matlab/Makefile          )
 dnl ------------------------------------------------------------

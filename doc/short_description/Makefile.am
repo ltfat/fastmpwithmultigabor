@@ -30,10 +30,18 @@
 ## CVS log:
 ##
 ##   $Author: sacha $
-##   $Date: 2005/07/04 15:30:17 $
-##   $Revision: 1.11 $
+##   $Date: 2005/07/04 15:30:21 $
+##   $Revision: 1.5 $
 ##
 
-SUBDIRS = src doc extras
+EXTRA_DIST = short_description.tex
 
-EXTRA_DIST = README INSTALL COPYING CHANGES AUTHORS make_configure.sh
+## DIST HOOK:
+#
+#  Before packaging, force a complete re-compiling of the doc.
+#
+dist-hook:
+	cd $(top_srcdir)/doc/short_description; latex short_description; latex short_description; \
+	dvips short_description -o; ps2pdf short_description.ps short_description.pdf;
+	cp -fu $(top_srcdir)/doc/short_description/short_description.ps  $(distdir)/$(PACKAGE)-$(VERSION)-short_description.ps;
+	cp -fu $(top_srcdir)/doc/short_description/short_description.pdf $(distdir)/$(PACKAGE)-$(VERSION)-short_description.pdf;

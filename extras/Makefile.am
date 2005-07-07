@@ -34,6 +34,4 @@
 ##   $Revision: 1.11 $
 ##
 
-SUBDIRS = src doc extras
-
-EXTRA_DIST = README INSTALL COPYING CHANGES AUTHORS make_configure.sh
+SUBDIRS = matlab

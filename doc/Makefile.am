@@ -34,7 +34,17 @@
 ##   $Revision: 1.5 $
 ##
 
-EXTRA_DIST = doxygen_config
+SUBDIRS = userman short_description
+
+EXTRA_DIST = doxygen_config refman
+
+refman:
+	@if [ "$(DOXYGEN)" != "no" ]; then \
+	cd $(top_srcdir); doxygen doc/doxygen_config; \
+	else \
+	mkdir $(top_srcdir)/doc/refman; \
+	echo "Doxygen was not found. The old docs (or no docs) will be re-included in the package."; \
+	fi
 
 ## DIST HOOK:
 #
@@ -44,17 +54,10 @@ dist-hook:
 	@if [ "$(DOXYGEN)" != "no" ]; then \
 	cd $(top_srcdir); doxygen doc/doxygen_config; \
 	else \
-	echo "Doxygen was not found. The old docs will be re-included in the package."; \
+	mkdir $(top_srcdir)/doc/refman; \
+	echo "Doxygen was not found. The old docs (or no docs) will be re-included in the package."; \
 	fi
 	cd $(top_srcdir)/doc/refman/latex; latex refman; latex refman; bibtex refman; \
-	latex refman; latex refman; dvips refman -o; ps2pdf refman.ps refman.pdf; \
-	mv refman.ps  $(PACKAGE)-$(VERSION)-refman.ps; \
-	mv refman.pdf $(PACKAGE)-$(VERSION)-refman.pdf;
-	cd $(top_srcdir)/doc/userman; latex userman; latex userman; bibtex userman; \
-	latex userman; latex userman; dvips userman -o; ps2pdf userman.ps userman.pdf; \
-	mv userman.ps  $(PACKAGE)-$(VERSION)-userman.ps; \
-	mv userman.pdf $(PACKAGE)-$(VERSION)-userman.pdf;
-	cd $(top_srcdir)/doc/short_description; latex short_description; latex short_description; \
-	dvips short_description -o; ps2pdf short_description.ps short_description.pdf; \
-	mv short_description.ps  $(PACKAGE)-$(VERSION)-short_description.ps; \
-	mv short_description.pdf $(PACKAGE)-$(VERSION)-short_description.pdf;
+	latex refman; latex refman; dvips refman -o; ps2pdf refman.ps refman.pdf;
+	cp -rfu $(top_srcdir)/doc/refman/latex/refman.ps  $(distdir)/refman/$(PACKAGE)-$(VERSION)-refman.ps;
+	cp -rfu $(top_srcdir)/doc/refman/latex/refman.pdf $(distdir)/refman/$(PACKAGE)-$(VERSION)-refman.pdf;
