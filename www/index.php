@@ -139,12 +139,23 @@ section in the <B><A HREF="http://gforge.inria.fr/projects/mptk/">Project Summar
 menu, on the right of this page.
 
 <P>
-If you need help with the software, please use the
-<B><A HREF="http://gforge.inria.fr/forum/?group_id=36">Forums</A></B>.
+If you need help with the software:
+<OL>
+<LI> check if a more recent
+<B><A HREF="http://gforge.inria.fr/project/showfiles.php?group_id=36">release</A></B>
+fixes your problem;
+<LI> if not, use the <B><A HREF="http://gforge.inria.fr/forum/forum.php?forum_id=109">Help forum</A></B>
+to ask questions.
+</OL>
+
+<P> Other <B><A HREF="http://gforge.inria.fr/forum/?group_id=36">Forums</A></B> are available for
+open discussions about the Matching Pursuit algorithm and its MPTK implementation.
 
 <P>
 If you are confused by this page, or if you want to communicate privately with us,
-please write to <img src="./addrmatchp.jpg" align="middle">.
+please write to <img src="./addrmatchp.jpg" align="middle">. Request for help sent
+to this address won't be answered. Please use the
+<B><A HREF="http://gforge.inria.fr/forum/forum.php?forum_id=109">Help forum</A></B> instead.
 
 <P>
 This software is currently developed and maintained by
