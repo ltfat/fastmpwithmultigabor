@@ -8,6 +8,7 @@ TODO:
   - factor the computations of touchFrame and loop on frames in a generic 
     virtual update_ip, using a virtual update_frame(frameIdx) function
   - MANAGE THE ENDIANNESS: P.Leveau got endianness problems with MacOSX.
+  - Reinforce the detection/warning of wrong syntaxes in XML dictionaries.
 
 * BUGS:
   - (None known at the moment)

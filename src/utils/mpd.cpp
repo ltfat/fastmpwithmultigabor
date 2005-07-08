@@ -528,13 +528,17 @@ int main( int argc, char **argv ) {
     dict->signal->preemp( MPD_PREEMP );
     if ( MPD_VERBOSE ) { fprintf( stderr, "Done.\n" ); fflush( stderr ); }
   }
+  if ( !MPD_QUIET ) fprintf( stderr, "mpd msg -- The signal is now loaded.\n" ); fflush( stderr );
   /* Add the blocks to the dictionnary */
+  if ( !MPD_QUIET ) fprintf( stderr, "mpd msg -- Parsing the dictionary...\n"
+			     "mpd msg -- (In the following, spurious output of dictionary pieces"
+			     " would be a symptom of parsing errors.)\n" ); fflush( stderr );
   if ( dict->add_blocks( dictFileName ) == 0 ) {
     fprintf( stderr, "mpd error -- Can't read blocks from file [%s].\n", dictFileName );
     free_mem( dict, decay );
     return( ERR_DICT );
   }
-  if ( !MPD_QUIET ) fprintf( stderr, "mpd msg -- Done.\n" );
+  if ( !MPD_QUIET ) fprintf( stderr, "mpd msg -- The dictionary is now loaded.\n" );
 
   if ( MPD_VERBOSE ) {
     fprintf( stderr, "mpd msg -- The signal loaded from file [%s] has:\n", sndFileName );

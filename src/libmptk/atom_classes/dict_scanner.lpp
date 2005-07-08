@@ -87,6 +87,14 @@ bool *boolPtr2 = NULL;
 
 
 
+<SCAN_ULONG>[[:space:]]*[0-9]*[[:alpha:]\.\+-]+.*/\<    {
+					fprintf( stderr, "mplib error -- yylex() - [%s] is a wrong string"
+						  " to describe an unsigned long value. Please check the syntax"
+						  " of your dictionary and use only the digits from 0 to 9.\n",
+						  yytext );
+					return( ERROR_EVENT );
+				}
+
 <SCAN_ULONG>[[:space:]]*[0-9]+    {
 				    if (ulongPtr) {
 				       *ulongPtr = strtoul( yytext, NULL, 10 );
@@ -98,6 +106,14 @@ bool *boolPtr2 = NULL;
 					 return( ERROR_EVENT );
 				    }
 				    yy_pop_state();
+				}
+
+<SCAN_UINT>[[:space:]]*[0-9]*[[:alpha:]\.\+-]+.*/\<    {
+					fprintf( stderr, "mplib error -- yylex() - [%s] is a wrong string"
+						  " to describe an unsigned int value. Please check the syntax"
+						  " of your dictionary and use only the digits from 0 to 9.\n",
+						  yytext );
+					return( ERROR_EVENT );
 				}
 
 <SCAN_UINT>[[:space:]]*[0-9]+    {

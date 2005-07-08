@@ -202,7 +202,8 @@ int MP_Dict_c::add_blocks( FILE *fid ) {
     }
     else if (event == ERROR_EVENT) {
       fprintf(stderr, "mplib warning -- MP_Dict_c::add_blocks(fid,scanInfo) - The parser crashed somewhere"
-	      " after the %u-th block. Parsing interrupted, returning.\n", scanInfo.blockCount );
+	      " after the %u-th block. Parsing interrupted, returning a dictionary with [%u] valid block(s) only.\n",
+	      scanInfo.blockCount, count );
       return( count );
     }
   }
