@@ -42,7 +42,7 @@
    Any manual change will be lost at the next build. Changes should be introduced
    in the dict_scanner.l file. See "man flex" for more info. */
 
-#include "matchp.h"
+#include "mptk.h"
 #include "system.h"
 
 #include <dsp_windows.h>
