@@ -56,9 +56,10 @@ static char *cvsid = "$Revision: 1.30 $";
 /********************/
 #define ERR_ARG        1
 #define ERR_DICT       2
-#define ERR_DECAY      3
-#define ERR_OPEN       4
-#define ERR_WRITE      5
+#define ERR_SIG        3
+#define ERR_DECAY      4
+#define ERR_OPEN       5
+#define ERR_WRITE      6
 
 /********************/
 /* Global variables */
@@ -522,6 +523,12 @@ int main( int argc, char **argv ) {
   /* Load the dictionary */
   if ( !MPD_QUIET ) fprintf( stderr, "mpd msg -- Loading the signal and the dictionary...\n" ); fflush( stderr );
   dict = new MP_Dict_c( sndFileName );
+  if ( dict->signal->storage == NULL ) {
+    fprintf( stderr, "mpd error -- Failed to load a signal from file [%s].\n",
+	     sndFileName );
+    free_mem( dict, decay );
+    return( ERR_SIG );
+  }
   /* Pre-emphasize the signal if needed */
   if (MPD_PREEMP != 0.0) {
     if ( MPD_VERBOSE ) { fprintf( stderr, "mpd msg -- Pre-emphasizing the signal..." ); fflush( stderr ); }
