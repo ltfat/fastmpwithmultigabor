@@ -38,7 +38,7 @@ export_headers = mp_types.h \
 	win_server.h      \
 	fft_interface.h   \
 	general.h \
-	signal.h  \
+	mp_signal.h  \
 	tfmap.h   \
 	atom.h  block.h \
 	book.h dict.h   \
@@ -61,7 +61,7 @@ noinst_HEADERS = system.h header.h $(export_headers)
 
 libmptk_a_SOURCES = mptk.h header.h $(export_headers)\
 	general.cpp \
-	signal.cpp  \
+	mp_signal.cpp  \
 	win_server.cpp \
 	fft_interface.cpp \
 	block.cpp atom.cpp atom_classes/atom_classes.cpp \

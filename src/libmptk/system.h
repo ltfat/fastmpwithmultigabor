@@ -68,10 +68,6 @@
 #   include <malloc.h>
 # endif
 
-# if HAVE_UNISTD_H
-#  include <unistd.h>
-# endif
-
 /* string stuff */
 # if HAVE_STRING_H
 #  if !STDC_HEADERS && HAVE_MEMORY_H
