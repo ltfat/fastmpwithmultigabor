@@ -64,6 +64,7 @@ static char *cvsid = "$Revision: 1.8 $";
 #define ERR_MALLOC     8
 #define ERR_NEW        9
 #define ERR_NCHANS     10
+#define ERR_SIGINIT    11
 
 /********************/
 /* Global variables */
@@ -682,11 +683,22 @@ int main( int argc, char **argv ) {
 
 
   /* Make the signal array */
-  if ( (sigArray = new MP_Signal_c[numSources]( 1, numSamples, sampleRate )) == NULL ) {
+  if ( (sigArray = new MP_Signal_c[numSources]) == NULL ) {
     fprintf( stderr, "mpd_demix error -- Failed to allocate an array of [%u] signals.\n",
 	     numSources );
     free( mixer ); free( Ah ); delete(inSignal);
     return( ERR_NCHANS );
+  }
+  else {
+    for ( j = 0; j < numSources; j++ ) {
+      if ( !sigArray[j].init( 1, numSamples, sampleRate ) ) {
+	fprintf( stderr, "mpd_demix error -- Could not initialize the [%u]-th signal in the signal array.\n",
+		 j );
+	delete[] sigArray;
+	free( mixer ); free( Ah );
+	return( ERR_SIGINIT );
+      }
+    }
   }
 
   /* Fill the signal array: multiply the input signal by the transposed mixer */

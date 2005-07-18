@@ -152,8 +152,8 @@ public:
    */
   virtual void build_waveform( MP_Sample_t *outBuffer );
 
-  virtual char      has_field( char field );
-  virtual MP_Real_t get_field( char field , int chanIdx);
+  virtual int       has_field( int field );
+  virtual MP_Real_t get_field( int field , int chanIdx);
 
   /** \todo complete the implementation of this function */
   virtual char add_to_tfmap( MP_TF_Map_c *tfmap );

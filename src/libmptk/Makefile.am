@@ -89,4 +89,4 @@ mptk.h: Makefile.am $(srcdir)/header.h $(srcdir)/../../AUTHORS $(export_headers)
         done; \
 	echo; echo; \
 	echo "#endif /* __mptk_h_ */"; \
-	echo;echo;) > $(srcdir)/$@;
+	echo;echo;) > $(srcdir)/mptk.h;

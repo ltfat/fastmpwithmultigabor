@@ -38,7 +38,7 @@ dnl Process this file with autoconf to produce a configure script.
 
 AC_INIT(mptk,0.4beta)
 AC_REVISION($Revision: 1.21 $)
-AM_INIT_AUTOMAKE(mptk,0.4beta)
+AM_INIT_AUTOMAKE(mptk,0.4beta.bugfix02)
 AM_CONFIG_HEADER(config.h)
 
 dnl Checks for usefuls programs (like a compiler, a precompiler, a linker...)
@@ -100,7 +100,7 @@ AC_ARG_WITH(
   [
     AC_CHECK_LIB(fftw3, main,
       [FFTW3_LIBS="-lfftw3"],
-      [AC_MSG_ERROR(FFTW3 library not found -- cannot build libmptk without FFTW3)],
+      [AC_MSG_ERROR(FFTW3 library not found -- Please make sure that FFTW3 is installed on your system and/or indicate its location with the switch: --with-fftw3=PATH-TO-FFTW3. (See configure --help.) )],
       [$FFTW3_LIBS]
     )
   ]
@@ -129,9 +129,9 @@ AC_ARG_WITH(
     fi
   ],
   [
-    AC_CHECK_LIB(libsndfile, main,
+    AC_CHECK_LIB(sndfile, main,
       [LIBSNDFILE_LIBS="-lsndfile"],
-      [AC_MSG_ERROR(LIBSNDFILE library not found -- cannot build libmptk without LIBSNDFILE)],
+      [AC_MSG_ERROR(LIBSNDFILE library not found --  Please make sure that LIBSNDFILE is installed on your system and/or indicate its location with the switch: --with-libsndfile=PATH-TO-LIBSNDFILE. (See configure --help.) )],
       [$LIBSNDFILE_LIBS]
     )
   ]
@@ -144,7 +144,10 @@ INCLUDES="$INCLUDES $LIBSNDFILE_CXXFLAGS"
 dnl ------------------------------------------------------------
 dnl check for DOXYGEN
 dnl ------------------------------------------------------------
-AC_CHECK_PROG( DOXYGEN, doxygen, doxygen, no )
+AC_CHECK_PROG(DOXYGEN,doxygen,doxygen,no)
+if test "x$DOXYGEN" = "xno"; then
+   AC_MSG_NOTICE([Without doxygen, you won't be able to rebuild a fresh reference manual from the source headers. Nevertheless, you can still use/install the up-to-date reference manual which is included in this package. Note that you do not need doxygen to rebuild the user manual.])
+fi
 
 
 dnl ------------------------------------------------------------

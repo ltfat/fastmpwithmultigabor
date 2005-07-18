@@ -326,10 +326,10 @@ void MP_Atom_c::substract_add( MP_Signal_c *sigSub, MP_Signal_c *sigAdd ) {
 /***********************************************************************/
 /* Sorting function which characterizes various properties of the atom,
    across all channels */
-char MP_Atom_c::satisfies( char field, char test, MP_Real_t val ) {
+int MP_Atom_c::satisfies( int field, int test, MP_Real_t val ) {
   
   int chanIdx;
-  char retVal = MP_TRUE;
+  int retVal = MP_TRUE;
   
   for ( chanIdx = 0; chanIdx < numChans; chanIdx++ ) {
     retVal = ( retVal && satisfies( field, test, val, chanIdx ) );
@@ -342,10 +342,10 @@ char MP_Atom_c::satisfies( char field, char test, MP_Real_t val ) {
 /***********************************************************************/
 /* Sorting function which characterizes various properties of the atom,
    along one channel */
-char MP_Atom_c::satisfies( char field, char test, MP_Real_t val, int chanIdx ) {
+int MP_Atom_c::satisfies( int field, int test, MP_Real_t val, int chanIdx ) {
   
   MP_Real_t x;
-  char has = has_field ( field );
+  int has = has_field ( field );
   
   if ( test == MP_HAS ){
     return ( has );
@@ -375,7 +375,7 @@ char MP_Atom_c::satisfies( char field, char test, MP_Real_t val, int chanIdx ) {
   }
 }
 
-char MP_Atom_c::has_field( char field ) {
+int MP_Atom_c::has_field( int field ) {
   switch (field) {
   case MP_LEN_PROP :   return( MP_TRUE );
   case MP_POS_PROP :   return( MP_TRUE );
@@ -383,7 +383,7 @@ char MP_Atom_c::has_field( char field ) {
   }
 }
 
-MP_Real_t MP_Atom_c::get_field( char field , int chanIdx ) {
+MP_Real_t MP_Atom_c::get_field( int field , int chanIdx ) {
   MP_Real_t x;
   switch (field) {
   case MP_LEN_PROP :

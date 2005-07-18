@@ -108,8 +108,8 @@ public:
 
   virtual char add_to_tfmap( MP_TF_Map_c *tfmap );
 
-  virtual char      has_field( char field );
-  virtual MP_Real_t get_field( char field , int chanIdx );
+  virtual int       has_field( int field );
+  virtual MP_Real_t get_field( int field , int chanIdx );
 
 };
 

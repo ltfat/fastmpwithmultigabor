@@ -206,7 +206,7 @@ char MP_Dirac_Atom_c::add_to_tfmap( MP_TF_Map_c *tfmap ) {
 
 
 
-char MP_Dirac_Atom_c::has_field( char field ) {
+int MP_Dirac_Atom_c::has_field( int field ) {
 
   if ( MP_Atom_c::has_field( field ) ) return (MP_TRUE);
   else switch (field) {
@@ -217,7 +217,7 @@ char MP_Dirac_Atom_c::has_field( char field ) {
   }
 }
 
-MP_Real_t MP_Dirac_Atom_c::get_field( char field , int chanIdx ) {
+MP_Real_t MP_Dirac_Atom_c::get_field( int field , int chanIdx ) {
 
   MP_Real_t x;
 

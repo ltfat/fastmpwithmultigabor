@@ -77,8 +77,7 @@ MP_Signal_c::MP_Signal_c( const int setNumChans,
 #endif
 
   set_null();
-  sampleRate = setSampleRate;
-  init( setNumChans, setNumSamples );
+  init( setNumChans, setNumSamples, setSampleRate );
 
 #ifndef NDEBUG
   fprintf(stderr,"mplib DEBUG -- MP_Signal_c::MP_Signal_c( 3 params ) - Done.\n");
@@ -130,7 +129,6 @@ MP_Signal_c::MP_Signal_c( const char *fName ) {
     return;
   }
 
-  sampleRate = sfinfo.samplerate;
 #ifndef NDEBUG
   fprintf( stderr, "mplib DEBUG -- MP_Signal_c::MP_Signal_c( fName ) - sfinfo contains:\n");
   fprintf( stderr, " DEBUG -- srate    : %d\n", sfinfo.samplerate) ;
@@ -142,7 +140,7 @@ MP_Signal_c::MP_Signal_c( const char *fName ) {
   fprintf( stderr, " DEBUG -- end sfinfo.\n");
 #endif
   /* actually read the file if allocation is OK */
-  if ( init(sfinfo.channels,sfinfo.frames) ) {
+  if ( init(sfinfo.channels,sfinfo.frames,sfinfo.samplerate) ) {
 #ifndef NDEBUG
   fprintf( stderr, "mplib DEBUG -- MP_Signal_c::MP_Signal_c( fName ) - After init, signal values are:\n");
   fprintf( stderr, " DEBUG -- sampleRate : %d\n", sampleRate) ;
@@ -183,13 +181,12 @@ MP_Signal_c::MP_Signal_c( const MP_Signal_c &from ) {
 #endif
 
   set_null();
-  sampleRate = from.sampleRate;
 
   /* If the input signal is empty, we have nothing to do */
   if ( ( from.numChans == 0 ) || ( from.numSamples == 0 ) ) return;
 
   /* If every allocation went OK, copy the data */
-  if ( init( from.numChans, from.numSamples ) ) {
+  if ( init( from.numChans, from.numSamples, from.sampleRate ) ) {
     memcpy( storage, from.storage, numChans*numSamples*sizeof(MP_Sample_t) );
   }
 
@@ -513,13 +510,15 @@ inline void MP_Signal_c::set_null( void ) {
 
 /**********************************/
 /* Initialization with allocation */
-char MP_Signal_c::init( const int setNumChans, const unsigned long int setNumSamples ) {
+int MP_Signal_c::init( const int setNumChans, const unsigned long int setNumSamples, const int setSampleRate ) {
 
 #ifndef NDEBUG
   fprintf( stderr, "mplib DEBUG -- MP_Signal_c::init() - Initializing the signal:  [%d] chans [%lu] samples...",
 	   setNumChans, setNumSamples );
   fflush( stderr );
 #endif
+
+  sampleRate = setSampleRate;
 
   if ( storage ) free( storage );
   if ( channel ) free( channel );

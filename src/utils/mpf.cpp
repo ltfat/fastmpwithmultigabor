@@ -554,9 +554,9 @@ int parse_args(int argc, char **argv) {
 /**************************************************/
 /* MISC                                           */
 /**************************************************/
-char test_satisfaction( char k, unsigned long int n, MP_Atom_c* atom ) {
+int test_satisfaction( int k, unsigned long int n, MP_Atom_c* atom ) {
 
-  char retVal = MP_TRUE;;
+  int retVal = MP_TRUE;;
 
   /* Testing versus the MIN */
   /* - if not testing the index, call atom.satisfies(): */
@@ -594,11 +594,11 @@ char test_satisfaction( char k, unsigned long int n, MP_Atom_c* atom ) {
 int main( int argc, char **argv ) {
 
   MP_Book_c book;
-  char decision = MP_TRUE;
+  int decision = MP_TRUE;
   unsigned long int numPositive = 0;
 
   unsigned long int n; /* loop variable for atoms */
-  char k;
+  int k;
   char* mask = NULL;
 
   /* Parse the command line */

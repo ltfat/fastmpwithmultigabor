@@ -217,21 +217,21 @@ public :
    * \return MP_TRUE if the test is succesful, MP_FALSE otherwise
    * \sa has_field() get_field()
    */
-  char satisfies( char field, char test, MP_Real_t val, int chanIdx );
+  int satisfies( int field, int test, MP_Real_t val, int chanIdx );
   /** \brief Tests if a field of an atom satisfies a property on ALL channels
    * \sa satisfies
    */
-  char satisfies( char field, char test, MP_Real_t val );
+  int satisfies( int field, int test, MP_Real_t val );
 
   /** \brief Test if the atom has a given field 
    * \param field the field type
    * \return MP_TRUE if the atom has the field, MP_FALSE otherwise */
-  virtual char      has_field( char field );
+  virtual int      has_field( int field );
   /** \brief Gets a field of a channel of an atom 
    * \param field the field type
    * \param chanIdx the desired channel
    * \return the desired field value, zero if the atom has no such field */
-  virtual MP_Real_t get_field( char field , int chanIdx);
+  virtual MP_Real_t get_field( int field , int chanIdx);
 };
 
 

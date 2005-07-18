@@ -185,11 +185,13 @@ private:
 public:
 
   /* \brief A utility to clear and reallocate the storage at a given
-   * size without changing the sampling rate
+   * size without, possibly changing the sampling rate
    *
    * \param setNumChans The desired number of channels
-   * \param setNumSamples The desired number of samples per channel */
-  char init( const int setNumChans, const unsigned long int setNumSamples );
+   * \param setNumSamples The desired number of samples per channel
+   * \param setSampleRate The desired sample rate
+   */
+  int init( const int setNumChans, const unsigned long int setNumSamples, const int setSampleRate );
 
 
   /** \brief Compute the total signal energy over all channels,

@@ -572,7 +572,7 @@ char MP_Gabor_Atom_c::add_to_tfmap( MP_TF_Map_c *tfmap ) {
 /***********************************************************************/
 /* Sorting function which characterizes various properties of the atom,
    along one channel */
-char MP_Gabor_Atom_c::has_field( char field ) {
+int MP_Gabor_Atom_c::has_field( int field ) {
 
   if ( MP_Atom_c::has_field( field ) ) return ( MP_TRUE );
   else switch (field) {
@@ -584,7 +584,7 @@ char MP_Gabor_Atom_c::has_field( char field ) {
   }
 }
 
-MP_Real_t MP_Gabor_Atom_c::get_field( char field, int chanIdx ) {
+MP_Real_t MP_Gabor_Atom_c::get_field( int field, int chanIdx ) {
   MP_Real_t x;
   if ( MP_Atom_c::has_field( field ) ) return ( MP_Atom_c::get_field(field,chanIdx) );
   else switch (field) {

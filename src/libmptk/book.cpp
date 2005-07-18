@@ -384,8 +384,7 @@ unsigned long int MP_Book_c::build_waveform( MP_Signal_c *sig, char *mask ) {
   unsigned long int n = 0;
   
   /* allocate the signal at the right size */
-  sig->init( numChans, numSamples );
-  sig->sampleRate = sampleRate;
+  sig->init( numChans, numSamples, sampleRate );
   /* add the atom waveforms */
   for (i = 0; i < numAtoms; i++) {
     if ( ( mask == NULL ) || mask[i] ) {
