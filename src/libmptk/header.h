@@ -34,4 +34,4 @@
    class-relevant header files instead.
 */
 
-/* CVS log: $Author: sacha $ $Date: 2005/07/04 13:38:02 $ $Revision: 1.2 $ */
+/* CVS log: $Author$ $Date$ $Revision$ */

@@ -29,9 +29,9 @@
 ##
 ## CVS log:
 ##
-##   $Author: sacha $
-##   $Date: 2005/07/04 09:55:31 $
-##   $Revision: 1.13 $
+##   $Author$
+##   $Date$
+##   $Revision$
 ##
 
 bin_PROGRAMS = mpd mpd_demix mpr mpcat mpf

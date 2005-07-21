@@ -29,9 +29,9 @@
 ##
 ## CVS log:
 ##
-##   $Author: sacha $
-##   $Date: 2005/07/04 15:30:17 $
-##   $Revision: 1.11 $
+##   $Author$
+##   $Date$
+##   $Revision$
 ##
 
 SUBDIRS = matlab

@@ -29,9 +29,9 @@
 ##
 ## CVS log:
 ##
-##   $Author: sacha $
-##   $Date: 2005/07/04 15:30:21 $
-##   $Revision: 1.5 $
+##   $Author$
+##   $Date$
+##   $Revision$
 ##
 
 SUBDIRS = userman short_description

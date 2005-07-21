@@ -29,9 +29,9 @@
 /*
  * CVS log:
  *
- * $Author: sacha $
- * $Date: 2005/07/04 09:55:31 $
- * $Revision: 1.9 $
+ * $Author$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -40,7 +40,7 @@
 #include "system.h"
 #include "getopt.h"
 
-static char *cvsid = "$Revision: 1.9 $";
+static char *cvsid = "$Revision$";
 
 /********************/
 /* Global constants */

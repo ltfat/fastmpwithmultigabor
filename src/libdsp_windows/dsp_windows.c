@@ -29,9 +29,9 @@
 /*
  * CVS log:
  *
- * $Author: sacha $
- * $Date: 2005/05/17 10:37:18 $
- * $Revision: 1.9 $
+ * $Author$
+ * $Date$
+ * $Revision$
  *
  */
 

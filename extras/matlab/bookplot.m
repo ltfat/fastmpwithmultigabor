@@ -27,9 +27,9 @@ function [gaborP,harmP,diracL] = bookplot( book );
 %% distributed under the General Public License.
 %%
 %% CVS log:
-%%   $Author: sacha $
-%%   $Date: 2005/05/18 09:26:30 $
-%%   $Revision: 1.2 $
+%%   $Author$
+%%   $Date$
+%%   $Revision$
 %%
 
 if isstr(book),

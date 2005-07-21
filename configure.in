@@ -29,15 +29,15 @@
 ##
 ## CVS log:
 ##
-##   $Author: sacha $
-##   $Date: 2005/07/04 13:32:34 $
-##   $Revision: 1.21 $
+##   $Author$
+##   $Date$
+##   $Revision$
 ##
 
 dnl Process this file with autoconf to produce a configure script.
 
 AC_INIT(mptk,0.4beta)
-AC_REVISION($Revision: 1.21 $)
+AC_REVISION($Revision$)
 AM_INIT_AUTOMAKE(mptk,0.4beta.bugfix02)
 AM_CONFIG_HEADER(config.h)
 

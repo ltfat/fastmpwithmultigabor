@@ -29,9 +29,9 @@
 ##
 ## CVS log:
 ##
-##   $Author: sacha $
-##   $Date: 2005/02/21 15:43:38 $
-##   $Revision: 1.2 $
+##   $Author$
+##   $Date$
+##   $Revision$
 ##
 
 EXTRA_DIST = 2_cosines.flt 2_shifting_cosines.flt 2_atoms.flt   \

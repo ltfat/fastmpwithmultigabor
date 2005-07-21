@@ -36,9 +36,9 @@
 /*
  * CVS log:
  *
- * $Author: sacha $
- * $Date: 2005/05/16 14:42:03 $
- * $Revision: 1.1 $
+ * $Author$
+ * $Date$
+ * $Revision$
  *
  */
 

@@ -29,9 +29,9 @@
 ##
 ## CVS log:
 ##
-##   $Author: sacha $
-##   $Date: 2005/07/04 09:55:24 $
-##   $Revision: 1.18 $
+##   $Author$
+##   $Date$
+##   $Revision$
 ##
 
 noinst_PROGRAMS = test_win test_fft test_mp

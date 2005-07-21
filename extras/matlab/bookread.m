@@ -16,9 +16,9 @@ function [book] = bookread( fileName )
 %% distributed under the General Public License.
 %%
 %% CVS log:
-%%   $Author: sacha $
-%%   $Date: 2005/05/17 16:26:47 $
-%%   $Revision: 1.1 $
+%%   $Author$
+%%   $Date$
+%%   $Revision$
 %%
 
 fid = fopen( fileName );

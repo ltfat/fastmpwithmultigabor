@@ -29,9 +29,9 @@
 ##
 ## CVS log:
 ##
-##   $Author: sacha $
-##   $Date: 2005/02/21 15:43:36 $
-##   $Revision: 1.6 $
+##   $Author$
+##   $Date$
+##   $Revision$
 ##
 
 include_HEADERS = dsp_windows.h
