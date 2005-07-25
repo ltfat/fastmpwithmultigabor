@@ -1,15 +1,18 @@
-function [gaborP,harmP,diracL] = bookplot( book );
+function [gaborP,harmP,diracL] = bookplot( book, channel );
 
 % BOOKPLOT  Plot a Matching Pursuit book in the current axes
 %
-%    BOOKPLOT( book ) plots a book structure in the current axes.
+%    BOOKPLOT( book, chan ) plots the channel number chan
+%    of a MPTK book structure in the current axes.
 %    If book is a string, it is understood as a filename and
 %    the book is read from the corresponding file. Books
 %    can be read separately using the BOOKREAD utility.
 %
-%    [gaborP,harmP,diracP] = BOOKPLOT( book ) returns handles
-%    on the created objects. Gabor and Harmonic atoms are
-%    plotted as patches, and Dirac atoms as a blue line.
+%    BOOKPLOT( book ) defaults to the first channel.
+%
+%    [gaborP,harmP,diracP] = BOOKPLOT( book, chan ) returns
+%    handles on the created objects. Gabor and Harmonic atoms
+%    are plotted as patches, and Dirac atoms as a blue line.
 %
 %    The patches delimit the support of the atoms. Their
 %    color is proportional to the atom's amplitudes,
@@ -38,6 +41,15 @@ if isstr(book),
    disp('Done.');
 end;
 
+if nargin < 2,
+   channel = 1;
+end;
+
+if channel > book.numChans,
+   error('Book has %d channels. Can''t display channel number %d.', ...
+	       channel, book.numChans );
+end;
+
 l = book.numSamples;
 fs = book.sampleRate;
 
@@ -58,42 +70,45 @@ for i = 1:book.numAtoms,
     switch atom.type,
 
 	   case 'gabor',
-		p = atom.pos(1)/fs;
-		l = atom.len(1)/fs;
-		bw2 = ( fs / (atom.len(1)/2) ) / 2;
-		A = atom.amp(1); A = 20*log10(A);
+		p = atom.pos(channel)/fs;
+		l = atom.len(channel)/fs;
+		bw2 = ( fs / (atom.len(channel)/2) ) / 2;
+		A = atom.amp(channel); A = 20*log10(A);
 		f = fs*atom.freq;
+		c = atom.chirp;
 
 		pv = [p;p;p+l;p+l];
-		fv = [f-bw2; f+bw2; f+bw2; f-bw2];
+		fv = [f-bw2; f+bw2; f+bw2+c*l; f-bw2+c*l];
 
 		gaborX = [gaborX,pv];
 		gaborY = [gaborY,fv];
 		gaborC = [gaborC,A];
 
 	   case 'harmonic',
-		p = atom.pos(1)/fs;
-		l = atom.len(1)/fs;
-		bw2 = ( fs / (atom.len(1)/2 + 1) ) / 2;
-		A = atom.amp(1);
+		p = atom.pos(channel)/fs;
+		l = atom.len(channel)/fs;
+		bw2 = ( fs / (atom.len(channel)/2 + 1) ) / 2;
+		A = atom.amp(channel);
 		f = atom.freq;
+		c = atom.chirp;
 
 		pv = repmat([p;p;p+l;p+l],1,atom.numPartials);
 
 		fv = fs*atom.freq*atom.harmonicity';
+		dfv = c*l;
 		fvup = fv+bw2;
 		fvdown = fv-bw2;
-		fv = [fvup;fvdown;fvdown;fvup];
+		fv = [fvup;fvdown;fvdown+dfv;fvup+dfv];
 
-		av = A*atom.partialAmpStorage'; av = 20*log10(av);
+		av = A*atom.partialAmpStorage(:,channel)'; av = 20*log10(av);
 
 		harmX = [harmX,pv];
 		harmY = [harmY,fv];
 		harmC = [harmC,av];
 
 	   case 'dirac',
-		p = atom.pos(1)/fs;
-		A = atom.amp(1); A = 20*log10(A);
+		p = atom.pos(channel)/fs;
+		A = atom.amp(channel); A = 20*log10(A);
 		diracX = [diracX;NaN;p;p];
 		diracY = [diracY;NaN;0;fs/2];
 		diracZ = [diracZ;NaN;A;A];

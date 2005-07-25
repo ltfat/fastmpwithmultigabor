@@ -93,7 +93,9 @@ for ( i = 1:book.numAtoms );
 	   book.atom{i}.numPartials = numPartials;
 	   book.atom{i}.harmonicity = fread( fid, numPartials, 'double' );
 	   book.atom{i}.partialAmpStorage = fread( fid, numChans*numPartials, 'double' );
+	   book.atom{i}.partialAmpStorage = reshape( book.atom{i}.partialAmpStorage, numPartials, numChans );
 	   book.atom{i}.partialPhaseStorage = fread( fid, numChans*numPartials, 'double' );
+	   book.atom{i}.partialPhaseStorage = reshape( book.atom{i}.partialPhaseStorage, numPartials, numChans );
 
 	   case 'dirac',
 	   book.atom{i}.amp   = fread( fid, numChans, 'double' );

@@ -1,13 +1,16 @@
-function [h,gh,hh,dh] = bookover( book, x );
+function [h,gh,hh,dh] = bookover( book, x, chan );
 
 % BOOKOVER Overlays a book plot on a STFT spectrogram
 %
-%    BOOKOVER( book, sig ) plots the given book over
-%    a STFT spectrogram of the given signal. The book
-%    and/or the signal can be given as filenames (WAV
-%    format for the signal).
+%    BOOKOVER( book, sig, chan ) plots the given book over
+%    a STFT spectrogram of the given signal, for channel
+%    number chan.
+%    The book and/or the signal can be given as filenames
+%    (WAV format for the signal).
 %
-%    [sh,gh,hh,dh] = BOOKOVER( book, sig ) return handles
+%    BOOKOVER( book, sig ) defaults the channel to 1.
+%
+%    [sh,gh,hh,dh] = BOOKOVER( book, sig, chan ) return handles
 %    on the created objects:
 %       sh => spectrogram surf
 %       gh => gabor atoms patch    (green patch)
@@ -37,10 +40,19 @@ function [h,gh,hh,dh] = bookover( book, x );
 %%   $Revision$
 %%
 
+if nargin < 3,
+   chan = 1;
+end;
+
 if isstr(book),
    disp('Loading the book...');
    book = bookread( book );
    disp('Done.');
+end;
+
+if chan > book.numChans,
+   error('Book has %d channels. Can''t display channel number %d.', ...
+	       chan, book.numChans );
 end;
 
 if isstr( x ),
@@ -52,11 +64,17 @@ if isstr( x ),
    end;
 end;
 
+nSigChans = size(x,2);
+if chan > nSigChans,
+   error('Signal has %d channels. Can''t display channel numer %d.', ...
+	       chan, nSigChans );
+end;
+
 if ~exist('fs'),
    fs = book.sampleRate;
 end;
 
-x=x(:);
+x=x(:,chan);
 l = size(x,1);
 t = (1:l)' / fs;
 tmax = l/fs;
@@ -73,7 +91,7 @@ xlabel('time ->');
 ylabel('frequency ->');
 
 % Book plot
-[gh,hh,dh] = bookplot( book );
+[gh,hh,dh] = bookplot( book, chan );
 set( gh, 'facecolor', 'r', 'edgecolor', 'none', 'facealpha', 0.4 );
 set( hh, 'facecolor', 'g', 'edgecolor', 'none', 'facealpha', 0.4 );
 set( dh, 'color', 'c', 'alpha', 0.5 );
