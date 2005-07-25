@@ -35,7 +35,6 @@
 ##
 
 include_HEADERS = dsp_windows.h
-noinst_HEADERS  = system.h
 
 lib_LIBRARIES   = libdsp_windows.a
-libdsp_windows_a_SOURCES =  dsp_windows.h dsp_windows.c
+libdsp_windows_a_SOURCES = dsp_windows.h dsp_windows.c

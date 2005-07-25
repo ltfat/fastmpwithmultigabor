@@ -1,8 +1,8 @@
 /******************************************************************************/
 /*                                                                            */
-/*                                system.h                                    */
+/*                                mp_system.h                                    */
 /*                                                                            */
-/*                        Matching Pursuit Utilities                          */
+/*                       The Matching Pursuit ToolKit                         */
 /*                                                                            */
 /* Rémi Gribonval                                                             */
 /* Sacha Krstulovic                                           Mon Feb 21 2005 */
@@ -29,18 +29,20 @@
 /*
  * SVN log:
  *
- * $Author$
+ * $Author: sacha $
  * $Date$
  * $Revision$
  *
  */
 
-/*
- * System dependent includes and defines.
- */
+/*****************************************/
+/*                                       */
+/* SYSTEM DEPENDENT INCLUDES AND DEFINES */
+/*                                       */
+/*****************************************/
 
-#ifndef _system_h_
-# define _system_h_
+#ifndef _mp_system_h_
+# define _mp_system_h_
 
 # ifdef HAVE_CONFIG_H
 #  include <config.h>
@@ -104,4 +106,4 @@
 #  define assert(expr) 0
 # endif
 
-#endif /* _system_h_ */
+#endif /* _mp_system_h_ */

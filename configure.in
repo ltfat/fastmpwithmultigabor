@@ -74,11 +74,9 @@ AC_SUBST(LIBMP_DIR)
 LIBMP_LIB='-L$(top_builddir)/src/libmptk -lmptk'
 AC_SUBST(LIBMP_LIB)
 
-LIBDSP_WIN_H_DIR='$(top_srcdir)/src/libdsp_windows'
-LIBMP_H_DIR='$(top_srcdir)/src/libmptk'
-AC_SUBST(LIBMP_H_DIR)
+MP_SYSTEM_H_DIR='$(top_srcdir)'
 
-INCLUDES="$INCLUDES -I$LIBDSP_WIN_H_DIR -I$LIBMP_H_DIR"
+INCLUDES="$INCLUDES -I$MP_SYSTEM_H_DIR -I$LIBDSP_WIN_DIR -I$LIBMP_DIR"
 
 
 dnl ------------------------------------------------------------

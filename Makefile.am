@@ -36,4 +36,4 @@
 
 SUBDIRS = src doc extras
 
-EXTRA_DIST = README INSTALL COPYING CHANGES AUTHORS make_configure.sh
+EXTRA_DIST = mp_system.h README INSTALL COPYING CHANGES AUTHORS make_configure.sh

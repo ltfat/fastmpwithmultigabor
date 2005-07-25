@@ -37,7 +37,7 @@
 
 #include <dsp_windows.h>
 
-#include "system.h"
+#include "mp_system.h"
 
 
 /* Useful constants */

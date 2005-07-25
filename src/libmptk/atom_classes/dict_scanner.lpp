@@ -43,7 +43,7 @@
    in the dict_scanner.l file. See "man flex" for more info. */
 
 #include "mptk.h"
-#include "system.h"
+#include "mp_system.h"
 
 #include <dsp_windows.h>
 

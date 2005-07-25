@@ -37,7 +37,7 @@
 bin_PROGRAMS = mpd mpd_demix mpr mpcat mpf
 noinst_PROGRAMS = mpview
 
-noinst_HEADERS = system.h getopt.h
+noinst_HEADERS = getopt.h
 
 mpd_SOURCES = mpd.cpp getopt.c getopt1.c getopt.h
 mpd_LDADD = @LIBMP_LIB@ -lm @FFTW3_LIBS@ @LIBDSP_WIN_LIB@ @LIBSNDFILE_LIBS@

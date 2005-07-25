@@ -51,13 +51,13 @@ export_headers = mp_types.h \
 ## NOTE: in the above list, the order of the headers is important.
 
 BUILT_SOURCES = mptk.h
-CLEANFILES = $(srcdir)/mptk.h
+CLEANFILES = mptk.h
 
 EXTRA_DIST = HOWTO_ADD_A_CLASS DEVEL_NOTES
 
 lib_LIBRARIES = libmptk.a
 include_HEADERS = mptk.h
-noinst_HEADERS = system.h header.h $(export_headers)
+noinst_HEADERS = header.h $(export_headers)
 
 libmptk_a_SOURCES = mptk.h header.h $(export_headers)\
 	general.cpp \
@@ -89,4 +89,4 @@ mptk.h: Makefile.am $(srcdir)/header.h $(srcdir)/../../AUTHORS $(export_headers)
         done; \
 	echo; echo; \
 	echo "#endif /* __mptk_h_ */"; \
-	echo;echo;) > $(srcdir)/mptk.h;
+	echo;echo;) > mptk.h;

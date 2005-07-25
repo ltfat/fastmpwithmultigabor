@@ -37,7 +37,7 @@
 
 #include <mptk.h>
 
-#include "system.h"
+#include "mp_system.h"
 #include "getopt.h"
 
 static char *cvsid = "$Revision$";
