@@ -26,7 +26,7 @@ function [gaborP,harmP,diracL] = bookplot( book );
 %% This script is part of the Matching Pursuit Library package,
 %% distributed under the General Public License.
 %%
-%% CVS log:
+%% SVN log:
 %%   $Author$
 %%   $Date$
 %%   $Revision$

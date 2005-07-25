@@ -34,4 +34,4 @@
    class-relevant header files instead.
 */
 
-/* CVS log: $Author$ $Date$ $Revision$ */
+/* SVN log: $Author$ $Date$ $Revision$ */
