@@ -29,40 +29,13 @@
 ##
 ## SVN log:
 ##
-##   $Author$
+##   $Author: sacha $
 ##   $Date$
 ##   $Revision$
 ##
 
-SUBDIRS = signals ref
-
-noinst_PROGRAMS = test_win test_fft test_mp
-
-test_win_SOURCES = test_win.c
-test_win_LDADD = @LIBDSP_WIN_LIB@ -lm
-test_win_DEPENDENCIES = @LIBDSP_WIN_DIR@/libdsp_windows.a
-
-test_fft_SOURCES = test_fft.cpp
-test_fft_LDADD = -lm @LIBMP_LIB@ @LIBDSP_WIN_LIB@ @FFTW3_LIBS@
-test_fft_DEPENDENCIES = @LIBDSP_WIN_DIR@/libdsp_windows.a @LIBMP_DIR@/libmptk.a
-
-test_mp_SOURCES = test_mp.cpp
-test_mp_LDADD = @LIBMP_LIB@ -lm @FFTW3_LIBS@ @LIBDSP_WIN_LIB@ @LIBSNDFILE_LIBS@
-test_mp_DEPENDENCIES = @LIBDSP_WIN_DIR@/libdsp_windows.a @LIBMP_DIR@/libmptk.a
-
-TESTS = test_mpcycle.sh
-TESTS_ENVIRONMENT = $(SHELL)
-
-EXTR_DIST = test_mpcycle.sh.in
-DISTCLEANFILES = test_mpcycle.sh
-
-# Make the regen-test-ref target if you want to re-sync the test suite references
-# with the most recent build.
-regen-test-ref: $(top_builddir)/src/utils/mpd $(top_builddir)/src/utils/mpr
-	$(top_builddir)/src/utils/mpd --verbose -s 10 -R 10 -D $(srcdir)/signals/dico_test.xml \
-		$(srcdir)/signals/mix_58_stereo.wav $(srcdir)/ref/book_mix_58_stereo.bin.ref \
-		$(srcdir)/ref/res_mix_58_stereo.wav.ref >& $(srcdir)/ref/log_mpd_mix_58_stereo.ref; \
-	$(top_builddir)/src/utils/mpr --verbose $(srcdir)/ref/book_mix_58_stereo.bin.ref \
-		$(srcdir)/ref/recons_mix_58_stereo.wav.ref $(srcdir)/ref/res_mix_58_stereo.wav.ref \
-		>& $(srcdir)/ref/log_mpr_mix_58_stereo.ref;
-
+EXTRA_DIST = 	book_mix_58_stereo.bin.ref \
+		res_mix_58_stereo.wav.ref  \
+		log_mpd_mix_58_stereo.ref  \
+		log_mpr_mix_58_stereo.ref  \
+		recons_mix_58_stereo.wav.ref

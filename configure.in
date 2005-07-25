@@ -38,7 +38,7 @@ dnl Process this file with autoconf to produce a configure script.
 
 AC_INIT(mptk,0.4beta)
 AC_REVISION($Revision$)
-AM_INIT_AUTOMAKE(mptk,0.4beta.bugfix02)
+AM_INIT_AUTOMAKE(mptk,0.4beta.1)
 AM_CONFIG_HEADER(config.h)
 
 dnl Checks for usefuls programs (like a compiler, a precompiler, a linker...)
@@ -79,6 +79,7 @@ LIBMP_H_DIR='$(top_srcdir)/src/libmptk'
 AC_SUBST(LIBMP_H_DIR)
 
 INCLUDES="$INCLUDES -I$LIBDSP_WIN_H_DIR -I$LIBMP_H_DIR"
+
 
 dnl ------------------------------------------------------------
 dnl check for FFTW and add the corresponding options to LIBS and CFLAGS
@@ -208,7 +209,7 @@ fi)
 dnl ------------------
 dnl -- Clean the house
 dnl ------------------
- 
+
 dnl -- Export relevant info
 AC_SUBST(CC)
 AC_SUBST(CFLAGS)
@@ -224,7 +225,9 @@ AC_OUTPUT( Makefile                        \
            src/libmptk/Makefile            \
            src/utils/Makefile              \
            src/tests/Makefile              \
+           src/tests/test_mpcycle.sh       \
 	   src/tests/signals/Makefile      \
+	   src/tests/ref/Makefile          \
            doc/Makefile                    \
            doc/userman/Makefile            \
            doc/short_description/Makefile  \

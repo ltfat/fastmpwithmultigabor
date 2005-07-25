@@ -36,4 +36,4 @@
 
 EXTRA_DIST = 2_cosines.flt 2_shifting_cosines.flt 2_atoms.flt   \
 	metiss_logo.flt metiss_logo.pcm metiss_logo.wav \
-	mix_58_stereo.wav README
+	mix_58_stereo.wav README dico_test.xml

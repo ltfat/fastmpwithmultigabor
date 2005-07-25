@@ -1,0 +1,70 @@
+mpd msg -- ------------------------------------
+mpd msg -- MPD - MATCHING PURSUIT DECOMPOSITION
+mpd msg -- ------------------------------------
+mpd msg -- The command line was:
+../../src/utils/mpd --verbose -s 10 -R 10 -D /udd/sacha/src/project/mptk/trunk/src/tests/signals/dico_test.xml /udd/sacha/src/project/mptk/trunk/src/tests/signals/mix_58_stereo.wav /udd/sacha/src/project/mptk/trunk/src/tests/ref/book_mix_58_stereo.bin.ref /udd/sacha/src/project/mptk/trunk/src/tests/ref/res_mix_58_stereo.wav.ref 
+mpd msg -- End command line.
+mpd msg -- Loading the signal and the dictionary...
+mpd msg -- The signal is now loaded.
+mpd msg -- Parsing the dictionary...
+mpd msg -- (In the following, spurious output of dictionary pieces would be a symptom of parsing errors.)
+mpd msg -- The dictionary is now loaded.
+mpd msg -- The signal loaded from file [/udd/sacha/src/project/mptk/trunk/src/tests/signals/mix_58_stereo.wav] has:
+mplib info -- SIGNAL: [19200] samples on [2] channels; its sample rate is [8000]Hz.
+mpd msg -- The dictionary read from file [/udd/sacha/src/project/mptk/trunk/src/tests/signals/dico_test.xml] contains [9] blocks:
+mplib info -- GABOR BLOCK: gauss window (window opt=0) of length [128], shifted by [32] samples, projected on [65] frequencies;
+mplib info -- The number of frames for this block is [597], the search tree has [4] levels.
+mplib info -- GABOR BLOCK: gauss window (window opt=0) of length [256], shifted by [64] samples, projected on [129] frequencies;
+mplib info -- The number of frames for this block is [297], the search tree has [3] levels.
+mplib info -- GABOR BLOCK: gauss window (window opt=0) of length [512], shifted by [128] samples, projected on [257] frequencies;
+mplib info -- The number of frames for this block is [147], the search tree has [3] levels.
+mplib info -- GABOR BLOCK: gauss window (window opt=0) of length [1024], shifted by [256] samples, projected on [513] frequencies;
+mplib info -- The number of frames for this block is [72], the search tree has [2] levels.
+mplib info -- HARMONIC BLOCK: gauss window (window opt=0) of length [256], shifted by [128] samples, projected on [129] frequencies and [0] fundamental frequencies for a total of [129] filters;
+ mplib info -- fundamental frequency in the range [0.00390625 0] ([1 0]);
+ mplib info -- maximum number of partials 5;
+mplib info -- The number of frames for this block is [149], the search tree has [3] levels.
+mplib info -- HARMONIC BLOCK: gauss window (window opt=0) of length [512], shifted by [256] samples, projected on [257] frequencies and [37] fundamental frequencies for a total of [294] filters;
+ mplib info -- fundamental frequency in the range [0.0546875 0.125] ([28 64]);
+ mplib info -- maximum number of partials 10;
+mplib info -- The number of frames for this block is [74], the search tree has [2] levels.
+mplib info -- HARMONIC BLOCK: gauss window (window opt=0) of length [1024], shifted by [512] samples, projected on [513] frequencies and [73] fundamental frequencies for a total of [586] filters;
+ mplib info -- fundamental frequency in the range [0.0546875 0.125] ([56 128]);
+ mplib info -- maximum number of partials 10;
+mplib info -- The number of frames for this block is [36], the search tree has [2] levels.
+mplib info -- HARMONIC BLOCK: gauss window (window opt=0) of length [2048], shifted by [1024] samples, projected on [1025] frequencies and [145] fundamental frequencies for a total of [1170] filters;
+ mplib info -- fundamental frequency in the range [0.0546875 0.125] ([112 256]);
+ mplib info -- maximum number of partials 10;
+mplib info -- The number of frames for this block is [17], the search tree has [1] levels.
+mplib info -- dirac block.
+mpd msg -- End of dictionary.
+mpd msg -- -------------------------
+mpd msg -- Starting Matching Pursuit on signal [/udd/sacha/src/project/mptk/trunk/src/tests/signals/mix_58_stereo.wav] with dictionary [/udd/sacha/src/project/mptk/trunk/src/tests/signals/dico_test.xml].
+mpd msg -- -------------------------
+mpd msg -- This run will iterate until the SNR goes above [10], using [252996] atoms.
+mpd msg -- The resulting book will be written to book file [/udd/sacha/src/project/mptk/trunk/src/tests/ref/book_mix_58_stereo.bin.ref].
+mpd msg -- The residual will be written to file [/udd/sacha/src/project/mptk/trunk/src/tests/ref/res_mix_58_stereo.wav.ref].
+mpd msg -- The energy decay will not be saved.
+mpd msg -- The initial signal energy is : 1047.05
+mpd msg -- STARTING TO ITERATE
+mpd progress -- At iteration [10] : the residual energy is [813.626] and the SNR is [2.19087].
+mpd progress -- At iteration [20] : the residual energy is [694.834] and the SNR is [3.56175].
+mpd progress -- At iteration [30] : the residual energy is [608.727] and the SNR is [4.71092].
+mpd progress -- At iteration [40] : the residual energy is [540.379] and the SNR is [5.7454].
+mpd progress -- At iteration [50] : the residual energy is [490.105] and the SNR is [6.59359].
+mpd progress -- At iteration [60] : the residual energy is [446.297] and the SNR is [7.40689].
+mpd progress -- At iteration [70] : the residual energy is [408.522] and the SNR is [8.17506].
+mpd progress -- At iteration [80] : the residual energy is [377.381] and the SNR is [8.86378].
+mpd progress -- At iteration [90] : the residual energy is [350.812] and the SNR is [9.49788].
+mpd msg -- [100] ITERATIONS DONE.
+mpd msg -- ------------------------
+mpd msg -- MATCHING PURSUIT RESULTS:
+mpd msg -- ------------------------
+mpd result -- [100] iterations have been performed.
+mpd result -- ([100] atoms have been selected out of the [252996] atoms of the dictionary.)
+mpd result -- The initial signal energy was [1047.05].
+mpd result -- The residual energy is now [330.486].
+mpd result -- The SNR is now [10.0163].
+mpd msg -- Saved the residual.
+mpd msg -- Saved the book in binary mode.
+mpd msg -- Have a nice day !
