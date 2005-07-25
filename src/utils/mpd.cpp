@@ -688,7 +688,7 @@ int main( int argc, char **argv ) {
 	  return( ERR_OPEN );
 	}
 	else {
-	  nWrite = fwrite( decay, sizeof(double), i+1, decayFID );
+	  nWrite = mp_fwrite( decay, sizeof(double), i+1, decayFID );
 	  fclose( decayFID );
 	  if (nWrite != (i+1)) {
 	    fprintf( stderr, "mpd warning -- Wrote less than the expected number of doubles to the energy decay file.\n" );
@@ -769,7 +769,7 @@ int main( int argc, char **argv ) {
       return( ERR_OPEN );
     }
     else {
-      nWrite = fwrite( decay, sizeof(double), i+1, decayFID );
+      nWrite = mp_fwrite( decay, sizeof(double), i+1, decayFID );
       fclose( decayFID );
       if (nWrite != (i+1)) {
 	fprintf( stderr, "mpd warning -- Wrote less than the expected number of doubles to the energy decay file.\n" );

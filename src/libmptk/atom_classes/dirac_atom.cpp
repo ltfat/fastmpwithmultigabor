@@ -98,7 +98,7 @@ MP_Dirac_Atom_c::MP_Dirac_Atom_c( FILE *fid, const char mode )
     break;
       
   case MP_BINARY:
-    if ( fread( amp,   sizeof(MP_Real_t), numChans, fid ) != (size_t)numChans ) {
+    if ( mp_fread( amp,   sizeof(MP_Real_t), numChans, fid ) != (size_t)numChans ) {
       fprintf(stderr, "mplib warning -- MP_Dirac_Atom_c(file) - Failed to read the amp array.\n" );     
       for ( i=0; i<numChans; i++ ) *(amp+i) = 0.0;
     }
@@ -144,7 +144,7 @@ int MP_Dirac_Atom_c::write( FILE *fid, const char mode ) {
     break;
 
   case MP_BINARY:
-    nItem += fwrite( amp,   sizeof(MP_Real_t), numChans, fid );
+    nItem += mp_fwrite( amp,   sizeof(MP_Real_t), numChans, fid );
     break;
 
   default:

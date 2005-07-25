@@ -243,7 +243,7 @@ unsigned long int MP_Signal_c::read_from_float_file( const char *fName ) {
 
   /* Read the samples,
      and emit a warning if we can't read enough samples to fill the whole signal: */
-  if ( (nRead = fread( buffer, sizeof(float), numChans*numSamples, fid ))
+  if ( (nRead = mp_fread( buffer, sizeof(float), numChans*numSamples, fid ))
        != (numChans*numSamples) ) {
     fprintf( stderr, "mplib warning --  MP_Signal_c::read_from_float_file(file) -"
 	     " Can't read more than [%lu] samples from file [%s] "
@@ -292,7 +292,7 @@ unsigned long int MP_Signal_c::dump_to_float_file( const char *fName ) {
   
   /* Write to the file,
      and emit a warning if we can't write all the signal samples: */
-  if ( (nWrite = fwrite( buffer, sizeof(float), numChans*numSamples, fid ))
+  if ( (nWrite = mp_fwrite( buffer, sizeof(float), numChans*numSamples, fid ))
        != (numChans*numSamples) ) {
     fprintf( stderr, "mplib warning -- MP_Signal_c::dump_to_float_file(file) -"
 	     " Can't write more than [%lu] samples to file [%s] "
@@ -327,7 +327,7 @@ unsigned long int MP_Signal_c::dump_to_double_file( const char *fName ) {
   
   /* Write to the file,
      and emit a warning if we can't write all the signal samples: */
-  if ( (nWrite = fwrite( buffer, sizeof(double), numChans*numSamples, fid ))
+  if ( (nWrite = mp_fwrite( buffer, sizeof(double), numChans*numSamples, fid ))
        != (numChans*numSamples) ) {
     fprintf( stderr, "mplib warning -- MP_Signal_c::dump_to_double_file(file) -"
 	     " Can't write more than [%lu] samples to file [%s] "

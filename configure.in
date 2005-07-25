@@ -50,11 +50,12 @@ AM_PROG_LEX
 #AM_PROG_LIBTOOL
 AC_PROG_RANLIB
 
-dnl defined sizeof standard types
+dnl Check for sizeof and byte-order of the standard types
 AC_CHECK_SIZEOF(unsigned int)
 AC_CHECK_SIZEOF(float)
 AC_CHECK_SIZEOF(unsigned long int)
 AC_CHECK_SIZEOF(double)
+AC_C_BIGENDIAN
 
 dnl Checks for header files
 AC_HEADER_STDC

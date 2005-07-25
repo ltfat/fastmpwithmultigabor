@@ -140,7 +140,7 @@ MP_Harmonic_Atom_c::MP_Harmonic_Atom_c( FILE *fid, const char mode )
 
   case MP_BINARY:
     /* Try to read the number of partials */
-    if ( ( fread( &numPartials,  sizeof(unsigned int), 1, fid ) != 1) ||
+    if ( ( mp_fread( &numPartials,  sizeof(unsigned int), 1, fid ) != 1) ||
 	 (numPartials <=1) ) {
       fprintf(stderr, "mplib warning -- MP_Harmonic_Atom_c(file) - Failed to read the atom's number of partials.\n");
       numPartials = 0;
@@ -254,18 +254,18 @@ MP_Harmonic_Atom_c::MP_Harmonic_Atom_c( FILE *fid, const char mode )
     
   case MP_BINARY:
     /* Try to read the harmonicity, partialAmp, partialPhase */
-    if ( fread( harmonicity,   sizeof(MP_Real_t), numPartials, fid ) != (size_t)numPartials ) {
+    if ( mp_fread( harmonicity,   sizeof(MP_Real_t), numPartials, fid ) != (size_t)numPartials ) {
       fprintf(stderr, "mplib warning -- MP_Harmonic_Atom_c(file) - Failed to read the harmonicity array.\n" );     
       for ( j=0; j<numPartials; j++ ) *(harmonicity+j) = (MP_Real_t)(j+1);
     }
 
-    if ( fread( partialAmpStorage,   sizeof(MP_Real_t), numChans*numPartials, fid ) != (size_t)(numChans*numPartials) ) {
+    if ( mp_fread( partialAmpStorage,   sizeof(MP_Real_t), numChans*numPartials, fid ) != (size_t)(numChans*numPartials) ) {
       fprintf(stderr, "mplib warning -- MP_Harmonic_Atom_c(file) - Failed to read the partialAmp array.\n" );     
       for ( i=0; i<numChans; i++) {
 	for ( j=0; j<numPartials; j++) { *(partialAmp[i]+j) = 0.0;}
       }
     }
-    if ( fread( partialPhaseStorage, sizeof(MP_Real_t), numChans*numPartials, fid ) != (size_t)(numChans*numPartials) ) {
+    if ( mp_fread( partialPhaseStorage, sizeof(MP_Real_t), numChans*numPartials, fid ) != (size_t)(numChans*numPartials) ) {
       fprintf(stderr, "mplib warning -- MP_Harmonic_Atom_c(file) - Failed to read the partialPhase array.\n" );     
       for ( i=0; i<numChans; i++) {
 	for ( j=0; j<numPartials; j++) { *(partialPhase[i]+j) = 0.0;}
@@ -331,11 +331,11 @@ int MP_Harmonic_Atom_c::write( FILE *fid, const char mode ) {
 
   case MP_BINARY:
     /* Number of partials */
-    nItem += fwrite( &numPartials,  sizeof(unsigned int), 1, fid );
+    nItem += mp_fwrite( &numPartials,  sizeof(unsigned int), 1, fid );
     /* Binary parameters */
-    nItem += fwrite( harmonicity,   sizeof(MP_Real_t), numPartials, fid );
-    nItem += fwrite( partialAmpStorage,   sizeof(MP_Real_t), numChans*numPartials, fid );
-    nItem += fwrite( partialPhaseStorage, sizeof(MP_Real_t), numChans*numPartials, fid );
+    nItem += mp_fwrite( harmonicity,   sizeof(MP_Real_t), numPartials, fid );
+    nItem += mp_fwrite( partialAmpStorage,   sizeof(MP_Real_t), numChans*numPartials, fid );
+    nItem += mp_fwrite( partialPhaseStorage, sizeof(MP_Real_t), numChans*numPartials, fid );
 
     break;
 

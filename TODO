@@ -7,8 +7,8 @@ TODO:
       + decide upon a strategy for the book parsing in binary and text
   - factor the computations of touchFrame and loop on frames in a generic 
     virtual update_ip, using a virtual update_frame(frameIdx) function
-  - MANAGE THE ENDIANNESS: P.Leveau got endianness problems with MacOSX.
   - Reinforce the detection/warning of wrong syntaxes in XML dictionaries.
+  - In bookplot.m : manage the multichannel case and the chirped atoms.
 
 * BUGS:
   - (None known at the moment)
@@ -25,7 +25,7 @@ TODO:
   - mpd/mpr/mpf/mpcat/mpd_demix: leave choice between binary or text when
     reading or writing from/to a pipe?
   - check the divergence between signal.compute_energy() and signal.energy
-  - redesign the test suite 
+  - reinforce the test suite
   - use try/catch to handle the errors in the file constructors (and elsewhere?)
 
 

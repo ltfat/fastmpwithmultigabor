@@ -76,7 +76,7 @@ int main(void) {
 	     "signals/window_out.dbl" );
     exit(-1);
   }
-  fwrite( myFFT.window, sizeof(Dsp_Win_t), WIN_SIZE, fid );
+  mp_fwrite( myFFT.window, sizeof(Dsp_Win_t), WIN_SIZE, fid );
   fclose(fid);
 
   if ( ( fid = fopen("signals/magnitude_out.dbl","w") ) == NULL ) {
@@ -84,7 +84,7 @@ int main(void) {
 	     "signals/magnitude_out.dbl" );
     exit(-1);
   }
-  fwrite( mag_out, sizeof(MP_Real_t), OUT_SIZE, fid );
+  mp_fwrite( mag_out, sizeof(MP_Real_t), OUT_SIZE, fid );
   fclose(fid);
 
   /* 
@@ -106,7 +106,7 @@ int main(void) {
 	       "signals/2_cosines.flt" );
       exit(-1);
     }
-    fread( buffer, sizeof(float), 256, fid );
+    mp_fread( buffer, sizeof(float), 256, fid );
     fclose(fid);
 
     fft.exec_mag( buffer, magbuf);
@@ -116,7 +116,7 @@ int main(void) {
 	       "signals/out_two_peaks.dbl" );
       exit(-1);
     }
-    fwrite( magbuf, sizeof(MP_Real_t), 512, fid );
+    mp_fwrite( magbuf, sizeof(MP_Real_t), 512, fid );
     fclose(fid);
   }
 
@@ -133,7 +133,7 @@ int main(void) {
 	       "signals/2_cosines.flt" );
       exit(-1);
     }
-    fread( buffer, sizeof(float), 8000, fid );
+    mp_fread( buffer, sizeof(float), 8000, fid );
     fclose(fid);
 
     fft.exec_mag( buffer, magbuf);
@@ -143,7 +143,7 @@ int main(void) {
 	       "signals/out_two_peaks_whole.dbl" );
       exit(-1);
     }
-    fwrite( magbuf, sizeof(MP_Real_t), 512, fid );
+    mp_fwrite( magbuf, sizeof(MP_Real_t), 512, fid );
     fclose(fid);
   }
   printf("A FFT of the first [%d] samples of the signal in file [%s]\n"

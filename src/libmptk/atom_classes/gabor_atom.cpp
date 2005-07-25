@@ -143,7 +143,7 @@ MP_Gabor_Atom_c::MP_Gabor_Atom_c( FILE *fid, const char mode )
       windowType = window_type( str );
     }
     /* Try to read the window option */
-    if ( fread( &windowOption,  sizeof(double), 1, fid ) != 1 ) {
+    if ( mp_fread( &windowOption,  sizeof(double), 1, fid ) != 1 ) {
       fprintf(stderr, "mplib warning -- MP_Gabor_Atom_c(file) - Failed to read the atom's window option.\n");
       windowOption = 0.0;
     }
@@ -234,19 +234,19 @@ MP_Gabor_Atom_c::MP_Gabor_Atom_c( FILE *fid, const char mode )
     
   case MP_BINARY:
     /* Try to read the freq, chirp, amp, phase */
-    if ( fread( &freq,  sizeof(MP_Real_t), 1 , fid ) != (size_t)1 ) {
+    if ( mp_fread( &freq,  sizeof(MP_Real_t), 1 , fid ) != (size_t)1 ) {
  	fprintf(stderr, "mplib warning -- MP_Gabor_Atom_c(file) - Failed to read the freq.\n" );     
 	freq = 0.0;
     }
-    if ( fread( &chirp, sizeof(MP_Real_t), 1, fid ) != (size_t)1 ) {
+    if ( mp_fread( &chirp, sizeof(MP_Real_t), 1, fid ) != (size_t)1 ) {
  	fprintf(stderr, "mplib warning -- MP_Gabor_Atom_c(file) - Failed to read the chirp.\n" );     
 	chirp = 0.0;
     }
-    if ( fread( amp,   sizeof(MP_Real_t), numChans, fid ) != (size_t)numChans ) {
+    if ( mp_fread( amp,   sizeof(MP_Real_t), numChans, fid ) != (size_t)numChans ) {
  	fprintf(stderr, "mplib warning -- MP_Gabor_Atom_c(file) - Failed to read the amp array.\n" );     
 	for ( i=0; i<numChans; i++ ) *(amp+i) = 0.0;
     }
-    if ( fread( phase, sizeof(MP_Real_t), numChans, fid ) != (size_t)numChans ) {
+    if ( mp_fread( phase, sizeof(MP_Real_t), numChans, fid ) != (size_t)numChans ) {
  	fprintf(stderr, "mplib warning -- MP_Gabor_Atom_c(file) - Failed to read the phase array.\n" );     
 	for ( i=0; i<numChans; i++ ) *(phase+i) = 0.0;
     }
@@ -300,12 +300,12 @@ int MP_Gabor_Atom_c::write( FILE *fid, const char mode ) {
     /* Window name */
     nItem += fprintf( fid, "%s\n", window_name(windowType) );
     /* Window option */
-    nItem += fwrite( &windowOption,  sizeof(double), 1, fid );
+    nItem += mp_fwrite( &windowOption,  sizeof(double), 1, fid );
     /* Binary parameters */
-    nItem += fwrite( &freq,  sizeof(MP_Real_t), 1, fid );
-    nItem += fwrite( &chirp, sizeof(MP_Real_t), 1, fid );
-    nItem += fwrite( amp,   sizeof(MP_Real_t), numChans, fid );
-    nItem += fwrite( phase, sizeof(MP_Real_t), numChans, fid );
+    nItem += mp_fwrite( &freq,  sizeof(MP_Real_t), 1, fid );
+    nItem += mp_fwrite( &chirp, sizeof(MP_Real_t), 1, fid );
+    nItem += mp_fwrite( amp,   sizeof(MP_Real_t), numChans, fid );
+    nItem += mp_fwrite( phase, sizeof(MP_Real_t), numChans, fid );
     break;
 
   default:

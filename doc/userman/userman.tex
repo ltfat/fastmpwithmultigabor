@@ -739,15 +739,17 @@ dict\_scanner.lpp flex template. It has no corresponding .h header file.
 %%%%%%%%%
 \pagebreak
 \subsection{Building and portability}
-We use the automake/autoconf system to automatically adapt the building process
-to your particular flavor of Unix. Therefore, every system call should be
-performed through the ``system.h'' header files located at relevant places in
-the source tree.
 
-\paragraph{Known portability flaws --} The byte-order is not forced (yet) when
-reading or writing binary data (mostly books and signals). Hence, books created
-on a low-endian will crash on a big-endian and vice-versa. This will be
-corrected in a future release.
+\paragraph{Building system --} We use the automake/autoconf system
+to automatically adapt the building process to your particular flavor of Unix.
+Therefore, every system call should be performed through the ``mp\_system.h''
+header file located at the top of the source tree.
+
+\paragraph{Binary format and byte order --} The byte-order of any binary output
+is forced to be the LITTLE\_ENDIAN order, native on Intel ($\Rightarrow$ most
+PCs) and VAX\footnote{Dude, if you have a VAX alive, we would sure like to know
+  if MPTK runs on it.}, swapped on PowerPC ($\Rightarrow$ Macintosh), SPARC
+($\Rightarrow$ SUN workstations) and Motorola.
 
 
 %%%%%%%%%
@@ -757,8 +759,8 @@ corrected in a future release.
 \paragraph{Algorithmic aspects} For more information about the algorithmic
 aspects of the Matching Pursuit algorithm, see: \newline \cite{Zhang93},
 \cite{MZ93}, \cite{PRK93}, \cite{Davis94}, \cite{Bergeaud},
-\cite{BM96}, \linebreak \cite{HRP}, \cite{HRMP1}, \cite{HRMP2}, \cite{DMA97},
-\cite{goodwin99:_match}, \cite{MaThese}, \cite{Grib2001},
+\cite{BM96}, \cite{HRP}, \cite{HRMP1}, \cite{HRMP2}, \cite{DMA97},
+\cite{goodwin99:_match}, \cite{MaThese}, \cite{Grib2001}, \linebreak
 \cite{Grib2002a}, \cite{gribonval03:_harmon_decom_audio_signal_match_pursuit},
 \cite{SPIE03:GribA}.
 
@@ -770,7 +772,7 @@ of the Matching Pursuit algorithm, see: \newline
 
 
 %%%%%%%%%
-{\bibliographystyle{frealfullname}
+{\bibliographystyle{apalike}
 \bibliography{biblio_MP}}
 
 \end{document}

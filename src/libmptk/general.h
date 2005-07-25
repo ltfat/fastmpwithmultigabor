@@ -46,6 +46,13 @@
 #define __general_h_
 
 
+/** \brief A wrapper for fread which byte-swaps if the machine is BIG_ENDIAN. */
+size_t mp_fread( void *buf, size_t size, size_t n, FILE *fid );
+
+/** \brief A wrapper for fwrite which byte-swaps if the machine is BIG_ENDIAN. */
+size_t mp_fwrite( void *buf, size_t size, size_t n, FILE *fid );
+
+
 /** \brief A utility that computes how many frames with a given frameLength
  * and frameShift fit inside an interval of a given length. */
 #define len2numFrames( len , fLen , fShift )  ( fLen > len ? 0 : ( (len - fLen)/fShift + 1) )

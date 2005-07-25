@@ -44,6 +44,57 @@
 #include "mptk.h"
 #include "mp_system.h"
 
+/** A generic byte_swapping function */
+inline void mp_swap( void *buf, size_t s, size_t n ) {
+
+  char c, *p1, *p2, *p = (char *)buf;
+  size_t i, j, s2 = s >> 1;
+  
+  for ( i = 0; i < n; i++, p += s ) {
+    p1 = p; p2 = p+s-1;
+    for ( j = 0; j < s2; j++, p1++, p2-- ) {
+      c = *p1;
+      *p1 = *p2;
+      *p2 = c;
+    }
+  }
+
+}
+
+/** A wrapper for fread which byte-swaps if the machine is BIG_ENDIAN. */
+size_t mp_fread( void *buf, size_t size, size_t n, FILE *fid ) {
+  size_t r;
+
+  r = fread( buf, size, n, fid );
+#ifdef WORDS_BIGENDIAN
+  mp_swap( buf, size, n );
+#endif
+
+  return( r );
+}
+
+/** A wrapper for fwrite which byte-swaps if the machine is BIG_ENDIAN. */
+size_t mp_fwrite( void *buf, size_t size, size_t n, FILE *fid ) {
+
+  size_t r;
+
+#ifdef WORDS_BIGENDIAN
+  /* Swap before writing */
+  mp_swap( buf, size, n );
+#endif
+
+  r = fwrite( buf, size, n, fid );
+
+#ifdef WORDS_BIGENDIAN
+  /* Return the buffer to its previous state */
+  mp_swap( buf, size, n );
+#endif
+
+  return( r );
+
+}
+
+
 
 /** Finds out which frames intersect a given support */
 void support2frame( MP_Support_t support, 

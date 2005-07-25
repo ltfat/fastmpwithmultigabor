@@ -83,7 +83,7 @@ MP_Atom_c::MP_Atom_c( FILE *fid, const char mode ) {
     break;
 
   case MP_BINARY:
-    if ( fread( &numChans,   sizeof(int), 1, fid ) != 1 ) {
+    if ( mp_fread( &numChans,   sizeof(int), 1, fid ) != 1 ) {
       fprintf(stderr, "mplib warning -- MP_Atom_c(file) - Cannot read numChans. Atom will remain void.\n");
       numChans = 0;
     }
@@ -116,8 +116,8 @@ MP_Atom_c::MP_Atom_c( FILE *fid, const char mode ) {
       
     case MP_BINARY:
       for ( i=0, nItem = 0; i<(unsigned int)numChans; i++ ) {
-	nItem += fread( &(support[i].pos), sizeof(unsigned long int), 1, fid );
-	nItem += fread( &(support[i].len), sizeof(unsigned long int), 1, fid );
+	nItem += mp_fread( &(support[i].pos), sizeof(unsigned long int), 1, fid );
+	nItem += mp_fread( &(support[i].len), sizeof(unsigned long int), 1, fid );
       }
       break;
       
@@ -165,10 +165,10 @@ int MP_Atom_c::write( FILE *fid, const char mode ) {
     break;
 
   case MP_BINARY:
-    nItem += fwrite( &numChans, sizeof(int), 1, fid );
+    nItem += mp_fwrite( &numChans, sizeof(int), 1, fid );
     for ( i=0; i<(unsigned int)numChans; i++ ) {
-      nItem += fwrite( &(support[i].pos), sizeof(unsigned long int), 1, fid );
-      nItem += fwrite( &(support[i].len), sizeof(unsigned long int), 1, fid );
+      nItem += mp_fwrite( &(support[i].pos), sizeof(unsigned long int), 1, fid );
+      nItem += mp_fwrite( &(support[i].len), sizeof(unsigned long int), 1, fid );
     }
     break;
 

@@ -144,7 +144,7 @@ char MP_TF_Map_c::dump_to_float_file( const char *fName , char flagUpsideDown) {
 
     /* Write to the file,
        and emit a warning if we can't write all the signal samples: */
-    if ( (nWrite = fwrite( buffer, sizeof(float), numRows*numCols, fid ))
+    if ( (nWrite = mp_fwrite( buffer, sizeof(float), numRows*numCols, fid ))
 	 != numRows*numCols ) {
       fprintf( stderr, "Warning: Can't write more than [%ld] pixels to file [%s] "
 	       "from tfmap with [%d]rows*[%d]columns=[%d] pixels.\n",

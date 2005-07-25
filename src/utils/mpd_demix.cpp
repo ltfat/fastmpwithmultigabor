@@ -1045,7 +1045,7 @@ int main( int argc, char **argv ) {
 	  return( ERR_OPEN );
 	}
 	else {
-	  nWrite = fwrite( decay, sizeof(double), i+1, fid );
+	  nWrite = mp_fwrite( decay, sizeof(double), i+1, fid );
 	  fclose( fid );
 	  if (nWrite != (i+1)) {
 	    fprintf( stderr, "mpd_demix warning -- Wrote less than the expected number of doubles to the energy decay file.\n" );
@@ -1064,7 +1064,7 @@ int main( int argc, char **argv ) {
 	  return( ERR_OPEN );
 	}
 	else {
-	  nWrite = fwrite( srcSequence, sizeof(unsigned short int), i, fid );
+	  nWrite = mp_fwrite( srcSequence, sizeof(unsigned short int), i, fid );
 	  fclose( fid );
 	  if (nWrite != (i)) {
 	    fprintf( stderr, "mpd_demix warning -- Wrote less than the expected number of unsigned short ints"
@@ -1139,7 +1139,7 @@ int main( int argc, char **argv ) {
       return( ERR_OPEN );
     }
     else {
-      nWrite = fwrite( decay, sizeof(double), i+1, fid );
+      nWrite = mp_fwrite( decay, sizeof(double), i+1, fid );
       fclose( fid );
       if (nWrite != (i+1)) {
 	fprintf( stderr, "mpd_demix warning -- Wrote less than the expected number of doubles to the energy decay file.\n" );
@@ -1159,7 +1159,7 @@ int main( int argc, char **argv ) {
       return( ERR_OPEN );
     }
     else {
-      nWrite = fwrite( srcSequence, sizeof(unsigned short int), i, fid );
+      nWrite = mp_fwrite( srcSequence, sizeof(unsigned short int), i, fid );
       fclose( fid );
       if (nWrite != i) {
 	fprintf( stderr, "mpd_demix warning -- Wrote less than the expected number of unsigned short ints to the source sequence file.\n" );

@@ -21,7 +21,7 @@ function [book] = bookread( fileName )
 %%   $Revision$
 %%
 
-fid = fopen( fileName );
+fid = fopen( fileName, 'r', 'l' );
 if (fid == -1),
    error( [ 'Can''t open file [' fileName ']' ] );
 end;
