@@ -43,5 +43,5 @@ EXTRA_DIST = userman.tex  atom.ps  biblio_MP.bib  mpcycle.eps  mpcycle.fig  plon
 dist-hook:
 	cd $(top_srcdir)/doc/userman; latex userman; latex userman; bibtex userman; \
 	latex userman; latex userman; dvips userman -o; ps2pdf userman.ps userman.pdf;
-	cp -fu $(top_srcdir)/doc/userman/userman.ps  $(distdir)/$(PACKAGE)-$(VERSION)-userman.ps;
-	cp -fu $(top_srcdir)/doc/userman/userman.pdf $(distdir)/$(PACKAGE)-$(VERSION)-userman.pdf;
+	cp -f $(top_srcdir)/doc/userman/userman.ps  $(distdir)/$(PACKAGE)-$(VERSION)-userman.ps;
+	cp -f $(top_srcdir)/doc/userman/userman.pdf $(distdir)/$(PACKAGE)-$(VERSION)-userman.pdf;

@@ -43,5 +43,5 @@ EXTRA_DIST = short_description.tex
 dist-hook:
 	cd $(top_srcdir)/doc/short_description; latex short_description; latex short_description; \
 	dvips short_description -o; ps2pdf short_description.ps short_description.pdf;
-	cp -fu $(top_srcdir)/doc/short_description/short_description.ps  $(distdir)/$(PACKAGE)-$(VERSION)-short_description.ps;
-	cp -fu $(top_srcdir)/doc/short_description/short_description.pdf $(distdir)/$(PACKAGE)-$(VERSION)-short_description.pdf;
+	cp -f $(top_srcdir)/doc/short_description/short_description.ps  $(distdir)/$(PACKAGE)-$(VERSION)-short_description.ps;
+	cp -f $(top_srcdir)/doc/short_description/short_description.pdf $(distdir)/$(PACKAGE)-$(VERSION)-short_description.pdf;

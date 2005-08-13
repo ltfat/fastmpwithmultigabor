@@ -57,7 +57,9 @@ dist-hook:
 	mkdir $(top_srcdir)/doc/refman; \
 	echo "Doxygen was not found. The old docs (or no docs) will be re-included in the package."; \
 	fi
+	if test -d '$(top_srcdir)/doc/refman/latex'; then \
 	cd $(top_srcdir)/doc/refman/latex; latex refman; latex refman; bibtex refman; \
-	latex refman; latex refman; dvips refman -o; ps2pdf refman.ps refman.pdf;
-	cp -rfu $(top_srcdir)/doc/refman/latex/refman.ps  $(distdir)/refman/$(PACKAGE)-$(VERSION)-refman.ps;
-	cp -rfu $(top_srcdir)/doc/refman/latex/refman.pdf $(distdir)/refman/$(PACKAGE)-$(VERSION)-refman.pdf;
+	latex refman; latex refman; dvips refman -o; ps2pdf refman.ps refman.pdf; \
+	cp -rf $(top_srcdir)/doc/refman/latex/refman.ps  $(distdir)/refman/$(PACKAGE)-$(VERSION)-refman.ps; \
+	cp -rf $(top_srcdir)/doc/refman/latex/refman.pdf $(distdir)/refman/$(PACKAGE)-$(VERSION)-refman.pdf; \
+	fi;
