@@ -583,7 +583,7 @@ int main( int argc, char **argv ) {
     if ( MPD_USE_ITER ) fprintf( stderr, "mpd msg -- This run will perform [%lu] iterations, using [%lu] atoms.\n",
 				 MPD_NUM_ITER, dict->size() );
     if ( MPD_USE_SNR ) fprintf( stderr, "mpd msg -- This run will iterate until the SNR goes above [%g], using [%lu] atoms.\n",
-				20*log10(MPD_SNR), dict->size() );
+				10*log10(MPD_SNR), dict->size() );
     if ( MPD_VERBOSE ) {
       fprintf( stderr, "mpd msg -- The resulting book will be written to book file [%s].\n", bookFileName );
       if ( resFileName ) fprintf( stderr, "mpd msg -- The residual will be written to file [%s].\n", resFileName );
@@ -662,7 +662,7 @@ int main( int argc, char **argv ) {
     /* ---- Report */
     if ( i == nextReportHit ) {
       fprintf( stderr, "mpd progress -- At iteration [%lu] : the residual energy is [%g] and the SNR is [%g].\n",
-	       i, residualEnergy, 20*log10( initialEnergy / residualEnergy ) );
+	       i, residualEnergy, 10*log10( initialEnergy / residualEnergy ) );
       fflush( stderr );
       nextReportHit += MPD_REPORT_HIT;
     }
@@ -738,7 +738,7 @@ int main( int argc, char **argv ) {
     fprintf( stderr, "mpd result -- The initial signal energy was [%g].\n", initialEnergy );
     residualEnergy = dict->signal->energy;
     fprintf( stderr, "mpd result -- The residual energy is now [%g].\n", residualEnergy );
-    currentSnr = 20*log10( initialEnergy / residualEnergy );
+    currentSnr = 10*log10( initialEnergy / residualEnergy );
     fprintf( stderr, "mpd result -- The SNR is now [%g].\n", currentSnr );
     fflush( stderr );
   }

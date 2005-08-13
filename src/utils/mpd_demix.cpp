@@ -843,7 +843,7 @@ int main( int argc, char **argv ) {
     }
     if ( MPD_USE_SNR ) {
       fprintf( stderr, "mpd_demix msg -- This run will iterate until the SNR goes above [%g], using [%lu] atoms per dictionary replica.\n",
-	       20*log10(MPD_SNR), dict[0]->size() );
+	       10*log10(MPD_SNR), dict[0]->size() );
     }
     if ( MPD_VERBOSE ) {
       fprintf( stderr, "mpd_demix msg -- The resulting book will be written to [%u] book files with basename [%s].\n",
@@ -1016,7 +1016,7 @@ int main( int argc, char **argv ) {
     /* ---- Report */
     if ( i == nextReportHit ) {
       fprintf( stderr, "mpd_demix progress -- At iteration [%lu] : the residual energy is [%g] and the SNR is [%g].\n",
-	       i, residualEnergy, 20*log10( initialEnergy / residualEnergy ) );
+	       i, residualEnergy, 10*log10( initialEnergy / residualEnergy ) );
       fflush( stderr );
       nextReportHit += MPD_REPORT_HIT;
     }
@@ -1109,7 +1109,7 @@ int main( int argc, char **argv ) {
     fprintf( stderr, "mpd_demix result -- The initial signal energy was [%g].\n", initialEnergy );
     residualEnergy = inSignal->energy;
     fprintf( stderr, "mpd_demix result -- The residual energy is now [%g].\n", residualEnergy );
-    currentSnr = 20*log10( initialEnergy / residualEnergy );
+    currentSnr = 10*log10( initialEnergy / residualEnergy );
     fprintf( stderr, "mpd_demix result -- The SNR is now [%g].\n", currentSnr );
     fflush( stderr );
   }
