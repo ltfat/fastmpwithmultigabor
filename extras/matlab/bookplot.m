@@ -55,9 +55,11 @@ fs = book.sampleRate;
 
 gaborX = [];
 gaborY = [];
+gaborZ = [];
 gaborC = [];
 harmX = [];
 harmY = [];
+harmZ = [];
 harmC = [];
 diracX = [];
 diracY = [];
@@ -79,9 +81,11 @@ for i = 1:book.numAtoms,
 
 		pv = [p;p;p+l;p+l];
 		fv = [f-bw2; f+bw2; f+bw2+c*l; f-bw2+c*l];
+		av = [A; A; A; A]
 
 		gaborX = [gaborX,pv];
 		gaborY = [gaborY,fv];
+		gaborZ = [gaborZ,av];
 		gaborC = [gaborC,A];
 
 	   case 'harmonic',
@@ -100,11 +104,15 @@ for i = 1:book.numAtoms,
 		fvdown = fv-bw2;
 		fv = [fvup;fvdown;fvdown+dfv;fvup+dfv];
 
-		av = A*atom.partialAmpStorage(:,channel)'; av = 20*log10(av);
+		cv = A*atom.partialAmpStorage(:,channel)';
+		cv = 20*log10(cv);
+
+		av = [cv;cv;cv;cv];
 
 		harmX = [harmX,pv];
 		harmY = [harmY,fv];
-		harmC = [harmC,av];
+		harmZ = [harmZ,av];
+		harmC = [harmC,cv];
 
 	   case 'dirac',
 		p = atom.pos(channel)/fs;
@@ -120,6 +128,6 @@ for i = 1:book.numAtoms,
 
 end;
 
-gaborP = patch( gaborX, gaborY, gaborC, 'edgecol', 'none' );
-harmP  = patch( harmX,  harmY,  harmC,  'edgecol', 'none' );
+gaborP = patch( gaborX, gaborY, gaborZ, gaborC, 'edgecol', 'none' );
+harmP  = patch( harmX,  harmY,  harmZ,  harmC,  'edgecol', 'none' );
 diracL = line( diracX, diracY, diracZ, 'color', 'k' );
