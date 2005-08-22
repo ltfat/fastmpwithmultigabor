@@ -81,7 +81,7 @@ for i = 1:book.numAtoms,
 
 		pv = [p;p;p+l;p+l];
 		fv = [f-bw2; f+bw2; f+bw2+c*l; f-bw2+c*l];
-		av = [A; A; A; A]
+		av = [A; A; A; A];
 
 		gaborX = [gaborX,pv];
 		gaborY = [gaborY,fv];
