@@ -48,44 +48,90 @@
 #define WIN_SIZE 256
 #define OUT_SIZE 257
 #define IN_SIZE 512
+#define MAX_SIZE 8192
 
 int main(void) {
 
-  MP_Sample_t in[IN_SIZE];
+  MP_Sample_t in[MAX_SIZE];
   MP_Real_t   mag_out[OUT_SIZE];
   FILE *fid;
   unsigned long int i;
 
-  MP_FFT_Interface_c myFFT( WIN_SIZE, DSP_HAMMING_WIN, 0.0, OUT_SIZE );
 
   /* Creates the signal */
-  for (i=0; i < IN_SIZE; i++) {
+  for (i=0; i < MAX_SIZE; i++) {
     in[i] = (MP_Sample_t) rand();
   }
+
+  MP_FFT_Interface_c::test(2,DSP_RECTANGLE_WIN, 0.0, in);
+  MP_FFT_Interface_c::test(4,DSP_RECTANGLE_WIN, 0.0, in);
+  MP_FFT_Interface_c::test(8,DSP_RECTANGLE_WIN, 0.0,in);
+  MP_FFT_Interface_c::test(16,DSP_RECTANGLE_WIN, 0.0,in);
+  MP_FFT_Interface_c::test(32,DSP_RECTANGLE_WIN, 0.0,in);
+  MP_FFT_Interface_c::test(64,DSP_RECTANGLE_WIN, 0.0,in);
+  MP_FFT_Interface_c::test(128,DSP_RECTANGLE_WIN, 0.0,in);
+  MP_FFT_Interface_c::test(256,DSP_RECTANGLE_WIN, 0.0,in);
+  MP_FFT_Interface_c::test(512,DSP_RECTANGLE_WIN, 0.0,in);
+  MP_FFT_Interface_c::test(1024,DSP_RECTANGLE_WIN, 0.0,in);
+  MP_FFT_Interface_c::test(2048,DSP_RECTANGLE_WIN, 0.0,in);
+  MP_FFT_Interface_c::test(4096,DSP_RECTANGLE_WIN, 0.0,in);
+  MP_FFT_Interface_c::test(8192,DSP_RECTANGLE_WIN, 0.0,in);
+
+  MP_FFT_Interface_c::test(2,DSP_HAMMING_WIN, 0.0, in);
+  MP_FFT_Interface_c::test(4,DSP_HAMMING_WIN, 0.0, in);
+  MP_FFT_Interface_c::test(8,DSP_HAMMING_WIN, 0.0,in);
+  MP_FFT_Interface_c::test(16,DSP_HAMMING_WIN, 0.0,in);
+  MP_FFT_Interface_c::test(32,DSP_HAMMING_WIN, 0.0,in);
+  MP_FFT_Interface_c::test(64,DSP_HAMMING_WIN, 0.0,in);
+  MP_FFT_Interface_c::test(128,DSP_HAMMING_WIN, 0.0,in);
+  MP_FFT_Interface_c::test(256,DSP_HAMMING_WIN, 0.0,in);
+  MP_FFT_Interface_c::test(512,DSP_HAMMING_WIN, 0.0,in);
+  MP_FFT_Interface_c::test(1024,DSP_HAMMING_WIN, 0.0,in);
+  MP_FFT_Interface_c::test(2048,DSP_HAMMING_WIN, 0.0,in);
+  MP_FFT_Interface_c::test(4096,DSP_HAMMING_WIN, 0.0,in);
+  MP_FFT_Interface_c::test(8192,DSP_HAMMING_WIN, 0.0,in);
+
+  MP_FFT_Interface_c::test(2,DSP_EXPONENTIAL_WIN, 0.0, in);
+  MP_FFT_Interface_c::test(4,DSP_EXPONENTIAL_WIN, 0.0, in);
+  MP_FFT_Interface_c::test(8,DSP_EXPONENTIAL_WIN, 0.0,in);
+  MP_FFT_Interface_c::test(16,DSP_EXPONENTIAL_WIN, 0.0,in);
+  MP_FFT_Interface_c::test(32,DSP_EXPONENTIAL_WIN, 0.0,in);
+  MP_FFT_Interface_c::test(64,DSP_EXPONENTIAL_WIN, 0.0,in);
+  MP_FFT_Interface_c::test(128,DSP_EXPONENTIAL_WIN, 0.0,in);
+  MP_FFT_Interface_c::test(256,DSP_EXPONENTIAL_WIN, 0.0,in);
+  MP_FFT_Interface_c::test(512,DSP_EXPONENTIAL_WIN, 0.0,in);
+  MP_FFT_Interface_c::test(1024,DSP_EXPONENTIAL_WIN, 0.0,in);
+  MP_FFT_Interface_c::test(2048,DSP_EXPONENTIAL_WIN, 0.0,in);
+  MP_FFT_Interface_c::test(4096,DSP_EXPONENTIAL_WIN, 0.0,in);
+  MP_FFT_Interface_c::test(8192,DSP_EXPONENTIAL_WIN, 0.0,in);
+
 
   /* 
    * 1/ FFT computation with internally computed window 
    */
+  {
+    MP_FFT_Interface_c * myFFT = MP_FFT_Interface_c::init( WIN_SIZE, DSP_HAMMING_WIN, 0.0, OUT_SIZE );
+    
+    /* Execute the FFT */
+    myFFT->exec_mag( in, mag_out );
+    /* Output to files */
+    if ( ( fid = fopen("signals/window_out.dbl","w") ) == NULL ) {
+      fprintf( stderr, "Can't open file [%s] in write mode.\n",
+	       "signals/window_out.dbl" );
+      exit(-1);
+    }
+    mp_fwrite( myFFT->window, sizeof(Dsp_Win_t), WIN_SIZE, fid );
+    fclose(fid);
 
-  /* Execute the FFT */
-  myFFT.exec_mag( in, mag_out );
-
-  /* Output to files */
-  if ( ( fid = fopen("signals/window_out.dbl","w") ) == NULL ) {
-    fprintf( stderr, "Can't open file [%s] in write mode.\n",
-	     "signals/window_out.dbl" );
-    exit(-1);
+    if ( ( fid = fopen("signals/magnitude_out.dbl","w") ) == NULL ) {
+      fprintf( stderr, "Can't open file [%s] in write mode.\n",
+	       "signals/magnitude_out.dbl" );
+      exit(-1);
+    }
+    mp_fwrite( mag_out, sizeof(MP_Real_t), OUT_SIZE, fid );
+    fclose(fid);
+    delete myFFT;
   }
-  mp_fwrite( myFFT.window, sizeof(Dsp_Win_t), WIN_SIZE, fid );
-  fclose(fid);
-
-  if ( ( fid = fopen("signals/magnitude_out.dbl","w") ) == NULL ) {
-    fprintf( stderr, "Can't open file [%s] in write mode.\n",
-	     "signals/magnitude_out.dbl" );
-    exit(-1);
-  }
-  mp_fwrite( mag_out, sizeof(MP_Real_t), OUT_SIZE, fid );
-  fclose(fid);
 
   /* 
    * 2/ FFT computation with externally tabulated window
@@ -99,8 +145,7 @@ int main(void) {
   {
     MP_Sample_t buffer[256];
     MP_Real_t   magbuf[512];
-    MP_FFT_Interface_c fft( 256, DSP_HAMMING_WIN, 0.0, 512 );
-
+    MP_FFT_Interface_c *fft = MP_FFT_Interface_c::init( 256, DSP_HAMMING_WIN, 0.0, 512 );
     if ( ( fid = fopen("signals/2_cosines.flt","r") ) == NULL ) {
       fprintf( stderr, "Can't open file [%s] in read mode.\n",
 	       "signals/2_cosines.flt" );
@@ -108,9 +153,7 @@ int main(void) {
     }
     mp_fread( buffer, sizeof(float), 256, fid );
     fclose(fid);
-
-    fft.exec_mag( buffer, magbuf);
-
+    fft->exec_mag( buffer, magbuf);
     if ( ( fid = fopen("signals/out_two_peaks.dbl","w") ) == NULL ) {
       fprintf( stderr, "Can't open file [%s] in write mode.\n",
 	       "signals/out_two_peaks.dbl" );
@@ -118,6 +161,7 @@ int main(void) {
     }
     mp_fwrite( magbuf, sizeof(MP_Real_t), 512, fid );
     fclose(fid);
+    delete fft;
   }
 
   /* 
@@ -126,31 +170,42 @@ int main(void) {
   {
     MP_Sample_t buffer[8000];
     MP_Real_t   magbuf[512];
-    MP_FFT_Interface_c fft( 8000, DSP_HAMMING_WIN, 0.0, 512 );
-
+    printf("Testing something that makes the fft crash ... \n");fflush(stdout);    
+    MP_FFT_Interface_c *fft = MP_FFT_Interface_c::init( 8000, DSP_HAMMING_WIN, 0.0, 512 );
+    printf("2\n");fflush(stdout);    
     if ( ( fid = fopen("signals/2_cosines.flt","r") ) == NULL ) {
       fprintf( stderr, "Can't open file [%s] in read mode.\n",
 	       "signals/2_cosines.flt" );
       exit(-1);
     }
+    printf("3\n");fflush(stdout);    
     mp_fread( buffer, sizeof(float), 8000, fid );
+    printf("4\n");fflush(stdout);    
     fclose(fid);
-
-    fft.exec_mag( buffer, magbuf);
-
+    printf("5\n");fflush(stdout);    
+    fft->exec_mag( buffer, magbuf);
+    printf("6\n");fflush(stdout);    
     if ( ( fid = fopen("signals/out_two_peaks_whole.dbl","w") ) == NULL ) {
       fprintf( stderr, "Can't open file [%s] in write mode.\n",
 	       "signals/out_two_peaks_whole.dbl" );
       exit(-1);
     }
+    printf("7\n");fflush(stdout);    
     mp_fwrite( magbuf, sizeof(MP_Real_t), 512, fid );
+    printf("8\n");fflush(stdout);    
     fclose(fid);
+    printf("9\n");fflush(stdout);    
+    delete fft;
+    printf("10\n");fflush(stdout);    
   }
+  printf("1\n");fflush(stdout);    
   printf("A FFT of the first [%d] samples of the signal in file [%s]\n"
 	 "was computed with a [%d] points Hamming window and stored in file [%s]\n",
 	 256,"signals/2_cosines.flt",256,"signals/out_two_peaks.dbl");
+  printf("2\n");fflush(stdout);    
   printf("The first [%d] points of a FFT of the whole signal in file [%s]\n"
 	 "was computed with a [%d] points Hamming window and stored in file [%s]\n",
 	 512,"signals/2_cosines.flt",8000,"signals/out_two_peaks_whole.dbl");
+  printf("3\n");fflush(stdout);    
   return( 0 );
 }

@@ -49,16 +49,15 @@
 #define __fft_interface_h_
 
 
-#include <fftw3.h>
-
-
 /*--------------------------*/
 /* Choice of the interface: */
 /*--------------------------*/
 /** \brief A macro that defines which particular FFT interface is used
  * in the rest of the package.
+ * \todo Properly handle the selection of the interface with configure
  */
-#define MP_FFT_Interface_c MP_FFTW_Interface_c 
+#define HAVE_LIBFFTW 1
+#include <fftw3.h>
 
 /** \brief A macro which says that the method exec_mag should return
  *  the squared magnitude (i.e., the square root is avoided in the computation
@@ -66,10 +65,13 @@
  */
 #define MP_MAGNITUDE_IS_SQUARED
 
-/* Inheritance graph: all the interfaces inherit from
-   the generic interface (MP_FFT_Generic_Interface_c):
+/** \brief The tolerance for inexact energy preservation in FFT \sa test()*/
+#define MP_FFT_TEST_PRECISION 1e-15
 
-       MP_FFT_Generic_Interface_c |-> MP_FFTW_Interface_c
+/* Inheritance graph: all the interfaces inherit from
+   the generic interface (MP_FFT_Interface_c):
+
+       MP_FFT_Interface_c |-> MP_FFTW_Interface_c
  */
 
 
@@ -81,7 +83,7 @@
  */
 /*-------------------*/
 
-class MP_FFT_Generic_Interface_c {
+class MP_FFT_Interface_c {
 
   /********/
   /* DATA */
@@ -160,19 +162,22 @@ public:
    * */
   MP_Real_t *cstCorrel;
 
+ protected:
+  /** \brief Two buffers of size fftRealSize to store the output of exec_complex() when generic methods
+   * such as fill_correl() or exec_mag() need it */
+  MP_Real_t *bufferRe;    
+  MP_Real_t *bufferIm;
 
   /***********/
   /* METHODS */
   /***********/
 
   /***************************/
-  /* CONSTRUCTORS/DESTRUCTOR */
+  /* FACTORY METHOD          */
   /***************************/
-
-public:
-
-  /** \brief A constructor which takes as input a window specified 
-   * by its type and size.
+ public:
+  /** \brief The method which should be called to instantiate an FFT_Interface object
+   * for a given window (specified by its type and size) and FFT resolution.
    *
    * \param windowSize size of the window
    * \param windowType type of the window
@@ -185,11 +190,31 @@ public:
    * otherwise the behaviour is undefined.
    * \sa make_window(), exec_complex().
    */
-  MP_FFT_Generic_Interface_c( const unsigned long int windowSize,
-			      const unsigned char windowType,
-			      const double windowOption,
-			      const unsigned long int fftRealSize );
-  virtual ~MP_FFT_Generic_Interface_c();
+  static MP_FFT_Interface_c* init( const unsigned long int windowSize,
+				   const unsigned char windowType,
+				   const double windowOption,
+				   const unsigned long int fftRealSize );
+
+  /** \brief A generic method to test if the default instantiation of the FFT class for a given
+   * window scales correctly the energy of a signal, which is a clue whether it is correctly implemented */
+  static int test(const unsigned long int windowSize, 
+		  const unsigned char windowType,
+		  const double windowOption,
+		  MP_Sample_t *samples);
+  /***************************/
+  /* CONSTRUCTORS/DESTRUCTOR */
+  /***************************/
+
+ protected:
+
+  /** \brief A generic constructor used only by non-virtual children classes */
+  MP_FFT_Interface_c( const unsigned long int windowSize,
+		      const unsigned char windowType,
+		      const double windowOption,
+		      const unsigned long int fftRealSize );
+
+ public:
+  virtual ~MP_FFT_Interface_c();
 
 
   /***************************/
@@ -204,7 +229,7 @@ private:
 
   /** \brief Computes and tabulates the atom's autocorrelation.
    */
-  virtual int fill_correl( void ) = 0;
+  int fill_correl( void );
 
 
 public:
@@ -244,7 +269,7 @@ public:
    * \f$(\mbox{re}[k],\mbox{im}[k])\f$ and details about zero padding
    * and the use of fftRealSize.
    */  
-  virtual void exec_mag( MP_Sample_t *in, MP_Real_t *mag ) = 0;
+  virtual void exec_mag( MP_Sample_t *in, MP_Real_t *mag );
 
   /** \brief Computes a special version of the power spectrum of an input signal buffer and
    * puts it in an output magnitude buffer. This version corresponds to the actual projection
@@ -266,7 +291,7 @@ public:
    * \f]
    * so with \f$(\mbox{re},\mbox{im}) = \langle \mbox{sig},g \rangle\f$ 
    * and \f$(\mbox{reCorrel},\mbox{imCorrel}) = \langle g,\overline{g}\rangle\f$  
-   * and the definition of \a sqCorrel and \a \cstCorrel we have
+   * and the definition of \a sqCorrel and \a cstCorrel we have
    *
    * \f[
    * \mbox{energy} = 
@@ -287,7 +312,7 @@ public:
    * \sa The documentation of exec_complex() gives the expression of \f$(\mbox{re}[k],\mbox{im}[k])\f$
    * and details about zero padding and the use of fftRealSize.
    */  
-  virtual void exec_energy( MP_Sample_t *in, MP_Real_t *mag ) = 0;
+  virtual void exec_energy( MP_Sample_t *in, MP_Real_t *mag );
 
 };
 
@@ -303,7 +328,7 @@ public:
  * the Fastest Fourier Transform in the West (FFTW)
  * library. See <A HREF="http://www.fftw.org">http://www.fftw.org</A>
  */
-class MP_FFTW_Interface_c:public MP_FFT_Generic_Interface_c {
+class MP_FFTW_Interface_c:public MP_FFT_Interface_c {
 
   /********/
   /* DATA */
@@ -354,7 +379,6 @@ public:
   /***************************/
 private:
   inline void common_FFTW_constructor(void);
-  int fill_correl( void );
   inline void exec( MP_Sample_t *in );
 public:
   void exec_complex( MP_Sample_t *in, MP_Real_t *re, MP_Real_t *im );

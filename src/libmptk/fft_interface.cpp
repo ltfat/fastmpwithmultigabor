@@ -51,6 +51,36 @@
 /*                               */
 /*********************************/
 
+/***************************/
+/* FACTORY METHOD          */
+/***************************/
+MP_FFT_Interface_c* MP_FFT_Interface_c::init( const unsigned long int setWindowSize,
+					      const unsigned char setWindowType,
+					      const double setWindowOption,
+					      const unsigned long int setFftRealSize )
+{
+  MP_FFT_Interface_c* fft = NULL;
+
+  if( 2*(setFftRealSize-1) < setWindowSize ) {
+    fprintf( stderr, "Can't create a FFT of size %ld smaller than the window size %ld ... aborting\n",
+	     2*(setFftRealSize-1),setWindowSize);
+    exit(1);
+  } 
+#if HAVE_LIBFFTW
+  fft = (MP_FFT_Interface_c*) new MP_FFTW_Interface_c( setWindowSize, setWindowType, setWindowOption, setFftRealSize );
+#else
+  fft = (MP_FFT_Interface_c*) new MP_MacFFT_Interface_c( setWindowSize, setWindowType, setWindowOption, setFftRealSize );
+#endif
+  assert(NULL!=fft);
+
+  /* Tabulate the atom's autocorrelations */
+  if ( fft->fill_correl() ) {
+    fprintf( stderr, "mplib warning -- common_FFTW_constructor() - "
+	     "The allocation of the atom's autocorrelations returned an error.\n" );
+  }
+  
+  return(fft);
+}
 
 /***************************/
 /* CONSTRUCTORS/DESTRUCTOR */
@@ -58,13 +88,13 @@
 
 /***********************************/
 /* Constructor with a typed window */
-MP_FFT_Generic_Interface_c::MP_FFT_Generic_Interface_c( const unsigned long int setWindowSize,
-							const unsigned char setWindowType,
-							const double setWindowOption,
-							const unsigned long int setFftRealSize ) {
+MP_FFT_Interface_c::MP_FFT_Interface_c( const unsigned long int setWindowSize,
+					const unsigned char setWindowType,
+					const double setWindowOption,
+					const unsigned long int setFftRealSize ) {
   extern MP_Win_Server_c MP_GLOBAL_WIN_SERVER;
 
-  /* Check if fftCplxSize will overflow in the expression fftCplxSize = 2*(fftRealSize-1 */
+  /* Check if fftCplxSize will overflow in the expression fftCplxSize = 2*(fftRealSize-1) */
   assert( setFftRealSize    <= ULONG_MAX>>1 );
 
   /* Set values */
@@ -80,21 +110,27 @@ MP_FFT_Generic_Interface_c::MP_FFT_Generic_Interface_c( const unsigned long int 
 
   /* Allocate the atom's autocorrelations */
   if ( alloc_correl() ) {
-    fprintf( stderr, "mplib warning -- MP_FFT_Generic_Interface_c() - "
+    fprintf( stderr, "mplib warning -- MP_FFT_Interface_c() - "
 	     "The allocation of the atom's autocorrelations returned an error.\n");
   }
+
+  /* Allocate some other buffers */
+  bufferRe = (MP_Real_t*) malloc(sizeof(MP_Real_t)*fftRealSize);  
+  bufferIm = (MP_Real_t*) malloc(sizeof(MP_Real_t)*fftRealSize);
 
 }
 
 
 /**************/
 /* Destructor */
-MP_FFT_Generic_Interface_c::~MP_FFT_Generic_Interface_c( ) {
+MP_FFT_Interface_c::~MP_FFT_Interface_c( ) {
 
   if ( reCorrel  ) free( reCorrel  );
   if ( imCorrel  ) free( imCorrel  );
   if ( sqCorrel  ) free( sqCorrel  );
   if ( cstCorrel ) free( cstCorrel );
+  if ( bufferRe ) free( bufferRe );
+  if ( bufferIm ) free( bufferIm );
 
 }
 
@@ -106,7 +142,7 @@ MP_FFT_Generic_Interface_c::~MP_FFT_Generic_Interface_c( ) {
 
 /*****************************************/
 /* Allocation of the correlation vectors */
-int MP_FFT_Generic_Interface_c::alloc_correl( void ) {
+int MP_FFT_Interface_c::alloc_correl( void ) {
  
   /* Allocate the memory for the correlations and init it to zero */
   reCorrel = imCorrel = sqCorrel = NULL;
@@ -142,69 +178,11 @@ int MP_FFT_Generic_Interface_c::alloc_correl( void ) {
 }
 
 
-
-/*********************************/
-/*                               */
-/* FFTW-DEPENDENT IMPLEMENTATION */
-/*                               */
-/*********************************/
-
-/***************************/
-/* CONSTRUCTORS/DESTRUCTOR */
-/***************************/
-
-/* Code factorisation for FFTW constructors */
-inline void MP_FFTW_Interface_c::common_FFTW_constructor( void ) {
-
-  /* FFTW takes integer FFT sizes => check if the cast (int)(fftCplxSize) will overflow. */
-  assert( fftCplxSize <= INT_MAX );
-
-  /* Allocate the necessary buffers */
-  inPrepared =       (double*) fftw_malloc( sizeof(double)       * fftCplxSize );
-  out        = (fftw_complex*) fftw_malloc( sizeof(fftw_complex) * fftRealSize );
-  /* Call the FFTW planning utility */
-  p = fftw_plan_dft_r2c_1d( (int)(fftCplxSize), inPrepared, out, FFTW_MEASURE );
-  
-  /* Tabulate the atom's autocorrelations */
-  if ( fill_correl() ) {
-    fprintf( stderr, "mplib warning -- common_FFTW_constructor() - "
-	     "The allocation of the atom's autocorrelations returned an error.\n" );
-  }
-  
-  return;
-}
-
-/****/
-/* Constructor where the window is actually generated */
-MP_FFTW_Interface_c::MP_FFTW_Interface_c( const unsigned long int setWindowSize,
-					  const unsigned char setWindowType,
-					  const double setWindowOption,
-					  const unsigned long int setFftRealSize )
-  :MP_FFT_Generic_Interface_c( setWindowSize, setWindowType, setWindowOption, setFftRealSize ) {
-
-  common_FFTW_constructor();
-}
-
-
-/**************/
-/* Destructor */
-MP_FFTW_Interface_c::~MP_FFTW_Interface_c() {
-
-  fftw_free( inPrepared );
-  fftw_free( out );
-  fftw_destroy_plan( p );
-}
-
-
-/***************************/
-/* OTHER METHODS           */
-/***************************/
-
 /******************************************************/
 /** Fill the correlation arrays with 
  * \f$ (\mbox{reCorrel}[k],\mbox{imCorrel[k]}) =
  * \sum_{n=0}^{fftCplxSize-1} \mbox{window}^2[n] e^{2i\pi \frac{2kn}{fftCplxSize}} \f$ */
-int MP_FFTW_Interface_c::fill_correl( void ) {
+int MP_FFT_Interface_c::fill_correl( void ) {
 
   MP_Sample_t buffer[windowSize];
   double re,im,sq;
@@ -215,13 +193,13 @@ int MP_FFTW_Interface_c::fill_correl( void ) {
   /* Note: the window will be multiplied by itself and padded in exec(). */
 
   /* 2/ Compute its FFT: */
-  exec( buffer );
+  exec_complex( buffer, bufferRe, bufferIm );
 
   /* 3/ Fill reCorrel and imCorrel with the adequate FFT values: */
   for ( k = cursor = 0;  cursor < (int)(fftRealSize);  k++, cursor += 2 ) {
     /* In this loop, cursor is always equal to 2*k. */
-    re = out[cursor][0];
-    im = out[cursor][1];
+    re = bufferRe[cursor];
+    im = bufferIm[cursor];
     *( reCorrel + k ) = (MP_Real_t)(   re );
     *( imCorrel + k ) = (MP_Real_t)( - im );
     sq = ( re*re + im*im );
@@ -244,8 +222,8 @@ int MP_FFTW_Interface_c::fill_correl( void ) {
   }
   for ( cursor = (fftCplxSize-cursor);  cursor >= 0 ;  k++, cursor -= 2 ) {
     /* In this loop, cursor is always equal to (fftCplxSize - 2*k). */
-    re = out[cursor][0];
-    im = out[cursor][1];
+    re = bufferRe[cursor];
+    im = bufferIm[cursor];
     *( reCorrel + k ) = (MP_Real_t)( re );
     *( imCorrel + k ) = (MP_Real_t)( im );
     sq = ( re*re + im*im );
@@ -270,6 +248,206 @@ int MP_FFTW_Interface_c::fill_correl( void ) {
   return( 0 );
 }
 
+/**************************/
+/* Get the magnitude only */
+void MP_FFT_Interface_c::exec_mag( MP_Sample_t *in, MP_Real_t *mag ) {
+
+  unsigned long int i;
+  double re, im;
+
+  /* Simple buffer check */
+  assert( in  != NULL );
+  assert( mag != NULL );
+
+  /* Execute the FFT */
+  exec_complex( in, bufferRe, bufferIm );
+
+  /* Get the resulting magnitudes */
+  for ( i=0; i<fftRealSize; i++ ) {
+    re = bufferRe[i];
+    im = bufferIm[i];
+
+#ifdef MP_MAGNITUDE_IS_SQUARED
+    *(mag+i) = (MP_Real_t)( re*re+im*im );
+#else
+    *(mag+i) = (MP_Real_t)( sqrt( re*re+im*im ) );
+#endif
+  }
+
+}
+
+
+/***********************/
+/* Get the energy only */
+void MP_FFT_Interface_c::exec_energy( MP_Sample_t *in, MP_Real_t *mag ) {
+
+  int i;
+  double re, im, reSq, imSq, energy;
+  double correlSq;
+
+  /* Simple buffer check */
+  assert( in  != NULL );
+  assert( mag != NULL );
+
+  /* Execute the FFT */
+  exec_complex( in , bufferRe, bufferIm );
+
+  /*****/
+  /* Get the resulting magnitudes: */
+
+  /* -- At frequency 0: */
+  re = bufferRe[0];
+  *(mag) = (MP_Real_t)( re * re );
+
+  /* -- At a frequency between 0 and Nyquist: */
+  for ( i = 1;  i < ((int)(fftRealSize) - 1);  i++ ) {
+
+    /* Get the complex values */
+    re = bufferRe[i];
+    im = bufferIm[i];
+    reSq = ( re * re );
+    imSq = ( im * im );
+
+    /* Get the atom' autocorrelation: */
+    correlSq = (double)(*(sqCorrel+i));
+
+    /* If the atom's autocorrelation is neglegible: */
+    if ( correlSq < MP_ENERGY_EPSILON ) {
+      energy = 2 * ( reSq + imSq );
+    }
+    /* Else, if the atom's autocorrelation is NOT neglegible: */
+    else {
+	energy  =   ( reSq + imSq )
+	          - (double)(*(reCorrel+i)) * ( reSq - imSq )
+	          + (double)(*(imCorrel+i)) * (  2 * re*im  );
+      
+	energy = (double)(*(cstCorrel+i)) * energy;
+	/* The following version appears to be slightly slower,
+	   but that's not clear cut with our experiments: */
+	/* energy = ( 2.0 / (1.0 - correlSq) ) * energy; */
+      }
+
+    /* => Compensate for a possible numerical innacuracy
+     *    (this case should never happen in practice) */
+    if ( energy < 0 ) {
+      fprintf( stderr, "mplib warning -- exec_energy() - A negative energy was met."
+	       " (energy = [%g])\nEnergy value is reset to 0.0 .", energy );
+      energy = 0.0;
+    }
+
+    /* Cast and fill mag */
+    *(mag+i) = (MP_Real_t)(energy);
+
+  }
+
+  /* -- At the Nyquist frequency: */
+  re = bufferRe[fftRealSize-1];
+  *(mag+fftRealSize-1) = (MP_Real_t)( re * re );
+
+  /*****/
+
+  return;
+}
+
+/*********************************/
+/*                               */
+/*             GENERIC TEST      */
+/*                               */
+/*********************************/
+int MP_FFT_Interface_c::test( const unsigned long int setWindowSize , 
+			      const unsigned char windowType,
+			      const double windowOption,
+			      MP_Sample_t *samples) {
+
+  MP_FFT_Interface_c* fft = MP_FFT_Interface_c::init( setWindowSize, windowType, windowOption, setWindowSize/2+1 );
+  unsigned long int i;
+  MP_Real_t amp,energy1,energy2,tmp;
+
+  /* -1- Compute the energy of the analyzed signal multiplied by the analysis window */
+  energy1 = 0.0;
+  for (i=0; i < setWindowSize; i++) {
+    amp = samples[i]*(fft->window[i]);
+    energy1 += amp*amp;
+  }
+  /* -2- The resulting complex FFT should be of the same energy multiplied by windowSize */
+  energy2 = 0.0;
+  fft->exec_complex(samples,fft->bufferRe,fft->bufferIm);
+  amp = fft->bufferRe[0];
+  energy2 += amp*amp;
+  for (i=1; i< (fft->fftRealSize-1); i++) {
+    amp = fft->bufferRe[i];
+    energy2 += 2*amp*amp;
+    amp = fft->bufferIm[i];
+    energy2 += 2*amp*amp;
+  }
+  amp = fft->bufferRe[fft->fftRealSize-1];
+  energy2 += amp*amp;
+
+  tmp = fabsf((energy2/(setWindowSize*energy1))-1);
+  if ( tmp < MP_FFT_TEST_PRECISION ) {
+    printf("FFT size [%ld] energy in/out = 1+/-%g OK\n",
+	   setWindowSize,tmp);  
+    return(0);
+  }
+  else {
+    printf("FFT size [%ld] energy |in/out-1|= %g > %g!!!\n",
+	   setWindowSize, tmp, MP_FFT_TEST_PRECISION);  
+    return(1);
+  }
+
+}
+
+
+/*********************************/
+/*                               */
+/* FFTW-DEPENDENT IMPLEMENTATION */
+/*                               */
+/*********************************/
+
+/***************************/
+/* CONSTRUCTORS/DESTRUCTOR */
+/***************************/
+
+/* Code factorisation for FFTW constructors */
+inline void MP_FFTW_Interface_c::common_FFTW_constructor( void ) {
+
+  /* FFTW takes integer FFT sizes => check if the cast (int)(fftCplxSize) will overflow. */
+  assert( fftCplxSize <= INT_MAX );
+
+  /* Allocate the necessary buffers */
+  inPrepared =       (double*) fftw_malloc( sizeof(double)       * fftCplxSize );
+  out        = (fftw_complex*) fftw_malloc( sizeof(fftw_complex) * fftRealSize );
+  /* Call the FFTW planning utility */
+  p = fftw_plan_dft_r2c_1d( (int)(fftCplxSize), inPrepared, out, FFTW_MEASURE );
+  
+  return;
+}
+
+/****/
+/* Constructor where the window is actually generated */
+MP_FFTW_Interface_c::MP_FFTW_Interface_c( const unsigned long int setWindowSize,
+					  const unsigned char setWindowType,
+					  const double setWindowOption,
+					  const unsigned long int setFftRealSize )
+  :MP_FFT_Interface_c( setWindowSize, setWindowType, setWindowOption, setFftRealSize ) {
+
+  common_FFTW_constructor();
+}
+
+
+/**************/
+/* Destructor */
+MP_FFTW_Interface_c::~MP_FFTW_Interface_c() {
+
+  fftw_free( inPrepared );
+  fftw_free( out );
+  fftw_destroy_plan( p );
+}
+
+
+/***************************/
+/* OTHER METHODS           */
+/***************************/
 
 /*****************************************/
 /* Apply the window and execute the plan */
@@ -325,6 +503,7 @@ void MP_FFTW_Interface_c::exec_complex( MP_Sample_t *in, MP_Real_t *re, MP_Real_
   *(im+fftRealSize-1) = 0.0;
 
 }
+
 
 /**************************/
 /* Get the magnitude only */

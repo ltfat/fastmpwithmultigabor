@@ -87,7 +87,7 @@ public:
    * typically 2*(fftRealSize-1), so for speed reasons it might be preferable
    * to use fftRealSize of the form 2^n+1
    * 
-   * \sa MP_FFT_Generic_Interface_c::fftRealSize MP_FFT_Generic_Interface_c::exec_complex()
+   * \sa MP_FFT_Interface_c::fftRealSize MP_FFT_Interface_c::exec_complex()
    */
   MP_Gabor_Block_c( MP_Signal_c *s,
 		    const unsigned long int filterLen,

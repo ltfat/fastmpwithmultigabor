@@ -61,7 +61,7 @@ MP_Gabor_Block_c::MP_Gabor_Block_c( MP_Signal_c *setSignal,
 :MP_Block_c( setSignal, setFilterLen, setFilterShift, setFftRealSize ) {
   
   /* Create the FFT object */
-  fft = (MP_FFT_Interface_c*) new MP_FFT_Interface_c( filterLen, setWindowType, setWindowOption, setFftRealSize );
+  fft = (MP_FFT_Interface_c*)MP_FFT_Interface_c::init( filterLen, setWindowType, setWindowOption, setFftRealSize );
 
   /* Allocate the mag array */
   if ( (mag = (MP_Real_t*) malloc( setFftRealSize*s->numChans*sizeof(MP_Real_t) )) == NULL ) {
