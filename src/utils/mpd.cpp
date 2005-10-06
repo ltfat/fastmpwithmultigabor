@@ -339,7 +339,7 @@ int parse_args(int argc, char **argv) {
 		 optarg );
         return( ERR_ARG );
       }
-      MPD_SNR = pow( 10.0, MPD_SNR/20 ); /* Translate the snr in linear energy scale */
+      MPD_SNR = pow( 10.0, MPD_SNR/10 ); /* Translate the snr in linear energy scale */
       MPD_USE_SNR = MPD_TRUE;
 #ifndef NDEBUG
       fprintf( stderr, "mpd DEBUG -- Read SNR [%g].\n", MPD_SNR );
