@@ -484,12 +484,17 @@ MP_Real_t wigner_ville(MP_Real_t t, MP_Real_t f, unsigned char windowType) {
   switch(windowType) {
   case DSP_GAUSS_WIN :
     return(factor*exp(-(x*x)/DSP_GAUSS_DEFAULT_OPT -f*f*DSP_GAUSS_DEFAULT_OPT));
+    /* \todo : add pseudo wigner_ville for other windows */
   default :
-    return(1);
+    //
+    //    fprintf ( stderr, "Warning : wigner_ville defaults to Gaussian one for window type [%s]\n", window_name(windowType));
+    return(factor*exp(-(x*x)/DSP_GAUSS_DEFAULT_OPT -f*f*DSP_GAUSS_DEFAULT_OPT));
+	      //    return(1);
   }
 }
 
-/* Adds a pseudo Wigner-Ville of the atom to a time-frequency map */
+/** \brief Adds a pseudo Wigner-Ville of the atom to a time-frequency map */
+/* \todo add a generic method MP_Atom_C::add_to_tfmap() that tests support intersection */
 char MP_Gabor_Atom_c::add_to_tfmap( MP_TF_Map_c *tfmap ) {
 
   unsigned char chanIdx;

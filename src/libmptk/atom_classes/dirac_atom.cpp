@@ -196,14 +196,75 @@ void MP_Dirac_Atom_c::build_waveform( MP_Sample_t *outBuffer ) {
 /* Adds a pseudo Wigner-Ville of the atom to a time-frequency map */
 char MP_Dirac_Atom_c::add_to_tfmap( MP_TF_Map_c *tfmap ) {
 
+  unsigned char chanIdx;
+  MP_Real_t tMin,tMax,df,fMin,fMax;
+  int nMin,kMin,nMax,kMax;
+  int iMin,jMin,iMax,jMax;
+  int i,j;
+  MP_Real_t t,f;
+  MP_Real_t *column;
   char flag = 0;
+  MP_Real_t value;
 
-  /* YOUR code */
-  tfmap = NULL;
+#ifndef NDEBUG
+  assert(numChans==tfmap->numChans);
+#endif
 
-  return( flag );
+  for (chanIdx = 0; chanIdx < numChans; chanIdx++) {
+#ifndef NDEBUG
+    fprintf(stderr,"Displaying channel [%u] to tfmap\n",chanIdx);
+#endif
+    /* 1/ Determine the support (extremities included) of the atom in standard coordinates */
+    tMin = support[chanIdx].pos;
+    tMax = (MP_Real_t)(support[chanIdx].pos+support[chanIdx].len)-1;
+    fMin = 0.0;
+    fMax = 0.5;
+#ifndef NDEBUG
+    fprintf(stderr,"Atom 'rectangle' in tf  coordinates [%g %g]x[%g %g]\n",tMin,tMax,fMin,fMax);
+#endif
+    /* 2/ Convert this in pixel coordinates */
+    tfmap->pixel_coordinates(tMin,fMin,&nMin,&kMin);
+    tfmap->pixel_coordinates(tMax,fMax,&nMax,&kMax);
+#ifndef NDEBUG
+    fprintf(stderr,"Atom rectangle in pix coordinates [%d %d]x[%d %d]\n",nMin,nMax,kMin,kMax);
+#endif
+
+    /* 3/ Detect the cases where there is nothing to display */
+    if (nMin >= tfmap->numCols || nMax < 0 || kMin >= tfmap->numRows || kMax < 0) {
+#ifndef NDEBUG
+      fprintf(stderr,"Atom rectangle does not intersect tfmap\n");
+#endif
+      continue;
+    }
+    else {
+      flag = 1;
+    }
+    /* 4/ Compute the rectangle (lower extremity included, upper one excluded) of the pixel map that needs to be filled in */
+    if (nMin < 0) iMin = 0;
+    else          iMin = nMin;
+    if (nMax >= tfmap->numCols) iMax = tfmap->numCols;
+    else                        iMax = nMax+1;
+    if (kMin < 0) jMin = 0;
+    else          jMin = kMin;
+    if (kMax >= tfmap->numRows) jMax = tfmap->numRows;
+    else                        jMax = kMax+1;
+#ifndef NDEBUG
+    fprintf(stderr,"Filled rectangle in pix coordinates [%d %d[x[%d %d[\n",iMin,iMax,jMin,jMax);
+#endif
+		    
+    /* 4/ Fill the TF map */
+    for (i = iMin; i < iMax; i++) { /* loop on columns */
+      column = 	tfmap->channel[chanIdx] + i*tfmap->numRows; /* seek the column data */
+      /* Fill the column */
+      for (j = jMin; j < jMax; j++) {
+	tfmap->tf_coordinates(i,j,&t,&f);
+	value = amp[chanIdx]*amp[chanIdx];
+	column[j] += value;
+      }
+    }
+  }
+  return(flag);
 }
-
 
 
 int MP_Dirac_Atom_c::has_field( int field ) {

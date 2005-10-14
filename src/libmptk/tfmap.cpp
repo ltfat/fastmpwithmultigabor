@@ -119,6 +119,7 @@ char MP_TF_Map_c::dump_to_float_file( const char *fName , char flagUpsideDown) {
   FILE *fid;
   float buffer[numCols*numRows];
   long int nWrite = 0;
+  long int nWriteTotal = 0;
   MP_Real_t *column;
   int i,j,k;
   unsigned char chanIdx;
@@ -150,11 +151,12 @@ char MP_TF_Map_c::dump_to_float_file( const char *fName , char flagUpsideDown) {
 	       "from tfmap with [%d]rows*[%d]columns=[%d] pixels.\n",
 	       nWrite, fName, numRows, numCols, numRows*numCols );
     }
+    nWriteTotal += nWrite;
   }
 
   /* Clean the house */
   fclose(fid);
-  return(nWrite);
+  return( (nWriteTotal==(numChans*numRows*numCols)) );
 }
 
 void MP_TF_Map_c::pixel_coordinates(MP_Real_t t,MP_Real_t f, int *n, int *k) {
