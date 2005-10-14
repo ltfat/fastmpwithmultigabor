@@ -79,7 +79,7 @@ void usage( void ) {
 
   fprintf( stdout, " \n" );
   fprintf( stdout, " Usage:\n" );
-  fprintf( stdout, "     mpr (bookFILE.bin|-) (reconsFILE.wav|-) [residualFILE.wav]\n" );
+  fprintf( stdout, "     mpr [options] (bookFILE.bin|-) (reconsFILE.wav|-) [residualFILE.wav]\n" );
   fprintf( stdout, " \n" );
   fprintf( stdout, " Synopsis:\n" );
   fprintf( stdout, "     Rebuilds a signal reconsFile.wav from the atoms contained in the book file bookFile.bin.\n" );
