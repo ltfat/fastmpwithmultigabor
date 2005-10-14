@@ -209,7 +209,7 @@ MP_Harmonic_Atom_c::MP_Harmonic_Atom_c( FILE *fid, const char mode )
     for (i = 0; i<numChans; i++) {
       /* Opening tag */
       if ( ( fgets( line, MP_MAX_STR_LEN, fid ) == NULL  ) ||
-	   ( sscanf( line, "\t\t<harmonicPar chan=\"%d\">\n", &iRead ) != 1 ) ) {
+	   ( sscanf( line, "\t\t<harmo_gaborPar chan=\"%d\">\n", &iRead ) != 1 ) ) {
 	fprintf(stderr, "mplib warning -- MP_Harmonic_Atom_c(file) - Cannot scan channel index in atom.\n" );
       }
       else if ( iRead != i ) {
@@ -472,7 +472,7 @@ char MP_Harmonic_Atom_c::add_to_tfmap( MP_TF_Map_c *tfmap ) {
 
   /* YOUR code */
   tfmap = NULL;
-
+  fprintf( stderr, "Warning: Harmonic atom cannot yet be added to a time-frequency pixmap ... the atom is skipped\n");
   return( flag );
 }
 
