@@ -47,24 +47,50 @@ mpd msg -- The residual will be written to file [/udd/sacha/src/project/mptk/tru
 mpd msg -- The energy decay will not be saved.
 mpd msg -- The initial signal energy is : 1047.05
 mpd msg -- STARTING TO ITERATE
-mpd progress -- At iteration [10] : the residual energy is [813.626] and the SNR is [2.19087].
-mpd progress -- At iteration [20] : the residual energy is [694.834] and the SNR is [3.56175].
-mpd progress -- At iteration [30] : the residual energy is [608.727] and the SNR is [4.71092].
-mpd progress -- At iteration [40] : the residual energy is [540.379] and the SNR is [5.7454].
-mpd progress -- At iteration [50] : the residual energy is [490.105] and the SNR is [6.59359].
-mpd progress -- At iteration [60] : the residual energy is [446.297] and the SNR is [7.40689].
-mpd progress -- At iteration [70] : the residual energy is [408.522] and the SNR is [8.17506].
-mpd progress -- At iteration [80] : the residual energy is [377.381] and the SNR is [8.86378].
-mpd progress -- At iteration [90] : the residual energy is [350.812] and the SNR is [9.49788].
-mpd msg -- [100] ITERATIONS DONE.
+mpd progress -- At iteration [10] : the residual energy is [813.626] and the SNR is [1.09543].
+mpd progress -- At iteration [20] : the residual energy is [694.834] and the SNR is [1.78087].
+mpd progress -- At iteration [30] : the residual energy is [608.727] and the SNR is [2.35546].
+mpd progress -- At iteration [40] : the residual energy is [540.379] and the SNR is [2.8727].
+mpd progress -- At iteration [50] : the residual energy is [490.105] and the SNR is [3.2968].
+mpd progress -- At iteration [60] : the residual energy is [446.297] and the SNR is [3.70344].
+mpd progress -- At iteration [70] : the residual energy is [408.522] and the SNR is [4.08753].
+mpd progress -- At iteration [80] : the residual energy is [377.381] and the SNR is [4.43189].
+mpd progress -- At iteration [90] : the residual energy is [350.812] and the SNR is [4.74894].
+mpd progress -- At iteration [100] : the residual energy is [328.343] and the SNR is [5.0364].
+mpd progress -- At iteration [110] : the residual energy is [308.326] and the SNR is [5.30959].
+mpd progress -- At iteration [120] : the residual energy is [291.017] and the SNR is [5.56051].
+mpd progress -- At iteration [130] : the residual energy is [275.068] and the SNR is [5.80529].
+mpd progress -- At iteration [140] : the residual energy is [260.678] and the SNR is [6.03865].
+mpd progress -- At iteration [150] : the residual energy is [247.262] and the SNR is [6.26811].
+mpd progress -- At iteration [160] : the residual energy is [234.911] and the SNR is [6.49066].
+mpd progress -- At iteration [170] : the residual energy is [223.488] and the SNR is [6.70714].
+mpd progress -- At iteration [180] : the residual energy is [212.946] and the SNR is [6.91698].
+mpd progress -- At iteration [190] : the residual energy is [203.114] and the SNR is [7.12229].
+mpd progress -- At iteration [200] : the residual energy is [193.935] and the SNR is [7.32313].
+mpd progress -- At iteration [210] : the residual energy is [185.286] and the SNR is [7.52127].
+mpd progress -- At iteration [220] : the residual energy is [177.215] and the SNR is [7.71469].
+mpd progress -- At iteration [230] : the residual energy is [169.475] and the SNR is [7.90863].
+mpd progress -- At iteration [240] : the residual energy is [162.288] and the SNR is [8.09681].
+mpd progress -- At iteration [250] : the residual energy is [155.558] and the SNR is [8.28075].
+mpd progress -- At iteration [260] : the residual energy is [149.207] and the SNR is [8.46178].
+mpd progress -- At iteration [270] : the residual energy is [143.251] and the SNR is [8.6387].
+mpd progress -- At iteration [280] : the residual energy is [137.654] and the SNR is [8.81179].
+mpd progress -- At iteration [290] : the residual energy is [132.412] and the SNR is [8.98042].
+mpd progress -- At iteration [300] : the residual energy is [127.468] and the SNR is [9.14566].
+mpd progress -- At iteration [310] : the residual energy is [122.823] and the SNR is [9.30689].
+mpd progress -- At iteration [320] : the residual energy is [118.416] and the SNR is [9.46558].
+mpd progress -- At iteration [330] : the residual energy is [114.162] and the SNR is [9.62447].
+mpd progress -- At iteration [340] : the residual energy is [110.108] and the SNR is [9.7815].
+mpd progress -- At iteration [350] : the residual energy is [106.248] and the SNR is [9.93646].
+mpd msg -- [356] ITERATIONS DONE.
 mpd msg -- ------------------------
 mpd msg -- MATCHING PURSUIT RESULTS:
 mpd msg -- ------------------------
-mpd result -- [100] iterations have been performed.
-mpd result -- ([100] atoms have been selected out of the [252996] atoms of the dictionary.)
+mpd result -- [356] iterations have been performed.
+mpd result -- ([356] atoms have been selected out of the [252996] atoms of the dictionary.)
 mpd result -- The initial signal energy was [1047.05].
-mpd result -- The residual energy is now [330.486].
-mpd result -- The SNR is now [10.0163].
+mpd result -- The residual energy is now [104.394].
+mpd result -- The SNR is now [10.0129].
 mpd msg -- Saved the residual.
 mpd msg -- Saved the book in binary mode.
 mpd msg -- Have a nice day !
