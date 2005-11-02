@@ -34,14 +34,30 @@
 ##   $Revision$
 ##
 
-EXTRA_DIST = short_description.tex
+EXTRA_DIST = latex_src/short_description.tex \
+             $(PACKAGE)-$(VERSION)-short_description.ps $(PACKAGE)-$(VERSION)-short_description.pdf
+
+all: $(PACKAGE)-$(VERSION)-short_description.ps $(PACKAGE)-$(VERSION)-short_description.pdf
+
+latex_src/short_description.dvi: $(top_srcdir)/doc/short_description/latex_src/short_description.tex
+	cp -rf $(top_srcdir)/doc/short_description/latex_src/ ./;  \
+	if test -d latex_src/.svn; then rm -rf latex_src/.svn; fi;  \
+	cd latex_src; latex short_description; latex short_description;
+
+$(PACKAGE)-$(VERSION)-short_description.ps: latex_src/short_description.dvi
+	@if [ "$(DVIPS)" != "no" ]; \
+	then dvips latex_src/short_description.dvi -o $(PACKAGE)-$(VERSION)-short_description.ps; \
+	else echo "Dvips was not found. Can't make a postscript short-description."; \
+	fi;
+
+$(PACKAGE)-$(VERSION)-short_description.pdf: $(PACKAGE)-$(VERSION)-short_description.ps
+	@if [ "$(PS2PDF)" != "no" ]; \
+	then ps2pdf ./$(PACKAGE)-$(VERSION)-short_description.ps ./$(PACKAGE)-$(VERSION)-short_description.pdf; \
+	else echo "Ps2pdf was not found. Can't make a pdf short-description."; \
+	fi;
+
 
 ## DIST HOOK:
-#
-#  Before packaging, force a complete re-compiling of the doc.
-#
 dist-hook:
-	cd $(top_srcdir)/doc/short_description; latex short_description; latex short_description; \
-	dvips short_description -o; ps2pdf short_description.ps short_description.pdf;
-	cp -f $(top_srcdir)/doc/short_description/short_description.ps  $(distdir)/$(PACKAGE)-$(VERSION)-short_description.ps;
-	cp -f $(top_srcdir)/doc/short_description/short_description.pdf $(distdir)/$(PACKAGE)-$(VERSION)-short_description.pdf;
+	rm -rf `find $(distdir) -name '.svn'`;
+	rm -rf $(distdir)/latex_src/*.{aux,toc,bbl,blg,log,dvi}

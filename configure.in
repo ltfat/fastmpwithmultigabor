@@ -144,12 +144,49 @@ INCLUDES="$INCLUDES $LIBSNDFILE_CXXFLAGS"
 
 
 dnl ------------------------------------------------------------
+dnl PROGRAM CHECKS
+dnl ------------------------------------------------------------
+
+dnl ------------------------------------------------------------
 dnl check for DOXYGEN
 dnl ------------------------------------------------------------
 AC_CHECK_PROG(DOXYGEN,doxygen,doxygen,no)
 if test "x$DOXYGEN" = "xno"; then
    AC_MSG_NOTICE([Without doxygen, you won't be able to rebuild a fresh reference manual from the source headers. Nevertheless, you can still use/install the up-to-date reference manual which is included in this package. Note that you do not need doxygen to rebuild the user manual.])
 fi
+
+dnl ------------------------------------------------------------
+dnl check for PERL
+dnl ------------------------------------------------------------
+AC_PATH_PROG(PERLPATH,perl,/usr/bin/perl,no)
+if test "x$PERLPATH" = "xno"; then
+   AC_MSG_NOTICE([Perl was not found on your system.])
+fi
+
+dnl ------------------------------------------------------------
+dnl check for LATEX
+dnl ------------------------------------------------------------
+AC_CHECK_PROG(LATEX,latex,latex,no)
+if test "x$LATEX" = "xno"; then
+   AC_MSG_NOTICE([No latex found. Can't rebuild fresh manuals.])
+fi
+
+dnl ------------------------------------------------------------
+dnl check for DVIPS
+dnl ------------------------------------------------------------
+AC_CHECK_PROG(DVIPS,dvips,dvips,no)
+if test "x$DVIPS" = "xno"; then
+   AC_MSG_NOTICE([No dvips found. Can't generate postscript manuals from their dvi version.])
+fi
+
+dnl ------------------------------------------------------------
+dnl check for PS2PDF
+dnl ------------------------------------------------------------
+AC_CHECK_PROG(PS2PDF,ps2pdf,ps2pdf,no)
+if test "x$PS2PDF" = "xno"; then
+   AC_MSG_NOTICE([No ps2pdf found. Can't generate pdf manuals from postscript.])
+fi
+
 
 
 dnl ------------------------------------------------------------
@@ -230,6 +267,8 @@ AC_OUTPUT( Makefile                        \
 	   src/tests/signals/Makefile      \
 	   src/tests/ref/Makefile          \
            doc/Makefile                    \
+           doc/refman/doxygen_config       \
+           doc/refman/Makefile             \
            doc/userman/Makefile            \
            doc/short_description/Makefile  \
            extras/Makefile                 \
