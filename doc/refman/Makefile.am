@@ -34,7 +34,7 @@
 ##   $Revision$
 ##
 
-EXTRA_DIST = doxygen_config.in html $(PACKAGE)-$(VERSION)-refman.ps $(PACKAGE)-$(VERSION)-refman.pdf
+EXTRA_DIST = doxygen_config.in html latex_src $(PACKAGE)-$(VERSION)-refman.ps $(PACKAGE)-$(VERSION)-refman.pdf
 DISTCLEANFILES = doxygen_config
 
 all: html $(PACKAGE)-$(VERSION)-refman.ps $(PACKAGE)-$(VERSION)-refman.pdf
