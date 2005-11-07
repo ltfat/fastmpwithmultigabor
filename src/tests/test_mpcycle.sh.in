@@ -36,7 +36,8 @@
 ##   $Revision$
 ##
 
-refdir=@top_srcdir@/src/tests
+refdir=@abs_top_srcdir@/src/tests
+utilpath=@abs_top_builddir@/src/utils
 
 mkdir -p current
 
@@ -45,22 +46,22 @@ mkdir -p current
 #
 echo "Checking mpd:"
 
-if test ! -x ../utils/mpd; then
+if test ! -x $utilpath/mpd; then
   echo "  You should probably build mpd before running the tests..."
   exit 1
 fi
 
-../utils/mpd  --verbose -s 10 -R 10 -D $refdir/signals/dico_test.xml \
+$utilpath/mpd  --verbose -s 10 -R 10 -D $refdir/signals/dico_test.xml \
 		$refdir/signals/mix_58_stereo.wav current/book_mix_58_stereo.bin \
 		current/res_mix_58_stereo.wav >& current/log_mpd_mix_58_stereo.log;
 
-diff -I 'mix_58_stereo' -I 'contains' current/log_mpd_mix_58_stereo.log $refdir/ref/log_mpd_mix_58_stereo.ref > /dev/null 2> /dev/null
+diff -I 'mix_58_stereo' -I 'contains' @abs_top_builddir@/src/tests/current/log_mpd_mix_58_stereo.log $refdir/ref/log_mpd_mix_58_stereo.ref > /dev/null 2> /dev/null
 if test $? -eq 0; then
   echo "  mpd -- test -- The current log is similar to the reference log. Test passed successfully."
 else
   echo "  mpd -- test ERROR -- The current log differs from the reference log."
   echo "                       For details, execute:"
-  echo "                         diff -I 'mix_58_stereo' -I 'contains' current/log_mpd_mix_58_stereo.log $refdir/ref/log_mpd_mix_58_stereo.ref"
+  echo "                         diff -I 'mix_58_stereo' -I 'contains' @abs_top_builddir@/src/tests/current/log_mpd_mix_58_stereo.log $refdir/ref/log_mpd_mix_58_stereo.ref"
   exit 1
 fi
 
@@ -87,38 +88,38 @@ fi
 
 echo "Checking mpr:"
 
-if test ! -x ../utils/mpr; then
+if test ! -x $utilpath/mpr; then
   echo "  You should probably build mpr before running the tests..."
   exit 1
 fi
 
 echo "1) Rebuilding from the obtained book and residual:"
 
-../utils/mpr --verbose current/book_mix_58_stereo.bin current/reconst_obt_mix_58_stereo.wav \
+$utilpath/mpr --verbose current/book_mix_58_stereo.bin current/reconst_obt_mix_58_stereo.wav \
 	 current/res_mix_58_stereo.wav >& current/log_mpr_obt_mix_58_stereo.log;
 
-diff -I 'mix_58_stereo' current/log_mpr_obt_mix_58_stereo.log $refdir/ref/log_mpr_mix_58_stereo.ref > /dev/null 2> /dev/null
+diff -I 'mix_58_stereo' @abs_top_builddir@/src/tests/current/log_mpr_obt_mix_58_stereo.log $refdir/ref/log_mpr_mix_58_stereo.ref > /dev/null 2> /dev/null
 if test $? -eq 0; then
   echo "  mpr -- test -- The current log is similar to the reference log. Test passed successfully."
 else
   echo "  mpr -- test ERROR -- The current log differs from the reference log."
   echo "                       For details, execute:"
-  echo "                         diff -I 'mix_58_stereo' current/log_mpr_obt_mix_58_stereo.log $refdir/ref/log_mpr_mix_58_stereo.ref"
+  echo "                         diff -I 'mix_58_stereo' @abs_top_builddir@/src/tests/current/log_mpr_obt_mix_58_stereo.log $refdir/ref/log_mpr_mix_58_stereo.ref"
   exit 1
 fi
 
 echo "2) Rebuilding from the reference book and residual:"
 
-../utils/mpr --verbose $refdir/ref/book_mix_58_stereo.bin.ref current/reconst_ref_mix_58_stereo.wav \
+$utilpath/mpr --verbose $refdir/ref/book_mix_58_stereo.bin.ref current/reconst_ref_mix_58_stereo.wav \
 	 $refdir/ref/res_mix_58_stereo.wav.ref >& current/log_mpr_ref_mix_58_stereo.log;
 
-diff -I 'mix_58_stereo' current/log_mpr_ref_mix_58_stereo.log $refdir/ref/log_mpr_mix_58_stereo.ref > /dev/null 2> /dev/null
+diff -I 'mix_58_stereo' @abs_top_builddir@/src/tests/current/log_mpr_ref_mix_58_stereo.log $refdir/ref/log_mpr_mix_58_stereo.ref > /dev/null 2> /dev/null
 if test $? -eq 0; then
   echo "  mpr -- test -- The current log is similar to the reference log. Test passed successfully."
 else
   echo "  mpr -- test ERROR -- The current log differs from the reference log."
   echo "                       For details, execute:"
-  echo "                         diff -I 'mix_58_stereo' current/log_mpr_ref_mix_58_stereo.log $refdir/ref/log_mpr_mix_58_stereo.ref"
+  echo "                         diff -I 'mix_58_stereo' @abs_top_builddir@/src/tests/current/log_mpr_ref_mix_58_stereo.log $refdir/ref/log_mpr_mix_58_stereo.ref"
   exit 1
 fi
 
