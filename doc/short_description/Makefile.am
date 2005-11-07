@@ -46,7 +46,7 @@ latex_src/short_description.dvi: $(top_srcdir)/doc/short_description/latex_src/s
 
 $(PACKAGE)-$(VERSION)-short_description.ps: latex_src/short_description.dvi
 	@if [ "$(DVIPS)" != "no" ]; \
-	then dvips latex_src/short_description.dvi -o $(PACKAGE)-$(VERSION)-short_description.ps; \
+	then cd latex_src; dvips short_description.dvi -o ../$(PACKAGE)-$(VERSION)-short_description.ps; \
 	else echo "Dvips was not found. Can't make a postscript short-description."; \
 	fi;
 
@@ -56,6 +56,9 @@ $(PACKAGE)-$(VERSION)-short_description.pdf: $(PACKAGE)-$(VERSION)-short_descrip
 	else echo "Ps2pdf was not found. Can't make a pdf short-description."; \
 	fi;
 
+clean:
+	rm -rf ./latex_src/*.{aux,toc,bbl,blg,log,dvi}
+	rm -f ./$(PACKAGE)-$(VERSION)-short_description.ps ./$(PACKAGE)-$(VERSION)-short_description.pdf
 
 ## DIST HOOK:
 dist-hook:

@@ -34,6 +34,6 @@
 ##   $Revision$
 ##
 
-SUBDIRS = src doc extras
+SUBDIRS = src extras @DOC_DIR@
 
 EXTRA_DIST = mp_system.h README INSTALL COPYING CHANGES AUTHORS make_configure.sh

@@ -77,3 +77,14 @@ $(PACKAGE)-$(VERSION)-refman.pdf: $(PACKAGE)-$(VERSION)-refman.ps
 	else echo "Ps2pdf was not found. Can't make a pdf reference manual."; \
 	fi;
 
+clean:
+	@if [ "$(DOXYGEN)" = "no" ]; \
+	then  rm -rf ./latex_src/*.{aux,toc,bbl,blg,log,dvi} ./latex_src/refman.ps; \
+	else  rm -rf ./latex_src ./html; \
+	fi
+	rm -f ./$(PACKAGE)-$(VERSION)-refman.ps ./$(PACKAGE)-$(VERSION)-refman.pdf
+
+## DIST HOOK:
+dist-hook:
+	rm -rf `find $(distdir) -name '.svn'`;
+	rm -rf $(distdir)/latex_src/*.{aux,toc,bbl,blg,log,dvi} $(distdir)/latex_src/refman.ps

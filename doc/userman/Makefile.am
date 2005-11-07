@@ -46,7 +46,7 @@ latex_src/userman.dvi: $(top_srcdir)/doc/userman/latex_src/userman.tex
 
 $(PACKAGE)-$(VERSION)-userman.ps: latex_src/userman.dvi
 	@if [ "$(DVIPS)" != "no" ]; \
-	then dvips latex_src/userman.dvi -o $(PACKAGE)-$(VERSION)-userman.ps; \
+	then cd latex_src; dvips userman.dvi -o ../$(PACKAGE)-$(VERSION)-userman.ps; \
 	else echo "Dvips was not found. Can't make a postscript user manual."; \
 	fi;
 
@@ -56,6 +56,9 @@ $(PACKAGE)-$(VERSION)-userman.pdf: $(PACKAGE)-$(VERSION)-userman.ps
 	else echo "Ps2pdf was not found. Can't make a pdf user manual."; \
 	fi;
 
+clean:
+	rm -rf ./latex_src/*.{aux,toc,bbl,blg,log,dvi}
+	rm -f ./$(PACKAGE)-$(VERSION)-userman.ps ./$(PACKAGE)-$(VERSION)-userman.pdf
 
 ## DIST HOOK:
 dist-hook:
