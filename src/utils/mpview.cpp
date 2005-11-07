@@ -310,7 +310,8 @@ int main( int argc, char **argv ) {
 
   /* End report */
   if ( !MPVIEW_QUIET ) {
-    fprintf( stderr, "mpview msg -- The resulting pixmap has size [%lu x %lu] pixels and [%d] channel(s).\n", numCols,numRows, (int)(book.numChans) );
+    fprintf( stderr, "mpview msg -- The resulting pixmap has size [%d x %d] pixels and [%d] channel(s).\n",
+	     numCols,numRows, (int)(book.numChans) );
     fprintf( stderr, "mpview msg -- Have a nice day !\n" );
   }
   fflush( stderr );
