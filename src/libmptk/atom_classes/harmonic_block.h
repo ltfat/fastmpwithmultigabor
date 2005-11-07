@@ -60,7 +60,7 @@
  *
  * \sa MP_Harmonic_Atom_c::build_waveform()
  *
- * A harmonic block is the union of a standard Gabor block
+ * A harmonic block is the \b union of a standard Gabor block
  * with a set of harmonic subspaces spanned by Gabor atoms at discrete frequencies 
  * \f[
  * f_k \approx k*f_0, 1 \leq k \leq \mbox{maxNumPartials},
@@ -69,10 +69,20 @@
  * \f$f_0 = \ell/\mbox{fft.fftCplxSize}\f$ spans the domain
  * \f[
  * 1 \leq \mbox{minFundFreqIdx} \leq \ell
- * < \mbox{minFundFreqIdx}+\mbox{numFundFreqIdx} <= \mbox{fft.fftRealSize}
+ * < \mbox{minFundFreqIdx}+\mbox{numFundFreqIdx}
+ * \]
+ * where
+ * \[
+ * \mbox{minFundFreqIdx} \geq ??
+ * \]
+ * and
+ * \[
+ * \mbox{minFundFreqIdx}+\mbox{numFundFreqIdx} <= \mbox{fft.fftRealSize}
  * \f]
  *
- * Thus, \b numFilters = \b fft->fftRealSize + \b numFundFreqIdx
+ * Thus, \b numFilters = \b fft->fftRealSize + \b numFundFreqIdx 
+ * where the first term counts Gabor atoms and the second
+ * one harmonic atoms
  *
  */
 
@@ -184,7 +194,11 @@ public:
    * with K the largest integer no larger than \b maxNumPartials which 
    * satisfies \f$K \ell < \mbox{fft.fftRealSize}\f$.
    */
-  MP_Support_t update_ip( const MP_Support_t *touch );
+  virtual MP_Support_t update_ip( const MP_Support_t *touch );
+
+  virtual void update_frame( unsigned long int frameIdx, 
+			     MP_Real_t *maxCorr, 
+			     unsigned long int *maxFilterIdx ); 
   
   /** \brief Creates a new Harmonic atom (or a plain Gabor atom) 
    * corresponding to \a atomIdx = \a frameIdx * \b numFilters + \a filterIdx.

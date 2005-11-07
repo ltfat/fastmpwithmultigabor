@@ -8,13 +8,18 @@ TODO:
   - factor the computations of touchFrame and loop on frames in a generic 
     virtual update_ip, using a virtual update_frame(frameIdx) function
   - Reinforce the detection/warning of wrong syntaxes in XML dictionaries.
-
+  - mpf : select a given channel ?
 * BUGS:
-  - (None known at the moment)
-
+  - test-mpcycle.sh should be executable by default
 
 * GENERAL IMPROVEMENTS:
-  - get rid of libsndfile to read wav files
+  - implement tfmaps for harmonic atoms
+  - implement pseudo wigner_ville for non Gaussian windows
+  - factor some code in MP_Atom_C::add_to_tfmap() ?
+  - move the header from atom_classes/atom_classes.h (read_atom,write_atom) to atom.h, and make it a factory method. 
+  - document 'how to add a block' including how to interface with dict_scanner
+  - complete mpview.m by dealing with several channels
+  - get rid of libsndfile to read wav files or add 'gain' option when reading/writing sound files
   - define levels for #ifndef NDEBUG to allow for a finer tuning of the
     quantity of debugging text output; verify if some is more relevant to some
     VERBOSE.

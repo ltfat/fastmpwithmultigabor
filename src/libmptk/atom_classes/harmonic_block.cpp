@@ -288,6 +288,84 @@ MP_Support_t MP_Harmonic_Block_c::update_ip( const MP_Support_t *touch ) {
   return( frameSupport );
 }
 
+void MP_Harmonic_Block_c::update_frame(unsigned long int frameIdx, 
+				       MP_Real_t *maxCorr, 
+				       unsigned long int *maxFilterIdx)
+{
+  unsigned long int inShift;
+
+  MP_Sample_t *in;
+  MP_Real_t *magPtr;
+  unsigned long int fftRealSize = fft->fftRealSize;
+
+  int chanIdx;
+  int numChans;
+
+  unsigned long int freqIdx,fundFreqIdx,numPartials,kFundFreqIdx,k;
+  double channel_sum,harmonic_sum,max;
+
+  assert( s != NULL );
+  numChans = s->numChans;
+  assert( mag != NULL );
+
+  inShift = frameIdx*filterShift;
+  
+  /*----*/
+  /* Fill the mag array: */
+  for ( chanIdx = 0, magPtr = mag;    /* <- for each channel */
+	chanIdx < numChans;
+	chanIdx++,   magPtr += fftRealSize ) {
+    
+    assert( s->channel[chanIdx] != NULL );
+    
+    /* Hook the signal and the inner products to the fft */
+    in  = s->channel[chanIdx] + inShift;
+    
+    /* Execute the FFT (including windowing, conversion to energy etc.) */
+    fft->exec_energy( in, magPtr );
+    
+  } /* end foreach channel */
+    /*----*/
+  
+    /*----*/
+    /* Fill the sum array and find the max over gabor atoms: */
+    /* --Gabor atom at freqIdx =  0: */
+    /* - make the sum over channels */
+  channel_sum = *mag;                                 /* <- channel 0      */
+  for ( chanIdx = 1, magPtr = mag+fftRealSize; /* <- other channels */
+	chanIdx < numChans;
+	  chanIdx++,   magPtr += fftRealSize )   channel_sum += *magPtr;
+  sum[0] = channel_sum;
+  /* - init the max */
+  max = channel_sum; *maxFilterIdx = 0;
+  /* -- Following GABOR atoms: */
+  for ( freqIdx = 1; freqIdx<fftRealSize; freqIdx++) {
+    /* - make the sum */
+    channel_sum = mag[freqIdx];                        /* <- channel 0      */
+    for ( chanIdx = 1, magPtr = mag+fftRealSize+freqIdx; /* <- other channels */
+	  chanIdx < numChans;
+	  chanIdx++,   magPtr += fftRealSize ) channel_sum += *magPtr;
+    sum[freqIdx] = channel_sum;
+    /* - update the max */
+    if ( channel_sum > max ) { max = channel_sum; *maxFilterIdx = freqIdx; }
+  }
+  /* -- Following HARMONIC elements: */
+  for (fundFreqIdx=minFundFreqIdx; freqIdx<numFilters; freqIdx++,fundFreqIdx++) {
+    /* - determine how many partials there are for the current fundFreqIdx */
+    if      ( maxNumPartials*fundFreqIdx < fftRealSize)  numPartials  = maxNumPartials;
+    else if ( maxNumPartials*fundFreqIdx > fftRealSize)  numPartials  = fftRealSize/fundFreqIdx;
+    else	                                         numPartials  = (fftRealSize/fundFreqIdx)-1;
+    /* - make the sum */
+    harmonic_sum = 0.0;
+    for ( k = 0, kFundFreqIdx=fundFreqIdx; 
+	  k < numPartials; 
+	  k++, kFundFreqIdx+=fundFreqIdx) harmonic_sum += sum[kFundFreqIdx];
+    /* - update the max */
+    if ( harmonic_sum > max ) { *maxCorr = harmonic_sum; *maxFilterIdx = freqIdx; }
+  }
+  *maxCorr = max;
+}
+
 
 /***************************************/
 /* Output of the ith atom of the block */

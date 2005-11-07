@@ -343,6 +343,94 @@ MP_Real_t MP_Block_c::update_max( const MP_Support_t frameSupport ) {
 }
 
 
+/****************************************/
+/* Partial update of the inner products */
+MP_Support_t MP_Block_c::update_ip( const MP_Support_t *touch ) {
+
+  unsigned long int fromFrame; /* first frameIdx to be touched, included */
+  unsigned long int toFrame;   /* last  frameIdx to be touched, INCLUDED */
+  unsigned long int tmpFromFrame, tmpToFrame;
+  unsigned long int fromSample;
+  unsigned long int toSample;
+
+  int chanIdx;
+  unsigned long int frameIdx;
+  MP_Real_t maxCorr;
+  unsigned long int maxFilterIdx;
+
+  MP_Support_t frameSupport;
+
+  assert( s != NULL );
+
+  /*---------------------------*/
+  /* Computes the interval [fromFrame,toFrame] where
+     the frames need an IP+maxCorr update
+     
+     WARNING: toFrame is INCLUDED. See the LOOP below.
+
+     THIS IS CRITICAL CODE. MODIFY WITH CARE.
+  */
+  
+  /* -- If touch is NULL, we ask for a full update: */
+  if ( touch == NULL ) {
+    fromFrame = 0;
+    toFrame   = numFrames - 1;
+  }
+  /* -- If touch is not NULL, we specify a touched support: */
+  else {
+    /* Initialize fromFrame and toFrame using the support on channel 0 */
+    fromSample = touch[0].pos;
+    fromFrame = len2numFrames( fromSample, filterLen, filterShift );
+    
+    toSample = ( fromSample + touch[0].len - 1 );
+    toFrame  = toSample / filterShift ;
+    if ( toFrame >= numFrames )  toFrame = numFrames - 1;
+    /* Adjust fromFrame and toFrame with respect to supports on the subsequent channels */
+    for ( chanIdx = 1; chanIdx < s->numChans; chanIdx++ ) {
+      fromSample = touch[chanIdx].pos;
+      tmpFromFrame = len2numFrames( fromSample, filterLen, filterShift );
+      if ( tmpFromFrame < fromFrame ) fromFrame = tmpFromFrame;
+      
+      toSample = ( fromSample + touch[chanIdx].len - 1 );
+      tmpToFrame  = toSample / filterShift ;
+      if ( tmpToFrame >= numFrames )  tmpToFrame = numFrames - 1;
+      if ( tmpToFrame > toFrame ) toFrame = tmpToFrame;
+    }
+  }
+  /*---------------------------*/
+	
+
+#ifndef NDEBUG
+  fprintf( stderr, "mplib DEBUG -- update_ip() - Updating frames from %lu to %lu / %lu.\n",
+	   fromFrame, toFrame, numFrames );
+#endif
+
+  /*---------------------------*/
+  /* LOOP : Browse the frames which need an update. */
+  for ( frameIdx = fromFrame; frameIdx <= toFrame; frameIdx++ ) {
+    
+    update_frame(frameIdx, &maxCorr, &maxFilterIdx);
+
+    /* Register the maxCorr value for the current frame */
+    maxIPValueInFrame[frameIdx] = maxCorr;
+    maxIPIdxInFrame[frameIdx]   = maxFilterIdx;
+
+#ifndef NDEBUG
+    fprintf( stderr, "mplib DEBUG -- update_ip() - in frame %lu, maxcorr is %g at position %lu.\n",
+	     frameIdx, max, maxIdx );
+#endif
+
+  } /* end foreach frame */
+  
+
+  /* Return a mono-channel support */
+  frameSupport.pos = fromFrame;
+  frameSupport.len = toFrame - fromFrame + 1;
+
+  return( frameSupport );
+}
+
+
 /********************************/
 /* Number of atoms in the block */
 unsigned long int MP_Block_c::size(void) {

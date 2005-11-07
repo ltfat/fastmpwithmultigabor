@@ -171,6 +171,30 @@ MP_Support_t MP_Dirac_Block_c::update_ip( const MP_Support_t *touch ) {
 }
 
 
+void MP_Dirac_Block_c::update_frame(unsigned long int frameIdx, 
+				    MP_Real_t *maxCorr, 
+				    unsigned long int *maxFilterIdx)
+{
+  double sum = 0.0;
+  double amp;
+
+  int chanIdx;
+  int numChans;
+
+  assert( s != NULL );
+  numChans = s->numChans;
+  assert( mag != NULL );
+
+  /*----*/
+  /* Fill the mag array: */
+  for ( chanIdx = 0; chanIdx < numChans; chanIdx++ ) {
+    assert( s->channel[chanIdx] != NULL );
+    amp  = s->channel[chanIdx][frameIdx];
+    sum += amp*amp;
+  }
+  *maxCorr = sum; *maxFilterIdx = 0;
+}
+
 /***************************************/
 /* Output of the ith atom of the block */
 unsigned int MP_Dirac_Block_c::create_atom( MP_Atom_c **atom,

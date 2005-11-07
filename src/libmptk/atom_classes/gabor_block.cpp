@@ -142,6 +142,7 @@ MP_Support_t MP_Gabor_Block_c::update_ip( const MP_Support_t *touch ) {
   MP_Support_t frameSupport;
 
   assert( s != NULL );
+
   numChans = s->numChans;
 
   assert( mag != NULL );
@@ -249,6 +250,69 @@ MP_Support_t MP_Gabor_Block_c::update_ip( const MP_Support_t *touch ) {
   frameSupport.len = toFrame - fromFrame + 1;
 
   return( frameSupport );
+}
+
+void MP_Gabor_Block_c::update_frame(unsigned long int frameIdx, 
+				    MP_Real_t *maxCorr, 
+				    unsigned long int *maxFilterIdx)
+{
+  unsigned long int inShift;
+  unsigned long int i;
+
+  MP_Sample_t *in;
+  MP_Real_t *magPtr;
+  unsigned long int fftRealSize = fft->fftRealSize;
+
+  double sum;
+  double max;
+
+  int chanIdx;
+  int numChans;
+
+  assert( s != NULL );
+  numChans = s->numChans;
+  assert( mag != NULL );
+
+  inShift = frameIdx*filterShift;
+
+  /*----*/
+  /* Fill the mag array: */
+  for ( chanIdx = 0, magPtr = mag;    /* <- for each channel */
+	chanIdx < numChans;
+	chanIdx++,   magPtr += fftRealSize ) {
+    
+    assert( s->channel[chanIdx] != NULL );
+    
+    /* Hook the signal and the inner products to the fft */
+    in  = s->channel[chanIdx] + inShift;
+    
+    /* Execute the FFT (including windowing, conversion to energy etc.) */
+    fft->exec_energy( in, magPtr );
+    
+  } /* end foreach channel */
+  /*----*/
+  
+  /*----*/
+  /* Make the sum and find the maxcorr: */
+  /* --Element 0: */
+  /* - make the sum */
+  sum = (double)(*(mag));                     /* <- channel 0      */
+  for ( chanIdx = 1, magPtr = mag+fftRealSize; /* <- other channels */
+	chanIdx < numChans;
+	chanIdx++,   magPtr += fftRealSize )   sum += (double)(*(magPtr));
+  /* - init the max */
+  max = sum; *maxFilterIdx = 0;
+  /* -- Following elements: */
+  for ( i = 1; i<fftRealSize; i++) {
+    /* - make the sum */
+    sum = (double)(*(mag+i));                     /* <- channel 0      */
+    for ( chanIdx = 1, magPtr = mag+fftRealSize+i; /* <- other channels */
+	  chanIdx < numChans;
+	  chanIdx++,   magPtr += fftRealSize ) sum += (double)(*(magPtr));
+    /* - update the max */
+    if ( sum > max ) { max = sum; *maxFilterIdx = i; }
+  }
+  *maxCorr = (MP_Real_t)max;
 }
 
 

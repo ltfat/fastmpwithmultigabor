@@ -197,7 +197,7 @@ void MP_Dirac_Atom_c::build_waveform( MP_Sample_t *outBuffer ) {
 char MP_Dirac_Atom_c::add_to_tfmap( MP_TF_Map_c *tfmap ) {
 
   unsigned char chanIdx;
-  MP_Real_t tMin,tMax,df,fMin,fMax;
+  MP_Real_t tMin,tMax,fMin,fMax;
   int nMin,kMin,nMax,kMax;
   int iMin,jMin,iMax,jMax;
   int i,j;

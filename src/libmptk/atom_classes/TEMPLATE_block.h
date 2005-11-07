@@ -105,6 +105,10 @@ public:
   /* Update of part of the inner products */
   MP_Support_t update_ip( const MP_Support_t *touch );
   
+  virtual void update_frame( unsigned long int frameIdx, 
+			     MP_Real_t *maxCorr, 
+			     unsigned long int *maxFilterIdx ); 
+
   /** \brief Creates a new TEMPLATE atom corresponding to atomIdx in the flat array ip[]
    * 
    *   Describe how the atom is determined here.

@@ -151,6 +151,23 @@ MP_Support_t MP_TEMPLATE_Block_c::update_ip( const MP_Support_t *touch ) {
   return( frameSupport );
 }
 
+void MP_TEMPLATE_Block_c::update_frame(unsigned long int frameIdx, 
+				       MP_Real_t *maxCorr, 
+				       unsigned long int *maxFilterIdx)
+{
+  double max;
+  unsigned long int i;
+  
+  max = 0;
+  i = 0;
+  
+  /*********************************************/
+  /* YOUR inner product computation goes here. */
+  /*********************************************/
+
+  *maxCorr = max;
+  *maxFilterIdx = i;
+}
 
 /***************************************/
 /* Output of the ith atom of the block */
