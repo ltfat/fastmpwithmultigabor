@@ -154,11 +154,20 @@ public:
    * where they might have been touched.
    * \return a support indicating which frames have been touched by the inner products' update 
    * \remark Pass touch == NULL to force a full update. */
-  virtual MP_Support_t update_ip( const MP_Support_t *touch ); 
+  virtual MP_Support_t update_ip( const MP_Support_t *touch );
 
   /** \brief update the inner products of a given frame and return the correlation
    * \a maxCorr and index in the frame \a maxFilterIdx of the maximally correlated
-   * atom on the frame */
+   * atom on the frame
+   *
+   * \param frameIdx the index of the frame used for the inner products
+   *
+   * \param maxCorr a MP_Real_t* pointer to return the value of the maximum
+   * inner product (or maximum correlation) in this frame
+   *
+   * \param maxFilterIdx an unsigned long int* pointer to return the index of
+   * the maximum inner product
+   */
   virtual void update_frame( unsigned long int frameIdx, 
 			     MP_Real_t *maxCorr, 
 			     unsigned long int *maxFilterIdx ) = 0; 

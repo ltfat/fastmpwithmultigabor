@@ -105,7 +105,7 @@ public:
   /** \brief An array of size \b fft->fftRealSize which holds the frame-wise sum 
    * of FFT results across channels
    * \sa mag */
-  MP_Real_t *sum;
+  double *sum;
 
   /***********/
   /* METHODS */
@@ -175,15 +175,17 @@ public:
   /* Readable text output */
   virtual int info( FILE *fid );
 
-  /** \brief update the inner products with a minimum number of arithmetic operations
-   * and indicates which frames have been updated.
+  /** \brief update the inner products of a given frame and return the
+   * correlation \a maxCorr and index in the frame \a maxFilterIdx of the
+   * maximally correlated atom on the frame
    *
-   * \param touch Multi-channel support (i.e., array[s->numChans] of MP_Support_t)
-   * that identifies which part of each channel of the signal is different from what it was
-   * when the block was last updated, so as to update only the IP at places
-   * where they might have been touched.
-   * \return a support indicating which frames have been touched by the inner products' update 
-   * \remark Pass touch == NULL to force a full update. 
+   * \param frameIdx the index of the frame used for the inner products
+   *
+   * \param maxCorr a MP_Real_t* pointer to return the value of the maximum
+   * inner product (or maximum correlation) in this frame
+   *
+   * \param maxFilterIdx an unsigned long int* pointer to return the index of
+   * the maximum inner product
    *
    * On each frame, this method computes the energy of Gabor atoms plus the energy of
    * projections over harmonic molecules at fundamental frequency 
@@ -193,9 +195,10 @@ public:
    * \f]
    * with K the largest integer no larger than \b maxNumPartials which 
    * satisfies \f$K \ell < \mbox{fft.fftRealSize}\f$.
+   *
+   * \sa MP_Block_c::update_frame()
+   * \sa MP_Block_c::update_ip()
    */
-  virtual MP_Support_t update_ip( const MP_Support_t *touch );
-
   virtual void update_frame( unsigned long int frameIdx, 
 			     MP_Real_t *maxCorr, 
 			     unsigned long int *maxFilterIdx ); 

@@ -81,8 +81,8 @@ MP_Harmonic_Block_c::MP_Harmonic_Block_c( MP_Signal_c *setSignal,
 				    */
 
    /* Allocate the sum array */
-  if ( (sum = (MP_Real_t*) malloc( setFftRealSize*sizeof(MP_Real_t) )) == NULL ) {
-    fprintf( stderr, "mplib warning -- MP_Harmonic_Block_c() - Can't allocate an array of [%lu] MP_Real_t elements"
+  if ( (sum = (double*) malloc( setFftRealSize*sizeof(double) )) == NULL ) {
+    fprintf( stderr, "mplib warning -- MP_Harmonic_Block_c() - Can't allocate an array of [%lu] double elements"
 	     "for the sum array. This pointer will remain NULL.\n", setFftRealSize );
   }
   else { unsigned long int i; for ( i=0; i<setFftRealSize; i++ ) *(sum+i) = 0.0; }
@@ -134,160 +134,9 @@ int MP_Harmonic_Block_c::info( FILE *fid ) {
   return( nChar );
 }
 
-/****************************************/
-/* Partial update of the inner products */
-MP_Support_t MP_Harmonic_Block_c::update_ip( const MP_Support_t *touch ) {
-  /* NOTE: if touch == NULL  update all the inner products. */
 
-  unsigned long int fromFrame; /* first frameIdx to be touched, included */
-  unsigned long int toFrame;   /* last  frameIdx to be touched, INCLUDED */
-  unsigned long int tmpFromFrame, tmpToFrame;
-  unsigned long int fromSample;
-  unsigned long int toSample;
-
-  int chanIdx;
-  int numChans;
-  unsigned long int frameIdx;
-  unsigned long int inShift;
-  unsigned long int freqIdx,fundFreqIdx,numPartials,kFundFreqIdx,k;
-
-  MP_Sample_t *in;
-  MP_Real_t *magPtr;
-  unsigned long int fftRealSize = fft->fftRealSize;
-
-  double channel_sum,harmonic_sum;
-  double max;
-  unsigned long int maxIdx;
-
-  MP_Support_t frameSupport;
-
-  assert( s != NULL );
-  numChans = s->numChans;
-
-  assert( mag != NULL );
-
-  /*---------------------------*/
-  /* The following computes the interval [fromFrame,toFrame] where
-     the frames need a FFT+max update.
-     
-     WARNING: toFrame is INCLUDED. See the LOOP below.
-
-     THIS IS CRITICAL CODE. MODIFY WITH CARE.
-  */
-  
-  /* -- If touch is NULL, we ask for a full update: */
-  if ( touch == NULL ) {
-    fromFrame = 0;
-    toFrame   = numFrames - 1;
-  }
-  /* -- If touch is not NULL, we specify a touched support: */
-  else {
-    /* Initialize fromFrame and toFrame using the support on channel 0 */
-    fromSample = touch[0].pos;
-    fromFrame = len2numFrames( fromSample, filterLen, filterShift );
-    
-    toSample = ( fromSample + touch[0].len - 1 );
-    toFrame  = toSample / filterShift ;
-    if ( toFrame >= numFrames )  toFrame = numFrames - 1;
-    /* Adjust fromFrame and toFrame with respect to supports on the subsequent channels */
-    for ( chanIdx = 1; chanIdx < s->numChans; chanIdx++ ) {
-      fromSample = touch[chanIdx].pos;
-      tmpFromFrame = len2numFrames( fromSample, filterLen, filterShift );
-      if ( tmpFromFrame < fromFrame ) fromFrame = tmpFromFrame;
-      
-      toSample = ( fromSample + touch[chanIdx].len - 1 );
-      tmpToFrame  = toSample / filterShift ;
-      if ( tmpToFrame >= numFrames )  tmpToFrame = numFrames - 1;
-      if ( tmpToFrame > toFrame ) toFrame = tmpToFrame;
-    }
-  }
-  /*---------------------------*/
-	
-
-#ifndef NDEBUG
-  fprintf( stderr, "mplib DEBUG -- update_ip() - Updating frames from %lu to %lu / %lu.\n",
-	   fromFrame, toFrame, numFrames );
-#endif
-
-  /*---------------------------*/
-  /* LOOP : Browse the frames which need an update. */
-  for ( frameIdx = fromFrame; frameIdx <= toFrame; frameIdx++ ) {
-    
-    inShift = frameIdx*filterShift;
-
-    /*----*/
-    /* Fill the mag array: */
-    for ( chanIdx = 0, magPtr = mag;    /* <- for each channel */
-	  chanIdx < numChans;
-	  chanIdx++,   magPtr += fftRealSize ) {
-      
-      assert( s->channel[chanIdx] != NULL );
-      
-      /* Hook the signal and the inner products to the fft */
-      in  = s->channel[chanIdx] + inShift;
-      
-      /* Execute the FFT (including windowing, conversion to energy etc.) */
-      fft->exec_energy( in, magPtr );
-      
-    } /* end foreach channel */
-    /*----*/
-
-    /*----*/
-    /* Fill the sum array and find the max over gabor atoms: */
-    /* --Gabor atom at freqIdx =  0: */
-    /* - make the sum over channels */
-    channel_sum = *mag;                                 /* <- channel 0      */
-    for ( chanIdx = 1, magPtr = mag+fftRealSize; /* <- other channels */
-	  chanIdx < numChans;
-	  chanIdx++,   magPtr += fftRealSize )   channel_sum += *magPtr;
-    *sum = channel_sum;
-    /* - init the max */
-    max = channel_sum; maxIdx = 0;
-    /* -- Following GABOR atoms: */
-    for ( freqIdx = 1; freqIdx<fftRealSize; freqIdx++) {
-      /* - make the sum */
-      channel_sum = *(mag+freqIdx);                        /* <- channel 0      */
-      for ( chanIdx = 1, magPtr = mag+fftRealSize+freqIdx; /* <- other channels */
-	    chanIdx < numChans;
-	    chanIdx++,   magPtr += fftRealSize ) channel_sum += *magPtr;
-      *(sum+freqIdx) = channel_sum;
-      /* - update the max */
-      if ( channel_sum > max ) { max = channel_sum; maxIdx = freqIdx; }
-    }
-    /* -- Following HARMONIC elements: */
-    for (fundFreqIdx=minFundFreqIdx; freqIdx<numFilters; freqIdx++,fundFreqIdx++) {
-      /* - determine how many partials there are for the current fundFreqIdx */
-      if      ( maxNumPartials*fundFreqIdx < fftRealSize)  numPartials  = maxNumPartials;
-      else if ( maxNumPartials*fundFreqIdx > fftRealSize)  numPartials  = fftRealSize/fundFreqIdx;
-      else	                                           numPartials  = (fftRealSize/fundFreqIdx)-1;
-      /* - make the sum */
-      harmonic_sum = 0.0;
-      for ( k = 0, kFundFreqIdx=fundFreqIdx; 
-	    k < numPartials; 
-	    k++, kFundFreqIdx+=fundFreqIdx) harmonic_sum += *(sum+kFundFreqIdx);
-      /* - update the max */
-      if ( harmonic_sum > max ) { max = harmonic_sum; maxIdx = freqIdx; }
-    }
-
-    /* Register the max value for the current frame */
-    *(maxIPValueInFrame + frameIdx) = (MP_Real_t)max;
-    *(maxIPIdxInFrame   + frameIdx) = maxIdx;
-
-#ifndef NDEBUG
-    fprintf( stderr, "mplib DEBUG -- update_ip() - in frame %lu, max is %g at position %lu.\n",
-	     frameIdx, max, maxIdx );
-#endif
-
-  } /* end foreach frame */
-  
-
-  /* Return a mono-channel support */
-  frameSupport.pos = fromFrame;
-  frameSupport.len = toFrame - fromFrame + 1;
-
-  return( frameSupport );
-}
-
+/********************************************/
+/* Frame-based update of the inner products */
 void MP_Harmonic_Block_c::update_frame(unsigned long int frameIdx, 
 				       MP_Real_t *maxCorr, 
 				       unsigned long int *maxFilterIdx)
@@ -301,8 +150,10 @@ void MP_Harmonic_Block_c::update_frame(unsigned long int frameIdx,
   int chanIdx;
   int numChans;
 
-  unsigned long int freqIdx,fundFreqIdx,numPartials,kFundFreqIdx,k;
-  double channel_sum,harmonic_sum,max;
+  unsigned long int freqIdx,fundFreqIdx,k;
+  double local_sum;
+  double max;
+  unsigned long int maxIdx;
 
   assert( s != NULL );
   numChans = s->numChans;
@@ -325,45 +176,42 @@ void MP_Harmonic_Block_c::update_frame(unsigned long int frameIdx,
     fft->exec_energy( in, magPtr );
     
   } /* end foreach channel */
-    /*----*/
+  /*----*/
   
-    /*----*/
-    /* Fill the sum array and find the max over gabor atoms: */
-    /* --Gabor atom at freqIdx =  0: */
-    /* - make the sum over channels */
-  channel_sum = *mag;                                 /* <- channel 0      */
+  /*----*/
+  /* Fill the sum array and find the max over gabor atoms: */
+  /* --Gabor atom at freqIdx =  0: */
+  /* - make the sum over channels */
+  local_sum = (double)(*mag);                  /* <- channel 0      */
   for ( chanIdx = 1, magPtr = mag+fftRealSize; /* <- other channels */
 	chanIdx < numChans;
-	  chanIdx++,   magPtr += fftRealSize )   channel_sum += *magPtr;
-  sum[0] = channel_sum;
+	chanIdx++,   magPtr += fftRealSize )   local_sum += (double)(*magPtr);
+  sum[0] = local_sum;
   /* - init the max */
-  max = channel_sum; *maxFilterIdx = 0;
+  max = local_sum; maxIdx = 0;
   /* -- Following GABOR atoms: */
   for ( freqIdx = 1; freqIdx<fftRealSize; freqIdx++) {
     /* - make the sum */
-    channel_sum = mag[freqIdx];                        /* <- channel 0      */
+    local_sum = (double)(mag[freqIdx]);                          /* <- channel 0      */
     for ( chanIdx = 1, magPtr = mag+fftRealSize+freqIdx; /* <- other channels */
 	  chanIdx < numChans;
-	  chanIdx++,   magPtr += fftRealSize ) channel_sum += *magPtr;
-    sum[freqIdx] = channel_sum;
+	  chanIdx++,   magPtr += fftRealSize ) local_sum += (double)(*magPtr);
+    sum[freqIdx] = local_sum;
     /* - update the max */
-    if ( channel_sum > max ) { max = channel_sum; *maxFilterIdx = freqIdx; }
+    if ( local_sum > max ) { max = local_sum; maxIdx = freqIdx; }
   }
   /* -- Following HARMONIC elements: */
-  for (fundFreqIdx=minFundFreqIdx; freqIdx<numFilters; freqIdx++,fundFreqIdx++) {
-    /* - determine how many partials there are for the current fundFreqIdx */
-    if      ( maxNumPartials*fundFreqIdx < fftRealSize)  numPartials  = maxNumPartials;
-    else if ( maxNumPartials*fundFreqIdx > fftRealSize)  numPartials  = fftRealSize/fundFreqIdx;
-    else	                                         numPartials  = (fftRealSize/fundFreqIdx)-1;
+  for ( /* freqIdx same,*/ fundFreqIdx = minFundFreqIdx;
+	freqIdx < numFilters;
+	freqIdx++,         fundFreqIdx++) {
     /* - make the sum */
-    harmonic_sum = 0.0;
-    for ( k = 0, kFundFreqIdx=fundFreqIdx; 
-	  k < numPartials; 
-	  k++, kFundFreqIdx+=fundFreqIdx) harmonic_sum += sum[kFundFreqIdx];
+    local_sum = 0.0;
+    for ( k = fundFreqIdx; k <= fftRealSize; k += fundFreqIdx ) local_sum += sum[k];
     /* - update the max */
-    if ( harmonic_sum > max ) { *maxCorr = harmonic_sum; *maxFilterIdx = freqIdx; }
+    if ( local_sum > max ) { max = local_sum; maxIdx = freqIdx; }
   }
-  *maxCorr = max;
+  *maxCorr = (MP_Real_t)(max);
+  *maxFilterIdx = maxIdx;
 }
 
 

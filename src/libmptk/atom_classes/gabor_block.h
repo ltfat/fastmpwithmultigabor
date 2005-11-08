@@ -112,9 +112,23 @@ public:
   /* Readable text output */
   virtual int info( FILE *fid );
 
-  /* Update of part of the inner products */
-  virtual MP_Support_t update_ip( const MP_Support_t *touch );
-  
+  /** \brief update the inner products of a given frame and return the
+   * correlation \a maxCorr and index in the frame \a maxFilterIdx of the
+   * maximally correlated atom on the frame
+   *
+   * \param frameIdx the index of the frame used for the inner products
+   *
+   * \param maxCorr a MP_Real_t* pointer to return the value of the maximum
+   * inner product (or maximum correlation) in this frame
+   *
+   * \param maxFilterIdx an unsigned long int* pointer to return the index of
+   * the maximum inner product
+   *
+   * \todo Describe computation of the inner products in the Gabor case.
+   *
+   * \sa MP_Block_c::update_frame()
+   * \sa MP_Block_c::update_ip()
+   */
   virtual void update_frame( unsigned long int frameIdx, 
 			     MP_Real_t *maxCorr, 
 			     unsigned long int *maxFilterIdx ); 

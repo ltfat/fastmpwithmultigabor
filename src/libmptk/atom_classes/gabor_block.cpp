@@ -115,143 +115,9 @@ int MP_Gabor_Block_c::info( FILE *fid ) {
   return( nChar );
 }
 
-/****************************************/
-/* Partial update of the inner products */
-MP_Support_t MP_Gabor_Block_c::update_ip( const MP_Support_t *touch ) {
 
-  unsigned long int fromFrame; /* first frameIdx to be touched, included */
-  unsigned long int toFrame;   /* last  frameIdx to be touched, INCLUDED */
-  unsigned long int tmpFromFrame, tmpToFrame;
-  unsigned long int fromSample;
-  unsigned long int toSample;
-
-  int chanIdx;
-  int numChans;
-  unsigned long int frameIdx;
-  unsigned long int inShift;
-  unsigned long int i;
-
-  MP_Sample_t *in;
-  MP_Real_t *magPtr;
-  unsigned long int fftRealSize = fft->fftRealSize;
-
-  double sum;
-  double max;
-  unsigned long int maxIdx;
-
-  MP_Support_t frameSupport;
-
-  assert( s != NULL );
-
-  numChans = s->numChans;
-
-  assert( mag != NULL );
-
-  /*---------------------------*/
-  /* The following computes the interval [fromFrame,toFrame] where
-     the frames need a FFT+max update.
-     
-     WARNING: toFrame is INCLUDED. See the LOOP below.
-
-     THIS IS CRITICAL CODE. MODIFY WITH CARE.
-  */
-  
-  /* -- If touch is NULL, we ask for a full update: */
-  if ( touch == NULL ) {
-    fromFrame = 0;
-    toFrame   = numFrames - 1;
-  }
-  /* -- If touch is not NULL, we specify a touched support: */
-  else {
-    /* Initialize fromFrame and toFrame using the support on channel 0 */
-    fromSample = touch[0].pos;
-    fromFrame = len2numFrames( fromSample, filterLen, filterShift );
-    
-    toSample = ( fromSample + touch[0].len - 1 );
-    toFrame  = toSample / filterShift ;
-    if ( toFrame >= numFrames )  toFrame = numFrames - 1;
-    /* Adjust fromFrame and toFrame with respect to supports on the subsequent channels */
-    for ( chanIdx = 1; chanIdx < s->numChans; chanIdx++ ) {
-      fromSample = touch[chanIdx].pos;
-      tmpFromFrame = len2numFrames( fromSample, filterLen, filterShift );
-      if ( tmpFromFrame < fromFrame ) fromFrame = tmpFromFrame;
-      
-      toSample = ( fromSample + touch[chanIdx].len - 1 );
-      tmpToFrame  = toSample / filterShift ;
-      if ( tmpToFrame >= numFrames )  tmpToFrame = numFrames - 1;
-      if ( tmpToFrame > toFrame ) toFrame = tmpToFrame;
-    }
-  }
-  /*---------------------------*/
-	
-
-#ifndef NDEBUG
-  fprintf( stderr, "mplib DEBUG -- update_ip() - Updating frames from %lu to %lu / %lu.\n",
-	   fromFrame, toFrame, numFrames );
-#endif
-
-  /*---------------------------*/
-  /* LOOP : Browse the frames which need an update. */
-  for ( frameIdx = fromFrame; frameIdx <= toFrame; frameIdx++ ) {
-    
-    inShift = frameIdx*filterShift;
-
-    /*----*/
-    /* Fill the mag array: */
-    for ( chanIdx = 0, magPtr = mag;    /* <- for each channel */
-	  chanIdx < numChans;
-	  chanIdx++,   magPtr += fftRealSize ) {
-      
-      assert( s->channel[chanIdx] != NULL );
-      
-      /* Hook the signal and the inner products to the fft */
-      in  = s->channel[chanIdx] + inShift;
-      
-      /* Execute the FFT (including windowing, conversion to energy etc.) */
-      fft->exec_energy( in, magPtr );
-      
-    } /* end foreach channel */
-    /*----*/
-
-    /*----*/
-    /* Make the sum and find the max: */
-    /* --Element 0: */
-    /* - make the sum */
-    sum = (double)(*(mag));                     /* <- channel 0      */
-    for ( chanIdx = 1, magPtr = mag+fftRealSize; /* <- other channels */
-	  chanIdx < numChans;
-	  chanIdx++,   magPtr += fftRealSize )   sum += (double)(*(magPtr));
-    /* - init the max */
-    max = sum; maxIdx = 0;
-    /* -- Following elements: */
-    for ( i = 1; i<fftRealSize; i++) {
-      /* - make the sum */
-      sum = (double)(*(mag+i));                     /* <- channel 0      */
-      for ( chanIdx = 1, magPtr = mag+fftRealSize+i; /* <- other channels */
-	    chanIdx < numChans;
-	    chanIdx++,   magPtr += fftRealSize ) sum += (double)(*(magPtr));
-      /* - update the max */
-      if ( sum > max ) { max = sum; maxIdx = i; }
-    }
-    /* Register the max value for the current frame */
-    *(maxIPValueInFrame + frameIdx) = (MP_Real_t)max;
-    *(maxIPIdxInFrame   + frameIdx) = maxIdx;
-
-#ifndef NDEBUG
-    fprintf( stderr, "mplib DEBUG -- update_ip() - in frame %lu, max is %g at position %lu.\n",
-	     frameIdx, max, maxIdx );
-#endif
-
-  } /* end foreach frame */
-  
-
-  /* Return a mono-channel support */
-  frameSupport.pos = fromFrame;
-  frameSupport.len = toFrame - fromFrame + 1;
-
-  return( frameSupport );
-}
-
+/********************************************/
+/* Frame-based update of the inner products */
 void MP_Gabor_Block_c::update_frame(unsigned long int frameIdx, 
 				    MP_Real_t *maxCorr, 
 				    unsigned long int *maxFilterIdx)
@@ -265,6 +131,7 @@ void MP_Gabor_Block_c::update_frame(unsigned long int frameIdx,
 
   double sum;
   double max;
+  unsigned long int maxIdx;
 
   int chanIdx;
   int numChans;
@@ -301,7 +168,7 @@ void MP_Gabor_Block_c::update_frame(unsigned long int frameIdx,
 	chanIdx < numChans;
 	chanIdx++,   magPtr += fftRealSize )   sum += (double)(*(magPtr));
   /* - init the max */
-  max = sum; *maxFilterIdx = 0;
+  max = sum; maxIdx = 0;
   /* -- Following elements: */
   for ( i = 1; i<fftRealSize; i++) {
     /* - make the sum */
@@ -310,9 +177,10 @@ void MP_Gabor_Block_c::update_frame(unsigned long int frameIdx,
 	  chanIdx < numChans;
 	  chanIdx++,   magPtr += fftRealSize ) sum += (double)(*(magPtr));
     /* - update the max */
-    if ( sum > max ) { max = sum; *maxFilterIdx = i; }
+    if ( sum > max ) { max = sum; maxIdx = i; }
   }
   *maxCorr = (MP_Real_t)max;
+  *maxFilterIdx = maxIdx;
 }
 
 
