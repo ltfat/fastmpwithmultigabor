@@ -250,9 +250,7 @@ if test "x$DOCUMENTATION_MODE" = "xyes" ; then
 		    doc/refman/doxygen_config       \
 		    doc/refman/Makefile             \
 		    doc/userman/Makefile            \
-		    doc/short_description/Makefile  \
-		    extras/Makefile                 \
-		    extras/matlab/Makefile          )
+		    doc/short_description/Makefile  )
 else
   AC_MSG_NOTICE([The re-generation of the doc is disabled by default.
   If pre-compiled docs (in pdf and/or postscript) are not included in this package,
