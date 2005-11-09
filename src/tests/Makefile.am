@@ -39,15 +39,12 @@ SUBDIRS = signals ref
 noinst_PROGRAMS = test_win test_fft test_mp
 
 test_win_SOURCES = test_win.c
-test_win_LDADD = @LIBDSP_WIN_LIB@ -lm
 test_win_DEPENDENCIES = @LIBDSP_WIN_DIR@/libdsp_windows.a
 
 test_fft_SOURCES = test_fft.cpp
-test_fft_LDADD = -lm @LIBMP_LIB@ @LIBDSP_WIN_LIB@ @FFTW3_LIBS@
 test_fft_DEPENDENCIES = @LIBDSP_WIN_DIR@/libdsp_windows.a @LIBMP_DIR@/libmptk.a
 
 test_mp_SOURCES = test_mp.cpp
-test_mp_LDADD = @LIBMP_LIB@ -lm @FFTW3_LIBS@ @LIBDSP_WIN_LIB@ @LIBSNDFILE_LIBS@
 test_mp_DEPENDENCIES = @LIBDSP_WIN_DIR@/libdsp_windows.a @LIBMP_DIR@/libmptk.a
 
 TESTS = test_mpcycle.sh

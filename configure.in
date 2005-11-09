@@ -124,13 +124,10 @@ dnl ------------------------------------------------------------
 
 LIBDSP_WIN_DIR='$(top_builddir)/src/libdsp_windows'
 AC_SUBST(LIBDSP_WIN_DIR)
-LIBDSP_WIN_LIB='-L$(top_builddir)/src/libdsp_windows -ldsp_windows'
-AC_SUBST(LIBDSP_WIN_LIB)
 
 LIBMP_DIR='$(top_builddir)/src/libmptk'
 AC_SUBST(LIBMP_DIR)
-LIBMP_LIB='-L$(top_builddir)/src/libmptk -lmptk'
-AC_SUBST(LIBMP_LIB)
+
 
 DSP_WIN_H_DIR='$(top_srcdir)/src/libdsp_windows'
 MPTK_H_DIR='$(top_builddir)/src/libmptk'
@@ -139,65 +136,44 @@ MP_SYSTEM_H_DIR='$(top_srcdir)'
 INCLUDES="$INCLUDES -I$MP_SYSTEM_H_DIR -I$DSP_WIN_H_DIR -I$MPTK_H_DIR"
 
 
+LIBMP_LIBS='-L$(top_builddir)/src/libmptk'
+LIBDSP_WIN_LIBS='-L$(top_builddir)/src/libdsp_windows -ldsp_windows'
+
+LIBS="$LIBS $LIBMP_LIBS"
+
+
 dnl ------------------------------------------------------------
-dnl check for FFTW and add the corresponding options to LIBS and CFLAGS
+dnl check for external libraries (FFTW and libsndfile) and
+dnl add the corresponding options to LIBS and CXXFLAGS
 dnl ------------------------------------------------------------
-AC_ARG_WITH(
-  fftw3,
-  [  --with-fftw3            tell where fftw3 was installed],
-  [
-    if test "x$with_fftw3" = "xno"; then
-      AC_MSG_ERROR(cannot build libmptk without fftw3)
-    fi
-    if test "x$with_fftw3" != "xyes"; then
-      FFTW3_CXXFLAGS="-I$with_fftw3/include"
-      FFTW3_LIBS="-L$with_fftw3/lib -lfftw3"
-    else
-      FFTW3_LIBS="-lfftw3"
-    fi
-  ],
-  [
-    AC_CHECK_LIB(fftw3, main,
-      [FFTW3_LIBS="-lfftw3"],
-      [AC_MSG_ERROR(FFTW3 library not found -- Please make sure that FFTW3 is installed on your system and/or indicate its location with the switch: --with-fftw3=PATH-TO-FFTW3. (See configure --help.) )],
-      [$FFTW3_LIBS]
-    )
-  ]
+
+AC_ARG_WITH(libs,
+	[  --with-libs            tell where extra libraries (such as fftw3 and libsndfile) are installed on your system],
+	[ LIBS="$LIBS -L$with_libs/lib"
+	  INCLUDES="$INCLUDES -I$with_libs/include" ]
 )
-AC_SUBST(FFTW3_LIBS)
-AC_SUBST(FFTW3_CXXFLAGS)
-INCLUDES="$INCLUDES $FFTW3_CXXFLAGS"
 
-
-
-dnl ------------------------------------------------------------
-dnl check for LIBSNDFILE and add the corresponding options to LIBS and CFLAGS
-dnl ------------------------------------------------------------
-AC_ARG_WITH(
-  libsndfile,
-  [  --with-libsndfile       tell where libsndfile was installed],
-  [
-    if test "x$with_libsndfile" = "xno"; then
-      AC_MSG_ERROR(cannot build libmptk without libsndfile)
-    fi
-    if test "x$with_libsndfile" != "xyes"; then
-      LIBSNDFILE_CXXFLAGS="-I$with_libsndfile/include"
-      LIBSNDFILE_LIBS="-L$with_libsndfile/lib -lsndfile"
-    else
-      LIBSNDFILE_LIBS="-lsndfile"
-    fi
-  ],
-  [
-    AC_CHECK_LIB(sndfile, main,
-      [LIBSNDFILE_LIBS="-lsndfile"],
-      [AC_MSG_ERROR(LIBSNDFILE library not found --  Please make sure that LIBSNDFILE is installed on your system and/or indicate its location with the switch: --with-libsndfile=PATH-TO-LIBSNDFILE. (See configure --help.) )],
-      [$LIBSNDFILE_LIBS]
-    )
-  ]
+AC_ARG_WITH(fftw3,
+	[  --with-fftw3            tell specifically where fftw3 was installed (overrides --with-libs)],
+	[ LIBS="$LIBS -L$with_fftw3/lib"
+	  INCLUDES="$INCLUDES -I$with_libs/include" ]
 )
-AC_SUBST(LIBSNDFILE_LIBS)
-AC_SUBST(LIBSNDFILE_CXXFLAGS)
-INCLUDES="$INCLUDES $LIBSNDFILE_CXXFLAGS"
+
+AC_ARG_WITH(libsndfile,
+	[  --with-libsndfile       tell specifically where libsndfile was installed (overrides --with-libs)],
+	[ LIBS="$LIBS -L$with_libsndfile/lib"
+	  INCLUDES="$INCLUDES -I$with_libs/include" ]
+)
+
+AC_CHECK_LIB(fftw3,main,HAVE_FFTW3=yes,
+	[AC_MSG_ERROR([FFTW3 library not found -- Please make sure that FFTW3 is installed on your system and/or indicate its location with the switch: --with-fftw3=PATH-TO-FFTW3. (See configure --help.)])]
+)
+
+AC_CHECK_LIB(sndfile,main,HAVE_LIBSNDFILE=yes,
+	[AC_MSG_ERROR(LIBSNDFILE library not found --  Please make sure that LIBSNDFILE is installed on your system and/or indicate its location with the switch: --with-libsndfile=PATH-TO-LIBSNDFILE. (See configure --help.) )],
+)
+
+LIBS="$LIBS -lmptk -lm -lfftw3 -ldsp_windows -lsndfile"
 
 
 dnl ------------------------------------------------------------
