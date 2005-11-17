@@ -156,13 +156,13 @@ AC_ARG_WITH(libs,
 AC_ARG_WITH(fftw3,
 	[  --with-fftw3            tell specifically where fftw3 was installed (overrides --with-libs)],
 	[ LIBS="$LIBS -L$with_fftw3/lib"
-	  INCLUDES="$INCLUDES -I$with_libs/include" ]
+	  INCLUDES="$INCLUDES -I$with_fftw3/include" ]
 )
 
 AC_ARG_WITH(libsndfile,
 	[  --with-libsndfile       tell specifically where libsndfile was installed (overrides --with-libs)],
 	[ LIBS="$LIBS -L$with_libsndfile/lib"
-	  INCLUDES="$INCLUDES -I$with_libs/include" ]
+	  INCLUDES="$INCLUDES -I$with_libsndfile/include" ]
 )
 
 AC_CHECK_LIB(fftw3,main,HAVE_FFTW3=yes,
