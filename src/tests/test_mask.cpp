@@ -47,6 +47,7 @@ int main( void ) {
   MP_Mask_c mask2(MASK_SIZE);
   MP_Mask_c mask3(MASK_SIZE);
   MP_Mask_c mask4(MASK_SIZE - 4);
+  MP_Mask_c mask5(MASK_SIZE - 4);
 
   /*********************************/
   fprintf( stdout, "==== INITIALIZATION:\n" );
@@ -62,6 +63,13 @@ int main( void ) {
   fprintf( stdout, "MASK3 " );
   for ( i = 0; i < MASK_SIZE; i++ ) fprintf( stdout, "%1d", mask3.sieve[i] );
   fprintf( stdout, "\n" );
+
+
+  if (mask1 == mask2) fprintf( stdout, "MASK1 == MASK2 is TRUE.\n" );
+  else                fprintf( stdout, "MASK1 == MASK2 is FALSE.\n" );
+
+  if (mask1 != mask2) fprintf( stdout, "MASK1 != MASK2 is TRUE.\n" );
+  else                fprintf( stdout, "MASK1 != MASK2 is FALSE.\n" );
 
 
   /*********************************/
@@ -80,6 +88,12 @@ int main( void ) {
   fprintf( stdout, "MASK2 " );
   for ( i = 0; i < MASK_SIZE; i++ ) fprintf( stdout, "%1d", mask2.sieve[i] );
   fprintf( stdout, "\n" );
+
+  if (mask1 == mask2) fprintf( stdout, "MASK1 == MASK2 is TRUE.\n" );
+  else                fprintf( stdout, "MASK1 == MASK2 is FALSE.\n" );
+
+  if (mask1 != mask2) fprintf( stdout, "MASK1 != MASK2 is TRUE.\n" );
+  else                fprintf( stdout, "MASK1 != MASK2 is FALSE.\n" );
 
 
   /*********************************/
@@ -136,6 +150,28 @@ int main( void ) {
   for ( i = 0; i < MASK_SIZE; i++ ) fprintf( stdout, "%1d", mask3.sieve[i] );
   fprintf( stdout, "\n" );
 
+
+  /*********************************/
+  fprintf( stdout, "==== FILE I/O:\n" );
+
+  i = mask3.write_to_file( "mask3.bin" );
+  fprintf( stdout, "Wrote %lu elements. mask5 has %lu elements.\n",
+	   i, mask5.numAtoms );
+
+  i = mask5.read_from_file( "mask3.bin" );
+  fprintf( stdout, "Read %lu elements. mask5 now has %lu elements.\n",
+	   i, mask5.numAtoms );
+
+  if (mask3 == mask5) fprintf( stdout, "MASK3 == MASK5 is TRUE.\n" );
+  else                fprintf( stdout, "MASK3 == MASK5 is FALSE.\n" );
+
+  fprintf( stdout, "MASK3: " );
+  for ( i = 0; i < mask3.numAtoms; i++ ) fprintf( stdout, "%1d", mask3.sieve[i] );
+  fprintf( stdout, "\n" );
+
+  fprintf( stdout, "MASK5: " );
+  for ( i = 0; i < mask5.numAtoms; i++ ) fprintf( stdout, "%1d", mask5.sieve[i] );
+  fprintf( stdout, "\n" );
 
   return(0);
 }
