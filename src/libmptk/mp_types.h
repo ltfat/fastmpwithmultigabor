@@ -52,6 +52,7 @@
 typedef double MP_Sample_t; /* Signal data type */
 typedef double MP_Real_t;   /* Inner products data type */
 typedef char   MP_Bool_t;   /* Boolean data type */
+typedef char   MP_Bool_On_Disk_t; /* Disk version of Boolean data type */
 
 /** \brief Support of an atom, in terms of its first sample and size */
 typedef struct {            

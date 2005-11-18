@@ -94,7 +94,7 @@ public:
 
 
   /***************************/
-  /* FACTORY METHOD          */
+  /* FACTORY METHODS         */
   /***************************/
 
  public:
@@ -127,21 +127,45 @@ public:
   /** \brief Check if numAtoms is the same in the mask and in a book. */
   int is_compatible_with( MP_Book_c book );
 
+
+  /***************************/
+  /* FILE I/O                */
+  /***************************/
+
+  /** \brief A method to read from a stream. */
+  unsigned long int read_from_stream( FILE* fid );
+
+  /** \brief A method to write to a stream. */
+  unsigned long int write_to_stream( FILE* fid );
+
+  /** \brief A method to read from a file. */
+  unsigned long int read_from_file( const char* fName );
+
+  /** \brief A method to write to a file. */
+  unsigned long int write_to_file( const char* fName );
+
+
   /***************************/
   /* OPERATORS               */
   /***************************/
 
-  /* \brief Assignment operator */
+  /** \brief Assignment operator */
   MP_Mask_c& operator=(  const MP_Mask_c& from );
 
-  /* \brief Operator AND. */
-  MP_Mask_c operator&&( const MP_Mask_c& m2 );
+  /** \brief Operator AND. */
+  MP_Mask_c operator&&( const MP_Mask_c& m1 );
 
-  /* \brief Operator OR. */
-  MP_Mask_c operator||( const MP_Mask_c& m2 );
+  /** \brief Operator OR. */
+  MP_Mask_c operator||( const MP_Mask_c& m1 );
 
-  /* \brief Operator NOT. */
+  /** \brief Operator NOT. */
   MP_Mask_c operator!( void );
+
+  /** \brief Operator == */
+  MP_Bool_t operator==( const MP_Mask_c& m1 );
+
+  /** \brief Operator != */
+  MP_Bool_t operator!=( const MP_Mask_c& m1 );
 
 };
 

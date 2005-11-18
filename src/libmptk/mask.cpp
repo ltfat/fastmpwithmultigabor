@@ -159,6 +159,129 @@ int MP_Mask_c::is_compatible_with( MP_Book_c book ) {
 
 
 /***************************/
+/* FILE I/O                */
+/***************************/
+
+/***********************************/
+/* A method to read from a stream. */
+unsigned long int MP_Mask_c::read_from_stream( FILE* fid ) {
+
+  unsigned long int nRead = 0;
+  unsigned long int expected = 0;
+  MP_Bool_t* tmp;
+  MP_Bool_On_Disk_t buff;
+  unsigned long int i;
+
+  /* Get the simple header announcing the number of atoms */
+  if ( ( fread( &expected, sizeof(unsigned long int), 1, fid ) ) == 0 ) {
+    fprintf( stderr, "mplib warning -- MP_Mask_c::read_from_stream() - Can't read expected number of"
+	     " sieve coefficients from stream. Returning 0.\n");
+    fflush( stderr );
+    return( 0 );
+  }
+
+  /* Resize the sieve if needed */
+  if ( expected != numAtoms ) {
+    if ( ( tmp = (MP_Bool_t*) realloc( sieve, expected * sizeof(MP_Bool_t)) ) == NULL ) {
+      fprintf( stderr, "mplib warning -- MP_Mask_c::read_from_stream() - Can't reallocate storage space"
+	       " for an array of booleans in the new mask. The assignment fails, and the target"
+	       " object will remain untouched.\n");
+      fflush( stderr );
+      return( 0 );
+    }
+    else {
+      sieve = tmp;
+      numAtoms = expected;
+    }
+  }
+
+  /* Read and cast */
+  for ( i = 0; i < expected; i++ ) {
+    if ( ( fread( &buff, sizeof(MP_Bool_On_Disk_t), 1, fid ) ) == 0 ) {
+      fprintf( stderr, "mplib warning -- MP_Mask_c::read_from_stream() - Can't read a new MP_Bool_On_Disk_t"
+	       " from stream after %lu reads. Returning number of correctly read MP_Bool_On_Disk_t.\n", nRead );
+      fflush( stderr );
+      return( nRead );
+    }
+    else {
+      nRead++;
+      sieve[i] = (MP_Bool_t)(buff);
+    }
+  }
+
+  return( nRead );
+}
+
+/***********************************/
+/* A method to write to a file. */
+unsigned long int MP_Mask_c::write_to_stream( FILE* fid ) {
+
+  unsigned long int nWrite = 0;
+  MP_Bool_On_Disk_t buff;
+  unsigned long int i;
+
+  /* Write the simple header indicating the number of coeffs in the sieve */
+  if ( ( fwrite( &numAtoms, sizeof(unsigned long int), 1, fid ) ) == 0 ) {
+    fprintf( stderr, "mplib warning -- MP_Mask_c::write_to_stream() - Can't write the number of"
+	     " sieve coefficients to the stream. Returning 0.\n");
+    fflush( stderr );
+    return( 0 );
+  }
+  
+  /* Cast and write the sieve */
+  for ( i = 0; i < numAtoms; i++ ) {
+    buff = (MP_Bool_On_Disk_t)( sieve[i] );
+    if ( ( fwrite( &buff, sizeof(MP_Bool_On_Disk_t), 1, fid ) ) == 0 ) {
+      fprintf( stderr, "mplib warning -- MP_Mask_c::write_to_stream() - Can't write a new MP_Bool_On_Disk_t"
+	       " to the stream after %lu writes. Returning nWrite.\n", nWrite );
+      fflush( stderr );
+      return( nWrite );
+    }
+    else nWrite++;
+  }
+
+  return( nWrite );
+}
+
+
+/***********************************/
+/* A method to read from a file. */
+unsigned long int MP_Mask_c::read_from_file( const char* fName ) {
+
+  unsigned long int nRead = 0;
+  FILE* fid;
+
+  if ( ( fid = fopen(fName,"r") ) == NULL ) {
+    fprintf( stderr, "mplib error -- MP_Mask_c::read_from_file() - Could not open file %s to load a mask.\n",
+	     fName );
+    return( 0 );
+  }
+  nRead = read_from_stream( fid );
+  fclose( fid );
+
+  return( nRead );
+}
+
+/***********************************/
+/* A method to write to a file. */
+unsigned long int MP_Mask_c::write_to_file( const char* fName ) {
+
+  unsigned long int nWrite = 0;
+  FILE* fid;
+
+  if ( ( fid = fopen(fName,"w") ) == NULL ) {
+    fprintf( stderr, "mplib error -- MP_Mask_c::write_to_file() - Could not open file %s to write a mask.\n",
+	     fName );
+    return( 0 );
+  }
+  nWrite = write_to_stream( fid );
+  fclose( fid );
+
+  return( nWrite );
+}
+
+
+/***************************/
 /* OPERATORS               */
 /***************************/
 
@@ -197,14 +320,13 @@ MP_Mask_c& MP_Mask_c::operator=( const MP_Mask_c& from ) {
 MP_Mask_c MP_Mask_c::operator&&( const MP_Mask_c& m1 ) {
 
   MP_Mask_c ret( numAtoms );
-  unsigned long int i;
 
   assert( sieve != NULL );
   assert( m1.sieve != NULL );
 
   /* Check mask compatibility */
   if ( numAtoms != m1.numAtoms ) {
-    fprintf( stderr, "mplib warning -- MP_Mask_c::operator& - Can't perform AND between masks"
+    fprintf( stderr, "mplib warning -- MP_Mask_c::operator&& - Can't perform AND between masks"
 	     " of different lengths. Returning an empty mask.\n");
     fflush( stderr );
     if ( ret.sieve ) free( ret.sieve );
@@ -234,7 +356,7 @@ MP_Mask_c MP_Mask_c::operator||( const MP_Mask_c& m1 ) {
 
   /* Check mask compatibility */
   if ( numAtoms != m1.numAtoms ) {
-    fprintf( stderr, "mplib warning -- MP_Mask_c::operator& - Can't perform AND between masks"
+    fprintf( stderr, "mplib warning -- MP_Mask_c::operator|| - Can't perform OR between masks"
 	     " of different lengths. Returning an empty mask.\n");
     fflush( stderr );
     if ( ret.sieve ) free( ret.sieve );
@@ -266,5 +388,37 @@ MP_Mask_c MP_Mask_c::operator!( void ) {
   }
 
   return( ret );
+}
+
+/*******************/
+/* == (COMPARISON) */
+MP_Bool_t MP_Mask_c::operator==( const MP_Mask_c& m1 ) {
+
+  unsigned long int i;
+
+  assert( sieve != NULL );
+  assert( m1.sieve != NULL );
+
+  if ( numAtoms != m1.numAtoms ) return ( (MP_Bool_t)( MP_FALSE ) );
+  /* Browse until different values are found */
+  for ( i = 0;
+	(i < numAtoms) && (sieve[i]==m1.sieve[i]);
+	i++ );
+  /* Then check where the loop stopped */
+  if ( i == numAtoms ) return( (MP_Bool_t)( MP_TRUE ) );
+  else                 return( (MP_Bool_t)( MP_FALSE ) );
+
+}
+
+/***********************/
+/* != (NEG COMPARISON) */
+MP_Bool_t MP_Mask_c::operator!=( const MP_Mask_c& m1 ) {
+
+  unsigned long int i;
+
+  assert( sieve != NULL );
+  assert( m1.sieve != NULL );
+
+  return( !( (*this) == m1 ) );
 }
 
