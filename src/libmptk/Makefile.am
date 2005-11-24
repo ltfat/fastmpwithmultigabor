@@ -52,7 +52,7 @@ export_headers = mp_types.h \
 ## NOTE: in the above list, the order of the headers is important.
 
 BUILT_SOURCES = mptk.h
-CLEANFILES = mptk.h
+CLEANFILES = mptk.h dict_scanner.cpp
 
 EXTRA_DIST = HOWTO_ADD_A_CLASS DEVEL_NOTES
 
