@@ -64,5 +64,7 @@ regen-test-ref: $(top_builddir)/src/utils/mpd $(top_builddir)/src/utils/mpr
 		$(srcdir)/ref/res_mix_58_stereo.wav.ref >& $(srcdir)/ref/log_mpd_mix_58_stereo.ref; \
 	$(top_builddir)/src/utils/mpr --verbose $(srcdir)/ref/book_mix_58_stereo.bin.ref \
 		$(srcdir)/ref/recons_mix_58_stereo.wav.ref $(srcdir)/ref/res_mix_58_stereo.wav.ref \
-		>& $(srcdir)/ref/log_mpr_mix_58_stereo.ref;
+		>& $(srcdir)/ref/log_mpr_mix_58_stereo.ref; \
+	$(top_builddir)/src/utils/mpf --Freq=[0:110] --len=[0:256] $(srcdir)/ref/book_mix_58_stereo.bin.ref \
+		>& $(srcdir)/ref/log_mpf_book_mix_58_stereo.bin.ref;
 

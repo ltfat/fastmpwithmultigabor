@@ -41,10 +41,12 @@ utilpath=@abs_top_builddir@/src/utils
 
 mkdir -p current
 
+echo "=================="
+
 #
 # check mpd
 #
-echo "Checking mpd:"
+echo "===== Checking mpd:"
 
 if test ! -x $utilpath/mpd; then
   echo "  You should probably build mpd before running the tests..."
@@ -82,11 +84,9 @@ fi
 # fi
 
 #
-# check mpd
+# check mpr
 #
-
-
-echo "Checking mpr:"
+echo "===== Checking mpr:"
 
 if test ! -x $utilpath/mpr; then
   echo "  You should probably build mpr before running the tests..."
@@ -123,3 +123,26 @@ else
   exit 1
 fi
 
+
+#
+# check mpf
+#
+echo "===== Checking mpf:"
+
+if test ! -x $utilpath/mpf; then
+  echo "  You should probably build mpf before running the tests..."
+  exit 1
+fi
+
+$utilpath/mpf --Freq=[0:110] --len=[0:256] current/book_mix_58_stereo.bin \
+	 >& current/log_mpf_book_mix_58_stereo.bin.log;
+
+diff @abs_top_builddir@/src/tests/current/log_mpf_book_mix_58_stereo.bin.log $refdir/ref/log_mpf_book_mix_58_stereo.bin.ref > /dev/null 2> /dev/null
+if test $? -eq 0; then
+  echo "  mpf -- test -- The current log is similar to the reference log. Test passed successfully."
+else
+  echo "  mpf -- test ERROR -- The current log differs from the reference log."
+  echo "                       For details, execute:"
+  echo "                         diff @abs_top_builddir@/src/tests/current/log_mpf_book_mix_58_stereo.bin.log $refdir/ref/log_mpf_book_mix_58_stereo.bin.ref"
+  exit 1
+fi
