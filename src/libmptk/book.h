@@ -47,6 +47,14 @@
 
 
 /***********************/
+/* CONSTANTS           */
+/***********************/
+
+/** \brief The minimum increase in the allocation size of a book. */
+#define MP_BOOK_GRANULARITY 1024
+
+
+/***********************/
 /* BOOK CLASS          */
 /***********************/
 /**

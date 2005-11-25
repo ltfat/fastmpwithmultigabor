@@ -45,15 +45,6 @@
 #include "mp_system.h"
 
 
-/***********************/
-/* CONSTANTS           */
-/***********************/
-
-/** \brief The minimum increase in the allocation size of a book, each time
-    there is no sufficient room for the atom that should be appended. */
-#define MP_BOOK_GRANULARITY 100
-
-
 /***************************/
 /* CONSTRUCTORS/DESTRUCTOR */
 /***************************/
