@@ -46,6 +46,14 @@
 #define __mask_h_
 
 
+/***********************/
+/* CONSTANTS           */
+/***********************/
+
+/** \brief The minimum increase in the allocation size of the sieve array. */
+#define MP_MASK_GRANULARITY 1024
+
+
 /***************************/
 /** \brief A class implementing a masking mechanism to select/filter atoms from books.
  */
@@ -58,8 +66,11 @@ class MP_Mask_c {
 
 public:
   
-  /** \brief The dimension fo the filtered book */
+  /** \brief The dimension of the filtered book */
   unsigned long int numAtoms;
+  
+  /** \brief The actual dimension of the sieve array (may be more than numAtoms) */
+  unsigned long int maxNumAtoms;
   
   /** \brief An array of numAtoms booleans storing boolean values;
    *  MP_TRUE means keep the atom, MP_FALSE means throw it away.
@@ -123,26 +134,32 @@ public:
   void reset_all_false( void );
 
 
+private:
+  /** \brief A private method to change the size of the sieve array. */
+  unsigned long int grow( unsigned long int nElem );
+
+public:
+
   /** \brief A method appending nElem MP_TRUE elements to the sieve array.
-   *
    * \param nElem The number of MP_TRUE elements to add
-   *
    * \return 0 if failed, otherwise the new total number of elements in the sieve array.
-   *
-   * \remark A realloc is performed, hence the pointer to the sieve array may change.
+   * \remark A realloc may be performed, hence the pointer to the sieve array may change.
    */
   unsigned long int append_true( unsigned long int nElem );
 
   /** \brief A method appending nElem MP_FALSE elements to the sieve array.
-   *
    * \param nElem The number of MP_FALSE elements to add
-   *
    * \return 0 if failed, otherwise the new total number of elements in the sieve array.
-   *
-   * \remark A realloc is performed, hence the pointer to the sieve array may change.
+   * \remark A realloc may be performed, hence the pointer to the sieve array may change.
    */
   unsigned long int append_false( unsigned long int nElem );
 
+  /** \brief A method appending any element to the sieve array.
+   * \param MP_Bool_t the element to add
+   * \return 0 if failed, otherwise the new total number of elements in the sieve array.
+   * \remark A realloc may be performed, hence the pointer to the sieve array may change.
+   */
+  unsigned long int append( MP_Bool_t val );
 
   /** \brief Check if numAtoms is the same in both masks. */
   MP_Bool_t is_compatible_with( MP_Mask_c mask );

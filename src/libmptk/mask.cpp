@@ -60,9 +60,11 @@ MP_Mask_c::MP_Mask_c( unsigned long int setNumAtoms ) {
 	     " of booleans in the new mask. The array will stay NULL.\n");
     fflush( stderr );
     numAtoms = 0;
+    maxNumAtoms = 0;
   }
   else {
     numAtoms = setNumAtoms;
+    maxNumAtoms = setNumAtoms;
     /* By default, let all the atoms pass through: */
     reset_all_true();
   }
@@ -147,26 +149,45 @@ void MP_Mask_c::reset_all_false( void ) {
 
 
 /******************************/
-/* Append some MP_TRUE values */
-unsigned long int MP_Mask_c::append_true( unsigned long int nElem ) {
+/* A useful growing routine   */
+unsigned long int MP_Mask_c::grow( unsigned long int nElem ) {
 
   MP_Bool_t *tmp;
+  unsigned long int newSize;
 
-  assert( sieve != NULL );
-
-  if ( ( tmp = (MP_Bool_t*) realloc( sieve, (numAtoms + nElem) * sizeof(MP_Bool_t)) ) == NULL ) {
-    fprintf( stderr, "mplib warning -- MP_Mask_c::append_true() - Can't reallocate storage space"
+  /* If nElem is small, make a big realloc of MP_MASK_GRANULARITY elements. */
+  if ( nElem < MP_MASK_GRANULARITY ) newSize = numAtoms + MP_MASK_GRANULARITY;
+  else                               newSize = numAtoms + nElem;
+  /* Actual realloc: */
+  if ( ( tmp = (MP_Bool_t*) realloc( sieve, newSize * sizeof(MP_Bool_t)) ) == NULL ) {
+    fprintf( stderr, "mplib warning -- MP_Mask_c::grow() - Can't reallocate storage space"
 	     " for an array of booleans in the mask. The assignment fails, and the"
 	     " mask will remain untouched.\n");
     fflush( stderr );
     return( 0 );
   }
-  else {
-    unsigned long int i;
-    sieve = tmp;
-    for ( i = numAtoms; i < (numAtoms + nElem); i++ ) sieve[i] = MP_TRUE;
-    numAtoms = (numAtoms + nElem);
-  }
+  /* If realloc succeeds: */
+  sieve = tmp;
+  maxNumAtoms = newSize;
+
+  return( newSize );
+}
+
+/******************************/
+/* Append some MP_TRUE values */
+unsigned long int MP_Mask_c::append_true( unsigned long int nElem ) {
+
+  unsigned long int i;
+  unsigned long int newSize = 1;
+
+  assert( sieve != NULL );
+
+  /* If the number of elements to add goes beyond the max sieve size, realloc: */
+  if ( (numAtoms + nElem) > maxNumAtoms ) newSize = grow( nElem );
+  if ( newSize == 0 ) return( 0 );  
+  /* If the realloc succeeded or if there was enough space already, assign the new elements: */
+  for ( i = numAtoms; i < (numAtoms + nElem); i++ ) sieve[i] = MP_TRUE;
+  numAtoms = (numAtoms + nElem);
 
   return( numAtoms );
 }
@@ -175,23 +196,35 @@ unsigned long int MP_Mask_c::append_true( unsigned long int nElem ) {
 /* Append some MP_FALSE values */
 unsigned long int MP_Mask_c::append_false( unsigned long int nElem ) {
 
-  MP_Bool_t *tmp;
+  unsigned long int i;
+  unsigned long int newSize = 1;
 
   assert( sieve != NULL );
 
-  if ( ( tmp = (MP_Bool_t*) realloc( sieve, (numAtoms + nElem) * sizeof(MP_Bool_t)) ) == NULL ) {
-    fprintf( stderr, "mplib warning -- MP_Mask_c::append_false() - Can't reallocate storage space"
-	     " for an array of booleans in the mask. The assignment fails, and the"
-	     " mask will remain untouched.\n");
-    fflush( stderr );
-    return( 0 );
-  }
-  else {
-    unsigned long int i;
-    sieve = tmp;
-    for ( i = numAtoms; i < (numAtoms + nElem); i++ ) sieve[i] = MP_FALSE;
-    numAtoms = (numAtoms + nElem);
-  }
+  /* If the number of elements to add goes beyond the max sieve size, realloc: */
+  if ( (numAtoms + nElem) > maxNumAtoms ) newSize = grow( nElem );
+  if ( newSize == 0 ) return( 0 );  
+  /* If the realloc succeeded or if there was enough space already, assign the new elements: */
+  for ( i = numAtoms; i < (numAtoms + nElem); i++ ) sieve[i] = MP_FALSE;
+  numAtoms = (numAtoms + nElem);
+
+  return( numAtoms );
+}
+
+/*******************************/
+/* Append any MP_Bool_t value  */
+unsigned long int MP_Mask_c::append( MP_Bool_t val ) {
+
+  unsigned long int newSize = 1;
+
+  assert( sieve != NULL );
+
+  /* If the number of elements to add goes beyond the max sieve size, realloc: */
+  if ( (numAtoms + 1) > maxNumAtoms ) newSize = grow( MP_MASK_GRANULARITY );
+  if ( newSize == 0 ) return( 0 );  
+  /* If the realloc succeeded or if there was enough space already, assign the new element: */
+  sieve[numAtoms] = val;
+  numAtoms++;
 
   return( numAtoms );
 }
@@ -238,6 +271,7 @@ unsigned long int MP_Mask_c::read_from_stream( FILE* fid ) {
     else {
       sieve = tmp;
       numAtoms = expected;
+      maxNumAtoms = expected;
     }
   }
 
@@ -342,7 +376,7 @@ MP_Mask_c& MP_Mask_c::operator=( const MP_Mask_c& from ) {
   /* If sizes are different, reallocate the sieve array: */
   if ( numAtoms != from.numAtoms ) {
 
-    if ( ( tmp = (MP_Bool_t*) realloc( sieve, from.numAtoms * sizeof(MP_Bool_t)) ) == NULL ) {
+    if ( ( tmp = (MP_Bool_t*) realloc( sieve, from.maxNumAtoms * sizeof(MP_Bool_t)) ) == NULL ) {
       fprintf( stderr, "mplib warning -- MP_Mask_c::operator=() - Can't reallocate storage space"
 	       " for an array of booleans in the new mask. The assignment fails, and the target"
 	       " object will remain untouched.\n");
@@ -352,6 +386,7 @@ MP_Mask_c& MP_Mask_c::operator=( const MP_Mask_c& from ) {
     else {
       sieve = tmp;
       numAtoms = from.numAtoms;
+      maxNumAtoms = from.maxNumAtoms;
     }
   }
 
@@ -377,6 +412,7 @@ MP_Mask_c MP_Mask_c::operator&&( const MP_Mask_c& m1 ) {
     fflush( stderr );
     if ( ret.sieve ) free( ret.sieve );
     ret.numAtoms = 0;
+    ret.maxNumAtoms = 0;
   }
   /* If masks are compatible, perform the and */
   else {
@@ -407,6 +443,7 @@ MP_Mask_c MP_Mask_c::operator||( const MP_Mask_c& m1 ) {
     fflush( stderr );
     if ( ret.sieve ) free( ret.sieve );
     ret.numAtoms = 0;
+    ret.maxNumAtoms = 0;
   }
   /* If masks are compatible, perform the and */
   else {
@@ -459,8 +496,6 @@ MP_Bool_t MP_Mask_c::operator==( const MP_Mask_c& m1 ) {
 /***********************/
 /* != (NEG COMPARISON) */
 MP_Bool_t MP_Mask_c::operator!=( const MP_Mask_c& m1 ) {
-
-  unsigned long int i;
 
   assert( sieve != NULL );
   assert( m1.sieve != NULL );
