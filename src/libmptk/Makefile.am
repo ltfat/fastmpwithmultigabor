@@ -41,8 +41,8 @@ export_headers = mp_types.h \
 	mp_signal.h         \
 	tfmap.h             \
 	atom.h  block.h     \
-	book.h dict.h       \
 	mask.h              \
+	book.h dict.h       \
 	atom_classes/gabor_atom.h atom_classes/gabor_block.h         \
 	atom_classes/harmonic_atom.h atom_classes/harmonic_block.h   \
 	atom_classes/dirac_atom.h atom_classes/dirac_block.h         \
@@ -72,7 +72,7 @@ libmptk_a_SOURCES = mptk.h header.h $(export_headers)\
         atom_classes/TEMPLATE_atom.cpp atom_classes/TEMPLATE_block.cpp   \
 	atom_classes/dict_scanner.lpp \
 	atom_classes/block_io_interface.cpp \
-	dict.cpp book.cpp mask.cpp tfmap.cpp
+	dict.cpp mask.cpp book.cpp tfmap.cpp
 
 mptk.h: Makefile.am $(srcdir)/header.h $(srcdir)/../../AUTHORS $(export_headers)
 	( head -n 36 $(srcdir)/header.h; \

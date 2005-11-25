@@ -105,16 +105,16 @@ MP_Book_c::~MP_Book_c() {
 
 /********************************/
 /* Print some atoms to a stream */
-unsigned long int MP_Book_c::print( FILE *fid , const char mode, char *mask) {
+unsigned long int MP_Book_c::print( FILE *fid , const char mode, MP_Mask_c* mask) {
   
   unsigned long int i;
   unsigned long int nAtom = 0;
 
   /* determine how many atoms the printed book will contain  */
-  if (mask==NULL) nAtom = numAtoms;
+  if ( mask == NULL ) nAtom = numAtoms;
   else {
     for (i=0; i<numAtoms; i++) {
-      if (mask[i]) nAtom++;
+      if (mask->sieve[i]) nAtom++;
     }
   }
 
@@ -139,7 +139,7 @@ unsigned long int MP_Book_c::print( FILE *fid , const char mode, char *mask) {
   }
   else {
     for ( i=0, nAtom=0; i<numAtoms; i++ ) {
-      if ( mask[i] ) { write_atom( fid, mode, atom[i] ); /*atom[i]->write( fid, mode );*/ nAtom++; }
+      if ( mask->sieve[i] ) { write_atom( fid, mode, atom[i] ); /*atom[i]->write( fid, mode );*/ nAtom++; }
     }
   }
 
@@ -153,7 +153,7 @@ unsigned long int MP_Book_c::print( FILE *fid , const char mode, char *mask) {
 
 /******************************/
 /* Print some atoms to a file */
-unsigned long int MP_Book_c::print( const char *fName , const char mode, char* mask ) {
+unsigned long int MP_Book_c::print( const char *fName , const char mode, MP_Mask_c* mask ) {
 
   FILE *fid;
   unsigned long int nAtom = 0;
@@ -362,50 +362,63 @@ int MP_Book_c::append( MP_Atom_c *newAtom ) {
 
 /***************************************************************/
 /* Substract or add the sum of (some) atoms from / to a signal */
-unsigned long int MP_Book_c::substract_add( MP_Signal_c *sigSub, MP_Signal_c *sigAdd, char *mask ) {
+unsigned long int MP_Book_c::substract_add( MP_Signal_c *sigSub, MP_Signal_c *sigAdd, MP_Mask_c* mask ) {
 
   unsigned long int i;
   unsigned long int n = 0;
   
-  for (i = 0; i < numAtoms; i++) {
-    if ( (mask == NULL) || mask[i] ) {
-      atom[i]->substract_add(sigSub,sigAdd);
-      n++;
+  if (mask == NULL) {
+    for (i = 0; i < numAtoms; i++) atom[i]->substract_add(sigSub,sigAdd);
+    n = numAtoms;
+  }
+  else {
+    for (i = 0; i < numAtoms; i++) {
+      if ( mask->sieve[i] ) { atom[i]->substract_add(sigSub,sigAdd); n++; }
     }
   }
-  return(n);
+  return( n );
 }
 
 /***********************************************/
 /* Build the sum of (some) atoms into a signal */
-unsigned long int MP_Book_c::build_waveform( MP_Signal_c *sig, char *mask ) {
+unsigned long int MP_Book_c::build_waveform( MP_Signal_c *sig, MP_Mask_c* mask ) {
 
   unsigned long int i;
   unsigned long int n = 0;
   
   /* allocate the signal at the right size */
   sig->init( numChans, numSamples, sampleRate );
-  /* add the atom waveforms */
-  for (i = 0; i < numAtoms; i++) {
-    if ( ( mask == NULL ) || mask[i] ) {
-      atom[i]->substract_add( NULL, sig );
 
+  /* add the atom waveforms */
+  if (mask == NULL) {
+    for (i = 0; i < numAtoms; i++) {
+      atom[i]->substract_add( NULL, sig );
+      n++;
 #ifndef NDEBUG
       /* display a 'progress bar' */
       fprintf( stderr, "\r%2d %%\t [%lu]\t [%lu / %lu]",
-	       (int)(100*(float)i/(float)numAtoms),
-	       n, i, numAtoms );
+	       (int)(100*(float)i/(float)numAtoms), n, i, numAtoms );
 #endif
-
-      n++;
+    }
+  }
+  else {
+    for (i = 0; i < numAtoms; i++) {
+      if ( mask->sieve[i] ) {
+	atom[i]->substract_add( NULL, sig );
+	n++;
+#ifndef NDEBUG
+      /* display a 'progress bar' */
+      fprintf( stderr, "\r%2d %%\t [%lu]\t [%lu / %lu]",
+	       (int)(100*(float)i/(float)numAtoms), n, i, numAtoms );
+#endif
+      }
     }
   }
 
 #ifndef NDEBUG
       /* terminate the display of the 'progress bar' */
       fprintf( stderr, "\r%2d %%\t [%lu]\t [%lu / %lu]\n",
-	       (int)(100*(float)i/(float)numAtoms),
-	       n, i, numAtoms );
+	       (int)(100*(float)i/(float)numAtoms), n, i, numAtoms );
 #endif
 
   return( n );
@@ -414,17 +427,26 @@ unsigned long int MP_Book_c::build_waveform( MP_Signal_c *sig, char *mask ) {
 /******************************************************/
 /* Adds the sum of the pseudo Wigner-Ville distributions
    of some atoms to a time-frequency map */
-unsigned long int MP_Book_c::add_to_tfmap(MP_TF_Map_c *tfmap, char *mask) {
+unsigned long int MP_Book_c::add_to_tfmap(MP_TF_Map_c *tfmap, MP_Mask_c* mask) {
 
   unsigned long int i;
   unsigned long int n = 0;
-
-  for (i = 0; i < numAtoms; i++) {
-    if ( (mask==NULL) || mask[i] ) {
-      atom[i]->add_to_tfmap(tfmap);
-      n++;
+  
+  if (mask == NULL) {
+    for (i = 0; i < numAtoms; i++) atom[i]->add_to_tfmap( tfmap );
+    n = numAtoms;
+  }
+  else {
+    for (i = 0; i < numAtoms; i++) {
+      if ( mask->sieve[i] ) { atom[i]->add_to_tfmap( tfmap ); n++; }
     }
   }
+  return( n );
+}
 
-  return(n);
+
+/***********************************/
+/* Check compatibility with a mask */
+MP_Bool_t MP_Book_c::is_compatible_with( MP_Mask_c mask ) {
+  return( numAtoms == mask.numAtoms );
 }

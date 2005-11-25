@@ -176,15 +176,14 @@ int main( void ) {
     MP_TF_Map_c* tfmap = new MP_TF_Map_c( 640, 480, dico->signal->numChans,
 					  0.0, 0.0, dico->signal->numSamples,
 					  0.5 );
-    char mask[book.numAtoms];
-    unsigned long int n;
-    for ( n = 0; n < book.numAtoms; n++ ) mask[n] = 0;
-    mask[0] = 1;
-    mask[1] = 1;
-    mask[2] = 1;
+    MP_Mask_c mask( book.numAtoms );
+    mask.reset_all_false();
+    mask.set_true(0);
+    mask.set_true(1);
+    mask.set_true(2);
     tfmap->info( stdout );
 
-    book.add_to_tfmap( tfmap, mask );
+    book.add_to_tfmap( tfmap, &mask );
 
     tfmap->dump_to_float_file( "signals/tfmap.flt", 1 );
     delete tfmap;

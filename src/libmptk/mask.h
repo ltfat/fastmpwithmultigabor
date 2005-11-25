@@ -109,11 +109,12 @@ public:
 
 public:
 
-  /** \brief Set one element to MP_TRUE. */
+  /** \brief Set one element to MP_TRUE at index i. */
   void set_true( unsigned long int i );
 
-  /** \brief Set one element to MP_FALSE. */
+  /** \brief Set one element to MP_FALSE at index i. */
   void set_false( unsigned long int i );
+
 
   /** \brief A method setting the whole array to MP_TRUE. */
   void reset_all_true( void );
@@ -121,11 +122,30 @@ public:
   /** \brief A method setting the whole array to MP_FALSE. */
   void reset_all_false( void );
 
-  /** \brief Check if numAtoms is the same in both masks. */
-  int is_compatible_with( MP_Mask_c mask );
 
-  /** \brief Check if numAtoms is the same in the mask and in a book. */
-  int is_compatible_with( MP_Book_c book );
+  /** \brief A method appending nElem MP_TRUE elements to the sieve array.
+   *
+   * \param nElem The number of MP_TRUE elements to add
+   *
+   * \return 0 if failed, otherwise the new total number of elements in the sieve array.
+   *
+   * \remark A realloc is performed, hence the pointer to the sieve array may change.
+   */
+  unsigned long int append_true( unsigned long int nElem );
+
+  /** \brief A method appending nElem MP_FALSE elements to the sieve array.
+   *
+   * \param nElem The number of MP_FALSE elements to add
+   *
+   * \return 0 if failed, otherwise the new total number of elements in the sieve array.
+   *
+   * \remark A realloc is performed, hence the pointer to the sieve array may change.
+   */
+  unsigned long int append_false( unsigned long int nElem );
+
+
+  /** \brief Check if numAtoms is the same in both masks. */
+  MP_Bool_t is_compatible_with( MP_Mask_c mask );
 
 
   /***************************/

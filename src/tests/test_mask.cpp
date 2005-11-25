@@ -119,6 +119,16 @@ int main( void ) {
   for ( i = 0; i < mask4.numAtoms; i++ ) fprintf( stdout, "%1d", mask4.sieve[i] );
   fprintf( stdout, "\n" );
 
+  fprintf( stdout, "+4TRU " );
+  mask4.append_true( 4 );
+  for ( i = 0; i < mask4.numAtoms; i++ ) fprintf( stdout, "%1d", mask4.sieve[i] );
+  fprintf( stdout, "\n" );
+
+  fprintf( stdout, "+3FLS " );
+  mask4.append_false( 3 );
+  for ( i = 0; i < mask4.numAtoms; i++ ) fprintf( stdout, "%1d", mask4.sieve[i] );
+  fprintf( stdout, "\n" );
+
 
   /*********************************/
   fprintf( stdout, "==== OPERATORS:\n" );

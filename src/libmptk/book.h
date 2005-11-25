@@ -101,14 +101,14 @@ public:
    *
    * \param  fid A writable stream
    * \param  mode One of MP_TEXT or MP_BINARY
-   * \param  mask array of numAtoms 0/1 flags where the 1 indicate which atoms should be used 
+   * \param  mask a MP_Mask_c object telling which atoms should be used 
    * \return The number of atoms actually printed to the stream 
    * \remark Passing mask == NULL forces all atoms to be used. 
    */
-  unsigned long int print( FILE *fid , const char mode, char *mask);
+  unsigned long int print( FILE *fid , const char mode, MP_Mask_c* mask);
 
-  /** \brief Same as MP_Book_c::print (FILE *fid, const char mode, char*mask) but with a file name */
-  unsigned long int print( const char *fName, const char mode, char* mask);
+  /** \brief Same as MP_Book_c::print (FILE *fid, const char mode, char* mask) but with a file name */
+  unsigned long int print( const char *fName, const char mode, MP_Mask_c* mask);
 
   /** \brief Same as MP_Book_c::print( FILE *fid, const char mode, char *mask) with mask == NULL */
   unsigned long int print( FILE *fid, const char mode );
@@ -153,32 +153,36 @@ public:
    *
    * \param sigSub signal from which the sum of atom waveforms is to be removed
    * \param sigAdd signal to which the sum of atom waveforms is to be added
-   * \param mask array of numAtoms 0/1 flags where the 1 indicate which atoms should be used 
+   * \param mask a MP_Mask_c object indicating which atoms should be used 
    * \return the number of atoms used
    * \remark Passing sigSub == NULL or sigAdd == NULL skips the corresponding substraction / addition.
    * \remark Passing mask == NULL forces all atoms to be used.
    * \remark An exception (assert) is throwed if the signals numChans does not match the atoms numChans.
    * \remark An exception (assert) is throwed if the support of the atom exceeds the limits of the signal.
    */
-  unsigned long int substract_add( MP_Signal_c *sigSub, MP_Signal_c *sigAdd, char *mask );
+  unsigned long int substract_add( MP_Signal_c *sigSub, MP_Signal_c *sigAdd, MP_Mask_c* mask );
 
   /** \brief Build the waveform corresponding to the sum of some atoms of the book into a signal 
    *
    * \param sig signal to which the atom waveform is to be added
-   * \param mask array of numAtoms 0/1 flags where the 1 indicate which atoms should be used 
+   * \param mask a MP_Mask_c object indicating which atoms should be used 
    * \return the number of atoms used
    * \remark The signal numChans, numSamples and sampleRate are set according to those of the book.
    * \remark Passing mask == NULL forces all atoms to be used.
    */
-  unsigned long int build_waveform( MP_Signal_c *sig, char *mask );
+  unsigned long int build_waveform( MP_Signal_c *sig, MP_Mask_c* mask );
 
   /** \brief Adds the sum of the pseudo Wigner-Ville distributions of some atoms to a time-frequency map 
    * \param tfmap The time-frequency map 
-   * \param mask array of numAtoms 0/1 flags where the 1 indicate which atoms should be used 
+   * \param mask a MP_Mask_c object indicating which atoms should be used 
    * \return the number of atoms used
    * \remark Passing mask == NULL forces all atoms to be used.
    */
-  unsigned long int add_to_tfmap( MP_TF_Map_c *tfmap, char *mask );
+  unsigned long int add_to_tfmap( MP_TF_Map_c *tfmap, MP_Mask_c* mask );
+
+
+  /** \brief Check if numAtoms is the same in a mask and in the book. */
+  MP_Bool_t is_compatible_with( MP_Mask_c mask );
 
 };
 

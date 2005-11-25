@@ -145,16 +145,62 @@ void MP_Mask_c::reset_all_false( void ) {
 
 }
 
-/***********************************/
-/* Check compatibility with another mask book */
-int MP_Mask_c::is_compatible_with( MP_Mask_c mask ) {
-  return( numAtoms == mask.numAtoms );
+
+/******************************/
+/* Append some MP_TRUE values */
+unsigned long int MP_Mask_c::append_true( unsigned long int nElem ) {
+
+  MP_Bool_t *tmp;
+
+  assert( sieve != NULL );
+
+  if ( ( tmp = (MP_Bool_t*) realloc( sieve, (numAtoms + nElem) * sizeof(MP_Bool_t)) ) == NULL ) {
+    fprintf( stderr, "mplib warning -- MP_Mask_c::append_true() - Can't reallocate storage space"
+	     " for an array of booleans in the mask. The assignment fails, and the"
+	     " mask will remain untouched.\n");
+    fflush( stderr );
+    return( 0 );
+  }
+  else {
+    unsigned long int i;
+    sieve = tmp;
+    for ( i = numAtoms; i < (numAtoms + nElem); i++ ) sieve[i] = MP_TRUE;
+    numAtoms = (numAtoms + nElem);
+  }
+
+  return( numAtoms );
 }
 
+/*******************************/
+/* Append some MP_FALSE values */
+unsigned long int MP_Mask_c::append_false( unsigned long int nElem ) {
+
+  MP_Bool_t *tmp;
+
+  assert( sieve != NULL );
+
+  if ( ( tmp = (MP_Bool_t*) realloc( sieve, (numAtoms + nElem) * sizeof(MP_Bool_t)) ) == NULL ) {
+    fprintf( stderr, "mplib warning -- MP_Mask_c::append_false() - Can't reallocate storage space"
+	     " for an array of booleans in the mask. The assignment fails, and the"
+	     " mask will remain untouched.\n");
+    fflush( stderr );
+    return( 0 );
+  }
+  else {
+    unsigned long int i;
+    sieve = tmp;
+    for ( i = numAtoms; i < (numAtoms + nElem); i++ ) sieve[i] = MP_FALSE;
+    numAtoms = (numAtoms + nElem);
+  }
+
+  return( numAtoms );
+}
+
+
 /***********************************/
-/* Check compatibility with a book */
-int MP_Mask_c::is_compatible_with( MP_Book_c book ) {
-  return( numAtoms == book.numAtoms );
+/* Check compatibility with another mask book */
+MP_Bool_t MP_Mask_c::is_compatible_with( MP_Mask_c mask ) {
+  return( numAtoms == mask.numAtoms );
 }
 
 

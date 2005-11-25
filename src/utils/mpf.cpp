@@ -599,7 +599,7 @@ int main( int argc, char **argv ) {
 
   unsigned long int n; /* loop variable for atoms */
   int k;
-  char* mask = NULL;
+  MP_Mask_c* mask = NULL;
 
   /* Parse the command line */
   if ( argc == 1 ) usage();
@@ -628,8 +628,8 @@ int main( int argc, char **argv ) {
   }
 
   /* Allocate the mask */
-  if ( (mask = (char*)malloc( book.numAtoms*sizeof(char) )) == NULL ) {
-    fprintf( stderr, "mpf error -- Can't allocate an array of [%lu] chars to store the mask.\n", book.numAtoms );
+  if ( (mask = MP_Mask_c::init( book.numAtoms )) == NULL ) {
+    fprintf( stderr, "mpf error -- Can't create a new mask with [%lu] elements.\n", book.numAtoms );
     return( ERR_MALLOC );
   }
   
@@ -644,7 +644,7 @@ int main( int argc, char **argv ) {
       if ( MPF_USE[k] ) decision = ( decision && test_satisfaction( k, n, book.atom[n] ) );
     }
     /* Fill the mask */
-    mask[n] = decision;
+    mask->sieve[n] = decision;
     if ( decision ) numPositive++;
   }
 
@@ -670,7 +670,8 @@ int main( int argc, char **argv ) {
   /* Write the NO book */
   if ( bookNoName ) {
     /* Revert the mask */
-    for (n = 0; n < book.numAtoms; n++) mask[n] = !(mask[n]);
+    //for (n = 0; n < book.numAtoms; n++) mask[n] = !(mask[n]);
+    *mask = !(*mask);
     /* Write the book */
     n = book.print( bookNoName, MP_BINARY, mask );
     /* Report */
@@ -678,7 +679,8 @@ int main( int argc, char **argv ) {
   }
 
   /* Clean the house */
-  free( mask );
+  //free( mask );
+  delete mask;
 
-  return(0);
+  return( 0 );
 }
