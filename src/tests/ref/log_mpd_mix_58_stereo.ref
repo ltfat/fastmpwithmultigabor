@@ -21,20 +21,20 @@ mplib info -- The number of frames for this block is [147], the search tree has 
 mplib info -- GABOR BLOCK: gauss window (window opt=0) of length [1024], shifted by [256] samples, projected on [513] frequencies;
 mplib info -- The number of frames for this block is [72], the search tree has [2] levels.
 mplib info -- HARMONIC BLOCK: gauss window (window opt=0) of length [256], shifted by [128] samples, projected on [129] frequencies and [0] fundamental frequencies for a total of [129] filters;
- mplib info -- fundamental frequency in the range [0.00390625 0] ([1 0]);
- mplib info -- maximum number of partials 5;
+mplib info -- fundamental frequency in the range [0.00390625 0] ([1 0]);
+mplib info -- maximum number of partials 5;
 mplib info -- The number of frames for this block is [149], the search tree has [3] levels.
 mplib info -- HARMONIC BLOCK: gauss window (window opt=0) of length [512], shifted by [256] samples, projected on [257] frequencies and [37] fundamental frequencies for a total of [294] filters;
- mplib info -- fundamental frequency in the range [0.0546875 0.125] ([28 64]);
- mplib info -- maximum number of partials 10;
+mplib info -- fundamental frequency in the range [0.0546875 0.125] ([28 64]);
+mplib info -- maximum number of partials 10;
 mplib info -- The number of frames for this block is [74], the search tree has [2] levels.
 mplib info -- HARMONIC BLOCK: gauss window (window opt=0) of length [1024], shifted by [512] samples, projected on [513] frequencies and [73] fundamental frequencies for a total of [586] filters;
- mplib info -- fundamental frequency in the range [0.0546875 0.125] ([56 128]);
- mplib info -- maximum number of partials 10;
+mplib info -- fundamental frequency in the range [0.0546875 0.125] ([56 128]);
+mplib info -- maximum number of partials 10;
 mplib info -- The number of frames for this block is [36], the search tree has [2] levels.
 mplib info -- HARMONIC BLOCK: gauss window (window opt=0) of length [2048], shifted by [1024] samples, projected on [1025] frequencies and [145] fundamental frequencies for a total of [1170] filters;
- mplib info -- fundamental frequency in the range [0.0546875 0.125] ([112 256]);
- mplib info -- maximum number of partials 10;
+mplib info -- fundamental frequency in the range [0.0546875 0.125] ([112 256]);
+mplib info -- maximum number of partials 10;
 mplib info -- The number of frames for this block is [17], the search tree has [1] levels.
 mplib info -- dirac block.
 mpd msg -- End of dictionary.
@@ -68,20 +68,20 @@ mpd progress -- At iteration [180] : the residual energy is [212.946] and the SN
 mpd progress -- At iteration [190] : the residual energy is [203.114] and the SNR is [7.12229].
 mpd progress -- At iteration [200] : the residual energy is [193.935] and the SNR is [7.32313].
 mpd progress -- At iteration [210] : the residual energy is [185.286] and the SNR is [7.52127].
-mpd progress -- At iteration [220] : the residual energy is [177.215] and the SNR is [7.71469].
-mpd progress -- At iteration [230] : the residual energy is [169.475] and the SNR is [7.90863].
+mpd progress -- At iteration [220] : the residual energy is [177.214] and the SNR is [7.71469].
+mpd progress -- At iteration [230] : the residual energy is [169.475] and the SNR is [7.90864].
 mpd progress -- At iteration [240] : the residual energy is [162.288] and the SNR is [8.09681].
-mpd progress -- At iteration [250] : the residual energy is [155.558] and the SNR is [8.28075].
-mpd progress -- At iteration [260] : the residual energy is [149.207] and the SNR is [8.46178].
-mpd progress -- At iteration [270] : the residual energy is [143.251] and the SNR is [8.6387].
-mpd progress -- At iteration [280] : the residual energy is [137.654] and the SNR is [8.81179].
+mpd progress -- At iteration [250] : the residual energy is [155.558] and the SNR is [8.28076].
+mpd progress -- At iteration [260] : the residual energy is [149.207] and the SNR is [8.46179].
+mpd progress -- At iteration [270] : the residual energy is [143.251] and the SNR is [8.63871].
+mpd progress -- At iteration [280] : the residual energy is [137.654] and the SNR is [8.8118].
 mpd progress -- At iteration [290] : the residual energy is [132.412] and the SNR is [8.98042].
 mpd progress -- At iteration [300] : the residual energy is [127.468] and the SNR is [9.14566].
 mpd progress -- At iteration [310] : the residual energy is [122.823] and the SNR is [9.30689].
-mpd progress -- At iteration [320] : the residual energy is [118.416] and the SNR is [9.46558].
-mpd progress -- At iteration [330] : the residual energy is [114.162] and the SNR is [9.62447].
-mpd progress -- At iteration [340] : the residual energy is [110.108] and the SNR is [9.7815].
-mpd progress -- At iteration [350] : the residual energy is [106.248] and the SNR is [9.93646].
+mpd progress -- At iteration [320] : the residual energy is [118.416] and the SNR is [9.46559].
+mpd progress -- At iteration [330] : the residual energy is [114.161] and the SNR is [9.62452].
+mpd progress -- At iteration [340] : the residual energy is [110.107] and the SNR is [9.78155].
+mpd progress -- At iteration [350] : the residual energy is [106.247] and the SNR is [9.93652].
 mpd msg -- [356] ITERATIONS DONE.
 mpd msg -- ------------------------
 mpd msg -- MATCHING PURSUIT RESULTS:
@@ -89,8 +89,8 @@ mpd msg -- ------------------------
 mpd result -- [356] iterations have been performed.
 mpd result -- ([356] atoms have been selected out of the [252996] atoms of the dictionary.)
 mpd result -- The initial signal energy was [1047.05].
-mpd result -- The residual energy is now [104.394].
-mpd result -- The SNR is now [10.0129].
+mpd result -- The residual energy is now [104.393].
+mpd result -- The SNR is now [10.013].
 mpd msg -- Saved the residual.
 mpd msg -- Saved the book in binary mode.
 mpd msg -- Have a nice day !

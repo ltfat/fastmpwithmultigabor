@@ -78,21 +78,12 @@ private :
   /* Buffer of analyzed signal multiplied by complex chirp values */
   MP_Real_t *sigChirpRe;
   MP_Real_t *sigChirpIm;
-  /* Buffer of complex FFT values */
-  //MP_Real_t *fftReRe;
-  //MP_Real_t *fftReIm;
-  //MP_Real_t *fftImRe;
-  //MP_Real_t *fftImIm;
+  /* Buffer of energy */
   MP_Real_t *fftEnergy;
-  /* Buffer for s->numChans * (2*numFitPoints+1) useful FFT values in a flat array */
-  //MP_Real_t *pointsReStorage;
-  //MP_Real_t *pointsImStorage;
-  /* Buffer for s->numChans * (2*numFitPoints+1) useful FFT values, accessed as pointsRe[chanIdx][l]  */
-  //MP_Real_t **pointsRe;
-  //MP_Real_t **pointsIm;
   /* Buffer for 2*numFitPoints+1 amplitudes and phases which must be fitted to a parabola */
   MP_Real_t *logAmp;
   MP_Real_t *phase;
+
   /* Buffer for correlation between complex chirps at various frequencies */
  /** \brief Storage space for the real part of the quantity 
    * \f[
@@ -102,27 +93,27 @@ private :
    * \f]
    * which measures the correlation between complex atoms and their conjugate.
    * (DO NOT MALLOC OR FREE IT.)
-   * \sa imCorrel
+   * \sa imCorrelChirp
    */
-  MP_Real_t *reCorrel;
+  MP_Real_t *reCorrelChirp;
   /** \brief Storage space for the imaginary part of the correlation between
    *  complex atoms and  their conjugate. (DO NOT MALLOC OR FREE IT.) 
    * \sa reCorrel */
-  MP_Real_t *imCorrel;
+  MP_Real_t *imCorrelChirp;
   /** \brief Storage space for the squared modulus of the correlation between
    * complex atoms and their conjugate. (DO NOT MALLOC OR FREE IT.) 
-   * \sa reCorrel
+   * \sa reCorrelChirp
    *
    * \f$ \mbox{sqCorrel} = \mbox{reCorrel}^2+\mbox{imCorrel}^2 \f$
    */
-  MP_Real_t *sqCorrel;
+  MP_Real_t *sqCorrelChirp;
   /** \brief Storage space for a useful constant related to the atoms'
    * autocorrelations with their conjugate. (DO NOT MALLOC OR FREE IT.)
    * \sa sqCorrel 
    *
    * \f$ \mbox{cstCorrel} = \frac{2}{1-\mbox{sqCorrel}} \f$
    * */
-  MP_Real_t *cstCorrel;
+  MP_Real_t *cstCorrelChirp;
 
 
   /***********/
@@ -179,10 +170,6 @@ public:
 
 
 private : 
-  /** \brief Allocates the atom's autocorrelations.
-   */
-  int alloc_correl( void );
-
   /** \brief Sets the complex demodulation signal, and computes and tabulates
       the related atom's autocorrelations.
    */

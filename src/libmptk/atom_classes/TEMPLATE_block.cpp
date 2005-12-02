@@ -164,6 +164,7 @@ void MP_TEMPLATE_Block_c::update_frame(unsigned long int frameIdx,
   /*********************************************/
   /* YOUR inner product computation goes here. */
   /*********************************************/
+  frameIdx = 0;
 
   *maxCorr = max;
   *maxFilterIdx = i;

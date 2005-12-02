@@ -77,6 +77,37 @@ public:
   /* The length of the above buffers */
   unsigned long int fftRealSize;
 
+  /** \brief Storage space for the real part of the quantity 
+   * \f[
+   * (\mbox{reCorrel}[k],\mbox{imCorrel[k]}) = 
+   * \sum_{n=0}^{\mbox{fftCplxSize}-1} \mbox{window}^2[n] \cdot 
+   * \exp \left(\frac{2i\pi \cdot (2k)\cdot n}{\mbox{fftCplxSize}}\right)
+   * \f]
+   * which measures the correlation between complex atoms and their conjugate.
+   * (DO NOT MALLOC OR FREE IT.)
+   * \sa imCorrel
+   */
+  MP_Real_t *reCorrel;
+  /** \brief Storage space for the imaginary part of the correlation between
+   *  complex atoms and  their conjugate. (DO NOT MALLOC OR FREE IT.) 
+   * \sa reCorrel */
+  MP_Real_t *imCorrel;
+  /** \brief Storage space for the squared modulus of the correlation between
+   * complex atoms and their conjugate. (DO NOT MALLOC OR FREE IT.) 
+   * \sa reCorrel
+   *
+   * \f$ \mbox{sqCorrel} = \mbox{reCorrel}^2+\mbox{imCorrel}^2 \f$
+   */
+  MP_Real_t *sqCorrel;
+  /** \brief Storage space for a useful constant related to the atoms'
+   * autocorrelations with their conjugate. (DO NOT MALLOC OR FREE IT.)
+   * \sa sqCorrel 
+   *
+   * \f$ \mbox{cstCorrel} = \frac{2}{1-\mbox{sqCorrel}} \f$
+   * */
+  MP_Real_t *cstCorrel;
+
+
   /***********/
   /* METHODS */
   /***********/
@@ -156,6 +187,70 @@ public:
    */
   unsigned int create_atom( MP_Atom_c **atom,
 			    const unsigned long int atomIdx );
+
+protected:
+
+  /** \brief Allocates the atom's autocorrelation.
+   */
+  int alloc_correl( MP_Real_t **reCorr, MP_Real_t **imCorr,
+		    MP_Real_t **sqCorr, MP_Real_t **cstCorr );
+
+  /** \brief Computes and tabulates the atom's autocorrelation.
+   *
+   * \sa compute_energy()
+   */
+  int fill_correl( MP_Real_t *reCorr, MP_Real_t *imCorr,
+		   MP_Real_t *sqCorr, MP_Real_t *cstCorr );
+
+  /** \brief Computes a special version of the power spectrum of an input signal buffer and
+   * puts it in an output magnitude buffer. This version corresponds to the actual projection
+   * of a real valued signal on the space spanned by a complex atom and its conjugate transpose.
+   *
+   * \param in the input signal buffer, only the first windowSize values are used.
+   * \param reCorr real part of the pre-computed atom's autocorrelation.
+   * \param imCorr imaginary part of the pre-computed atom's autocorrelation.
+   * \param sqCorr pre-computed squared atom's autocorrelation.
+   * \param cstCorr pre-computed useful constant related to the atom's autocorrelation.
+   * \param outMag output FFT magnitude buffer, only the first fftRealSize values are filled.
+   *
+   * As explained in Section 3.2.3 (Eq. 3.30) of the Ph.D. thesis of Remi 
+   * Gribonval, for a normalized atom \f$g\f$ with
+   * \f$|\langle g,\overline{g}\rangle|<1\f$ we have
+   * \f[
+   * \mbox{energy} = 
+   * \frac{2}{1-|\langle g,\overline{g}\rangle|^2}
+   *  \cdot \mbox{Real} \left(
+   * |\langle \mbox{sig},g \rangle|^2 -
+   * \langle g,\overline{g}\rangle 
+   * \langle \mbox{sig},g \rangle^2\right)
+   * \f]
+   * so with \f$(\mbox{re},\mbox{im}) = \langle \mbox{sig},g \rangle\f$ 
+   * and \f$(\mbox{reCorrel},\mbox{imCorrel}) = \langle g,\overline{g}\rangle\f$  
+   * and the definition of \a sqCorrel and \a cstCorrel we have
+   *
+   * \f[
+   * \mbox{energy} = 
+   * \mbox{cstCorre} \times
+   * \left(\mbox{re}^2+\mbox{im}^2-
+   * \mbox{reCorrel} *
+   * \left(\mbox{re}^2-\mbox{im}^2\right) +
+   * 2 * \mbox{imCorrel} * \mbox{re} * \mbox{im}
+   * \right)
+   * \f]
+   *
+   * In the case of a real valued atom (\f$\langle g,\overline{g}\rangle = 1\f$)
+   * or when \f$\langle g,\overline{g}\rangle\f$ is very small
+   * we simply have
+   * \f[
+   * \mbox{energy} = \mbox{re}^2+\mbox{im}^2.
+   * \f]
+   * \sa The documentation of exec_complex() gives the expression of \f$(\mbox{re}[k],\mbox{im}[k])\f$
+   * and details about zero padding and the use of fftRealSize.
+   */  
+  void compute_energy( MP_Real_t *in,
+		       MP_Real_t *reCorr, MP_Real_t *imCorr,
+		       MP_Real_t *sqCorr, MP_Real_t *cstCorr,
+		       MP_Real_t *outMag );
 
 };
 

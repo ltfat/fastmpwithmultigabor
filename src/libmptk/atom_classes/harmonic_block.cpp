@@ -123,11 +123,11 @@ int MP_Harmonic_Block_c::info( FILE *fid ) {
   nChar += fprintf( fid, " of length [%lu], shifted by [%lu] samples, projected on [%lu] frequencies"
 		    " and [%lu] fundamental frequencies for a total of [%lu] filters;\n",
 		    filterLen, filterShift, fft->fftRealSize, numFundFreqIdx,numFilters );
-  nChar += fprintf( fid, " mplib info -- fundamental frequency in the range [%lg %lg] ([%lu %lu]);\n",
+  nChar += fprintf( fid, "mplib info -- fundamental frequency in the range [%lg %lg] ([%lu %lu]);\n",
 		    ((double)minFundFreqIdx)/((double)fft->fftCplxSize),
 		    ((double)(minFundFreqIdx+numFundFreqIdx-1))/((double)fft->fftCplxSize),
 		    minFundFreqIdx,minFundFreqIdx+numFundFreqIdx-1);
-  nChar += fprintf( fid, " mplib info -- maximum number of partials %u;\n",
+  nChar += fprintf( fid, "mplib info -- maximum number of partials %u;\n",
 		    maxNumPartials);
   nChar += fprintf( fid, "mplib info -- The number of frames for this block is [%lu], the search tree has [%lu] levels.\n",
 		    numFrames, numLevels );
@@ -145,7 +145,6 @@ void MP_Harmonic_Block_c::update_frame(unsigned long int frameIdx,
 
   MP_Sample_t *in;
   MP_Real_t *magPtr;
-  unsigned long int fftRealSize = fft->fftRealSize;
 
   int chanIdx;
   int numChans;
@@ -173,7 +172,9 @@ void MP_Harmonic_Block_c::update_frame(unsigned long int frameIdx,
     in  = s->channel[chanIdx] + inShift;
     
     /* Execute the FFT (including windowing, conversion to energy etc.) */
-    fft->exec_energy( in, magPtr );
+    compute_energy( in,
+		    reCorrel, imCorrel, sqCorrel, cstCorrel,
+		    magPtr );
     
   } /* end foreach channel */
   /*----*/
@@ -206,7 +207,7 @@ void MP_Harmonic_Block_c::update_frame(unsigned long int frameIdx,
 	freqIdx++,         fundFreqIdx++) {
     /* - make the sum */
     local_sum = 0.0;
-    for ( k = fundFreqIdx; k <= fftRealSize; k += fundFreqIdx ) local_sum += sum[k];
+    for ( k = fundFreqIdx; k < fftRealSize; k += fundFreqIdx ) local_sum += sum[k];
     /* - update the max */
     if ( local_sum > max ) { max = local_sum; maxIdx = freqIdx; }
   }
@@ -223,42 +224,42 @@ unsigned int MP_Harmonic_Block_c::create_atom( MP_Atom_c **atom,
   /* Time-frequency location: */
   unsigned long int frameIdx;
   unsigned long int freqIdx;
-  unsigned long int fftRealSize = fft->fftRealSize;
 
   /* Locate the atom in the Gabor spectrogram */
   frameIdx = atomIdx / numFilters;
   freqIdx  = atomIdx % numFilters;
 
   /* --- Return a Gabor atom when it is what atomIdx indicates */
-  if (freqIdx<fftRealSize) return(MP_Gabor_Block_c::create_atom(atom,atomIdx));
+  if ( freqIdx < fftRealSize ) return( MP_Gabor_Block_c::create_atom(atom,atomIdx) );
 
   /* --- Otherwise create the Harmonic atom :  */
   else {
+
     MP_Harmonic_Atom_c *hatom = NULL;
-    unsigned int k,numPartials;
+    unsigned int k, numPartials;
     /* Parameters for a new FFT run: */
     MP_Sample_t *in;
-    MP_Real_t fftRe[fftRealSize];
-    MP_Real_t fftIm[fftRealSize];
     unsigned long int fundFreqIdx, kFundFreqIdx;
     /* Parameters for the atom waveform : */
     double re, im;
-    double amp, phase, gaborAmp=1.0, gaborPhase=0.0;
-    double reCorrel, imCorrel, sqCorrel;
+    double amp, phase, gaborAmp = 1.0, gaborPhase = 0.0;
+    double reCorr, imCorr, sqCorr;
     double real, imag, energy;
     /* Misc: */
     int chanIdx;
     
     /* Compute the fundamental frequency and the number of partials */
-    fundFreqIdx = freqIdx-fftRealSize + minFundFreqIdx;
-    if ( maxNumPartials*fundFreqIdx < fftRealSize)        numPartials  = maxNumPartials;
-    else  if ( maxNumPartials*fundFreqIdx > fftRealSize)  numPartials  = fftRealSize/fundFreqIdx;
-    else                                                  numPartials  = (fftRealSize/fundFreqIdx)-1;
+    fundFreqIdx = freqIdx - fftRealSize + minFundFreqIdx;
+    if      ( maxNumPartials*fundFreqIdx < fftRealSize ) numPartials  = maxNumPartials;
+    else if ( maxNumPartials*fundFreqIdx > fftRealSize ) numPartials  = fftRealSize / fundFreqIdx;
+    else                                                 numPartials  = (fftRealSize/fundFreqIdx) - 1;
     
     /* Allocate the atom */
     *atom = NULL;
-    if ( (hatom = new MP_Harmonic_Atom_c( s->numChans, fft->windowType, fft->windowOption , numPartials )) == NULL ) {
-      fprintf( stderr, "mplib error -- MP_Harmonic_Block_c::create_atom() - Can't allocate a new Harmonic atom in create_atom()."
+    if ( (hatom = new MP_Harmonic_Atom_c( s->numChans, fft->windowType,
+					  fft->windowOption , numPartials )) == NULL ) {
+      fprintf( stderr, "mplib error -- MP_Harmonic_Block_c::create_atom() -"
+	       " Can't allocate a new Harmonic atom in create_atom()."
 	       " Returning NULL as the atom reference.\n" );
       return( 0 );
     }
@@ -283,51 +284,61 @@ unsigned int MP_Harmonic_Block_c::create_atom( MP_Atom_c **atom,
       fft->exec_complex( in, fftRe, fftIm ); 
       
       /* 5) set the amplitude an phase for each partial */
-      for (k = 0, kFundFreqIdx=fundFreqIdx; 
-	   k < numPartials; 
-	   k++,kFundFreqIdx+=fundFreqIdx) {
-	re  = (double)( *(fftRe + kFundFreqIdx) ); 
-	im  = (double)( *(fftIm + kFundFreqIdx) );
-	energy = re*re + im*im;
-	reCorrel = fft->reCorrel[kFundFreqIdx];
-	imCorrel = fft->imCorrel[kFundFreqIdx];
-	sqCorrel = fft->sqCorrel[kFundFreqIdx];
+      for ( k = 0, kFundFreqIdx = fundFreqIdx; 
+	    k < numPartials; 
+	    k++, kFundFreqIdx += fundFreqIdx ) {
+
+	/* If the current partial is within the FFT limits: */
+	if ( kFundFreqIdx < fftRealSize ) {
+	  re  = (double)( *(fftRe + kFundFreqIdx) ); 
+	  im  = (double)( *(fftIm + kFundFreqIdx) );
+	  energy = re*re + im*im;
+	  reCorr = reCorrel[kFundFreqIdx];
+	  imCorr = imCorrel[kFundFreqIdx];
+	  sqCorr = sqCorrel[kFundFreqIdx];
 #ifndef NDEBUG
-	assert( sqCorrel <= 1.0 );
+	  assert( sqCorr <= 1.0 );
 #endif
-	/* Cf. explanations about complex2amp_and_phase() in general.h */
-	if ( (kFundFreqIdx+1) < fftRealSize ) {  
-	  real = (1.0 - reCorrel)*re + imCorrel*im;
-	  imag = (1.0 + reCorrel)*im + imCorrel*re;
-	  amp   = 2.0 * sqrt( real*real + imag*imag );
-	  phase = atan2( imag, real ); /* the result is between -M_PI and M_PI */
+	  /* Cf. explanations about complex2amp_and_phase() in general.h */
+	  if ( (kFundFreqIdx+1) < fftRealSize ) {
+	    real = (1.0 - reCorr)*re + imCorr*im;
+	    imag = (1.0 + reCorr)*im + imCorr*re;
+	    amp   = 2.0 * sqrt( real*real + imag*imag );
+	    phase = atan2( imag, real ); /* the result is between -M_PI and M_PI */
+	  }
+	  /* When the atom and its conjugate are aligned, they should be real 
+	   * and the phase is simply the sign of the inner product (re,im) = (re,0) */
+	  else {
+#ifndef NDEBUG
+	    assert( reCorr == 1.0 );
+	    assert( imCorr == 0.0 );
+	    assert( im == 0 );
+#endif
+	    amp = sqrt( energy );
+	    if   ( re >= 0 ) phase = 0.0;  /* corresponds to the '+' sign */
+	    else             phase = M_PI; /* corresponds to the '-' sign exp(i\pi) */
+	    
+	  }
 	}
-	/* When the atom and its conjugate are aligned, they should be real 
-	 * and the phase is simply the sign of the inner product (re,im) = (re,0) */
+	/* Else, if the current partial is out of the FFT limits: */
 	else {
-#ifndef NDEBUG
-	  assert( reCorrel == 1.0 );
-	  assert( imCorrel == 0.0 );
-	  assert( im == 0 );
-#endif
-	  amp = sqrt( energy );
-	  if   ( re >= 0 ) phase = 0.0;  /* corresponds to the '+' sign */
-	  else             phase = M_PI; /* corresponds to the '-' sign exp(i\pi) */
+	  amp = 0.0;
+	  phase = gaborPhase;
 	}
 
 	/* case of the first partial */
-	if ( k==0 ) {
+	if ( k == 0 ) {
 	  gaborAmp   = hatom->amp[chanIdx]   = (MP_Real_t)( amp   );
 	  gaborPhase = hatom->phase[chanIdx] = (MP_Real_t)( phase );
 	  hatom->partialAmp[chanIdx][k]   = (MP_Real_t)(1.0);
 	  hatom->partialPhase[chanIdx][k] = (MP_Real_t)(0.0);
 	} else {
-	  hatom->partialAmp[chanIdx][k]   = (MP_Real_t)( amp/gaborAmp   );
-	  hatom->partialPhase[chanIdx][k] = (MP_Real_t)( phase-gaborPhase );
+	  hatom->partialAmp[chanIdx][k]   = (MP_Real_t)( amp / gaborAmp   );
+	  hatom->partialPhase[chanIdx][k] = (MP_Real_t)( phase - gaborPhase );
 	}
 #ifndef NDEBUG
-	fprintf( stderr, "mplib DEBUG -- freq %g chirp %g partial %lu amp %g phase %g\n reCorrel %g imCorrel %g\n re %g im %g 2*(re^2+im^2) %g\n",
-		 hatom->freq, hatom->chirp, k+1, amp, phase, reCorrel, imCorrel, re, im, 2*(re*re+im*im) );
+	fprintf( stderr, "mplib DEBUG -- freq %g chirp %g partial %lu amp %g phase %g\n reCorr %g imCorr %g\n re %g im %g 2*(re^2+im^2) %g\n",
+		 hatom->freq, hatom->chirp, k+1, amp, phase, reCorr, imCorr, re, im, 2*(re*re+im*im) );
 #endif
       } /* <--- end loop on partials */
     } /* <--- end loop on channels */
@@ -363,24 +374,32 @@ int add_harmonic_block( MP_Dict_c *dict,
 
   /* Simple cases where no block can be added */
   if ( maxNumPartials <= 1 ) {
-    fprintf( stderr, "mplib error -- add_harmonic_block() - Can't add a new harmonic block to a dictionnary, maxNumPartials [%u] is too small (should be at least 2).",maxNumPartials );
+    fprintf( stderr, "mplib error -- add_harmonic_block() - Can't add a new harmonic block "
+	     "to a dictionnary, maxNumPartials [%u] is too small (should be at least 2).",maxNumPartials );
     return ( 0 );
   }
   if ( windowSize > 2*(fftRealSize-1) ) {
-    fprintf( stderr, "mplib error -- add_harmonic_block() - Can't add a new harmonic block to a dictionnary, windowSize [%lu] is too big for FFT complex size [%lu].",windowSize,2*(fftRealSize-1) );
+    fprintf( stderr, "mplib error -- add_harmonic_block() - Can't add a new harmonic block "
+	     "to a dictionnary, windowSize [%lu] is too big for FFT complex size [%lu].",
+	     windowSize,2*(fftRealSize-1) );
     return ( 0 );
   }
   if ( maxFundFreqIdx < minFundFreqIdx) {
-    fprintf( stderr, "mplib error -- add_harmonic_block() - Can't add a new harmonic block to a dictionnary, fundamental frequency range [%lu %lu] is empty.", minFundFreqIdx, maxFundFreqIdx );
+    fprintf( stderr, "mplib error -- add_harmonic_block() - Can't add a new harmonic block "
+	     "to a dictionnary, fundamental frequency range [%lu %lu] is empty.",
+	     minFundFreqIdx, maxFundFreqIdx );
     return ( 0 );
   }
 
-  newBlock = new MP_Harmonic_Block_c( dict->signal, windowSize, filterShift, fftRealSize, windowType, windowOption, minFundFreqIdx, maxFundFreqIdx, maxNumPartials);
+  newBlock = new MP_Harmonic_Block_c( dict->signal, windowSize, filterShift, fftRealSize,
+				      windowType, windowOption, minFundFreqIdx,
+				      maxFundFreqIdx, maxNumPartials);
   if ( newBlock != NULL ) { /* \todo I am afraid this does not work and should be removed! */
     dict->add_block( newBlock );
   }
   else {
-    fprintf( stderr, "mplib error -- add_harmonic_block() - Can't add a new harmonic block to a dictionnary." );
+    fprintf( stderr, "mplib error -- add_harmonic_block() - Can't add a new harmonic block "
+	     "to a dictionnary." );
     return( 0 );
   }
 

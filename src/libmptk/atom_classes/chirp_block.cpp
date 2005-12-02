@@ -89,9 +89,9 @@ MP_Chirp_Block_c::MP_Chirp_Block_c( MP_Signal_c *setSignal,
   } 
 
   /* - Misc: */
-  if ( (fftEnergy = (MP_Real_t*) malloc(fft->fftRealSize*sizeof(MP_Real_t)) ) == NULL ) {
+  if ( (fftEnergy = (MP_Real_t*) malloc(fftRealSize*sizeof(MP_Real_t)) ) == NULL ) {
     fprintf( stderr, "mptk warning -- MP_Chirp_Block_c() - Can't allocate an array of [%lu] MP_Real_t elements"
-	     " for the fftEnergy array. This pointer will remain NULL.\n", fft->fftRealSize );
+	     " for the fftEnergy array. This pointer will remain NULL.\n", fftRealSize );
   } 
 
   if ( (logAmp = (MP_Real_t*) malloc((totNumFitPoints)*sizeof(MP_Real_t)) ) == NULL ) {
@@ -103,7 +103,7 @@ MP_Chirp_Block_c::MP_Chirp_Block_c( MP_Signal_c *setSignal,
 	     " for the phase array. This pointer will remain NULL.\n", totNumFitPoints );
   } 
 
-  if ( alloc_correl() ) {
+  if ( alloc_correl( &reCorrelChirp, &imCorrelChirp, &sqCorrelChirp, &cstCorrelChirp ) ) {
     fprintf( stderr, "mplib warning -- MP_FFT_Generic_Interface_c() - "
 	     "The allocation of the atom's autocorrelations returned an error.\n");
   }
@@ -129,10 +129,10 @@ MP_Chirp_Block_c::~MP_Chirp_Block_c() {
   if ( logAmp ) free(logAmp);
   if ( phase  ) free(phase);
 
-  if ( reCorrel  ) free( reCorrel  );
-  if ( imCorrel  ) free( imCorrel  );
-  if ( sqCorrel  ) free( sqCorrel  );
-  if ( cstCorrel ) free( cstCorrel );
+  if ( reCorrelChirp  ) free( reCorrelChirp  );
+  if ( imCorrelChirp  ) free( imCorrelChirp  );
+  if ( sqCorrelChirp  ) free( sqCorrelChirp  );
+  if ( cstCorrelChirp ) free( cstCorrelChirp );
 }
 
 
@@ -192,7 +192,8 @@ unsigned int MP_Chirp_Block_c::create_atom( MP_Atom_c **atom,
 
   /* Create the best Gabor atom with chirprate zero */
   if ( ( MP_Gabor_Block_c::create_atom( atom, atomIdx ) ) == 0 ) {
-    fprintf( stderr, "mptk error -- MP_Chirp_Block_c::create_atom() - Can't create a new Gabor atom in create_atom()."
+    fprintf( stderr, "mptk error -- MP_Chirp_Block_c::create_atom() -"
+	     " Can't create a new Gabor atom in create_atom()."
 	     " Returning NULL as the atom reference.\n" );
     return( 0 );
   }
@@ -222,7 +223,7 @@ unsigned int MP_Chirp_Block_c::create_atom( MP_Atom_c **atom,
   /* If there is not enough fit points on both sides of the frequency, 
    * keep the current chirprate ( =0 ) and return the unchanged gabor atom. */
   if ( (freqIdx <= (unsigned long int)numFitPoints) ||
-       ( (freqIdx+(unsigned long int)numFitPoints) >= fft->fftRealSize ) ) {
+       ( (freqIdx+(unsigned long int)numFitPoints) >= fftRealSize ) ) {
 #ifndef NDEBUG
     fprintf( stderr, "mptk DEBUG -- freqIdx = %lu , RETURNING.\n", freqIdx ); fflush( stderr );
 #endif
@@ -280,7 +281,8 @@ unsigned int MP_Chirp_Block_c::create_atom( MP_Atom_c **atom,
   chirprate += deltaChirp;
 
 #ifndef NDEBUG
-  fprintf( stderr, "mptk DEBUG -- iter  0 : delta = %g , new chirp = %g.\n", deltaChirp, chirprate ); fflush( stderr );
+  fprintf( stderr, "mptk DEBUG -- iter  0 : delta = %g , new chirp = %g.\n",
+	   deltaChirp, chirprate ); fflush( stderr );
 #endif
 
   /**********************************************/
@@ -291,7 +293,7 @@ unsigned int MP_Chirp_Block_c::create_atom( MP_Atom_c **atom,
 
   /* Compute the new inner products with the complex chirp on each channel
      and update the energy over all channels at each frequency */
-  for ( k = 0; k < fft->fftRealSize; k++ ) {
+  for ( k = 0; k < fftRealSize; k++ ) {
     fftEnergy[k] = 0.0;
   }
     
@@ -302,7 +304,7 @@ unsigned int MP_Chirp_Block_c::create_atom( MP_Atom_c **atom,
     fft->exec_complex_demod( in, chirpRe, chirpIm, fftRe, fftIm );
 
     /* Compute the magnitude of the best real chirp atom for each frequency */
-    for ( k = 0;  k < fft->fftRealSize;  k++ ) {
+    for ( k = 0;  k < fftRealSize;  k++ ) {
       
       /* Get the complex values */
       re = fftRe[k];
@@ -310,15 +312,15 @@ unsigned int MP_Chirp_Block_c::create_atom( MP_Atom_c **atom,
       reSq = ( re * re );
       imSq = ( im * im );
       /* If the atom's autocorrelation is neglegible: */
-	if ( sqCorrel[k] < MP_ENERGY_EPSILON ) {
+	if ( sqCorrelChirp[k] < MP_ENERGY_EPSILON ) {
 	  energy = 2 * ( reSq + imSq );
 	}
 	/* Else, if the atom's autocorrelation is NOT neglegible: */
 	else {
 	  energy  =   ( reSq + imSq )
-	    - reCorrel[k] * ( reSq - imSq )
-	    + imCorrel[k] * (  2 * re*im  );
-	  energy = cstCorrel[k] * energy;
+	    - reCorrelChirp[k] * ( reSq - imSq )
+	    + imCorrelChirp[k] * (  2 * re*im  );
+	  energy = cstCorrelChirp[k] * energy;
 	}
 	/* => Compensate for a possible numerical innacuracy
 	 *    (this case should never happen in practice) */
@@ -336,7 +338,7 @@ unsigned int MP_Chirp_Block_c::create_atom( MP_Atom_c **atom,
     
     /* Find the best frequency */
     energy = 0.0;
-    for ( k = 0; k < fft->fftRealSize; k++ ) {
+    for ( k = 0; k < fftRealSize; k++ ) {
       if ( fftEnergy[k] > energy) { energy = fftEnergy[k]; freqIdx = k; }
     }
 
@@ -356,7 +358,7 @@ unsigned int MP_Chirp_Block_c::create_atom( MP_Atom_c **atom,
       /* If there is not enough fit points on both sides of the frequency, 
        * keep the current chirprate (=0) and stop */
       if ( (freqIdx <= (unsigned long int)numFitPoints) ||
-	   ( (freqIdx+(unsigned long int)numFitPoints) >= fft->fftRealSize ) ) break;
+	   ( (freqIdx+(unsigned long int)numFitPoints) >= fftRealSize ) ) break;
 
       /* Reset the logamp and phase accumulators */
       for ( l = 0; l < totNumFitPoints; l++ ) logAmp[l] = phase[l] = 0.0;
@@ -416,13 +418,13 @@ unsigned int MP_Chirp_Block_c::create_atom( MP_Atom_c **atom,
       /* II.2) RE-LOCATE THE ATOM'S CENTER FREQUENCY */
 
       /* Update (chirpRe,chirpIm), the real and imaginary parts of exp(-i*pi*chirprate*t^2) 
-       * as well as the correlations reCorrel, imCorrel, sqCorrel, cstCorrel between complex chirp 
+       * as well as the correlations reCorrelChirp, imCorrelChirp, sqCorrelChirp, cstCorrelChirp between complex chirp 
        * atoms and their conjugates */
       set_chirp_demodulator( chirprate );
     
       /* Compute the new inner products with the complex chirp on each channel
 	 and update the energy over all channels at each frequency */
-      for ( k = 0; k < fft->fftRealSize; k++ ) fftEnergy[k] = 0.0;
+      for ( k = 0; k < fftRealSize; k++ ) fftEnergy[k] = 0.0;
     
       for ( chanIdx = 0; chanIdx < numChans; chanIdx++ ) {
       
@@ -431,7 +433,7 @@ unsigned int MP_Chirp_Block_c::create_atom( MP_Atom_c **atom,
 	fft->exec_complex_demod( in, chirpRe, chirpIm, fftRe, fftIm );
 
 	/* Compute the magnitude of the best real chirp atom for each frequency */
-	for ( k = 0;  k < fft->fftRealSize;  k++ ) {
+	for ( k = 0;  k < fftRealSize;  k++ ) {
 	
 	  /* Get the complex values */
 	  re = fftRe[k];
@@ -439,20 +441,21 @@ unsigned int MP_Chirp_Block_c::create_atom( MP_Atom_c **atom,
 	  reSq = ( re * re );
 	  imSq = ( im * im );
 	  /* If the atom's autocorrelation is neglegible: */
-	  if ( sqCorrel[k] < MP_ENERGY_EPSILON ) {
+	  if ( sqCorrelChirp[k] < MP_ENERGY_EPSILON ) {
 	    energy = 2 * ( reSq + imSq );
 	  }
 	  /* Else, if the atom's autocorrelation is NOT neglegible: */
 	  else {
 	    energy  =   ( reSq + imSq )
-	      - reCorrel[k] * ( reSq - imSq )
-	      + imCorrel[k] * (  2 * re*im  );
-	    energy = cstCorrel[k] * energy;
+	      - reCorrelChirp[k] * ( reSq - imSq )
+	      + imCorrelChirp[k] * (  2 * re*im  );
+	    energy = cstCorrelChirp[k] * energy;
 	  }
 	  /* => Compensate for a possible numerical innacuracy
 	   *    (this case should never happen in practice) */
 	  if ( energy < 0 ) {
-	    fprintf( stderr, "mptk warning -- MP_Chirp_Block_c::create_atom() - A negative energy was met."
+	    fprintf( stderr, "mptk warning -- MP_Chirp_Block_c::create_atom() -"
+		     " A negative energy was met."
 		     " (energy = [%g])\nEnergy value is reset to 0.0 .", energy );
 	    energy = 0.0;
 	  }
@@ -465,7 +468,7 @@ unsigned int MP_Chirp_Block_c::create_atom( MP_Atom_c **atom,
     
       /* Find the best frequency */
       energy = 0.0;
-      for ( k = 0; k < fft->fftRealSize; k++ ) {
+      for ( k = 0; k < fftRealSize; k++ ) {
 	if ( fftEnergy[k] > energy) { energy = fftEnergy[k]; freqIdx = k; }
       }
 
@@ -499,12 +502,12 @@ unsigned int MP_Chirp_Block_c::create_atom( MP_Atom_c **atom,
       im  = (double)( fftIm[freqIdx] );
       energy = re*re + im*im;
 #ifndef NDEBUG
-      assert( sqCorrel[freqIdx] <= 1.0 );
+      assert( sqCorrelChirp[freqIdx] <= 1.0 );
 #endif
       /* Cf. explanations about complex2amp_and_phase() in general.h */
-      if ( (freqIdx != 0) && ( (freqIdx+1) < fft->fftRealSize ) ) {  
-	real = (1.0 - reCorrel[freqIdx])*re + imCorrel[freqIdx]*im;
-	imag = (1.0 + reCorrel[freqIdx])*im + imCorrel[freqIdx]*re;
+      if ( (freqIdx != 0) && ( (freqIdx+1) < fftRealSize ) ) {  
+	real = (1.0 - reCorrelChirp[freqIdx])*re + imCorrelChirp[freqIdx]*im;
+	imag = (1.0 + reCorrelChirp[freqIdx])*im + imCorrelChirp[freqIdx]*re;
 	amp   = 2.0 * sqrt( real*real + imag*imag );
 	atomphase = atan2( imag, real ); /* the result is between -M_PI and MP_PI */
       }
@@ -512,8 +515,8 @@ unsigned int MP_Chirp_Block_c::create_atom( MP_Atom_c **atom,
        * and the phase is simply the sign of the inner product (re,im) = (re,0) */
       else {
 #ifndef NDEBUG
-	assert( reCorrel[freqIdx] == 1.0 );
-	assert( imCorrel[freqIdx] == 0.0 );
+	assert( reCorrelChirp[freqIdx] == 1.0 );
+	assert( imCorrelChirp[freqIdx] == 0.0 );
 	assert( im == 0 );
 #endif
 	amp = sqrt( energy );
@@ -525,9 +528,10 @@ unsigned int MP_Chirp_Block_c::create_atom( MP_Atom_c **atom,
       gatom->amp[chanIdx]   = (MP_Real_t)( amp   );
       gatom->phase[chanIdx] = (MP_Real_t)( atomphase );
 #ifndef NDEBUG
-      fprintf( stderr, "mptk DEBUG -- freq %g chirp %g amp %g phase %g\n reCorrel %g imCorrel %g\n re %g im %g 2*(re^2+im^2) %g\n",
+      fprintf( stderr, "mptk DEBUG -- freq %g chirp %g amp %g phase %g\n reCorrelChirp %g"
+	       " imCorrelChirp %g\n re %g im %g 2*(re^2+im^2) %g\n",
 	       gatom->freq, gatom->chirp, gatom->amp[chanIdx], gatom->phase[chanIdx],
-	       reCorrel[freqIdx], imCorrel[freqIdx], re, im, 2*(re*re+im*im) );
+	       reCorrelChirp[freqIdx], imCorrelChirp[freqIdx], re, im, 2*(re*re+im*im) );
 #endif
     }
   
@@ -539,8 +543,6 @@ unsigned int MP_Chirp_Block_c::create_atom( MP_Atom_c **atom,
 /******************************************************/
 int MP_Chirp_Block_c::set_chirp_demodulator( MP_Real_t chirprate ) {
 
-  double re,im,sq;
-  int k, cursor;
   unsigned long int t;
   MP_Real_t argument;
   MP_Real_t C;
@@ -561,54 +563,10 @@ int MP_Chirp_Block_c::set_chirp_demodulator( MP_Real_t chirprate ) {
   }
   fft->exec_complex_demod( fft->window, sigChirpRe, sigChirpIm, fftRe, fftIm );
 
-  /* 3/ Fill reCorrel and imCorrel with the adequate FFT values: */
-  for ( k = cursor = 0;  cursor < (int)(fft->fftRealSize);  k++, cursor += 2 ) {
-    /* In this loop, cursor is always equal to 2*k. */
-    re = fftRe[cursor]; //re = fftReRe[cursor];
-    im = fftIm[cursor]; //im = fftReIm[cursor];
-    *( reCorrel + k ) = (MP_Real_t)(   re );
-    *( imCorrel + k ) = (MP_Real_t)( - im );
-    sq = ( re*re + im*im );
-    *( sqCorrel + k ) = (MP_Real_t)(   sq );
-    *( cstCorrel + k ) = (MP_Real_t)( 2.0 / (1.0 - sq) );
-    /* Rectify a possible numerical innacuracy at DC frequency: */
-    if ( k==0 ) {
-      *( reCorrel + k )  = 1.0;
-      *( imCorrel + k )  = 0.0;
-      *( sqCorrel + k )  = 1.0;
-      *( cstCorrel + k ) = 1.0;
-    }
-    else {
-      if ( (MP_Real_t)(sq) >= 1.0 ) {
-	fprintf( stderr, "mplib warning -- fill_correl() - atom's autocorrelation has value >= 1.0 [diff= %g ]\n"
-		 "\t\tfor frequency index %d (fftRealSize in this block is %lu).\n",
-		 ((MP_Real_t)(sq) - 1.0), k, fft->fftRealSize );
-      }
-    }
-  }
-  for ( cursor = (fft->fftCplxSize-cursor);  cursor >= 0 ;  k++, cursor -= 2 ) {
-    /* In this loop, cursor is always equal to (fftCplxSize - 2*k). */
-    re = fftRe[cursor]; // = fftReRe[cursor];
-    im = fftIm[cursor]; //= fftReIm[cursor];
-    *( reCorrel + k ) = (MP_Real_t)( re );
-    *( imCorrel + k ) = (MP_Real_t)( im );
-    sq = ( re*re + im*im );
-    *( sqCorrel + k ) = (MP_Real_t)( sq );
-    *( cstCorrel + k ) = (MP_Real_t)( 2.0 / (1.0 - sq) );
-    /* Rectify a possible numerical innacuracy at Nyquist frequency: */
-    if ( k == ((int)(fft->fftRealSize)-1) ) {
-      *( reCorrel + k )  = 1.0;
-      *( imCorrel + k )  = 0.0;
-      *( sqCorrel + k )  = 1.0;
-      *( cstCorrel + k ) = 1.0;
-    }
-    else {
-      if ( (MP_Real_t)(sq) >= 1.0 ) {
-	fprintf( stderr, "mplib warning -- fill_correl() - atom's autocorrelation has value >= 1.0 [diff= %g ]\n"
-		 "\t\tfor frequency index %d (fftRealSize in this block is %lu).\n",
-		 ((MP_Real_t)(sq) - 1.0), k, fft->fftRealSize );
-      }
-    }
+  /* 3/ Fill reCorrelChirp and imCorrelChirp with the adequate FFT values: */
+  if ( fill_correl( reCorrelChirp, imCorrelChirp, sqCorrelChirp, cstCorrelChirp ) ) {
+    fprintf( stderr, "mplib warning -- set_chirp_demodulator() - "
+	     "The tabulation of the atom's autocorrelations returned an error.\n" );
   }
 
   return( 0 );
@@ -632,8 +590,8 @@ int add_chirp_block( MP_Dict_c *dict,
   MP_Chirp_Block_c *newBlock;
   
   if( 2*(fftRealSize-1) < filterLen) {
-    fprintf( stderr, "mplib error -- add_chirp_block() - fftRealSize %lu is too small since window size is %lu.\n",
-	     fftRealSize, filterLen);
+    fprintf( stderr, "mplib error -- add_chirp_block() - fftRealSize %lu is too small"
+	     " since window size is %lu.\n", fftRealSize, filterLen);
     return( 0 );
   }
 
@@ -644,7 +602,8 @@ int add_chirp_block( MP_Dict_c *dict,
     dict->add_block( newBlock );
   }
   else {
-    fprintf( stderr, "mplib error -- add_chirp_block() - Can't add a new chirp block to a dictionnary.\n" );
+    fprintf( stderr, "mplib error -- add_chirp_block() - Can't add a new chirp block"
+	     " to a dictionnary.\n" );
     return( 0 );
   }
 
@@ -686,43 +645,3 @@ int add_chirp_blocks( MP_Dict_c *dict,
 
   return(nAddedBlocks);
 }
-
-
-
-/*****************************************/
-/* Allocation of the correlation vectors */
-int MP_Chirp_Block_c::alloc_correl( void ) {
- 
-  /* Allocate the memory for the correlations and init it to zero */
-  reCorrel = imCorrel = sqCorrel = NULL;
-  /* Reminder: ( fftCplxSize == ((fftRealSize-1)<<1) ) <=> ( fftRealSize == ((fftCplxSize>>1)+1) ) */
-  if ( ( reCorrel = (MP_Real_t *) calloc( fft->fftRealSize , sizeof(MP_Real_t)) ) == NULL) {
-    fprintf( stderr, "mplib warning -- alloc_correl() - Can't allocate storage space for the real part"
-	     " of the atom correlations. Correlations are left un-initialized.\n");
-    return( 1 );
-  }
-  else if ( ( imCorrel = (MP_Real_t *) calloc( fft->fftRealSize , sizeof(MP_Real_t)) ) == NULL) {
-    fprintf( stderr, "mplib warning -- alloc_correl() - Can't allocate storage space for the imaginary part"
-	     " of the atom correlations. Correlations are left un-initialized.\n");
-    free(reCorrel); reCorrel = NULL;
-    return( 1 );
-  }
-  else if ( ( sqCorrel = (MP_Real_t *) calloc( fft->fftRealSize , sizeof(MP_Real_t)) ) == NULL) {
-    fprintf( stderr, "mplib warning -- alloc_correl() - Can't allocate storage space for the squared"
-	     " atom correlations. Correlations are left un-initialized.\n");
-    free(reCorrel); reCorrel = NULL;
-    free(imCorrel); imCorrel = NULL;
-    return( 1 );
-  }
-  else if ( ( cstCorrel = (MP_Real_t *) calloc( fft->fftRealSize , sizeof(MP_Real_t)) ) == NULL) {
-    fprintf( stderr, "mplib warning -- alloc_correl() - Can't allocate storage space for the pre-computed"
-	     " constant of the atom correlations. Correlations are left un-initialized.\n");
-    free(reCorrel); reCorrel = NULL;
-    free(imCorrel); imCorrel = NULL;
-    free(sqCorrel); sqCorrel = NULL;
-    return( 1 );
-  }
-
-  return( 0 );
-}
-

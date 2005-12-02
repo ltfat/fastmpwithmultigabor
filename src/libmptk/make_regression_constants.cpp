@@ -44,7 +44,7 @@
 
 #define MP_MAX_REGRESSION_SIZE 128
 
-int main(int argc, char **argv) {
+int main( void ) {
 
   int l;
   double LLp1, x2L, x2Lp1, x2Lm1x2Lp3, LLL;
