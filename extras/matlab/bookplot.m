@@ -77,7 +77,7 @@ for i = 1:book.numAtoms,
 		bw2 = ( fs / (atom.len(channel)/2) ) / 2;
 		A = atom.amp(channel); A = 20*log10(A);
 		f = fs*atom.freq;
-		c = atom.chirp;
+		c = fs*fs*atom.chirp;
 
 		pv = [p;p;p+l;p+l];
 		fv = [f-bw2; f+bw2; f+bw2+c*l; f-bw2+c*l];
@@ -94,7 +94,7 @@ for i = 1:book.numAtoms,
 		bw2 = ( fs / (atom.len(channel)/2 + 1) ) / 2;
 		A = atom.amp(channel);
 		f = atom.freq;
-		c = atom.chirp;
+		c = fs*fs*atom.chirp;
 
 		pv = repmat([p;p;p+l;p+l],1,atom.numPartials);
 
