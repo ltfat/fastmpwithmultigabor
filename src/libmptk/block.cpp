@@ -417,7 +417,7 @@ MP_Support_t MP_Block_c::update_ip( const MP_Support_t *touch ) {
 
 #ifndef NDEBUG
     fprintf( stderr, "mplib DEBUG -- update_ip() - in frame %lu, maxcorr is %g at position %lu.\n",
-	     frameIdx, max, maxIdx );
+	     frameIdx, maxCorr, maxFilterIdx );
 #endif
 
   } /* end foreach frame */

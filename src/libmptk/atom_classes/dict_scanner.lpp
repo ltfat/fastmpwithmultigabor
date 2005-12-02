@@ -233,6 +233,22 @@ bool *boolPtr2 = NULL;
 			 boolPtr = &(scanInfo->globNumPartialsIsSet);
 			 yy_push_state(SCAN_UINT); }
 
+<SCAN_PAR>numFitPoints { uintPtr = &(scanInfo->numFitPoints);
+			 boolPtr = &(scanInfo->numFitPointsIsSet);
+			 yy_push_state(SCAN_UINT); }
+
+<SCAN_GLOB>numFitPoints { uintPtr = &(scanInfo->globNumFitPoints);
+			  boolPtr = &(scanInfo->globNumFitPointsIsSet);
+			  yy_push_state(SCAN_UINT); }
+
+<SCAN_PAR>numIter { uintPtr = &(scanInfo->numIter);
+		    boolPtr = &(scanInfo->numIterIsSet);
+		    yy_push_state(SCAN_UINT); }
+
+<SCAN_GLOB>numIter { uintPtr = &(scanInfo->globNumIter);
+		     boolPtr = &(scanInfo->globNumIterIsSet);
+		     yy_push_state(SCAN_UINT); }
+
 <*>\"[[:space:]]*\>  /* Ignore the tag endings after scanning any attribute
 			(e.g., after SCAN_BLOCKTYPE, SCAN_PAR etc.). */ ;
 

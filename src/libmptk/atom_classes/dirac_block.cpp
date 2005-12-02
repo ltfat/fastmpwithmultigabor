@@ -100,7 +100,8 @@ void MP_Dirac_Block_c::update_frame(unsigned long int frameIdx,
 
   assert( s != NULL );
   numChans = s->numChans;
-  assert( mag != NULL );
+  assert( maxCorr != NULL );
+  assert( maxFilterIdx != NULL );
 
   /*----*/
   /* Fill the mag array: */

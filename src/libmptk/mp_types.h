@@ -82,8 +82,15 @@ typedef struct {
 #define MP_MAX_STR_LEN 1024
 
 /* Useful math constants */
-#define MP_PI  3.14159265358979323846
-#define MP_2PI 6.28318530717958647692
+#define MP_PI    3.14159265358979323846
+#define MP_2PI   6.28318530717958647692
+
+#define MP_PI_SQ     9.8696044010893579923049401
+#define MP_INV_PI_SQ 0.1013211836423377754101693
+/* Note: the two above constants have been computed with doubles
+   and copied from a printf( "%.25f", x ) display. Their accuracy
+   could probably be enhanced.
+*/
 
 /* Minimum significant energy level */
 #define MP_ENERGY_EPSILON 1e-10

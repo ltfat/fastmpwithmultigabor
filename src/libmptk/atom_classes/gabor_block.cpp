@@ -70,6 +70,17 @@ MP_Gabor_Block_c::MP_Gabor_Block_c( MP_Signal_c *setSignal,
   }
   else { unsigned long int i; for ( i=0; i<(setFftRealSize*s->numChans); i++ ) *(mag+i) = 0.0; }
 
+  /* Allocate the complex fft buffers */
+  if ( (fftRe = (MP_Real_t*) malloc( setFftRealSize*sizeof(MP_Real_t) )) == NULL ) {
+    fprintf( stderr, "mplib warning -- MP_Gabor_Block_c() - Can't allocate an array of [%lu] MP_Real_t elements"
+	     " for the real part of the fft array. This pointer will remain NULL.\n", setFftRealSize );
+  }
+  if ( (fftIm = (MP_Real_t*) malloc( setFftRealSize*sizeof(MP_Real_t) )) == NULL ) {
+    fprintf( stderr, "mplib warning -- MP_Gabor_Block_c() - Can't allocate an array of [%lu] MP_Real_t elements"
+	     " for the imaginary part of the fft array. This pointer will remain NULL.\n", setFftRealSize );
+  }
+  fftRealSize = setFftRealSize;
+
 }
 
 
@@ -83,6 +94,8 @@ MP_Gabor_Block_c::~MP_Gabor_Block_c() {
 
   delete fft;
   if ( mag ) free( mag );
+  if ( fftRe ) free( fftRe );
+  if ( fftIm ) free( fftIm );
 
 #ifndef NDEBUG
   fprintf( stderr, "Done.\n" );
@@ -195,9 +208,6 @@ unsigned int MP_Gabor_Block_c::create_atom( MP_Atom_c **atom,
   unsigned long int freqIdx;
   /* Parameters for a new FFT run: */
   MP_Sample_t *in;
-  MP_Real_t fftRe[fft->fftRealSize];
-  MP_Real_t fftIm[fft->fftRealSize];
-  unsigned long int fftRealSize = fft->fftRealSize;
   /* Parameters for the atom waveform : */
   double re, im;
   double amp, phase, f, c;

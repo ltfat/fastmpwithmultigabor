@@ -96,6 +96,12 @@ void MP_Scan_Info_c::reset( void ) {
   numPartials = 0;
   numPartialsIsSet = false;
   
+  numFitPoints = 0;
+  numFitPointsIsSet = false;
+  
+  numIter = 0;
+  numIterIsSet = false;
+  
 }
 
 /* Resetting the global variables */
@@ -134,6 +140,12 @@ void MP_Scan_Info_c::reset_all( void ) {
   globNumPartials = 0;
   globNumPartialsIsSet = false;
   
+  globNumFitPoints = 0;
+  globNumFitPointsIsSet = false;
+  
+  globNumIter = 0;
+  globNumIterIsSet = false;
+  
 }
 
 
@@ -156,7 +168,7 @@ MP_Block_c* MP_Scan_Info_c::pop_block( MP_Signal_c *signal ) {
     /* NOP */
   }
   /* - Parameters common to the gabor block and the harmonic block: */
-  else if ( (!strcmp(type,"gabor")) || (!strcmp(type,"harmonic")) ) {
+  else if ( (!strcmp(type,"gabor")) || (!strcmp(type,"harmonic")) || (!strcmp(type,"chirp")) ) {
     /* - windowLen: */
     if (!windowLenIsSet) {
       if (globWindowLenIsSet) {
@@ -271,7 +283,7 @@ MP_Block_c* MP_Scan_Info_c::pop_block( MP_Signal_c *signal ) {
     }
 
     /****************************************************/
-     /* - Additional parameters for the harmonic block: */
+    /* - Additional parameters for the harmonic block: */
     if ( !strcmp(type,"harmonic") ) {
 
       /* - f0Min: */
@@ -345,6 +357,39 @@ MP_Block_c* MP_Scan_Info_c::pop_block( MP_Signal_c *signal ) {
       }
 
     }
+    /* End additional parameters for the harmonic block  */
+    /****************************************************/
+
+    /****************************************************/
+    /* - Additional parameters for the chirp block:     */
+    if ( !strcmp(type,"chirp") ) {
+
+      /* - numFitPoints: */
+      if ( !numFitPointsIsSet ) {
+	if ( globNumFitPointsIsSet ) {
+	  numFitPoints = globNumFitPoints;
+	  numFitPointsIsSet = true;
+	}
+	else { /* Default to 3 points */
+	  numFitPoints = 1;
+	  numFitPointsIsSet = true;
+	}
+      }
+
+      /* - numIter: */
+      if ( !numIterIsSet ) {
+	if ( globNumIterIsSet ) {
+	  numIter = globNumIter;
+	  numIterIsSet = true;
+	}
+	else { /* Default to 1 iteration */
+	  numIter = 1;
+	  numIterIsSet = true;
+	}
+      }
+    }
+    /* End additional parameters for the chirp block    */
+    /****************************************************/
 
   }
   /***************************/
@@ -393,6 +438,18 @@ MP_Block_c* MP_Scan_Info_c::pop_block( MP_Signal_c *signal ) {
     }
     else {
       fprintf( stderr, "mplib warning -- pop_block() - Missing parameters in harmonic block instanciation (%u-th block)."
+	       " Returning a NULL block.\n" , blockCount );
+      reset();
+      return( NULL );
+    }
+  }
+  /* - Chirp block: */
+  else if ( !strcmp(type,"chirp") ) {
+    if ( windowLenIsSet && windowShiftIsSet && fftSizeIsSet && windowTypeIsSet && numFitPointsIsSet && numIterIsSet ) {
+      block = new MP_Chirp_Block_c( signal, windowLen, windowShift, fftRealSize, windowType, windowOption, numFitPoints, numIter );
+    }
+    else {
+      fprintf( stderr, "mplib warning -- pop_block() - Missing parameters in chirp block instanciation (%u-th block)."
 	       " Returning a NULL block.\n" , blockCount );
       reset();
       return( NULL );
@@ -479,6 +536,23 @@ int write_block( FILE *fid, MP_Block_c *block ) {
     nChar += fprintf( fid, "\t\t<par type=\"f0Min\">%.2f</par>\n", f0Min );
     nChar += fprintf( fid, "\t\t<par type=\"f0Max\">%.2f</par>\n", f0Max );
     nChar += fprintf( fid, "\t\t<par type=\"numPartials\">%u</par>\n", hblock->maxNumPartials );
+    /* Close the block */
+    nChar += fprintf( fid, "\t</block>\n" );
+  }
+
+  /**** - Chirp block: ****/
+  else if ( !strcmp( name, "chirp" ) ) {
+    /* Cast the block */
+    MP_Chirp_Block_c *cblock;
+    cblock = (MP_Chirp_Block_c*)block;
+    /* Open the block */
+    nChar += fprintf( fid, "\t<block type=\"%s\">\n", name );
+    /* Add the parameters */
+    nChar += fprintf( fid, "\t\t<par type=\"windowLen\">%lu</par>\n", cblock->filterLen );
+    nChar += fprintf( fid, "\t\t<par type=\"windowShift\">%lu</par>\n", cblock->filterShift );
+    nChar += fprintf( fid, "\t\t<par type=\"fftSize\">%lu</par>\n", ((cblock->numFilters-1)<<1) );
+    nChar += fprintf( fid, "\t\t<window type=\"%s\" opt=\"%lg\"></window>\n", window_name(cblock->fft->windowType), cblock->fft->windowOption );
+    nChar += fprintf( fid, "\t\t<par type=\"numFitPoints\">%u</par>\n", cblock->numFitPoints );
     /* Close the block */
     nChar += fprintf( fid, "\t</block>\n" );
   }

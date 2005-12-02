@@ -36,13 +36,16 @@
 
 SUBDIRS = signals ref
 
-noinst_PROGRAMS = test_win test_fft test_mp test_mask
+noinst_PROGRAMS = test_win test_fft test_parabolic_regression test_mp test_mask
 
 test_win_SOURCES = test_win.c
 test_win_DEPENDENCIES = @LIBDSP_WIN_DIR@/libdsp_windows.a
 
 test_fft_SOURCES = test_fft.cpp
 test_fft_DEPENDENCIES = @LIBDSP_WIN_DIR@/libdsp_windows.a @LIBMP_DIR@/libmptk.a
+
+test_parabolic_regression_SOURCES = test_parabolic_regression.cpp
+test_parabolic_regression_DEPENDENCIES = @LIBDSP_WIN_DIR@/libdsp_windows.a @LIBMP_DIR@/libmptk.a
 
 test_mp_SOURCES = test_mp.cpp
 test_mp_DEPENDENCIES = @LIBDSP_WIN_DIR@/libdsp_windows.a @LIBMP_DIR@/libmptk.a

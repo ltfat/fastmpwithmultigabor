@@ -34,16 +34,24 @@
 ##   $Revision$
 ##
 
+bin_PROGRAMS = make_regression_constants
+noinst_PROGRAMS = make_regression_constants
+make_regression_constants_SOURCES = make_regression_constants.cpp
+make_regression_constants_LDADD = 
+make_regression_constants_DEPENDENCIES = 
+
 export_headers = mp_types.h \
-	win_server.h        \
-	fft_interface.h     \
-	general.h           \
-	mp_signal.h         \
-	tfmap.h             \
-	atom.h  block.h     \
+	win_server.h      \
+	fft_interface.h   \
+	general.h \
+	regression.h \
+	mp_signal.h  \
+	tfmap.h   \
+	atom.h  block.h \
 	mask.h              \
-	book.h dict.h       \
+	book.h dict.h   \
 	atom_classes/gabor_atom.h atom_classes/gabor_block.h         \
+	atom_classes/chirp_block.h         \
 	atom_classes/harmonic_atom.h atom_classes/harmonic_block.h   \
 	atom_classes/dirac_atom.h atom_classes/dirac_block.h         \
 	atom_classes/TEMPLATE_atom.h atom_classes/TEMPLATE_block.h   \
@@ -51,22 +59,24 @@ export_headers = mp_types.h \
 	atom_classes/atom_classes.h
 ## NOTE: in the above list, the order of the headers is important.
 
-BUILT_SOURCES = mptk.h
-CLEANFILES = mptk.h dict_scanner.cpp
+BUILT_SOURCES = regression_constants.h mptk.h
+CLEANFILES = regression_constants.h mptk.h dict_scanner.cpp
 
 EXTRA_DIST = HOWTO_ADD_A_CLASS DEVEL_NOTES
 
 lib_LIBRARIES = libmptk.a
 include_HEADERS = mptk.h
-noinst_HEADERS = header.h $(export_headers)
+noinst_HEADERS = header.h $(export_headers) regression_constants.h
 
-libmptk_a_SOURCES = mptk.h header.h $(export_headers)\
+libmptk_a_SOURCES = mptk.h header.h $(export_headers) regression_constants.h\
 	general.cpp \
+	regression.cpp \
 	mp_signal.cpp  \
 	win_server.cpp \
 	fft_interface.cpp \
 	block.cpp atom.cpp atom_classes/atom_classes.cpp \
         atom_classes/gabor_atom.cpp atom_classes/gabor_block.cpp         \
+        atom_classes/chirp_block.cpp         \
         atom_classes/harmonic_atom.cpp atom_classes/harmonic_block.cpp         \
         atom_classes/dirac_atom.cpp atom_classes/dirac_block.cpp         \
         atom_classes/TEMPLATE_atom.cpp atom_classes/TEMPLATE_block.cpp   \
@@ -91,3 +101,6 @@ mptk.h: Makefile.am $(srcdir)/header.h $(srcdir)/../../AUTHORS $(export_headers)
 	echo; echo; \
 	echo "#endif /* __mptk_h_ */"; \
 	echo;echo;) > mptk.h;
+
+regression_constants.h: make_regression_constants
+	cd $(top_builddir)/src/libmptk/; ./make_regression_constants;

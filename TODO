@@ -1,4 +1,5 @@
 TODO:
+* BUG: - make_regression_constants is not built correctly
 
 * PRE-RELEASE:
   - include the amplitudes in the MP_Atom_c class and remove MP_Dirac_c

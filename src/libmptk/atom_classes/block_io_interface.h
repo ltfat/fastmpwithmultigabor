@@ -120,6 +120,16 @@ public:
   unsigned int globNumPartials;
   bool globNumPartialsIsSet;
   
+  unsigned int numFitPoints;
+  bool numFitPointsIsSet;
+  unsigned int globNumFitPoints;
+  bool globNumFitPointsIsSet;
+  
+  unsigned int numIter;
+  bool numIterIsSet;
+  unsigned int globNumIter;
+  bool globNumIterIsSet;
+  
   /***********/
   /* METHODS */
   /***********/

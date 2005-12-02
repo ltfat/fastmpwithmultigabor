@@ -1,6 +1,6 @@
 /******************************************************************************/
 /*                                                                            */
-/*                              gabor_block.h                                 */
+/*                             chirp_block.h                               */
 /*                                                                            */
 /*                        Matching Pursuit Library                            */
 /*                                                                            */
@@ -27,55 +27,103 @@
 /*                                                                            */
 /******************************************************************************/
 
-/**************************************************/
-/*                                                */
-/* DEFINITION OF THE GABOR BLOCK CLASS            */
-/* RELEVANT TO THE GABOR TIME-FREQUENCY TRANSFORM */
-/*                                                */
-/**************************************************/
+/*****************************************************/
+/*                                                   */
+/* DEFINITION OF THE CHIRP BLOCK CLASS               */
+/* RELEVANT TO THE CHIRP TIME-FREQUENCY TRANSFORM    */
+/*                                                   */
+/*****************************************************/
 /*
  * SVN log:
  *
- * $Author$
- * $Date$
- * $Revision$
+ * $Author: sacha $
+ * $Date: 2005-07-25 14:54:55 +0200 (Mon, 25 Jul 2005) $
+ * $Revision: 20 $
  *
  */
 
 
-#ifndef __gabor_block_h_
-#define __gabor_block_h_
+#ifndef __chirp_block_h_
+#define __chirp_block_h_
+
+
+/* YOUR includes go here. */
 
 
 /************************/
-/* GABOR BLOCK CLASS    */
+/* CHIRP BLOCK CLASS    */
 /************************/
 
-/** \brief Blocks corresponding to Gabor frames / modulated filter banks 
- *
- * Typically, for Gabor blocks one will have FFT real size = FFT complex size/2+1, 
- * so for speed reasons it might be preferable to use fftRealSize of the form 2^n+1 */
-class MP_Gabor_Block_c:public MP_Block_c {
+/** \brief Explain what YOUR block does here. */
+class MP_Chirp_Block_c:public MP_Gabor_Block_c {
 
   /********/
   /* DATA */
   /********/
 
 public:
-  /** \brief FFT interface, which includes the window with which the signal is multiplied */
-  MP_FFT_Interface_c *fft;
 
-  /** \brief A (fft->fftRealSize x s->numChans) array which holds the frame-wise FFT results
-      across channels */
-  MP_Real_t *mag;
+  /** \brief Number of points used to fit a parabolic logAmp/phase model */
+  unsigned int numFitPoints;
 
-  /* A couple of buffers of size fftRealSize to perform complex fft computations
-     in create_atom.
-     WARNING: these buffers are re-used in the chirp block. */
-  MP_Real_t *fftRe;
-  MP_Real_t *fftIm;
-  /* The length of the above buffers */
-  unsigned long int fftRealSize;
+  /** \brief Number of iterations used to fit a parabolic logAmp/phase model */
+  unsigned int numIter;
+
+private :
+  /* totNumFitPoints = 2*numFitPoints+1 */
+  unsigned int totNumFitPoints;
+  /* Buffer of filterLen complex chirp values */
+  MP_Real_t *chirpRe;
+  MP_Real_t *chirpIm;
+  /* Buffer of analyzed signal multiplied by complex chirp values */
+  MP_Real_t *sigChirpRe;
+  MP_Real_t *sigChirpIm;
+  /* Buffer of complex FFT values */
+  //MP_Real_t *fftReRe;
+  //MP_Real_t *fftReIm;
+  //MP_Real_t *fftImRe;
+  //MP_Real_t *fftImIm;
+  MP_Real_t *fftEnergy;
+  /* Buffer for s->numChans * (2*numFitPoints+1) useful FFT values in a flat array */
+  //MP_Real_t *pointsReStorage;
+  //MP_Real_t *pointsImStorage;
+  /* Buffer for s->numChans * (2*numFitPoints+1) useful FFT values, accessed as pointsRe[chanIdx][l]  */
+  //MP_Real_t **pointsRe;
+  //MP_Real_t **pointsIm;
+  /* Buffer for 2*numFitPoints+1 amplitudes and phases which must be fitted to a parabola */
+  MP_Real_t *logAmp;
+  MP_Real_t *phase;
+  /* Buffer for correlation between complex chirps at various frequencies */
+ /** \brief Storage space for the real part of the quantity 
+   * \f[
+   * (\mbox{reCorrel}[k],\mbox{imCorrel[k]}) = 
+   * \sum_{n=0}^{\mbox{fftCplxSize}-1} \mbox{window}^2[n] \cdot 
+   * \exp \left(\frac{2i\pi \cdot (2k)\cdot n}{\mbox{fftCplxSize}}\right)
+   * \f]
+   * which measures the correlation between complex atoms and their conjugate.
+   * (DO NOT MALLOC OR FREE IT.)
+   * \sa imCorrel
+   */
+  MP_Real_t *reCorrel;
+  /** \brief Storage space for the imaginary part of the correlation between
+   *  complex atoms and  their conjugate. (DO NOT MALLOC OR FREE IT.) 
+   * \sa reCorrel */
+  MP_Real_t *imCorrel;
+  /** \brief Storage space for the squared modulus of the correlation between
+   * complex atoms and their conjugate. (DO NOT MALLOC OR FREE IT.) 
+   * \sa reCorrel
+   *
+   * \f$ \mbox{sqCorrel} = \mbox{reCorrel}^2+\mbox{imCorrel}^2 \f$
+   */
+  MP_Real_t *sqCorrel;
+  /** \brief Storage space for a useful constant related to the atoms'
+   * autocorrelations with their conjugate. (DO NOT MALLOC OR FREE IT.)
+   * \sa sqCorrel 
+   *
+   * \f$ \mbox{cstCorrel} = \frac{2}{1-\mbox{sqCorrel}} \f$
+   * */
+  MP_Real_t *cstCorrel;
+
 
   /***********/
   /* METHODS */
@@ -96,15 +144,17 @@ public:
    * 
    * \sa MP_FFT_Interface_c::fftRealSize MP_FFT_Interface_c::exec_complex()
    */
-  MP_Gabor_Block_c( MP_Signal_c *s,
+  MP_Chirp_Block_c( MP_Signal_c *s,
 		    const unsigned long int filterLen,
 		    const unsigned long int filterShift,
 		    const unsigned long int fftRealSize,
 		    const unsigned char windowType,
-		    const double windowOption );
+		    const double windowOption,
+		    const unsigned int numFitPoints,
+		    const unsigned int setNumIter );
 
   /* Destructor */
-  virtual ~MP_Gabor_Block_c();
+  virtual ~MP_Chirp_Block_c();
 
 
   /***************************/
@@ -116,46 +166,27 @@ public:
   /* Type ouptut */
   virtual char *type_name( void );
 
-  /* Readable text output */
-  virtual int info( FILE *fid );
+  /* Readable text dump */
+  virtual int info( FILE* fid );
 
-  /** \brief update the inner products of a given frame and return the
-   * correlation \a maxCorr and index in the frame \a maxFilterIdx of the
-   * maximally correlated atom on the frame
-   *
-   * \param frameIdx the index of the frame used for the inner products
-   *
-   * \param maxCorr a MP_Real_t* pointer to return the value of the maximum
-   * inner product (or maximum correlation) in this frame
-   *
-   * \param maxFilterIdx an unsigned long int* pointer to return the index of
-   * the maximum inner product
-   *
-   * \todo Describe computation of the inner products in the Gabor case.
-   *
-   * \sa MP_Block_c::update_frame()
-   * \sa MP_Block_c::update_ip()
-   */
-  virtual void update_frame( unsigned long int frameIdx, 
-			     MP_Real_t *maxCorr, 
-			     unsigned long int *maxFilterIdx ); 
-
-  /** \brief Creates a new Gabor atom corresponding to atomIdx in the flat array ip[]
+  /** \brief Creates a new chirp atom corresponding to atomIdx in the flat
+   *  array ip[]
    * 
-   * The real valued atomic waveform stored in atomBuffer is the projection
-   * of the signal on the subspace spanned by the complex atom and its
-   * conjugate as given generally by
-   * \f[
-   * \frac{\mbox{amp}}{2} \cdot 
-   * \left( e^{i\mbox{phase}} \mbox{atom} + e^{-i\mbox{phase}} \overline{\mbox{atom}}\right)
-   * \f]
-   * and for Gabor atoms :
-   * \f[
-   * \mbox{window}(t) \cdot \mbox{amp} \cdot \cos\left(2\pi \mbox{f} t+ \mbox{phase}\right)
-   * \f]
+   *  \todo Describe how the atom is determined here.
    */
   unsigned int create_atom( MP_Atom_c **atom,
 			    const unsigned long int atomIdx );
+
+
+private : 
+  /** \brief Allocates the atom's autocorrelations.
+   */
+  int alloc_correl( void );
+
+  /** \brief Sets the complex demodulation signal, and computes and tabulates
+      the related atom's autocorrelations.
+   */
+  virtual int set_chirp_demodulator( MP_Real_t chirprate );
 
 };
 
@@ -164,7 +195,7 @@ public:
 /* FUNCTIONS */
 /*************/
 
-/** \brief Add a Gabor block to a dictionary
+/** \brief Add a chirp block to a dictionary
  *
  * \param dict The dictionnary that will be modified
  * \param filterLen size of the window
@@ -175,23 +206,27 @@ public:
  * windowed FFTs without zero padding.
  * \param windowType type of the window
  * \param windowOption optional shaping parameter of the windows
+ * \param numFitPoints number of frequency points used on both sides of a local maximum to fit a chirp
  * \return one upon success, zero otherwise 
  *
  * \remark If \a fftRealSize is smaller than \a filterLen / 2 + 1,
- * no Gabor block is added!
+ * no chirp block is added!
  *
- * \sa MP_Gabor_Block_c::MP_Gabor_Block_c()
+ * \sa MP_Chirp_Block_c::MP_Chirp_Block_c()
+ * \sa add_gabor_block()
  * \sa make_window()
  */
-int add_gabor_block( MP_Dict_c *dict,
+int add_chirp_block( MP_Dict_c *dict,
 		     const unsigned long int filterLen,
 		     const unsigned long int filterShift,
 		     const unsigned long int fftRealSize,
 		     const unsigned char windowType,
-		     const double windowOption );
+		     const double windowOption,
+		     const unsigned int numFitPoints,
+		     const unsigned int numIter );
 
 
-/** \brief Add a family of Gabor blocks to a dictionary.
+/** \brief Add a family of Chirp blocks to a dictionary.
  *
  * The added blocks correspond to window sizes (= \a filterLen) that are
  * powers of two up to a maximum window size
@@ -213,6 +248,7 @@ int add_gabor_block( MP_Dict_c *dict,
  *
  * \param setWindowType type of the windows
  * \param setWindowOption optional shaping parameter of the windows
+ * \param numFitPoints number of frequency points used on both sides of a local maximum to fit a chirp
  *
  * \return the number of added blocks
  *
@@ -222,14 +258,17 @@ int add_gabor_block( MP_Dict_c *dict,
  * it determines the percentage 
  * of the lowest frequencies that are computed by the block.
  * \remark the behaviour is undefined if either \a timeDensity or \a freqDensity is zero or negative.
+ * \sa MP_Dict_c::add_chirp_block()
  * \sa MP_Dict_c::add_gabor_block()
  */
-int add_gabor_blocks( MP_Dict_c *dict,
+int add_chirp_blocks( MP_Dict_c *dict,
 		      const unsigned long int maxFilterLen,
 		      const MP_Real_t timeDensity,
 		      const MP_Real_t freqDensity, 
 		      const unsigned char setWindowType,
-		      const double setWindowOption );
+		      const double setWindowOption,
+		      const unsigned int numFitPoints,
+		     const unsigned int numIter );
  
 
-#endif /* __gabor_block_h_ */
+#endif /* __chirp_block_h_ */

@@ -62,21 +62,27 @@ MP_FFT_Interface_c* MP_FFT_Interface_c::init( const unsigned long int setWindowS
   MP_FFT_Interface_c* fft = NULL;
 
   if( 2*(setFftRealSize-1) < setWindowSize ) {
-    fprintf( stderr, "Can't create a FFT of size %ld smaller than the window size %ld ... aborting\n",
-	     2*(setFftRealSize-1),setWindowSize);
-    exit(1);
-  } 
+    fprintf( stderr, "Can't create a FFT of size %ld smaller than the window size %ld. Returning a NULL fft object.\n",
+	     2*(setFftRealSize-1), setWindowSize);
+    return( NULL );;
+  }
+
 #if HAVE_LIBFFTW
   fft = (MP_FFT_Interface_c*) new MP_FFTW_Interface_c( setWindowSize, setWindowType, setWindowOption, setFftRealSize );
+  if ( fft == NULL ) {
+    fprintf( stderr, "Instanciation of FFTW_Interface failed. Returning a NULL fft object.\n");
 #else
   fft = (MP_FFT_Interface_c*) new MP_MacFFT_Interface_c( setWindowSize, setWindowType, setWindowOption, setFftRealSize );
+  if ( fft == NULL ) {
+    fprintf( stderr, "Instanciation of MacFFT_Interface failed. Returning a NULL fft object.\n");
 #endif
-  assert(NULL!=fft);
+    return( NULL );;
+  }
 
   /* Tabulate the atom's autocorrelations */
   if ( fft->fill_correl() ) {
     fprintf( stderr, "mplib warning -- common_FFTW_constructor() - "
-	     "The allocation of the atom's autocorrelations returned an error.\n" );
+	     "The tabulation of the atom's autocorrelations returned an error.\n" );
   }
   
   return(fft);
@@ -118,6 +124,10 @@ MP_FFT_Interface_c::MP_FFT_Interface_c( const unsigned long int setWindowSize,
   bufferRe = (MP_Real_t*) malloc(sizeof(MP_Real_t)*fftRealSize);  
   bufferIm = (MP_Real_t*) malloc(sizeof(MP_Real_t)*fftRealSize);
 
+  buffer2Re = (MP_Real_t*) malloc(sizeof(MP_Real_t)*fftRealSize);  
+  buffer2Im = (MP_Real_t*) malloc(sizeof(MP_Real_t)*fftRealSize);
+
+  inDemodulated = (MP_Sample_t*) malloc(sizeof(MP_Sample_t)*windowSize);
 }
 
 
@@ -129,8 +139,11 @@ MP_FFT_Interface_c::~MP_FFT_Interface_c( ) {
   if ( imCorrel  ) free( imCorrel  );
   if ( sqCorrel  ) free( sqCorrel  );
   if ( cstCorrel ) free( cstCorrel );
-  if ( bufferRe ) free( bufferRe );
-  if ( bufferIm ) free( bufferIm );
+  if ( bufferRe )  free( bufferRe );
+  if ( bufferIm )  free( bufferIm );
+  if ( buffer2Re )  free( buffer2Re );
+  if ( buffer2Im )  free( buffer2Im );
+  if ( inDemodulated )  free( inDemodulated );
 
 }
 
@@ -248,6 +261,11 @@ int MP_FFT_Interface_c::fill_correl( void ) {
   return( 0 );
 }
 
+
+/***************************/
+/* EXECUTION METHODS       */
+/***************************/
+
 /**************************/
 /* Get the magnitude only */
 void MP_FFT_Interface_c::exec_mag( MP_Sample_t *in, MP_Real_t *mag ) {
@@ -348,6 +366,51 @@ void MP_FFT_Interface_c::exec_energy( MP_Sample_t *in, MP_Real_t *mag ) {
 
   return;
 }
+
+
+/****************************************************/
+/* Get the complex result with a demodulated signal */
+void MP_FFT_Interface_c::exec_complex_demod( MP_Sample_t *in,
+					     MP_Sample_t *demodFuncRe, MP_Sample_t *demodFuncIm,
+					     MP_Real_t *re, MP_Real_t *im ) {
+
+  unsigned long int i;
+
+  /* Simple buffer check */
+  assert( in != NULL );
+  assert( demodFuncRe != NULL );
+  assert( demodFuncIm != NULL );
+  assert( re != NULL );
+  assert( im != NULL );
+
+  /* RE */
+  /* Demodulate the input signal with the real part of the demodulation function */
+  for ( i=0; i<windowSize; i++ ) {
+    *(inDemodulated+i) = (double)(*(demodFuncRe+i)) * (double)(*(in+i));
+  }
+  /* Execute the FFT */
+  exec_complex( inDemodulated, bufferRe, bufferIm );
+
+  /* IM */
+  /* Demodulate the input signal with the imaginary part of the demodulation function */
+  for ( i=0; i<windowSize; i++ ) {
+    *(inDemodulated+i) = (double)(*(demodFuncIm+i)) * (double)(*(in+i));
+  }
+  /* Execute the FFT */
+  exec_complex( inDemodulated, buffer2Re, buffer2Im );
+
+  /* COMBINATION */
+  /* Combine both parts to get the final result */
+  for ( i=0; i<fftRealSize; i++ ) {
+    *(re+i) = bufferRe[i] - buffer2Im[i];
+    *(im+i) = bufferIm[i] + buffer2Re[i];
+  }
+  /* Ensure that the imaginary part of the DC and Nyquist frequency components are zero */
+  *(im) = 0.0;
+  *(im+fftRealSize-1) = 0.0;
+
+}
+
 
 /*********************************/
 /*                               */

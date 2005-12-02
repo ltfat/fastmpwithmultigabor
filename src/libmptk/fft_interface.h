@@ -163,10 +163,17 @@ public:
   MP_Real_t *cstCorrel;
 
  protected:
-  /** \brief Two buffers of size fftRealSize to store the output of exec_complex() when generic methods
+  /** \brief Four buffers of size fftRealSize to store the output of exec_complex() when generic methods
    * such as fill_correl() or exec_mag() need it */
   MP_Real_t *bufferRe;    
   MP_Real_t *bufferIm;
+
+  MP_Real_t *buffer2Re;    
+  MP_Real_t *buffer2Im;
+
+  /** \brief A buffer of size windowSize to multiply the input signal by a demodulation function */
+  MP_Real_t *inDemodulated;
+
 
   /***********/
   /* METHODS */
@@ -253,6 +260,13 @@ public:
    *
    */  
   virtual void exec_complex( MP_Sample_t *in, MP_Real_t *re, MP_Real_t *im ) = 0;
+
+  /** \brief Performs the complex FFT of an input signal buffer multiplied by a
+      demodulation function, and puts the result in two output buffers.
+   */
+  virtual void exec_complex_demod( MP_Sample_t *in,
+				   MP_Sample_t *demodFuncRe, MP_Sample_t *demodFuncIm,
+				   MP_Real_t *re, MP_Real_t *im );
 
   /** \brief Computes the power spectrum of an input signal buffer and puts it
    * in an output magnitude buffer.
