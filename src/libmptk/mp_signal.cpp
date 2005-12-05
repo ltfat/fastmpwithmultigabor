@@ -56,13 +56,9 @@
 /* Void constructor */
 MP_Signal_c::MP_Signal_c(void) {
 
-#ifndef NDEBUG
-  fprintf(stderr,"mplib DEBUG -- New empty signal.\n");
-  fflush( stderr );
-#endif
+  mp_debug_msg( "MP_Signal_c::MP_Signal_c(void)", "New empty signal.\n" );
 
   set_null();
-
 }
 
 
@@ -71,18 +67,12 @@ MP_Signal_c::MP_Signal_c(void) {
 MP_Signal_c::MP_Signal_c( const int setNumChans,
 			  const unsigned long int setNumSamples ,
 			  const int setSampleRate ) {
-#ifndef NDEBUG
-  fprintf(stderr,"mplib DEBUG -- MP_Signal_c::MP_Signal_c( 3 params ) - Setting a new signal...\n");
-  fflush( stderr );
-#endif
+  mp_debug_msg( "MP_Signal_c::MP_Signal_c( 3 params )", "Setting a new signal...\n");
 
   set_null();
   init( setNumChans, setNumSamples, setSampleRate );
 
-#ifndef NDEBUG
-  fprintf(stderr,"mplib DEBUG -- MP_Signal_c::MP_Signal_c( 3 params ) - Done.\n");
-  fflush( stderr );
-#endif
+  mp_debug_msg( "MP_Signal_c::MP_Signal_c( 3 params )", "Done.\n");
 }
 
 
@@ -93,61 +83,52 @@ MP_Signal_c::MP_Signal_c( const char *fName ) {
   SNDFILE *file;
   SF_INFO sfinfo;
 
-#ifndef NDEBUG
-  fprintf( stderr, "mplib DEBUG -- MP_Signal_c::MP_Signal_c( fName ) - New signal from fName=[%s]...\n", fName );
-  fflush( stderr );
-#endif
+  mp_debug_msg( "MP_Signal_c::MP_Signal_c( fName )",
+		"New signal from fName=[%s]...\n", fName );
 
   set_null();
 
   /* open the file */
   if ( fName == NULL ) {
-    fprintf( stderr, "mplib error -- MP_Signal_c() - Invalid file name [%s]"
-	     " was passed to a signal constructor.\n", fName );
+    mp_error_msg( "MP_Signal_c( fName )", "Invalid file name [%s] was passed"
+		  " to a signal constructor.\n", fName );
     return;
   }
   else {
 
-#ifndef NDEBUG
-    fprintf( stderr, "mplib DEBUG -- MP_Signal_c::MP_Signal_c( fName ) - Doing sf_open on file [%s]...\n", fName );
-    fflush( stderr );
-#endif
+    mp_debug_msg( "MP_Signal_c::MP_Signal_c( fName )", "Doing sf_open on file [%s]...\n", fName );
 
     sfinfo.format  = 0; /* -> See the libsndfile manual. */
     file = sf_open( fName, SFM_READ, &sfinfo );
 
-#ifndef NDEBUG
-    fprintf( stderr, "mplib DEBUG -- MP_Signal_c::MP_Signal_c( fName ) - Done.\n" );
-    fflush( stderr );
-#endif
+    mp_debug_msg( "MP_Signal_c::MP_Signal_c( fName )", "Done.\n" );
 
   }
   /* Check */
   if ( file == NULL ) {
-    fprintf( stderr, "mplib error -- MP_Signal_c() - sf_open could not open the sound file [%s] for reading."
-	     " New signal is left un-initialized\n", fName );
+    mp_error_msg( "MP_Signal_c( fName )", "sf_open could not open the sound file [%s] for reading."
+		  " New signal is left un-initialized\n", fName );
     return;
   }
 
-#ifndef NDEBUG
-  fprintf( stderr, "mplib DEBUG -- MP_Signal_c::MP_Signal_c( fName ) - sfinfo contains:\n");
-  fprintf( stderr, " DEBUG -- srate    : %d\n", sfinfo.samplerate) ;
-  fprintf( stderr, " DEBUG -- frames   : %d\n", (int)sfinfo.frames) ;
-  fprintf( stderr, " DEBUG -- channels : %d\n", sfinfo.channels) ;
-  fprintf( stderr, " DEBUG -- format   : %d\n", sfinfo.format) ;
-  fprintf( stderr, " DEBUG -- sections : %d\n", sfinfo.sections);
-  fprintf( stderr, " DEBUG -- seekable : %d\n", sfinfo.seekable) ;
-  fprintf( stderr, " DEBUG -- end sfinfo.\n");
-#endif
+  mp_debug_msg( "MP_Signal_c::MP_Signal_c( fName )", "sfinfo contains:\n");
+  mp_debug_msg( "MP_Signal_c::MP_Signal_c( fName )", "-- srate    : %d\n", sfinfo.samplerate) ;
+  mp_debug_msg( "MP_Signal_c::MP_Signal_c( fName )", "-- frames   : %d\n", (int)sfinfo.frames) ;
+  mp_debug_msg( "MP_Signal_c::MP_Signal_c( fName )", "-- channels : %d\n", sfinfo.channels) ;
+  mp_debug_msg( "MP_Signal_c::MP_Signal_c( fName )", "-- format   : %d\n", sfinfo.format) ;
+  mp_debug_msg( "MP_Signal_c::MP_Signal_c( fName )", "-- sections : %d\n", sfinfo.sections);
+  mp_debug_msg( "MP_Signal_c::MP_Signal_c( fName )", "-- seekable : %d\n", sfinfo.seekable) ;
+  mp_debug_msg( "MP_Signal_c::MP_Signal_c( fName )", "-- end sfinfo.\n");
+
   /* actually read the file if allocation is OK */
   if ( init(sfinfo.channels,sfinfo.frames,sfinfo.samplerate) ) {
-#ifndef NDEBUG
-  fprintf( stderr, "mplib DEBUG -- MP_Signal_c::MP_Signal_c( fName ) - After init, signal values are:\n");
-  fprintf( stderr, " DEBUG -- sampleRate : %d\n", sampleRate) ;
-  fprintf( stderr, " DEBUG -- numChans   : %d\n", numChans) ;
-  fprintf( stderr, " DEBUG -- numSamples : %lu\n", numSamples) ;
-  fprintf( stderr, " DEBUG -- end after init.\n");
-#endif
+
+    mp_debug_msg( "MP_Signal_c::MP_Signal_c( fName )", "After init, signal values are:\n");
+    mp_debug_msg( "MP_Signal_c::MP_Signal_c( fName )", "-- sampleRate : %d\n", sampleRate) ;
+    mp_debug_msg( "MP_Signal_c::MP_Signal_c( fName )", "-- numChans   : %d\n", numChans) ;
+    mp_debug_msg( "MP_Signal_c::MP_Signal_c( fName )", "-- numSamples : %lu\n", numSamples) ;
+    mp_debug_msg( "MP_Signal_c::MP_Signal_c( fName )", "-- end after init.\n");
+
     double frame[numChans];
     unsigned long int sample;
     int chan;
@@ -164,39 +145,7 @@ MP_Signal_c::MP_Signal_c( const char *fName ) {
   /* Refresh the energy */
   energy = compute_energy();
 
-#ifndef NDEBUG
-  fprintf(stderr,"mplib DEBUG -- MP_Signal_c::MP_Signal_c( fName ) - Done.\n");
-  fflush( stderr );
-#endif
-
-}
-
-
-/********************************/
-/* Copy constructor (deep copy) */
-MP_Signal_c::MP_Signal_c( const MP_Signal_c &from ) {
-#ifndef NDEBUG
-  fprintf(stderr,"mplib DEBUG -- MP_Signal_c::MP_Signal_c( copy ) - Copying-constructing a new signal...\n");
-  fflush( stderr );
-#endif
-
-  set_null();
-
-  /* If the input signal is empty, we have nothing to do */
-  if ( ( from.numChans == 0 ) || ( from.numSamples == 0 ) ) return;
-
-  /* If every allocation went OK, copy the data */
-  if ( init( from.numChans, from.numSamples, from.sampleRate ) ) {
-    memcpy( storage, from.storage, numChans*numSamples*sizeof(MP_Sample_t) );
-  }
-
-  /* Copy the energy */
-  energy = from.energy;
-
-#ifndef NDEBUG
-  fprintf(stderr,"mplib DEBUG -- MP_Signal_c::MP_Signal_c( copy ) - Done.\n");
-  fflush( stderr );
-#endif
+  mp_debug_msg( "MP_Signal_c::MP_Signal_c( fName )", "Done.\n");
 
 }
 
@@ -205,18 +154,12 @@ MP_Signal_c::MP_Signal_c( const MP_Signal_c &from ) {
 /* Destructor */
 MP_Signal_c::~MP_Signal_c() {
 
-#ifndef NDEBUG
-  fprintf(stderr,"mplib DEBUG -- MP_Signal_c::~MP_Signal_c() - Deleting the signal...");
-  fflush( stderr );
-#endif
+  mp_debug_msg( "MP_Signal_c::~MP_Signal_c()", "Deleting the signal...");
 
   if (storage) free(storage);
   if (channel) free(channel);
 
-#ifndef NDEBUG
-  fprintf(stderr,"mplib DEBUG -- MP_Signal_c::~MP_Signal_c() - Done.\n");
-  fflush( stderr );
-#endif
+  mp_debug_msg( "MP_Signal_c::~MP_Signal_c()", "Done.\n");
 
 }
 
@@ -236,8 +179,8 @@ unsigned long int MP_Signal_c::read_from_float_file( const char *fName ) {
  
   /* Open the file in read mode */
   if ( ( fid = fopen( fName, "r" ) ) == NULL ) {
-    fprintf( stderr, "mplib error -- MP_Signal_c::read_from_float_file(file) -"
-	     " Can't open file [%s] for reading a signal.\n", fName );
+    mp_error_msg( "MP_Signal_c::read_from_float_file(file)",
+		  "Can't open file [%s] for reading a signal.\n", fName );
     return(0);
   }
 
@@ -245,18 +188,18 @@ unsigned long int MP_Signal_c::read_from_float_file( const char *fName ) {
      and emit a warning if we can't read enough samples to fill the whole signal: */
   if ( (nRead = mp_fread( buffer, sizeof(float), numChans*numSamples, fid ))
        != (numChans*numSamples) ) {
-    fprintf( stderr, "mplib warning --  MP_Signal_c::read_from_float_file(file) -"
-	     " Can't read more than [%lu] samples from file [%s] "
-	     "to fill signal with [%d]channels*[%lu]samples=[%lu] samples.\n",
-	     nRead, fName, numChans, numSamples, numChans*numSamples );
+    mp_warning_msg( "MP_Signal_c::read_from_float_file(file)",
+		    "Can't read more than [%lu] samples from file [%s] "
+		    "to fill signal with [%d]channels*[%lu]samples=[%lu] samples.\n",
+		    nRead, fName, numChans, numSamples, numChans*numSamples );
   }
   
   /* If some samples remain in the file, emit a warning: */
   if ( !feof(fid) ) {
-    fprintf( stderr, "mplib warning --  MP_Signal_c::read_from_float_file(file) -"
-	     " Some samples seem to remain after reading [%lu] samples from file [%s] used "
-	     "to fill the signal with [%d]channels*[%lu]samples=[%lu] samples.\n",
-	     nRead, fName, numChans, numSamples, numChans*numSamples );
+    mp_warning_msg( "MP_Signal_c::read_from_float_file(file)",
+		    " Some samples seem to remain after reading [%lu] samples from file [%s] used "
+		    "to fill the signal with [%d]channels*[%lu]samples=[%lu] samples.\n",
+		    nRead, fName, numChans, numSamples, numChans*numSamples );
   }
   
   /* Cast the read samples */
@@ -282,8 +225,8 @@ unsigned long int MP_Signal_c::dump_to_float_file( const char *fName ) {
  
   /* Open the file in write mode */
   if ( ( fid = fopen( fName, "w" ) ) == NULL ) {
-    fprintf( stderr, "mplib error -- MP_Signal_c::dump_to_float_file(file) -"
-	     " Can't open file [%s] for writing a signal.\n", fName );
+    mp_error_msg( "MP_Signal_c::dump_to_float_file(file)",
+		  "Can't open file [%s] for writing a signal.\n", fName );
     return(0);
   }
 
@@ -294,10 +237,10 @@ unsigned long int MP_Signal_c::dump_to_float_file( const char *fName ) {
      and emit a warning if we can't write all the signal samples: */
   if ( (nWrite = mp_fwrite( buffer, sizeof(float), numChans*numSamples, fid ))
        != (numChans*numSamples) ) {
-    fprintf( stderr, "mplib warning -- MP_Signal_c::dump_to_float_file(file) -"
-	     " Can't write more than [%lu] samples to file [%s] "
-	     "in float precision, from signal with [%d]channels*[%lu]samples=[%lu] samples.\n",
-	     nWrite, fName, numChans, numSamples, numChans*numSamples );
+    mp_warning_msg( "MP_Signal_c::dump_to_float_file(file)",
+		    "Can't write more than [%lu] samples to file [%s] "
+		    "in float precision, from signal with [%d]channels*[%lu]samples=[%lu] samples.\n",
+		    nWrite, fName, numChans, numSamples, numChans*numSamples );
   }
   
   /* Clean the house */
@@ -317,8 +260,8 @@ unsigned long int MP_Signal_c::dump_to_double_file( const char *fName ) {
  
   /* Open the file in write mode */
   if ( ( fid = fopen( fName, "w" ) ) == NULL ) {
-    fprintf( stderr, "mplib error -- MP_Signal_c::dump_to_double_file(file) -"
-	     " Can't open file [%s] for writing a signal.\n", fName );
+    mp_error_msg( "MP_Signal_c::dump_to_double_file(file)",
+		  "Can't open file [%s] for writing a signal.\n", fName );
     return(0);
   }
 
@@ -329,10 +272,10 @@ unsigned long int MP_Signal_c::dump_to_double_file( const char *fName ) {
      and emit a warning if we can't write all the signal samples: */
   if ( (nWrite = mp_fwrite( buffer, sizeof(double), numChans*numSamples, fid ))
        != (numChans*numSamples) ) {
-    fprintf( stderr, "mplib warning -- MP_Signal_c::dump_to_double_file(file) -"
-	     " Can't write more than [%lu] samples to file [%s] "
-	     "in double precision, from signal with [%d]channels*[%lu]samples=[%lu] samples.\n",
-	     nWrite, fName, numChans, numSamples, numChans*numSamples );
+    mp_warning_msg( "MP_Signal_c::dump_to_double_file(file)",
+		    " Can't write more than [%lu] samples to file [%s] in double precision,"
+		    " from signal with [%d]channels*[%lu]samples=[%lu] samples.\n",
+		    nWrite, fName, numChans, numSamples, numChans*numSamples );
   }
   
   /* Clean the house */
@@ -357,30 +300,30 @@ unsigned long int MP_Signal_c::wavwrite( const char *fName ) {
   sfinfo.seekable   = 0;
 
   if (sf_format_check (&sfinfo)==0) {
-    fprintf (stderr,"mplib error -- MP_Signal_c::wavwrite(file) - Bad output format\n");
-    fprintf (stderr,"srate    : %d\n", sfinfo.samplerate) ;
-    fprintf (stderr,"frames   : %d\n", (int)sfinfo.frames) ;
-    fprintf (stderr,"channels : %d\n", sfinfo.channels) ;
-    fprintf (stderr,"format   : %d\n", sfinfo.format) ;
-    fprintf (stderr,"sections : %d\n", sfinfo.sections);
-    fprintf (stderr,"seekable : %d\n", sfinfo.seekable) ;
+    mp_error_msg( "MP_Signal_c::wavwrite(file)", "Bad output format\n" );
+    mp_error_msg( "MP_Signal_c::wavwrite(file)", "-- srate    : %d\n", sfinfo.samplerate) ;
+    mp_error_msg( "MP_Signal_c::wavwrite(file)", "-- frames   : %d\n", (int)sfinfo.frames) ;
+    mp_error_msg( "MP_Signal_c::wavwrite(file)", "-- channels : %d\n", sfinfo.channels) ;
+    mp_error_msg( "MP_Signal_c::wavwrite(file)", "-- format   : %d\n", sfinfo.format) ;
+    mp_error_msg( "MP_Signal_c::wavwrite(file)", "-- sections : %d\n", sfinfo.sections);
+    mp_error_msg( "MP_Signal_c::wavwrite(file)", "-- seekable : %d\n", sfinfo.seekable) ;
     return(0);
   }
 
 #ifndef NDEBUG
-  fprintf (stderr,"srate    : %d\n", sfinfo.samplerate) ;
-  fprintf (stderr,"frames   : %d\n", (int)sfinfo.frames) ;
-  fprintf (stderr,"channels : %d\n", sfinfo.channels) ;
-  fprintf (stderr,"format   : %d\n", sfinfo.format) ;
-  fprintf (stderr,"sections : %d\n", sfinfo.sections);
-  fprintf (stderr,"seekable : %d\n", sfinfo.seekable) ;
+  mp_debug_msg( "MP_Signal_c::wavwrite(file)", "-- srate    : %d\n", sfinfo.samplerate) ;
+  mp_debug_msg( "MP_Signal_c::wavwrite(file)", "-- frames   : %d\n", (int)sfinfo.frames) ;
+  mp_debug_msg( "MP_Signal_c::wavwrite(file)", "-- channels : %d\n", sfinfo.channels) ;
+  mp_debug_msg( "MP_Signal_c::wavwrite(file)", "-- format   : %d\n", sfinfo.format) ;
+  mp_debug_msg( "MP_Signal_c::wavwrite(file)", "-- sections : %d\n", sfinfo.sections);
+  mp_debug_msg( "MP_Signal_c::wavwrite(file)", "-- seekable : %d\n", sfinfo.seekable) ;
 #endif
 
   /* open the file */
   file = sf_open(fName,SFM_WRITE,&sfinfo);
   if (file == NULL) {
-    fprintf(stderr , "mplib error -- MP_Signal_c::wavwrite(file) -"
-	    " Cannot open sound file %s for writing\n",fName);
+    mp_error_msg( "MP_Signal_c::wavwrite(file)",
+		  " Cannot open sound file %s for writing\n",fName);
     return(0);
   }
 
@@ -421,29 +364,29 @@ unsigned long int MP_Signal_c::matwrite( const char *fName ) {
   sfinfo.seekable   = 0;
 
   if (sf_format_check (&sfinfo)==0) {
-    fprintf (stderr,"mplib error -- MP_Signal_c::matwrite(file) - Bad output format\n");
-    fprintf (stderr,"srate    : %d\n", sfinfo.samplerate) ;
-    fprintf (stderr,"frames   : %d\n", (int)sfinfo.frames) ;
-    fprintf (stderr,"channels : %d\n", sfinfo.channels) ;
-    fprintf (stderr,"format   : %d\n", sfinfo.format) ;
-    fprintf (stderr,"sections : %d\n", sfinfo.sections);
-    fprintf (stderr,"seekable : %d\n", sfinfo.seekable) ;
+    mp_error_msg( "MP_Signal_c::matwrite(file)", "Bad output format\n");
+    mp_error_msg( "MP_Signal_c::matwrite(file)", "-- srate    : %d\n", sfinfo.samplerate) ;
+    mp_error_msg( "MP_Signal_c::matwrite(file)", "-- frames   : %d\n", (int)sfinfo.frames) ;
+    mp_error_msg( "MP_Signal_c::matwrite(file)", "-- channels : %d\n", sfinfo.channels) ;
+    mp_error_msg( "MP_Signal_c::matwrite(file)", "-- format   : %d\n", sfinfo.format) ;
+    mp_error_msg( "MP_Signal_c::matwrite(file)", "-- sections : %d\n", sfinfo.sections);
+    mp_error_msg( "MP_Signal_c::matwrite(file)", "-- seekable : %d\n", sfinfo.seekable) ;
     return(0);
   }
 
 #ifndef NDEBUG
-  fprintf (stderr,"srate    : %d\n", sfinfo.samplerate) ;
-  fprintf (stderr,"frames   : %d\n", (int)sfinfo.frames) ;
-  fprintf (stderr,"channels : %d\n", sfinfo.channels) ;
-  fprintf (stderr,"format   : %d\n", sfinfo.format) ;
-  fprintf (stderr,"sections : %d\n", sfinfo.sections);
-  fprintf (stderr,"seekable : %d\n", sfinfo.seekable) ;
+  mp_debug_msg( "MP_Signal_c::matwrite(file)", "-- srate    : %d\n", sfinfo.samplerate) ;
+  mp_debug_msg( "MP_Signal_c::matwrite(file)", "-- frames   : %d\n", (int)sfinfo.frames) ;
+  mp_debug_msg( "MP_Signal_c::matwrite(file)", "-- channels : %d\n", sfinfo.channels) ;
+  mp_debug_msg( "MP_Signal_c::matwrite(file)", "-- format   : %d\n", sfinfo.format) ;
+  mp_debug_msg( "MP_Signal_c::matwrite(file)", "-- sections : %d\n", sfinfo.sections);
+  mp_debug_msg( "MP_Signal_c::matwrite(file)", "-- seekable : %d\n", sfinfo.seekable) ;
 #endif
 
   /* open the file */
   file = sf_open(fName,SFM_WRITE,&sfinfo);
   if (file == NULL) {
-    fprintf(stderr , "mplib error -- MP_Signal_c::matwrite(file) - Cannot open sound file %s for writing\n",fName);
+    mp_error_msg( "MP_Signal_c::matwrite(file)", "Cannot open sound file %s for writing\n",fName);
     return(0);
   }
 
@@ -470,8 +413,10 @@ int MP_Signal_c::info( FILE *fid ) {
 
   int nChar = 0;
 
-  nChar += fprintf( fid, "mplib info -- SIGNAL: [%lu] samples on [%d] channels; its sample rate is [%d]Hz.\n",
-		    numSamples, numChans, sampleRate );
+  nChar += mp_info_msg_str( fid, "MP_Signal_c::info()",
+			    "This signal object has [%lu] samples on [%d] channels;"
+			    " its sample rate is [%d]Hz.\n",
+			    numSamples, numChans, sampleRate );
   return( nChar );
 }
 
@@ -488,10 +433,7 @@ int MP_Signal_c::info( FILE *fid ) {
    by the constructors.) */
 inline void MP_Signal_c::set_null( void ) {
 
-#ifndef NDEBUG
-  fprintf( stderr, "mplib DEBUG -- MP_Signal_c::set_null() - Setting the signal to NULL..." );
-  fflush( stderr );
-#endif
+  mp_debug_msg( "MP_Signal_c::set_null()", "Setting the signal to NULL...\n" );
 
   sampleRate = MP_SIGNAL_DEFAULT_SAMPLERATE;
   numChans   = 0;
@@ -500,10 +442,7 @@ inline void MP_Signal_c::set_null( void ) {
   channel = NULL;
   energy = 0;
 
-#ifndef NDEBUG
-  fprintf( stderr,"Done.\n");
-  fflush( stderr );
-#endif
+  mp_debug_msg( "MP_Signal_c::set_null()", "Done.\n" );
 
 }
 
@@ -512,11 +451,8 @@ inline void MP_Signal_c::set_null( void ) {
 /* Initialization with allocation */
 int MP_Signal_c::init( const int setNumChans, const unsigned long int setNumSamples, const int setSampleRate ) {
 
-#ifndef NDEBUG
-  fprintf( stderr, "mplib DEBUG -- MP_Signal_c::init() - Initializing the signal:  [%d] chans [%lu] samples...",
-	   setNumChans, setNumSamples );
-  fflush( stderr );
-#endif
+  mp_debug_msg( "MP_Signal_c::init()", "Initializing the signal:  [%d] chans [%lu] samples...\n",
+		setNumChans, setNumSamples );
 
   sampleRate = setSampleRate;
 
@@ -525,9 +461,10 @@ int MP_Signal_c::init( const int setNumChans, const unsigned long int setNumSamp
 
   /* Allocate the storage space */
   if ( (storage = (MP_Sample_t*) calloc( setNumChans*setNumSamples , sizeof(MP_Sample_t) )) == NULL ) {
-    fprintf( stderr, "mplib error -- MP_Signal_c::init() - Can't allocate storage space for new signal with "
-	     "[%d] channel(s) and [%lu] samples per channel. New signal is left "
-	     "un-initialized.\n", setNumChans, setNumSamples );
+    mp_error_msg( "MP_Signal_c::init()",
+		  "Can't allocate storage space for new signal with "
+		  "[%d] channel(s) and [%lu] samples per channel. New signal is left "
+		  "un-initialized.\n", setNumChans, setNumSamples );
     channel = NULL;
     numChans = 0;
     numSamples = 0;
@@ -536,9 +473,10 @@ int MP_Signal_c::init( const int setNumChans, const unsigned long int setNumSamp
 
   /* "Fold" the storage space into separate channels */
   if ( (channel = (MP_Sample_t**) calloc( setNumChans , sizeof(MP_Sample_t*) )) == NULL ) {
-    fprintf( stderr, "mplib error -- MP_Signal_c::init() - Can't allocate an array of [%d] signal pointers "
-	     "to fold the signal storage space. Storage will be freed and new signal "
-	     "will be left un-initialized.\n", setNumChans );
+    mp_error_msg( "MP_Signal_c::init()",
+		  "Can't allocate an array of [%d] signal pointers "
+		  "to fold the signal storage space. Storage will be freed and new signal "
+		  "will be left un-initialized.\n", setNumChans );
     free(storage);
     numChans = 0;
     numSamples = 0;
@@ -556,10 +494,7 @@ int MP_Signal_c::init( const int setNumChans, const unsigned long int setNumSamp
     }
   }
 
-#ifndef NDEBUG
-  fprintf( stderr,"Done.\n");
-  fflush( stderr );
-#endif
+  mp_debug_msg( "MP_Signal_c::init()", "Done.\n");
 
   return( 1 );
 }
@@ -679,4 +614,28 @@ MP_Real_t MP_Signal_c::deemp( double coeff ) {
   energy = retEnergy;
 
   return( (MP_Real_t)retEnergy );
+}
+
+
+/***************************/
+/* OPERATORS               */
+/***************************/
+
+/********************************/
+/* Assignment operator          */
+MP_Signal_c& MP_Signal_c::operator=( const MP_Signal_c& from ) {
+
+  mp_debug_msg( "MP_Signal_c::operator=()", "Assigning a signal...\n" );
+
+  /* If every allocation went OK, copy the data */
+  if ( init( from.numChans, from.numSamples, from.sampleRate ) ) {
+    memcpy( storage, from.storage, numChans*numSamples*sizeof(MP_Sample_t) );
+  }
+
+  /* Copy the energy */
+  energy = from.energy;
+
+  mp_debug_msg( "MP_Signal_c::operator=()", "Assignment done.\n" );
+
+  return( *this );
 }

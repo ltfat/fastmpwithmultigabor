@@ -108,12 +108,6 @@ public:
 	       const unsigned long int setNumSamples ,
 	       const int setSampleRate);
 
-  /** \brief A copy constructor 
-   *
-   * \param from A reference to the copied signal
-   */
-  MP_Signal_c( const MP_Signal_c &from );
-
   /** \brief A contructor that reads from a sound file 
    *
    * \param fName the file name
@@ -224,6 +218,13 @@ public:
    */
   MP_Real_t deemp( double coeff );
 
+
+  /***************************/
+  /* OPERATORS               */
+  /***************************/
+
+  /** \brief Assignment operator */
+  MP_Signal_c& operator=(  const MP_Signal_c& from );
 
 };
 
