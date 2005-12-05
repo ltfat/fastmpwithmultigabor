@@ -80,7 +80,7 @@
  * \sa This function calls mp_msg_str() with the stream defaulted to MP_ERR_STREAM
  * and the type defaulted to "error".
  */
-int mp_err_msg( const char *funcName, const char *format, ... );
+int mp_error_msg( const char *funcName, const char *format, ... );
 
 /** \brief Pretty-printing of the libmptk error messages
  *  in a specific stream.
@@ -92,7 +92,7 @@ int mp_err_msg( const char *funcName, const char *format, ... );
  *
  * \sa This function calls mp_msg_str() with the type defaulted to "error".
  */
-int mp_err_msg_str( FILE* stream, const char *funcName, const char *format, ... );
+int mp_error_msg_str( FILE* stream, const char *funcName, const char *format, ... );
 
 /** \brief Pretty-printing of the libmptk warning messages
  *  in the default warning stream.
@@ -143,7 +143,8 @@ int mp_info_msg( const char *funcName, const char *format, ... );
 int mp_info_msg_str( FILE* stream, const char *funcName, const char *format, ... );
 
 /** \brief Pretty-printing of the libmptk debug messages
- *  in the default debug stream.
+ *  in the default debug stream. Does nothing if the NDEBUG preprocessor
+ *  variable is set.
  *
  * \param funcName the name of the calling function
  * \param format a format string similar to the printf formats
@@ -152,10 +153,15 @@ int mp_info_msg_str( FILE* stream, const char *funcName, const char *format, ...
  * \sa This function calls mp_msg_str() with the stream defaulted to MP_DEBUG_STREAM
  * and the type defaulted to "DEBUG".
  */
+#ifndef NDEBUG
 int mp_debug_msg( const char *funcName, const char *format, ... );
+#else
+#define mp_debug_msg( X, Y, ... ) void(0)
+#endif
 
 /** \brief Pretty-printing of the libmptk debug messages
- *  in a specific stream.
+ *  in a specific stream. Does nothing if the NDEBUG  preprocessor
+ *  variable is set.
  *
  * \param stream the output stream
  * \param funcName the name of the calling function
@@ -164,7 +170,11 @@ int mp_debug_msg( const char *funcName, const char *format, ... );
  *
  * \sa This function calls mp_msg_str() with the type defaulted to "DEBUG".
  */
+#ifndef NDEBUG
 int mp_debug_msg_str( FILE* stream, const char *funcName, const char *format, ... );
+#else
+#define mp_debug_msg_str( X, Y, Z, ... ) void(0)
+#endif
 
 /** \brief Pretty-printing of the libmptk messages.
  *
@@ -175,7 +185,8 @@ int mp_debug_msg_str( FILE* stream, const char *funcName, const char *format, ..
  * \param ... a variable list of arguments to be printed according to the format
  *
  */
-int mp_msg_str( FILE* stream, const char *type, const char *funcName, const char *format, ... );
+//int mp_msg_str( FILE* stream, const char *type, const char *funcName, const char *format, ... );
+int mp_msg_str( FILE* stream, const char *type, const char *funcName, const char *format, va_list arg );
 
 
 #endif /* __mp_messaging_h_ */

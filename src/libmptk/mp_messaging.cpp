@@ -51,7 +51,7 @@
 
 /********************************************************/
 /* Error messages sent in the default MPTK error stream */
-int mp_err_msg( const char *funcName, const char *format, ...  ) {
+int mp_error_msg( const char *funcName, const char *format, ...  ) {
 
   va_list arg;
   int done;
@@ -65,7 +65,7 @@ int mp_err_msg( const char *funcName, const char *format, ...  ) {
 
 /*************************************/
 /* Error messages sent in any stream */
-int mp_err_msg_str( FILE *stream, const char *funcName, const char *format, ...  ) {
+int mp_error_msg_str( FILE *stream, const char *funcName, const char *format, ...  ) {
 
   va_list arg;
   int done;
@@ -150,6 +150,7 @@ int mp_info_msg_str( FILE *stream, const char *funcName, const char *format, ...
 
 /********************************************************/
 /* Debug messages sent in the default MPTK debug stream */
+#ifndef NDEBUG
 int mp_debug_msg( const char *funcName, const char *format, ...  ) {
 
   va_list arg;
@@ -161,9 +162,11 @@ int mp_debug_msg( const char *funcName, const char *format, ...  ) {
 
   return( done );
 }
+#endif
 
 /*************************************/
 /* Debug messages sent in any stream */
+#ifndef NDEBUG
 int mp_debug_msg_str( FILE *stream, const char *funcName, const char *format, ...  ) {
 
   va_list arg;
@@ -175,6 +178,7 @@ int mp_debug_msg_str( FILE *stream, const char *funcName, const char *format, ..
 
   return( done );
 }
+#endif
 
 /***********/
 /* GENERIC */
@@ -183,15 +187,12 @@ int mp_debug_msg_str( FILE *stream, const char *funcName, const char *format, ..
 /***************************/
 /* Generic pretty-printing */
 int mp_msg_str( FILE *stream, const char *type, const char *funcName,
-		const char *format, ...  ) {
+		const char *format, va_list arg ) {
 
-  va_list arg;
   int done = 0;
   
-  va_start ( arg, format );
   done += fprintf( stream, "libmptk %s -- %s - ", type, funcName );
   done += vfprintf ( stream, format, arg );
-  va_end ( arg );
 
   fflush( stream );
 
