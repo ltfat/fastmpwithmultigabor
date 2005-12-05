@@ -10,7 +10,7 @@ mpd msg -- Parsing the dictionary...
 mpd msg -- (In the following, spurious output of dictionary pieces would be a symptom of parsing errors.)
 mpd msg -- The dictionary is now loaded.
 mpd msg -- The signal loaded from file [/udd/sacha/src/project/mptk/trunk/src/tests/signals/mix_58_stereo.wav] has:
-mplib info -- SIGNAL: [19200] samples on [2] channels; its sample rate is [8000]Hz.
+libmptk info -- MP_Signal_c::info() - This signal object has [19200] samples on [2] channels; its sample rate is [8000]Hz.
 mpd msg -- The dictionary read from file [/udd/sacha/src/project/mptk/trunk/src/tests/signals/dico_test.xml] contains [9] blocks:
 mplib info -- GABOR BLOCK: gauss window (window opt=0) of length [128], shifted by [32] samples, projected on [65] frequencies;
 mplib info -- The number of frames for this block is [597], the search tree has [4] levels.
