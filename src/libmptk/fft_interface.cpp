@@ -57,36 +57,38 @@
 MP_FFT_Interface_c* MP_FFT_Interface_c::init( const unsigned long int setWindowSize,
 					      const unsigned char setWindowType,
 					      const double setWindowOption,
-					      const unsigned long int setFftRealSize )
-{
+					      const unsigned long int setFftRealSize ) {
   MP_FFT_Interface_c* fft = NULL;
 
   if( 2*(setFftRealSize-1) < setWindowSize ) {
-    fprintf( stderr, "Can't create a FFT of size %ld smaller than the window size %ld."
-	     " Returning a NULL fft object.\n", 2*(setFftRealSize-1), setWindowSize);
-    return( NULL );;
+    mp_err_msg( "MP_FFT_Interface_c::init()",
+		"Can't create a FFT of size %ld smaller than the window size %ld."
+		" Returning a NULL fft object.\n", 2*(setFftRealSize-1), setWindowSize);
+    return( NULL );
   }
 
+  /* Create the adequate FFT and check the returned address */
 #if HAVE_LIBFFTW
   fft = (MP_FFT_Interface_c*) new MP_FFTW_Interface_c( setWindowSize, setWindowType, setWindowOption,
 						       setFftRealSize );
-  if ( fft == NULL ) {
-    fprintf( stderr, "mplib error -- MP_FFT_Interface_c::init - Instanciation of FFTW_Interface failed.");
+  if ( fft == NULL ) mp_err_msg( "MP_FFT_Interface_c::init()",
+				 "Instanciation of FFTW_Interface failed."
+				 " Returning a NULL fft object.\n" );
 #else
   fft = (MP_FFT_Interface_c*) new MP_MacFFT_Interface_c( setWindowSize, setWindowType, setWindowOption,
 							 setFftRealSize );
-  if ( fft == NULL ) {
-    fprintf( stderr, "mplib error -- MP_FFT_Interface_c::init - Instanciation of MacFFT_Interface failed.");
+  if ( fft == NULL ) mp_err_msg( "MP_FFT_Interface_c::init()",
+				 "Instanciation of MacFFT_Interface failed."
+				 " Returning a NULL fft object.\n" );
 #endif
-    fprintf( stderr, " Returning a NULL fft object.\n");
-    return( NULL );
-  }
+
+  if ( fft == NULL) return( NULL );
 
   /* Check the internal buffers: */
   /* - window: */
   if ( fft->window == NULL ) {
-    fprintf( stderr, "mplib error -- MP_FFT_Interface_c::init - FFT window is NULL."
-	     " Returning a NULL fft object.\n");
+    mp_err_msg( "MP_FFT_Interface_c::init()",
+		"FFT window is NULL. Returning a NULL fft object.\n");
     delete( fft );
     return( NULL );
   }
@@ -94,8 +96,8 @@ MP_FFT_Interface_c* MP_FFT_Interface_c::init( const unsigned long int setWindowS
   if ( ( fft->bufferRe  == NULL ) || ( fft->bufferIm  == NULL ) ||
        ( fft->buffer2Re == NULL ) || ( fft->buffer2Im == NULL ) ||
        ( fft->inDemodulated == NULL ) ) {
-    fprintf( stderr, "mplib error -- MP_FFT_Interface_c::init - One or several of the internal"
-	     " FFT buffers are NULL. Returning a NULL fft object.\n");
+    mp_err_msg( "MP_FFT_Interface_c::init()",
+		"One or several of the internal FFT buffers are NULL. Returning a NULL fft object.\n");
     delete( fft );
     return( NULL );
   }
