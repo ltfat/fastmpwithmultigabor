@@ -41,6 +41,7 @@ make_regression_constants_LDADD =
 make_regression_constants_DEPENDENCIES = 
 
 export_headers = mp_types.h \
+	mp_messaging.h    \
 	win_server.h      \
 	fft_interface.h   \
 	general.h \
@@ -69,10 +70,11 @@ include_HEADERS = mptk.h
 noinst_HEADERS = header.h $(export_headers) regression_constants.h
 
 libmptk_a_SOURCES = mptk.h header.h $(export_headers) regression_constants.h\
-	general.cpp \
-	regression.cpp \
-	mp_signal.cpp  \
-	win_server.cpp \
+	mp_messaging.cpp  \
+	general.cpp       \
+	regression.cpp    \
+	mp_signal.cpp     \
+	win_server.cpp    \
 	fft_interface.cpp \
 	block.cpp atom.cpp atom_classes/atom_classes.cpp \
         atom_classes/gabor_atom.cpp atom_classes/gabor_block.cpp         \

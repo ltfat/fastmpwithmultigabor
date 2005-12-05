@@ -59,7 +59,7 @@ AC_C_BIGENDIAN
 
 dnl Checks for header files
 AC_HEADER_STDC
-AC_CHECK_HEADERS(math.h limits.h assert.h)
+AC_CHECK_HEADERS(stdarg.h stdlib.h math.h limits.h assert.h)
 
 
 dnl ------------------------------------------------------------
@@ -165,11 +165,11 @@ AC_ARG_WITH(libsndfile,
 	  INCLUDES="$INCLUDES -I$with_libsndfile/include" ]
 )
 
-AC_CHECK_LIB(fftw3,main,HAVE_FFTW3=yes,
+AC_CHECK_LIB(fftw3,main,[AC_DEFINE(HAVE_FFTW3,1,"Turn on the FFTW3 support.")],
 	[AC_MSG_ERROR([FFTW3 library not found -- Please make sure that FFTW3 is installed on your system and/or indicate its location with the switch: --with-fftw3=PATH-TO-FFTW3. (See configure --help.)])]
 )
 
-AC_CHECK_LIB(sndfile,main,HAVE_LIBSNDFILE=yes,
+AC_CHECK_LIB(sndfile,main,[AC_DEFINE(HAVE_SNDFILE,1,"Turn on the LIBSNDFILE support.")],
 	[AC_MSG_ERROR(LIBSNDFILE library not found --  Please make sure that LIBSNDFILE is installed on your system and/or indicate its location with the switch: --with-libsndfile=PATH-TO-LIBSNDFILE. (See configure --help.) )],
 )
 

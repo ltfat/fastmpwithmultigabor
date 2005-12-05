@@ -48,17 +48,6 @@
 #ifndef __fft_interface_h_
 #define __fft_interface_h_
 
-
-/*--------------------------*/
-/* Choice of the interface: */
-/*--------------------------*/
-/** \brief A macro that defines which particular FFT interface is used
- * in the rest of the package.
- * \todo Properly handle the selection of the interface with configure
- */
-#define HAVE_LIBFFTW 1
-#include <fftw3.h>
-
 /** \brief A macro which says that the method exec_mag should return
  *  the squared magnitude (i.e., the square root is avoided in the computation
  * of the magnitude). When this macro is NOT defined the square root is used instead.
@@ -248,6 +237,19 @@ public:
 
 
 
+/*-----------------------------------*/
+/* Choice of the FFT implementation: */
+/*-----------------------------------*/
+#ifdef HAVE_FFTW3
+#  define USE_FFTW3 1
+#else
+#  error "No FFT implementation was found !"
+#endif
+
+#ifdef USE_FFTW3
+
+#include <fftw3.h>
+
 /*********************************/
 /*                               */
 /* FFTW-DEPENDENT IMPLEMENTATION */
@@ -314,5 +316,6 @@ public:
 
 };
 
+#endif /* USE_FFTW3 */
 
 #endif /* __fft_interface_h_ */

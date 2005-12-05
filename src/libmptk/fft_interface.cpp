@@ -68,18 +68,20 @@ MP_FFT_Interface_c* MP_FFT_Interface_c::init( const unsigned long int setWindowS
   }
 
   /* Create the adequate FFT and check the returned address */
-#if HAVE_LIBFFTW
+#ifdef USE_FFTW3
   fft = (MP_FFT_Interface_c*) new MP_FFTW_Interface_c( setWindowSize, setWindowType, setWindowOption,
 						       setFftRealSize );
   if ( fft == NULL ) mp_err_msg( "MP_FFT_Interface_c::init()",
 				 "Instanciation of FFTW_Interface failed."
 				 " Returning a NULL fft object.\n" );
-#else
+#elif defined(USE_MAC_FFT)
   fft = (MP_FFT_Interface_c*) new MP_MacFFT_Interface_c( setWindowSize, setWindowType, setWindowOption,
 							 setFftRealSize );
   if ( fft == NULL ) mp_err_msg( "MP_FFT_Interface_c::init()",
 				 "Instanciation of MacFFT_Interface failed."
 				 " Returning a NULL fft object.\n" );
+#else
+#  error "No FFT implementation was found !"
 #endif
 
   if ( fft == NULL) return( NULL );
