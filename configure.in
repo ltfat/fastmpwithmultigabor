@@ -70,10 +70,10 @@ dnl -----------------
 dnl -- Default values
 dnl -----------------
 CC="gcc"
-CFLAGS="$CFLAGS -O3 -Wall -W"
+CFLAGS="-O3 -Wall -W"
 
 CXX="g++"
-CXXFLAGS="$CXXFLAGS -O3 -Wall -Wno-deprecated -W"
+CXXFLAGS="-O3 -Wall -Wno-deprecated -W"
 
 dnl ---------------------------------------------------
 dnl -- Add debugging options to the compilation process
