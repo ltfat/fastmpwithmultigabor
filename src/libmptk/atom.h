@@ -198,9 +198,11 @@ public :
 
   /** \brief Adds a pseudo Wigner-Ville of the atom to a time-frequency map 
    * \param tfmap the time-frequency map to which the atom distribution will be plotted
+   * \param tfmapType an indicator of what to put in the tfmap, to be chosen among
+   * MP_TFMAP_SUPPORTS or MP_TFMAP_PSEUDO_WIGNER (see tfmap.h for more).
    * \return one if the atom printed something into the map, zero otherwise
    */
-  virtual char add_to_tfmap( MP_TF_Map_c *tfmap ) = 0;
+  virtual int add_to_tfmap( MP_TF_Map_c *tfmap, const char tfmapType ) = 0;
 
   /** \brief Tests if a field of an atom satisfies a property on a given channel 
    * \param field the type of the property (ex: MP_AMP_PROP, MP_FREQ_PROP, ...)

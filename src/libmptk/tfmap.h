@@ -45,7 +45,19 @@
 #define __tfmap_h_
 
 
-#include <stdio.h>
+#include <mp_system.h>
+
+
+/*********************/
+/* CONSTANTS         */
+/*********************/
+/** \brief Some constants to say what kind of Matching Pursuit representation
+    shall be put in the tfmap (in the case of atoms) */
+#define MP_TFMAP_SUPPORTS          1
+#define MP_TFMAP_LOG_SUPPORTS      2
+#define MP_TFMAP_PSEUDO_WIGNER     3
+#define MP_TFMAP_LOG_PSEUDO_WIGNER 4
+#define MP_TFMAP_NOTHING           255
 
 
 /********************************/
@@ -57,53 +69,91 @@ class MP_TF_Map_c {
 public : 
   /* STORAGE FOR THE MAP */
   /** \brief Number of columns in the time-frequency map */
-  int numCols;
+  unsigned long int numCols;
   /** \brief Number of rows in the time-frequency map */
-  int numRows;
+  unsigned long int numRows;
   /** \brief Number of channels in the time-frequency map */
-  unsigned char numChans;
+  int numChans;
   /** \brief Big storage space to store the map */
-  MP_Real_t  *storage;
+  MP_Tfmap_t  *storage;
   /** \brief Pointers to each channel of the map */
-  MP_Real_t **channel;
+  MP_Tfmap_t **channel;
 
   /* CONVERSION BETWEEN PIXEL COORDINATES AND TIME-FREQUENCY COORDINATES */
   /** \brief Sample coordinate of the lower left corner of the map */
-  MP_Real_t tMin;
+  unsigned long int tMin;
+  /** \brief Sample coordinate of the upper right corner of the map */
+  unsigned long int tMax;
   /** \brief Normalized frequency coordinate (between 0 and 0.5) of the lower left corner of the map */
   MP_Real_t fMin;
+  /** \brief Normalized frequency coordinate (between 0 and 0.5) of the upper right corner of the map */
+  MP_Real_t fMax;
+  /** \brief Minimum amplitude for the mapping of real values to short ints
+      (any real value, preferably understood as dB) */
+  MP_Real_t ampMin;
+  MP_Real_t logAmpMin;
+  /** \brief Maximum amplitude for the mapping of real values to short ints
+      (any real value, preferably understood as dB) */
+  MP_Real_t ampMax;
+  MP_Real_t logAmpMax;
   /** \brief Distance between adjacent pixels in sample coordinates */
   MP_Real_t dt;
   /** \brief Distance between adjacent pixels in normalized frequency coordinates */
   MP_Real_t df;
+  /** \brief Distance between adjacent discrete amplitude values */
+  MP_Real_t dAmp;
+  MP_Real_t dLogAmp;
 
   /* METHODS */
 public :
   /** \brief Constructor that allocates and folds the storage space */
-  MP_TF_Map_c(int setNumCols,int setNumRows, unsigned char setNumChans, 
-	      MP_Real_t setTMin, MP_Real_t setFMin,
-	      MP_Real_t setTMax, MP_Real_t setFMax);
+  MP_TF_Map_c( const unsigned long int setNumCols, const unsigned long int setNumRows,
+	       const int setNumChans, 
+	       const unsigned long int setTMin,    const unsigned long int setTMax,
+	       const MP_Real_t setFMin,            const MP_Real_t setFMax,
+	       const MP_Real_t setAmpMin,          const MP_Real_t setAmpMax );
 
   /* Destructor */
   ~MP_TF_Map_c();
 
-  /** \brief Print human readable information about the atom to a stream
+
+  /** \brief Reset the storage to 0 */
+  void reset( void );
+
+
+  /** \brief Print human readable information about the tfmap to a stream
    *
    * \param  fid A writable stream
    * \return The number of characters written to the stream */
   int info( FILE *fid );
 
+
   /** \brief Write to a file as raw data
    * \param fName the file name 
    * \param flagUpsideDown if yes writes the columns upside down 
    * \return nonzero upon success, zero otherwise */
-  char dump_to_float_file( const char *fName , char flagUpsideDown);
+  unsigned long int dump_to_file( const char *fName , char flagUpsideDown );
 
-  
+
+  /** \brief Convert between real coordinates and discrete coordinates */
+  /* Time: */
+  unsigned long int time_to_pix( unsigned long int t );
+  unsigned long int pix_to_time( unsigned long int n );
+  /* Freq: */
+  unsigned long int freq_to_pix( MP_Real_t f );
+  MP_Real_t pix_to_freq( unsigned long int k );
+  /* Amp: */
+  MP_Tfmap_t linmap( MP_Real_t amp );
+  MP_Tfmap_t logmap( MP_Real_t amp );
+
   /** \brief Converts real coordinates into pixel coordinates */
-  void pixel_coordinates(MP_Real_t t,MP_Real_t f, int *n, int *k);
+  /*void pixel_coordinates( unsigned long int t, MP_Real_t f,
+    unsigned long int *n, unsigned long int *k ); */
+
   /** \brief Converts pixel coordinates into real coordinates */
-  void tf_coordinates(int n, int k, MP_Real_t *t,MP_Real_t *f);
+  /* void tf_coordinates( unsigned long int n, unsigned long int k,
+     unsigned long int *t, MP_Real_t *f ); */
+
 };
 
 

@@ -493,83 +493,124 @@ MP_Real_t wigner_ville(MP_Real_t t, MP_Real_t f, unsigned char windowType) {
   }
 }
 
-/** \brief Adds a pseudo Wigner-Ville of the atom to a time-frequency map */
-/* \todo add a generic method MP_Atom_C::add_to_tfmap() that tests support intersection */
-char MP_Gabor_Atom_c::add_to_tfmap( MP_TF_Map_c *tfmap ) {
+/********************************************************/
+/** Addition of the atom to a time-frequency map */
+int MP_Gabor_Atom_c::add_to_tfmap( MP_TF_Map_c *tfmap, const char tfmapType ) {
 
   unsigned char chanIdx;
-  MP_Real_t tMin,tMax,df,fMin,fMax;
-  int nMin,kMin,nMax,kMax;
-  int iMin,jMin,iMax,jMax;
-  int i,j;
-  MP_Real_t t,f;
-  MP_Real_t *column;
-  char flag = 0;
-  MP_Real_t value;
+  unsigned long int tMin,tMax;
+  MP_Real_t fMin,fMax,df;
+  unsigned long int nMin,nMax,kMin,kMax;
+  unsigned long int i, j;
+  unsigned long int t; MP_Real_t f;
+  MP_Tfmap_t *column;
+  MP_Real_t val;
 
-#ifndef NDEBUG
-  assert(numChans==tfmap->numChans);
-#endif
+  assert(numChans == tfmap->numChans);
 
   for (chanIdx = 0; chanIdx < numChans; chanIdx++) {
-#ifndef NDEBUG
-    fprintf(stderr,"Displaying channel [%u] to tfmap\n",chanIdx);
-#endif
-    /* 1/ Determine the support (extremities included) of the atom in standard coordinates */
+
+    /* 1/ Is the support inside the tfmap ? */
+    /* Time: */
     tMin = support[chanIdx].pos;
-    tMax = (MP_Real_t)(support[chanIdx].pos+support[chanIdx].len)-1;
-    df   = 1/((MP_Real_t)support[chanIdx].len); /* TODO : determine a constant factor */
-    fMin = freq-df/2;
-    fMax = freq+df/2+chirp*(tMax-tMin);
+    tMax = tMin + support[chanIdx].len;
+    if ( (tMin > tfmap->tMax) || (tMax < tfmap->tMin) ) return( 0 );
+    /* Freq: */
+    df   = 1 / ( (MP_Real_t)(support[chanIdx].len) ); /* TODO : determine a constant factor */
+    fMin = freq - df/2;
+    fMax = freq + df/2 + chirp*(tMax-tMin);
+    if ( (fMin > tfmap->fMax) || (fMax < tfmap->fMin) ) return( 0 );
 #ifndef NDEBUG
-    fprintf(stderr,"Atom 'rectangle' in tf  coordinates [%g %g]x[%g %g]\n",tMin,tMax,fMin,fMax);
+    fprintf( stderr, "Atom support in tf  coordinates: [%lu %lu]x[%g %g]\n",
+	     tMin, tMax, fMin, fMax );
 #endif
 
-    /* 2/ Convert this in pixel coordinates */
-    tfmap->pixel_coordinates(tMin,fMin,&nMin,&kMin);
-    tfmap->pixel_coordinates(tMax,fMax,&nMax,&kMax);
+    /* 2/ Clip the support if it reaches out of the tfmap */
+    if ( tMin < tfmap->tMin ) tMin = tfmap->tMin;
+    if ( tMax > tfmap->tMax ) tMax = tfmap->tMax;
+    if ( fMin < tfmap->fMin ) fMin = tfmap->fMin;
+    if ( fMax > tfmap->fMax ) fMax = tfmap->fMax;
 #ifndef NDEBUG
-    fprintf(stderr,"Atom rectangle in pix coordinates [%d %d]x[%d %d]\n",nMin,nMax,kMin,kMax);
+    fprintf( stderr, "Atom support in tf  coordinates, after clipping: [%lu %lu]x[%g %g]\n",
+	     tMin, tMax, fMin, fMax );
+#endif
+    /* \todo add a generic method MP_Atom_C::add_to_tfmap() that tests support intersection */
+
+    /* 3/ Convert the real coordinates into pixel coordinates */
+    nMin = tfmap->time_to_pix( tMin );
+    nMax = tfmap->time_to_pix( tMax );
+    kMin = tfmap->freq_to_pix( fMin );
+    kMax = tfmap->freq_to_pix( fMax );
+#ifndef NDEBUG
+    fprintf(stderr,"Clipped atom support in pix coordinates [%lu %lu]x[%lu %lu]\n",
+	    nMin, nMax, kMin, kMax );
 #endif
 
-    /* 3/ Detect the cases where there is nothing to display */
-    if (nMin >= tfmap->numCols || nMax < 0 || kMin >= tfmap->numRows || kMax < 0) {
-#ifndef NDEBUG
-      fprintf(stderr,"Atom rectangle does not intersect tfmap\n");
-#endif
-      continue;
-    }
-    else {
-      flag = 1;
-    }
-    /* 4/ Compute the rectangle (lower extremity included, upper one excluded) of the pixel map that needs to be filled in */
-    if (nMin < 0) iMin = 0;
-    else          iMin = nMin;
-    if (nMax >= tfmap->numCols) iMax = tfmap->numCols;
-    else                        iMax = nMax+1;
-    if (kMin < 0) jMin = 0;
-    else          jMin = kMin;
-    if (kMax >= tfmap->numRows) jMax = tfmap->numRows;
-    else                        jMax = kMax+1;
-#ifndef NDEBUG
-    fprintf(stderr,"Filled rectangle in pix coordinates [%d %d[x[%d %d[\n",iMin,iMax,jMin,jMax);
-#endif
-		    
-    /* 4/ Fill the TF map */
-    for (i = iMin; i < iMax; i++) { /* loop on columns */
-      column = 	tfmap->channel[chanIdx] + i*tfmap->numRows; /* seek the column data */
-      /* Fill the column */
-      for (j = jMin; j < jMax; j++) {
-	tfmap->tf_coordinates(i,j,&t,&f);
-	value = amp[chanIdx]*amp[chanIdx]
-	  *wigner_ville((t-tMin)/support[chanIdx].len,
-			(f-freq-chirp*(t-tMin))*support[chanIdx].len,
-			windowType);
-	column[j] += value;
+    /* 4/ Fill the TF map: */
+    switch( tfmapType ) {
+
+      /* - with rectangles, with a linear amplitude scale: */
+    case MP_TFMAP_SUPPORTS:
+      for ( i = nMin; i < nMax; i++ ) {
+	column = tfmap->channel[chanIdx] + i*tfmap->numRows; /* Seek the column */
+	for ( j = kMin; j < kMax; j++ ) {
+	  column[j] += tfmap->linmap( amp[chanIdx] );
+	}
       }
-    }
-  }
-  return(flag);
+      break;
+
+      /* - with rectangles, with a logarithmic amplitude scale: */
+    case MP_TFMAP_LOG_SUPPORTS:
+      for ( i = nMin; i < nMax; i++ ) {
+	column = tfmap->channel[chanIdx] + i*tfmap->numRows; /* Seek the column */
+	for ( j = kMin; j < kMax; j++ ) {
+	  column[j] += tfmap->logmap( amp[chanIdx] );
+	}
+      }
+      break;
+
+      /* - with pseudo-Wigner, with a linear amplitude scale: */
+    case MP_TFMAP_PSEUDO_WIGNER:
+      for ( i = nMin; i < nMax; i++ ) {
+	column = tfmap->channel[chanIdx] + i*tfmap->numRows; /* Seek the column */
+	for ( j = kMin; j < kMax; j++ ) {
+	  t = tfmap->pix_to_time(i);
+	  f = tfmap->pix_to_freq(j);
+	  val = amp[chanIdx]*amp[chanIdx]
+	    * wigner_ville( (t - tMin) / support[chanIdx].len,
+			    (f - freq - chirp*(t-tMin)) * support[chanIdx].len,
+			    windowType );
+	  column[j] += tfmap->linmap( val );
+	}
+      }
+      break;
+
+      /* - with pseudo-Wigner, with a logarithmic amplitude scale: */
+    case MP_TFMAP_LOG_PSEUDO_WIGNER:
+      for ( i = nMin; i < nMax; i++ ) {
+	column = tfmap->channel[chanIdx] + i*tfmap->numRows; /* Seek the column */
+	for ( j = kMin; j < kMax; j++ ) {
+	  t = tfmap->pix_to_time(i);
+	  f = tfmap->pix_to_freq(j);
+	  val = amp[chanIdx]*amp[chanIdx]
+	    * wigner_ville( (t - tMin) / support[chanIdx].len,
+			    (f - freq - chirp*(t-tMin)) * support[chanIdx].len,
+			    windowType );
+	  column[j] += tfmap->logmap( val );
+	}
+      }
+      break;
+
+    default:
+      fprintf( stderr, "mptk warning -- MP_Gabor_Atom_c::add_to_tfmap() - Asked for "
+	       "an unknown tfmap type.\n" );
+      break;
+
+    } /* End switch tfmapType */
+
+  } /* End foreach channel */
+
+  return( 0 );
 }
 
 

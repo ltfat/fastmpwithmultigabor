@@ -170,7 +170,7 @@ public:
    */
   virtual void build_waveform( MP_Sample_t *outBuffer );
 
-  virtual char add_to_tfmap( MP_TF_Map_c *tfmap );
+  virtual int add_to_tfmap( MP_TF_Map_c *tfmap, const char tfmapType );
 
 };
 

@@ -418,18 +418,18 @@ unsigned long int MP_Book_c::build_waveform( MP_Signal_c *sig, MP_Mask_c* mask )
 /******************************************************/
 /* Adds the sum of the pseudo Wigner-Ville distributions
    of some atoms to a time-frequency map */
-unsigned long int MP_Book_c::add_to_tfmap(MP_TF_Map_c *tfmap, MP_Mask_c* mask) {
+unsigned long int MP_Book_c::add_to_tfmap(MP_TF_Map_c *tfmap, const char tfmapType, MP_Mask_c* mask ) {
 
   unsigned long int i;
   unsigned long int n = 0;
   
   if (mask == NULL) {
-    for (i = 0; i < numAtoms; i++) atom[i]->add_to_tfmap( tfmap );
+    for (i = 0; i < numAtoms; i++) atom[i]->add_to_tfmap( tfmap, tfmapType );
     n = numAtoms;
   }
   else {
     for (i = 0; i < numAtoms; i++) {
-      if ( mask->sieve[i] ) { atom[i]->add_to_tfmap( tfmap ); n++; }
+      if ( mask->sieve[i] ) { atom[i]->add_to_tfmap( tfmap, tfmapType ); n++; }
     }
   }
   return( n );

@@ -155,8 +155,8 @@ public:
   virtual int       has_field( int field );
   virtual MP_Real_t get_field( int field , int chanIdx);
 
-  /** \todo complete the implementation of this function */
-  virtual char add_to_tfmap( MP_TF_Map_c *tfmap );
+  /** \brief Adds the representation of a Gabor atom to a time-frequency map */
+  virtual int add_to_tfmap( MP_TF_Map_c *tfmap, const char tfmapType );
 
 };
 

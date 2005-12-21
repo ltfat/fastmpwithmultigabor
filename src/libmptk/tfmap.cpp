@@ -45,56 +45,78 @@
 #include "mp_system.h"
 
 
+/***************/
 /* Constructor */
-MP_TF_Map_c::MP_TF_Map_c( int setNCols, int setNRows, unsigned char setNChans, 
-			  MP_Real_t setTMin, MP_Real_t setFMin,
-			  MP_Real_t setTMax, MP_Real_t setFMax ) {
+MP_TF_Map_c::MP_TF_Map_c( const unsigned long int setNCols,  const unsigned long int setNRows,
+			  const int setNChans, 
+			  const unsigned long int setTMin,   const unsigned long int setTMax,
+			  const MP_Real_t setFMin,           const MP_Real_t setFMax,
+			  const MP_Real_t setAmpMin,         const MP_Real_t setAmpMax ) {
 #ifndef NDEBUG
   printf("new tfmap\n");
-  assert (setTMin < setTMax);
-  assert (setFMin < setFMax);
-  assert (setFMin >= 0.0);
-  assert (setFMax <= MP_PI);
 #endif
 
+  assert (setTMin < setTMax);
+  assert (setFMin < setFMax);
+  assert (setAmpMin < setAmpMax);
+  assert (setFMin >= 0.0);
+  assert (setFMax <= MP_PI);
+
+  /* Initialize */
+  numCols = numRows = 0;
+  numChans = 0;
+  storage = NULL;
+  channel = NULL;
+  tMin = tMax = 0;
+  fMin = fMax = 0.0;
+  ampMin = ampMax = 0.0;
+  dt = df = 0.0;
+
   /* Try to allocate storage */
-  if ( (storage = (MP_Real_t*) calloc(setNChans*setNCols*setNRows,sizeof(MP_Real_t))) == NULL ) {
-    fprintf( stderr, "Warning: can't allocate storage in tfmap with size [%d]x[%u]x[%u]. "
-	     "Storage and columns are left NULL.\n", (int)setNChans,setNCols, setNRows );
-    numCols  = 0;
-    numRows  = 0;
-    numChans = 0;
-    storage  = NULL;
-    channel  = NULL;
+  if ( (storage = (MP_Tfmap_t*)calloc(setNChans*setNCols*setNRows,sizeof(MP_Tfmap_t))) == NULL ) {
+    fprintf( stderr, "Warning: can't allocate storage in tfmap with size [%d]x[%lu]x[%lu]. "
+	     "Storage and columns are left NULL.\n", setNChans, setNCols, setNRows );
   }
   /* "Fold" the storage space into separate channels */
   else {
-    if ( (channel = (MP_Real_t**) malloc( numChans*sizeof(MP_Real_t*) ) )==NULL) {
+    if ( (channel = (MP_Tfmap_t**) malloc( setNChans*sizeof(MP_Tfmap_t*) ) ) == NULL) {
       fprintf( stderr, "Warning: can't allocate [%d] channels in tfmap. "
-	       "Storage and channels are left NULL.\n", (int)setNChans);
-      numCols  = 0;
-      numRows  = 0;
-      numChans = 0;
-      free( storage );
-      storage = NULL;
-      channel  = NULL;
+	       "Storage and channels are left NULL.\n", setNChans);
+      free( storage ); storage = NULL;
     }
     /* If everything went OK fold the storage space */
     else {
+      int i;
+      unsigned long int size = (setNRows*setNCols);
+      for ( i = 0; i < setNChans; i++) channel[i] = storage + i*size;
+
       numCols = setNCols;
       numRows = setNRows;
       numChans = setNChans;
-      unsigned int i;
-      for (i=0; i < numChans; i++) channel[i] = storage + i*numRows*numCols;
+
       tMin = setTMin;
+      tMax = setTMax;
+
       fMin = setFMin;
-      dt   = (setTMax-setTMin)/numCols;
-      df = (setFMax-setFMin)/numRows;
+      fMax = setFMax;
+
+      ampMin = setAmpMin;
+      ampMax = setAmpMax;
+
+      logAmpMin = 10*log10( setAmpMin + 1 );
+      logAmpMax = 10*log10( setAmpMax + 1 );
+
+      dt   = (MP_Real_t)(setTMax-setTMin) / (MP_Real_t)(numCols);
+      df   = (setFMax-setFMin) / (MP_Real_t)(numRows);
+      dAmp = (setAmpMax-setAmpMin) / (MP_Real_t)( TFMAP_NUM_DISCRETE_LEVELS );
+      dLogAmp = (logAmpMax-logAmpMin) / (MP_Real_t)( TFMAP_NUM_DISCRETE_LEVELS );
+
     }
   }
 }
 
 
+/**************/
 /* Destructor */
 MP_TF_Map_c::~MP_TF_Map_c() {
 #ifndef NDEBUG
@@ -104,68 +126,98 @@ MP_TF_Map_c::~MP_TF_Map_c() {
   if (channel) free(channel);
 }
 
+
+/**************************/
+/* Reset the storage to 0 */
+void MP_TF_Map_c::reset( void ) {
+  unsigned long int i;
+  for ( i = 0; i < (numChans*numCols*numRows); i++ ) storage[i] = 0;
+}
+
+
+/***********************/
+/* Human-readable info */
 int MP_TF_Map_c::info( FILE *fid ) {
   int nChar = 0;
-  nChar += fprintf(fid,"Number of channels : %d\n",(int)numChans);
-  nChar += fprintf(fid,"Number of columns  : %d\n",(int)numCols);
-  nChar += fprintf(fid,"Number of rows     : %d\n",(int)numRows);
-  nChar += fprintf(fid,"Time range         : [%g %g[ (dt = %g)\n",tMin,tMin+numCols*dt,dt);
-  nChar += fprintf(fid,"freq range         : [%g %g[ (df = %g)\n",fMin,fMin+numRows*df,df);
+  nChar += fprintf(fid,"Number of channels : %d\n", numChans );
+  nChar += fprintf(fid,"Number of columns  : %lu\n", numCols  );
+  nChar += fprintf(fid,"Number of rows     : %lu\n", numRows  );
+  nChar += fprintf(fid,"Time range         : [%lu %lu[ (dt = %g)\n", tMin, tMax, dt );
+  nChar += fprintf(fid,"freq range         : [%g %g[ (df = %g)\n", fMin, fMax, df );
   return(nChar);
 }
 
-/**  Write to a file as raw data */
-char MP_TF_Map_c::dump_to_float_file( const char *fName , char flagUpsideDown) {
+
+/*******************************/
+/* Write to a file as raw data */
+unsigned long int MP_TF_Map_c::dump_to_file( const char *fName , char flagUpsideDown ) {
+
   FILE *fid;
-  float buffer[numCols*numRows];
-  long int nWrite = 0;
-  long int nWriteTotal = 0;
-  MP_Real_t *column;
-  int i,j,k;
-  unsigned char chanIdx;
+  unsigned long int nWrite = 0;
+  MP_Tfmap_t *ptrColumn;
+  unsigned long int i;
+  MP_Tfmap_t column[numRows];
+  MP_Tfmap_t *endStorage = storage + ( numChans*numRows*numCols );
+
   /* Open the file in write mode */
   if ( ( fid = fopen( fName, "w" ) ) == NULL ) {
     fprintf( stderr, "Error: Can't open file [%s] for writing a tfmap.\n", fName );
-    return(0);
+    return( 0 );
   }
 
-  /* for each channel */
-  for (chanIdx = 0; chanIdx < numChans; chanIdx++) {
-    /* Cast the samples */
-    if (flagUpsideDown==0) {
-      for ( i=0; i< numRows*numCols; i++ ) { *(buffer+i) = (float)(*(channel[chanIdx]+i)); }
-    } else {
-      for ( i=0, k=0; i< numCols; i++ ) { 
-	column = channel[chanIdx]+i*numRows;
-	for (j = 0; j < numRows; j++, k++) {
-	  *(buffer+k) = (float)(*(column+numRows-j-1));
-	}
-      }
+  /* Write the values */
+  if ( flagUpsideDown == 0 ) {
+    nWrite = mp_fwrite( storage, sizeof(MP_Tfmap_t), numChans*numRows*numCols, fid );
+  }
+  /* If flagUpsideDown is set, rotate the picture */
+  else {
+    for( ptrColumn = storage; ptrColumn < endStorage; ptrColumn += numRows ) {
+      for ( i = 0; i < numRows; i++ ) column[i] = *(ptrColumn+numRows-i-1);
+      nWrite += mp_fwrite( column, sizeof(MP_Tfmap_t), numRows, fid );
     }
-
-    /* Write to the file,
-       and emit a warning if we can't write all the signal samples: */
-    if ( (nWrite = mp_fwrite( buffer, sizeof(float), numRows*numCols, fid ))
-	 != numRows*numCols ) {
-      fprintf( stderr, "Warning: Can't write more than [%ld] pixels to file [%s] "
-	       "from tfmap with [%d]rows*[%d]columns=[%d] pixels.\n",
-	       nWrite, fName, numRows, numCols, numRows*numCols );
-    }
-    nWriteTotal += nWrite;
   }
 
   /* Clean the house */
   fclose(fid);
-  return( (nWriteTotal==(numChans*numRows*numCols)) );
+
+  return( nWrite );
 }
 
-void MP_TF_Map_c::pixel_coordinates(MP_Real_t t,MP_Real_t f, int *n, int *k) {
+/*************************************************************/
+/* Convert between real coordinates and discrete coordinates */
+/* Time: */
+unsigned long int MP_TF_Map_c::time_to_pix( unsigned long int t ) {
+  return( (unsigned long int)( floor( (double)(t-tMin) / (double)(dt) ) ) );
+}
+unsigned long int MP_TF_Map_c::pix_to_time( unsigned long int n ) {
+  return( tMin + (unsigned long int)( floor( (double)(n) * dt ) ) );
+}
+/* Freq: */
+unsigned long int MP_TF_Map_c::freq_to_pix( MP_Real_t f ) {
+  return( (unsigned long int)( floor( (double)(f-fMin) / (double)(df) ) ) );
+}
+MP_Real_t MP_TF_Map_c::pix_to_freq( unsigned long int k ) {
+  return( (MP_Real_t)( fMin + k*df ) );
+}
+/* Amp: */
+MP_Tfmap_t MP_TF_Map_c::linmap( MP_Real_t amp ) {
+  return( (MP_Tfmap_t)( floor( (amp-ampMin) / dAmp ) ) );
+}
+MP_Tfmap_t MP_TF_Map_c::logmap( MP_Real_t amp ) {
+  return( (MP_Tfmap_t)( floor( ( 10*log10(amp+1) - logAmpMin ) / dLogAmp ) ) );
+}
+
+/**************************/
+/* Changes of coordinates: time-freq to pixels */
+/* void MP_TF_Map_c::pixel_coordinates(MP_Real_t t,MP_Real_t f, int *n, int *k) {
   *n = (int) round( (t-tMin)/dt );
   *k = (int) round( (f-fMin)/df );
-}
+  } */
 
-void MP_TF_Map_c::tf_coordinates(int n, int k, MP_Real_t *t,MP_Real_t *f) {
+/***********************/
+/* Changes of coordinates: pixels to time-freq */
+/* void MP_TF_Map_c::tf_coordinates(int n, int k, MP_Real_t *t,MP_Real_t *f) {
   *t = tMin+n*dt;
   *f = fMin+k*df;
-}
+  }*/
 

@@ -466,7 +466,7 @@ void MP_Harmonic_Atom_c::build_waveform( MP_Sample_t *outBuffer ) {
 
 /* Adds a pseudo Wigner-Ville of the atom to a time-frequency map */
 /** \todo TO IMPLEMENT */
-char MP_Harmonic_Atom_c::add_to_tfmap( MP_TF_Map_c *tfmap ) {
+int MP_Harmonic_Atom_c::add_to_tfmap( MP_TF_Map_c *tfmap, const char tfmapType ) {
 
   char flag = 0;
 

@@ -87,7 +87,8 @@ void usage( void ) {
   fprintf( stdout, " Synopsis:\n" );
   fprintf( stdout, "     Makes a time-frequency pixmap fill it with the time-frequency representation\n");
   fprintf( stdout, "     of the atoms contained in the book file bookFile.bin and write it to the file\n");
-  fprintf( stdout, "     tfmapFILE.flt as a raw sequence of floats. The pixmap size is %dx%d pixels\n", numCols, numRows );
+  fprintf( stdout, "     tfmapFILE.flt as a raw sequence of floats. The pixmap size is %dx%d pixels\n",
+	   numCols, numRows );
   fprintf( stdout, "     unless option --size is used.\n" );
   fprintf( stdout, " \n" );
   fprintf( stdout, " Mandatory arguments:\n" );
@@ -153,7 +154,8 @@ int parse_args(int argc, char **argv) {
 
 
     case 'V':
-      fprintf(stdout, "mpview -- Matching Pursuit library version %s -- mpview %s\n", VERSION, cvsid);
+      fprintf(stdout, "mpview -- Matching Pursuit library version %s -- mpview %s\n",
+	      VERSION, cvsid);
       exit(0);
       break;
 
@@ -164,33 +166,37 @@ int parse_args(int argc, char **argv) {
       /* Get the numCols value */
       val = strtol( p, &ep, 0 );
       if ( p == ep ) {
-	fprintf( stderr, "mpview error -- Could not read a numCols value in the size (%s, pointing at %s).", optarg, p );
+	fprintf( stderr, "mpview error -- Could not read a numCols value in the size "
+		 "(%s, pointing at %s).", optarg, p );
 	return( 1 );
       }
       else numCols = val;
       /* Check the middle 'x' */
       p = ep;
       if ( *p != 'x' ) {
-	fprintf( stderr, "mpview error -- Missing 'x' character between numCols and numRows in the size (%s, pointing at %s).", optarg, p );
+	fprintf( stderr, "mpview error -- Missing 'x' character between numCols and "
+		 "numRows in the size (%s, pointing at %s).", optarg, p );
 	return( 1 );
       }
       /* Get the numRows value */
       p++; val = strtol( p, &ep,0 );
       if ( p == ep ) {
-	fprintf( stderr, "mpview error -- Could not read a numRows value in the size (%s, pointing at %s).", optarg, p );
+	fprintf( stderr, "mpview error -- Could not read a numRows value in the size "
+		 "(%s, pointing at %s).", optarg, p );
 	return( 1 );
       }
       else numRows = val ;
       /* Check the ending ']' */
       p = ep;
       if (*p != '\0') {
-	fprintf( stderr, "mpview error -- Spurious characters at the end of the size (%s, pointing at %s).", optarg, p );
+	fprintf( stderr, "mpview error -- Spurious characters at the end of the size "
+		 "(%s, pointing at %s).", optarg, p );
 	return( 1 );
       }
       break;
     default:
-      fprintf( stderr, "mpview error -- The command line contains the unrecognized option [%s].\n",
-	       argv[optind-1] );
+      fprintf( stderr, "mpview error -- The command line contains the unrecognized "
+	       "option [%s].\n", argv[optind-1] );
       return( ERR_ARG );
 
     } /* end switch */
@@ -286,10 +292,13 @@ int main( int argc, char **argv ) {
   {
     /* Fill the pixmap */
     if ( MPVIEW_VERBOSE ) fprintf( stderr, "mpview msg -- Initializing the pixmap..." );
-    MP_TF_Map_c* tfmap = new MP_TF_Map_c(numCols,numRows,book.numChans,0.0,0.0,book.numSamples,0.5);
+    MP_TF_Map_c* tfmap = new MP_TF_Map_c( numCols, numRows, book.numChans,
+					  0, book.numSamples,
+					  0.0, 0.5,
+					  0.0, 30.0 );
     if ( MPVIEW_VERBOSE ) fprintf( stderr, "Done.\n" );
     if ( MPVIEW_VERBOSE ) fprintf( stderr, "mpview msg -- Filling the pixmap..." );
-    if ( book.add_to_tfmap(tfmap,NULL) == 0 ) {
+    if ( book.add_to_tfmap( tfmap, MP_TFMAP_LOG_SUPPORTS, NULL ) == 0 ) {
       fprintf( stderr, "mpview error -- No atoms were found in the book to fill the pixmap.\n" );
       fflush( stderr );
       return( ERR_BUILD );
@@ -297,7 +306,7 @@ int main( int argc, char **argv ) {
     if ( MPVIEW_VERBOSE ) fprintf( stderr, "Done.\n" );
     /* Save the pixmap */
     if ( MPVIEW_VERBOSE ) fprintf( stderr, "mpview msg -- Dumping the pixmap to file [%s]...", pixFileName );
-    if ( tfmap->dump_to_float_file(pixFileName,1) == 0 ) {
+    if ( tfmap->dump_to_file( pixFileName, 1 ) == 0 ) {
       fprintf( stderr, "\nmpview error -- Can't write filled pixmap to file [%s].\n", pixFileName );
       fflush( stderr );
       return( ERR_WRITE );

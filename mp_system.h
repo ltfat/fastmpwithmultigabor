@@ -80,6 +80,11 @@
 #  include <math.h>
 # endif
 
+/* signals */
+/* # if HAVE_SIGNAL_H */
+#  include <signal.h>
+/* # endif */
+
 /* limits */
 # if HAVE_LIMITS_H
 #  include <limits.h>
