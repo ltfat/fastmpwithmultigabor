@@ -1,23 +1,31 @@
 TODO:
-* BUG: - make_regression_constants is not built correctly
+
+* URGENT:
+  - Do signal.add_spectro_to_tfmap( tfmap ) for Nico.
+  - Complete the error message handling mechanism, interface it with the GUI.
+  - Extract the core functionalities of mpd/mpf/mpr etc. so that they can be
+    called from the GUI, leave only the command-line interfacing in the utils.
 
 * PRE-RELEASE:
   - include the amplitudes in the MP_Atom_c class and remove MP_Dirac_c
   - Dict/block/book/atom I/O:
       + do more error checks on writes
       + decide upon a strategy for the book parsing in binary and text
-  - factor the computations of touchFrame and loop on frames in a generic 
-    virtual update_ip, using a virtual update_frame(frameIdx) function
   - Reinforce the detection/warning of wrong syntaxes in XML dictionaries.
   - mpf : select a given channel ?
+
 * BUGS:
-  - test-mpcycle.sh should be executable by default
+  - make_regression_constants is not built correctly under Cygwin.
+  - Harmonic atoms: re-check behaviour of update_frame and create_atom
+    when partials of harmonic atoms go over the Nyquist frequency
+    (for certain numPartials/f0Min/f0Max configurations).
 
 * GENERAL IMPROVEMENTS:
   - implement tfmaps for harmonic atoms
   - implement pseudo wigner_ville for non Gaussian windows
   - factor some code in MP_Atom_C::add_to_tfmap() ?
-  - move the header from atom_classes/atom_classes.h (read_atom,write_atom) to atom.h, and make it a factory method. 
+  - move the header from atom_classes/atom_classes.h (read_atom,write_atom)
+    to atom.h, and make it a factory method. 
   - document 'how to add a block' including how to interface with dict_scanner
   - complete mpview.m by dealing with several channels
   - get rid of libsndfile to read wav files or add 'gain' option when reading/writing sound files
@@ -31,10 +39,10 @@ TODO:
     reading or writing from/to a pipe?
   - check the divergence between signal.compute_energy() and signal.energy
   - reinforce the test suite
-  - use try/catch to handle the errors in the file constructors (and elsewhere?)
 
 
 * SPEED:
+  - Go multi-thread, pthreads style, in dict.update_ip() .
   - OPTIONAL: tabulate the cosines in a "cosines server" ?
     Note:
        cos( omega*t + phi ) = cos( omega*t )cos( phi ) - sin( omega*t )sin( phi )
@@ -51,7 +59,10 @@ TODO:
 
 
 * MID TERM:
-  - allow for chirp detection in gabor and harmonic blocks
+  - allow for chirp detection in harmonic blocks
+  - Make a parsable/storable format for mpf sorting rules, that could be
+    compiled into binary masks for book masking; cleanup the atom-sorting
+    mechanism (atom.satisfies etc.).
 
 
 * LONG TERM:
