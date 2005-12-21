@@ -46,6 +46,63 @@
 
 #include "mp_system.h"
 
+/***********************/
+/* MESSAGING CLASS     */
+/***********************/
+/**
+ * \brief The Messaging class holds and manages all the info necessary
+ * to handle the redirection of error/warning/info/debug messages.
+ */
+class MP_Messaging_c {
+
+  /********/
+  /* DATA */
+  /********/
+
+public:
+
+  /** \brief A default buffer, to store the current message. */  
+  char *stdBuff;
+  /** \brief The size of the default message-storing buffer. */  
+  int stdBuffSize;
+
+  /** \brief The type of the current message (see constants above). */  
+  int currentMsgType;
+
+  /** \brief The handler function associated with signal SIGUSR1
+   *  for the error messages. */  
+  void *errorAction;
+  /** \brief The handler function associated with signal SIGUSR1
+   *  for the warning messages. */  
+  void *warningAction;
+  /** \brief The handler function associated with signal SIGUSR1
+   *  for the info messages. */  
+  void *infoAction;
+  /** \brief The handler function associated with signal SIGUSR1
+   *  for the debug messages. */  
+  void *debugAction;
+
+  /** \brief The (optional) output stream associated with error messages. */  
+  FILE *errorStream;
+  /** \brief The (optional) output stream associated with warning messages. */  
+  FILE *warningStream;
+  /** \brief The (optional) output stream associated with info messages. */  
+  FILE *infoStream;
+  /** \brief The (optional) output stream associated with debug messages. */  
+  FILE *debugStream;
+
+};
+
+
+/*********************/
+/* DEFAULT MSG TYPES */
+/*********************/
+#define MP_ERROR_MSG   1
+#define MP_WARNING_MSG 2
+#define MP_INFO_MSG    3
+#define MP_DEBUG_MSG   4
+
+
 /*******************/
 /* DEFAULT STREAMS */
 /*******************/
