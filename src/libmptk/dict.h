@@ -85,7 +85,7 @@ public:
 public:
   /** \brief Constructor which makes a copy of an input signal
    * to set up the signal manipulated by the dictionary */
-  MP_Dict_c( const MP_Signal_c s );
+  MP_Dict_c( const MP_Signal_c *s );
   /** \brief Constructor which reads the signal that will be
       manipulated by the dictionnary from a file */
   MP_Dict_c( const char* sigFileName );

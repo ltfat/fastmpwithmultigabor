@@ -114,6 +114,12 @@ public:
    */
   MP_Signal_c( const char *fName );
 
+  /** \brief A copy constructor
+   *
+   * \param from A reference to the copied signal
+   */
+  MP_Signal_c( const MP_Signal_c &from );
+
   /* Destructor */
   ~MP_Signal_c();
 

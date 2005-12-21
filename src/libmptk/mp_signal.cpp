@@ -150,6 +150,30 @@ MP_Signal_c::MP_Signal_c( const char *fName ) {
 }
 
 
+/********************************/
+/* Copy constructor (deep copy) */
+MP_Signal_c::MP_Signal_c( const MP_Signal_c &from ) {
+
+  mp_debug_msg( "MP_Signal_c::MP_Signal_c( copy )", "Copying-constructing a new signal...\n");
+
+  set_null();
+
+  /* If the input signal is empty, we have nothing to do */
+  if ( ( from.numChans == 0 ) || ( from.numSamples == 0 ) ) return;
+
+  /* If every allocation went OK, copy the data */
+  if ( init( from.numChans, from.numSamples, from.sampleRate ) ) {
+    memcpy( storage, from.storage, numChans*numSamples*sizeof(MP_Sample_t) );
+  }
+
+  /* Copy the energy */
+  energy = from.energy;
+
+  mp_debug_msg( "MP_Signal_c::MP_Signal_c( copy )", "Done.\n");
+
+}
+
+
 /**************/
 /* Destructor */
 MP_Signal_c::~MP_Signal_c() {
@@ -489,9 +513,7 @@ int MP_Signal_c::init( const int setNumChans, const unsigned long int setNumSamp
     numChans   = setNumChans;
     numSamples = setNumSamples;
     /* Fold the storage space */
-    for ( i=0; i<numChans; i++ ) {
-      channel[i] = storage + i*numSamples;
-    }
+    for ( i=0; i<numChans; i++ ) channel[i] = storage + i*numSamples;
   }
 
   mp_debug_msg( "MP_Signal_c::init()", "Done.\n");

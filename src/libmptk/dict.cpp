@@ -51,14 +51,15 @@
 
 /******************************************/
 /* Plain initialization, with signal copy */
-MP_Dict_c::MP_Dict_c( const MP_Signal_c setSignal ) {
+MP_Dict_c::MP_Dict_c( const MP_Signal_c *setSignal ) {
 
   /* Copy the signal into the dictionnary */
-  signal = new MP_Signal_c( setSignal );
+  signal = new MP_Signal_c( *setSignal );
 
   /* Allocate the touch array */
   if ( (touch = (MP_Support_t*) malloc( signal->numChans*sizeof(MP_Support_t) )) == NULL ) {
-    fprintf( stderr, "mplib warning -- MP_Dict_c() - Can't allocate array of supports in new dictionnary with [%u] channels."
+    fprintf( stderr, "mplib warning -- MP_Dict_c() - Can't allocate array of supports "
+	     "in new dictionnary with [%u] channels."
 	     " Touch array is left un-initialized.\n", signal->numChans );
   }
   else {
@@ -81,7 +82,8 @@ MP_Dict_c::MP_Dict_c(  const char *sigFileName ) {
 
   /* Allocate the touch array */
   if ( (touch = (MP_Support_t*) malloc( signal->numChans*sizeof(MP_Support_t) )) == NULL ) {
-    fprintf( stderr, "mplib warning -- MP_Dict_c(file) - Can't allocate array of supports in new dictionnary with [%u] channels."
+    fprintf( stderr, "mplib warning -- MP_Dict_c(file) - Can't allocate array of supports "
+	     "in new dictionnary with [%u] channels."
 	     " Touch array is left un-initialized.\n", signal->numChans );
   }
   else {
