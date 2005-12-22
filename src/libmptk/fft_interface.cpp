@@ -333,11 +333,17 @@ MP_FFTW_Interface_c::~MP_FFTW_Interface_c() {
 /* OTHER METHODS           */
 /***************************/
 
-/*****************************************/
-/* Apply the window and execute the plan */
-inline void MP_FFTW_Interface_c::exec( MP_Sample_t *in ) {
+/**************************/
+/* Get the complex result */
+void MP_FFTW_Interface_c::exec_complex( MP_Sample_t *in, MP_Real_t *re, MP_Real_t *im ) {
 
   unsigned long int i;
+  double re_out, im_out;
+
+  /* Simple buffer check */
+  assert( in != NULL );
+  assert( re != NULL );
+  assert( im != NULL );
 
   /* Did anyone hook some buffers ? */
   assert( in  != NULL );
@@ -356,24 +362,6 @@ inline void MP_FFTW_Interface_c::exec( MP_Sample_t *in ) {
      (which itself points to the right input/ouput buffers,
      such as buffer inPrepared etc.) */
   fftw_execute( p );
-
-}
-
-
-/**************************/
-/* Get the complex result */
-void MP_FFTW_Interface_c::exec_complex( MP_Sample_t *in, MP_Real_t *re, MP_Real_t *im ) {
-
-  unsigned long int i;
-  double re_out, im_out;
-
-  /* Simple buffer check */
-  assert( in != NULL );
-  assert( re != NULL );
-  assert( im != NULL );
-
-  /* Execute the FFT */
-  exec( in );
 
   /* Cast and copy the result */
   for ( i=0; i<fftRealSize; i++ ) {

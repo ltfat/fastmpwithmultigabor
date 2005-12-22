@@ -309,8 +309,6 @@ public:
   /***************************/
   /* OTHER METHODS           */
   /***************************/
-private:
-  inline void exec( MP_Sample_t *in );
 public:
   void exec_complex( MP_Sample_t *in, MP_Real_t *re, MP_Real_t *im );
 
