@@ -161,8 +161,6 @@ int parse_args(int argc, char **argv) {
 
     case 's':
       p = optarg;
-      /* Skip the leading '=' */
-      p++;
       /* Get the numCols value */
       val = strtol( p, &ep, 0 );
       if ( p == ep ) {

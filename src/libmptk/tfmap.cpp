@@ -58,7 +58,6 @@ MP_TF_Map_c::MP_TF_Map_c( const unsigned long int setNCols,  const unsigned long
 
   assert (setTMin < setTMax);
   assert (setFMin < setFMax);
-  assert (setAmpMin < setAmpMax);
   assert (setFMin >= 0.0);
   assert (setFMax <= MP_PI);
 
@@ -100,16 +99,10 @@ MP_TF_Map_c::MP_TF_Map_c( const unsigned long int setNCols,  const unsigned long
       fMin = setFMin;
       fMax = setFMax;
 
-      ampMin = setAmpMin;
-      ampMax = setAmpMax;
-
-      logAmpMin = 10*log10( setAmpMin + 1 );
-      logAmpMax = 10*log10( setAmpMax + 1 );
-
       dt   = (MP_Real_t)(setTMax-setTMin) / (MP_Real_t)(numCols);
       df   = (setFMax-setFMin) / (MP_Real_t)(numRows);
-      dAmp = (setAmpMax-setAmpMin) / (MP_Real_t)( TFMAP_NUM_DISCRETE_LEVELS );
-      dLogAmp = (logAmpMax-logAmpMin) / (MP_Real_t)( TFMAP_NUM_DISCRETE_LEVELS );
+
+      reset_amp( setAmpMin, setAmpMax );
 
     }
   }
@@ -132,6 +125,24 @@ MP_TF_Map_c::~MP_TF_Map_c() {
 void MP_TF_Map_c::reset( void ) {
   unsigned long int i;
   for ( i = 0; i < (numChans*numCols*numRows); i++ ) storage[i] = 0;
+}
+
+
+/**********************************/
+/* Reset the amplitude boundaries */
+void MP_TF_Map_c::reset_amp( MP_Real_t setAmpMin, MP_Real_t setAmpMax ) {
+
+  assert (setAmpMin < setAmpMax);
+
+  ampMin = setAmpMin;
+  ampMax = setAmpMax;
+
+  logAmpMin = 10*log10( setAmpMin + 1 );
+  logAmpMax = 10*log10( setAmpMax + 1 );
+
+  dAmp = (setAmpMax-setAmpMin) / (MP_Real_t)( TFMAP_NUM_DISCRETE_LEVELS );
+  dLogAmp = (logAmpMax-logAmpMin) / (MP_Real_t)( TFMAP_NUM_DISCRETE_LEVELS );
+
 }
 
 

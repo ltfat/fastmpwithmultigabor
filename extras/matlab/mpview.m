@@ -30,8 +30,8 @@ if nargin>1, numCols = varargin{1}; end;
 if nargin>2, numRows = varargin{2}; end;
 
 fid = fopen(fileName,'r');
-%tf = fread(fid,'float');
-tf = fread(fid,'ushort');
+tf = fread(fid,'float');
+%tf = fread(fid,'ushort');
 fclose(fid);
 max(tf)
 

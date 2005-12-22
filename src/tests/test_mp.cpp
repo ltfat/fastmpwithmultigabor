@@ -188,20 +188,21 @@ int main( void ) {
     fflush( stdout );
 
     book.add_to_tfmap( tfmap, MP_TFMAP_SUPPORTS, &mask );
-    tfmap->dump_to_file( "tfmap.ushort", 0 );
-    tfmap->dump_to_file( "tfmap_upsidedown.ushort", 1 );
+    tfmap->dump_to_file( "tfmap.flt", 0 );
+    tfmap->dump_to_file( "tfmap_upsidedown.flt", 1 );
 
     tfmap->reset();
     book.add_to_tfmap( tfmap, MP_TFMAP_LOG_SUPPORTS, &mask );
-    tfmap->dump_to_file( "tfmap_log.ushort", 1 );
+    tfmap->dump_to_file( "tfmap_log.flt", 1 );
 
     tfmap->reset();
+    tfmap->reset_amp( 0, 2.5 );
     book.add_to_tfmap( tfmap, MP_TFMAP_PSEUDO_WIGNER, &mask );
-    tfmap->dump_to_file( "tfmap_wigner.ushort", 1 );
+    tfmap->dump_to_file( "tfmap_wigner.flt", 1 );
 
     tfmap->reset();
     book.add_to_tfmap( tfmap, MP_TFMAP_LOG_PSEUDO_WIGNER, &mask );
-    tfmap->dump_to_file( "tfmap_log_wigner.ushort", 1 );
+    tfmap->dump_to_file( "tfmap_log_wigner.flt", 1 );
 
     delete tfmap;
   }

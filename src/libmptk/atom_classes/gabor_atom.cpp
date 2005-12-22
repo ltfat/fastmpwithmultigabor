@@ -554,7 +554,8 @@ int MP_Gabor_Atom_c::add_to_tfmap( MP_TF_Map_c *tfmap, const char tfmapType ) {
       for ( i = nMin; i < nMax; i++ ) {
 	column = tfmap->channel[chanIdx] + i*tfmap->numRows; /* Seek the column */
 	for ( j = kMin; j < kMax; j++ ) {
-	  column[j] += tfmap->linmap( amp[chanIdx] );
+	  //column[j] += tfmap->linmap( amp[chanIdx] );
+	  column[j] += amp[chanIdx];
 	}
       }
       break;
@@ -564,7 +565,8 @@ int MP_Gabor_Atom_c::add_to_tfmap( MP_TF_Map_c *tfmap, const char tfmapType ) {
       for ( i = nMin; i < nMax; i++ ) {
 	column = tfmap->channel[chanIdx] + i*tfmap->numRows; /* Seek the column */
 	for ( j = kMin; j < kMax; j++ ) {
-	  column[j] += tfmap->logmap( amp[chanIdx] );
+	  //column[j] += tfmap->logmap( amp[chanIdx] );
+	  column[j] += 20*log10( amp[chanIdx] );
 	}
       }
       break;
@@ -580,7 +582,8 @@ int MP_Gabor_Atom_c::add_to_tfmap( MP_TF_Map_c *tfmap, const char tfmapType ) {
 	    * wigner_ville( (t - tMin) / support[chanIdx].len,
 			    (f - freq - chirp*(t-tMin)) * support[chanIdx].len,
 			    windowType );
-	  column[j] += tfmap->linmap( val );
+	  //column[j] += tfmap->linmap( val );
+	  column[j] += val;
 	}
       }
       break;
@@ -596,7 +599,8 @@ int MP_Gabor_Atom_c::add_to_tfmap( MP_TF_Map_c *tfmap, const char tfmapType ) {
 	    * wigner_ville( (t - tMin) / support[chanIdx].len,
 			    (f - freq - chirp*(t-tMin)) * support[chanIdx].len,
 			    windowType );
-	  column[j] += tfmap->logmap( val );
+	  //column[j] += tfmap->logmap( val );
+	  column[j] += 20*log10( val );
 	}
       }
       break;

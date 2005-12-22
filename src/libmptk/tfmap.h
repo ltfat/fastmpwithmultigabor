@@ -88,13 +88,13 @@ public :
   MP_Real_t fMin;
   /** \brief Normalized frequency coordinate (between 0 and 0.5) of the upper right corner of the map */
   MP_Real_t fMax;
-  /** \brief Minimum amplitude for the mapping of real values to short ints
-      (any real value, preferably understood as dB) */
+  /** \brief Minimum amplitude for the mapping of real values to short ints */
   MP_Real_t ampMin;
+  /** \brief 10*log10(ampMin+1) */
   MP_Real_t logAmpMin;
-  /** \brief Maximum amplitude for the mapping of real values to short ints
-      (any real value, preferably understood as dB) */
+  /** \brief Maximum amplitude for the mapping of real values to short ints */
   MP_Real_t ampMax;
+  /** \brief 10*log10(ampMax+1) */
   MP_Real_t logAmpMax;
   /** \brief Distance between adjacent pixels in sample coordinates */
   MP_Real_t dt;
@@ -119,6 +119,9 @@ public :
 
   /** \brief Reset the storage to 0 */
   void reset( void );
+
+  /** \brief Reset the amplitude boundaries (BUT: does not redraw the tfmap) */
+  void reset_amp( MP_Real_t setAmpMin, MP_Real_t setAmpMax );
 
 
   /** \brief Print human readable information about the tfmap to a stream

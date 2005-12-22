@@ -55,7 +55,8 @@ typedef double MP_Real_t;   /* Inner products data type */
 typedef char   MP_Bool_t;         /* Boolean data type */
 typedef char   MP_Bool_On_Disk_t; /* Disk version of Boolean data type */
 
-typedef unsigned short int MP_Tfmap_t;  /* Type of the Tfmap data */
+//typedef unsigned short int MP_Tfmap_t;  /* Type of the Tfmap data */
+typedef float  MP_Tfmap_t;  /* Type of the Tfmap data */
 #define TFMAP_NUM_DISCRETE_LEVELS 65536 /* Number of levels when discretizing
 					   real values in a tfmap */
 
