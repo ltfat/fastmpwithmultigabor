@@ -419,13 +419,14 @@ unsigned int MP_Gabor_Block_c::create_atom( MP_Atom_c **atom,
 
   MP_Gabor_Atom_c *gatom = NULL;
   /* Time-frequency location: */
+  unsigned long int pos;
   unsigned long int frameIdx;
   unsigned long int freqIdx;
   /* Parameters for a new FFT run: */
   MP_Sample_t *in;
   /* Parameters for the atom waveform : */
   double re, im;
-  double amp, phase, f, c;
+  double amp, phase;
   double reCorr, imCorr, sqCorr;
   double real, imag, energy;
   /* Misc: */
@@ -443,27 +444,22 @@ unsigned int MP_Gabor_Block_c::create_atom( MP_Atom_c **atom,
   /* Locate the atom in the spectrogram */
   frameIdx = atomIdx / numFilters;
   freqIdx  = atomIdx % numFilters;
-
-  /* Convert the freqIdx to a normalized frequency freqIdx/fftCplxSize. */
-  f = (double)(freqIdx) / (double)(fft->fftCplxSize); 
-
-  /* So far there is no chirprate */
-  c = 0.0;
+  pos = frameIdx*filterShift;
 
   /* 1) set the frequency and chirp of the atom */
-  gatom->freq  = (MP_Real_t)( f );
-  gatom->chirp = (MP_Real_t)( c );
+  gatom->freq  = (MP_Real_t)( (double)(freqIdx) / (double)(fft->fftCplxSize) ); /* CHECK WITH REMI */
+  gatom->chirp = (MP_Real_t)( 0.0 ); /* Gabor atoms from plain gabor blocks have zero chirprate */
 
   /* For each channel: */
   for ( chanIdx=0; chanIdx < s->numChans; chanIdx++ ) {
 
     /* 2) set the support of the atom */
-    gatom->support[chanIdx].pos = frameIdx*filterShift; 
+    gatom->support[chanIdx].pos = pos;
     gatom->support[chanIdx].len = filterLen;
     gatom->totalChanLen += filterLen;
 
     /* 3) seek the right location in the signal */
-    in  = s->channel[chanIdx] + gatom->support[chanIdx].pos;
+    in  = s->channel[chanIdx] + pos;
 
     /* 4) recompute the inner product of the complex atom using the FFT */
     fft->exec_complex( in, fftRe, fftIm ); 
@@ -475,12 +471,11 @@ unsigned int MP_Gabor_Block_c::create_atom( MP_Atom_c **atom,
     energy = re*re + im*im;
     reCorr = reCorrel[freqIdx];
     imCorr = imCorrel[freqIdx];
-    sqCorr = sqCorrel[freqIdx];
-#ifndef NDEBUG
-    assert( sqCorr <= 1.0 );
-#endif
+    sqCorr = sqCorrel[freqIdx]; assert( sqCorr <= 1.0 );
+
     /* Cf. explanations about complex2amp_and_phase() in general.h */
-    if ( (freqIdx != 0) && ( (freqIdx+1) < fftRealSize ) ) {  
+    //if ( (freqIdx != 0) && ( (freqIdx+1) < fftRealSize ) ) { /* CHECK WITH REMI */
+    if ( (freqIdx != 0) && (freqIdx != (fftRealSize-1)) ) {  
       real = (1.0 - reCorr)*re + imCorr*im;
       imag = (1.0 + reCorr)*im + imCorr*re;
       amp   = 2.0 * sqrt( real*real + imag*imag );
@@ -489,11 +484,10 @@ unsigned int MP_Gabor_Block_c::create_atom( MP_Atom_c **atom,
     /* When the atom and its conjugate are aligned, they should be real 
      * and the phase is simply the sign of the inner product (re,im) = (re,0) */
     else {
-#ifndef NDEBUG
       assert( reCorr == 1.0 );
       assert( imCorr == 0.0 );
       assert( im == 0 );
-#endif
+
       amp = sqrt( energy );
       if   ( re >= 0 ) phase = 0.0;  /* corresponds to the '+' sign */
       else             phase = M_PI; /* corresponds to the '-' sign exp(i\pi) */
@@ -504,7 +498,7 @@ unsigned int MP_Gabor_Block_c::create_atom( MP_Atom_c **atom,
     gatom->phase[chanIdx] = (MP_Real_t)( phase );
 #ifndef NDEBUG
     fprintf( stderr, "mplib DEBUG -- freq %g chirp %g amp %g phase %g\n reCorr %g imCorr %g\n re %g im %g 2*(re^2+im^2) %g\n",
-	     f, c, amp, phase, reCorr, imCorr, re, im, 2*(re*re+im*im) );
+	     gatom->freq, gatom->chirp, amp, phase, reCorr, imCorr, re, im, 2*(re*re+im*im) );
 #endif
   }
 

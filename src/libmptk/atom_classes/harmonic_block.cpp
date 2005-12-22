@@ -224,10 +224,12 @@ unsigned int MP_Harmonic_Block_c::create_atom( MP_Atom_c **atom,
   /* Time-frequency location: */
   unsigned long int frameIdx;
   unsigned long int freqIdx;
+  unsigned long int pos;
 
   /* Locate the atom in the Gabor spectrogram */
   frameIdx = atomIdx / numFilters;
   freqIdx  = atomIdx % numFilters;
+  pos = frameIdx*filterShift;
 
   /* --- Return a Gabor atom when it is what atomIdx indicates */
   if ( freqIdx < fftRealSize ) return( MP_Gabor_Block_c::create_atom(atom,atomIdx) );
@@ -250,9 +252,9 @@ unsigned int MP_Harmonic_Block_c::create_atom( MP_Atom_c **atom,
     
     /* Compute the fundamental frequency and the number of partials */
     fundFreqIdx = freqIdx - fftRealSize + minFundFreqIdx;
-    if      ( maxNumPartials*fundFreqIdx < fftRealSize ) numPartials  = maxNumPartials;
-    else if ( maxNumPartials*fundFreqIdx > fftRealSize ) numPartials  = fftRealSize / fundFreqIdx;
-    else                                                 numPartials  = (fftRealSize/fundFreqIdx) - 1;
+    if         ( maxNumPartials*fundFreqIdx < fftRealSize )     numPartials  = maxNumPartials;
+    else    if ( maxNumPartials*fundFreqIdx > fftRealSize )     numPartials  = fftRealSize / fundFreqIdx;
+    else /* if ( maxNumPartials*fundFreqIdx == fftRealSize ) */ numPartials  = (fftRealSize/fundFreqIdx) - 1;
     
     /* Allocate the atom */
     *atom = NULL;
@@ -267,17 +269,17 @@ unsigned int MP_Harmonic_Block_c::create_atom( MP_Atom_c **atom,
     /* 1) set the fundamental frequency and chirp of the atom */
     hatom->freq  = (MP_Real_t)( (double)(fundFreqIdx) / (double)(fft->fftCplxSize));
     hatom->chirp = (MP_Real_t)( 0.0 );     /* So far there is no chirprate */
-      
+
     /* For each channel: */
     for ( chanIdx=0; chanIdx < s->numChans; chanIdx++ ) {
       
       /* 2) set the support of the atom */
-      hatom->support[chanIdx].pos = frameIdx*filterShift; 
+      hatom->support[chanIdx].pos = pos;
       hatom->support[chanIdx].len = filterLen;
       hatom->totalChanLen += filterLen;
       
       /* 3) seek the right location in the signal */
-      in  = s->channel[chanIdx] + hatom->support[chanIdx].pos;
+      in  = s->channel[chanIdx] + pos;
       
       /* 4) recompute the inner product of the complex Gabor atoms 
        * corresponding to the partials, using the FFT */
@@ -288,19 +290,20 @@ unsigned int MP_Harmonic_Block_c::create_atom( MP_Atom_c **atom,
 	    k < numPartials; 
 	    k++, kFundFreqIdx += fundFreqIdx ) {
 
+	//#ifndef NDEBUG
 	/* If the current partial is within the FFT limits: */
 	if ( kFundFreqIdx < fftRealSize ) {
+	  //#endif
 	  re  = (double)( *(fftRe + kFundFreqIdx) ); 
 	  im  = (double)( *(fftIm + kFundFreqIdx) );
 	  energy = re*re + im*im;
 	  reCorr = reCorrel[kFundFreqIdx];
 	  imCorr = imCorrel[kFundFreqIdx];
-	  sqCorr = sqCorrel[kFundFreqIdx];
-#ifndef NDEBUG
-	  assert( sqCorr <= 1.0 );
-#endif
+	  sqCorr = sqCorrel[kFundFreqIdx]; assert( sqCorr <= 1.0 );
+
 	  /* Cf. explanations about complex2amp_and_phase() in general.h */
-	  if ( (kFundFreqIdx+1) < fftRealSize ) {
+	  //if ( (kFundFreqIdx+1) < fftRealSize ) {
+	  if ( kFundFreqIdx != (fftRealSize-1) ) {
 	    real = (1.0 - reCorr)*re + imCorr*im;
 	    imag = (1.0 + reCorr)*im + imCorr*re;
 	    amp   = 2.0 * sqrt( real*real + imag*imag );
@@ -309,27 +312,33 @@ unsigned int MP_Harmonic_Block_c::create_atom( MP_Atom_c **atom,
 	  /* When the atom and its conjugate are aligned, they should be real 
 	   * and the phase is simply the sign of the inner product (re,im) = (re,0) */
 	  else {
-#ifndef NDEBUG
 	    assert( reCorr == 1.0 );
 	    assert( imCorr == 0.0 );
 	    assert( im == 0 );
-#endif
+
 	    amp = sqrt( energy );
 	    if   ( re >= 0 ) phase = 0.0;  /* corresponds to the '+' sign */
 	    else             phase = M_PI; /* corresponds to the '-' sign exp(i\pi) */
 	    
 	  }
+	  //#ifndef NDEBUG
 	}
-	/* Else, if the current partial is out of the FFT limits: */
+	/* Else, if the current partial is out of the FFT limits:
+	   (This should never be executed if numPartials has been correctly computed) */
 	else {
-	  amp = 0.0;
-	  phase = gaborPhase;
+	  fprintf( stderr, "mptk DEBUG -- MP_Harmonic_Block_c::create_atom() - "
+		   "The current partial is above the Nyquist frequency.\n" );
+	  fprintf( stderr, "mptk DEBUG -- MP_Harmonic_Block_c::create_atom() - "
+		   "numPartials=%lu; k=%u; fftRealSize=%lu; fundFreqIdx=%lu; kFundFreqIdx=%lu.\n",
+		   numPartials, k, fftRealSize, fundFreqIdx, kFundFreqIdx );
+	  fflush( stderr );
 	}
+	//#endif
 
 	/* case of the first partial */
 	if ( k == 0 ) {
-	  gaborAmp   = hatom->amp[chanIdx]   = (MP_Real_t)( amp   );
-	  gaborPhase = hatom->phase[chanIdx] = (MP_Real_t)( phase );
+	  hatom->amp[chanIdx]   = gaborAmp   = (MP_Real_t)( amp   );
+	  hatom->phase[chanIdx] = gaborPhase = (MP_Real_t)( phase );
 	  hatom->partialAmp[chanIdx][k]   = (MP_Real_t)(1.0);
 	  hatom->partialPhase[chanIdx][k] = (MP_Real_t)(0.0);
 	} else {
@@ -337,7 +346,8 @@ unsigned int MP_Harmonic_Block_c::create_atom( MP_Atom_c **atom,
 	  hatom->partialPhase[chanIdx][k] = (MP_Real_t)( phase - gaborPhase );
 	}
 #ifndef NDEBUG
-	fprintf( stderr, "mplib DEBUG -- freq %g chirp %g partial %lu amp %g phase %g\n reCorr %g imCorr %g\n re %g im %g 2*(re^2+im^2) %g\n",
+	fprintf( stderr, "mplib DEBUG -- freq %g chirp %g partial %lu amp %g phase %g\n"
+		 " reCorr %g imCorr %g\n re %g im %g 2*(re^2+im^2) %g\n",
 		 hatom->freq, hatom->chirp, k+1, amp, phase, reCorr, imCorr, re, im, 2*(re*re+im*im) );
 #endif
       } /* <--- end loop on partials */
