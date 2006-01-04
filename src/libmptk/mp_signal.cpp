@@ -56,7 +56,7 @@
 /* Void constructor */
 MP_Signal_c::MP_Signal_c(void) {
 
-  mp_debug_msg( "MP_Signal_c::MP_Signal_c(void)", "New empty signal.\n" );
+  mp_debug_msg( MP_DEBUG_FUNC_ENTER, "MP_Signal_c::MP_Signal_c(void)", "New empty signal.\n" );
 
   set_null();
 }
@@ -67,12 +67,12 @@ MP_Signal_c::MP_Signal_c(void) {
 MP_Signal_c::MP_Signal_c( const int setNumChans,
 			  const unsigned long int setNumSamples ,
 			  const int setSampleRate ) {
-  mp_debug_msg( "MP_Signal_c::MP_Signal_c( 3 params )", "Setting a new signal...\n");
+  mp_debug_msg( MP_DEBUG_FUNC_ENTER, "MP_Signal_c::MP_Signal_c( 3 params )", "Setting a new signal...\n");
 
   set_null();
   init( setNumChans, setNumSamples, setSampleRate );
 
-  mp_debug_msg( "MP_Signal_c::MP_Signal_c( 3 params )", "Done.\n");
+  mp_debug_msg( MP_DEBUG_FUNC_EXIT, "MP_Signal_c::MP_Signal_c( 3 params )", "Done.\n");
 }
 
 
@@ -83,7 +83,7 @@ MP_Signal_c::MP_Signal_c( const char *fName ) {
   SNDFILE *file;
   SF_INFO sfinfo;
 
-  mp_debug_msg( "MP_Signal_c::MP_Signal_c( fName )",
+  mp_debug_msg( MP_DEBUG_FUNC_ENTER, "MP_Signal_c::MP_Signal_c( fName )",
 		"New signal from fName=[%s]...\n", fName );
 
   set_null();
@@ -96,12 +96,12 @@ MP_Signal_c::MP_Signal_c( const char *fName ) {
   }
   else {
 
-    mp_debug_msg( "MP_Signal_c::MP_Signal_c( fName )", "Doing sf_open on file [%s]...\n", fName );
+    mp_debug_msg( MP_DEBUG_FILE_IO, "MP_Signal_c::MP_Signal_c( fName )", "Doing sf_open on file [%s]...\n", fName );
 
     sfinfo.format  = 0; /* -> See the libsndfile manual. */
     file = sf_open( fName, SFM_READ, &sfinfo );
 
-    mp_debug_msg( "MP_Signal_c::MP_Signal_c( fName )", "Done.\n" );
+    mp_debug_msg( MP_DEBUG_FILE_IO, "MP_Signal_c::MP_Signal_c( fName )", "Done.\n" );
 
   }
   /* Check */
@@ -111,23 +111,23 @@ MP_Signal_c::MP_Signal_c( const char *fName ) {
     return;
   }
 
-  mp_debug_msg( "MP_Signal_c::MP_Signal_c( fName )", "sfinfo contains:\n");
-  mp_debug_msg( "MP_Signal_c::MP_Signal_c( fName )", "-- srate    : %d\n", sfinfo.samplerate) ;
-  mp_debug_msg( "MP_Signal_c::MP_Signal_c( fName )", "-- frames   : %d\n", (int)sfinfo.frames) ;
-  mp_debug_msg( "MP_Signal_c::MP_Signal_c( fName )", "-- channels : %d\n", sfinfo.channels) ;
-  mp_debug_msg( "MP_Signal_c::MP_Signal_c( fName )", "-- format   : %d\n", sfinfo.format) ;
-  mp_debug_msg( "MP_Signal_c::MP_Signal_c( fName )", "-- sections : %d\n", sfinfo.sections);
-  mp_debug_msg( "MP_Signal_c::MP_Signal_c( fName )", "-- seekable : %d\n", sfinfo.seekable) ;
-  mp_debug_msg( "MP_Signal_c::MP_Signal_c( fName )", "-- end sfinfo.\n");
+  mp_debug_msg( MP_DEBUG_FILE_IO, "MP_Signal_c::MP_Signal_c( fName )", "sfinfo contains:\n");
+  mp_debug_msg( MP_DEBUG_FILE_IO, "MP_Signal_c::MP_Signal_c( fName )", "-- srate    : %d\n", sfinfo.samplerate) ;
+  mp_debug_msg( MP_DEBUG_FILE_IO, "MP_Signal_c::MP_Signal_c( fName )", "-- frames   : %d\n", (int)sfinfo.frames) ;
+  mp_debug_msg( MP_DEBUG_FILE_IO, "MP_Signal_c::MP_Signal_c( fName )", "-- channels : %d\n", sfinfo.channels) ;
+  mp_debug_msg( MP_DEBUG_FILE_IO, "MP_Signal_c::MP_Signal_c( fName )", "-- format   : %d\n", sfinfo.format) ;
+  mp_debug_msg( MP_DEBUG_FILE_IO, "MP_Signal_c::MP_Signal_c( fName )", "-- sections : %d\n", sfinfo.sections);
+  mp_debug_msg( MP_DEBUG_FILE_IO, "MP_Signal_c::MP_Signal_c( fName )", "-- seekable : %d\n", sfinfo.seekable) ;
+  mp_debug_msg( MP_DEBUG_FILE_IO, "MP_Signal_c::MP_Signal_c( fName )", "-- end sfinfo.\n");
 
   /* actually read the file if allocation is OK */
   if ( init(sfinfo.channels,sfinfo.frames,sfinfo.samplerate) ) {
 
-    mp_debug_msg( "MP_Signal_c::MP_Signal_c( fName )", "After init, signal values are:\n");
-    mp_debug_msg( "MP_Signal_c::MP_Signal_c( fName )", "-- sampleRate : %d\n", sampleRate) ;
-    mp_debug_msg( "MP_Signal_c::MP_Signal_c( fName )", "-- numChans   : %d\n", numChans) ;
-    mp_debug_msg( "MP_Signal_c::MP_Signal_c( fName )", "-- numSamples : %lu\n", numSamples) ;
-    mp_debug_msg( "MP_Signal_c::MP_Signal_c( fName )", "-- end after init.\n");
+    mp_debug_msg( MP_DEBUG_FILE_IO, "MP_Signal_c::MP_Signal_c( fName )", "After init, signal values are:\n");
+    mp_debug_msg( MP_DEBUG_FILE_IO, "MP_Signal_c::MP_Signal_c( fName )", "-- sampleRate : %d\n", sampleRate) ;
+    mp_debug_msg( MP_DEBUG_FILE_IO, "MP_Signal_c::MP_Signal_c( fName )", "-- numChans   : %d\n", numChans) ;
+    mp_debug_msg( MP_DEBUG_FILE_IO, "MP_Signal_c::MP_Signal_c( fName )", "-- numSamples : %lu\n", numSamples) ;
+    mp_debug_msg( MP_DEBUG_FILE_IO, "MP_Signal_c::MP_Signal_c( fName )", "-- end after init.\n");
 
     double frame[numChans];
     unsigned long int sample;
@@ -145,7 +145,7 @@ MP_Signal_c::MP_Signal_c( const char *fName ) {
   /* Refresh the energy */
   energy = compute_energy();
 
-  mp_debug_msg( "MP_Signal_c::MP_Signal_c( fName )", "Done.\n");
+  mp_debug_msg( MP_DEBUG_FUNC_EXIT, "MP_Signal_c::MP_Signal_c( fName )", "Done.\n");
 
 }
 
@@ -154,7 +154,7 @@ MP_Signal_c::MP_Signal_c( const char *fName ) {
 /* Copy constructor (deep copy) */
 MP_Signal_c::MP_Signal_c( const MP_Signal_c &from ) {
 
-  mp_debug_msg( "MP_Signal_c::MP_Signal_c( copy )", "Copying-constructing a new signal...\n");
+  mp_debug_msg( MP_DEBUG_FUNC_ENTER, "MP_Signal_c::MP_Signal_c( copy )", "Copying-constructing a new signal...\n");
 
   set_null();
 
@@ -169,7 +169,7 @@ MP_Signal_c::MP_Signal_c( const MP_Signal_c &from ) {
   /* Copy the energy */
   energy = from.energy;
 
-  mp_debug_msg( "MP_Signal_c::MP_Signal_c( copy )", "Done.\n");
+  mp_debug_msg( MP_DEBUG_FUNC_EXIT, "MP_Signal_c::MP_Signal_c( copy )", "Done.\n");
 
 }
 
@@ -178,12 +178,12 @@ MP_Signal_c::MP_Signal_c( const MP_Signal_c &from ) {
 /* Destructor */
 MP_Signal_c::~MP_Signal_c() {
 
-  mp_debug_msg( "MP_Signal_c::~MP_Signal_c()", "Deleting the signal...");
+  mp_debug_msg( MP_DEBUG_FUNC_ENTER, "MP_Signal_c::~MP_Signal_c()", "Deleting the signal...");
 
   if (storage) free(storage);
   if (channel) free(channel);
 
-  mp_debug_msg( "MP_Signal_c::~MP_Signal_c()", "Done.\n");
+  mp_debug_msg( MP_DEBUG_FUNC_EXIT, "MP_Signal_c::~MP_Signal_c()", "Done.\n");
 
 }
 
@@ -334,14 +334,12 @@ unsigned long int MP_Signal_c::wavwrite( const char *fName ) {
     return(0);
   }
 
-#ifndef NDEBUG
-  mp_debug_msg( "MP_Signal_c::wavwrite(file)", "-- srate    : %d\n", sfinfo.samplerate) ;
-  mp_debug_msg( "MP_Signal_c::wavwrite(file)", "-- frames   : %d\n", (int)sfinfo.frames) ;
-  mp_debug_msg( "MP_Signal_c::wavwrite(file)", "-- channels : %d\n", sfinfo.channels) ;
-  mp_debug_msg( "MP_Signal_c::wavwrite(file)", "-- format   : %d\n", sfinfo.format) ;
-  mp_debug_msg( "MP_Signal_c::wavwrite(file)", "-- sections : %d\n", sfinfo.sections);
-  mp_debug_msg( "MP_Signal_c::wavwrite(file)", "-- seekable : %d\n", sfinfo.seekable) ;
-#endif
+  mp_debug_msg( MP_DEBUG_FILE_IO, "MP_Signal_c::wavwrite(file)", "-- srate    : %d\n", sfinfo.samplerate) ;
+  mp_debug_msg( MP_DEBUG_FILE_IO, "MP_Signal_c::wavwrite(file)", "-- frames   : %d\n", (int)sfinfo.frames) ;
+  mp_debug_msg( MP_DEBUG_FILE_IO, "MP_Signal_c::wavwrite(file)", "-- channels : %d\n", sfinfo.channels) ;
+  mp_debug_msg( MP_DEBUG_FILE_IO, "MP_Signal_c::wavwrite(file)", "-- format   : %d\n", sfinfo.format) ;
+  mp_debug_msg( MP_DEBUG_FILE_IO, "MP_Signal_c::wavwrite(file)", "-- sections : %d\n", sfinfo.sections);
+  mp_debug_msg( MP_DEBUG_FILE_IO, "MP_Signal_c::wavwrite(file)", "-- seekable : %d\n", sfinfo.seekable) ;
 
   /* open the file */
   file = sf_open(fName,SFM_WRITE,&sfinfo);
@@ -398,14 +396,12 @@ unsigned long int MP_Signal_c::matwrite( const char *fName ) {
     return(0);
   }
 
-#ifndef NDEBUG
-  mp_debug_msg( "MP_Signal_c::matwrite(file)", "-- srate    : %d\n", sfinfo.samplerate) ;
-  mp_debug_msg( "MP_Signal_c::matwrite(file)", "-- frames   : %d\n", (int)sfinfo.frames) ;
-  mp_debug_msg( "MP_Signal_c::matwrite(file)", "-- channels : %d\n", sfinfo.channels) ;
-  mp_debug_msg( "MP_Signal_c::matwrite(file)", "-- format   : %d\n", sfinfo.format) ;
-  mp_debug_msg( "MP_Signal_c::matwrite(file)", "-- sections : %d\n", sfinfo.sections);
-  mp_debug_msg( "MP_Signal_c::matwrite(file)", "-- seekable : %d\n", sfinfo.seekable) ;
-#endif
+  mp_debug_msg( MP_DEBUG_FILE_IO, "MP_Signal_c::matwrite(file)", "-- srate    : %d\n", sfinfo.samplerate) ;
+  mp_debug_msg( MP_DEBUG_FILE_IO, "MP_Signal_c::matwrite(file)", "-- frames   : %d\n", (int)sfinfo.frames) ;
+  mp_debug_msg( MP_DEBUG_FILE_IO, "MP_Signal_c::matwrite(file)", "-- channels : %d\n", sfinfo.channels) ;
+  mp_debug_msg( MP_DEBUG_FILE_IO, "MP_Signal_c::matwrite(file)", "-- format   : %d\n", sfinfo.format) ;
+  mp_debug_msg( MP_DEBUG_FILE_IO, "MP_Signal_c::matwrite(file)", "-- sections : %d\n", sfinfo.sections);
+  mp_debug_msg( MP_DEBUG_FILE_IO, "MP_Signal_c::matwrite(file)", "-- seekable : %d\n", sfinfo.seekable) ;
 
   /* open the file */
   file = sf_open(fName,SFM_WRITE,&sfinfo);
@@ -437,10 +433,11 @@ int MP_Signal_c::info( FILE *fid ) {
 
   int nChar = 0;
 
-  nChar += mp_info_msg_str( fid, "MP_Signal_c::info()",
-			    "This signal object has [%lu] samples on [%d] channels;"
-			    " its sample rate is [%d]Hz.\n",
-			    numSamples, numChans, sampleRate );
+  nChar += mp_info_msg( fid, "MP_Signal_c::info()",
+			"This signal object has [%lu] samples on [%d] channels;"
+			" its sample rate is [%d]Hz.\n",
+			numSamples, numChans, sampleRate );
+
   return( nChar );
 }
 
@@ -457,7 +454,7 @@ int MP_Signal_c::info( FILE *fid ) {
    by the constructors.) */
 inline void MP_Signal_c::set_null( void ) {
 
-  mp_debug_msg( "MP_Signal_c::set_null()", "Setting the signal to NULL...\n" );
+  mp_debug_msg( MP_DEBUG_FUNC_ENTER, "MP_Signal_c::set_null()", "Setting the signal to NULL...\n" );
 
   sampleRate = MP_SIGNAL_DEFAULT_SAMPLERATE;
   numChans   = 0;
@@ -466,7 +463,7 @@ inline void MP_Signal_c::set_null( void ) {
   channel = NULL;
   energy = 0;
 
-  mp_debug_msg( "MP_Signal_c::set_null()", "Done.\n" );
+  mp_debug_msg( MP_DEBUG_FUNC_EXIT, "MP_Signal_c::set_null()", "Done.\n" );
 
 }
 
@@ -475,7 +472,7 @@ inline void MP_Signal_c::set_null( void ) {
 /* Initialization with allocation */
 int MP_Signal_c::init( const int setNumChans, const unsigned long int setNumSamples, const int setSampleRate ) {
 
-  mp_debug_msg( "MP_Signal_c::init()", "Initializing the signal:  [%d] chans [%lu] samples...\n",
+  mp_debug_msg( MP_DEBUG_FUNC_ENTER, "MP_Signal_c::init()", "Initializing the signal:  [%d] chans [%lu] samples...\n",
 		setNumChans, setNumSamples );
 
   sampleRate = setSampleRate;
@@ -516,7 +513,7 @@ int MP_Signal_c::init( const int setNumChans, const unsigned long int setNumSamp
     for ( i=0; i<numChans; i++ ) channel[i] = storage + i*numSamples;
   }
 
-  mp_debug_msg( "MP_Signal_c::init()", "Done.\n");
+  mp_debug_msg( MP_DEBUG_FUNC_EXIT, "MP_Signal_c::init()", "Done.\n");
 
   return( 1 );
 }
@@ -647,7 +644,7 @@ MP_Real_t MP_Signal_c::deemp( double coeff ) {
 /* Assignment operator          */
 MP_Signal_c& MP_Signal_c::operator=( const MP_Signal_c& from ) {
 
-  mp_debug_msg( "MP_Signal_c::operator=()", "Assigning a signal...\n" );
+  mp_debug_msg( MP_DEBUG_FUNC_ENTER, "MP_Signal_c::operator=()", "Assigning a signal...\n" );
 
   /* If every allocation went OK, copy the data */
   if ( init( from.numChans, from.numSamples, from.sampleRate ) ) {
@@ -657,7 +654,7 @@ MP_Signal_c& MP_Signal_c::operator=( const MP_Signal_c& from ) {
   /* Copy the energy */
   energy = from.energy;
 
-  mp_debug_msg( "MP_Signal_c::operator=()", "Assignment done.\n" );
+  mp_debug_msg( MP_DEBUG_FUNC_EXIT, "MP_Signal_c::operator=()", "Assignment done.\n" );
 
   return( *this );
 }
