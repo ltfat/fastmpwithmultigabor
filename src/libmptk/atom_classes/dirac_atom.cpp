@@ -199,6 +199,7 @@ int MP_Dirac_Atom_c::add_to_tfmap( MP_TF_Map_c *tfmap, const char tfmapType ) {
   unsigned char chanIdx;
   unsigned long int tMin, nMin;
   MP_Tfmap_t *column;
+  MP_Real_t val;
   unsigned long int j;
 
   assert( numChans == tfmap->numChans );
@@ -215,7 +216,13 @@ int MP_Dirac_Atom_c::add_to_tfmap( MP_TF_Map_c *tfmap, const char tfmapType ) {
 
     /* 3/ Fill the TF map: */
     column = tfmap->channel[chanIdx] + nMin*tfmap->numRows; /* Seek the column */
-    for ( j = 0; j < tfmap->numRows; j++ ) column[j] += tfmap->linmap( amp[chanIdx] );
+    for ( j = 0; j < tfmap->numRows; j++ ) {
+      val = (MP_Real_t)(column[j]) + amp[chanIdx];
+      column[j] = (MP_Tfmap_t)( val );
+      /* Test the min/max */
+      if ( tfmap->ampMax < val ) tfmap->ampMax = val;
+      if ( tfmap->ampMin > val ) tfmap->ampMin = val;
+    }
 
   } /* End foreach channel */
 

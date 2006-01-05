@@ -292,11 +292,10 @@ int main( int argc, char **argv ) {
     if ( MPVIEW_VERBOSE ) fprintf( stderr, "mpview msg -- Initializing the pixmap..." );
     MP_TF_Map_c* tfmap = new MP_TF_Map_c( numCols, numRows, book.numChans,
 					  0, book.numSamples,
-					  0.0, 0.5,
-					  0.0, 30.0 );
+					  0.0, 0.5 );
     if ( MPVIEW_VERBOSE ) fprintf( stderr, "Done.\n" );
     if ( MPVIEW_VERBOSE ) fprintf( stderr, "mpview msg -- Filling the pixmap..." );
-    if ( book.add_to_tfmap( tfmap, MP_TFMAP_LOG_SUPPORTS, NULL ) == 0 ) {
+    if ( book.add_to_tfmap( tfmap, MP_TFMAP_PSEUDO_WIGNER, NULL ) == 0 ) {
       fprintf( stderr, "mpview error -- No atoms were found in the book to fill the pixmap.\n" );
       fflush( stderr );
       return( ERR_BUILD );

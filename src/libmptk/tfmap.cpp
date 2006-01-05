@@ -50,8 +50,7 @@
 MP_TF_Map_c::MP_TF_Map_c( const unsigned long int setNCols,  const unsigned long int setNRows,
 			  const int setNChans, 
 			  const unsigned long int setTMin,   const unsigned long int setTMax,
-			  const MP_Real_t setFMin,           const MP_Real_t setFMax,
-			  const MP_Real_t setAmpMin,         const MP_Real_t setAmpMax ) {
+			  const MP_Real_t setFMin,           const MP_Real_t setFMax ) {
 #ifndef NDEBUG
   printf("new tfmap\n");
 #endif
@@ -68,8 +67,10 @@ MP_TF_Map_c::MP_TF_Map_c( const unsigned long int setNCols,  const unsigned long
   channel = NULL;
   tMin = tMax = 0;
   fMin = fMax = 0.0;
-  ampMin = ampMax = 0.0;
   dt = df = 0.0;
+#define BIG_FLOAT 1e100
+  ampMin = BIG_FLOAT;
+  ampMax = 0.0;
 
   /* Try to allocate storage */
   if ( (storage = (MP_Tfmap_t*)calloc(setNChans*setNCols*setNRows,sizeof(MP_Tfmap_t))) == NULL ) {
@@ -102,8 +103,6 @@ MP_TF_Map_c::MP_TF_Map_c( const unsigned long int setNCols,  const unsigned long
       dt   = (MP_Real_t)(setTMax-setTMin) / (MP_Real_t)(numCols);
       df   = (setFMax-setFMin) / (MP_Real_t)(numRows);
 
-      reset_amp( setAmpMin, setAmpMax );
-
     }
   }
 }
@@ -125,24 +124,8 @@ MP_TF_Map_c::~MP_TF_Map_c() {
 void MP_TF_Map_c::reset( void ) {
   unsigned long int i;
   for ( i = 0; i < (numChans*numCols*numRows); i++ ) storage[i] = 0;
-}
-
-
-/**********************************/
-/* Reset the amplitude boundaries */
-void MP_TF_Map_c::reset_amp( MP_Real_t setAmpMin, MP_Real_t setAmpMax ) {
-
-  assert (setAmpMin < setAmpMax);
-
-  ampMin = setAmpMin;
-  ampMax = setAmpMax;
-
-  logAmpMin = 10*log10( setAmpMin + 1 );
-  logAmpMax = 10*log10( setAmpMax + 1 );
-
-  dAmp = (setAmpMax-setAmpMin) / (MP_Real_t)( TFMAP_NUM_DISCRETE_LEVELS );
-  dLogAmp = (logAmpMax-logAmpMin) / (MP_Real_t)( TFMAP_NUM_DISCRETE_LEVELS );
-
+  ampMin = BIG_FLOAT;
+  ampMax = 0.0;
 }
 
 
@@ -210,25 +193,3 @@ unsigned long int MP_TF_Map_c::freq_to_pix( MP_Real_t f ) {
 MP_Real_t MP_TF_Map_c::pix_to_freq( unsigned long int k ) {
   return( (MP_Real_t)( fMin + k*df ) );
 }
-/* Amp: */
-MP_Tfmap_t MP_TF_Map_c::linmap( MP_Real_t amp ) {
-  return( (MP_Tfmap_t)( floor( (amp-ampMin) / dAmp ) ) );
-}
-MP_Tfmap_t MP_TF_Map_c::logmap( MP_Real_t amp ) {
-  return( (MP_Tfmap_t)( floor( ( 10*log10(amp+1) - logAmpMin ) / dLogAmp ) ) );
-}
-
-/**************************/
-/* Changes of coordinates: time-freq to pixels */
-/* void MP_TF_Map_c::pixel_coordinates(MP_Real_t t,MP_Real_t f, int *n, int *k) {
-  *n = (int) round( (t-tMin)/dt );
-  *k = (int) round( (f-fMin)/df );
-  } */
-
-/***********************/
-/* Changes of coordinates: pixels to time-freq */
-/* void MP_TF_Map_c::tf_coordinates(int n, int k, MP_Real_t *t,MP_Real_t *f) {
-  *t = tMin+n*dt;
-  *f = fMin+k*df;
-  }*/
-

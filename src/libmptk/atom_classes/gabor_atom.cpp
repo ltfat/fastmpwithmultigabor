@@ -554,19 +554,11 @@ int MP_Gabor_Atom_c::add_to_tfmap( MP_TF_Map_c *tfmap, const char tfmapType ) {
       for ( i = nMin; i < nMax; i++ ) {
 	column = tfmap->channel[chanIdx] + i*tfmap->numRows; /* Seek the column */
 	for ( j = kMin; j < kMax; j++ ) {
-	  //column[j] += tfmap->linmap( amp[chanIdx] );
-	  column[j] += amp[chanIdx];
-	}
-      }
-      break;
-
-      /* - with rectangles, with a logarithmic amplitude scale: */
-    case MP_TFMAP_LOG_SUPPORTS:
-      for ( i = nMin; i < nMax; i++ ) {
-	column = tfmap->channel[chanIdx] + i*tfmap->numRows; /* Seek the column */
-	for ( j = kMin; j < kMax; j++ ) {
-	  //column[j] += tfmap->logmap( amp[chanIdx] );
-	  column[j] += 20*log10( amp[chanIdx] );
+	  val = (MP_Real_t)(column[j]) + amp[chanIdx];
+	  column[j] = (MP_Tfmap_t)( val );
+	  /* Test the min/max */
+	  if ( tfmap->ampMax < val ) tfmap->ampMax = val;
+	  if ( tfmap->ampMin > val ) tfmap->ampMin = val;
 	}
       }
       break;
@@ -578,36 +570,22 @@ int MP_Gabor_Atom_c::add_to_tfmap( MP_TF_Map_c *tfmap, const char tfmapType ) {
 	for ( j = kMin; j < kMax; j++ ) {
 	  t = tfmap->pix_to_time(i);
 	  f = tfmap->pix_to_freq(j);
-	  val = amp[chanIdx]*amp[chanIdx]
+	  val = (MP_Real_t)(column[j]) +
+	    amp[chanIdx]*amp[chanIdx]
 	    * wigner_ville( (t - tMin) / support[chanIdx].len,
 			    (f - freq - chirp*(t-tMin)) * support[chanIdx].len,
 			    windowType );
-	  //column[j] += tfmap->linmap( val );
-	  column[j] += val;
-	}
-      }
-      break;
-
-      /* - with pseudo-Wigner, with a logarithmic amplitude scale: */
-    case MP_TFMAP_LOG_PSEUDO_WIGNER:
-      for ( i = nMin; i < nMax; i++ ) {
-	column = tfmap->channel[chanIdx] + i*tfmap->numRows; /* Seek the column */
-	for ( j = kMin; j < kMax; j++ ) {
-	  t = tfmap->pix_to_time(i);
-	  f = tfmap->pix_to_freq(j);
-	  val = amp[chanIdx]*amp[chanIdx]
-	    * wigner_ville( (t - tMin) / support[chanIdx].len,
-			    (f - freq - chirp*(t-tMin)) * support[chanIdx].len,
-			    windowType );
-	  //column[j] += tfmap->logmap( val );
-	  column[j] += 20*log10( val );
+	  column[j] = (MP_Tfmap_t)( val );
+	  /* Test the min/max */
+	  if ( tfmap->ampMax < val ) tfmap->ampMax = val;
+	  if ( tfmap->ampMin > val ) tfmap->ampMin = val;
 	}
       }
       break;
 
     default:
       fprintf( stderr, "mptk warning -- MP_Gabor_Atom_c::add_to_tfmap() - Asked for "
-	       "an unknown tfmap type.\n" );
+	       "an incorrect tfmap type.\n" );
       break;
 
     } /* End switch tfmapType */
