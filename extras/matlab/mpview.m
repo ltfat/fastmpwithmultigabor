@@ -33,9 +33,10 @@ fid = fopen(fileName,'r');
 tf = fread(fid,'float');
 %tf = fread(fid,'ushort');
 fclose(fid);
-max(tf)
 
 numChans = size(tf,1)/(numRows*numCols);
+tfmax = max(tf);
+tf = 10*log10(max(tf,tfmax/1e3));
 tf = reshape( tf, numRows, numCols, numChans );
 size( tf )
 

@@ -516,7 +516,7 @@ int MP_Gabor_Atom_c::add_to_tfmap( MP_TF_Map_c *tfmap, const char tfmapType ) {
     tMax = tMin + support[chanIdx].len;
     if ( (tMin > tfmap->tMax) || (tMax < tfmap->tMin) ) return( 0 );
     /* Freq: */
-    df   = 1 / ( (MP_Real_t)(support[chanIdx].len) ); /* TODO : determine a constant factor */
+    df   = 40 / ( (MP_Real_t)(support[chanIdx].len) ); /* TODO : determine a constant factor */
     fMin = freq - df/2;
     fMax = freq + df/2 + chirp*(tMax-tMin);
     if ( (fMin > tfmap->fMax) || (fMax < tfmap->fMin) ) return( 0 );
@@ -566,13 +566,13 @@ int MP_Gabor_Atom_c::add_to_tfmap( MP_TF_Map_c *tfmap, const char tfmapType ) {
       /* - with pseudo-Wigner, with a linear amplitude scale: */
     case MP_TFMAP_PSEUDO_WIGNER:
       for ( i = nMin; i < nMax; i++ ) {
+	t = tfmap->pix_to_time(i);
 	column = tfmap->channel[chanIdx] + i*tfmap->numRows; /* Seek the column */
 	for ( j = kMin; j < kMax; j++ ) {
-	  t = tfmap->pix_to_time(i);
 	  f = tfmap->pix_to_freq(j);
 	  val = (MP_Real_t)(column[j]) +
 	    amp[chanIdx]*amp[chanIdx]
-	    * wigner_ville( (t - tMin) / support[chanIdx].len,
+	    * wigner_ville( ((double)(t - tMin)) / ((double)support[chanIdx].len),
 			    (f - freq - chirp*(t-tMin)) * support[chanIdx].len,
 			    windowType );
 	  column[j] = (MP_Tfmap_t)( val );
