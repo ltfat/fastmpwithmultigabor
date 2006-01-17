@@ -340,29 +340,34 @@ int MP_Dict_c::add_block( MP_Block_c *newBlock ) {
   const char* func = "MP_Dict_c::add_block( newBlock )";
   MP_Block_c **tmp;
 
-  assert( newBlock != NULL );
+  if( newBlock != NULL ) {
 
-  /* Increase the size of the array of blocks... */
-  if ( (tmp = (MP_Block_c**) realloc( block, (numBlocks+1)*sizeof(MP_Block_c*) )) == NULL ) {
-    mp_error_msg( func, "Can't reallocate memory to add a new block to dictionary."
-		  " No new block will be added, number of blocks stays [%d].\n",
-		  numBlocks );
-    return(0);
-  }
-  /* ... and store the reference on the newly created object. */
-  else {
-    block = tmp;
-    block[numBlocks] = newBlock;
-    numBlocks++;
-    /* Next time we iterate, the newly added block will have to be fully updated */
-    int i;
-    for ( i=0; i<signal->numChans; i++ ) {
-      touch[i].pos = 0;
-      touch[i].len = signal->numSamples;
+    /* Increase the size of the array of blocks... */
+    if ( (tmp = (MP_Block_c**) realloc( block, (numBlocks+1)*sizeof(MP_Block_c*) )) == NULL ) {
+      mp_error_msg( func, "Can't reallocate memory to add a new block to dictionary."
+		    " No new block will be added, number of blocks stays [%d].\n",
+		    numBlocks );
+      return( 0 );
     }
-  }
+    /* ... and store the reference on the newly created object. */
+    else {
+      block = tmp;
+      block[numBlocks] = newBlock;
+      numBlocks++;
+      /* Next time we iterate, the newly added block will have to be fully updated */
+      int i;
+      for ( i=0; i<signal->numChans; i++ ) {
+	touch[i].pos = 0;
+	touch[i].len = signal->numSamples;
+      }
+    }
+    return(1);
 
-  return(1);
+  }
+  /* else, if the block is NULL, silently ignore it,
+     just say that no block has been added. */
+  else return( 0 );
+
 }
 
 
