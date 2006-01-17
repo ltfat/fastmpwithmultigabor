@@ -734,7 +734,7 @@ int main( int argc, char **argv ) {
     for ( j = 0; j < numSources; j++ ) dict[j] = NULL;
     /* Actually alloc each dictionary */
     for ( j = 0; j < numSources; j++ ) {
-      if ( (dict[j] = new MP_Dict_c( &(sigArray[j]) )) == NULL ) {
+      if ( (dict[j] = new MP_Dict_c( &(sigArray[j]), MP_DICT_SIG_HOOK )) == NULL ) {
 	fprintf( stderr, "mpd_demix error -- Can't create a new dictionary for source [%u].\n", j );
 	free( mixer ); free( Ah ); delete(inSignal); delete[](sigArray);
 	free_mem( dict, numSources, decay );

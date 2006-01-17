@@ -60,6 +60,9 @@ class MP_Dict_c {
 public:
   /** \brief Signal manipulated by the dictionnary */
   MP_Signal_c *signal;         
+  /** \brief The "mode" of the signal: either the signal was copied into the dictionary,
+   * or it was just referenced. */
+  int sigMode;
 
   /** \brief Number of blocks stored in the dictionary */
   unsigned int numBlocks;      
@@ -83,12 +86,22 @@ public:
   /***************************/
 
 public:
-  /** \brief Constructor which makes a copy of an input signal
-   * to set up the signal manipulated by the dictionary */
-  MP_Dict_c( const MP_Signal_c *s );
+  /** \brief Signal-passing constructor.
+   *
+   * \param setSignal the signal to store into the dictionary. If NULL,
+   * just create the dictionary without storing a signal.
+   * \param mode can be MP_DICT_SIG_HOOK if you want the dictionary to act
+   * directly on the passed signal (equivalent to a pass by reference),
+   * or MP_DICT_SIG_COPY if you want the dictionary to act on a local copy
+   * of the passed signal (equivalent to a pass by value). */
+  MP_Dict_c( MP_Signal_c *setSignal, int mode );
+#define MP_DICT_SIG_HOOK 1
+#define MP_DICT_SIG_COPY 2
+
   /** \brief Constructor which reads the signal that will be
-      manipulated by the dictionnary from a file */
+      manipulated by the dictionary from a file */
   MP_Dict_c( const char* sigFileName );
+
   /* Destructor */
   ~MP_Dict_c();
 
@@ -131,6 +144,20 @@ public:
   unsigned long int size( void );
 
 
+  /** \brief Hook or copy a new signal to the dictionary
+   *
+   * \param setSignal the signal to store into the dictionary
+   * \param mode can be MP_DICT_SIG_HOOK if you want the dictionary to act
+   * directly on the passed signal (equivalent to a pass by reference),
+   * or MP_DICT_SIG_COPY if you want the dictionary to act on a local copy
+   * of the passed signal (equivalent to a pass by value). */
+  int reset_signal( MP_Signal_c *setSignal, int mode );
+
+private:
+  /** \brief Allocate the touch array according to the signal size */
+  int alloc_touch( void );
+
+public:
   /** \brief Add a block to a dictionary
    */
   int add_block( MP_Block_c *newBlock ); 

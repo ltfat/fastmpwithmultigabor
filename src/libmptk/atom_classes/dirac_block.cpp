@@ -49,19 +49,104 @@
 /***************************/
 
 /************************/
-/* Specific constructor */
-MP_Dirac_Block_c::MP_Dirac_Block_c( MP_Signal_c *setSignal )
-  :MP_Block_c( setSignal, 1, 1, 1 ) {
+/* Factory function     */
+MP_Dirac_Block_c* MP_Dirac_Block_c::init( MP_Signal_c *setSignal ) {
+
+  const char* func = "MP_Dirac_Block_c::init()";
+  MP_Dirac_Block_c *newBlock = NULL;
+
+  /* Instantiate and check */
+  newBlock = new MP_Dirac_Block_c();
+  if ( newBlock == NULL ) {
+    mp_error_msg( func, "Failed to create a new Dirac block.\n" );
+    return( NULL );
+  }
+
+  /* Set the block parameters (that are independent from the signal) */
+  if ( newBlock->init_parameters() ) {
+    mp_error_msg( func, "Failed to initialize some block parameters in the new Dirac block.\n" );
+    delete( newBlock );
+    return( NULL );
+  }
+
+  /* Set the signal-related parameters */
+  if ( newBlock->plug_signal( setSignal ) ) {
+    mp_error_msg( func, "Failed to plug a signal in the new Dirac block.\n" );
+    delete( newBlock );
+    return( NULL );
+  }
+
+  return( newBlock );
+}
+
+
+/*********************************************************/
+/* Initialization of signal-independent block parameters */
+int MP_Dirac_Block_c::init_parameters( void ) {
+
+  const char* func = "MP_Dirac_Block_c::init_parameters(...)";
+
+  /* Go up the inheritance graph */
+  if ( MP_Block_c::init_parameters( 1, 1, 1 ) ) {
+    mp_error_msg( func, "Failed to init the block-level parameters in the new Dirac block.\n" );
+    return( 1 );
+  }
+
+  return( 0 );
+}
+
+
+/*******************************************************/
+/* Initialization of signal-dependent block parameters */
+int MP_Dirac_Block_c::plug_signal( MP_Signal_c *setSignal ) {
+
+  const char* func = "MP_Dirac_Block_c::plug_signal( signal )";
+
+  /* Reset any potential previous signal */
+  nullify_signal();
+
+  if ( setSignal != NULL ) {
+
+    /* Go up the inheritance graph */
+    if ( MP_Block_c::plug_signal( setSignal ) ) {
+      mp_error_msg( func, "Failed to plug a signal at the block level.\n" );
+      nullify_signal();
+      return( 1 );
+    }
+
+  }
+
+  return( 0 );
+}
+
+
+/**************************************************/
+/* Nullification of the signal-related parameters */
+void MP_Dirac_Block_c::nullify_signal( void ) {
+
+  MP_Block_c::nullify_signal();
+
+}
+
+
+/********************/
+/* NULL constructor */
+MP_Dirac_Block_c::MP_Dirac_Block_c( void )
+:MP_Block_c() {
+  mp_debug_msg( MP_DEBUG_CONSTRUCTION, "MP_Dirac_Block_c::MP_Dirac_Block_c()",
+		"Constructing a Dirac_block...\n" );
+  mp_debug_msg( MP_DEBUG_CONSTRUCTION, "MP_Dirac_Block_c::MP_Dirac_Block_c()",
+		"Done.\n" );
 }
 
 
 /**************/
 /* Destructor */
 MP_Dirac_Block_c::~MP_Dirac_Block_c() {
-
-#ifndef NDEBUG
-  fprintf( stderr, "mplib DEBUG -- ~MP_Dirac_Block_c() - Deleting Dirac_block.\n" );
-#endif
+  mp_debug_msg( MP_DEBUG_DESTRUCTION, "MP_Dirac_Block_c::~MP_Dirac_Block_c()",
+		"Deleting Dirac_block...\n" );
+  mp_debug_msg( MP_DEBUG_DESTRUCTION, "MP_Dirac_Block_c::~MP_Dirac_Block_c()",
+		"Done.\n" );
 }
 
 
@@ -81,7 +166,9 @@ char* MP_Dirac_Block_c::type_name() {
 int MP_Dirac_Block_c::info( FILE* fid ) {
 
   int nChar = 0;
-  nChar += fprintf( fid, "mplib info -- dirac block.\n" );
+  nChar += mp_info_msg( fid, "DIRAC BLOCK", "The number of frames for this block is [%lu],"
+			" the search tree has [%lu] levels.\n",
+			numFrames, numLevels );
   return ( nChar );
 }
 
@@ -152,12 +239,13 @@ int add_dirac_block( MP_Dict_c *dict ) {
 
   MP_Dirac_Block_c *newBlock;
 
-  newBlock = new MP_Dirac_Block_c( dict->signal );
+  newBlock = MP_Dirac_Block_c::init( dict->signal );
   if ( newBlock != NULL ) {
     dict->add_block( newBlock );
   }
   else {
-    fprintf( stderr, "mplib error -- add_dirac_block() - Can't add a new dirac block to a dictionnary." );
+    mp_error_msg( "add_dirac_block( dict )",
+		  "Can't instantiate a new dirac block to add to a dictionary." );
     return( 0 );
   }
 

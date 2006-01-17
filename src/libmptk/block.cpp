@@ -49,17 +49,194 @@
 /* CONSTRUCTORS/DESTRUCTOR */
 /***************************/
 
-/************************/
-/* Specific constructor */
-MP_Block_c::MP_Block_c( MP_Signal_c *setSignal,
-			const unsigned long int setFilterLen,
-			const unsigned long int setFilterShift,
-			const unsigned long int setNumFilters ) {
 
-  if ( alloc_block( setSignal, setFilterLen, setFilterShift, setNumFilters ) ) {
-    fprintf( stderr, "mplib warning -- MP_Block_c() - Memory allocation failed."
-	     " Returning an invalid block with NULL pointers.\n" );
-  }
+/*********************************************************/
+/* Initialization of signal-independent block parameters */
+int MP_Block_c::init_parameters( const unsigned long int setFilterLen,
+				 const unsigned long int setFilterShift,
+				 const unsigned long int setNumFilters ) {
+
+  filterLen = setFilterLen;
+  filterShift = setFilterShift;
+  numFilters = setNumFilters;
+
+  return( 0 );
+}
+
+
+/*************************************************************/
+/* Internal allocations of signal-dependent block parameters */
+int MP_Block_c::plug_signal( MP_Signal_c *setSignal ) {
+
+  const char *func = "MP_Block_c::plug_signal( signal )";
+  unsigned long int nNow;
+  unsigned long int i, nel, nBase;
+  unsigned long int offset;
+
+  /* Reset any potential previous signal */
+  nullify_signal();
+
+  /* Set the new signal and related parameters/allocations */
+  if( setSignal != NULL ) {
+
+    /* Bind the signal */
+    s = setSignal;
+    
+    /* Set frame count */
+    numFrames = len2numFrames( s->numSamples, filterLen, filterShift );
+    
+    /* Parameters for the research of the max */
+    maxIPValue = -1.0;
+    maxIPFrameIdx = 0;
+    maxAtomIdx = 0;
+    
+    /* maxIPValueInFrame array */
+    if ( (maxIPValueInFrame = (MP_Real_t*) malloc( numFrames*sizeof(MP_Real_t) ))
+	 == NULL ) {
+      mp_error_msg( func, "Can't allocate an array of [%lu] MP_Real_t elements"
+		    "for the storage of maxIPValueInFrame.\n", numFrames );
+      nullify_signal();
+      return( 1 );
+    }
+    else for ( i = 0; i < numFrames; i++ ) *(maxIPValueInFrame+i) = 0.0;
+    
+    /* maxIPIdxInFrame array */
+    if ( (maxIPIdxInFrame = (unsigned long int*) malloc( numFrames*sizeof(unsigned long int) ))
+	 == NULL ) {
+      mp_error_msg( func, "Can't allocate an array of [%lu] unsigned long int elements"
+		    "for the storage of maxIPIdxInFrame.\n", numFrames );
+      nullify_signal();
+      return( 1 );
+    }
+    else memset( maxIPIdxInFrame, 0, numFrames*sizeof(unsigned long int) );
+    
+    /*******************************************************/
+    /* Management of the tree structure for the max search */
+    assert( numFrames != 0 );
+    nBase = ((numFrames-1) / MP_BLOCK_FRAMES) + 1;
+    if ( numFrames == 1 ) numLevels = 1;
+    else numLevels = (unsigned long int)( ceil( log( (double)nBase ) / log( (double)MP_NUM_BRANCHES ) ) ) + 1;
+
+    mp_debug_msg( MP_DEBUG_CONSTRUCTION, func,
+		  "NFRAMES %lu (LOG %g) NBLOCKS %lu NBASE %lu NUMBRANCHES %lu (LOG %g) :"
+		  " numLevels=%lu \n",
+		  numFrames, log((double)numFrames), (unsigned long int)MP_BLOCK_FRAMES, nBase,
+		  (unsigned long int)MP_NUM_BRANCHES, log((double)MP_NUM_BRANCHES),
+		  numLevels  );
+    
+    /* Compute the total number of elements in the elevators */
+    nNow = nBase;
+    nel = 0;
+    for ( i = 0; i < numLevels; i++ ) {
+
+      mp_debug_msg( MP_DEBUG_CONSTRUCTION, func, "LEVEL %lu/%lu : vecSize=%lu\n",
+		    i, numLevels, nNow );
+    
+      nel += nNow;
+#ifdef MP_NUM_BRANCHES_IS_POW2
+      nNow = ( (nNow-1) >> MP_LOG2_NUM_BRANCHES ) + 1;
+#else
+      nNow = ( (nNow-1) / MP_NUM_BRANCHES ) + 1;
+#endif
+
+    }
+    
+    /* Allocate the max elevator */
+    if ( (elevSpace = (MP_Real_t*) malloc( nel*sizeof(MP_Real_t) )) == NULL ) {
+      mp_error_msg( func, "Can't allocate %lu MP_Real_t values for the max tree.\n",
+		    nel );
+      nullify_signal();
+      return( 1 );
+    }
+    else for ( i = 0; i < nel; i++ ) elevSpace[i] = -1.0;
+
+    /* Allocate the frame index elevator */
+    if ( (elevFrameSpace = (unsigned long int*) malloc( nel*sizeof(unsigned long int) )) == NULL ) {
+      mp_error_msg( func, "Can't allocate %lu unsigned long int values"
+		    " for the frame index tree.\n", nel );
+      nullify_signal();
+      return( 1 );
+    }
+    else for ( i = 0; i < nel; i++ ) elevFrameSpace[i] = 0;
+
+    /* Allocate the pointers for the levels of the max elevator */
+    if ( (elevator = (MP_Real_t**) malloc( numLevels*sizeof(MP_Real_t*) )) == NULL ) {
+      mp_error_msg( func, "Can't allocate %lu pointers for the levels of the max tree.\n",
+		    numLevels );
+      nullify_signal();
+      return( 1 );
+    }
+
+    /* Allocate the pointers for the levels of the frame index elevator */
+    if ( (elevatorFrame = (unsigned long int**) malloc( numLevels*sizeof(unsigned long int*) )) == NULL ) {
+      mp_error_msg( func, "Can't allocate %lu pointers for the levels of the index tree.\n",
+		    numLevels );
+      nullify_signal();
+      return( 1 );
+    }
+    
+    /* Fold the elevator spaces */
+    elevator[0] = elevSpace;
+    elevatorFrame[0] = elevFrameSpace;
+    nNow = nBase;
+    offset = 0;
+    for ( i = 1; i < numLevels; i++ ) {
+      offset += nNow;
+
+      mp_debug_msg( MP_DEBUG_CONSTRUCTION, func,
+		    "Folding: at level %lu, offset is %lu/%lu.\n",
+		    i, offset, nel );
+
+      elevator[i] = elevSpace + offset;
+      elevatorFrame[i] = elevFrameSpace + offset;
+#ifdef MP_NUM_BRANCHES_IS_POW2
+      nNow = ( (nNow-1) >> MP_LOG2_NUM_BRANCHES ) + 1;
+#else
+      nNow = ( (nNow-1) / MP_NUM_BRANCHES ) + 1;
+#endif
+
+    }
+
+  } /* end if( setSignal != NULL ) */
+
+  return( 0 );
+}
+
+
+/**************************************************/
+/* Nullification of the signal-related parameters */
+void MP_Block_c::nullify_signal( void ) {
+
+  s = NULL;
+  numFrames = 0;
+
+  if ( maxIPValueInFrame ) { free( maxIPValueInFrame ); maxIPValueInFrame = NULL; }
+  if ( maxIPIdxInFrame )   { free( maxIPIdxInFrame );   maxIPIdxInFrame = NULL;   }
+  if ( elevator )          { free( elevator );          elevator = NULL;          }
+  if ( elevSpace )         { free( elevSpace );         elevSpace = NULL;         }
+  if ( elevatorFrame )     { free( elevatorFrame );     elevatorFrame = NULL;     }
+  if ( elevFrameSpace )    { free( elevFrameSpace );    elevFrameSpace = NULL;    }
+
+}
+
+
+/********************/
+/* NULL constructor */
+MP_Block_c::MP_Block_c( void ) {
+
+  filterLen = filterShift = numFilters = numFrames = 0;
+
+  maxIPValue = 0.0;
+  maxIPFrameIdx = 0;
+  maxIPValueInFrame = NULL;
+  maxIPIdxInFrame = NULL;
+  maxAtomIdx = 0;
+
+  numLevels = 0;
+  elevator = NULL;
+  elevSpace = NULL;
+  elevatorFrame = NULL;
+  elevFrameSpace = NULL;
 
 }
 
@@ -67,18 +244,17 @@ MP_Block_c::MP_Block_c( MP_Signal_c *setSignal,
 /**************/
 /* Destructor */
 MP_Block_c::~MP_Block_c() {
-#ifndef NDEBUG
-  fprintf( stderr, "mplib DEBUG -- ~MP_Block_c() - Deleting basic_block...");
-#endif
+
+  mp_debug_msg( MP_DEBUG_DESTRUCTION, "~MP_Block_c()", "Deleting basic_block...\n" );
+
   if ( maxIPValueInFrame ) free( maxIPValueInFrame );
   if ( maxIPIdxInFrame )   free( maxIPIdxInFrame );
   if ( elevator )          free( elevator );
   if ( elevSpace )         free( elevSpace );
   if ( elevatorFrame )     free( elevatorFrame );
   if ( elevFrameSpace )    free( elevFrameSpace );
-#ifndef NDEBUG
-  fprintf( stderr, "Done\n");
-#endif
+
+  mp_debug_msg( MP_DEBUG_DESTRUCTION, "~MP_Block_c()", "Done.\n" );
 }
 
 
@@ -86,154 +262,13 @@ MP_Block_c::~MP_Block_c() {
 /* OTHER METHODS           */
 /***************************/
 
-/************************/
-/* Internal allocations */
-int MP_Block_c::alloc_block( MP_Signal_c *setSignal,
-			  const unsigned long int setFilterLen,
-			  const unsigned long int setFilterShift,
-			  const unsigned long int setNumFilters ) {
-
-  unsigned long int nNow;
-  unsigned long int i, nel, nBase;
-  unsigned long int offset;
-
-  assert( setSignal != NULL );
-
-  /* Init the pointers */
-  maxIPValueInFrame = NULL;
-  maxIPIdxInFrame = NULL;
-  elevator = NULL;
-  elevSpace = NULL;
-  elevatorFrame = NULL;
-  elevFrameSpace = NULL;
-
-  /* Bind the signal */
-  s = setSignal;
-
-  /* Set frame counts */
-  filterLen = setFilterLen;
-  filterShift = setFilterShift;
-  numFrames = len2numFrames( s->numSamples, filterLen, filterShift );
-  numFilters = setNumFilters;
-
-  /* Parameters for the research of the max */
-  maxIPValue = -1.0;
-  maxIPFrameIdx = 0;
-  maxAtomIdx = 0;
-
-  /* maxIPValueInFrame array */
-  if ( (maxIPValueInFrame = (MP_Real_t*) malloc( numFrames*sizeof(MP_Real_t) ))
-       == NULL ) {
-    fprintf( stderr, "mplib error -- MP_Block_c::alloc_block() - Can't allocate an array of [%lu] MP_Real_t elements"
-	     "for the storage of maxIPValueInFrame.\n", numFrames );
-    return( 1 );
-  }
-  else for ( i = 0; i < numFrames; i++ ) *(maxIPValueInFrame+i) = 0.0;
-
-  /* maxIPIdxInFrame array */
-  if ( (maxIPIdxInFrame = (unsigned long int*) malloc( numFrames*sizeof(unsigned long int) ))
-       == NULL ) {
-    fprintf( stderr, "mplib error -- MP_Block_c::alloc_block() - Can't allocate an array of [%lu] unsigned long int elements"
-	     "for the storage of maxIPIdxInFrame.\n", numFrames );
-    return( 1 );
-  }
-  else memset( maxIPIdxInFrame, 0, numFrames*sizeof(unsigned long int) );
-
-  /*******************************************************/
-  /* Management of the tree structure for the max search */
-  assert( numFrames != 0 );
-  nBase = ((numFrames-1) / MP_BLOCK_FRAMES) + 1;
-  if ( numFrames == 1 ) numLevels = 1;
-  else numLevels = (unsigned long int)( ceil( log( (double)nBase ) / log( (double)MP_NUM_BRANCHES ) ) ) + 1;
-#ifndef NDEBUG
-  fprintf( stderr, "mplib DEBUG -- MP_Block_c::alloc_block() -"
-	   " NFRAMES %lu (LOG %g) NBLOCKS %lu NBASE %lu NUMBRANCHES %lu (LOG %g) : numLevels=%lu \n",
-	   numFrames, log((double)numFrames), (unsigned long int)MP_BLOCK_FRAMES, nBase,
-	   (unsigned long int)MP_NUM_BRANCHES, log(MP_NUM_BRANCHES), numLevels );
-#endif
-
-  /* Compute the total number of elements in the elevators */
-  nNow = nBase;
-  nel = 0;
-  for ( i = 0; i < numLevels; i++ ) {
-#ifndef NDEBUG
-    fprintf( stderr, "mplib DEBUG -- MP_Block_c::alloc_block() - LEVEL %lu/%lu : vecSize=%lu\n",
-	     i, numLevels, nNow );
-    fflush( stderr );
-#endif
-    nel += nNow;
-#ifdef MP_NUM_BRANCHES_IS_POW2
-    nNow = ( (nNow-1) >> MP_LOG2_NUM_BRANCHES ) + 1;
-#else
-    nNow = ( (nNow-1) / MP_NUM_BRANCHES ) + 1;
-#endif
-  }
-  
-  /* Allocate the max elevator */
-  if ( (elevSpace = (MP_Real_t*) malloc( nel*sizeof(MP_Real_t) )) == NULL ) {
-    fprintf( stderr, "mplib error -- MP_Block_c::alloc_block() - Can't allocate %lu MP_Real_t values for the max tree.\n",
-	     nel );
-    free( maxIPIdxInFrame ); maxIPIdxInFrame = NULL;
-    return( 1 );
-  }
-  else for ( i = 0; i < nel; i++ ) elevSpace[i] = -1.0;
-  /* Allocate the frame index elevator */
-  if ( (elevFrameSpace = (unsigned long int*) malloc( nel*sizeof(unsigned long int) )) == NULL ) {
-    fprintf( stderr, "mplib error -- MP_Block_c::alloc_block() - Can't allocate %lu unsigned long int values"
-	     " for the frame index tree.\n", nel );
-    free( maxIPIdxInFrame ); maxIPIdxInFrame = NULL;
-    free( elevSpace );        elevSpace = NULL;
-    return( 1 );
-  }
-  else for ( i = 0; i < nel; i++ ) elevFrameSpace[i] = 0;
-  /* Allocate the pointers for the levels of the max elevator */
-  if ( (elevator = (MP_Real_t**) malloc( numLevels*sizeof(MP_Real_t*) )) == NULL ) {
-    fprintf( stderr, "mplib error -- MP_Block_c::alloc_block()- Can't allocate %lu pointers for the levels of the max tree.\n",
-	     numLevels );    
-    free( maxIPIdxInFrame ); maxIPIdxInFrame = NULL;
-    free( elevSpace );        elevSpace = NULL;
-    free( elevFrameSpace );   elevFrameSpace = NULL;
-    return( 1 );
-  }
-  /* Allocate the pointers for the levels of the frame index elevator */
-  if ( (elevatorFrame = (unsigned long int**) malloc( numLevels*sizeof(unsigned long int*) )) == NULL ) {
-    fprintf( stderr, "mplib error -- MP_Block_c::alloc_block() - Can't allocate %lu pointers for the levels of the index tree.\n",
-	     numLevels );    
-    free( maxIPIdxInFrame ); maxIPIdxInFrame = NULL;
-    free( elevSpace );       elevSpace = NULL;
-    free( elevFrameSpace );  elevFrameSpace = NULL;
-    free( elevator );        elevator = NULL;
-    return( 1 );
-  }
-
-  /* Fold the elevator spaces */
-  elevator[0] = elevSpace;
-  elevatorFrame[0] = elevFrameSpace;
-  nNow = nBase;
-  offset = 0;
-  for ( i = 1; i < numLevels; i++ ) {
-    offset += nNow;
-#ifndef NDEBUG
-    fprintf( stderr, "mplib DEBUG -- MP_Block_c::alloc_block() - Folding: at level %lu, offset is %lu/%lu.\n",
-	     i, offset, nel );
-    fflush( stderr );
-#endif
-    elevator[i] = elevSpace + offset;
-    elevatorFrame[i] = elevFrameSpace + offset;
-#ifdef MP_NUM_BRANCHES_IS_POW2
-    nNow = ( (nNow-1) >> MP_LOG2_NUM_BRANCHES ) + 1;
-#else
-    nNow = ( (nNow-1) / MP_NUM_BRANCHES ) + 1;
-#endif
-  }
-
-  return( 0 );
-}
-
-
 /****************************************************************/
 /* Finds the max of the cross-channel sum of the inner products */
 MP_Real_t MP_Block_c::update_max( const MP_Support_t frameSupport ) {
+
+#ifndef NDEBUG
+  const char* func = "MP_Block_c::update_max( frameSupport )";
+#endif
 
   unsigned long int fromFrame, toFrame;
   unsigned long int curFrom, curTo, nMax, level, cur, i, nextMaxReset;
@@ -246,8 +281,10 @@ MP_Real_t MP_Block_c::update_max( const MP_Support_t frameSupport ) {
   toFrame = fromFrame + frameSupport.len - 1;
 
 #ifndef NDEBUG
-  fprintf( stderr, "mplib DEBUG -- update_max() - before update, elevators say that max is %g in frame %lu at position %lu.\n",
-	   elevator[numLevels-1][0], elevatorFrame[numLevels-1][0], maxIPIdxInFrame[ elevatorFrame[numLevels-1][0] ] );
+  mp_debug_msg( MP_DEBUG_MP_ITERATIONS, func, "Before update, elevators say that"
+		" max is %g in frame %lu at position %lu.\n",
+		elevator[numLevels-1][0], elevatorFrame[numLevels-1][0],
+		maxIPIdxInFrame[ elevatorFrame[numLevels-1][0] ] );
 #endif
 
   /* First pass at level 0 (without a registration of the max frame number) */
@@ -274,8 +311,9 @@ MP_Real_t MP_Block_c::update_max( const MP_Support_t frameSupport ) {
     }
     /* Register the max at the upper level */
 #ifndef NDEBUG
-    fprintf( stderr, "mplib DEBUG -- update_max() - Propagating max %g (frame %lu) at level 0, position %lu.\n",
-	     max, maxIdx, cur );
+    mp_debug_msg( MP_DEBUG_MP_ITERATIONS, func, "Propagating max %g (frame %lu)"
+		  " at level 0, position %lu.\n",
+		  max, maxIdx, cur );
 #endif
     elevator[0][cur] = max;
     elevatorFrame[0][cur] = maxIdx;
@@ -313,8 +351,9 @@ MP_Real_t MP_Block_c::update_max( const MP_Support_t frameSupport ) {
       }
       /* Register the max at the upper level */
 #ifndef NDEBUG
-      fprintf( stderr, "mplib DEBUG -- update_max() - Propagating max %g (frame %lu) at level %lu, position %lu.\n",
-	       max, maxIdx, level+1, cur );
+      mp_debug_msg( MP_DEBUG_MP_ITERATIONS, func, "Propagating max %g"
+		    " (frame %lu) at level %lu, position %lu.\n",
+		    max, maxIdx, level+1, cur );
 #endif
       elevator[level+1][cur] = max;
       elevatorFrame[level+1][cur] = maxIdx;
@@ -334,9 +373,9 @@ MP_Real_t MP_Block_c::update_max( const MP_Support_t frameSupport ) {
   maxAtomIdx = maxIPFrameIdx*numFilters + maxIPIdxInFrame[maxIPFrameIdx];
 
 #ifndef NDEBUG
-  fprintf( stderr, "mplib DEBUG -- update_max() - after update, elevators say that max is %g"
-	   " in frame %lu at position %lu. (maxAtomIdx=%lu)\n",
-	   maxIPValue, maxIPFrameIdx, maxIPIdxInFrame[maxIPFrameIdx], maxAtomIdx );
+  mp_debug_msg( MP_DEBUG_MP_ITERATIONS, func, "After update, elevators say that max is %g"
+		" in frame %lu at position %lu. (maxAtomIdx=%lu)\n",
+		maxIPValue, maxIPFrameIdx, maxIPIdxInFrame[maxIPFrameIdx], maxAtomIdx );
 #endif
 
   return( maxIPValue );
@@ -346,6 +385,10 @@ MP_Real_t MP_Block_c::update_max( const MP_Support_t frameSupport ) {
 /****************************************/
 /* Partial update of the inner products */
 MP_Support_t MP_Block_c::update_ip( const MP_Support_t *touch ) {
+
+#ifndef NDEBUG
+  const char* func = "MP_Block_c::update_ip( touch )";
+#endif
 
   unsigned long int fromFrame; /* first frameIdx to be touched, included */
   unsigned long int toFrame;   /* last  frameIdx to be touched, INCLUDED */
@@ -401,8 +444,8 @@ MP_Support_t MP_Block_c::update_ip( const MP_Support_t *touch ) {
 	
 
 #ifndef NDEBUG
-  fprintf( stderr, "mplib DEBUG -- update_ip() - Updating frames from %lu to %lu / %lu.\n",
-	   fromFrame, toFrame, numFrames );
+  mp_debug_msg( MP_DEBUG_MP_ITERATIONS, func,"Updating frames from %lu to %lu / %lu.\n",
+		fromFrame, toFrame, numFrames );
 #endif
 
   /*---------------------------*/
@@ -416,8 +459,9 @@ MP_Support_t MP_Block_c::update_ip( const MP_Support_t *touch ) {
     maxIPIdxInFrame[frameIdx]   = maxFilterIdx;
 
 #ifndef NDEBUG
-    fprintf( stderr, "mplib DEBUG -- update_ip() - in frame %lu, maxcorr is %g at position %lu.\n",
-	     frameIdx, maxCorr, maxFilterIdx );
+    mp_debug_msg( MP_DEBUG_MP_ITERATIONS, func,"In frame %lu, maxcorr is"
+		  " %g at position %lu.\n",
+		  frameIdx, maxCorr, maxFilterIdx );
 #endif
 
   } /* end foreach frame */

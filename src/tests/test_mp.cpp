@@ -54,7 +54,7 @@ int main( void ) {
 
   /**************************/
   /* Build a new dictionary */
-  dico = new MP_Dict_c( &sig );
+  dico = new MP_Dict_c( &sig, MP_DICT_SIG_HOOK );
   add_gabor_block( dico,  32, 32, 256, DSP_GAUSS_WIN, DSP_GAUSS_DEFAULT_OPT );
   add_gabor_block( dico,  64, 32, 256, DSP_HAMMING_WIN, 0.0 );
   add_gabor_block( dico, 128, 32, 256, DSP_HAMMING_WIN, 0.0 );

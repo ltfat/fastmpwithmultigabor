@@ -117,8 +117,7 @@ public:
   /***************************/
 
 public:
-
-  /** \brief allocate the storage space and init it to zero, and set up the FFT interface 
+  /** \brief Factory function for a Gabor block
    *
    * The size of the complex FFT which is performed depends on filterLen (== the
    * window size) and fftRealSize (== the number of frequency bins) and is
@@ -127,13 +126,31 @@ public:
    * 
    * \sa MP_FFT_Interface_c::fftRealSize MP_FFT_Interface_c::exec_complex()
    */
-  MP_Gabor_Block_c( MP_Signal_c *s,
-		    const unsigned long int filterLen,
-		    const unsigned long int filterShift,
-		    const unsigned long int fftRealSize,
-		    const unsigned char windowType,
-		    const double windowOption );
+  static MP_Gabor_Block_c* init( MP_Signal_c *s,
+				 const unsigned long int filterLen,
+				 const unsigned long int filterShift,
+				 const unsigned long int fftRealSize,
+				 const unsigned char windowType,
+				 const double windowOption );
 
+protected:
+  /** \brief an initializer for the parameters which ARE NOT related to the signal */
+  virtual int init_parameters( const unsigned long int setFilterLen,
+			       const unsigned long int setFilterShift,
+			       const unsigned long int setFftRealSize,
+			       const unsigned char setWindowType,
+			       const double setWindowOption );
+
+  /** \brief an initializer for the parameters which ARE related to the signal */
+  virtual int plug_signal( MP_Signal_c *setSignal );
+
+  /** \brief nullification of the signal-related parameters */
+  virtual void nullify_signal( void );
+
+  /** \brief a constructor which initializes everything to zero or NULL */
+  MP_Gabor_Block_c( void );
+
+public:
   /* Destructor */
   virtual ~MP_Gabor_Block_c();
 

@@ -50,63 +50,184 @@
 /***************************/
 
 /************************/
-/* Specific constructor */
-MP_Chirp_Block_c::MP_Chirp_Block_c( MP_Signal_c *setSignal,
-				    const unsigned long int setFilterLen,
-				    const unsigned long int setFilterShift,
-				    const unsigned long int setFftRealSize,
-				    const unsigned char setWindowType,
-				    const double setWindowOption,
-				    const unsigned int setNumFitPoints,
-				    const unsigned int setNumIter )
-:MP_Gabor_Block_c( setSignal, setFilterLen, setFilterShift, 
-		   setFftRealSize, setWindowType, setWindowOption ) {
+/* Factory function     */
+MP_Chirp_Block_c* MP_Chirp_Block_c::init( MP_Signal_c *setSignal,
+					  const unsigned long int setFilterLen,
+					  const unsigned long int setFilterShift,
+					  const unsigned long int setFftRealSize,
+					  const unsigned char setWindowType,
+					  const double setWindowOption,
+					  const unsigned int setNumFitPoints,
+					  const unsigned int setNumIter ) {
 
+  const char* func = "MP_Chirp_Block_c::init()";
+  MP_Chirp_Block_c *newBlock = NULL;
+
+  /* Instantiate and check */
+  newBlock = new MP_Chirp_Block_c();
+  if ( newBlock == NULL ) {
+    mp_error_msg( func, "Failed to create a new Chirp block.\n" );
+    return( NULL );
+  }
+
+  /* Set the block parameters (that are independent from the signal) */
+  if ( newBlock->init_parameters( setFilterLen, setFilterShift, setFftRealSize,
+				  setWindowType, setWindowOption,
+				  setNumFitPoints, setNumIter ) ) {
+    mp_error_msg( func, "Failed to initialize some block parameters in the new Chirp block.\n" );
+    delete( newBlock );
+    return( NULL );
+  }
+
+  /* Set the signal-related parameters */
+  if ( newBlock->plug_signal( setSignal ) ) {
+    mp_error_msg( func, "Failed to plug a signal in the new Chirp block.\n" );
+    delete( newBlock );
+    return( NULL );
+  }
+
+  return( newBlock );
+}
+
+
+/*********************************************************/
+/* Initialization of signal-independent block parameters */
+/************************/
+/* Specific constructor */
+int MP_Chirp_Block_c::init_parameters( const unsigned long int setFilterLen,
+				       const unsigned long int setFilterShift,
+				       const unsigned long int setFftRealSize,
+				       const unsigned char setWindowType,
+				       const double setWindowOption,
+				       const unsigned int setNumFitPoints,
+				       const unsigned int setNumIter ) {
+
+  const char* func = "MP_Chirp_Block_c::init_parameters(...)";
+
+  /* Go up the inheritance graph */
+  if ( MP_Gabor_Block_c::init_parameters( setFilterLen, setFilterShift, setFftRealSize,
+					  setWindowType, setWindowOption ) ) {
+    mp_error_msg( func, "Failed to init the parameters at the Gabor block level"
+		  " in the new Chirp block.\n" );
+    return( 1 );
+  }
+
+  /* TODO: check the chirp-specific fields ? */
+
+  /* Set the chirp-specific fields */
   numFitPoints = setNumFitPoints;
   totNumFitPoints = 2*numFitPoints+1;
   numIter = setNumIter;
 
-  /* Allocate all the buffers */
+  /* Allocate the chirp-specific buffers */
 
   /* - Demodulation chirp signal: */
   if ( (chirpRe = (MP_Real_t*) malloc(filterLen*sizeof(MP_Real_t)) ) == NULL ) {
-    fprintf( stderr, "mptk warning -- MP_Chirp_Block_c() - Can't allocate an array of [%lu] MP_Real_t elements"
-	     " for the chirpRe array. This pointer will remain NULL.\n", filterLen );
+    mp_error_msg( func, "Can't allocate an array of [%lu] MP_Real_t elements"
+		  " for the chirpRe array. This pointer will remain NULL.\n", filterLen );
+    return( 1 );
   } 
   if ( (chirpIm = (MP_Real_t*) malloc(filterLen*sizeof(MP_Real_t)) ) == NULL ) {
-    fprintf( stderr, "mptk warning -- MP_Chirp_Block_c() - Can't allocate an array of [%lu] MP_Real_t elements"
-	     " for the chirpIm array. This pointer will remain NULL.\n", filterLen );
+    mp_error_msg( func, "Can't allocate an array of [%lu] MP_Real_t elements"
+		  " for the chirpIm array. This pointer will remain NULL.\n", filterLen );
+    return( 1 );
   } 
 
   /* - Input signal x demodulation chirp: */
   if ( (sigChirpRe = (MP_Real_t*) malloc(filterLen*sizeof(MP_Real_t)) ) == NULL ) {
-    fprintf( stderr, "mptk warning -- MP_Chirp_Block_c() - Can't allocate an array of [%lu] MP_Real_t elements"
-	     " for the sigChirpRe array. This pointer will remain NULL.\n", filterLen );
+    mp_error_msg( func, "Can't allocate an array of [%lu] MP_Real_t elements"
+		  " for the sigChirpRe array. This pointer will remain NULL.\n", filterLen );
+    return( 1 );
   } 
   if ( (sigChirpIm = (MP_Real_t*) malloc(filterLen*sizeof(MP_Real_t)) ) == NULL ) {
-    fprintf( stderr, "mptk warning -- MP_Chirp_Block_c() - Can't allocate an array of [%lu] MP_Real_t elements"
-	     " for the sigChirpIm array. This pointer will remain NULL.\n", filterLen );
+    mp_error_msg( func, "Can't allocate an array of [%lu] MP_Real_t elements"
+		  " for the sigChirpIm array. This pointer will remain NULL.\n", filterLen );
+    return( 1 );
   } 
 
   /* - Misc: */
   if ( (fftEnergy = (MP_Real_t*) malloc(fftRealSize*sizeof(MP_Real_t)) ) == NULL ) {
-    fprintf( stderr, "mptk warning -- MP_Chirp_Block_c() - Can't allocate an array of [%lu] MP_Real_t elements"
-	     " for the fftEnergy array. This pointer will remain NULL.\n", fftRealSize );
+    mp_error_msg( func, "Can't allocate an array of [%lu] MP_Real_t elements"
+		  " for the fftEnergy array. This pointer will remain NULL.\n", fftRealSize );
+    return( 1 );
   } 
 
   if ( (logAmp = (MP_Real_t*) malloc((totNumFitPoints)*sizeof(MP_Real_t)) ) == NULL ) {
-    fprintf( stderr, "mptk warning -- MP_Chirp_Block_c() - Can't allocate an array of [%u] MP_Real_t elements"
-	     " for the logAmp array. This pointer will remain NULL.\n", totNumFitPoints );
+    mp_error_msg( func, "Can't allocate an array of [%u] MP_Real_t elements"
+		  " for the logAmp array. This pointer will remain NULL.\n", totNumFitPoints );
+    return( 1 );
   } 
   if ( (phase = (MP_Real_t*) malloc((totNumFitPoints)*sizeof(MP_Real_t)) ) == NULL ) {
-    fprintf( stderr, "mptk warning -- MP_Chirp_Block_c() - Can't allocate an array of [%u] MP_Real_t elements"
-	     " for the phase array. This pointer will remain NULL.\n", totNumFitPoints );
+    mp_error_msg( func, "Can't allocate an array of [%u] MP_Real_t elements"
+		  " for the phase array. This pointer will remain NULL.\n", totNumFitPoints );
+    return( 1 );
   } 
 
   if ( alloc_correl( &reCorrelChirp, &imCorrelChirp, &sqCorrelChirp, &cstCorrelChirp ) ) {
-    fprintf( stderr, "mplib warning -- MP_FFT_Generic_Interface_c() - "
-	     "The allocation of the atom's autocorrelations returned an error.\n");
+    mp_error_msg( func, "Failed to allocate the block's chirp-related autocorrelations.\n" );
+    return( 1 );
   }
+
+  return( 0 );
+}
+
+
+/*******************************************************/
+/* Initialization of signal-dependent block parameters */
+int MP_Chirp_Block_c::plug_signal( MP_Signal_c *setSignal ) {
+
+  const char* func = "MP_Chirp_Block_c::plug_signal( signal )";
+
+  /* Reset any potential previous signal */
+  nullify_signal();
+
+  if ( setSignal != NULL ) {
+
+    /* Go up the inheritance graph */
+    if ( MP_Gabor_Block_c::plug_signal( setSignal ) ) {
+      mp_error_msg( func, "Failed to plug a signal at the Gabor block level.\n" );
+      nullify_signal();
+      return( 1 );
+    }
+
+  }
+
+  return( 0 );
+}
+
+
+/**************************************************/
+/* Nullification of the signal-related parameters */
+void MP_Chirp_Block_c::nullify_signal( void ) {
+
+  MP_Gabor_Block_c::nullify_signal();
+
+}
+
+
+/********************/
+/* NULL constructor */
+MP_Chirp_Block_c::MP_Chirp_Block_c()
+  :MP_Gabor_Block_c() {
+
+  numFitPoints = 0;
+  totNumFitPoints = 0;
+  numIter = 0;
+
+  chirpRe = NULL;
+  chirpIm = NULL;
+
+  sigChirpRe = NULL;
+  sigChirpIm = NULL;
+  fftEnergy = NULL;
+
+  logAmp = NULL;
+  phase = NULL;
+
+  reCorrelChirp = NULL;
+  imCorrelChirp = NULL;
+  sqCorrelChirp = NULL;
+  cstCorrelChirp = NULL;
 
 }
 
@@ -115,9 +236,7 @@ MP_Chirp_Block_c::MP_Chirp_Block_c( MP_Signal_c *setSignal,
 /* Destructor */
 MP_Chirp_Block_c::~MP_Chirp_Block_c() {
 
-#ifndef NDEBUG
-  fprintf( stderr, "libmptk DEBUG -- ~MP_Chirp_Block_c() - Deleting chirp_block.\n" );
-#endif
+  mp_debug_msg( MP_DEBUG_DESTRUCTION, "MP_Chirp_Block_c::~MP_Chirp_Block_c()", "Deleting chirp_block...\n" );
 
   if ( chirpRe ) free(chirpRe);
   if ( chirpIm ) free(chirpIm);
@@ -133,6 +252,8 @@ MP_Chirp_Block_c::~MP_Chirp_Block_c() {
   if ( imCorrelChirp  ) free( imCorrelChirp  );
   if ( sqCorrelChirp  ) free( sqCorrelChirp  );
   if ( cstCorrelChirp ) free( cstCorrelChirp );
+
+  mp_debug_msg( MP_DEBUG_DESTRUCTION, "MP_Chirp_Block_c::~MP_Chirp_Block_c()", "Done.\n" );
 }
 
 
@@ -153,12 +274,17 @@ int MP_Chirp_Block_c::info( FILE* fid ) {
 
   int nChar = 0;
 
-  nChar += fprintf( fid, "libmptk info -- CHIRP BLOCK: %s window (window opt=%g)", window_name( fft->windowType ), fft->windowOption );
-  nChar += fprintf( fid, " of length [%lu], shifted by [%lu] samples, projected on [%lu] frequencies;",
-		    filterLen, filterShift, numFilters );
-  nChar += fprintf( fid, " numFitPoints is [%u], numIter is [%u];\n", numFitPoints, numIter );
-  nChar += fprintf( fid, "libmptk info -- The number of frames for this block is [%lu], the search tree has [%lu] levels.\n",
-		    numFrames, numLevels );
+  nChar += mp_info_msg( fid, "CHIRP BLOCK", "%s window (window opt=%g) of length [%lu],"
+			" shifted by [%lu] samples,\n",
+			window_name( fft->windowType ), fft->windowOption,
+			filterLen, filterShift );
+  nChar += mp_info_msg( fid, "         |-", "projected on [%lu] frequencies;\n",
+			numFilters );
+  nChar += mp_info_msg( fid, "         |-", "numFitPoints is [%u], numIter is [%u];\n",
+			numFitPoints, numIter );
+  nChar += mp_info_msg( fid, "         O-", "The number of frames for this block is [%lu],"
+			" the search tree has [%lu] levels.\n",
+			numFrames, numLevels );
   return ( nChar );
 }
 
@@ -587,23 +713,24 @@ int add_chirp_block( MP_Dict_c *dict,
 		     const unsigned char numFitPoints,
 		     const unsigned int numIter ) {
 
+  const char* func = "add_chirp_block(...)";
   MP_Chirp_Block_c *newBlock;
   
   if( 2*(fftRealSize-1) < filterLen) {
-    fprintf( stderr, "mplib error -- add_chirp_block() - fftRealSize %lu is too small"
-	     " since window size is %lu.\n", fftRealSize, filterLen);
+    mp_error_msg( func, "fftRealSize %lu is too small"
+		  " since window size is %lu.\n", fftRealSize, filterLen);
     return( 0 );
   }
 
-  newBlock = new MP_Chirp_Block_c( dict->signal, filterLen, filterShift, fftRealSize,
-				   windowType, windowOption ,
-				   numFitPoints, numIter );
+  newBlock = MP_Chirp_Block_c::init( dict->signal, filterLen, filterShift, fftRealSize,
+				     windowType, windowOption ,
+				     numFitPoints, numIter );
   if ( newBlock != NULL ) {
     dict->add_block( newBlock );
   }
   else {
-    fprintf( stderr, "mplib error -- add_chirp_block() - Can't add a new chirp block"
-	     " to a dictionnary.\n" );
+    mp_error_msg( func, "Failed to initialize a new chirp block to add"
+		  " to the dictionary.\n" );
     return( 0 );
   }
 

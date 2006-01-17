@@ -152,6 +152,7 @@ void MP_Scan_Info_c::reset_all( void ) {
 /* Pop a block */
 MP_Block_c* MP_Scan_Info_c::pop_block( MP_Signal_c *signal ) {
 
+  const char* func = "MP_Scan_Info_c::pop_block( signal )";
   MP_Block_c *block;
   unsigned long int fftRealSize = 0;
   unsigned long int maxFundFreqIdx = 0;
@@ -292,8 +293,8 @@ MP_Block_c* MP_Scan_Info_c::pop_block( MP_Signal_c *signal ) {
 	  f0Min = globF0Min;
 	  f0MinIsSet = true;
 	}
-	else { /* Default to the DC frequency */
-	  f0Min = 0.0;
+	else { /* Default to just above the DC frequency */
+	  f0Min = ( (double)(signal->sampleRate) / (double)(fftSize) );
 	  f0MinIsSet = true;
 	}
       }
@@ -306,13 +307,21 @@ MP_Block_c* MP_Scan_Info_c::pop_block( MP_Signal_c *signal ) {
       }
       /* Check for going over the Nyquist frequency */
       if ( f0Min > ( (double)(signal->sampleRate) / 2.0 ) - ( (double)(signal->sampleRate)/(double)(fftSize) ) ) {
-	fprintf( stderr, "mplib warning -- pop_block() - In harmonic block (%u-th block): f0Min [%.2f] has been reduced to"
-		 " the signal's Nyquist frequency [%.2f].\n" , blockCount, f0Min, ( (double)(signal->sampleRate) / 2.0 ) );
+	fprintf( stderr, "mplib warning -- pop_block() - In harmonic block (%u-th block):"
+		 " f0Min [%.2f] has been reduced to the signal's Nyquist frequency [%.2f].\n" ,
+		 blockCount, f0Min, ( (double)(signal->sampleRate) / 2.0 ) );
 	f0Min = ( (double)(signal->sampleRate) / 2.0 ) - ( (double)(signal->sampleRate)/(double)(fftSize) );
       }
       /* Turn into fft bins */
       minFundFreqIdx = (unsigned long int)( floor( f0Min / ((double)(signal->sampleRate) / (double)(fftSize)) ) );
-      minFundFreqIdx = ( minFundFreqIdx == 0 ? 1 : minFundFreqIdx );
+      if ( minFundFreqIdx == 0 ) {
+	fprintf( stderr, "mplib warning -- pop_block() - Harmonic block (%u-th block) has"
+		 " f0Min [%.2f]Hz falling into the DC discrete frequency band:"
+		 " for this block, f0Min must higher than [%.2f]Hz. Returning a NULL block.\n" ,
+		 blockCount, f0Min, ( (double)(signal->sampleRate) / (double)(fftSize) ) );
+	reset();
+	return( NULL );
+      }
 
       /* - f0Max: */
       if ( !f0MaxIsSet ) {
@@ -327,13 +336,15 @@ MP_Block_c* MP_Scan_Info_c::pop_block( MP_Signal_c *signal ) {
       }
       /* Check for going over the Nyquist frequency */
       if ( f0Max > ( (double)(signal->sampleRate) / 2.0 ) ) {
-	fprintf( stderr, "mplib warning -- pop_block() - In harmonic block (%u-th block): f0Max [%.2f] has been reduced to"
-		 " the signal's Nyquist frequency [%.2f].\n" , blockCount, f0Max, ( (double)(signal->sampleRate) / 2.0 ) );
+	fprintf( stderr, "mplib warning -- pop_block() - In harmonic block (%u-th block):"
+		 " f0Max [%.2f] has been reduced to the signal's Nyquist frequency [%.2f].\n",
+		 blockCount, f0Max, ( (double)(signal->sampleRate) / 2.0 ) );
 	f0Max = ( (double)(signal->sampleRate) / 2.0 );
       }
       /* Check for the position viz. f0Min */
       if ( f0Max <= f0Min ) {
-	fprintf( stderr, "mplib warning -- pop_block() - In harmonic block (%u-th block): f0Max [%.2f] is smaller than f0Min [%.2f]."
+	fprintf( stderr, "mplib warning -- pop_block() - In harmonic block (%u-th block):"
+		 " f0Max [%.2f] is smaller than f0Min [%.2f]."
 		 " f0Max must be a positive frequency value bigger than f0Min. Returning a NULL block.\n" ,
 		 blockCount, f0Max, f0Min );
 	reset();
@@ -414,16 +425,17 @@ MP_Block_c* MP_Scan_Info_c::pop_block( MP_Signal_c *signal ) {
   /*********************************************/
   /* - Dirac block: */
   if ( !strcmp(type,"dirac") ) {
-    block = new MP_Dirac_Block_c( signal );
+    block = MP_Dirac_Block_c::init( signal );
     blockCount++;
   }
   /* - Gabor block: */
   else if ( !strcmp(type,"gabor") ) {
     if ( windowLenIsSet && windowShiftIsSet && fftSizeIsSet && windowTypeIsSet ) {
-      block = new MP_Gabor_Block_c( signal, windowLen, windowShift, fftRealSize, windowType, windowOption );
+      block = MP_Gabor_Block_c::init( signal, windowLen, windowShift,
+				      fftRealSize, windowType, windowOption );
     }
     else {
-      fprintf( stderr, "mplib warning -- pop_block() - Missing parameters in gabor block instanciation (%u-th block)."
+      mp_error_msg( func, "Missing parameters in gabor block instanciation (%u-th block)."
 	       " Returning a NULL block.\n" , blockCount );
       reset();
       return( NULL );
@@ -433,33 +445,37 @@ MP_Block_c* MP_Scan_Info_c::pop_block( MP_Signal_c *signal ) {
   else if ( !strcmp(type,"harmonic") ) {
     if ( windowLenIsSet && windowShiftIsSet && fftSizeIsSet && windowTypeIsSet
 	 && f0MinIsSet && f0MaxIsSet && numPartialsIsSet ) {
-      block = new MP_Harmonic_Block_c( signal, windowLen, windowShift, fftRealSize, windowType, windowOption,
-				       minFundFreqIdx, maxFundFreqIdx, numPartials );
+      block = MP_Harmonic_Block_c::init( signal, windowLen, windowShift, fftRealSize,
+					 windowType, windowOption,
+					 minFundFreqIdx, maxFundFreqIdx, numPartials );
     }
     else {
-      fprintf( stderr, "mplib warning -- pop_block() - Missing parameters in harmonic block instanciation (%u-th block)."
-	       " Returning a NULL block.\n" , blockCount );
+      mp_error_msg( func, "Missing parameters in harmonic block instanciation (%u-th block)."
+		    " Returning a NULL block.\n" , blockCount );
       reset();
       return( NULL );
     }
   }
   /* - Chirp block: */
   else if ( !strcmp(type,"chirp") ) {
-    if ( windowLenIsSet && windowShiftIsSet && fftSizeIsSet && windowTypeIsSet && numFitPointsIsSet && numIterIsSet ) {
-      block = new MP_Chirp_Block_c( signal, windowLen, windowShift, fftRealSize, windowType, windowOption, numFitPoints, numIter );
+    if ( windowLenIsSet && windowShiftIsSet && fftSizeIsSet && windowTypeIsSet
+	 && numFitPointsIsSet && numIterIsSet ) {
+      block = MP_Chirp_Block_c::init( signal, windowLen, windowShift, fftRealSize,
+				      windowType, windowOption,
+				      numFitPoints, numIter );
     }
     else {
-      fprintf( stderr, "mplib warning -- pop_block() - Missing parameters in chirp block instanciation (%u-th block)."
+      mp_error_msg( func, "Missing parameters in chirp block instanciation (%u-th block)."
 	       " Returning a NULL block.\n" , blockCount );
       reset();
       return( NULL );
     }
   }
   /* - ADD YOUR BLOCKS HERE: */
-  else if ( !strcmp(type,"TEMPLATE") ) {
+  /*else if ( !strcmp(type,"TEMPLATE") ) {
     // block = new MP_TEMPLATE_Block_c( signal, windowLen, windowShift, fftSize );
     block = NULL;
-  }
+    }*/
   /* - unknown block: */
   else { /* (This case should never be reached, since it should
 	    be blocked at the parameter check level above.) */
@@ -508,7 +524,8 @@ int write_block( FILE *fid, MP_Block_c *block ) {
     nChar += fprintf( fid, "\t\t<par type=\"windowLen\">%lu</par>\n", gblock->filterLen );
     nChar += fprintf( fid, "\t\t<par type=\"windowShift\">%lu</par>\n", gblock->filterShift );
     nChar += fprintf( fid, "\t\t<par type=\"fftSize\">%lu</par>\n", ((gblock->numFilters-1)<<1) );
-    nChar += fprintf( fid, "\t\t<window type=\"%s\" opt=\"%lg\"></window>\n", window_name(gblock->fft->windowType), gblock->fft->windowOption );
+    nChar += fprintf( fid, "\t\t<window type=\"%s\" opt=\"%lg\"></window>\n",
+		      window_name(gblock->fft->windowType), gblock->fft->windowOption );
     /* Close the block */
     nChar += fprintf( fid, "\t</block>\n" );
   }
@@ -532,7 +549,8 @@ int write_block( FILE *fid, MP_Block_c *block ) {
     nChar += fprintf( fid, "\t\t<par type=\"windowLen\">%lu</par>\n", hblock->filterLen );
     nChar += fprintf( fid, "\t\t<par type=\"windowShift\">%lu</par>\n", hblock->filterShift );
     nChar += fprintf( fid, "\t\t<par type=\"fftSize\">%lu</par>\n", fftSize );
-    nChar += fprintf( fid, "\t\t<window type=\"%s\" opt=\"%lg\"></window>\n", window_name(hblock->fft->windowType), hblock->fft->windowOption );
+    nChar += fprintf( fid, "\t\t<window type=\"%s\" opt=\"%lg\"></window>\n",
+		      window_name(hblock->fft->windowType), hblock->fft->windowOption );
     nChar += fprintf( fid, "\t\t<par type=\"f0Min\">%.2f</par>\n", f0Min );
     nChar += fprintf( fid, "\t\t<par type=\"f0Max\">%.2f</par>\n", f0Max );
     nChar += fprintf( fid, "\t\t<par type=\"numPartials\">%u</par>\n", hblock->maxNumPartials );
@@ -551,7 +569,8 @@ int write_block( FILE *fid, MP_Block_c *block ) {
     nChar += fprintf( fid, "\t\t<par type=\"windowLen\">%lu</par>\n", cblock->filterLen );
     nChar += fprintf( fid, "\t\t<par type=\"windowShift\">%lu</par>\n", cblock->filterShift );
     nChar += fprintf( fid, "\t\t<par type=\"fftSize\">%lu</par>\n", ((cblock->numFilters-1)<<1) );
-    nChar += fprintf( fid, "\t\t<window type=\"%s\" opt=\"%lg\"></window>\n", window_name(cblock->fft->windowType), cblock->fft->windowOption );
+    nChar += fprintf( fid, "\t\t<window type=\"%s\" opt=\"%lg\"></window>\n",
+		      window_name(cblock->fft->windowType), cblock->fft->windowOption );
     nChar += fprintf( fid, "\t\t<par type=\"numFitPoints\">%u</par>\n", cblock->numFitPoints );
     /* Close the block */
     nChar += fprintf( fid, "\t</block>\n" );

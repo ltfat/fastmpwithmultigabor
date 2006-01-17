@@ -51,25 +51,21 @@
 
 /******************************************/
 /* Plain initialization, with signal copy */
-MP_Dict_c::MP_Dict_c( const MP_Signal_c *setSignal ) {
+MP_Dict_c::MP_Dict_c( MP_Signal_c *setSignal, int mode ) {
 
-  /* Copy the signal into the dictionnary */
-  signal = new MP_Signal_c( *setSignal );
-
-  /* Allocate the touch array */
-  if ( (touch = (MP_Support_t*) malloc( signal->numChans*sizeof(MP_Support_t) )) == NULL ) {
-    fprintf( stderr, "mplib warning -- MP_Dict_c() - Can't allocate array of supports "
-	     "in new dictionnary with [%u] channels."
-	     " Touch array is left un-initialized.\n", signal->numChans );
-  }
-  else {
-    int i;
-    /* Initially we have to consider the whole signal as touched */
-    for ( i=0; i < signal->numChans; i++ ) { touch[i].pos = 0; touch[i].len = signal->numSamples; }
-  }
+  /* Preliminaries */
+  touch = NULL;
+  signal = NULL;
   numBlocks = 0;
   block = NULL;
   blockWithMaxIP = 0;
+  sigMode = 0;
+
+  /* Set the signal */
+  if ( reset_signal( setSignal, mode ) ) {
+    mp_error_msg( "MP_Dict_c::MP_Dict_c( signal, mode )", "Failed to set the signal in"
+		  " the dictionary constructor. Signal and touch will remain NULL.\n" );
+  }
 
 }
 
@@ -77,23 +73,24 @@ MP_Dict_c::MP_Dict_c( const MP_Signal_c *setSignal ) {
 /* Plain initialization, with signal as a file name */
 MP_Dict_c::MP_Dict_c(  const char *sigFileName ) {
 
-  /* Copy the signal into the dictionnary */
-  signal = new MP_Signal_c( sigFileName );
-
-  /* Allocate the touch array */
-  if ( (touch = (MP_Support_t*) malloc( signal->numChans*sizeof(MP_Support_t) )) == NULL ) {
-    fprintf( stderr, "mplib warning -- MP_Dict_c(file) - Can't allocate array of supports "
-	     "in new dictionnary with [%u] channels."
-	     " Touch array is left un-initialized.\n", signal->numChans );
-  }
-  else {
-    int i;
-    /* Initially we have to consider the whole signal as touched */
-    for ( i=0; i < signal->numChans; i++ ) { touch[i].pos = 0; touch[i].len = signal->numSamples; }
-  }
+  /* Preliminaries */
+  touch = NULL;
+  signal = NULL;
   numBlocks = 0;
   block = NULL;
   blockWithMaxIP = 0;
+
+  /* Load the signal directly into the dictionnary */
+  signal = new MP_Signal_c( sigFileName );
+  sigMode = MP_DICT_SIG_COPY;
+
+  /* Allocate the touch array */
+  if ( alloc_touch() ) {
+    mp_error_msg( "MP_Dict_c::MP_Dict_c( fileName )", "Failed to allocate and initialize"
+		  " the touch array in the dictionary constructor. Signal and touch"
+		  " will remain NULL.\n" );
+    if ( signal ) { delete( signal ); signal = NULL; }
+  }
 
 }
 
@@ -107,10 +104,8 @@ MP_Dict_c::~MP_Dict_c() {
   fprintf(stderr,"mplib DEBUG -- delete dict\n");
 #endif
 
-  if ( signal ) delete signal;
-  for ( i=0; i<numBlocks; i++ ) {
-    if ( block[i] ) delete( block[i] );
-  }
+  if ( (sigMode == MP_DICT_SIG_COPY) && ( signal ) ) delete signal;
+  for ( i=0; i<numBlocks; i++ ) { if ( block[i] ) delete( block[i] ); }
   if ( block ) free( block );
   if ( touch ) free( touch );
 
@@ -260,19 +255,98 @@ unsigned long int MP_Dict_c::size(void) {
 }
 
 
+/***************************************/
+/* Hook a new signal to the dictionary */
+int MP_Dict_c::reset_signal( MP_Signal_c *setSignal, int mode ) {
+
+  const char* func = "MP_Dict_c::reset_signal( signal, mode )";
+
+  if ( setSignal != NULL ) {
+
+    switch ( mode ) {
+    case MP_DICT_SIG_COPY:
+      /* Copy-construct the signal into the dictionnary */
+      signal = new MP_Signal_c( *setSignal );
+      break;
+    case MP_DICT_SIG_HOOK:
+      /* Just hook the signal to the dictionnary */
+      signal = setSignal;
+      break;
+    default:
+      mp_error_msg( func, "Bad mode passed to reset_signal().\n" );
+      return( 1 );
+      break;
+    }
+    sigMode = mode;
+    
+    /* In any mode, allocate the touch array */
+    if ( alloc_touch() ) {
+      mp_error_msg( func, "Failed to allocate and initialize the touch array"
+		    " in the dictionary constructor. Signal and touch will stay NULL.\n" );
+      if ( mode == MP_DICT_SIG_COPY ) delete( signal );
+      signal = NULL;
+      return( 1 );
+    }
+
+  }
+  /* else {
+     mp_warning_msg( func, "A NULL signal was passed to reset_signal()."
+     "No action taken on the dictionary.\n" );
+     } */
+
+  return( 0 );
+}
+
+
+/*********************************/
+/* Allocation of the touch array */
+int MP_Dict_c::alloc_touch( void ) {
+
+  const char* func = "MP_Dict_c::alloc_touch()";
+
+  /* If touch already exists, free it; guarantees that it is NULL. */
+  if ( touch ) { free( touch ); touch = NULL; }
+
+  /* Check if a signal is present */
+  if ( signal != NULL ) {
+
+    /* Allocate the touch array */
+    if ( (touch = (MP_Support_t*) malloc( signal->numChans*sizeof(MP_Support_t) )) == NULL ) {
+      mp_error_msg( func, "Failed to allocate the array of touched supports"
+		    " in the dictionary. The touch array is left NULL.\n" );
+      return( 1 );
+    }
+    else {
+      int i;
+      /* Initially we have to consider the whole signal as touched */
+      for ( i = 0; i < signal->numChans; i++ ) { touch[i].pos = 0; touch[i].len = signal->numSamples; }
+      return( 0 );
+    }
+
+  }
+  else {
+    mp_error_msg( func, "Trying to allocate the touch array from"
+		  " a NULL signal. The touch array will remain NULL.\n" );
+    return( 1 );
+  }
+
+}
+
+
 /***********************/
 /* Addition of a block */
 int MP_Dict_c::add_block( MP_Block_c *newBlock ) {
 
+  const char* func = "MP_Dict_c::add_block( newBlock )";
   MP_Block_c **tmp;
 
   assert( newBlock != NULL );
 
   /* Increase the size of the array of blocks... */
   if ( (tmp = (MP_Block_c**) realloc( block, (numBlocks+1)*sizeof(MP_Block_c*) )) == NULL ) {
-    fprintf( stderr, "mplib error -- MP_Dict_c::add_block(block) - Can't reallocate memory to add a new block to dictionary. "
-	     "No new block will be added, number of blocks stays [%d].\n",
-	     numBlocks );
+    mp_error_msg( func, "Can't reallocate memory to add a new block to dictionary."
+		  " No new block will be added, number of blocks stays [%d].\n",
+		  numBlocks );
     return(0);
   }
   /* ... and store the reference on the newly created object. */
@@ -396,8 +470,9 @@ int MP_Dict_c::iterate_mp( MP_Book_c *book , MP_Signal_c *sigRecons ) {
   numAtoms = block[blockWithMaxIP]->create_atom( &atom, atomIdx );
 
   if (numAtoms == 0) {
-    fprintf( stderr, "mplib error -- MP_Dict_c::iterate_mp() - Iteration failed in dictionary: block[%ul]->create_atom() "
-	     "returned no atom. Dictionary, book and signal are left unchanged.\n",
+    fprintf( stderr, "mplib error -- MP_Dict_c::iterate_mp() - Iteration failed in dictionary:"
+	     " block[%ul]->create_atom() returned no atom. Dictionary, book and signal"
+	     " are left unchanged.\n",
 	     blockWithMaxIP );
     return(0);
   } 

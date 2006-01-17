@@ -51,14 +51,16 @@ export_headers = mp_types.h \
 	atom.h  block.h \
 	mask.h              \
 	book.h dict.h   \
-	atom_classes/gabor_atom.h atom_classes/gabor_block.h         \
-	atom_classes/chirp_block.h         \
-	atom_classes/harmonic_atom.h atom_classes/harmonic_block.h   \
 	atom_classes/dirac_atom.h atom_classes/dirac_block.h         \
-	atom_classes/TEMPLATE_atom.h atom_classes/TEMPLATE_block.h   \
+	atom_classes/gabor_atom.h atom_classes/gabor_block.h         \
+	atom_classes/harmonic_atom.h atom_classes/harmonic_block.h   \
+	atom_classes/chirp_block.h         \
 	atom_classes/block_io_interface.h                            \
 	atom_classes/atom_classes.h
 ## NOTE: in the above list, the order of the headers is important.
+
+#	atom_classes/TEMPLATE_atom.h atom_classes/TEMPLATE_block.h   \
+#
 
 BUILT_SOURCES = regression_constants.h mptk.h
 CLEANFILES = regression_constants.h mptk.h dict_scanner.cpp
@@ -77,14 +79,16 @@ libmptk_a_SOURCES = mptk.h header.h $(export_headers) regression_constants.h\
 	win_server.cpp    \
 	fft_interface.cpp \
 	block.cpp atom.cpp atom_classes/atom_classes.cpp \
-        atom_classes/gabor_atom.cpp atom_classes/gabor_block.cpp         \
-        atom_classes/chirp_block.cpp         \
-        atom_classes/harmonic_atom.cpp atom_classes/harmonic_block.cpp         \
         atom_classes/dirac_atom.cpp atom_classes/dirac_block.cpp         \
-        atom_classes/TEMPLATE_atom.cpp atom_classes/TEMPLATE_block.cpp   \
+        atom_classes/gabor_atom.cpp atom_classes/gabor_block.cpp         \
+        atom_classes/harmonic_atom.cpp atom_classes/harmonic_block.cpp         \
+        atom_classes/chirp_block.cpp         \
 	atom_classes/dict_scanner.lpp \
 	atom_classes/block_io_interface.cpp \
 	dict.cpp mask.cpp book.cpp tfmap.cpp
+
+#        atom_classes/TEMPLATE_atom.cpp atom_classes/TEMPLATE_block.cpp   \
+#
 
 mptk.h: Makefile.am $(srcdir)/header.h $(srcdir)/../../AUTHORS $(export_headers)
 	( head -n 36 $(srcdir)/header.h; \

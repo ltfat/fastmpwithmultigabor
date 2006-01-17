@@ -65,10 +65,24 @@ class MP_Dirac_Block_c:public MP_Block_c {
 
 public:
 
-  /** \brief Constructor of a dirac block 
+  /** \brief Factory function of a dirac block 
    * \param s the signal on which the block will work */
-  MP_Dirac_Block_c( MP_Signal_c *s);
+  static MP_Dirac_Block_c* init( MP_Signal_c *s);
 
+protected:
+  /** \brief an initializer for the parameters which ARE NOT related to the signal */
+  virtual int init_parameters( void );
+
+  /** \brief an initializer for the parameters which ARE related to the signal */
+  virtual int plug_signal( MP_Signal_c *setSignal );
+
+  /** \brief nullification of the signal-related parameters */
+  virtual void nullify_signal( void );
+
+  /** \brief a constructor which initializes everything to zero or NULL */
+  MP_Dirac_Block_c( void );
+
+public:
   /* Destructor */
   virtual ~MP_Dirac_Block_c();
 

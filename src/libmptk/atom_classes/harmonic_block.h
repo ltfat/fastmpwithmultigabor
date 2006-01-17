@@ -117,7 +117,7 @@ public:
 
 public:
 
-  /** \brief Constructor that allocates the storage space and inits it to zero, 
+  /** \brief Factory function that allocates the storage space and inits it to zero, 
    * and set up the FFT interface
    *
    * The size of the complex FFT which is performed depends on \a setWindowSize and 
@@ -149,16 +149,37 @@ public:
    * \sa MP_Gabor_Block_c::MP_Gabor_Block_c()
    * \sa make_window()
    */
-  MP_Harmonic_Block_c( MP_Signal_c *s,
-		       const unsigned long int setWindowSize,
-		       const unsigned long int setFilterShift,
-		       const unsigned long int setFftRealSize,
-		       const unsigned char setWindowType,
-		       const double setWindowOption,
-		       const unsigned long int setMinFundFreqIdx,
-		       const unsigned long int setMaxFundFreqIdx,
-		       const unsigned int  setMaxNumPartials);
+  static MP_Harmonic_Block_c* init( MP_Signal_c *s,
+				    const unsigned long int setWindowSize,
+				    const unsigned long int setFilterShift,
+				    const unsigned long int setFftRealSize,
+				    const unsigned char setWindowType,
+				    const double setWindowOption,
+				    const unsigned long int setMinFundFreqIdx,
+				    const unsigned long int setMaxFundFreqIdx,
+				    const unsigned int  setMaxNumPartials );
 
+protected:
+  /** \brief an initializer for the parameters which ARE NOT related to the signal */
+  virtual int init_parameters( const unsigned long int setFilterLen,
+			       const unsigned long int setFilterShift,
+			       const unsigned long int setFftRealSize,
+			       const unsigned char setWindowType,
+			       const double setWindowOption,
+			       const unsigned long int setMinFundFreqIdx,
+			       const unsigned long int setMaxFundFreqIdx,
+			       const unsigned int  setMaxNumPartials );
+
+  /** \brief an initializer for the parameters which ARE related to the signal */
+  virtual int plug_signal( MP_Signal_c *setSignal );
+
+  /** \brief nullification of the signal-related parameters */
+  virtual void nullify_signal( void );
+
+  /** \brief a constructor which initializes everything to zero or NULL */
+  MP_Harmonic_Block_c( void );
+
+public:
   /* Destructor */
   virtual ~MP_Harmonic_Block_c();
 

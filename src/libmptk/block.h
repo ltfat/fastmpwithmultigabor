@@ -107,13 +107,22 @@ public:
   /* CONSTRUCTORS/DESTRUCTOR */
   /***************************/
 
-public:
-  /** \brief a constructor which allocates the storage space and initializes it to zero */
-  MP_Block_c( MP_Signal_c *s,
-	      const unsigned long int filterLen,
-	      const unsigned long int filterShift,
-	      const unsigned long int numFilters );
+protected:
+  /** \brief an initializer for the parameters which ARE NOT related to the signal */
+  virtual int init_parameters( const unsigned long int setFilterLen,
+			       const unsigned long int setFilterShift,
+			       const unsigned long int setNumFilters );
 
+  /** \brief an initializer for the parameters which ARE related to the signal */
+  virtual int plug_signal( MP_Signal_c *setSignal );
+
+  /** \brief nullification of the signal-related parameters */
+  virtual void nullify_signal( void );
+
+  /** \brief a constructor which initializes everything to zero or NULL */
+  MP_Block_c( void );
+
+public:
   /* Destructor */
   virtual ~MP_Block_c();
 
@@ -121,14 +130,6 @@ public:
   /***************************/
   /* OTHER METHODS           */
   /***************************/
-
-private:
-
-  /** \brief allocates the storage space and initializes it to zero */
-  int alloc_block( MP_Signal_c *s,
-		   const unsigned long int filterLen,
-		   const unsigned long int filterShift,
-		   const unsigned long int numFilters );
 
 public:
 

@@ -30,8 +30,8 @@
                 <par type="windowShift">128</par>
                 <par type="fftSize">256</par>
                 <window type="gauss" opt="0"></window>
-                <par type="f0Min">3</par>
-                <par type="f0Max">12</par>
+                <par type="f0Min">340</par>
+                <par type="f0Max">1000</par>
                 <par type="numPartials">5</par>
         </block>
         <block type="harmonic">

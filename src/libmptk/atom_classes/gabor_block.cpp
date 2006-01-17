@@ -50,35 +50,77 @@
 /***************************/
 
 /************************/
-/* Specific constructor */
-MP_Gabor_Block_c::MP_Gabor_Block_c( MP_Signal_c *setSignal,
-				    const unsigned long int setFilterLen,
-				    const unsigned long int setFilterShift,
-				    const unsigned long int setFftRealSize,
-				    const unsigned char setWindowType,
-				    const double setWindowOption )
-  /* Create the block structure with numFilters = fftRealSize */
-:MP_Block_c( setSignal, setFilterLen, setFilterShift, setFftRealSize ) {
-  
+/* Factory function     */
+MP_Gabor_Block_c* MP_Gabor_Block_c::init( MP_Signal_c *setSignal,
+					  const unsigned long int setFilterLen,
+					  const unsigned long int setFilterShift,
+					  const unsigned long int setFftRealSize,
+					  const unsigned char setWindowType,
+					  const double setWindowOption ) {
+
+  const char* func = "MP_Gabor_Block_c::init()";
+  MP_Gabor_Block_c *newBlock = NULL;
+
+  /* Instantiate and check */
+  newBlock = new MP_Gabor_Block_c();
+  if ( newBlock == NULL ) {
+    mp_error_msg( func, "Failed to create a new Gabor block.\n" );
+    return( NULL );
+  }
+
+  /* Set the block parameters (that are independent from the signal) */
+  if ( newBlock->init_parameters( setFilterLen, setFilterShift, setFftRealSize,
+				  setWindowType, setWindowOption ) ) {
+    mp_error_msg( func, "Failed to initialize some block parameters in the new Gabor block.\n" );
+    delete( newBlock );
+    return( NULL );
+  }
+
+  /* Set the signal-related parameters */
+  if ( newBlock->plug_signal( setSignal ) ) {
+    mp_error_msg( func, "Failed to plug a signal in the new Gabor block.\n" );
+    delete( newBlock );
+    return( NULL );
+  }
+
+  return( newBlock );
+}
+
+
+/*********************************************************/
+/* Initialization of signal-independent block parameters */
+int MP_Gabor_Block_c::init_parameters( const unsigned long int setFilterLen,
+				       const unsigned long int setFilterShift,
+				       const unsigned long int setFftRealSize,
+				       const unsigned char setWindowType,
+				       const double setWindowOption ) {
+
+  const char* func = "MP_Gabor_Block_c::init_parameters(...)";
+
+  /* Go up the inheritance graph */
+  if ( MP_Block_c::init_parameters( setFilterLen, setFilterShift, setFftRealSize ) ) {
+    mp_error_msg( func, "Failed to init the block-level parameters in the new Gabor block.\n" );
+    return( 1 );
+  }
+
   /* Create the FFT object */
   fft = (MP_FFT_Interface_c*)MP_FFT_Interface_c::init( filterLen, setWindowType, setWindowOption,
 						       setFftRealSize );
-
-  /* Allocate the mag array */
-  if ( (mag = (MP_Real_t*) malloc( setFftRealSize*s->numChans*sizeof(MP_Real_t) )) == NULL ) {
-    fprintf( stderr, "mplib warning -- MP_Gabor_Block_c() - Can't allocate an array of [%lu] MP_Real_t elements"
-	     " for the mag array. This pointer will remain NULL.\n", setFftRealSize*s->numChans );
+  if ( fft == NULL ) {
+    mp_error_msg( func, "Failed to init the FFT in the new Gabor block.\n" );
+    return( 1 );    
   }
-  else { unsigned long int i; for ( i=0; i<(setFftRealSize*s->numChans); i++ ) *(mag+i) = 0.0; }
 
   /* Allocate the complex fft buffers */
   if ( (fftRe = (MP_Real_t*) malloc( setFftRealSize*sizeof(MP_Real_t) )) == NULL ) {
-    fprintf( stderr, "mplib warning -- MP_Gabor_Block_c() - Can't allocate an array of [%lu] MP_Real_t elements"
-	     " for the real part of the fft array. This pointer will remain NULL.\n", setFftRealSize );
+    mp_error_msg( func, "Failed to allocate an array of [%lu] MP_Real_t elements"
+		  " for the real part of the fft array.\n", setFftRealSize );
+    return( 1 );
   }
   if ( (fftIm = (MP_Real_t*) malloc( setFftRealSize*sizeof(MP_Real_t) )) == NULL ) {
-    fprintf( stderr, "mplib warning -- MP_Gabor_Block_c() - Can't allocate an array of [%lu] MP_Real_t elements"
-	     " for the imaginary part of the fft array. This pointer will remain NULL.\n", setFftRealSize );
+    mp_error_msg( func, "Failed to allocate an array of [%lu] MP_Real_t elements"
+		  " for the imaginary part of the fft array.\n", setFftRealSize );
+    return( 1 );
   }
 
   /* Set the fftRealSize */
@@ -86,8 +128,8 @@ MP_Gabor_Block_c::MP_Gabor_Block_c( MP_Signal_c *setSignal,
 
   /* Allocate the atom's autocorrelations */
   if ( alloc_correl( &reCorrel, &imCorrel, &sqCorrel, &cstCorrel ) ) {
-    fprintf( stderr, "mplib warning -- MP_Gabor_Block() - "
-	     "The allocation of the atom's autocorrelations returned an error.\n");
+    mp_error_msg( func, "Failed to allocate the block's autocorrelations.\n" );
+    return( 1 );
   }
 
   /* Compute the complex atoms FFT to prepare for correlation filling */
@@ -95,9 +137,77 @@ MP_Gabor_Block_c::MP_Gabor_Block_c( MP_Signal_c *setSignal,
 
   /* Tabulate the atom's autocorrelations */
   if ( fill_correl( reCorrel, imCorrel, sqCorrel, cstCorrel ) ) {
-    fprintf( stderr, "mplib warning -- MP_Gabor_Block() - "
-	     "The tabulation of the atom's autocorrelations returned an error.\n" );
+    mp_error_msg( func, "Failed to tabulate the block's autocorrelations.\n" );
+    return( 1 );
   }
+
+  return( 0 );
+}
+
+
+/*******************************************************/
+/* Initialization of signal-dependent block parameters */
+int MP_Gabor_Block_c::plug_signal( MP_Signal_c *setSignal ) {
+
+  const char* func = "MP_Gabor_Block_c::plug_signal( signal )";
+
+  /* Reset any potential previous signal */
+  nullify_signal();
+
+  if ( setSignal != NULL ) {
+
+    /* Go up the inheritance graph */
+    if ( MP_Block_c::plug_signal( setSignal ) ) {
+      mp_error_msg( func, "Failed to plug a signal at the block level.\n" );
+      nullify_signal();
+      return( 1 );
+    }
+    
+    /* Allocate the mag array */
+    if ( (mag = (MP_Real_t*) malloc( fftRealSize*s->numChans*sizeof(MP_Real_t) )) == NULL ) {
+      mp_error_msg( func, "Can't allocate an array of [%lu] MP_Real_t elements"
+		    " for the mag array. Nullifying all the signal-related parameters.\n",
+		    fftRealSize*s->numChans );
+      nullify_signal();
+      return( 1 );
+    }
+    else { unsigned long int i; for ( i=0; i<(fftRealSize*s->numChans); i++ ) *(mag+i) = 0.0; }
+
+  }
+
+  return( 0 );
+}
+
+
+/**************************************************/
+/* Nullification of the signal-related parameters */
+void MP_Gabor_Block_c::nullify_signal( void ) {
+
+  MP_Block_c::nullify_signal();
+  if ( mag ) { free( mag ); mag = NULL; }
+
+}
+
+
+/********************/
+/* NULL constructor */
+MP_Gabor_Block_c::MP_Gabor_Block_c( void )
+  :MP_Block_c() {
+
+  mp_debug_msg( MP_DEBUG_CONSTRUCTION, "MP_Gabor_Block_c::MP_Gabor_Block_c()",
+		"Constructing a Gabor block...\n" );
+
+  fft = NULL;
+  mag = NULL;
+  fftRe = fftIm = NULL;
+
+  fftRealSize = 0;
+
+  reCorrel = imCorrel = NULL;
+  sqCorrel = cstCorrel = NULL;
+
+  mp_debug_msg( MP_DEBUG_CONSTRUCTION, "MP_Gabor_Block_c::MP_Gabor_Block_c()",
+		"Done.\n" );
 
 }
 
@@ -106,11 +216,9 @@ MP_Gabor_Block_c::MP_Gabor_Block_c( MP_Signal_c *setSignal,
 /* Destructor */
 MP_Gabor_Block_c::~MP_Gabor_Block_c() {
 
-#ifndef NDEBUG
-  fprintf( stderr, "mplib DEBUG -- ~MP_Gabor_Block_c() - Deleting gabor_block..." );
-#endif
+  mp_debug_msg( MP_DEBUG_DESTRUCTION, "MP_Gabor_Block_c::~MP_Gabor_Block_c()", "Deleting Gabor block...\n" );
 
-  delete fft;
+  if ( fft ) delete( fft );
 
   if ( mag ) free( mag );
 
@@ -122,9 +230,7 @@ MP_Gabor_Block_c::~MP_Gabor_Block_c() {
   if ( sqCorrel  ) free( sqCorrel  );
   if ( cstCorrel ) free( cstCorrel );
 
-#ifndef NDEBUG
-  fprintf( stderr, "Done.\n" );
-#endif
+  mp_debug_msg( MP_DEBUG_DESTRUCTION, "MP_Gabor_Block_c::~MP_Gabor_Block_c()", "Done.\n" );
 
 }
 
@@ -145,12 +251,15 @@ int MP_Gabor_Block_c::info( FILE *fid ) {
 
   int nChar = 0;
 
-  nChar += fprintf( fid, "mplib info -- GABOR BLOCK: %s window (window opt=%g)",
-		    window_name( fft->windowType ), fft->windowOption );
-  nChar += fprintf( fid, " of length [%lu], shifted by [%lu] samples, projected on [%lu] frequencies;\n",
-		    filterLen, filterShift, numFilters );
-  nChar += fprintf( fid, "mplib info -- The number of frames for this block is [%lu], "
-		    "the search tree has [%lu] levels.\n", numFrames, numLevels );
+  nChar += mp_info_msg( fid, "GABOR BLOCK", "%s window (window opt=%g)"
+			" of length [%lu], shifted by [%lu] samples,\n",
+			window_name( fft->windowType ), fft->windowOption,
+			filterLen, filterShift );
+  nChar += mp_info_msg( fid, "         |-", "projected on [%lu] frequencies;\n",
+			numFilters );
+  nChar += mp_info_msg( fid, "         O-", "The number of frames for this block is [%lu], "
+			"the search tree has [%lu] levels.\n", numFrames, numLevels );
+
   return( nChar );
 }
 
@@ -159,31 +268,33 @@ int MP_Gabor_Block_c::info( FILE *fid ) {
 /* Allocation of the correlation vectors */
 int MP_Gabor_Block_c::alloc_correl( MP_Real_t **reCorr, MP_Real_t **imCorr,
 				    MP_Real_t **sqCorr, MP_Real_t **cstCorr ) {
- 
+
+  const char* func = "MP_Gabor_Block_c::alloc_correl(...)";
+
   /* Allocate the memory for the correlations and init it to zero */
   *reCorr = *imCorr = *sqCorr = NULL;
   /* Reminder: ( fftCplxSize == ((fftRealSize-1)<<1) ) <=> ( fftRealSize == ((fftCplxSize>>1)+1) ) */
   if ( ( *reCorr = (MP_Real_t *) calloc( fftRealSize , sizeof(MP_Real_t)) ) == NULL) {
-    fprintf( stderr, "mplib warning -- alloc_correl() - Can't allocate storage space for the real part"
-	     " of the atom correlations. Correlations are left un-initialized.\n");
+    mp_error_msg( func, "Can't allocate storage space for the real part"
+		  " of the atom correlations. Correlations are left un-initialized.\n");
     return( 1 );
   }
   else if ( ( *imCorr = (MP_Real_t *) calloc( fftRealSize , sizeof(MP_Real_t)) ) == NULL) {
-    fprintf( stderr, "mplib warning -- alloc_correl() - Can't allocate storage space for the imaginary part"
-	     " of the atom correlations. Corrations are left un-initialized.\n");
+    mp_error_msg( func, "Can't allocate storage space for the imaginary part"
+		  " of the atom correlations. Corrations are left un-initialized.\n");
     free( *reCorr ); *reCorr = NULL;
     return( 1 );
   }
   else if ( ( *sqCorr = (MP_Real_t *) calloc( fftRealSize , sizeof(MP_Real_t)) ) == NULL) {
-    fprintf( stderr, "mplib warning -- alloc_correl() - Can't allocate storage space for the squared"
-	     " atom correlations. Correlations are left un-initialized.\n");
+    mp_error_msg( func, "Can't allocate storage space for the squared"
+		  " atom correlations. Correlations are left un-initialized.\n");
     free( *reCorr ); *reCorr = NULL;
     free( *imCorr ); *imCorr = NULL;
     return( 1 );
   }
   else if ( ( *cstCorr = (MP_Real_t *) calloc( fftRealSize , sizeof(MP_Real_t)) ) == NULL) {
-    fprintf( stderr, "mplib warning -- alloc_correl() - Can't allocate storage space for the pre-computed"
-	     " constant of the atom correlations. Correlations are left un-initialized.\n");
+    mp_error_msg( func, "Can't allocate storage space for the pre-computed"
+		  " constant of the atom correlations. Correlations are left un-initialized.\n");
     free( *reCorr ); *reCorr = NULL;
     free( *imCorr ); *imCorr = NULL;
     free( *sqCorr ); *sqCorr = NULL;
@@ -201,6 +312,7 @@ int MP_Gabor_Block_c::alloc_correl( MP_Real_t **reCorr, MP_Real_t **imCorr,
 int MP_Gabor_Block_c::fill_correl( MP_Real_t *reCorr, MP_Real_t *imCorr,
 				   MP_Real_t *sqCorr, MP_Real_t *cstCorr ) {
 
+  const char* func = "MP_Gabor_Block_c::fill_correl(...)";
   double re,im,sq;
   int k, cursor;
 
@@ -228,9 +340,9 @@ int MP_Gabor_Block_c::fill_correl( MP_Real_t *reCorr, MP_Real_t *imCorr,
     }
     else {
       if ( (MP_Real_t)(sq) >= 1.0 ) {
-	fprintf( stderr, "mplib warning -- fill_correl() - atom's autocorrelation has value >= 1.0 [diff= %e ]\n"
-		 "\t\tfor frequency index %d (fftRealSize in this block is %lu).\n",
-		 ((MP_Real_t)(sq) - 1.0), k, fftRealSize );
+	mp_warning_msg( func, "Atom's autocorrelation has value >= 1.0 [diff= %e ]\n"
+			"\t\tfor frequency index %d (fftRealSize in this block is %lu).\n",
+			((MP_Real_t)(sq) - 1.0), k, fftRealSize );
       }
     }
   }
@@ -252,9 +364,9 @@ int MP_Gabor_Block_c::fill_correl( MP_Real_t *reCorr, MP_Real_t *imCorr,
     }
     else {
       if ( (MP_Real_t)(sq) >= 1.0 ) {
-	fprintf( stderr, "mplib warning -- fill_correl() - atom's autocorrelation has value >= 1.0 [diff= %e ]\n"
-		 "\t\tfor frequency index %d (fftRealSize in this block is %lu).\n",
-		 ((MP_Real_t)(sq) - 1.0), k, fftRealSize );
+	mp_warning_msg( func, "Atom's autocorrelation has value >= 1.0 [diff= %e ]\n"
+			"\t\tfor frequency index %d (fftRealSize in this block is %lu).\n",
+			((MP_Real_t)(sq) - 1.0), k, fftRealSize );
       }
     }
   }
@@ -270,6 +382,7 @@ void MP_Gabor_Block_c::compute_energy( MP_Real_t *in,
 				       MP_Real_t *sqCorr, MP_Real_t *cstCorr,
 				       MP_Real_t *outMag ) {
 
+  const char* func = "MP_Gabor_Block_c::compute_energy(...)";
   int i;
   double re, im, reSq, imSq, energy;
   double correlSq;
@@ -323,8 +436,9 @@ void MP_Gabor_Block_c::compute_energy( MP_Real_t *in,
     /* => Compensate for a possible numerical innacuracy
      *    (this case should never happen in practice) */
     if ( energy < 0 ) {
-      fprintf( stderr, "mplib warning -- exec_energy() - A negative energy was met."
-	       " (energy = [%g])\nEnergy value is reset to 0.0 .", energy );
+      mp_warning_msg( func, "A negative energy was met."
+		      " (energy = [%g])\nEnergy value is reset to 0.0 .",
+		      energy );
       energy = 0.0;
     }
 
@@ -417,6 +531,7 @@ void MP_Gabor_Block_c::update_frame(unsigned long int frameIdx,
 unsigned int MP_Gabor_Block_c::create_atom( MP_Atom_c **atom,
 					    const unsigned long int atomIdx ) {
 
+  const char* func = "MP_Gabor_Block_c::create_atom(...)";
   MP_Gabor_Atom_c *gatom = NULL;
   /* Time-frequency location: */
   unsigned long int pos;
@@ -435,9 +550,8 @@ unsigned int MP_Gabor_Block_c::create_atom( MP_Atom_c **atom,
   /* Allocate the atom */
   *atom = NULL;
   if ( (gatom = new MP_Gabor_Atom_c( s->numChans, fft->windowType, fft->windowOption )) == NULL ) {
-    fprintf( stderr, "mplib error -- MP_Gabor_Block_c::create_atom() - "
-	     "Can't create a new Gabor atom in create_atom()."
-	     " Returning NULL as the atom reference.\n" );
+    mp_error_msg( func, "Can't create a new Gabor atom in create_atom()."
+		  " Returning NULL as the atom reference.\n" );
     return( 0 );
   }
 
@@ -496,10 +610,12 @@ unsigned int MP_Gabor_Block_c::create_atom( MP_Atom_c **atom,
     /* 5) fill in the atom parameters */
     gatom->amp[chanIdx]   = (MP_Real_t)( amp   );
     gatom->phase[chanIdx] = (MP_Real_t)( phase );
-#ifndef NDEBUG
-    fprintf( stderr, "mplib DEBUG -- freq %g chirp %g amp %g phase %g\n reCorr %g imCorr %g\n re %g im %g 2*(re^2+im^2) %g\n",
-	     gatom->freq, gatom->chirp, amp, phase, reCorr, imCorr, re, im, 2*(re*re+im*im) );
-#endif
+
+    mp_debug_msg( MP_DEBUG_CREATE_ATOM, func,
+		  "freq %g chirp %g amp %g phase %g\n reCorr %g imCorr %g\n"
+		  " re %g im %g 2*(re^2+im^2) %g\n",
+		  gatom->freq, gatom->chirp, amp, phase, reCorr, imCorr,
+		  re, im, 2*(re*re+im*im) );
   }
 
   *atom = gatom;
@@ -522,23 +638,24 @@ int add_gabor_block( MP_Dict_c *dict,
 		     const unsigned char windowType,
 		     const double windowOption ) {
 
+  const char* func = "add_gabor_block(...)";
   MP_Gabor_Block_c *newBlock;
 
   
   if( 2*(fftRealSize-1) < filterLen) {
-    fprintf( stderr, "mplib error -- add_gabor_block() - fftRealSize %lu is too small"
-	     " since window size is %lu.\n", fftRealSize, filterLen);
+    mp_error_msg( func, "fftRealSize [%lu] is too small"
+		  " since window size is %lu.\n", fftRealSize, filterLen);
     return( 0 );
   }
 
- 
-  newBlock = new MP_Gabor_Block_c( dict->signal, filterLen, filterShift, fftRealSize,
-				   windowType, windowOption );
+  newBlock = MP_Gabor_Block_c::init( dict->signal, filterLen, filterShift, fftRealSize,
+				     windowType, windowOption );
   if ( newBlock != NULL ) {
     dict->add_block( newBlock );
   }
   else {
-    fprintf( stderr, "mplib error -- add_gabor_block() - Can't add a new gabor block to a dictionnary.\n" );
+    mp_error_msg( func, "Failed to initialize a new gabor block to add"
+		  " to the dictionary.\n" );
     return( 0 );
   }
 
@@ -560,17 +677,16 @@ int add_gabor_blocks( MP_Dict_c *dict,
   unsigned long int setFftRealSize;
   int nAddedBlocks = 0;
 
-#ifndef NDEBUG
   assert(timeDensity > 0.0);
   assert(freqDensity > 0.0);
-#endif
 
   for ( setFilterLen = 4; setFilterLen <= maxFilterLen; setFilterLen <<= 1 ) {
 
     setFilterShift = (unsigned long int)round((MP_Real_t)setFilterLen/timeDensity);
     setFftRealSize = (unsigned long int)round((MP_Real_t)(setFilterLen/2+1)*freqDensity);
     nAddedBlocks += add_gabor_block( dict,
-				     setFilterLen, setFilterShift, setFftRealSize, setWindowType, setWindowOption );
+				     setFilterLen, setFilterShift, setFftRealSize,
+				     setWindowType, setWindowOption );
   }
 
   return(nAddedBlocks);
