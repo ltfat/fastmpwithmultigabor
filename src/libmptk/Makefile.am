@@ -59,8 +59,6 @@ export_headers = mp_types.h \
 	atom_classes/atom_classes.h
 ## NOTE: in the above list, the order of the headers is important.
 
-#	atom_classes/TEMPLATE_atom.h atom_classes/TEMPLATE_block.h   \
-#
 
 BUILT_SOURCES = regression_constants.h mptk.h
 CLEANFILES = regression_constants.h mptk.h dict_scanner.cpp
@@ -87,8 +85,6 @@ libmptk_a_SOURCES = mptk.h header.h $(export_headers) regression_constants.h\
 	atom_classes/block_io_interface.cpp \
 	dict.cpp mask.cpp book.cpp tfmap.cpp
 
-#        atom_classes/TEMPLATE_atom.cpp atom_classes/TEMPLATE_block.cpp   \
-#
 
 mptk.h: Makefile.am $(srcdir)/header.h $(srcdir)/../../AUTHORS $(export_headers)
 	( head -n 36 $(srcdir)/header.h; \

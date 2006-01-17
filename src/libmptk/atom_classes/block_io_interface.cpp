@@ -44,23 +44,21 @@
 
 /* Constructor */
 MP_Scan_Info_c::MP_Scan_Info_c() {
-#ifndef NDEBUG
-  fprintf(stderr,"mplib DEBUG -- constructing MP_Scan_Info...\n");
-#endif
+
+  mp_debug_msg( MP_DEBUG_CONSTRUCTION, "MP_Scan_Info_c::MP_Scan_Info_c()",
+		"Constructing MP_Scan_Info...\n" );
 
   reset_all();
 
-#ifndef NDEBUG
-  fprintf(stderr,"mplib DEBUG -- Done.\n");
-#endif
+  mp_debug_msg( MP_DEBUG_CONSTRUCTION, "MP_Scan_Info_c::MP_Scan_Info_c()",
+		"Done.\n");
 }
 
 
 /* Destructor */
 MP_Scan_Info_c::~MP_Scan_Info_c() {
-#ifndef NDEBUG
-  fprintf(stderr,"mplib DEBUG -- deleting MP_Scan_Info.\n");
-#endif
+  mp_debug_msg( MP_DEBUG_DESTRUCTION, "MP_Scan_Info_c::~MP_Scan_Info_c()",
+		"deleting MP_Scan_Info. Done.\n");
 }
 
 
@@ -177,8 +175,8 @@ MP_Block_c* MP_Scan_Info_c::pop_block( MP_Signal_c *signal ) {
 	windowLenIsSet = true;
       }
       else {
-	fprintf( stderr, "mplib warning -- pop_block() - Gabor or harmonic block (%u-th block) has no windowLen."
-		 " Returning a NULL block.\n" , blockCount );
+	mp_error_msg( func, "Gabor or harmonic block (%u-th block) has no windowLen."
+		      " Returning a NULL block.\n" , blockCount );
 	reset();
 	return( NULL );
       }
@@ -186,7 +184,8 @@ MP_Block_c* MP_Scan_Info_c::pop_block( MP_Signal_c *signal ) {
     /* - windowShift: */
     if (!windowShiftIsSet) {
       if (windowRateIsSet) {
-	windowShift = (unsigned long int)( (double)(windowLen)*windowRate + 0.5 ); /* == round(windowLen*windowRate) */
+	windowShift = (unsigned long int)( (double)(windowLen)*windowRate + 0.5 );
+	/* == round(windowLen*windowRate) */
 	windowShift = ( windowShift > 1 ? windowShift : 1 ); /* windowShift has to be 1 or more */
 	windowShiftIsSet = true;
       }
@@ -195,13 +194,14 @@ MP_Block_c* MP_Scan_Info_c::pop_block( MP_Signal_c *signal ) {
 	windowShiftIsSet = true;
       }
       else if (globWindowRateIsSet) {
-	windowShift = (unsigned long int)( (double)(windowLen)*globWindowRate + 0.5 ); /* == round(windowLen*globWindowRate) */
+	windowShift = (unsigned long int)( (double)(windowLen)*globWindowRate + 0.5 );
+	/* == round(windowLen*globWindowRate) */
 	windowShift = ( windowShift > 1 ? windowShift : 1 ); /* windowShift has to be 1 or more */
 	windowShiftIsSet = true;
       }
       else {
-	fprintf( stderr, "mplib warning -- pop_block() - Gabor or harmonic block (%u-th block) has no windowShift or windowRate."
-		 " Returning a NULL block.\n" , blockCount );
+	mp_error_msg( func, "Gabor or harmonic block (%u-th block) has no windowShift or windowRate."
+		      " Returning a NULL block.\n" , blockCount );
 	reset();
 	return( NULL );
       }
@@ -218,31 +218,32 @@ MP_Block_c* MP_Scan_Info_c::pop_block( MP_Signal_c *signal ) {
 	fftSizeIsSet = true;
       }
       else {
-	fprintf( stderr, "mplib warning -- pop_block() - Gabor or harmonic block (%u-th block) has no fftSize and no windowLen."
-		 " Returning a NULL block.\n" , blockCount );
+	mp_error_msg( func, "Gabor or harmonic block (%u-th block) has no fftSize and no windowLen."
+		      " Returning a NULL block.\n" , blockCount );
 	reset();
 	return( NULL );
       }
     }
     /* Check fftSize validity */
     if ( is_odd(fftSize) ) { /* If fftSize is odd (fftSize has to be even) */
-      fprintf( stderr, "mplib warning -- pop_block() - Gabor or harmonic block (%u-th block) has an odd fftSize:"
-	       " fftSize must be even. Returning a NULL block.\n" , blockCount );
+      mp_error_msg( func, "Gabor or harmonic block (%u-th block) has an odd fftSize:"
+		    " fftSize must be even. Returning a NULL block.\n" , blockCount );
       reset();
       return( NULL );
     }
     if ( is_odd(windowLen) ) { /* If windowLEn is odd, fftSize must be >= windowLen+1 */
       if ( fftSize < (windowLen+1) ) {
-	fprintf( stderr, "mplib warning -- pop_block() - In gabor or harmonic block (%u-th block): fftSize must be bigger"
-		 " than windowLen+1 when windowLen is odd. Returning a NULL block.\n" , blockCount );
+	mp_error_msg( func, "In gabor or harmonic block (%u-th block): fftSize must be bigger"
+		      " than windowLen+1 when windowLen is odd. Returning a NULL block.\n" ,
+		      blockCount );
 	reset();
 	return( NULL );
       }
     }
     else { /* If windowLEn is even, fftSize must be >= windowLen */
       if ( fftSize < windowLen ) {
-	fprintf( stderr, "mplib warning -- pop_block() - In gabor or harmonic block (%u-th block): fftSize must be bigger"
-		 " than windowLen when windowLen is even. Returning a NULL block.\n" , blockCount );
+	mp_error_msg( func, "In gabor or harmonic block (%u-th block): fftSize must be bigger"
+		      " than windowLen when windowLen is even. Returning a NULL block.\n" , blockCount );
 	reset();
 	return( NULL );
       }
@@ -262,23 +263,23 @@ MP_Block_c* MP_Scan_Info_c::pop_block( MP_Signal_c *signal ) {
 
       }
       else {
-	fprintf( stderr, "mplib warning -- pop_block() - Gabor or harmonic block (%u-th block)"
-		 " has no window specification. Returning a NULL block.\n" , blockCount );
+	mp_error_msg( func, "Gabor or harmonic block (%u-th block)"
+		      " has no window specification. Returning a NULL block.\n" , blockCount );
 	reset();
 	return( NULL );
       }
     }
     if ( !(window_type_is_ok(windowType)) ) {
-	fprintf( stderr, "mplib warning -- pop_block() - Gabor or harmonic block (%u-th block)"
-		 " has an invalid window type. Returning a NULL block.\n" , blockCount );
-	reset();
-	return( NULL );
+      mp_error_msg( func, "Gabor or harmonic block (%u-th block)"
+		    " has an invalid window type. Returning a NULL block.\n" , blockCount );
+      reset();
+      return( NULL );
     }
 
     if ( window_needs_option(windowType) && (!windowOptionIsSet) ) {
-      fprintf( stderr, "mplib warning -- pop_block() - Gabor or harmonic block (%u-th block)"
-	       " requires a window option (the opt=\"\" attribute is probably missing"
-	       " in the relevant <window> tag). Returning a NULL block.\n" , blockCount );
+      mp_error_msg( func, "Gabor or harmonic block (%u-th block)"
+		    " requires a window option (the opt=\"\" attribute is probably missing"
+		    " in the relevant <window> tag). Returning a NULL block.\n" , blockCount );
       reset();
       return( NULL );
     }
@@ -300,25 +301,26 @@ MP_Block_c* MP_Scan_Info_c::pop_block( MP_Signal_c *signal ) {
       }
       /* check for neg values */
       if ( f0Min < 0 ) {
-	fprintf( stderr, "mplib warning -- pop_block() - Harmonic block (%u-th block) has a negative f0Min [%.2f]:"
-		 " f0Min must be a positive frequency value. Returning a NULL block.\n" , blockCount, f0Min );
+	mp_error_msg( func, "Harmonic block (%u-th block) has a negative f0Min [%.2f]:"
+		      " f0Min must be a positive frequency value. Returning a NULL block.\n" ,
+		      blockCount, f0Min );
 	reset();
 	return( NULL );
       }
       /* Check for going over the Nyquist frequency */
       if ( f0Min > ( (double)(signal->sampleRate) / 2.0 ) - ( (double)(signal->sampleRate)/(double)(fftSize) ) ) {
-	fprintf( stderr, "mplib warning -- pop_block() - In harmonic block (%u-th block):"
-		 " f0Min [%.2f] has been reduced to the signal's Nyquist frequency [%.2f].\n" ,
-		 blockCount, f0Min, ( (double)(signal->sampleRate) / 2.0 ) );
+	mp_error_msg( func, "In harmonic block (%u-th block):"
+		      " f0Min [%.2f] has been reduced to the signal's Nyquist frequency [%.2f].\n" ,
+		      blockCount, f0Min, ( (double)(signal->sampleRate) / 2.0 ) );
 	f0Min = ( (double)(signal->sampleRate) / 2.0 ) - ( (double)(signal->sampleRate)/(double)(fftSize) );
       }
-      /* Turn into fft bins */
+      /* Turn min frequency (in Hz) into fft bins */
       minFundFreqIdx = (unsigned long int)( floor( f0Min / ((double)(signal->sampleRate) / (double)(fftSize)) ) );
       if ( minFundFreqIdx == 0 ) {
-	fprintf( stderr, "mplib warning -- pop_block() - Harmonic block (%u-th block) has"
-		 " f0Min [%.2f]Hz falling into the DC discrete frequency band:"
-		 " for this block, f0Min must higher than [%.2f]Hz. Returning a NULL block.\n" ,
-		 blockCount, f0Min, ( (double)(signal->sampleRate) / (double)(fftSize) ) );
+	mp_error_msg( func, "Harmonic block (%u-th block) has"
+		      " f0Min [%.2f]Hz falling into the DC discrete frequency band:"
+		      " for this block, f0Min must higher than [%.2f]Hz. Returning a NULL block.\n" ,
+		      blockCount, f0Min, ( (double)(signal->sampleRate) / (double)(fftSize) ) );
 	reset();
 	return( NULL );
       }
@@ -336,21 +338,21 @@ MP_Block_c* MP_Scan_Info_c::pop_block( MP_Signal_c *signal ) {
       }
       /* Check for going over the Nyquist frequency */
       if ( f0Max > ( (double)(signal->sampleRate) / 2.0 ) ) {
-	fprintf( stderr, "mplib warning -- pop_block() - In harmonic block (%u-th block):"
-		 " f0Max [%.2f] has been reduced to the signal's Nyquist frequency [%.2f].\n",
-		 blockCount, f0Max, ( (double)(signal->sampleRate) / 2.0 ) );
+	mp_error_msg( func, "In harmonic block (%u-th block):"
+		      " f0Max [%.2f] has been reduced to the signal's Nyquist frequency [%.2f].\n",
+		      blockCount, f0Max, ( (double)(signal->sampleRate) / 2.0 ) );
 	f0Max = ( (double)(signal->sampleRate) / 2.0 );
       }
       /* Check for the position viz. f0Min */
       if ( f0Max <= f0Min ) {
-	fprintf( stderr, "mplib warning -- pop_block() - In harmonic block (%u-th block):"
-		 " f0Max [%.2f] is smaller than f0Min [%.2f]."
-		 " f0Max must be a positive frequency value bigger than f0Min. Returning a NULL block.\n" ,
-		 blockCount, f0Max, f0Min );
+	mp_error_msg( func, "In harmonic block (%u-th block):"
+		      " f0Max [%.2f] is smaller than f0Min [%.2f]."
+		      " f0Max must be a positive frequency value bigger than f0Min."
+		      " Returning a NULL block.\n" , blockCount, f0Max, f0Min );
 	reset();
 	return( NULL );
       }
-      /* Turn into fft bins */
+      /* Turn Hz into fft bins */
       maxFundFreqIdx = (unsigned long int)( floor( f0Max / ((double)(signal->sampleRate) / (double)(fftSize)) ) );
 
       /* - numPartials: */
@@ -360,8 +362,8 @@ MP_Block_c* MP_Scan_Info_c::pop_block( MP_Signal_c *signal ) {
 	  numPartialsIsSet = true;
 	}
 	else {
-	  fprintf( stderr, "mplib warning -- pop_block() - Harmonic block (%u-th block) has no numPartials."
-		   " Returning a NULL block.\n" , blockCount );
+	  mp_error_msg( func, "Harmonic block (%u-th block) has no numPartials."
+			" Returning a NULL block.\n" , blockCount );
 	  reset();
 	  return( NULL );
 	}
@@ -405,14 +407,14 @@ MP_Block_c* MP_Scan_Info_c::pop_block( MP_Signal_c *signal ) {
   }
   /***************************/
   /* - ADD YOUR BLOCKS HERE: */
-  else if ( !strcmp(type,"TEMPLATE") ) {
+  /* else if ( !strcmp(type,"TEMPLATE") ) {
     // Check the input parameters
-  }
+    } */
   /********************/
   /* - unknown block: */
   else {
-    fprintf( stderr, "mplib warning -- pop_block() - Cannot create a block of type \"%s\" (%u-th block)."
-	     " Returning a NULL block.\n", type, blockCount );
+    mp_error_msg( func, "Cannot create a block of type \"%s\" (%u-th block)."
+		  " Returning a NULL block.\n", type, blockCount );
     reset();
     return( NULL );
   }
@@ -436,7 +438,7 @@ MP_Block_c* MP_Scan_Info_c::pop_block( MP_Signal_c *signal ) {
     }
     else {
       mp_error_msg( func, "Missing parameters in gabor block instanciation (%u-th block)."
-	       " Returning a NULL block.\n" , blockCount );
+		    " Returning a NULL block.\n" , blockCount );
       reset();
       return( NULL );
     }
@@ -466,21 +468,20 @@ MP_Block_c* MP_Scan_Info_c::pop_block( MP_Signal_c *signal ) {
     }
     else {
       mp_error_msg( func, "Missing parameters in chirp block instanciation (%u-th block)."
-	       " Returning a NULL block.\n" , blockCount );
+		    " Returning a NULL block.\n" , blockCount );
       reset();
       return( NULL );
     }
   }
   /* - ADD YOUR BLOCKS HERE: */
-  /*else if ( !strcmp(type,"TEMPLATE") ) {
-    // block = new MP_TEMPLATE_Block_c( signal, windowLen, windowShift, fftSize );
-    block = NULL;
-    }*/
+  /* else if ( !strcmp(type,"TEMPLATE") ) {
+     block = new MP_TEMPLATE_Block_c( signal, windowLen, windowShift, fftSize );
+     }*/
   /* - unknown block: */
   else { /* (This case should never be reached, since it should
 	    be blocked at the parameter check level above.) */
-    fprintf( stderr, "mplib warning -- pop_block() - Cannot create a block of type \"%s\" (%u-th block)."
-	     " Returning a NULL block.\n", type, blockCount );
+    mp_error_msg( func, "Cannot create a block of type \"%s\" (%u-th block)."
+		  " Returning a NULL block.\n", type, blockCount );
     block = NULL;
   }
   /*                  */
@@ -500,6 +501,7 @@ MP_Block_c* MP_Scan_Info_c::pop_block( MP_Signal_c *signal ) {
 /* Generic function to write blocks to streams */
 int write_block( FILE *fid, MP_Block_c *block ) {
 
+  const char* func = "write_block(fid,block)";
   int nChar = 0;
   char *name;
 
@@ -578,8 +580,8 @@ int write_block( FILE *fid, MP_Block_c *block ) {
 
   /**** - unknown block: ****/
   else {
-    fprintf( stderr, "mplib error -- write_block() - Cannot write a block of type \"%s\"."
-	     " I'm skipping this block.\n", name );
+    mp_error_msg( func, "Cannot write a block of type \"%s\"."
+		  " I'm skipping this block.\n", name );
     return( 0 );
   }
 
