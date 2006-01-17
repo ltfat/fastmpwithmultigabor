@@ -93,6 +93,9 @@
 #   ifndef INT_MAX
 #      define INT_MAX 2147483647
 #   endif
+#   ifndef UINT_MAX
+#      define UINT_MAX 4294967295U
+#   endif
 #   if __WORDSIZE == 64
 #    define ULONG_MAX    18446744073709551615UL
 #   else
@@ -108,7 +111,7 @@
 # ifdef HAVE_ASSERT_H
 #  include <assert.h>
 # else
-#  define assert(expr) 0
+#  define assert(expr) (void)(0)
 # endif
 
 #endif /* _mp_system_h_ */
