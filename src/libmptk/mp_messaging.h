@@ -79,12 +79,14 @@
 /* -- information related to file I/O: */
 #define MP_DEBUG_FILE_IO   (1 << 13)
 /* -- construction/deletion of objects: */
-#define MP_DEBUG_CONSTRUCTOR_ENTER (1 << 14)
-#define MP_DEBUG_CONSTRUCTOR_EXIT  (1 << 15)
-#define MP_DEBUG_DESTRUCTOR_ENTER  (1 << 16)
-#define MP_DEBUG_DESTRUCTOR_EXIT   (1 << 17)
+#define MP_DEBUG_CONSTRUCTION (1 << 14)
+#define MP_DEBUG_DESTRUCTION  (1 << 15)
+/* -- Matching Pursuit iterations: */
+#define MP_DEBUG_MP_ITERATIONS (1 << 16)
+/* -- Specific for function create_atom(): */
+#define MP_DEBUG_CREATE_ATOM   (1 << 17)
 
-#define MP_MSG_LAST_TYPE MP_DEBUG_DESTRUCTOR_EXIT
+#define MP_MSG_LAST_TYPE MP_DEBUG_CREATE_ATOM
 
 #define MP_DEBUG_ALL  ULONG_MAX
 #define MP_DEBUG_NONE 0
@@ -355,7 +357,11 @@ size_t mp_info_msg( FILE *fid, const char *funcName, const char *format, ... );
  *
  * \sa set_debug_stream(), set_debug_handler(), set_debug_mask().
  */
+#ifndef NDEBUG
 size_t mp_debug_msg( const unsigned long int msgType, const char *funcName, const char *format, ... );
+#else
+#define mp_debug_msg( A, B, C, ... ) (void)(0)
+#endif
 
 /** \brief Pretty-printing of the libmptk debug messages to a specific stream
  *
@@ -364,8 +370,9 @@ size_t mp_debug_msg( const unsigned long int msgType, const char *funcName, cons
  * \param format a format string similar to the printf formats
  * \param ... a variable list of arguments to be printed according to the format
  */
+#ifndef NDEBUG
 size_t mp_debug_msg( FILE *fid, const unsigned long int msgType, const char *funcName, const char *format, ... );
-
+#endif
 
 
 #endif /* __mp_messaging_h_ */

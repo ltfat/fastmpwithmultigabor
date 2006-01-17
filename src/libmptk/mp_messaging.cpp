@@ -393,6 +393,8 @@ size_t mp_info_msg( FILE *fid, const char *funcName, const char *format, ...  ) 
 /* Debug messages */
 /******************/
 
+#ifndef NDEBUG
+
 /******************/
 /* Using handler: */
 size_t mp_debug_msg( const unsigned long int msgType, const char *funcName, const char *format, ...  ) {
@@ -434,3 +436,5 @@ size_t mp_debug_msg( FILE *fid, const char *funcName, const char *format, ...  )
 
   return( done );
 }
+
+#endif /* #ifndef NDEBUG */
