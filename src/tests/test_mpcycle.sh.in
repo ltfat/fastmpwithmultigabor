@@ -112,8 +112,8 @@ fi
 echo "2) Rebuilding from the reference book and residual:"
 
 cmd="$utilpath/mpr --verbose $refdir/ref/book_mix_58_stereo.bin.ref current/reconst_ref_mix_58_stereo.wav $refdir/ref/res_mix_58_stereo.wav.ref >& current/log_mpr_ref_mix_58_stereo.log;"
-echo cmd
-eval cmd
+echo $cmd
+eval $cmd
 
 diff -I 'mix_58_stereo' @abs_top_builddir@/src/tests/current/log_mpr_ref_mix_58_stereo.log $refdir/ref/log_mpr_mix_58_stereo.ref > /dev/null 2> /dev/null
 if test $? -eq 0; then

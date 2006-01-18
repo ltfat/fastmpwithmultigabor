@@ -54,7 +54,7 @@
 /** \brief Blocks corresponding to Gabor frames / modulated filter banks 
  *
  * Typically, for Gabor blocks one will have FFT real size = FFT complex size/2+1, 
- * so for speed reasons it might be preferable to use fftRealSize of the form 2^n+1 */
+ * so for speed reasons it might be preferable to use numFreqs of the form 2^n+1 */
 class MP_Gabor_Block_c:public MP_Block_c {
 
   /********/
@@ -65,17 +65,24 @@ public:
   /** \brief FFT interface, which includes the window with which the signal is multiplied */
   MP_FFT_Interface_c *fft;
 
-  /** \brief A (fft->fftRealSize x s->numChans) array which holds the frame-wise FFT results
+  /* The FFT size */
+  unsigned long int fftSize;
+
+  /* The number of positive frequencies in the FFT of a real signal,
+     always equal to (fftSize/2)+1 (since it accounts
+     for the Hermitian symmetry) */
+  unsigned long int numFreqs;
+
+  /** \brief A (fft->numFreqs x s->numChans) array which holds the frame-wise FFT results
       across channels */
   MP_Real_t *mag;
 
-  /* A couple of buffers of size fftRealSize to perform complex fft computations
+  /* A couple of buffers of size numFreqs to perform complex fft computations
      in create_atom.
      WARNING: these buffers are re-used in the chirp block. */
   MP_Real_t *fftRe;
   MP_Real_t *fftIm;
-  /* The length of the above buffers */
-  unsigned long int fftRealSize;
+
 
   /** \brief Storage space for the real part of the quantity 
    * \f[
@@ -119,30 +126,31 @@ public:
 public:
   /** \brief Factory function for a Gabor block
    *
-   * The size of the complex FFT which is performed depends on filterLen (== the
-   * window size) and fftRealSize (== the number of frequency bins) and is
-   * typically 2*(fftRealSize-1), so for speed reasons it might be preferable
-   * to use fftRealSize of the form 2^n+1
+   * \param filterLen the length of the signal window, in number of samples
+   * \param filterShift the window shift, in number of samples
+   * \param fftSize the size of the FFT, including zero padding
+   * \param windowType the window type (see the doc of libdsp_windows.h)
+   * \param windowOption the optional window parameter.
    * 
-   * \sa MP_FFT_Interface_c::fftRealSize MP_FFT_Interface_c::exec_complex()
+   * \sa MP_FFT_Interface_c::numFreqs MP_FFT_Interface_c::exec_complex()
    */
   static MP_Gabor_Block_c* init( MP_Signal_c *s,
 				 const unsigned long int filterLen,
 				 const unsigned long int filterShift,
-				 const unsigned long int fftRealSize,
+				 const unsigned long int fftSize,
 				 const unsigned char windowType,
 				 const double windowOption );
+
+  /** \brief an initializer for the parameters which ARE related to the signal */
+  virtual int plug_signal( MP_Signal_c *setSignal );
 
 protected:
   /** \brief an initializer for the parameters which ARE NOT related to the signal */
   virtual int init_parameters( const unsigned long int setFilterLen,
 			       const unsigned long int setFilterShift,
-			       const unsigned long int setFftRealSize,
+			       const unsigned long int setFftSize,
 			       const unsigned char setWindowType,
 			       const double setWindowOption );
-
-  /** \brief an initializer for the parameters which ARE related to the signal */
-  virtual int plug_signal( MP_Signal_c *setSignal );
 
   /** \brief nullification of the signal-related parameters */
   virtual void nullify_signal( void );
@@ -188,7 +196,7 @@ public:
 			     MP_Real_t *maxCorr, 
 			     unsigned long int *maxFilterIdx ); 
 
-  /** \brief Creates a new Gabor atom corresponding to atomIdx in the flat array ip[]
+  /** \brief Creates a new Gabor atom corresponding to (frameIdx,filterIdx)
    * 
    * The real valued atomic waveform stored in atomBuffer is the projection
    * of the signal on the subspace spanned by the complex atom and its
@@ -203,7 +211,8 @@ public:
    * \f]
    */
   unsigned int create_atom( MP_Atom_c **atom,
-			    const unsigned long int atomIdx );
+			    const unsigned long int frameIdx,
+			    const unsigned long int filterIdx );
 
 protected:
 
@@ -228,7 +237,7 @@ protected:
    * \param imCorr imaginary part of the pre-computed atom's autocorrelation.
    * \param sqCorr pre-computed squared atom's autocorrelation.
    * \param cstCorr pre-computed useful constant related to the atom's autocorrelation.
-   * \param outMag output FFT magnitude buffer, only the first fftRealSize values are filled.
+   * \param outMag output FFT magnitude buffer, only the first numFreqs values are filled.
    *
    * As explained in Section 3.2.3 (Eq. 3.30) of the Ph.D. thesis of Remi 
    * Gribonval, for a normalized atom \f$g\f$ with
@@ -262,7 +271,7 @@ protected:
    * \mbox{energy} = \mbox{re}^2+\mbox{im}^2.
    * \f]
    * \sa The documentation of exec_complex() gives the expression of \f$(\mbox{re}[k],\mbox{im}[k])\f$
-   * and details about zero padding and the use of fftRealSize.
+   * and details about zero padding and the use of numFreqs.
    */  
   void compute_energy( MP_Real_t *in,
 		       MP_Real_t *reCorr, MP_Real_t *imCorr,
@@ -282,14 +291,14 @@ protected:
  * \param filterLen size of the window
  * \param filterShift shift, in samples, between two consecutive frames. 
  * Typically, use \a filterShift = \a filterLen / 2 to get 50 percent overlap between windows
- * \param fftRealSize number of atoms (frequency bins) per frame. 
- * Typically, use \a fftRealSize = \a filterLen / 2 + 1 to have the block compute
+ * \param fftSize the size of the performed FFT. 
+ * Typically, use \a fftSize = \a filterLen to have the block compute
  * windowed FFTs without zero padding.
  * \param windowType type of the window
  * \param windowOption optional shaping parameter of the windows
  * \return one upon success, zero otherwise 
  *
- * \remark If \a fftRealSize is smaller than \a filterLen / 2 + 1,
+ * \remark If \a fftSize is smaller than \a filterLen ,
  * no Gabor block is added!
  *
  * \sa MP_Gabor_Block_c::MP_Gabor_Block_c()
@@ -298,7 +307,7 @@ protected:
 int add_gabor_block( MP_Dict_c *dict,
 		     const unsigned long int filterLen,
 		     const unsigned long int filterShift,
-		     const unsigned long int fftRealSize,
+		     const unsigned long int fftSize,
 		     const unsigned char windowType,
 		     const double windowOption );
 
@@ -318,8 +327,8 @@ int add_gabor_block( MP_Dict_c *dict,
  * \a timeDensity = 2 to have a 50 percent overlap.
  *
  * \param freqDensity Determines the number of frequency bins 
- * (= \a fftRealSize)  as a function of the window size (= \a filterLen):
- * \f[\mbox{fftRealSize} = (\mbox{filterLen/2+1}) \times \mbox{freqDensity}\f]
+ * (= \a numFreqs)  as a function of the window size (= \a filterLen):
+ * \f[\mbox{numFreqs} = (\mbox{filterLen/2+1}) \times \mbox{freqDensity}\f]
  * If \a freqDensity is at least one, zero padding will be performed to have
  * an increased frequency resolution.
  *

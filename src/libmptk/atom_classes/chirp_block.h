@@ -126,35 +126,30 @@ private :
 
 public:
   /** \brief A factory function for the chirp blocks
-   *
-   * The size of the complex FFT which is performed depends on filterLen (== the
-   * window size) and fftRealSize (== the number of frequency bins) and is
-   * typically 2*(fftRealSize-1), so for speed reasons it might be preferable
-   * to use fftRealSize of the form 2^n+1
    * 
    * \sa MP_FFT_Interface_c::fftRealSize MP_FFT_Interface_c::exec_complex()
    */
   static MP_Chirp_Block_c* init( MP_Signal_c *s,
 				 const unsigned long int filterLen,
 				 const unsigned long int filterShift,
-				 const unsigned long int fftRealSize,
+				 const unsigned long int fftSize,
 				 const unsigned char windowType,
 				 const double windowOption,
 				 const unsigned int setNumFitPoints,
 				 const unsigned int setNumIter );
 
+  /** \brief an initializer for the parameters which ARE related to the signal */
+  virtual int plug_signal( MP_Signal_c *setSignal );
+
 protected:
   /** \brief an initializer for the parameters which ARE NOT related to the signal */
   virtual int init_parameters( const unsigned long int setFilterLen,
 			       const unsigned long int setFilterShift,
-			       const unsigned long int setFftRealSize,
+			       const unsigned long int setFftSize,
 			       const unsigned char setWindowType,
 			       const double setWindowOption,
 			       const unsigned int setNumFitPoints,
 			       const unsigned int setNumIter );
-
-  /** \brief an initializer for the parameters which ARE related to the signal */
-  virtual int plug_signal( MP_Signal_c *setSignal );
 
   /** \brief nullification of the signal-related parameters */
   virtual void nullify_signal( void );
@@ -179,13 +174,13 @@ public:
   /* Readable text dump */
   virtual int info( FILE* fid );
 
-  /** \brief Creates a new chirp atom corresponding to atomIdx in the flat
-   *  array ip[]
+  /** \brief Creates a new chirp atom corresponding to (frameIdx,filterIdx)
    * 
    *  \todo Describe how the atom is determined here.
    */
   unsigned int create_atom( MP_Atom_c **atom,
-			    const unsigned long int atomIdx );
+			    const unsigned long int frameIdx,
+			    const unsigned long int filterIdx );
 
 
 private : 

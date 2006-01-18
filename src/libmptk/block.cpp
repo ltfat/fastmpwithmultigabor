@@ -56,6 +56,26 @@ int MP_Block_c::init_parameters( const unsigned long int setFilterLen,
 				 const unsigned long int setFilterShift,
 				 const unsigned long int setNumFilters ) {
 
+  const char* func = "MP_Block_c::init_parameters(...)";
+
+  /* Check the input parameters */
+  if ( setFilterLen == 0 ) { /* filterLen must be at least 1 sample */
+    mp_error_msg( func, "filterLen [%lu] is null: filterLen must be at least 1 sample.\n" ,
+		  setFilterLen );
+    return( 1 );
+  }
+  if ( setFilterShift == 0 ) { /* filterShift must be at least 1 sample */
+    mp_error_msg( func, "filterShift [%lu] is null: filterShift must be at least 1 sample.\n" ,
+		  setFilterShift );
+    return( 1 );
+  }
+  if ( setNumFilters == 0 ) { /* numFilters must be at least 1 */
+    mp_error_msg( func, "numFilters [%lu] is null: numFilters must be at least 1.\n" ,
+		  setNumFilters );
+    return( 1 );
+  }
+
+  /* Set the block parameters */
   filterLen = setFilterLen;
   filterShift = setFilterShift;
   numFilters = setNumFilters;
@@ -88,7 +108,6 @@ int MP_Block_c::plug_signal( MP_Signal_c *setSignal ) {
     /* Parameters for the research of the max */
     maxIPValue = -1.0;
     maxIPFrameIdx = 0;
-    maxAtomIdx = 0;
     
     /* maxIPValueInFrame array */
     if ( (maxIPValueInFrame = (MP_Real_t*) malloc( numFrames*sizeof(MP_Real_t) ))
@@ -230,7 +249,6 @@ MP_Block_c::MP_Block_c( void ) {
   maxIPFrameIdx = 0;
   maxIPValueInFrame = NULL;
   maxIPIdxInFrame = NULL;
-  maxAtomIdx = 0;
 
   numLevels = 0;
   elevator = NULL;
@@ -370,12 +388,11 @@ MP_Real_t MP_Block_c::update_max( const MP_Support_t frameSupport ) {
   /* Dereference the top values */
   maxIPValue    = elevator[numLevels-1][0];
   maxIPFrameIdx = elevatorFrame[numLevels-1][0];
-  maxAtomIdx = maxIPFrameIdx*numFilters + maxIPIdxInFrame[maxIPFrameIdx];
 
 #ifndef NDEBUG
   mp_debug_msg( MP_DEBUG_MP_ITERATIONS, func, "After update, elevators say that max is %g"
-		" in frame %lu at position %lu. (maxAtomIdx=%lu)\n",
-		maxIPValue, maxIPFrameIdx, maxIPIdxInFrame[maxIPFrameIdx], maxAtomIdx );
+		" in frame %lu at position %lu.\n",
+		maxIPValue, maxIPFrameIdx, maxIPIdxInFrame[maxIPFrameIdx] );
 #endif
 
   return( maxIPValue );

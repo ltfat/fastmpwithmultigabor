@@ -521,10 +521,22 @@ int main( int argc, char **argv ) {
   }
 
   /* Load the dictionary */
-  if ( !MPD_QUIET ) fprintf( stderr, "mpd msg -- Loading the signal and the dictionary...\n" ); fflush( stderr );
-  dict = new MP_Dict_c( sndFileName );
-  if ( dict->signal->storage == NULL ) {
-    fprintf( stderr, "mpd error -- Failed to load a signal from file [%s].\n",
+  if ( !MPD_QUIET ) fprintf( stderr, "mpd msg -- Loading the dictionary...\n" ); fflush( stderr );
+  /* Add the blocks to the dictionnary */
+  if ( !MPD_QUIET ) fprintf( stderr, "mpd msg -- (In the following, spurious output of dictionary pieces"
+			     " would be a symptom of parsing errors.)\n" ); fflush( stderr );
+  dict = MP_Dict_c::init( dictFileName );
+  if ( dict == NULL ) {
+    fprintf( stderr, "mpd error -- Failed to create a dictionary from XML file [%s].\n",
+	     dictFileName );
+    free_mem( dict, decay );
+    return( ERR_DICT );
+  }
+  if ( !MPD_QUIET ) fprintf( stderr, "mpd msg -- The dictionary is now loaded.\n" );
+  /* Load and hook the signal */
+  if ( !MPD_QUIET ) fprintf( stderr, "mpd msg -- Loading the signal...\n" ); fflush( stderr );
+  if ( dict->copy_signal( sndFileName ) ) {
+    fprintf( stderr, "mpd error -- Failed to read/copy a signal from file [%s].\n",
 	     sndFileName );
     free_mem( dict, decay );
     return( ERR_SIG );
@@ -536,24 +548,14 @@ int main( int argc, char **argv ) {
     if ( MPD_VERBOSE ) { fprintf( stderr, "Done.\n" ); fflush( stderr ); }
   }
   if ( !MPD_QUIET ) fprintf( stderr, "mpd msg -- The signal is now loaded.\n" ); fflush( stderr );
-  /* Add the blocks to the dictionnary */
-  if ( !MPD_QUIET ) fprintf( stderr, "mpd msg -- Parsing the dictionary...\n"
-			     "mpd msg -- (In the following, spurious output of dictionary pieces"
-			     " would be a symptom of parsing errors.)\n" ); fflush( stderr );
-  if ( dict->add_blocks( dictFileName ) == 0 ) {
-    fprintf( stderr, "mpd error -- Can't read blocks from file [%s].\n", dictFileName );
-    free_mem( dict, decay );
-    return( ERR_DICT );
-  }
-  if ( !MPD_QUIET ) fprintf( stderr, "mpd msg -- The dictionary is now loaded.\n" );
-
+  /* Report */
   if ( MPD_VERBOSE ) {
-    fprintf( stderr, "mpd msg -- The signal loaded from file [%s] has:\n", sndFileName );
-    dict->signal->info( stderr );
     fprintf( stderr, "mpd msg -- The dictionary read from file [%s] contains [%u] blocks:\n",
 	     dictFileName, dict->numBlocks );
     for ( i = 0; i < dict->numBlocks; i++ ) dict->block[i]->info( stderr );
     fprintf( stderr, "mpd msg -- End of dictionary.\n" );
+    fprintf( stderr, "mpd msg -- The signal loaded from file [%s] has:\n", sndFileName );
+    dict->signal->info( stderr );
   }
 
   /* Allocate some storage for the decay of the energy  */

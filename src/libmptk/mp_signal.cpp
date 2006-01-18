@@ -52,90 +52,108 @@
 /***************************/
 
 
-/********************/
-/* Void constructor */
-MP_Signal_c::MP_Signal_c(void) {
+/*******************************/
+/* Factory function with sizes */
+MP_Signal_c* MP_Signal_c::init( const int setNumChans,
+				const unsigned long int setNumSamples ,
+				const int setSampleRate ) {
 
-  mp_debug_msg( MP_DEBUG_FUNC_ENTER, "MP_Signal_c::MP_Signal_c(void)", "New empty signal.\n" );
+  const char* func = "MP_Signal_c::init(3 params)";
+  MP_Signal_c *newSig = NULL;
 
-  set_null();
-}
+  mp_debug_msg( MP_DEBUG_CONSTRUCTION, func,
+		"Initializing a new signal...\n");
 
-
-/************************/
-/* Specific constructor */
-MP_Signal_c::MP_Signal_c( const int setNumChans,
-			  const unsigned long int setNumSamples ,
-			  const int setSampleRate ) {
-  mp_debug_msg( MP_DEBUG_FUNC_ENTER, "MP_Signal_c::MP_Signal_c( 3 params )", "Setting a new signal...\n");
-
-  set_null();
-  init( setNumChans, setNumSamples, setSampleRate );
+  /* Instantiate and check */
+  newSig = new MP_Signal_c();
+  if ( newSig == NULL ) {
+    mp_error_msg( func, "Failed to instantiate a new signal.\n" );
+    return( NULL );
+  }
+  /* Do the internal allocations */
+  if ( newSig->init_parameters( setNumChans, setNumSamples, setSampleRate ) ) {
+    mp_error_msg( func, "Failed to perform the internal allocations for the new signal.\n" );
+    delete( newSig );
+    return( NULL );    
+  }
 
   mp_debug_msg( MP_DEBUG_FUNC_EXIT, "MP_Signal_c::MP_Signal_c( 3 params )", "Done.\n");
+
+  return( newSig );
 }
 
 
-/********************/
-/* File constructor */
-MP_Signal_c::MP_Signal_c( const char *fName ) {
+/***********************************/
+/* Factory function from file name */
+MP_Signal_c* MP_Signal_c::init( const char *fName ) {
 
+  const char* func = "MP_Signal_c::init(fileName)";
   SNDFILE *file;
   SF_INFO sfinfo;
+  MP_Signal_c *newSig = NULL;
 
-  mp_debug_msg( MP_DEBUG_FUNC_ENTER, "MP_Signal_c::MP_Signal_c( fName )",
-		"New signal from fName=[%s]...\n", fName );
-
-  set_null();
+  mp_debug_msg( MP_DEBUG_CONSTRUCTION, func,
+		"Initializing a new signal from file [%s]...\n", fName );
 
   /* open the file */
   if ( fName == NULL ) {
-    mp_error_msg( "MP_Signal_c( fName )", "Invalid file name [%s] was passed"
+    mp_error_msg( func, "Invalid file name [%s] was passed"
 		  " to a signal constructor.\n", fName );
-    return;
+    return( NULL );
   }
   else {
 
-    mp_debug_msg( MP_DEBUG_FILE_IO, "MP_Signal_c::MP_Signal_c( fName )", "Doing sf_open on file [%s]...\n", fName );
+    mp_debug_msg( MP_DEBUG_FILE_IO, func,
+		  "Doing sf_open on file [%s]...\n", fName );
 
     sfinfo.format  = 0; /* -> See the libsndfile manual. */
     file = sf_open( fName, SFM_READ, &sfinfo );
 
-    mp_debug_msg( MP_DEBUG_FILE_IO, "MP_Signal_c::MP_Signal_c( fName )", "Done.\n" );
+    mp_debug_msg( MP_DEBUG_FILE_IO, func, "Done.\n" );
 
   }
   /* Check */
   if ( file == NULL ) {
-    mp_error_msg( "MP_Signal_c( fName )", "sf_open could not open the sound file [%s] for reading."
-		  " New signal is left un-initialized\n", fName );
-    return;
+    mp_error_msg( func, "sf_open could not open the sound file [%s] for reading."
+		  " Returning NULL.\n", fName );
+    return( NULL );
   }
 
-  mp_debug_msg( MP_DEBUG_FILE_IO, "MP_Signal_c::MP_Signal_c( fName )", "sfinfo contains:\n");
-  mp_debug_msg( MP_DEBUG_FILE_IO, "MP_Signal_c::MP_Signal_c( fName )", "-- srate    : %d\n", sfinfo.samplerate) ;
-  mp_debug_msg( MP_DEBUG_FILE_IO, "MP_Signal_c::MP_Signal_c( fName )", "-- frames   : %d\n", (int)sfinfo.frames) ;
-  mp_debug_msg( MP_DEBUG_FILE_IO, "MP_Signal_c::MP_Signal_c( fName )", "-- channels : %d\n", sfinfo.channels) ;
-  mp_debug_msg( MP_DEBUG_FILE_IO, "MP_Signal_c::MP_Signal_c( fName )", "-- format   : %d\n", sfinfo.format) ;
-  mp_debug_msg( MP_DEBUG_FILE_IO, "MP_Signal_c::MP_Signal_c( fName )", "-- sections : %d\n", sfinfo.sections);
-  mp_debug_msg( MP_DEBUG_FILE_IO, "MP_Signal_c::MP_Signal_c( fName )", "-- seekable : %d\n", sfinfo.seekable) ;
-  mp_debug_msg( MP_DEBUG_FILE_IO, "MP_Signal_c::MP_Signal_c( fName )", "-- end sfinfo.\n");
+  mp_debug_msg( MP_DEBUG_FILE_IO, func, "sfinfo contains:\n");
+  mp_debug_msg( MP_DEBUG_FILE_IO, func, "-- srate    : %d\n", sfinfo.samplerate) ;
+  mp_debug_msg( MP_DEBUG_FILE_IO, func, "-- frames   : %d\n", (int)sfinfo.frames) ;
+  mp_debug_msg( MP_DEBUG_FILE_IO, func, "-- channels : %d\n", sfinfo.channels) ;
+  mp_debug_msg( MP_DEBUG_FILE_IO, func, "-- format   : %d\n", sfinfo.format) ;
+  mp_debug_msg( MP_DEBUG_FILE_IO, func, "-- sections : %d\n", sfinfo.sections);
+  mp_debug_msg( MP_DEBUG_FILE_IO, func, "-- seekable : %d\n", sfinfo.seekable) ;
+  mp_debug_msg( MP_DEBUG_FILE_IO, func, "-- end sfinfo.\n");
 
+  /* Instantiate the signal */
+  newSig = MP_Signal_c::init( sfinfo.channels, sfinfo.frames, sfinfo.samplerate );
+  if ( newSig == NULL ) {
+    mp_error_msg( func, "Failed to instantiate a new signal with parameters:"
+		  " numChannels = %d, numFrames = %lu, sampleRate = %d.\n",
+		  sfinfo.channels, sfinfo.frames, sfinfo.samplerate );
+    return( NULL );
+  }
   /* actually read the file if allocation is OK */
-  if ( init(sfinfo.channels,sfinfo.frames,sfinfo.samplerate) ) {
+  else {
 
-    mp_debug_msg( MP_DEBUG_FILE_IO, "MP_Signal_c::MP_Signal_c( fName )", "After init, signal values are:\n");
-    mp_debug_msg( MP_DEBUG_FILE_IO, "MP_Signal_c::MP_Signal_c( fName )", "-- sampleRate : %d\n", sampleRate) ;
-    mp_debug_msg( MP_DEBUG_FILE_IO, "MP_Signal_c::MP_Signal_c( fName )", "-- numChans   : %d\n", numChans) ;
-    mp_debug_msg( MP_DEBUG_FILE_IO, "MP_Signal_c::MP_Signal_c( fName )", "-- numSamples : %lu\n", numSamples) ;
-    mp_debug_msg( MP_DEBUG_FILE_IO, "MP_Signal_c::MP_Signal_c( fName )", "-- end after init.\n");
+    mp_debug_msg( MP_DEBUG_FILE_IO, func, "After init, signal values are:\n");
+    mp_debug_msg( MP_DEBUG_FILE_IO, func, "-- sampleRate : %d\n",  newSig->sampleRate) ;
+    mp_debug_msg( MP_DEBUG_FILE_IO, func, "-- numChans   : %d\n",  newSig->numChans) ;
+    mp_debug_msg( MP_DEBUG_FILE_IO, func, "-- numSamples : %lu\n", newSig->numSamples) ;
+    mp_debug_msg( MP_DEBUG_FILE_IO, func, "-- end after init.\n");
 
-    double frame[numChans];
+    int nChan = newSig->numChans;
+    double frame[nChan];
     unsigned long int sample;
-    int chan;
-    for (sample=0; sample < numSamples; sample++) { /* loop on frames           */
-      sf_readf_double (file, frame, 1 );            /* read one frame at a time */
-      for (chan = 0; chan < numChans; chan++) {     /* de-interleave it         */
-	channel[chan][sample] = frame[chan];
+    int chanIdx;
+    MP_Sample_t** chan = newSig->channel;
+    for ( sample = 0; sample < newSig->numSamples; sample++ ) { /* loop on frames           */
+      sf_readf_double ( file, frame, 1 );                       /* read one frame at a time */
+      for ( chanIdx = 0; chanIdx < nChan; chanIdx++ ) {         /* de-interleave it         */
+	chan[chanIdx][sample] = frame[chanIdx];
       }
     }
   }
@@ -143,10 +161,77 @@ MP_Signal_c::MP_Signal_c( const char *fName ) {
   sf_close(file);
 
   /* Refresh the energy */
-  energy = compute_energy();
+  newSig->refresh_energy();
 
-  mp_debug_msg( MP_DEBUG_FUNC_EXIT, "MP_Signal_c::MP_Signal_c( fName )", "Done.\n");
+  mp_debug_msg( MP_DEBUG_CONSTRUCTION, func, "Done.\n");
 
+  return( newSig );
+}
+
+
+/************************/
+/* Internal allocations */
+int MP_Signal_c::init_parameters( const int setNumChans,
+				  const unsigned long int setNumSamples,
+				  const int setSampleRate ) {
+
+  const char* func = "MP_Signal_c::init_parameters(...)";
+  int i;
+
+  mp_debug_msg( MP_DEBUG_CONSTRUCTION, func,
+		"Initializing the signal:  [%d] chans [%lu] samples...\n",
+		setNumChans, setNumSamples );
+
+  /* Initial parameter check */
+  if ( setNumChans < 0 ) {
+    mp_error_msg( func, "The signal's number of channels can't be negative." );
+    return( 1 );
+  }
+
+  if ( setSampleRate < 0 ) {
+    mp_error_msg( func, "The signal's sample rate can't be negative." );
+    return( 1 );
+  }
+  else sampleRate = setSampleRate;
+
+  /* Clear any previous arrays */
+  if ( storage ) free( storage );
+  if ( channel ) free( channel );
+
+  /* Allocate the storage space */
+  if ( (storage = (MP_Sample_t*) calloc( setNumChans*setNumSamples , sizeof(MP_Sample_t) )) == NULL ) {
+    mp_error_msg( func,
+		  "Can't allocate storage space for new signal with "
+		  "[%d] channel(s) and [%lu] samples per channel. New signal is left "
+		  "un-initialized.\n", setNumChans, setNumSamples );
+    channel = NULL;
+    numChans = 0;
+    numSamples = 0;
+    return( 1 );
+  }
+
+  /* "Fold" the storage space into separate channels */
+  if ( (channel = (MP_Sample_t**) calloc( setNumChans , sizeof(MP_Sample_t*) )) == NULL ) {
+    mp_error_msg( func,
+		  "Can't allocate an array of [%d] signal pointers "
+		  "to fold the signal storage space. Storage will be freed and new signal "
+		  "will be left un-initialized.\n", setNumChans );
+    free(storage);
+    numChans = 0;
+    numSamples = 0;
+    return( 1 );
+  }
+
+  /* If every allocation went OK, fold the storage space and set the size values: */
+  /* - Set the size values */
+  numChans   = setNumChans;
+  numSamples = setNumSamples;
+  /* - Fold the storage space */
+  for ( i=0; i<numChans; i++ ) channel[i] = storage + i*numSamples;
+
+  mp_debug_msg( MP_DEBUG_CONSTRUCTION, func, "Done.\n");
+
+  return( 0 );
 }
 
 
@@ -154,22 +239,49 @@ MP_Signal_c::MP_Signal_c( const char *fName ) {
 /* Copy constructor (deep copy) */
 MP_Signal_c::MP_Signal_c( const MP_Signal_c &from ) {
 
-  mp_debug_msg( MP_DEBUG_FUNC_ENTER, "MP_Signal_c::MP_Signal_c( copy )", "Copying-constructing a new signal...\n");
+  const char* func = "MP_Signal_c::MP_Signal_c(copy)";
+  mp_debug_msg( MP_DEBUG_FUNC_ENTER, func,
+		"Copying-constructing a new signal...\n");
 
-  set_null();
+  sampleRate = MP_SIGNAL_DEFAULT_SAMPLERATE;
+  numChans   = 0;
+  numSamples = 0;
+  storage = NULL;
+  channel = NULL;
+  energy = 0;
 
   /* If the input signal is empty, we have nothing to do */
   if ( ( from.numChans == 0 ) || ( from.numSamples == 0 ) ) return;
 
   /* If every allocation went OK, copy the data */
-  if ( init( from.numChans, from.numSamples, from.sampleRate ) ) {
+  if ( init_parameters( from.numChans, from.numSamples, from.sampleRate ) ) {
+    mp_warning_msg( func, "Failed to perform the internal allocations"
+		    " in the signal's copy constructor. Returning an empty signal.\n" );
+    return;
+  }
+  else {
     memcpy( storage, from.storage, numChans*numSamples*sizeof(MP_Sample_t) );
+    energy = from.energy;
   }
 
-  /* Copy the energy */
-  energy = from.energy;
+  mp_debug_msg( MP_DEBUG_FUNC_EXIT, func, "Done.\n");
 
-  mp_debug_msg( MP_DEBUG_FUNC_EXIT, "MP_Signal_c::MP_Signal_c( copy )", "Done.\n");
+}
+
+
+/********************/
+/* NULL constructor */
+MP_Signal_c::MP_Signal_c( void ) {
+
+  mp_debug_msg( MP_DEBUG_CONSTRUCTION, "MP_Signal_c::MP_Signal_c(void)",
+		"Constructing an empty signal.\n" );
+
+  sampleRate = MP_SIGNAL_DEFAULT_SAMPLERATE;
+  numChans   = 0;
+  numSamples = 0;
+  storage = NULL;
+  channel = NULL;
+  energy = 0;
 
 }
 
@@ -178,12 +290,12 @@ MP_Signal_c::MP_Signal_c( const MP_Signal_c &from ) {
 /* Destructor */
 MP_Signal_c::~MP_Signal_c() {
 
-  mp_debug_msg( MP_DEBUG_FUNC_ENTER, "MP_Signal_c::~MP_Signal_c()", "Deleting the signal...");
+  mp_debug_msg( MP_DEBUG_DESTRUCTION, "MP_Signal_c::~MP_Signal_c()", "Deleting the signal...\n");
 
   if (storage) free(storage);
   if (channel) free(channel);
 
-  mp_debug_msg( MP_DEBUG_FUNC_EXIT, "MP_Signal_c::~MP_Signal_c()", "Done.\n");
+  mp_debug_msg( MP_DEBUG_DESTRUCTION, "MP_Signal_c::~MP_Signal_c()", "Done.\n");
 
 }
 
@@ -433,7 +545,7 @@ int MP_Signal_c::info( FILE *fid ) {
 
   int nChar = 0;
 
-  nChar += mp_info_msg( fid, "MP_Signal_c::info()",
+  nChar += mp_info_msg( fid, "SIGNAL",
 			"This signal object has [%lu] samples on [%d] channels;"
 			" its sample rate is [%d]Hz.\n",
 			numSamples, numChans, sampleRate );
@@ -446,78 +558,11 @@ int MP_Signal_c::info( FILE *fid ) {
 /* MISC METHODS            */
 /***************************/
 
-
-/******************************************/
-/* Set everything to default NULL values. */
-/* (WARNING: it DOES NOT and SHOULD NOT be used to deallocate
-   the storage and channel arrays, and it should only be called
-   by the constructors.) */
-inline void MP_Signal_c::set_null( void ) {
-
-  mp_debug_msg( MP_DEBUG_FUNC_ENTER, "MP_Signal_c::set_null()", "Setting the signal to NULL...\n" );
-
-  sampleRate = MP_SIGNAL_DEFAULT_SAMPLERATE;
-  numChans   = 0;
-  numSamples = 0;
-  storage = NULL;
-  channel = NULL;
-  energy = 0;
-
-  mp_debug_msg( MP_DEBUG_FUNC_EXIT, "MP_Signal_c::set_null()", "Done.\n" );
-
+/*************************************************/
+/* Refresh the energy field in the signal object */
+void MP_Signal_c::refresh_energy( void ) {
+  energy = compute_energy();
 }
-
-
-/**********************************/
-/* Initialization with allocation */
-int MP_Signal_c::init( const int setNumChans, const unsigned long int setNumSamples, const int setSampleRate ) {
-
-  mp_debug_msg( MP_DEBUG_FUNC_ENTER, "MP_Signal_c::init()", "Initializing the signal:  [%d] chans [%lu] samples...\n",
-		setNumChans, setNumSamples );
-
-  sampleRate = setSampleRate;
-
-  if ( storage ) free( storage );
-  if ( channel ) free( channel );
-
-  /* Allocate the storage space */
-  if ( (storage = (MP_Sample_t*) calloc( setNumChans*setNumSamples , sizeof(MP_Sample_t) )) == NULL ) {
-    mp_error_msg( "MP_Signal_c::init()",
-		  "Can't allocate storage space for new signal with "
-		  "[%d] channel(s) and [%lu] samples per channel. New signal is left "
-		  "un-initialized.\n", setNumChans, setNumSamples );
-    channel = NULL;
-    numChans = 0;
-    numSamples = 0;
-    return(0);
-  }
-
-  /* "Fold" the storage space into separate channels */
-  if ( (channel = (MP_Sample_t**) calloc( setNumChans , sizeof(MP_Sample_t*) )) == NULL ) {
-    mp_error_msg( "MP_Signal_c::init()",
-		  "Can't allocate an array of [%d] signal pointers "
-		  "to fold the signal storage space. Storage will be freed and new signal "
-		  "will be left un-initialized.\n", setNumChans );
-    free(storage);
-    numChans = 0;
-    numSamples = 0;
-    return(0);
-  }
-  /* If every allocation went OK, fold the storage space and set the size values. */
-  {      
-    int i;
-    /* Set the size values */
-    numChans   = setNumChans;
-    numSamples = setNumSamples;
-    /* Fold the storage space */
-    for ( i=0; i<numChans; i++ ) channel[i] = storage + i*numSamples;
-  }
-
-  mp_debug_msg( MP_DEBUG_FUNC_EXIT, "MP_Signal_c::init()", "Done.\n");
-
-  return( 1 );
-}
-
 
 /***********************/
 /* Total signal energy */

@@ -81,12 +81,15 @@
 /* -- construction/deletion of objects: */
 #define MP_DEBUG_CONSTRUCTION (1 << 14)
 #define MP_DEBUG_DESTRUCTION  (1 << 15)
+#define MP_DEBUG_OBJ_LIFE ( MP_DEBUG_CONSTRUCTION + MP_DEBUG_DESTRUCTION )
 /* -- Matching Pursuit iterations: */
 #define MP_DEBUG_MP_ITERATIONS (1 << 16)
 /* -- Specific for function create_atom(): */
 #define MP_DEBUG_CREATE_ATOM   (1 << 17)
+/* -- Specific for function create_atom()array bounds check: */
+#define MP_DEBUG_ARRAY_BOUNDS  (1 << 18)
 
-#define MP_MSG_LAST_TYPE MP_DEBUG_CREATE_ATOM
+#define MP_MSG_LAST_TYPE MP_DEBUG_ARRAY_BOUNDS
 
 #define MP_DEBUG_ALL  ULONG_MAX
 #define MP_DEBUG_NONE 0

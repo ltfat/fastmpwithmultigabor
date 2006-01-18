@@ -62,7 +62,11 @@ public:
   MP_Signal_c *signal;         
   /** \brief The "mode" of the signal: either the signal was copied into the dictionary,
    * or it was just referenced. */
-  int sigMode;
+  int sigMode;  
+  /** \brief The various possible signal modes: */
+#define MP_DICT_NULL_SIGNAL     0
+#define MP_DICT_EXTERNAL_SIGNAL 1 /* => don't delete the sig when deleting the dict */
+#define MP_DICT_INTERNAL_SIGNAL 2 /* => delete the sig when deleting the dict */
 
   /** \brief Number of blocks stored in the dictionary */
   unsigned int numBlocks;      
@@ -86,22 +90,37 @@ public:
   /***************************/
 
 public:
-  /** \brief Signal-passing constructor.
+  /** \brief Factory function
    *
-   * \param setSignal the signal to store into the dictionary. If NULL,
-   * just create the dictionary without storing a signal.
-   * \param mode can be MP_DICT_SIG_HOOK if you want the dictionary to act
-   * directly on the passed signal (equivalent to a pass by reference),
-   * or MP_DICT_SIG_COPY if you want the dictionary to act on a local copy
-   * of the passed signal (equivalent to a pass by value). */
-  MP_Dict_c( MP_Signal_c *setSignal, int mode );
-#define MP_DICT_SIG_HOOK 1
-#define MP_DICT_SIG_COPY 2
+   * \param dictFileName The name of the XML file parsed for a dictionary.
+   * \param sigFileName The file name for the signal read into the dictionary.
+   */
+  static MP_Dict_c* init( const char* dictFileName, const char* sigFileName );
 
-  /** \brief Constructor which reads the signal that will be
-      manipulated by the dictionary from a file */
-  MP_Dict_c( const char* sigFileName );
+  /** \brief Factory function which reads the dictionary from a file
+   *
+   * \param dictFileName The name of the XML file parsed for a dictionary.
+   *
+   * WARNING: this function does not set a signal in the dictionary.
+   * It is mandatory to call dict.copy_signal( signal ) or
+   * dict.plug_signal( signal ) before starting to iterate.
+   */
+  static MP_Dict_c* init( const char* dictFileName );
 
+  /** \brief Factory function which creates an empty dictionary.
+   *
+   * This function makes it possible to create an empty dictionary
+   * and then independently call dict.add_blocks( fileName ) and
+   * dict.copy_signal( signal ) or dict.plug_signal( signal ).
+   *
+   */
+  static MP_Dict_c* init( void );
+
+protected:
+  /* NULL constructor */
+  MP_Dict_c();
+
+public:
   /* Destructor */
   ~MP_Dict_c();
 
@@ -132,6 +151,8 @@ public:
   int add_blocks( FILE *fid );
 
   /** \brief Same as MP_Dict_c::add_blocks(FILE *) but with a file instead of a stream
+   * \param fName a file name where the structure is read from
+   * \return the number of added blocks
    */
   int add_blocks( const char *fName );
 
@@ -144,14 +165,42 @@ public:
   unsigned long int size( void );
 
 
-  /** \brief Hook or copy a new signal to the dictionary
+  /** \brief Copy a signal into the dictionary
+   *
+   * The dictionary will act on a local copy of the passed signal
+   * (equivalent to a pass by value). Any previously present signal
+   * will be replaced.
    *
    * \param setSignal the signal to store into the dictionary
-   * \param mode can be MP_DICT_SIG_HOOK if you want the dictionary to act
-   * directly on the passed signal (equivalent to a pass by reference),
-   * or MP_DICT_SIG_COPY if you want the dictionary to act on a local copy
-   * of the passed signal (equivalent to a pass by value). */
-  int reset_signal( MP_Signal_c *setSignal, int mode );
+   *
+   * \return nonzero in case of failure, zero otherwise.
+   */
+  int copy_signal( MP_Signal_c *setSignal );
+
+  /** \brief Copy a new signal from a file to the dictionary
+   *
+   * The dictionary will act on a local copy of the passed signal
+   * (equivalent to a pass by value). Any previously present signal
+   * will be replaced.
+   *
+   * \param fName the name of the file where to read the stored signal
+   *
+   * \return nonzero in case of failure, zero otherwise.
+   */
+  int copy_signal( const char *fName );
+
+  /** \brief Plug (or hook) a new signal to the dictionary
+   *
+   * The dictionary will act directly on the passed signal
+   * (equivalent to a pass by reference). Any previously present signal
+   * will be replaced.
+   *
+   * \param setSignal the signal to reference into the dictionary
+   *
+   * \return nonzero in case of failure, zero otherwise.
+   */
+  int plug_signal( MP_Signal_c *setSignal );
+
 
 private:
   /** \brief Allocate the touch array according to the signal size */
@@ -159,6 +208,12 @@ private:
 
 public:
   /** \brief Add a block to a dictionary
+   *
+   * \param newBlock the reference of the block to add.
+   *
+   * \return the number of added blocks, i.e. 1 if the block
+   * has been successfully added, or 0 in case of failure or
+   * if newBlock was initially NULL.
    */
   int add_block( MP_Block_c *newBlock ); 
 
@@ -183,6 +238,7 @@ public:
    * \return The value of the maximum inner product
    */
   MP_Real_t update_all( void ); 
+
 
   /** \brief create a new atom corresponding to the best atom of the best block.
    *

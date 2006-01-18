@@ -96,23 +96,41 @@ public:
   /***************************/
 
 public:
-  /** \brief A plain constructor which does not allocate anything */
-  MP_Signal_c( void );
-  /** \brief A constructor which allocates storage space and initializes it to zero
+  /** \brief A factory function which allocates storage space and initializes it to zero
    *
    * \param setNumChans The desired number of channels
    * \param setNumSamples The desired number of samples per channel 
-   * \param setSampleRate The desired sample rate 
+   * \param setSampleRate The desired sample rate
+   *
+   * \return NULL if something failed.
    */
-  MP_Signal_c( const int setNumChans,
-	       const unsigned long int setNumSamples ,
-	       const int setSampleRate);
+  static MP_Signal_c* init( const int setNumChans,
+			    const unsigned long int setNumSamples ,
+			    const int setSampleRate);
 
-  /** \brief A contructor that reads from a sound file 
+
+  /** \brief A factory function that reads from a sound file 
    *
    * \param fName the file name
+   *
+   * \return NULL if something failed.
    */
-  MP_Signal_c( const char *fName );
+  static MP_Signal_c* init( const char *fName );
+
+
+  /* \brief A utility to clear and reallocate the storage at a given
+   * size, possibly changing the sampling rate
+   *
+   * \param setNumChans The desired number of channels
+   * \param setNumSamples The desired number of samples per channel
+   * \param setSampleRate The desired sample rate
+   *
+   * \return nonzero in case of failure, zero otherwise.
+   */
+  int init_parameters( const int setNumChans,
+		       const unsigned long int setNumSamples,
+		       const int setSampleRate );
+
 
   /** \brief A copy constructor
    *
@@ -120,6 +138,11 @@ public:
    */
   MP_Signal_c( const MP_Signal_c &from );
 
+
+  /* NULL constructor */
+  MP_Signal_c( void );
+
+public:
   /* Destructor */
   ~MP_Signal_c();
 
@@ -177,21 +200,11 @@ public:
   /* OTHER METHODS           */
   /***************************/
 
-private:
-
-  /* \brief A utility to set all data to default or NULL values. */
-  void set_null( void );
-
 public:
 
-  /* \brief A utility to clear and reallocate the storage at a given
-   * size without, possibly changing the sampling rate
-   *
-   * \param setNumChans The desired number of channels
-   * \param setNumSamples The desired number of samples per channel
-   * \param setSampleRate The desired sample rate
-   */
-  int init( const int setNumChans, const unsigned long int setNumSamples, const int setSampleRate );
+  /** \brief Updates the energy field in the signal object,
+   *  by internally calling compute_energy(). */
+  void refresh_energy( void );
 
 
   /** \brief Compute the total signal energy over all channels,

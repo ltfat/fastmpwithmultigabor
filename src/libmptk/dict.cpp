@@ -49,50 +49,106 @@
 /* CONSTRUCTORS/DESTRUCTOR */
 /***************************/
 
-/******************************************/
-/* Plain initialization, with signal copy */
-MP_Dict_c::MP_Dict_c( MP_Signal_c *setSignal, int mode ) {
 
-  /* Preliminaries */
-  touch = NULL;
-  signal = NULL;
-  numBlocks = 0;
-  block = NULL;
-  blockWithMaxIP = 0;
-  sigMode = 0;
+/*******************************************/
+/* Initialization including signal loading */
+MP_Dict_c* MP_Dict_c::init(  const char *dictFileName, const char *sigFileName ) {
 
-  /* Set the signal */
-  if ( reset_signal( setSignal, mode ) ) {
-    mp_error_msg( "MP_Dict_c::MP_Dict_c( signal, mode )", "Failed to set the signal in"
-		  " the dictionary constructor. Signal and touch will remain NULL.\n" );
+  const char* func = "MP_Dict_c::init(dictFileName)";
+  MP_Dict_c *newDict = NULL;
+
+  /* Instantiate and check */
+  newDict = new MP_Dict_c();
+  if ( newDict == NULL ) {
+    mp_error_msg( func, "Failed to create a new dictionary.\n" );
+    return( NULL );
   }
-
-}
-
-/****************************************************/
-/* Plain initialization, with signal as a file name */
-MP_Dict_c::MP_Dict_c(  const char *sigFileName ) {
-
-  /* Preliminaries */
-  touch = NULL;
-  signal = NULL;
-  numBlocks = 0;
-  block = NULL;
-  blockWithMaxIP = 0;
 
   /* Load the signal directly into the dictionnary */
-  signal = new MP_Signal_c( sigFileName );
-  sigMode = MP_DICT_SIG_COPY;
-
+  newDict->signal = MP_Signal_c::init( sigFileName );
+  if ( newDict->signal == NULL ) {
+    mp_error_msg( func, "Failed to create a new signal within the dictionary.\n" );
+    delete( newDict );
+    return( NULL );
+  }
+  /* If the siganl is OK: */
+  newDict->sigMode = MP_DICT_INTERNAL_SIGNAL;
   /* Allocate the touch array */
-  if ( alloc_touch() ) {
-    mp_error_msg( "MP_Dict_c::MP_Dict_c( fileName )", "Failed to allocate and initialize"
-		  " the touch array in the dictionary constructor. Signal and touch"
-		  " will remain NULL.\n" );
-    if ( signal ) { delete( signal ); signal = NULL; }
+  if ( newDict->alloc_touch() ) {
+    mp_error_msg( func, "Failed to allocate and initialize the touch array"
+		  " in the dictionary constructor. Returning a NULL dictionary.\n" );
+    delete( newDict );
+    return( NULL );
+  }
+ 
+
+  /* Add some blocks read from the dict file */
+  newDict->add_blocks( dictFileName );
+
+  return( newDict );
+}
+
+
+/**********************************************/
+/* Initialization from a dictionary file name */
+MP_Dict_c* MP_Dict_c::init(  const char *dictFileName ) {
+
+  const char* func = "MP_Dict_c::init(dictFileName)";
+  MP_Dict_c *newDict = NULL;
+
+  /* Instantiate and check */
+  newDict = new MP_Dict_c();
+  if ( newDict == NULL ) {
+    mp_error_msg( func, "Failed to create a new dictionary.\n" );
+    return( NULL );
   }
 
+  /* Add some blocks read from the dict file */
+  newDict->add_blocks( dictFileName );
+  /* Note: with a NULL signal, add_blocks will build all the signal-independent
+     parts of the blocks. It is then necessary to run a dict.copy_signal(sig)
+     or a dict.plug_signal(sig) to actually use the dictionary. */
+
+  return( newDict );
 }
+
+
+/*************************************************/
+/* Plain initialization, with no data whatsoever */
+MP_Dict_c* MP_Dict_c::init( void ) {
+
+  const char* func = "MP_Dict_c::init(void)";
+  MP_Dict_c *newDict = NULL;
+
+  /* Instantiate and check */
+  newDict = new MP_Dict_c();
+  if ( newDict == NULL ) {
+    mp_error_msg( func, "Failed to create a new dictionary.\n" );
+    return( NULL );
+  }
+
+  return( newDict );
+}
+
+
+/**************/
+/* NULL constructor */
+MP_Dict_c::MP_Dict_c() {
+
+  mp_debug_msg( MP_DEBUG_CONSTRUCTION, "MP_Dict_c::MP_Dict_c()",
+		"Constructing dict...\n" );
+
+  signal = NULL;
+  sigMode = MP_DICT_NULL_SIGNAL;
+  numBlocks = 0;
+  block = NULL;
+  blockWithMaxIP = UINT_MAX;
+  touch = NULL;
+
+  mp_debug_msg( MP_DEBUG_CONSTRUCTION, "MP_Dict_c::MP_Dict_c()",
+		"Done.\n" );
+}
+
 
 /**************/
 /* Destructor */
@@ -100,19 +156,18 @@ MP_Dict_c::~MP_Dict_c() {
 
   unsigned int i;
 
-#ifndef NDEBUG
-  fprintf(stderr,"mplib DEBUG -- delete dict\n");
-#endif
+  mp_debug_msg( MP_DEBUG_DESTRUCTION, "MP_Dict_c::~MP_Dict_c()",
+		"Deleting dict...\n" );
 
-  if ( (sigMode == MP_DICT_SIG_COPY) && ( signal ) ) delete signal;
-  for ( i=0; i<numBlocks; i++ ) { if ( block[i] ) delete( block[i] ); }
-  if ( block ) free( block );
+  if ( (sigMode == MP_DICT_INTERNAL_SIGNAL) && ( signal != NULL ) ) delete signal;
+  if ( block ) {
+    for ( i=0; i<numBlocks; i++ ) { if ( block[i] ) delete( block[i] ); }
+    free( block );
+  }
   if ( touch ) free( touch );
 
-#ifndef NDEBUG
-  fprintf(stderr,"mplib DEBUG -- delete dict done\n");
-#endif
-
+  mp_debug_msg( MP_DEBUG_DESTRUCTION, "MP_Dict_c::~MP_Dict_c()",
+		"Done.\n" );
 }
 
 
@@ -120,6 +175,134 @@ MP_Dict_c::~MP_Dict_c() {
 /***************************/
 /* I/O METHODS             */
 /***************************/
+
+/******************************/
+/* Addition of a single block */
+int MP_Dict_c::add_block( MP_Block_c *newBlock ) {
+
+  const char* func = "MP_Dict_c::add_block( newBlock )";
+  MP_Block_c **tmp;
+
+  if( newBlock != NULL ) {
+
+    /* Increase the size of the array of blocks... */
+    if ( (tmp = (MP_Block_c**) realloc( block, (numBlocks+1)*sizeof(MP_Block_c*) )) == NULL ) {
+      mp_error_msg( func, "Can't reallocate memory to add a new block to dictionary."
+		    " No new block will be added, number of blocks stays [%d].\n",
+		    numBlocks );
+      return( 0 );
+    }
+    /* ... and store the reference on the newly created object. */
+    else {
+      block = tmp;
+      block[numBlocks] = newBlock;
+      numBlocks++;
+    }
+    return( 1 );
+
+  }
+  /* else, if the block is NULL, silently ignore it,
+     just say that no block has been added. */
+  else return( 0 );
+
+}
+
+
+/**************************/
+/* Scanning from a stream */
+extern int dict_scanner( FILE *fid, MP_Scan_Info_c *scanInfo );  
+int MP_Dict_c::add_blocks( FILE *fid ) {
+  
+  const char* func = "MP_Dict_c::add_blocks(fid)";
+  MP_Block_c *newBlock;
+  MP_Scan_Info_c scanInfo;
+  int event = NULL_EVENT;
+  int count = 0;
+
+  /* Read blocks */
+  while ( (event != DICT_CLOSE) && (event != REACHED_END_OF_FILE) ) {
+
+    /* Launch the scanner */
+    event = dict_scanner( fid, &scanInfo );
+    fflush( stderr ); /* Flush everything the scanner couldn't match */
+
+    switch( event ) {
+
+      /* If the scanner met a block, create it */
+    case COMPLETED_BLOCK:
+      newBlock = scanInfo.pop_block( signal );
+      /* Check and append the block */
+      if ( newBlock != NULL ) {
+#ifndef NDEBUG
+	//newBlock->info(stderr);
+	write_block( stderr, newBlock ); fprintf( stderr, "\n" ); fflush(stderr);
+#endif
+	if ( add_block( newBlock ) != 1 ) {
+	  mp_warning_msg( func, "Failed to add the %u-th block."
+			  " Proceeding with the remaining blocks.\n",
+			  scanInfo.blockCount );
+	}
+	else count++;
+      }
+      else {
+	mp_warning_msg( func, "Failed to instantiate and add the %u-th block to the dictionary."
+			" Proceeding with the remaining blocks.\n", scanInfo.blockCount );
+      }
+      break;
+
+      /* Else, if the scanner crashed, interrupt and return */
+    case ERROR_EVENT:
+      mp_warning_msg( func, "The parser crashed somewhere after the %u-th block."
+		      " Parsing interrupted, returning a dictionary with [%u] valid block(s) only.\n",
+		      scanInfo.blockCount, count );
+      return( count );
+      break;
+
+      /* If the end of the dictionary or file are met, return */
+    case DICT_CLOSE:
+    case REACHED_END_OF_FILE:
+      mp_debug_msg( MP_DEBUG_FILE_IO, func, "Added [%u] blocks to the dictionary.\n", count );
+      return ( count );
+      break;
+
+    default:
+      mp_warning_msg( func, "The parser returned an unknown event somewhere after the %u-th block."
+		      " Parsing interrupted, returning a dictionary with [%u] valid block(s) only.\n",
+		      scanInfo.blockCount, count );
+      return( count );
+      break;
+
+    }
+
+  }
+
+  /* These two last lines should never be reached */
+  mp_debug_msg( MP_DEBUG_FILE_IO, func, "NEVER REACHED: Added [%u] blocks to the dictionary.\n",
+		count );
+  return ( count );
+}
+
+
+/************************/
+/* Scanning from a file */
+int MP_Dict_c::add_blocks( const char *fName ) {
+
+  FILE *fid;
+  int nAddedBlocks = 0;
+
+  fid = fopen(fName,"r");
+  if ( fid == NULL ) {
+    mp_error_msg( "MP_Dict_c::add_blocks(fileName)",
+		  "Could not open file %s to read a dictionary\n",
+		  fName );
+    return( -1 );
+  }
+  nAddedBlocks = add_blocks( fid );
+  fclose( fid );
+
+  return( nAddedBlocks );
+}
+
 
 /************************/
 /* Printing to a stream */
@@ -152,88 +335,17 @@ int MP_Dict_c::print( const char *fName ) {
   int nChar = 0;
 
   fid = fopen(fName,"w");
-  if ( fid==NULL) {
-    fprintf(stderr,"mplib warning -- MP_Dict_c::print() - Could not open file %s to write a dictionary\n",fName);
-    return(0);
+  if ( fid == NULL ) {
+    mp_error_msg( "MP_Dict_c::print(fileName)",
+		  "Could not open file %s to write a dictionary\n",
+		  fName );
+    return( -1 );
   }
-  nChar = print(fid);
-  fclose (fid);
-  return(nChar);
+  nChar = print( fid );
+  fclose ( fid );
 
+  return( nChar );
 }
-
-
-/**************************/
-/* Scanning from a stream */
-extern int dict_scanner( FILE *fid, MP_Scan_Info_c *scanInfo );  
-int MP_Dict_c::add_blocks( FILE *fid ) {
-  
-  MP_Block_c *newBlock;
-  MP_Scan_Info_c scanInfo;
-  int event = NULL_EVENT;
-  int count = 0;
-
-  /* Read blocks */
-  while ( (event != DICT_CLOSE) && (event != REACHED_END_OF_FILE) ) {
-    /* Launch the scanner */
-    event = dict_scanner( fid, &scanInfo );
-    fflush( stderr ); /* Flush everything the scanner couldn't match */
-    /* If the scanner met a block, create it */
-    if (event == COMPLETED_BLOCK) {
-      newBlock = scanInfo.pop_block( signal );
-      /* Check and append the block */
-      if ( newBlock != NULL ) {
-#ifndef NDEBUG
-	//newBlock->info(stderr);
-	write_block( stderr, newBlock );
-	fprintf( stderr, "\n" );
-	fflush(stderr);
-#endif
-	add_block( newBlock );
-	count++;
-      }
-      else {
-	fprintf(stderr, "mplib warning -- MP_Dict_c::add_blocks(fid,scanInfo) - The %u-th block could not be instanciated."
-		" It won't be added to the dictionary. Proceeding with the remaining blocks.\n", scanInfo.blockCount );
-      }
-    }
-    else if (event == ERROR_EVENT) {
-      fprintf(stderr, "mplib warning -- MP_Dict_c::add_blocks(fid,scanInfo) - The parser crashed somewhere"
-	      " after the %u-th block. Parsing interrupted, returning a dictionary with [%u] valid block(s) only.\n",
-	      scanInfo.blockCount, count );
-      return( count );
-    }
-  }
-
-#ifndef NDEBUG
-  fprintf( stderr,"mplib DEBUG -- MP_Dict_c::add_blocks(fid,scanInfo) - Added [%u] blocks to the dictionary.\n", count );
-  fflush( stderr );
-#endif
-
-  return ( count );
-}
-
-
-/************************/
-/* Scanning from a file */
-int MP_Dict_c::add_blocks(const char *fName) {
-
-  FILE *fid;
-  int nAddedBlocks;
-
-  fid = fopen(fName,"r");
-  if ( fid==NULL) {
-    fprintf(stderr,"mplib error -- MP_Dict_c::add_blocks(fname) - Could not open file %s to read dictionary\n",
-      fName);
-    return(0);
-  }
-
-  nAddedBlocks = add_blocks(fid);
-  fclose (fid);
-
-  return(nAddedBlocks);
-}
-
 
 
 /***************************/
@@ -255,46 +367,129 @@ unsigned long int MP_Dict_c::size(void) {
 }
 
 
-/***************************************/
-/* Hook a new signal to the dictionary */
-int MP_Dict_c::reset_signal( MP_Signal_c *setSignal, int mode ) {
+/*****************************************/
+/* Copy a new signal into the dictionary */
+int MP_Dict_c::copy_signal( MP_Signal_c *setSignal ) {
 
-  const char* func = "MP_Dict_c::reset_signal( signal, mode )";
+  const char* func = "MP_Dict_c::copy_signal( signal )";
+  unsigned int i;
+  int check = 0;
 
   if ( setSignal != NULL ) {
-
-    switch ( mode ) {
-    case MP_DICT_SIG_COPY:
-      /* Copy-construct the signal into the dictionnary */
-      signal = new MP_Signal_c( *setSignal );
-      break;
-    case MP_DICT_SIG_HOOK:
-      /* Just hook the signal to the dictionnary */
-      signal = setSignal;
-      break;
-    default:
-      mp_error_msg( func, "Bad mode passed to reset_signal().\n" );
-      return( 1 );
-      break;
-    }
-    sigMode = mode;
-    
-    /* In any mode, allocate the touch array */
-    if ( alloc_touch() ) {
-      mp_error_msg( func, "Failed to allocate and initialize the touch array"
-		    " in the dictionary constructor. Signal and touch will stay NULL.\n" );
-      if ( mode == MP_DICT_SIG_COPY ) delete( signal );
-      signal = NULL;
-      return( 1 );
-    }
-
+    signal = new MP_Signal_c( *setSignal );
+    sigMode = MP_DICT_INTERNAL_SIGNAL;
   }
-  /* else {
-     mp_warning_msg( func, "A NULL signal was passed to reset_signal()."
-     "No action taken on the dictionary.\n" );
-     } */
+  else {
+    signal = NULL;
+    sigMode = MP_DICT_NULL_SIGNAL;
+  }
 
-  return( 0 );
+  /* Allocate the touch array
+     (alloc_touch() will automatically manage the NULL signal case) */
+  if ( alloc_touch() ) {
+    mp_error_msg( func, "Failed to allocate and initialize the touch array"
+		  " in the dictionary constructor. Signal and touch will stay NULL.\n" );
+    delete( signal );
+    signal = NULL;
+    sigMode = MP_DICT_NULL_SIGNAL;
+    return( 1 );
+  }
+
+  /* Then plug the signal into all the blocks */
+  for ( i = 0; i < numBlocks; i++ ) {
+    if ( block[i]->plug_signal( setSignal ) ) {
+      mp_error_msg( func, "Failed to plug the given signal in the %u-th block."
+		    " Proceeding with the remaining blocks.\n", i );
+      check = 1;
+    }
+  }
+
+  return( check );
+}
+
+
+/*****************************************/
+/* Load a new signal into the dictionary,
+   from a file */
+int MP_Dict_c::copy_signal( const char *fName ) {
+
+  const char* func = "MP_Dict_c::copy_signal( fileName )";
+  unsigned int i;
+  int check = 0;
+
+  assert( fName != NULL );
+
+  signal = MP_Signal_c::init( fName );
+  if ( signal == NULL ) {
+    mp_error_msg( func, "Failed to instantiate a signal from file [%s]\n",
+		  fName );
+    sigMode = MP_DICT_NULL_SIGNAL;
+    alloc_touch(); /* -> Nullifies the touch array when signal is NULL. */
+    return( 1 );
+  }
+  /* else  */
+  sigMode = MP_DICT_INTERNAL_SIGNAL;
+
+  /* Allocate the touch array */
+  if ( alloc_touch() ) {
+    mp_error_msg( func, "Failed to allocate and initialize the touch array"
+		  " in the dictionary constructor. Signal and touch will stay NULL.\n" );
+    delete( signal );
+    signal = NULL;
+    sigMode = MP_DICT_NULL_SIGNAL;
+    return( 1 );
+  }
+
+  /* Then plug the signal into all the blocks */
+  for ( i = 0; i < numBlocks; i++ ) {
+    if ( block[i]->plug_signal( signal ) ) {
+      mp_error_msg( func, "Failed to plug the given signal in the %u-th block."
+		    " Proceeding with the remaining blocks.\n", i );
+      check = 1;
+    }
+  }
+
+  return( check );
+}
+
+
+/*****************************************/
+/* Copy a new signal into the dictionary */
+int MP_Dict_c::plug_signal( MP_Signal_c *setSignal ) {
+
+  const char* func = "MP_Dict_c::plug_signal( signal )";
+  int check = 0;
+  unsigned int i;
+
+  if ( setSignal != NULL ) {
+    signal = setSignal;
+    sigMode = MP_DICT_EXTERNAL_SIGNAL;
+  }
+  else {
+    signal = NULL;
+    sigMode = MP_DICT_NULL_SIGNAL;
+  }
+
+  /* Allocate the touch array
+     (alloc_touch() will automatically manage the NULL signal case) */
+  if ( alloc_touch() ) {
+    mp_error_msg( func, "Failed to allocate and initialize the touch array"
+		  " in the dictionary constructor. Signal and touch will stay NULL.\n" );
+    signal = NULL;
+    sigMode = MP_DICT_NULL_SIGNAL;
+    return( 1 );
+  }
+
+  /* Then plug the signal into all the blocks */
+  for ( i = 0; i < numBlocks; i++ ) {
+    if ( block[i]->plug_signal( setSignal ) ) {
+      mp_error_msg( func, "Failed to plug the given signal in the %u-th block."
+		    " Proceeding with the remaining blocks.\n", i );
+      check = 1;
+    }
+  }
+
+  return( check );
 }
 
 
@@ -304,10 +499,10 @@ int MP_Dict_c::alloc_touch( void ) {
 
   const char* func = "MP_Dict_c::alloc_touch()";
 
-  /* If touch already exists, free it; guarantees that it is NULL. */
+  /* If touch already exists, free it; guarantee that it is NULL. */
   if ( touch ) { free( touch ); touch = NULL; }
 
-  /* Check if a signal is present */
+  /* Check if a signal is present: */
   if ( signal != NULL ) {
 
     /* Allocate the touch array */
@@ -316,58 +511,20 @@ int MP_Dict_c::alloc_touch( void ) {
 		    " in the dictionary. The touch array is left NULL.\n" );
       return( 1 );
     }
+    /* If the allocation went OK, initialize the array:*/
     else {
       int i;
       /* Initially we have to consider the whole signal as touched */
-      for ( i = 0; i < signal->numChans; i++ ) { touch[i].pos = 0; touch[i].len = signal->numSamples; }
-      return( 0 );
-    }
-
-  }
-  else {
-    mp_error_msg( func, "Trying to allocate the touch array from"
-		  " a NULL signal. The touch array will remain NULL.\n" );
-    return( 1 );
-  }
-
-}
-
-
-/***********************/
-/* Addition of a block */
-int MP_Dict_c::add_block( MP_Block_c *newBlock ) {
-
-  const char* func = "MP_Dict_c::add_block( newBlock )";
-  MP_Block_c **tmp;
-
-  if( newBlock != NULL ) {
-
-    /* Increase the size of the array of blocks... */
-    if ( (tmp = (MP_Block_c**) realloc( block, (numBlocks+1)*sizeof(MP_Block_c*) )) == NULL ) {
-      mp_error_msg( func, "Can't reallocate memory to add a new block to dictionary."
-		    " No new block will be added, number of blocks stays [%d].\n",
-		    numBlocks );
-      return( 0 );
-    }
-    /* ... and store the reference on the newly created object. */
-    else {
-      block = tmp;
-      block[numBlocks] = newBlock;
-      numBlocks++;
-      /* Next time we iterate, the newly added block will have to be fully updated */
-      int i;
-      for ( i=0; i<signal->numChans; i++ ) {
+      for ( i = 0; i < signal->numChans; i++ ) {
 	touch[i].pos = 0;
 	touch[i].len = signal->numSamples;
       }
     }
-    return(1);
 
   }
-  /* else, if the block is NULL, silently ignore it,
-     just say that no block has been added. */
-  else return( 0 );
+  /* Else, if the signal is NULL, don't allocate touch. */
 
+  return( 0 );
 }
 
 
@@ -435,26 +592,45 @@ MP_Real_t MP_Dict_c::update_all( void ) {
 /* Create a new atom corresponding to the best atom of the best block. */
 unsigned int MP_Dict_c::create_max_atom( MP_Atom_c** atom ) {
 
-  unsigned long int atomIdx;
+  const char* func = "MP_Dict_c::create_max_atom(**atom)";
+  unsigned long int frameIdx;
+  unsigned long int filterIdx;
   unsigned int numAtoms;
 
   /* 1) select the best atom of the best block */
-  atomIdx =  block[blockWithMaxIP]->maxAtomIdx;
+  frameIdx =  block[blockWithMaxIP]->maxIPFrameIdx;
+  filterIdx = block[blockWithMaxIP]->maxIPIdxInFrame[frameIdx];
+
+  mp_debug_msg( MP_DEBUG_MP_ITERATIONS, func,
+		"Found max atom in block [%lu], at frame [%lu], with filterIdx [%lu].\n",
+		blockWithMaxIP, frameIdx, filterIdx );
 
   /* 2) create it using the method of the block */
-  numAtoms = block[blockWithMaxIP]->create_atom( atom, atomIdx );
+  numAtoms = block[blockWithMaxIP]->create_atom( atom, frameIdx, filterIdx );
+  if ( numAtoms == 0 ) {
+    mp_error_msg( func, "Failed to create the max atom from block[%ul].\n",
+		  blockWithMaxIP );
+    return( 0 );
+  }
 
-  return(numAtoms);
+  return( numAtoms );
 }
 
 /******************************************/
 /* Perform one matching pursuit iteration */
 int MP_Dict_c::iterate_mp( MP_Book_c *book , MP_Signal_c *sigRecons ) {
 
+  const char* func = "MP_Dict_c::iterate_mp(...)";
   int chanIdx;
   MP_Atom_c *atom;
-  unsigned long int atomIdx;
   unsigned int numAtoms;
+
+  /* Check if a signal is present */
+  if ( signal == NULL ) {
+    mp_error_msg( func, "There is no signal in the dictionary. You must"
+		  " plug or copy a signal before you can iterate.\n" );
+    return( 1 );
+  }
 
   /* 1/ refresh the inner products
    * 2/ create the max atom and store it
@@ -466,23 +642,17 @@ int MP_Dict_c::iterate_mp( MP_Book_c *book , MP_Signal_c *sigRecons ) {
   update();
 
   /** 2/ Create the max atom and store it in the book */
-  atomIdx = block[blockWithMaxIP]->maxAtomIdx;
-#ifndef NDEBUG
-  fprintf( stderr, "iterate_mp() DEBUG -- Found max atom in block [%lu] with atomIdx [%lu].\n",
-	   blockWithMaxIP, atomIdx );
-#endif
-
-  numAtoms = block[blockWithMaxIP]->create_atom( &atom, atomIdx );
-
-  if (numAtoms == 0) {
-    fprintf( stderr, "mplib error -- MP_Dict_c::iterate_mp() - Iteration failed in dictionary:"
-	     " block[%ul]->create_atom() returned no atom. Dictionary, book and signal"
-	     " are left unchanged.\n",
-	     blockWithMaxIP );
-    return(0);
-  } 
+  numAtoms = create_max_atom( &atom );
+  if ( numAtoms == 0 ) {
+    mp_error_msg( func, "The Matching Pursuit iteration failed. Dictionary, book"
+		  " and signal are left unchanged.\n" );
+    return( 1 );
+  }
   
-  book->append( atom );
+  if ( book->append( atom ) != 1 ) {
+    mp_error_msg( func, "Failed to append the max atom to the book.\n" );
+    return( 1 );
+  }
 
   /* 3/ Substract the atom's waveform from the analyzed signal */
   atom->substract_add( signal , sigRecons );
@@ -493,5 +663,5 @@ int MP_Dict_c::iterate_mp( MP_Book_c *book , MP_Signal_c *sigRecons ) {
     touch[chanIdx].len = atom->support[chanIdx].len;
   } 
 
-  return(1);
+  return( 0 );
 }

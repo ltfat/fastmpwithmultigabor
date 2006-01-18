@@ -203,14 +203,15 @@ void MP_Dirac_Block_c::update_frame(unsigned long int frameIdx,
 /***************************************/
 /* Output of the ith atom of the block */
 unsigned int MP_Dirac_Block_c::create_atom( MP_Atom_c **atom,
-					       const unsigned long int atomIdx ) {
+					    const unsigned long int frameIdx,
+					    const unsigned long int filterIdx ) {
   MP_Dirac_Atom_c *datom;
   int chanIdx;
 
   /* Allocate the atom */
   *atom = NULL;
   if ( (datom = new MP_Dirac_Atom_c( s->numChans )) == NULL ) {
-    fprintf( stderr, "mplib error -- MP_Dirac_Block_c::create_atom() - Can't create a new Dirac atom in create_atom()."
+    mp_error_msg( "MP_Dirac_Block_c::create_atom(...)", "Can't create a new Dirac atom in create_atom()."
 	     " Returning NULL as the atom reference.\n" );
     return( 0 );
   }
@@ -218,10 +219,10 @@ unsigned int MP_Dirac_Block_c::create_atom( MP_Atom_c **atom,
   /* For each channel: */
   for ( chanIdx=0; chanIdx < s->numChans; chanIdx++ ) {
  
-    datom->support[chanIdx].pos = atomIdx;
+    datom->support[chanIdx].pos = frameIdx;
     datom->support[chanIdx].len = 1;
     datom->totalChanLen        += 1;
-    datom->amp[chanIdx]         = s->channel[chanIdx][atomIdx];
+    datom->amp[chanIdx]         = s->channel[chanIdx][frameIdx];
   }
 
   *atom = datom;

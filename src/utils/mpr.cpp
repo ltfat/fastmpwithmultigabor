@@ -291,7 +291,7 @@ int main( int argc, char **argv ) {
       if ( !strcmp( resFileName, "-" ) ) fprintf( stderr, "mpr msg -- Reading the residual from stdin..." );
       else                               fprintf( stderr, "mpr msg -- Reading the residual from file [%s]...", resFileName );
     }
-    sig = new MP_Signal_c( resFileName );
+    sig = MP_Signal_c::init( resFileName );
     if ( sig == NULL ) {
       fprintf( stderr, "mpr error -- Can't read a residual signal from file [%s].\n", resFileName );
       fflush( stderr );
@@ -301,7 +301,7 @@ int main( int argc, char **argv ) {
   }
   /* If no file name was given, make an empty signal */
   else {
-    sig = new MP_Signal_c( book.numChans, book.numSamples, book.sampleRate );
+    sig = MP_Signal_c::init( book.numChans, book.numSamples, book.sampleRate );
     if ( sig == NULL ) {
       fprintf( stderr, "mpr error -- Can't make a new signal.\n" );
       fflush( stderr );

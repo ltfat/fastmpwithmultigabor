@@ -152,10 +152,6 @@ MP_Block_c* MP_Scan_Info_c::pop_block( MP_Signal_c *signal ) {
 
   const char* func = "MP_Scan_Info_c::pop_block( signal )";
   MP_Block_c *block;
-  unsigned long int fftRealSize = 0;
-  unsigned long int maxFundFreqIdx = 0;
-  unsigned long int minFundFreqIdx = 0;
-
 
   /*******************************************************/
   /* CHECK the block parameters and apply some potential */
@@ -175,7 +171,7 @@ MP_Block_c* MP_Scan_Info_c::pop_block( MP_Signal_c *signal ) {
 	windowLenIsSet = true;
       }
       else {
-	mp_error_msg( func, "Gabor or harmonic block (%u-th block) has no windowLen."
+	mp_error_msg( func, "Gabor or harmonic block (%u-th block) must have a windowLen."
 		      " Returning a NULL block.\n" , blockCount );
 	reset();
 	return( NULL );
@@ -200,8 +196,8 @@ MP_Block_c* MP_Scan_Info_c::pop_block( MP_Signal_c *signal ) {
 	windowShiftIsSet = true;
       }
       else {
-	mp_error_msg( func, "Gabor or harmonic block (%u-th block) has no windowShift or windowRate."
-		      " Returning a NULL block.\n" , blockCount );
+	mp_error_msg( func, "Gabor or harmonic block (%u-th block) must have a windowShift"
+		      " or a windowRate. Returning a NULL block.\n" , blockCount );
 	reset();
 	return( NULL );
       }
@@ -224,32 +220,6 @@ MP_Block_c* MP_Scan_Info_c::pop_block( MP_Signal_c *signal ) {
 	return( NULL );
       }
     }
-    /* Check fftSize validity */
-    if ( is_odd(fftSize) ) { /* If fftSize is odd (fftSize has to be even) */
-      mp_error_msg( func, "Gabor or harmonic block (%u-th block) has an odd fftSize:"
-		    " fftSize must be even. Returning a NULL block.\n" , blockCount );
-      reset();
-      return( NULL );
-    }
-    if ( is_odd(windowLen) ) { /* If windowLEn is odd, fftSize must be >= windowLen+1 */
-      if ( fftSize < (windowLen+1) ) {
-	mp_error_msg( func, "In gabor or harmonic block (%u-th block): fftSize must be bigger"
-		      " than windowLen+1 when windowLen is odd. Returning a NULL block.\n" ,
-		      blockCount );
-	reset();
-	return( NULL );
-      }
-    }
-    else { /* If windowLEn is even, fftSize must be >= windowLen */
-      if ( fftSize < windowLen ) {
-	mp_error_msg( func, "In gabor or harmonic block (%u-th block): fftSize must be bigger"
-		      " than windowLen when windowLen is even. Returning a NULL block.\n" , blockCount );
-	reset();
-	return( NULL );
-      }
-    }
-    /* Turn fftSize into fftRealSize */
-    fftRealSize = (fftSize >> 1) + 1;
 
     /* - windowType & windowOption: */
     if (!windowTypeIsSet) {
@@ -268,12 +238,6 @@ MP_Block_c* MP_Scan_Info_c::pop_block( MP_Signal_c *signal ) {
 	reset();
 	return( NULL );
       }
-    }
-    if ( !(window_type_is_ok(windowType)) ) {
-      mp_error_msg( func, "Gabor or harmonic block (%u-th block)"
-		    " has an invalid window type. Returning a NULL block.\n" , blockCount );
-      reset();
-      return( NULL );
     }
 
     if ( window_needs_option(windowType) && (!windowOptionIsSet) ) {
@@ -294,37 +258,11 @@ MP_Block_c* MP_Scan_Info_c::pop_block( MP_Signal_c *signal ) {
 	  f0Min = globF0Min;
 	  f0MinIsSet = true;
 	}
-	else { /* Default to just above the DC frequency */
-	  f0Min = ( (double)(signal->sampleRate) / (double)(fftSize) );
+	else { /* Default to the DC frequency (the value will be corrected by the block) */
+	  f0Min = 0.0; //( (double)(signal->sampleRate) / (double)(fftSize) );
 	  f0MinIsSet = true;
 	}
       }
-      /* check for neg values */
-      if ( f0Min < 0 ) {
-	mp_error_msg( func, "Harmonic block (%u-th block) has a negative f0Min [%.2f]:"
-		      " f0Min must be a positive frequency value. Returning a NULL block.\n" ,
-		      blockCount, f0Min );
-	reset();
-	return( NULL );
-      }
-      /* Check for going over the Nyquist frequency */
-      if ( f0Min > ( (double)(signal->sampleRate) / 2.0 ) - ( (double)(signal->sampleRate)/(double)(fftSize) ) ) {
-	mp_error_msg( func, "In harmonic block (%u-th block):"
-		      " f0Min [%.2f] has been reduced to the signal's Nyquist frequency [%.2f].\n" ,
-		      blockCount, f0Min, ( (double)(signal->sampleRate) / 2.0 ) );
-	f0Min = ( (double)(signal->sampleRate) / 2.0 ) - ( (double)(signal->sampleRate)/(double)(fftSize) );
-      }
-      /* Turn min frequency (in Hz) into fft bins */
-      minFundFreqIdx = (unsigned long int)( floor( f0Min / ((double)(signal->sampleRate) / (double)(fftSize)) ) );
-      if ( minFundFreqIdx == 0 ) {
-	mp_error_msg( func, "Harmonic block (%u-th block) has"
-		      " f0Min [%.2f]Hz falling into the DC discrete frequency band:"
-		      " for this block, f0Min must higher than [%.2f]Hz. Returning a NULL block.\n" ,
-		      blockCount, f0Min, ( (double)(signal->sampleRate) / (double)(fftSize) ) );
-	reset();
-	return( NULL );
-      }
-
       /* - f0Max: */
       if ( !f0MaxIsSet ) {
 	if ( globF0MaxIsSet ) {
@@ -336,25 +274,6 @@ MP_Block_c* MP_Scan_Info_c::pop_block( MP_Signal_c *signal ) {
 	  f0MaxIsSet = true;
 	}
       }
-      /* Check for going over the Nyquist frequency */
-      if ( f0Max > ( (double)(signal->sampleRate) / 2.0 ) ) {
-	mp_error_msg( func, "In harmonic block (%u-th block):"
-		      " f0Max [%.2f] has been reduced to the signal's Nyquist frequency [%.2f].\n",
-		      blockCount, f0Max, ( (double)(signal->sampleRate) / 2.0 ) );
-	f0Max = ( (double)(signal->sampleRate) / 2.0 );
-      }
-      /* Check for the position viz. f0Min */
-      if ( f0Max <= f0Min ) {
-	mp_error_msg( func, "In harmonic block (%u-th block):"
-		      " f0Max [%.2f] is smaller than f0Min [%.2f]."
-		      " f0Max must be a positive frequency value bigger than f0Min."
-		      " Returning a NULL block.\n" , blockCount, f0Max, f0Min );
-	reset();
-	return( NULL );
-      }
-      /* Turn Hz into fft bins */
-      maxFundFreqIdx = (unsigned long int)( floor( f0Max / ((double)(signal->sampleRate) / (double)(fftSize)) ) );
-
       /* - numPartials: */
       if ( !numPartialsIsSet ) {
 	if ( globNumPartialsIsSet ) {
@@ -428,13 +347,12 @@ MP_Block_c* MP_Scan_Info_c::pop_block( MP_Signal_c *signal ) {
   /* - Dirac block: */
   if ( !strcmp(type,"dirac") ) {
     block = MP_Dirac_Block_c::init( signal );
-    blockCount++;
   }
   /* - Gabor block: */
   else if ( !strcmp(type,"gabor") ) {
     if ( windowLenIsSet && windowShiftIsSet && fftSizeIsSet && windowTypeIsSet ) {
       block = MP_Gabor_Block_c::init( signal, windowLen, windowShift,
-				      fftRealSize, windowType, windowOption );
+				      fftSize, windowType, windowOption );
     }
     else {
       mp_error_msg( func, "Missing parameters in gabor block instanciation (%u-th block)."
@@ -447,9 +365,9 @@ MP_Block_c* MP_Scan_Info_c::pop_block( MP_Signal_c *signal ) {
   else if ( !strcmp(type,"harmonic") ) {
     if ( windowLenIsSet && windowShiftIsSet && fftSizeIsSet && windowTypeIsSet
 	 && f0MinIsSet && f0MaxIsSet && numPartialsIsSet ) {
-      block = MP_Harmonic_Block_c::init( signal, windowLen, windowShift, fftRealSize,
-					 windowType, windowOption,
-					 minFundFreqIdx, maxFundFreqIdx, numPartials );
+      block = MP_Harmonic_Block_c::init( signal, windowLen, windowShift,
+					 fftSize, windowType, windowOption,
+					 f0Min, f0Max, numPartials );
     }
     else {
       mp_error_msg( func, "Missing parameters in harmonic block instanciation (%u-th block)."
@@ -462,8 +380,8 @@ MP_Block_c* MP_Scan_Info_c::pop_block( MP_Signal_c *signal ) {
   else if ( !strcmp(type,"chirp") ) {
     if ( windowLenIsSet && windowShiftIsSet && fftSizeIsSet && windowTypeIsSet
 	 && numFitPointsIsSet && numIterIsSet ) {
-      block = MP_Chirp_Block_c::init( signal, windowLen, windowShift, fftRealSize,
-				      windowType, windowOption,
+      block = MP_Chirp_Block_c::init( signal, windowLen, windowShift,
+				      fftSize, windowType, windowOption,
 				      numFitPoints, numIter );
     }
     else {
@@ -492,6 +410,8 @@ MP_Block_c* MP_Scan_Info_c::pop_block( MP_Signal_c *signal ) {
   reset();
 
   /* Return the created block (or NULL) */
+  if ( block != NULL ) blockCount++;
+
   return( block );
 }
 

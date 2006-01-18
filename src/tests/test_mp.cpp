@@ -39,26 +39,28 @@
 
 int main( void ) {
 
-  MP_Signal_c sig( 1, 8000 , 8000);
+  MP_Signal_c *sig = NULL;
   unsigned long int check;
-  MP_Dict_c *dico;
+  MP_Dict_c *dico = NULL;
   MP_Book_c book;
-  MP_Block_c *bl;
+  MP_Block_c *bl = NULL;
   int i;
-  unsigned long int atomIdx, frameIdx, freqIdx;
+  unsigned long int frameIdx, freqIdx;
   char str[1024];
 
   /*************************/
   /* Read signal form file */
-  check = sig.read_from_float_file( "signals/2_atoms.flt" );
+  sig = MP_Signal_c::init( 1, 8000 , 8000);
+  check = sig->read_from_float_file( "signals/2_atoms.flt" );
 
   /**************************/
   /* Build a new dictionary */
-  dico = new MP_Dict_c( &sig, MP_DICT_SIG_HOOK );
+  dico = MP_Dict_c::init();
   add_gabor_block( dico,  32, 32, 256, DSP_GAUSS_WIN, DSP_GAUSS_DEFAULT_OPT );
   add_gabor_block( dico,  64, 32, 256, DSP_HAMMING_WIN, 0.0 );
   add_gabor_block( dico, 128, 32, 256, DSP_HAMMING_WIN, 0.0 );
   add_gabor_block( dico, 256, 32, 256, DSP_HAMMING_WIN, 0.0 );
+  dico->plug_signal( sig );
 
   /*****************************/
   /* Init the matching pursuit */
@@ -70,11 +72,9 @@ int main( void ) {
   fprintf( stdout, "Max is now found in block %u\n",
 	   dico->blockWithMaxIP );
   bl = dico->block[dico->blockWithMaxIP];
-  atomIdx = bl->maxAtomIdx;
-  fprintf( stdout, "    with atom index %lu\n", atomIdx );
-  frameIdx = atomIdx / bl->numFilters;
-  freqIdx  = atomIdx - frameIdx*bl->numFilters;
-  fprintf( stdout, "    (frame #%lu , frequency #%lu )\n", frameIdx, freqIdx );
+  frameIdx = bl->maxIPFrameIdx;
+  freqIdx = bl->maxIPIdxInFrame[frameIdx];
+  fprintf( stdout, "    at ( frame #%lu , frequency #%lu )\n", frameIdx, freqIdx );
 
   /****************/
   /* Find 2 atoms */
@@ -98,11 +98,9 @@ int main( void ) {
     fprintf( stdout, "Max is now found in block %u\n",
 	     dico->blockWithMaxIP );
     bl = dico->block[dico->blockWithMaxIP];
-    atomIdx = bl->maxAtomIdx;
-    fprintf( stdout, "    with atom index %lu\n", atomIdx );
-    frameIdx = atomIdx / bl->numFilters;
-    freqIdx  = atomIdx - frameIdx*bl->numFilters;
-    fprintf( stdout, "    (frame #%lu , frequency #%lu )\n", frameIdx, freqIdx );
+    frameIdx = bl->maxIPFrameIdx;
+    freqIdx = bl->maxIPIdxInFrame[frameIdx];
+    fprintf( stdout, "    at ( frame #%lu , frequency #%lu )\n", frameIdx, freqIdx );
 
   }
   fprintf( stdout, "------ DONE.\n" );
@@ -199,6 +197,7 @@ int main( void ) {
 
   /* Clean the house */
   delete dico;
+  delete sig;
 
   return(0);
 }

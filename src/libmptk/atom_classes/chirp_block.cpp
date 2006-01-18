@@ -54,7 +54,7 @@
 MP_Chirp_Block_c* MP_Chirp_Block_c::init( MP_Signal_c *setSignal,
 					  const unsigned long int setFilterLen,
 					  const unsigned long int setFilterShift,
-					  const unsigned long int setFftRealSize,
+					  const unsigned long int setFftSize,
 					  const unsigned char setWindowType,
 					  const double setWindowOption,
 					  const unsigned int setNumFitPoints,
@@ -71,7 +71,7 @@ MP_Chirp_Block_c* MP_Chirp_Block_c::init( MP_Signal_c *setSignal,
   }
 
   /* Set the block parameters (that are independent from the signal) */
-  if ( newBlock->init_parameters( setFilterLen, setFilterShift, setFftRealSize,
+  if ( newBlock->init_parameters( setFilterLen, setFilterShift, setFftSize,
 				  setWindowType, setWindowOption,
 				  setNumFitPoints, setNumIter ) ) {
     mp_error_msg( func, "Failed to initialize some block parameters in the new Chirp block.\n" );
@@ -96,7 +96,7 @@ MP_Chirp_Block_c* MP_Chirp_Block_c::init( MP_Signal_c *setSignal,
 /* Specific constructor */
 int MP_Chirp_Block_c::init_parameters( const unsigned long int setFilterLen,
 				       const unsigned long int setFilterShift,
-				       const unsigned long int setFftRealSize,
+				       const unsigned long int setFftSize,
 				       const unsigned char setWindowType,
 				       const double setWindowOption,
 				       const unsigned int setNumFitPoints,
@@ -105,7 +105,7 @@ int MP_Chirp_Block_c::init_parameters( const unsigned long int setFilterLen,
   const char* func = "MP_Chirp_Block_c::init_parameters(...)";
 
   /* Go up the inheritance graph */
-  if ( MP_Gabor_Block_c::init_parameters( setFilterLen, setFilterShift, setFftRealSize,
+  if ( MP_Gabor_Block_c::init_parameters( setFilterLen, setFilterShift, setFftSize,
 					  setWindowType, setWindowOption ) ) {
     mp_error_msg( func, "Failed to init the parameters at the Gabor block level"
 		  " in the new Chirp block.\n" );
@@ -122,42 +122,42 @@ int MP_Chirp_Block_c::init_parameters( const unsigned long int setFilterLen,
   /* Allocate the chirp-specific buffers */
 
   /* - Demodulation chirp signal: */
-  if ( (chirpRe = (MP_Real_t*) malloc(filterLen*sizeof(MP_Real_t)) ) == NULL ) {
+  if ( (chirpRe = (MP_Real_t*) calloc( filterLen , sizeof(MP_Real_t) ) ) == NULL ) {
     mp_error_msg( func, "Can't allocate an array of [%lu] MP_Real_t elements"
 		  " for the chirpRe array. This pointer will remain NULL.\n", filterLen );
     return( 1 );
   } 
-  if ( (chirpIm = (MP_Real_t*) malloc(filterLen*sizeof(MP_Real_t)) ) == NULL ) {
+  if ( (chirpIm = (MP_Real_t*) calloc( filterLen , sizeof(MP_Real_t) ) ) == NULL ) {
     mp_error_msg( func, "Can't allocate an array of [%lu] MP_Real_t elements"
 		  " for the chirpIm array. This pointer will remain NULL.\n", filterLen );
     return( 1 );
   } 
 
   /* - Input signal x demodulation chirp: */
-  if ( (sigChirpRe = (MP_Real_t*) malloc(filterLen*sizeof(MP_Real_t)) ) == NULL ) {
+  if ( (sigChirpRe = (MP_Real_t*) calloc( filterLen , sizeof(MP_Real_t) ) ) == NULL ) {
     mp_error_msg( func, "Can't allocate an array of [%lu] MP_Real_t elements"
 		  " for the sigChirpRe array. This pointer will remain NULL.\n", filterLen );
     return( 1 );
   } 
-  if ( (sigChirpIm = (MP_Real_t*) malloc(filterLen*sizeof(MP_Real_t)) ) == NULL ) {
+  if ( (sigChirpIm = (MP_Real_t*) calloc( filterLen , sizeof(MP_Real_t) ) ) == NULL ) {
     mp_error_msg( func, "Can't allocate an array of [%lu] MP_Real_t elements"
 		  " for the sigChirpIm array. This pointer will remain NULL.\n", filterLen );
     return( 1 );
   } 
 
   /* - Misc: */
-  if ( (fftEnergy = (MP_Real_t*) malloc(fftRealSize*sizeof(MP_Real_t)) ) == NULL ) {
+  if ( (fftEnergy = (MP_Real_t*) calloc( numFreqs , sizeof(MP_Real_t) ) ) == NULL ) {
     mp_error_msg( func, "Can't allocate an array of [%lu] MP_Real_t elements"
-		  " for the fftEnergy array. This pointer will remain NULL.\n", fftRealSize );
+		  " for the fftEnergy array. This pointer will remain NULL.\n", numFreqs );
     return( 1 );
   } 
 
-  if ( (logAmp = (MP_Real_t*) malloc((totNumFitPoints)*sizeof(MP_Real_t)) ) == NULL ) {
+  if ( (logAmp = (MP_Real_t*) calloc( totNumFitPoints , sizeof(MP_Real_t) ) ) == NULL ) {
     mp_error_msg( func, "Can't allocate an array of [%u] MP_Real_t elements"
 		  " for the logAmp array. This pointer will remain NULL.\n", totNumFitPoints );
     return( 1 );
   } 
-  if ( (phase = (MP_Real_t*) malloc((totNumFitPoints)*sizeof(MP_Real_t)) ) == NULL ) {
+  if ( (phase = (MP_Real_t*) calloc( totNumFitPoints , sizeof(MP_Real_t) ) ) == NULL ) {
     mp_error_msg( func, "Can't allocate an array of [%u] MP_Real_t elements"
 		  " for the phase array. This pointer will remain NULL.\n", totNumFitPoints );
     return( 1 );
@@ -292,7 +292,8 @@ int MP_Chirp_Block_c::info( FILE* fid ) {
 /***************************************/
 /* Output of the ith atom of the block */
 unsigned int MP_Chirp_Block_c::create_atom( MP_Atom_c **atom,
-					    const unsigned long int atomIdx ) {
+					    const unsigned long int frameIdx,
+					    const unsigned long int filterIdx ) {
   MP_Gabor_Atom_c *gatom = NULL;
   unsigned long int freqIdx, k;
   MP_Real_t chirprate;
@@ -304,7 +305,7 @@ unsigned int MP_Chirp_Block_c::create_atom( MP_Atom_c **atom,
 
   MP_Real_t reCenter,imCenter,sqCenter;
   MP_Real_t re,im,reSq,imSq,energy,real,imag,amp,atomphase;
-  MP_Real_t a,b,d,e,fftCplxSize;
+  MP_Real_t a,b,d,e,fftSize;
   MP_Real_t lambda,mu,deltaChirp;
   //MP_Real_t alpha,beta;
 
@@ -314,10 +315,10 @@ unsigned int MP_Chirp_Block_c::create_atom( MP_Atom_c **atom,
 
   /* Useful dereferences */
   numChans = s->numChans;
-  fftCplxSize = (MP_Real_t)(fft->fftCplxSize);
+  fftSize = (MP_Real_t)(fft->fftSize);
 
   /* Create the best Gabor atom with chirprate zero */
-  if ( ( MP_Gabor_Block_c::create_atom( atom, atomIdx ) ) == 0 ) {
+  if ( ( MP_Gabor_Block_c::create_atom( atom, frameIdx, filterIdx ) ) == 0 ) {
     fprintf( stderr, "mptk error -- MP_Chirp_Block_c::create_atom() -"
 	     " Can't create a new Gabor atom in create_atom()."
 	     " Returning NULL as the atom reference.\n" );
@@ -339,17 +340,17 @@ unsigned int MP_Chirp_Block_c::create_atom( MP_Atom_c **atom,
   /* I.1) FIT A NEW CHIRP RATE */
 
   /* Find the index closest to the frequency of the current atom */
-  freqIdx = (unsigned long int) round( (double)(gatom->freq) * (double)(fftCplxSize) );
+  freqIdx = (unsigned long int) round( (double)(gatom->freq) * (double)(fftSize) );
 
 #ifndef NDEBUG
   fprintf( stderr, "mptk DEBUG -- freqIdx was = %lu , freq = %f (cplxSize = %g).\n",
-	   freqIdx, gatom->freq, fftCplxSize ); fflush( stderr );
+	   freqIdx, gatom->freq, fftSize ); fflush( stderr );
 #endif
 
   /* If there is not enough fit points on both sides of the frequency, 
    * keep the current chirprate ( =0 ) and return the unchanged gabor atom. */
   if ( (freqIdx <= (unsigned long int)numFitPoints) ||
-       ( (freqIdx+(unsigned long int)numFitPoints) >= fftRealSize ) ) {
+       ( (freqIdx+(unsigned long int)numFitPoints) >= numFreqs ) ) {
 #ifndef NDEBUG
     fprintf( stderr, "mptk DEBUG -- freqIdx = %lu , RETURNING.\n", freqIdx ); fflush( stderr );
 #endif
@@ -398,10 +399,10 @@ unsigned int MP_Chirp_Block_c::create_atom( MP_Atom_c **atom,
 		        &a, &b, &d, &e );
 
   /* Convert the result into a new chirprate */
-  lambda = - ( fftCplxSize * fftCplxSize ) * a * MP_INV_PI_SQ;
-  mu     = - ( fftCplxSize * fftCplxSize ) * d * MP_INV_PI_SQ;
-  //alpha  = ( freqIdx - b/(2*a) ) / fftCplxSize;
-  //beta   = ( freqIdx - e/(2*d) ) / fftCplxSize;
+  lambda = - ( fftSize * fftSize ) * a * MP_INV_PI_SQ;
+  mu     = - ( fftSize * fftSize ) * d * MP_INV_PI_SQ;
+  //alpha  = ( freqIdx - b/(2*a) ) / fftSize;
+  //beta   = ( freqIdx - e/(2*d) ) / fftSize;
 
   deltaChirp = mu/(MP_PI*(lambda*lambda+mu*mu));
   chirprate += deltaChirp;
@@ -419,7 +420,7 @@ unsigned int MP_Chirp_Block_c::create_atom( MP_Atom_c **atom,
 
   /* Compute the new inner products with the complex chirp on each channel
      and update the energy over all channels at each frequency */
-  for ( k = 0; k < fftRealSize; k++ ) {
+  for ( k = 0; k < numFreqs; k++ ) {
     fftEnergy[k] = 0.0;
   }
     
@@ -430,7 +431,7 @@ unsigned int MP_Chirp_Block_c::create_atom( MP_Atom_c **atom,
     fft->exec_complex_demod( in, chirpRe, chirpIm, fftRe, fftIm );
 
     /* Compute the magnitude of the best real chirp atom for each frequency */
-    for ( k = 0;  k < fftRealSize;  k++ ) {
+    for ( k = 0;  k < numFreqs;  k++ ) {
       
       /* Get the complex values */
       re = fftRe[k];
@@ -464,7 +465,7 @@ unsigned int MP_Chirp_Block_c::create_atom( MP_Atom_c **atom,
     
     /* Find the best frequency */
     energy = 0.0;
-    for ( k = 0; k < fftRealSize; k++ ) {
+    for ( k = 0; k < numFreqs; k++ ) {
       if ( fftEnergy[k] > energy) { energy = fftEnergy[k]; freqIdx = k; }
     }
 
@@ -484,7 +485,7 @@ unsigned int MP_Chirp_Block_c::create_atom( MP_Atom_c **atom,
       /* If there is not enough fit points on both sides of the frequency, 
        * keep the current chirprate (=0) and stop */
       if ( (freqIdx <= (unsigned long int)numFitPoints) ||
-	   ( (freqIdx+(unsigned long int)numFitPoints) >= fftRealSize ) ) break;
+	   ( (freqIdx+(unsigned long int)numFitPoints) >= numFreqs ) ) break;
 
       /* Reset the logamp and phase accumulators */
       for ( l = 0; l < totNumFitPoints; l++ ) logAmp[l] = phase[l] = 0.0;
@@ -527,10 +528,10 @@ unsigned int MP_Chirp_Block_c::create_atom( MP_Atom_c **atom,
     
 
       /* Convert the result into a new chirprate */
-      lambda = - ( fftCplxSize * fftCplxSize ) * a * MP_INV_PI_SQ;
-      mu     = - ( fftCplxSize * fftCplxSize ) * d * MP_INV_PI_SQ;
-      //alpha  = ( freqIdx - b/(2*a) ) / fftCplxSize;
-      //beta   = ( freqIdx - e/(2*d) ) / fftCplxSize;
+      lambda = - ( fftSize * fftSize ) * a * MP_INV_PI_SQ;
+      mu     = - ( fftSize * fftSize ) * d * MP_INV_PI_SQ;
+      //alpha  = ( freqIdx - b/(2*a) ) / fftSize;
+      //beta   = ( freqIdx - e/(2*d) ) / fftSize;
     
       deltaChirp = mu/(MP_PI*(lambda*lambda+mu*mu));
       chirprate += deltaChirp;
@@ -550,7 +551,7 @@ unsigned int MP_Chirp_Block_c::create_atom( MP_Atom_c **atom,
     
       /* Compute the new inner products with the complex chirp on each channel
 	 and update the energy over all channels at each frequency */
-      for ( k = 0; k < fftRealSize; k++ ) fftEnergy[k] = 0.0;
+      for ( k = 0; k < numFreqs; k++ ) fftEnergy[k] = 0.0;
     
       for ( chanIdx = 0; chanIdx < numChans; chanIdx++ ) {
       
@@ -559,7 +560,7 @@ unsigned int MP_Chirp_Block_c::create_atom( MP_Atom_c **atom,
 	fft->exec_complex_demod( in, chirpRe, chirpIm, fftRe, fftIm );
 
 	/* Compute the magnitude of the best real chirp atom for each frequency */
-	for ( k = 0;  k < fftRealSize;  k++ ) {
+	for ( k = 0;  k < numFreqs;  k++ ) {
 	
 	  /* Get the complex values */
 	  re = fftRe[k];
@@ -594,7 +595,7 @@ unsigned int MP_Chirp_Block_c::create_atom( MP_Atom_c **atom,
     
       /* Find the best frequency */
       energy = 0.0;
-      for ( k = 0; k < fftRealSize; k++ ) {
+      for ( k = 0; k < numFreqs; k++ ) {
 	if ( fftEnergy[k] > energy) { energy = fftEnergy[k]; freqIdx = k; }
       }
 
@@ -610,11 +611,11 @@ unsigned int MP_Chirp_Block_c::create_atom( MP_Atom_c **atom,
     /******************************************************/
 
     gatom->chirp = chirprate;
-    gatom->freq  = (double)(freqIdx) / (double)(fftCplxSize);
+    gatom->freq  = (double)(freqIdx) / (double)(fftSize);
 
 #ifndef NDEBUG
     fprintf( stderr, "mptk DEBUG -- freqIdx is now = %lu , freq = %f (cplxSize = %g).\n",
-	     freqIdx, gatom->freq, fftCplxSize ); fflush( stderr );
+	     freqIdx, gatom->freq, fftSize ); fflush( stderr );
 #endif
 
     /* Compute the magnitude of the best real chirp atom for each frequency and each channel */
@@ -631,7 +632,7 @@ unsigned int MP_Chirp_Block_c::create_atom( MP_Atom_c **atom,
       assert( sqCorrelChirp[freqIdx] <= 1.0 );
 #endif
       /* Cf. explanations about complex2amp_and_phase() in general.h */
-      if ( (freqIdx != 0) && ( (freqIdx+1) < fftRealSize ) ) {  
+      if ( (freqIdx != 0) && ( (freqIdx+1) < numFreqs ) ) {  
 	real = (1.0 - reCorrelChirp[freqIdx])*re + imCorrelChirp[freqIdx]*im;
 	imag = (1.0 + reCorrelChirp[freqIdx])*im + imCorrelChirp[freqIdx]*re;
 	amp   = 2.0 * sqrt( real*real + imag*imag );
@@ -707,7 +708,7 @@ int MP_Chirp_Block_c::set_chirp_demodulator( MP_Real_t chirprate ) {
 int add_chirp_block( MP_Dict_c *dict,
 		     const unsigned long int filterLen,
 		     const unsigned long int filterShift,
-		     const unsigned long int fftRealSize,
+		     const unsigned long int fftSize,
 		     const unsigned char windowType,
 		     const double windowOption,
 		     const unsigned char numFitPoints,
@@ -716,14 +717,8 @@ int add_chirp_block( MP_Dict_c *dict,
   const char* func = "add_chirp_block(...)";
   MP_Chirp_Block_c *newBlock;
   
-  if( 2*(fftRealSize-1) < filterLen) {
-    mp_error_msg( func, "fftRealSize %lu is too small"
-		  " since window size is %lu.\n", fftRealSize, filterLen);
-    return( 0 );
-  }
-
-  newBlock = MP_Chirp_Block_c::init( dict->signal, filterLen, filterShift, fftRealSize,
-				     windowType, windowOption ,
+  newBlock = MP_Chirp_Block_c::init( dict->signal, filterLen, filterShift,
+				     fftSize, windowType, windowOption ,
 				     numFitPoints, numIter );
   if ( newBlock != NULL ) {
     dict->add_block( newBlock );
@@ -752,7 +747,7 @@ int add_chirp_blocks( MP_Dict_c *dict,
 
   unsigned long int setFilterLen;
   unsigned long int setFilterShift;
-  unsigned long int setFftRealSize;
+  unsigned long int setFftSize;
   int nAddedBlocks = 0;
 
 #ifndef NDEBUG
@@ -763,9 +758,9 @@ int add_chirp_blocks( MP_Dict_c *dict,
   for ( setFilterLen = 4; setFilterLen <= maxFilterLen; setFilterLen <<= 1 ) {
 
     setFilterShift = (unsigned long int)round((MP_Real_t)setFilterLen/timeDensity);
-    setFftRealSize = (unsigned long int)round((MP_Real_t)(setFilterLen/2+1)*freqDensity);
+    setFftSize = (unsigned long int)round((MP_Real_t)(setFilterLen)*freqDensity);
     nAddedBlocks += add_chirp_block( dict,
-				     setFilterLen, setFilterShift, setFftRealSize,
+				     setFilterLen, setFilterShift, setFftSize,
 				     setWindowType, setWindowOption ,
 				     setNumFitPoints, setNumIter );
   }

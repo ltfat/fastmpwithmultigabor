@@ -64,26 +64,24 @@ public:
   MP_Signal_c *s;
   /* General characteristics of the atoms */
   /** \brief common length of the atoms (== frame length) */
-  unsigned long int filterLen;   
+  unsigned long int filterLen;
   /** \brief sliding step between two consecutive frames (== frame shift) */
-  unsigned long int filterShift; 
+  unsigned long int filterShift;
   /** \brief number of atoms/filters per frame */
-  unsigned long int numFilters;  
+  unsigned long int numFilters;
   /** \brief number of frames for each channel (determined by
    * the size of the signal and the frame shift) */
-  unsigned long int numFrames;   
+  unsigned long int numFrames;
   
   /* Max of inner products (in fact, max of the squared energy): */
   /** \brief value of the max IP across all frames */
-  MP_Real_t maxIPValue;                     
+  MP_Real_t maxIPValue;
   /** \brief index of the frame where the max value is */
-  unsigned long int maxIPFrameIdx;          
+  unsigned long int maxIPFrameIdx;
   /** \brief max IP value for each frame */
-  MP_Real_t *maxIPValueInFrame; 
+  MP_Real_t *maxIPValueInFrame;
   /** \brief index of the frequency where the max IP is for each frame */
-  unsigned long int *maxIPIdxInFrame; 
-  /** \brief index where the max IP is in the flat array ipStorage[] */
-  unsigned long int maxAtomIdx;
+  unsigned long int *maxIPIdxInFrame;
 
   /** \brief The following variables support an arborescent search of the max IP: */
 
@@ -107,14 +105,15 @@ public:
   /* CONSTRUCTORS/DESTRUCTOR */
   /***************************/
 
+public:
+  /** \brief an initializer for the parameters which ARE related to the signal */
+  virtual int plug_signal( MP_Signal_c *setSignal );
+
 protected:
   /** \brief an initializer for the parameters which ARE NOT related to the signal */
   virtual int init_parameters( const unsigned long int setFilterLen,
 			       const unsigned long int setFilterShift,
 			       const unsigned long int setNumFilters );
-
-  /** \brief an initializer for the parameters which ARE related to the signal */
-  virtual int plug_signal( MP_Signal_c *setSignal );
 
   /** \brief nullification of the signal-related parameters */
   virtual void nullify_signal( void );
@@ -179,13 +178,15 @@ public:
    */
   MP_Real_t update_max( const MP_Support_t frameSupport );
 
-  /** \brief create a new atom corresponding to a given atomIdx in the flat array ip[].
+  /** \brief create a new atom corresponding to a given (frameIdx,filterIdx)
    *
    * \param atom a pointer to (or an array of) reference to the returned atom(s)
-   * \param atomIdx  index of the atom to be extracted by the block
+   * \param frameIdx the frame coordinate of the atom
+   * \param filterIdx the position of the atom in the frame
    * \return the number of extracted atom */  
   virtual unsigned int create_atom( MP_Atom_c** atom,
-				    const unsigned long int atomIdx ) = 0;
+				    const unsigned long int frameIdx,
+				    const unsigned long int filterIdx ) = 0;
 
 };
 

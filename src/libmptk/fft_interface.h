@@ -83,14 +83,14 @@ public:
    * (Hamming, Gauss etc.).
    * 
    * \sa make_window() */
-  unsigned char     windowType;   
+  unsigned char windowType;   
   /** \brief optional window parameter
    * (applies to Gauss, generalized Hamming and exponential windows).
    * 
    * \sa make_window() */
   double windowOption;   
   /** \brief size of the window used before performing the FFT.
-   * Combined with fftRealSize it determines how much zero padding is performed.
+   * Combined with numFreqs it determines how much zero padding is performed.
    *
    * It is also often called the frame size
    * \sa make_window() 
@@ -105,24 +105,23 @@ public:
    */
   unsigned long int windowCenter; 
 
-  /** \brief size of the output buffers filled by exec_complex(), exec_mag() and exec_energy(). 
-   * Combined with windowSize it determines how much zero padding is performed.
+  /** \brief size of the signal on which the FFT is performed (including zero padding).
+   */
+  unsigned long int fftSize;
+
+  /** \brief size of the output buffers filled by exec_complex() and exec_mag().
+   * It is deduced from fftSize as numFreqs = ( fftSize/2 + 1 )
    *
    * \sa exec_complex() 
    */
-  unsigned long int fftRealSize; 
-
-  /** \brief size of the signal on which the FFT is performed (including zero padding).
-   * It is deduced from fftRealSize as fftCplxSize = 2*( fftRealSize-1 )
-   */
-  unsigned long int fftCplxSize;
+  unsigned long int numFreqs; 
 
   /** \brief Pointer on a tabulated window.(DO NOT MALLOC OR FREE IT.)
    */
   MP_Real_t *window;    
   
  protected:
-  /** \brief Four buffers of size fftRealSize to store the output of exec_complex() when generic methods
+  /** \brief Four buffers of size numFreqs to store the output of exec_complex() when generic methods
    * such as fill_correl() or exec_mag() need it */
   MP_Real_t *bufferRe;    
   MP_Real_t *bufferIm;
@@ -148,18 +147,15 @@ public:
    * \param windowSize size of the window
    * \param windowType type of the window
    * \param windowOption optional shaping parameter of the window
-   * \param fftRealSize size of the output buffer filled by exec_complex(), exec_mag() and exec_energy(). Since the complex FFT which is performed is of size
-   * \a fftCplxSize = 2(fftRealSize-1), for speed reasons it might be
-   * preferable to set fftRealSize = \f$2^n+1 \f$ for some integer n.
-   * \warning \a fftRealSize MUST satisfy
-   * \f$ 2\times(\mbox{fftRealSize}-1) \geq \mbox{windowSize} \f$
-   * otherwise the behaviour is undefined.
+   * \param fftSize size of the performed FFT. For speed reasons it might be
+   * preferable to set fftSize = \f$2^n\f$ for some integer n.
+   *
    * \sa make_window(), exec_complex().
    */
   static MP_FFT_Interface_c* init( const unsigned long int windowSize,
 				   const unsigned char windowType,
 				   const double windowOption,
-				   const unsigned long int fftRealSize );
+				   const unsigned long int fftSize );
 
   /** \brief A generic method to test if the default instantiation of the FFT class for a given
    * window scales correctly the energy of a signal, which is a clue whether it is correctly implemented */
@@ -167,6 +163,8 @@ public:
 		  const unsigned char windowType,
 		  const double windowOption,
 		  MP_Sample_t *samples);
+
+
   /***************************/
   /* CONSTRUCTORS/DESTRUCTOR */
   /***************************/
@@ -177,7 +175,7 @@ public:
   MP_FFT_Interface_c( const unsigned long int windowSize,
 		      const unsigned char windowType,
 		      const double windowOption,
-		      const unsigned long int fftRealSize );
+		      const unsigned long int fftSize );
 
  public:
   virtual ~MP_FFT_Interface_c();
@@ -192,15 +190,15 @@ public:
   /** \brief Performs the complex FFT of an input signal buffer and puts the result in two output buffers.
    *
    * \param in  input signal buffer, only the first windowSize values are used.
-   * \param re  output FFT real part buffer, only the first fftRealSize values are filled.
-   * \param im  output FFT imaginary part buffer, only the first fftRealSize values are filled.
+   * \param re  output FFT real part buffer, only the first numFreqs values are filled.
+   * \param im  output FFT imaginary part buffer, only the first numFreqs values are filled.
    *
    * The output buffers are filled with the values
    * \f[
    * (\mbox{re}[k],\mbox{im}[k]) = \sum_{n=0}^{\mbox{fftCplxSize}-1} \mbox{window}[n]
    * \cdot \mbox{in}[n] \cdot \exp\left(-\frac{2i\pi\ k \cdot n}{\mbox{fftCplxSize}}\right).
    * \f]
-   * for \f$0 \leq k < \mbox{fftRealSize} = \mbox{fftCplxSize}/2+1\f$, 
+   * for \f$0 \leq k < \mbox{numFreqs} = \mbox{fftCplxSize}/2+1\f$, 
    * where the signal is zero padded beyond the window size if necessary.
    *
    * These output values correspond to the frequency components between the DC
@@ -220,16 +218,16 @@ public:
    * in an output magnitude buffer.
    *
    * \param in  input signal buffer, only the first windowSize values are used.
-   * \param mag output FFT magnitude buffer, only the first fftRealSize values are filled.
+   * \param mag output FFT magnitude buffer, only the first numFreqs values are filled.
    *
    * The output buffer is filled with
-   * \f$\mbox{re}[k]^2+\mbox{im}[k]^2\f$ for \f$0 \leq k < \mbox{fftRealSize}\f$
+   * \f$\mbox{re}[k]^2+\mbox{im}[k]^2\f$ for \f$0 \leq k < \mbox{numFreqs}\f$
    * unless the macro \a MP_MAGNITUDE_IS_SQUARED is undefined, in which case
    * the square root is computed.
    *
    * \sa The documentation of exec_complex() gives the expression of
    * \f$(\mbox{re}[k],\mbox{im}[k])\f$ and details about zero padding
-   * and the use of fftRealSize.
+   * and the use of numFreqs.
    */  
   virtual void exec_mag( MP_Sample_t *in, MP_Real_t *mag );
 
@@ -291,18 +289,15 @@ public:
    * \param windowSize size of the window
    * \param windowType type of the window
    * \param windowOption optional shaping parameter of the window
-   * \param fftRealSize size of the output buffer filled by exec_complex(), exec_mag() and exec_energy(). Since the complex FFT which is performed is of size
-   * \a fftCplxSize = 2(fftRealSize-1), for speed reasons it might be
-   * preferable to set fftRealSize = \f$2^n+1 \f$ for some integer n.
-   * \warning \a fftRealSize MUST satisfy
-   * \f$ 2\times(\mbox{fftRealSize}-1) \geq \mbox{windowSize} \f$
-   * otherwise the behaviour is undefined.
+   * \param fftSize size of the performed, including zero padding.
+   * For speed reasons it might be preferable to set fftSize = \f$2^n\f$ for some integer n.
+   *
    * \sa make_window(), exec_complex().
    */
   MP_FFTW_Interface_c( const unsigned long int windowSize,
 		       const unsigned char windowType,
 		       const double windowOption,
-		       const unsigned long int fftRealSize );
+		       const unsigned long int fftSize );
 
   ~MP_FFTW_Interface_c();
 

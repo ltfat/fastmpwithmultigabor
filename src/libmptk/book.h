@@ -150,7 +150,7 @@ public:
 
   /** \brief Add a new atom in the storage space, taking care of the necessary allocations 
    * \param newAtom a reference to an atom
-   * \return nonzero upon success, zero otherwise
+   * \return the number of appended atoms (1 upon success, zero otherwise)
    * \remark The reference newAtom is not copied, it is stored and will be deleted when the book is destroyed
    * \remark \a numChans is set up if this is the first atom to be appended to the book,
    * otherwise, if the atom \a numChans does not match \a numChans, it is not appended.

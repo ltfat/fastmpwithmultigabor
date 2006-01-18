@@ -7,7 +7,6 @@ TODO:
     called from the GUI, leave only the command-line interfacing in the utils.
 
 * PRE-RELEASE:
-  - include the amplitudes in the MP_Atom_c class and remove MP_Dirac_c
   - Dict/block/book/atom I/O:
       + do more error checks on writes
       + decide upon a strategy for the book parsing in binary and text
@@ -16,9 +15,6 @@ TODO:
 
 * BUGS:
   - make_regression_constants is not built correctly under Cygwin.
-  - Harmonic atoms: re-check behaviour of update_frame and create_atom
-    when partials of harmonic atoms go over the Nyquist frequency
-    (for certain numPartials/f0Min/f0Max configurations).
 
 * GENERAL IMPROVEMENTS:
   - implement tfmaps for harmonic atoms
@@ -29,9 +25,6 @@ TODO:
   - document 'how to add a block' including how to interface with dict_scanner
   - complete mpview.m by dealing with several channels
   - get rid of libsndfile to read wav files or add 'gain' option when reading/writing sound files
-  - define levels for #ifndef NDEBUG to allow for a finer tuning of the
-    quantity of debugging text output; verify if some is more relevant to some
-    VERBOSE.
   - replace MP_Sample_t with MP_Real_t and remove the unnecessary castings
   - (BOOKS only:) replace file constructors by factory functions to improve
     the robustness to corrupted input files. (Done for dictionaries.)

@@ -662,14 +662,15 @@ int main( int argc, char **argv ) {
   }
 
   /* Load the input signal */
-  if ( (inSignal = new MP_Signal_c( sndFileName )) == NULL ) {
+  if ( (inSignal = MP_Signal_c::init( sndFileName )) == NULL ) {
     fprintf( stderr, "mpd_demix error -- Failed to create a new signal from file [%s].\n",
 	     sndFileName );
     free( mixer ); free( Ah );
     return( ERR_SIG );
   }
   if ( inSignal->numChans != numChans ) {
-    fprintf( stderr, "mpd_demix error -- Channel mismatch: signal has [%d] channels whereas mixer matrix has [%d] channels.\n",
+    fprintf( stderr, "mpd_demix error -- Channel mismatch: signal has [%d] channels"
+	     " whereas mixer matrix has [%d] channels.\n",
 	     inSignal->numChans, numChans );
     free( mixer ); free( Ah );
     return( ERR_NCHANS );
@@ -691,7 +692,7 @@ int main( int argc, char **argv ) {
   }
   else {
     for ( j = 0; j < numSources; j++ ) {
-      if ( !sigArray[j].init( 1, numSamples, sampleRate ) ) {
+      if ( sigArray[j].init_parameters( 1, numSamples, sampleRate ) ) {
 	fprintf( stderr, "mpd_demix error -- Could not initialize the [%u]-th signal in the signal array.\n",
 		 j );
 	delete[] sigArray;
@@ -730,28 +731,32 @@ int main( int argc, char **argv ) {
     return( ERR_DICT );
   }
   else {
-    /* Init the dictionary array */
-    for ( j = 0; j < numSources; j++ ) dict[j] = NULL;
-    /* Actually alloc each dictionary */
+    /* Build the dictionary array */
     for ( j = 0; j < numSources; j++ ) {
-      if ( (dict[j] = new MP_Dict_c( &(sigArray[j]), MP_DICT_SIG_HOOK )) == NULL ) {
+      dict[j] = MP_Dict_c::init();
+      if ( dict[j] == NULL ) {
 	fprintf( stderr, "mpd_demix error -- Can't create a new dictionary for source [%u].\n", j );
 	free( mixer ); free( Ah ); delete(inSignal); delete[](sigArray);
 	free_mem( dict, numSources, decay );
 	return( ERR_DICT );
       }
-      else {
-	if ( dictFileName != NULL ) {
-	  if ( dict[j]->add_blocks( dictFileName ) == 0 ) {
-	    fprintf( stderr, "mpd_demix error -- Can't read blocks from file [%s].\n", dictFileName );
-	    free( mixer ); free( Ah ); delete(inSignal); delete[](sigArray);
-	    free_mem( dict, numSources, decay );
-	    return( ERR_DICT );
-	  }
-	}
-	/* If no file name is given, use the following default dictionnary: */
-	else add_gabor_blocks( dict[j], numSamples, 4, 1, DSP_GAUSS_WIN, DSP_GAUSS_DEFAULT_OPT );
+      if ( dict[j]->plug_signal( &(sigArray[j]) ) ) {
+	fprintf( stderr, "mpd_demix error -- Can't plug the relevant signal into"
+		 " the dictionary for source [%u].\n", j );
+	free( mixer ); free( Ah ); delete(inSignal); delete[](sigArray);
+	free_mem( dict, numSources, decay );
+	return( ERR_DICT );
       }
+      if ( dictFileName != NULL ) {
+	if ( dict[j]->add_blocks( dictFileName ) == 0 ) {
+	  fprintf( stderr, "mpd_demix error -- Can't read blocks from file [%s].\n", dictFileName );
+	  free( mixer ); free( Ah ); delete(inSignal); delete[](sigArray);
+	  free_mem( dict, numSources, decay );
+	  return( ERR_DICT );
+	}
+      }
+      /* If no file name is given, use the following default dictionnary: */
+      else add_gabor_blocks( dict[j], numSamples, 4, 1, DSP_GAUSS_WIN, DSP_GAUSS_DEFAULT_OPT );
     }
   }
   if ( !MPD_QUIET ) fprintf( stderr, "mpd_demix msg -- The multiple dictionary is built.\n" );

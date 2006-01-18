@@ -65,8 +65,8 @@
  * \f[
  * f_k \approx k*f_0, 1 \leq k \leq \mbox{maxNumPartials},
  * \f]
- * with the constraint \f$f_k\f$ < \b fft->fftRealSize. The fundamental frequency
- * \f$f_0 = \ell/\mbox{fft.fftCplxSize}\f$ spans the domain
+ * with the constraint \f$f_k\f$ < \b fft->numFreqs. The fundamental frequency
+ * \f$f_0 = \ell/\mbox{fft.fftSize}\f$ spans the domain
  * \f[
  * 1 \leq \mbox{minFundFreqIdx} \leq \ell
  * < \mbox{minFundFreqIdx}+\mbox{numFundFreqIdx}
@@ -77,10 +77,10 @@
  * \]
  * and
  * \[
- * \mbox{minFundFreqIdx}+\mbox{numFundFreqIdx} <= \mbox{fft.fftRealSize}
+ * \mbox{minFundFreqIdx}+\mbox{numFundFreqIdx} <= \mbox{fft.numFreqs}
  * \f]
  *
- * Thus, \b numFilters = \b fft->fftRealSize + \b numFundFreqIdx 
+ * Thus, \b numFilters = \b fft->numFreqs + \b numFundFreqIdx 
  * where the first term counts Gabor atoms and the second
  * one harmonic atoms
  *
@@ -94,18 +94,28 @@ class MP_Harmonic_Block_c:public MP_Gabor_Block_c {
 
 public:
   
-  /** \brief Minimum fundamental frequency bin */
-  unsigned long int minFundFreqIdx;
-  /** \brief Number of fundamental frequency bins */
-  unsigned long int numFundFreqIdx;
+  /* BLOCK-specific parameters: */
+
+  /** \brief Minimum fundamental frequency, in Hz */
+  MP_Real_t f0Min;
+  /** \brief Maximum fundamental frequency, in Hz */
+  MP_Real_t f0Max;
   /** \brief Maximum number of partials per harmonic subspace. 
    *  The actual number of partials in a given subspace might be smaller */
   unsigned int maxNumPartials;
 
-  /** \brief An array of size \b fft->fftRealSize which holds the frame-wise sum 
+  /** \brief An array of size \b fft->numFreqs which holds the frame-wise sum 
    * of FFT results across channels
    * \sa mag */
   double *sum;
+
+  /* SIGNAL-related parameters: */
+
+  /** \brief Minimum fundamental frequency, in fft bins */
+  unsigned long int minFundFreqIdx;
+  /** \brief Number of fundamental frequency bins between f0Min and f0Max */
+  unsigned long int numFundFreqIdx;
+
 
   /***********/
   /* METHODS */
@@ -120,30 +130,28 @@ public:
   /** \brief Factory function that allocates the storage space and inits it to zero, 
    * and set up the FFT interface
    *
-   * The size of the complex FFT which is performed depends on \a setWindowSize and 
-   * \a setFftRealSize (== the number of frequency bins) and is typically
-   * 2*(fftRealSize-1), so for speed reasons it might be preferable
-   * to use \a setFftRealSize of the form 2^n+1
+   * For the size of the complex FFT which is performed, it might be preferable
+   * to use \a setFftSize of the form 2^n
    *
    *  \param setWindowSize size of the window
    * \param setFilterShift shift, in samples, between two consecutive frames. 
    * Typically, use \a setFilterShift = \a setWindowSize / 2 to get 50 percent overlap between windows
-   * \param setFftRealSize number of plain Gabor atoms (frequency bins) per frame. 
-   * Typically, use \a setFftRealSize = \a setWindowSize / 2 + 1 to have the block compute
+   * \param setFftSize The size of the executed FFT, including zero padding.
+   * Typically, use \a setFftSize = \a setWindowSize to have the block compute
    * windowed FFTs without zero padding.
    * \param s the signal on which the block will work
    * \param setWindowType type of the window  (ex: \b DSP_GAUSS_WIN, \b DSP_HAMMING_WIN, ...)
    * \param setWindowOption optional shaping parameter of the windows
    * \param setMinFundFreqIdx minimum allowed fundamental frequency of the harmonic subspaces, 
-   * expressed in frequency bins between 0 (DC) and \a setFftRealSize-1 (Nyquist)
+   * expressed in frequency bins between 0 (DC) and \a numFreqs-1 (Nyquist)
    * \param setMaxFundFreqIdx maximum allowed fundamental frequency of the harmonic subspaces, 
-   * expressed in frequency bins between 0 (DC) and \a setFftRealSize-1 (Nyquist)
+   * expressed in frequency bins between 0 (DC) and \a numFreqs-1 (Nyquist)
    * \param setMaxNumPartials maximum number of partials to be considered in each harmonic subspace
    *
    * \warning the behaviour is undefined if the following conditions are not satisfied:
-   * -  \a setFftRealSize is at least \a setWindowSize / 2 + 1, 
+   * -  \a setFftSize is at least \a setWindowSize;
    * -  \a setMaxNumPartials is at least 2,
-   * -  \f$1 \leq \mbox{setMinFundFreqIdx} \leq \mbox{setMaxFundFreqIdx} < \mbox{setFftRealSize}\f$
+   * -  \f$1 \leq \mbox{setMinFundFreqIdx} \leq \mbox{setMaxFundFreqIdx} < \mbox{numFreqs}\f$
    *
    * \sa add_harmonic_block()
    * \sa MP_Gabor_Block_c::MP_Gabor_Block_c()
@@ -152,26 +160,26 @@ public:
   static MP_Harmonic_Block_c* init( MP_Signal_c *s,
 				    const unsigned long int setWindowSize,
 				    const unsigned long int setFilterShift,
-				    const unsigned long int setFftRealSize,
+				    const unsigned long int setFftSize,
 				    const unsigned char setWindowType,
 				    const double setWindowOption,
-				    const unsigned long int setMinFundFreqIdx,
-				    const unsigned long int setMaxFundFreqIdx,
+				    const MP_Real_t setF0Min,
+				    const MP_Real_t setF0Max,
 				    const unsigned int  setMaxNumPartials );
+
+  /** \brief an initializer for the parameters which ARE related to the signal */
+  virtual int plug_signal( MP_Signal_c *setSignal );
 
 protected:
   /** \brief an initializer for the parameters which ARE NOT related to the signal */
   virtual int init_parameters( const unsigned long int setFilterLen,
 			       const unsigned long int setFilterShift,
-			       const unsigned long int setFftRealSize,
+			       const unsigned long int setFftSize,
 			       const unsigned char setWindowType,
 			       const double setWindowOption,
-			       const unsigned long int setMinFundFreqIdx,
-			       const unsigned long int setMaxFundFreqIdx,
+			       const MP_Real_t setF0Min,
+			       const MP_Real_t setF0Max,
 			       const unsigned int  setMaxNumPartials );
-
-  /** \brief an initializer for the parameters which ARE related to the signal */
-  virtual int plug_signal( MP_Signal_c *setSignal );
 
   /** \brief nullification of the signal-related parameters */
   virtual void nullify_signal( void );
@@ -215,7 +223,7 @@ public:
    * \sum_{k=1}^{K} \mbox{sum}[k*\ell]
    * \f]
    * with K the largest integer no larger than \b maxNumPartials which 
-   * satisfies \f$K \ell < \mbox{fft.fftRealSize}\f$.
+   * satisfies \f$K \ell < \mbox{fft.numFreqs}\f$.
    *
    * \sa MP_Block_c::update_frame()
    * \sa MP_Block_c::update_ip()
@@ -225,20 +233,21 @@ public:
 			     unsigned long int *maxFilterIdx ); 
   
   /** \brief Creates a new Harmonic atom (or a plain Gabor atom) 
-   * corresponding to \a atomIdx = \a frameIdx * \b numFilters + \a filterIdx.
+   * corresponding to (frameIdx,filterIdx).
    * \param atom a pointer to a reference to the returned atom object
    * \param atomIdx the index of the desired atom
    * \return the number of created atoms (one upon success, zero otherwise)
    *
-   * - if \a filterIdx < \b fft->fftRealSize the result is a Gabor atom 
-   * at frequency \a freq = \a filterIdx / \b fft->fftCplxSize.
+   * - if \a filterIdx < \b fft->numFreqs the result is a Gabor atom 
+   * at frequency \a freq = \a filterIdx / \b fft->fftSize.
    * - otherwise the created atom is a Harmonic atom at fundamental frequency 
    * \f[
-   * \mbox{freq} = (\mbox{filterIdx}-\mbox{fft.fftRealSize}+\mbox{minFundFreqIdx})/\mbox{fft.fftCplxSize}
+   * \mbox{freq} = (\mbox{filterIdx}-\mbox{fft.fftRealSize}+\mbox{minFundFreqIdx})/\mbox{fft.fftSize}
    * \f]
    */
   unsigned int create_atom( MP_Atom_c **atom,
-			    const unsigned long int atomIdx );
+			    const unsigned long int frameIdx,
+			    const unsigned long int filterIdx );
 
 };
 
@@ -253,17 +262,17 @@ public:
 *  \param windowSize size of the window
  * \param filterShift shift, in samples, between two consecutive frames. 
  * Typically, use \a filterShift = \a windowSize / 2 to get 50 percent overlap between windows
- * \param fftRealSize number of plain Gabor atoms (frequency bins) per frame. 
- * Typically, use \a fftRealSize = \a windowSize / 2 + 1 to have the block compute
+ * \param fftSize size of the executed FFT, including zero padding.
+ * Typically, use \a fftSize = \a windowSize to have the block compute
  * windowed FFTs without zero padding.
  * \param windowType type of the window  (ex: \b DSP_GAUSS_WIN, \b DSP_HAMMING_WIN, ...)
  * \param windowOption optional shaping parameter of the windows
- * \param minFundFreq minimum allowed fundamental frequency of the harmonic subspaces, between 0 (DC) and 0.5 (Nyquist)
- * \param maxFundFreq maximum allowed fundamental frequency of the harmonic subspaces, between 0 (DC) and 0.5 (Nyquist)
+ * \param f0Min minimum allowed fundamental frequency of the harmonic subspaces, in Hz
+ * \param f0Max maximum allowed fundamental frequency of the harmonic subspaces, in Hz
  * \param maxNumPartials maximum number of partials to be considered in each harmonic subspace
  * \return one upon success, zero otherwise 
  *
- * \remark If \a fftRealSize is smaller than \a windowSize / 2 + 1, or \a maxNumPartials smaller than 2,
+ * \remark If \a fftSize is smaller than \a windowSize , or \a maxNumPartials smaller than 2,
  * or if there is no frequency bin in the range [\a minFundFreq , \a maxFundFreq], 
  * no Gabor block is added!
  *
@@ -275,11 +284,11 @@ public:
 int add_harmonic_block( MP_Dict_c *dict,
 			const unsigned long int windowSize,
 			const unsigned long int filterShift,
-			const unsigned long int fftRealSize,
+			const unsigned long int fftSize,
 			const unsigned char windowType,
 			const double windowOption,
-			const MP_Real_t minFundFreq,
-			const MP_Real_t maxFundFreq,
+			const MP_Real_t f0Min,
+			const MP_Real_t f0Max,
 			const unsigned int  maxNumPartials);
 
 /** \brief Add a family of harmonic blocks to a dictionary.
@@ -296,15 +305,15 @@ int add_harmonic_block( MP_Dict_c *dict,
  * \a timeDensity = 2 to have a 50 percent overlap.
  *
  * \param freqDensity Determines the number of frequency bins 
- * (= \a fftRealSize)  as a function of the window size (= \a filterLen):
- * \f[\mbox{fftRealSize} = (\mbox{filterLen/2+1}) \times \mbox{freqDensity}\f]
+ * (= \a numFreqs)  as a function of the window size (= \a filterLen):
+ * \f[\mbox{fftSize} = (\mbox{filterLen}) \times \mbox{freqDensity}\f]
  * If \a freqDensity exceeds one, zero padding will be performed to have
  * an increased frequency resolution.
  *
  * \param setWindowType type of the windows (ex: \b DSP_GAUSS_WIN, \b DSP_HAMMING_WIN, ...)
  * \param setWindowOption optional shaping parameter of the windows
- * \param minFundFreq minimum allowed fundamental frequency of the harmonic subspaces, between 0 (DC) and 0.5 (Nyquist)
- * \param maxFundFreq maximum allowed fundamental frequency of the harmonic subspaces, between 0 (DC) and 0.5 (Nyquist)
+ * \param f0Min minimum allowed fundamental frequency of the harmonic subspaces, in Hz
+ * \param f0Max maximum allowed fundamental frequency of the harmonic subspaces, in Hz
  * \param maxNumPartials maximum number of partials to be considered in each harmonic subspace
  *
  * \return the number of added blocks
@@ -324,8 +333,8 @@ int add_harmonic_blocks( MP_Dict_c *dict,
 			 const MP_Real_t freqDensity, 
 			 const unsigned char setWindowType,
 			 const double setWindowOption,
-			 const MP_Real_t minFundFreq,
-			 const MP_Real_t maxFundFreq,
+			 const MP_Real_t f0Min,
+			 const MP_Real_t f0Max,
 			 const unsigned int  maxNumPartials);
 
 

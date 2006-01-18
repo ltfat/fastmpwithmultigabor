@@ -57,26 +57,26 @@
 MP_FFT_Interface_c* MP_FFT_Interface_c::init( const unsigned long int setWindowSize,
 					      const unsigned char setWindowType,
 					      const double setWindowOption,
-					      const unsigned long int setFftRealSize ) {
+					      const unsigned long int setFftSize ) {
   MP_FFT_Interface_c* fft = NULL;
 
-  if( 2*(setFftRealSize-1) < setWindowSize ) {
+  if( setFftSize < setWindowSize ) {
     mp_error_msg( "MP_FFT_Interface_c::init()",
-		  "Can't create a FFT of size %ld smaller than the window size %ld."
-		  " Returning a NULL fft object.\n", 2*(setFftRealSize-1), setWindowSize);
+		  "Can't create a FFT of size %lu smaller than the window size %lu."
+		  " Returning a NULL fft object.\n", setFftSize, setWindowSize);
     return( NULL );
   }
 
   /* Create the adequate FFT and check the returned address */
 #ifdef USE_FFTW3
   fft = (MP_FFT_Interface_c*) new MP_FFTW_Interface_c( setWindowSize, setWindowType, setWindowOption,
-						       setFftRealSize );
+						       setFftSize );
   if ( fft == NULL ) mp_error_msg( "MP_FFT_Interface_c::init()",
 				   "Instanciation of FFTW_Interface failed."
 				   " Returning a NULL fft object.\n" );
 #elif defined(USE_MAC_FFT)
   fft = (MP_FFT_Interface_c*) new MP_MacFFT_Interface_c( setWindowSize, setWindowType, setWindowOption,
-							 setFftRealSize );
+							 setFftSize );
   if ( fft == NULL ) mp_error_msg( "MP_FFT_Interface_c::init()",
 				   "Instanciation of MacFFT_Interface failed."
 				   " Returning a NULL fft object.\n" );
@@ -117,29 +117,27 @@ MP_FFT_Interface_c* MP_FFT_Interface_c::init( const unsigned long int setWindowS
 MP_FFT_Interface_c::MP_FFT_Interface_c( const unsigned long int setWindowSize,
 					const unsigned char setWindowType,
 					const double setWindowOption,
-					const unsigned long int setFftRealSize ) {
+					const unsigned long int setFftSize ) {
   extern MP_Win_Server_c MP_GLOBAL_WIN_SERVER;
-
-  /* Check if fftCplxSize will overflow in the expression fftCplxSize = 2*(fftRealSize-1) */
-  assert( setFftRealSize    <= (ULONG_MAX >> 1) );
 
   /* Set values */
   windowSize = setWindowSize;
   windowType = setWindowType;
   windowOption = setWindowOption;
-  fftRealSize = setFftRealSize;
-  fftCplxSize = (fftRealSize-1)<<1;
-  assert( fftCplxSize >= setWindowSize );
+  fftSize = setFftSize;
+  numFreqs = (fftSize >> 1) + 1;
+
+  assert( fftSize >= setWindowSize );
 
   /* Compute the window and get its center point */
   windowCenter = MP_GLOBAL_WIN_SERVER.get_window( &window, windowSize, windowType, windowOption );
 
   /* Allocate some other buffers */
-  bufferRe = (MP_Real_t*) malloc(sizeof(MP_Real_t)*fftRealSize);  
-  bufferIm = (MP_Real_t*) malloc(sizeof(MP_Real_t)*fftRealSize);
+  bufferRe = (MP_Real_t*) malloc(sizeof(MP_Real_t)*numFreqs);  
+  bufferIm = (MP_Real_t*) malloc(sizeof(MP_Real_t)*numFreqs);
 
-  buffer2Re = (MP_Real_t*) malloc(sizeof(MP_Real_t)*fftRealSize);  
-  buffer2Im = (MP_Real_t*) malloc(sizeof(MP_Real_t)*fftRealSize);
+  buffer2Re = (MP_Real_t*) malloc(sizeof(MP_Real_t)*numFreqs);  
+  buffer2Im = (MP_Real_t*) malloc(sizeof(MP_Real_t)*numFreqs);
 
   inDemodulated = (MP_Sample_t*) malloc(sizeof(MP_Sample_t)*windowSize);
 }
@@ -149,11 +147,11 @@ MP_FFT_Interface_c::MP_FFT_Interface_c( const unsigned long int setWindowSize,
 /* Destructor */
 MP_FFT_Interface_c::~MP_FFT_Interface_c( ) {
 
-  if ( bufferRe )  free( bufferRe );
-  if ( bufferIm )  free( bufferIm );
-  if ( buffer2Re )  free( buffer2Re );
-  if ( buffer2Im )  free( buffer2Im );
-  if ( inDemodulated )  free( inDemodulated );
+  if ( bufferRe )      free( bufferRe );
+  if ( bufferIm )      free( bufferIm );
+  if ( buffer2Re )     free( buffer2Re );
+  if ( buffer2Im )     free( buffer2Im );
+  if ( inDemodulated ) free( inDemodulated );
 
 }
 
@@ -182,7 +180,7 @@ void MP_FFT_Interface_c::exec_mag( MP_Sample_t *in, MP_Real_t *mag ) {
   exec_complex( in, bufferRe, bufferIm );
 
   /* Get the resulting magnitudes */
-  for ( i=0; i<fftRealSize; i++ ) {
+  for ( i=0; i<numFreqs; i++ ) {
     re = bufferRe[i];
     im = bufferIm[i];
 
@@ -229,13 +227,13 @@ void MP_FFT_Interface_c::exec_complex_demod( MP_Sample_t *in,
 
   /* COMBINATION */
   /* Combine both parts to get the final result */
-  for ( i=0; i<fftRealSize; i++ ) {
+  for ( i=0; i<numFreqs; i++ ) {
     *(re+i) = bufferRe[i] - buffer2Im[i];
     *(im+i) = bufferIm[i] + buffer2Re[i];
   }
   /* Ensure that the imaginary part of the DC and Nyquist frequency components are zero */
   *(im) = 0.0;
-  *(im+fftRealSize-1) = 0.0;
+  *(im+numFreqs-1) = 0.0;
 
 }
 
@@ -265,13 +263,13 @@ int MP_FFT_Interface_c::test( const unsigned long int setWindowSize ,
   fft->exec_complex(samples,fft->bufferRe,fft->bufferIm);
   amp = fft->bufferRe[0];
   energy2 += amp*amp;
-  for (i=1; i< (fft->fftRealSize-1); i++) {
+  for (i=1; i< (fft->numFreqs-1); i++) {
     amp = fft->bufferRe[i];
     energy2 += 2*amp*amp;
     amp = fft->bufferIm[i];
     energy2 += 2*amp*amp;
   }
-  amp = fft->bufferRe[fft->fftRealSize-1];
+  amp = fft->bufferRe[fft->numFreqs-1];
   energy2 += amp*amp;
 
   tmp = fabsf((energy2/(setWindowSize*energy1))-1);
@@ -304,17 +302,17 @@ int MP_FFT_Interface_c::test( const unsigned long int setWindowSize ,
 MP_FFTW_Interface_c::MP_FFTW_Interface_c( const unsigned long int setWindowSize,
 					  const unsigned char setWindowType,
 					  const double setWindowOption,
-					  const unsigned long int setFftRealSize )
-  :MP_FFT_Interface_c( setWindowSize, setWindowType, setWindowOption, setFftRealSize ) {
+					  const unsigned long int setFftSize )
+  :MP_FFT_Interface_c( setWindowSize, setWindowType, setWindowOption, setFftSize ) {
 
   /* FFTW takes integer FFT sizes => check if the cast (int)(fftCplxSize) will overflow. */
-  assert( fftCplxSize <= INT_MAX );
+  assert( fftSize <= INT_MAX );
 
   /* Allocate the necessary buffers */
-  inPrepared =       (double*) fftw_malloc( sizeof(double)       * fftCplxSize );
-  out        = (fftw_complex*) fftw_malloc( sizeof(fftw_complex) * fftRealSize );
+  inPrepared =       (double*) fftw_malloc( sizeof(double)       * fftSize );
+  out        = (fftw_complex*) fftw_malloc( sizeof(fftw_complex) * numFreqs );
   /* Call the FFTW planning utility */
-  p = fftw_plan_dft_r2c_1d( (int)(fftCplxSize), inPrepared, out, FFTW_MEASURE );
+  p = fftw_plan_dft_r2c_1d( (int)(fftSize), inPrepared, out, FFTW_MEASURE );
   
 }
 
@@ -354,7 +352,7 @@ void MP_FFTW_Interface_c::exec_complex( MP_Sample_t *in, MP_Real_t *re, MP_Real_
     *(inPrepared+i) = (double)(*(window+i)) * (double)(*(in+i));
   }
   /* Perform the zero padding */
-  for ( i=windowSize; i<fftCplxSize; i++ ) {
+  for ( i=windowSize; i<fftSize; i++ ) {
     *(inPrepared+i) = 0.0;
   }
 
@@ -364,7 +362,7 @@ void MP_FFTW_Interface_c::exec_complex( MP_Sample_t *in, MP_Real_t *re, MP_Real_
   fftw_execute( p );
 
   /* Cast and copy the result */
-  for ( i=0; i<fftRealSize; i++ ) {
+  for ( i=0; i<numFreqs; i++ ) {
     re_out = out[i][0];
     im_out = out[i][1];
     *(re+i) = (MP_Real_t)( re_out );
@@ -372,6 +370,6 @@ void MP_FFTW_Interface_c::exec_complex( MP_Sample_t *in, MP_Real_t *re, MP_Real_
   }
   /* Ensure that the imaginary part of the DC and Nyquist frequency components are zero */
   *(im) = 0.0;
-  *(im+fftRealSize-1) = 0.0;
+  *(im+numFreqs-1) = 0.0;
 
 }

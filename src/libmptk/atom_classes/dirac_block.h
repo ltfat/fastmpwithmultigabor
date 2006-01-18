@@ -69,12 +69,12 @@ public:
    * \param s the signal on which the block will work */
   static MP_Dirac_Block_c* init( MP_Signal_c *s);
 
+  /** \brief an initializer for the parameters which ARE related to the signal */
+  virtual int plug_signal( MP_Signal_c *setSignal );
+
 protected:
   /** \brief an initializer for the parameters which ARE NOT related to the signal */
   virtual int init_parameters( void );
-
-  /** \brief an initializer for the parameters which ARE related to the signal */
-  virtual int plug_signal( MP_Signal_c *setSignal );
 
   /** \brief nullification of the signal-related parameters */
   virtual void nullify_signal( void );
@@ -120,11 +120,12 @@ public:
 			     MP_Real_t *maxCorr, 
 			     unsigned long int *maxFilterIdx ); 
 
-  /** \brief Creates a new dirac atom corresponding to atomIdx in the flat array ip[]
+  /** \brief Creates a new dirac atom corresponding to (frameIdx,filterIdx)
    * \todo   Describe how the atom is determined here.
    */
   unsigned int create_atom( MP_Atom_c **atom,
-			    const unsigned long int atomIdx );
+			    const unsigned long int frameIdx,
+			    const unsigned long int filterIdx );
 
 };
 
