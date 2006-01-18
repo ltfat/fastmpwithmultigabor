@@ -207,6 +207,7 @@ unsigned int MP_Dirac_Block_c::create_atom( MP_Atom_c **atom,
 					    const unsigned long int filterIdx ) {
   MP_Dirac_Atom_c *datom;
   int chanIdx;
+  unsigned long int dummy = filterIdx;
 
   /* Allocate the atom */
   *atom = NULL;
