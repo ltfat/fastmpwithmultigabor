@@ -51,9 +51,10 @@ MP_TF_Map_c::MP_TF_Map_c( const unsigned long int setNCols,  const unsigned long
 			  const int setNChans, 
 			  const unsigned long int setTMin,   const unsigned long int setTMax,
 			  const MP_Real_t setFMin,           const MP_Real_t setFMax ) {
-#ifndef NDEBUG
-  printf("new tfmap\n");
-#endif
+
+  const char* func = "MP_TF_Map_c::MP_TF_Map_c()";
+
+  mp_debug_msg( MP_DEBUG_CONSTRUCTION, func, "new tfmap\n");
 
   assert (setTMin < setTMax);
   assert (setFMin < setFMax);
@@ -74,13 +75,13 @@ MP_TF_Map_c::MP_TF_Map_c( const unsigned long int setNCols,  const unsigned long
 
   /* Try to allocate storage */
   if ( (storage = (MP_Tfmap_t*)calloc(setNChans*setNCols*setNRows,sizeof(MP_Tfmap_t))) == NULL ) {
-    fprintf( stderr, "Warning: can't allocate storage in tfmap with size [%d]x[%lu]x[%lu]. "
+    mp_warning_msg( func, "Can't allocate storage in tfmap with size [%d]x[%lu]x[%lu]. "
 	     "Storage and columns are left NULL.\n", setNChans, setNCols, setNRows );
   }
   /* "Fold" the storage space into separate channels */
   else {
     if ( (channel = (MP_Tfmap_t**) malloc( setNChans*sizeof(MP_Tfmap_t*) ) ) == NULL) {
-      fprintf( stderr, "Warning: can't allocate [%d] channels in tfmap. "
+      mp_warning_msg( func, "Can't allocate [%d] channels in tfmap. "
 	       "Storage and channels are left NULL.\n", setNChans);
       free( storage ); storage = NULL;
     }
@@ -111,11 +112,15 @@ MP_TF_Map_c::MP_TF_Map_c( const unsigned long int setNCols,  const unsigned long
 /**************/
 /* Destructor */
 MP_TF_Map_c::~MP_TF_Map_c() {
-#ifndef NDEBUG
-  printf("delete tfmap\n");
-#endif
+
+  mp_debug_msg( MP_DEBUG_DESTRUCTION, "MP_TF_Map_c::~MP_TF_Map_c()",
+		"Deleting tfmap...\n");
+
   if (storage) free(storage);
   if (channel) free(channel);
+
+  mp_debug_msg( MP_DEBUG_DESTRUCTION, "MP_TF_Map_c::~MP_TF_Map_c()",
+		"Done.\n");
 }
 
 
@@ -133,11 +138,11 @@ void MP_TF_Map_c::reset( void ) {
 /* Human-readable info */
 int MP_TF_Map_c::info( FILE *fid ) {
   int nChar = 0;
-  nChar += fprintf(fid,"Number of channels : %d\n", numChans );
-  nChar += fprintf(fid,"Number of columns  : %lu\n", numCols  );
-  nChar += fprintf(fid,"Number of rows     : %lu\n", numRows  );
-  nChar += fprintf(fid,"Time range         : [%lu %lu[ (dt = %g)\n", tMin, tMax, dt );
-  nChar += fprintf(fid,"freq range         : [%g %g[ (df = %g)\n", fMin, fMax, df );
+  nChar += mp_info_msg( fid, "TFMAP","Number of channels : %d\n", numChans );
+  nChar += mp_info_msg( fid, "   |-","Number of columns  : %lu\n", numCols  );
+  nChar += mp_info_msg( fid, "   |-","Number of rows     : %lu\n", numRows  );
+  nChar += mp_info_msg( fid, "   |-","Time range         : [%lu %lu[ (dt = %g)\n", tMin, tMax, dt );
+  nChar += mp_info_msg( fid, "   O-","freq range         : [%g %g[ (df = %g)\n", fMin, fMax, df );
   return(nChar);
 }
 
@@ -146,6 +151,7 @@ int MP_TF_Map_c::info( FILE *fid ) {
 /* Write to a file as raw data */
 unsigned long int MP_TF_Map_c::dump_to_file( const char *fName , char flagUpsideDown ) {
 
+  const char* func = "MP_TF_Map_c::dump_to_file(..)";
   FILE *fid;
   unsigned long int nWrite = 0;
   MP_Tfmap_t *ptrColumn;
@@ -155,7 +161,7 @@ unsigned long int MP_TF_Map_c::dump_to_file( const char *fName , char flagUpside
 
   /* Open the file in write mode */
   if ( ( fid = fopen( fName, "w" ) ) == NULL ) {
-    fprintf( stderr, "Error: Can't open file [%s] for writing a tfmap.\n", fName );
+    mp_error_msg( func, "Can't open file [%s] for writing a tfmap.\n", fName );
     return( 0 );
   }
 

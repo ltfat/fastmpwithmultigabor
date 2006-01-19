@@ -77,15 +77,14 @@ MP_Win_Server_c::MP_Win_Server_c( void ) {
 /**************/
 /* destructor */
 MP_Win_Server_c::~MP_Win_Server_c() {
-#ifndef NDEBUG
-  fprintf( stderr, "mplib DEBUG -- ~MP_Win_Server_c -- Entering the window server destructor.\n" );
-#endif
+
+  mp_debug_msg( MP_DEBUG_DESTRUCTION, "MP_Win_Server_c::~MP_Win_Server_c()",
+		"Destroying the window server...\n" );
 
   release();
 
-#ifndef NDEBUG
-  fprintf( stderr, "mplib DEBUG -- ~MP_Win_Server_c -- Exiting the window server destructor.\n" );
-#endif
+  mp_debug_msg( MP_DEBUG_DESTRUCTION, "MP_Win_Server_c::~MP_Win_Server_c()",
+		"Done.\n" );
 }
 
 /***************************/
@@ -95,18 +94,13 @@ MP_Win_Server_c::~MP_Win_Server_c() {
 /* Memory release */
 void MP_Win_Server_c::release( void ) {
 
+  const char* func = "MP_Win_Server_c::release()";
   unsigned short int i;
   unsigned long int n;
 
-#ifndef NDEBUG
-  fprintf( stderr, "mplib DEBUG -- MP_Win_Server_c::release() -- Entering.\n" );
-#endif
+  mp_debug_msg( MP_DEBUG_FUNC_ENTER, func, "Entering.\n" );
 
   for ( i = 0; i < DSP_NUM_WINDOWS; i++ ) {
-
-#ifndef NDEBUG
-  fprintf( stderr, "mplib DEBUG -- MP_Win_Server_c::release() -- Freeing row number %d.\n", i );
-#endif
 
     if ( window[i] ) {
       /* Free the buffers */
@@ -123,10 +117,7 @@ void MP_Win_Server_c::release( void ) {
 
   }
 
-#ifndef NDEBUG
-  fprintf( stderr, "mplib DEBUG -- MP_Win_Server_c::release() -- Exiting.\n" );
-#endif
-
+  mp_debug_msg( MP_DEBUG_FUNC_EXIT, func, "Exiting.\n" );
 }
 
 /* Window service */
@@ -134,6 +125,7 @@ unsigned long int MP_Win_Server_c::get_window( MP_Real_t **out,
 					       const unsigned long int length,
 					       const unsigned char type,
 					       double optional ) {
+  const char* func = "MP_Win_Server_c::get_window(...)";
   unsigned long int n;
   unsigned long int num;
   MP_Win_t* ptrWin;
@@ -163,8 +155,7 @@ unsigned long int MP_Win_Server_c::get_window( MP_Real_t **out,
     if (num == maxNumberOf[type]) { /* Note: num == numberOf[type] */
 
       if ( (ptrWin = (MP_Win_t*)realloc( window[type], (num+MP_WIN_BLOCK_SIZE)*sizeof(MP_Win_t) )) == NULL ) {
-	fprintf( stderr, "mplib error -- MP_Win_Server_c::get_window() - Can't realloc to add a new window."
-		 " Returning a NULL buffer.\n" );
+	mp_error_msg( func, "Can't realloc to add a new window. Returning a NULL buffer.\n" );
 	*out = NULL;
 	return( 0 );
       }
@@ -187,7 +178,7 @@ unsigned long int MP_Win_Server_c::get_window( MP_Real_t **out,
     ptrWin = window[type] + numberOf[type];
     /* Allocate the window buffer */
     if ( (ptrWin->win = (MP_Real_t*)malloc( length*sizeof(MP_Real_t) )) == NULL ) {
-      fprintf( stderr, "mplib error -- MP_Win_Server_c::get_window() - Can't allocate a new window buffer."
+      mp_error_msg( func, "Can't allocate a new window buffer."
 	       " Returning a NULL buffer.\n" );
       *out = NULL;
       return( 0 );
@@ -215,8 +206,8 @@ unsigned long int MP_Win_Server_c::get_window( MP_Real_t **out,
     
   }
   else {
-    fprintf( stderr, "mplib error -- MP_Win_Server_c::make_window() - Oooops, this code is theoretically"
-	     " unreachable. Returning a NULL buffer.\n" );
+    mp_error_msg( func, "Oooops, this code is theoretically unreachable."
+		  " Returning a NULL buffer.\n" );
     *out = NULL;
     return( 0 );
   }

@@ -54,11 +54,12 @@
 /* Size-setting constructor */
 MP_Mask_c::MP_Mask_c( unsigned long int setNumAtoms ) {
 
+  const char* func = "MP_Mask_c::MP_Mask_c(setNumAtoms)";
+
   /* Allocate the sieve array: */
   if ( ( sieve = (MP_Bool_t*) malloc( setNumAtoms * sizeof(MP_Bool_t)) ) == NULL ) {
-    fprintf( stderr, "mplib warning -- MP_Mask_c() - Can't allocate storage space for an array"
+    mp_warning_msg( func, "Can't allocate storage space for an array"
 	     " of booleans in the new mask. The array will stay NULL.\n");
-    fflush( stderr );
     numAtoms = 0;
     maxNumAtoms = 0;
   }
@@ -86,20 +87,19 @@ MP_Mask_c::~MP_Mask_c() {
 /***************************/
 MP_Mask_c* MP_Mask_c::init( unsigned long int setNumAtoms ) {
 
+  const char* func = "MP_Mask_c::init(setNumAtoms)";
   MP_Mask_c *mask = NULL;
 
   /* Make a new mask */
   if ( (mask = new MP_Mask_c( setNumAtoms )) == NULL ) {
-    fprintf( stderr, "mplib warning -- MP_Mask_c::init() - Can't create a new mask."
+    mp_warning_msg( func, "Can't create a new mask."
 	     " Returning a NULL mask.\n");
-    fflush( stderr );
     return( NULL );
   }
   /* Check the new mask */
   if ( mask->sieve == NULL ) {
-    fprintf( stderr, "mplib warning -- MP_Mask_c::init() - Sieve array in mask is NULL."
+    mp_warning_msg( func, "Sieve array in mask is NULL."
 	     " Returning a NULL mask.\n");
-    fflush( stderr );
     return( NULL );
   }
 
@@ -160,10 +160,9 @@ unsigned long int MP_Mask_c::grow( unsigned long int nElem ) {
   else                               newSize = numAtoms + nElem;
   /* Actual realloc: */
   if ( ( tmp = (MP_Bool_t*) realloc( sieve, newSize * sizeof(MP_Bool_t)) ) == NULL ) {
-    fprintf( stderr, "mplib warning -- MP_Mask_c::grow() - Can't reallocate storage space"
+    mp_warning_msg( "MP_Mask_c::grow(nElem)", "Can't reallocate storage space"
 	     " for an array of booleans in the mask. The assignment fails, and the"
 	     " mask will remain untouched.\n");
-    fflush( stderr );
     return( 0 );
   }
   /* If realloc succeeds: */
@@ -245,6 +244,7 @@ MP_Bool_t MP_Mask_c::is_compatible_with( MP_Mask_c mask ) {
 /* A method to read from a stream. */
 unsigned long int MP_Mask_c::read_from_stream( FILE* fid ) {
 
+  const char* func = "MP_Mask_c::read_from_stream(fid)";
   unsigned long int nRead = 0;
   unsigned long int expected = 0;
   MP_Bool_t* tmp;
@@ -253,19 +253,17 @@ unsigned long int MP_Mask_c::read_from_stream( FILE* fid ) {
 
   /* Get the simple header announcing the number of atoms */
   if ( ( fread( &expected, sizeof(unsigned long int), 1, fid ) ) == 0 ) {
-    fprintf( stderr, "mplib warning -- MP_Mask_c::read_from_stream() - Can't read expected number of"
+    mp_warning_msg( func, "Can't read expected number of"
 	     " sieve coefficients from stream. Returning 0.\n");
-    fflush( stderr );
     return( 0 );
   }
 
   /* Resize the sieve if needed */
   if ( expected != numAtoms ) {
     if ( ( tmp = (MP_Bool_t*) realloc( sieve, expected * sizeof(MP_Bool_t)) ) == NULL ) {
-      fprintf( stderr, "mplib warning -- MP_Mask_c::read_from_stream() - Can't reallocate storage space"
+      mp_warning_msg( func, "Can't reallocate storage space"
 	       " for an array of booleans in the new mask. The assignment fails, and the target"
 	       " object will remain untouched.\n");
-      fflush( stderr );
       return( 0 );
     }
     else {
@@ -278,9 +276,8 @@ unsigned long int MP_Mask_c::read_from_stream( FILE* fid ) {
   /* Read and cast */
   for ( i = 0; i < expected; i++ ) {
     if ( ( fread( &buff, sizeof(MP_Bool_On_Disk_t), 1, fid ) ) == 0 ) {
-      fprintf( stderr, "mplib warning -- MP_Mask_c::read_from_stream() - Can't read a new MP_Bool_On_Disk_t"
+      mp_warning_msg( func, "Can't read a new MP_Bool_On_Disk_t"
 	       " from stream after %lu reads. Returning number of correctly read MP_Bool_On_Disk_t.\n", nRead );
-      fflush( stderr );
       return( nRead );
     }
     else {
@@ -296,15 +293,15 @@ unsigned long int MP_Mask_c::read_from_stream( FILE* fid ) {
 /* A method to write to a file. */
 unsigned long int MP_Mask_c::write_to_stream( FILE* fid ) {
 
+  const char* func = "MP_Mask_c::write_to_stream(fid)";
   unsigned long int nWrite = 0;
   MP_Bool_On_Disk_t buff;
   unsigned long int i;
 
   /* Write the simple header indicating the number of coeffs in the sieve */
   if ( ( fwrite( &numAtoms, sizeof(unsigned long int), 1, fid ) ) == 0 ) {
-    fprintf( stderr, "mplib warning -- MP_Mask_c::write_to_stream() - Can't write the number of"
+    mp_warning_msg( func, "Can't write the number of"
 	     " sieve coefficients to the stream. Returning 0.\n");
-    fflush( stderr );
     return( 0 );
   }
   
@@ -312,9 +309,8 @@ unsigned long int MP_Mask_c::write_to_stream( FILE* fid ) {
   for ( i = 0; i < numAtoms; i++ ) {
     buff = (MP_Bool_On_Disk_t)( sieve[i] );
     if ( ( fwrite( &buff, sizeof(MP_Bool_On_Disk_t), 1, fid ) ) == 0 ) {
-      fprintf( stderr, "mplib warning -- MP_Mask_c::write_to_stream() - Can't write a new MP_Bool_On_Disk_t"
+      mp_warning_msg( func, "Can't write a new MP_Bool_On_Disk_t"
 	       " to the stream after %lu writes. Returning nWrite.\n", nWrite );
-      fflush( stderr );
       return( nWrite );
     }
     else nWrite++;
@@ -332,8 +328,9 @@ unsigned long int MP_Mask_c::read_from_file( const char* fName ) {
   FILE* fid;
 
   if ( ( fid = fopen(fName,"r") ) == NULL ) {
-    fprintf( stderr, "mplib error -- MP_Mask_c::read_from_file() - Could not open file %s to load a mask.\n",
-	     fName );
+    mp_error_msg( "MP_Mask_c::read_from_file(fName)",
+		  "Could not open file %s to load a mask.\n",
+		  fName );
     return( 0 );
   }
   nRead = read_from_stream( fid );
@@ -350,8 +347,9 @@ unsigned long int MP_Mask_c::write_to_file( const char* fName ) {
   FILE* fid;
 
   if ( ( fid = fopen(fName,"w") ) == NULL ) {
-    fprintf( stderr, "mplib error -- MP_Mask_c::write_to_file() - Could not open file %s to write a mask.\n",
-	     fName );
+    mp_error_msg( "MP_Mask_c::write_to_file(fName)",
+		  "Could not open file %s to write a mask.\n",
+		  fName );
     return( 0 );
   }
   nWrite = write_to_stream( fid );
@@ -371,16 +369,16 @@ MP_Mask_c& MP_Mask_c::operator=( const MP_Mask_c& from ) {
 
   MP_Bool_t *tmp;
 
-  //fprintf( stdout, "COPYING...\n"); fflush( stdout );
+  mp_debug_msg( MP_DEBUG_FUNC_ENTER, "MP_Mask_c::operator=(from)",
+		"Copying a mask...\n" );
 
   /* If sizes are different, reallocate the sieve array: */
   if ( numAtoms != from.numAtoms ) {
 
     if ( ( tmp = (MP_Bool_t*) realloc( sieve, from.maxNumAtoms * sizeof(MP_Bool_t)) ) == NULL ) {
-      fprintf( stderr, "mplib warning -- MP_Mask_c::operator=() - Can't reallocate storage space"
+      mp_warning_msg( "MP_Mask_c::operator=(from)", "Can't reallocate storage space"
 	       " for an array of booleans in the new mask. The assignment fails, and the target"
 	       " object will remain untouched.\n");
-      fflush( stderr );
       return( *this );
     }
     else {
@@ -407,9 +405,8 @@ MP_Mask_c MP_Mask_c::operator&&( const MP_Mask_c& m1 ) {
 
   /* Check mask compatibility */
   if ( numAtoms != m1.numAtoms ) {
-    fprintf( stderr, "mplib warning -- MP_Mask_c::operator&& - Can't perform AND between masks"
+    mp_warning_msg( "MP_Mask_c::operator&&(m1)", "Can't perform AND between masks"
 	     " of different lengths. Returning an empty mask.\n");
-    fflush( stderr );
     if ( ret.sieve ) free( ret.sieve );
     ret.numAtoms = 0;
     ret.maxNumAtoms = 0;
@@ -419,7 +416,8 @@ MP_Mask_c MP_Mask_c::operator&&( const MP_Mask_c& m1 ) {
     unsigned long int i;
     for (i = 0; i < ret.numAtoms; i++ ) {
       ret.sieve[i] = ( sieve[i] && m1.sieve[i] );
-      //fprintf( stderr, "%d && %d = %d\n", sieve[i], m1.sieve[i], ret.sieve[i] ); fflush(stderr);
+      //mp_debug_msg( MP_DEBUG_ABUNDANT, "MP_Mask_c::operator&&(m1)",
+      //	    "%d && %d = %d\n", sieve[i], m1.sieve[i], ret.sieve[i] );
     }
   }
 
@@ -438,9 +436,8 @@ MP_Mask_c MP_Mask_c::operator||( const MP_Mask_c& m1 ) {
 
   /* Check mask compatibility */
   if ( numAtoms != m1.numAtoms ) {
-    fprintf( stderr, "mplib warning -- MP_Mask_c::operator|| - Can't perform OR between masks"
+    mp_warning_msg( "MP_Mask_c::operator||(m1)", "Can't perform OR between masks"
 	     " of different lengths. Returning an empty mask.\n");
-    fflush( stderr );
     if ( ret.sieve ) free( ret.sieve );
     ret.numAtoms = 0;
     ret.maxNumAtoms = 0;
@@ -450,7 +447,8 @@ MP_Mask_c MP_Mask_c::operator||( const MP_Mask_c& m1 ) {
     unsigned long int i;
     for (i = 0; i < ret.numAtoms; i++ ) {
       ret.sieve[i] = ( sieve[i] || m1.sieve[i] );
-      //fprintf( stderr, "%d || %d = %d\n", sieve[i], m1.sieve[i], ret.sieve[i] ); fflush(stderr);
+      //mp_debug_msg( MP_DEBUG_ABUNDANT, "MP_Mask_c::operator||(m1)",
+      //	    "%d || %d = %d\n", sieve[i], m1.sieve[i], ret.sieve[i] );
     }
   }
 
@@ -467,7 +465,8 @@ MP_Mask_c MP_Mask_c::operator!( void ) {
   assert( sieve != NULL );
   for (i = 0; i < ret.numAtoms; i++ ) {
     ret.sieve[i] = !( sieve[i] );
-    //fprintf( stderr, "!%d = %d\n", sieve[i], ret.sieve[i] ); fflush(stderr);
+    //mp_debug_msg( MP_DEBUG_ABUNDANT, "MP_Mask_c::operator!()",
+    //            "!%d = %d\n", sieve[i], ret.sieve[i] );
   }
 
   return( ret );
