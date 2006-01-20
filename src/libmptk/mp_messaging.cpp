@@ -79,8 +79,7 @@ MP_Msg_Server_c::MP_Msg_Server_c( void ) {
   currentMsgType = MP_MSG_NULL;
 
   /* Set the default handler */
-  errorHandler = warningHandler = infoHandler = MP_FLUSH;
-  debugHandler = MP_IGNORE;
+  errorHandler = warningHandler = infoHandler = debugHandler = MP_FLUSH;
 
   /* Set the default output file values */
   errorStream = MP_DEFAULT_ERROR_STREAM;
