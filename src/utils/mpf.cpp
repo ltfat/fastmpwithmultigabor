@@ -593,7 +593,7 @@ int test_satisfaction( int k, unsigned long int n, MP_Atom_c* atom ) {
 /**************************************************/
 int main( int argc, char **argv ) {
 
-  MP_Book_c book;
+  MP_Book_c *book;
   int decision = MP_TRUE;
   unsigned long int numPositive = 0;
 
@@ -609,39 +609,47 @@ int main( int argc, char **argv ) {
     exit( ERR_ARG );
   }
 
+  /* Make the book */
+  book = MP_Book_c::init();
+  if ( book == NULL ) {
+      fprintf( stderr, "mpr error -- Can't create a new book.\n" );
+      fflush( stderr );
+      return( ERR_BOOK );
+  }
+
   /* Load the book */
-  if ( !strcmp( bookInName, "-" ) ) book.load( stdin );
-  else                              book.load( bookInName );
+  if ( !strcmp( bookInName, "-" ) ) book->load( stdin );
+  else                              book->load( bookInName );
 
   /* Rectify the min/max if asking for non-normed values */
   if ( MPF_USE_UCF && MPF_USE[MP_FREQ_PROP] ) {
-    MPF_MIN[MP_FREQ_PROP] = MPF_MIN[MP_FREQ_PROP]/book.sampleRate;
-    MPF_MAX[MP_FREQ_PROP] = MPF_MAX[MP_FREQ_PROP]/book.sampleRate;
+    MPF_MIN[MP_FREQ_PROP] = MPF_MIN[MP_FREQ_PROP]/book->sampleRate;
+    MPF_MAX[MP_FREQ_PROP] = MPF_MAX[MP_FREQ_PROP]/book->sampleRate;
   }
   if ( MPF_USE_UCL && MPF_USE[MP_LEN_PROP] ) {
-    MPF_MIN[MP_LEN_PROP] = MPF_MIN[MP_LEN_PROP]*book.sampleRate;
-    MPF_MAX[MP_LEN_PROP] = MPF_MAX[MP_LEN_PROP]*book.sampleRate;
+    MPF_MIN[MP_LEN_PROP] = MPF_MIN[MP_LEN_PROP]*book->sampleRate;
+    MPF_MAX[MP_LEN_PROP] = MPF_MAX[MP_LEN_PROP]*book->sampleRate;
   }
   if ( MPF_USE_UCP && MPF_USE[MP_POS_PROP] ) {
-    MPF_MIN[MP_POS_PROP] = MPF_MIN[MP_POS_PROP]*book.sampleRate;
-    MPF_MAX[MP_POS_PROP] = MPF_MAX[MP_POS_PROP]*book.sampleRate;
+    MPF_MIN[MP_POS_PROP] = MPF_MIN[MP_POS_PROP]*book->sampleRate;
+    MPF_MAX[MP_POS_PROP] = MPF_MAX[MP_POS_PROP]*book->sampleRate;
   }
 
   /* Allocate the mask */
-  if ( (mask = MP_Mask_c::init( book.numAtoms )) == NULL ) {
-    fprintf( stderr, "mpf error -- Can't create a new mask with [%lu] elements.\n", book.numAtoms );
+  if ( (mask = MP_Mask_c::init( book->numAtoms )) == NULL ) {
+    fprintf( stderr, "mpf error -- Can't create a new mask with [%lu] elements.\n", book->numAtoms );
     return( ERR_MALLOC );
   }
   
   /* Fill the mask */
-  for (n = 0; n < book.numAtoms; n++) {
+  for (n = 0; n < book->numAtoms; n++) {
     /* Reset the decision for the current atom */
     decision = MP_TRUE;
     /* Test the atom type */
-    if (MPF_TEST_TYPE) decision = ( !strcmp( MPF_TEST_TYPE, book.atom[n]->type_name() ) );
+    if (MPF_TEST_TYPE) decision = ( !strcmp( MPF_TEST_TYPE, book->atom[n]->type_name() ) );
     /* Browse the properties */
     for ( k = 0; ( (k <= MP_NUM_PROPS) && decision ); k++ ) {
-      if ( MPF_USE[k] ) decision = ( decision && test_satisfaction( k, n, book.atom[n] ) );
+      if ( MPF_USE[k] ) decision = ( decision && test_satisfaction( k, n, book->atom[n] ) );
     }
     /* Fill the mask */
     mask->sieve[n] = decision;
@@ -650,19 +658,19 @@ int main( int argc, char **argv ) {
 
   /* Report */
   if ( !MPF_QUIET ) fprintf( stderr, "mpf msg -- Out of the [%lu] original atoms, [%lu] atoms satisfy the required properties.\n",
-			     book.numAtoms, numPositive );
+			     book->numAtoms, numPositive );
   if ( !MPF_QUIET ) fprintf( stderr, "mpf msg -- Out of the [%lu] original atoms, [%lu] atoms DO NOT satisfy the required properties.\n",
-			     book.numAtoms, book.numAtoms - numPositive );
+			     book->numAtoms, book->numAtoms - numPositive );
 
   /* Write the YES book */
   if ( bookYesName ) {
     if ( !strcmp( bookYesName, "-" ) ) {
-      n = book.print( stdout, MP_TEXT, mask );
+      n = book->print( stdout, MP_TEXT, mask );
       fflush( stdout );
       if ( MPF_VERBOSE ) fprintf( stderr, "mpf msg -- [%lu] atoms were written to stdout.\n", n );
     }
     else {
-      n = book.print( bookYesName, MP_BINARY, mask );
+      n = book->print( bookYesName, MP_BINARY, mask );
       if ( MPF_VERBOSE ) fprintf( stderr, "mpf msg -- [%lu] atoms were written to file [%s].\n", n, bookYesName );
     }
   }
@@ -670,17 +678,17 @@ int main( int argc, char **argv ) {
   /* Write the NO book */
   if ( bookNoName ) {
     /* Revert the mask */
-    //for (n = 0; n < book.numAtoms; n++) mask[n] = !(mask[n]);
+    //for (n = 0; n < book->numAtoms; n++) mask[n] = !(mask[n]);
     *mask = !(*mask);
     /* Write the book */
-    n = book.print( bookNoName, MP_BINARY, mask );
+    n = book->print( bookNoName, MP_BINARY, mask );
     /* Report */
     if ( MPF_VERBOSE ) fprintf( stderr, "mpf msg -- [%lu] atoms were written to file [%s].\n", n, bookNoName );
   }
 
   /* Clean the house */
-  //free( mask );
-  delete mask;
+  delete( book );
+  delete( mask );
 
   return( 0 );
 }

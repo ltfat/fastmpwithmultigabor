@@ -218,7 +218,7 @@ int parse_args(int argc, char **argv) {
 /**************************************************/
 int main( int argc, char **argv ) {
 
-  MP_Book_c book;
+  MP_Book_c *book;
   int numBooks = 0;
   unsigned long int n; /* number of read atoms */
 
@@ -230,6 +230,14 @@ int main( int argc, char **argv ) {
     exit( ERR_ARG );
   }
 
+  /* Make the book */
+  book = MP_Book_c::init();
+  if ( book == NULL ) {
+      fprintf( stderr, "mpr error -- Can't create a new book.\n" );
+      fflush( stderr );
+      return( ERR_BOOK );
+  }
+
   /* Load all the books and appends them to the first one: */
   while ( optind < (argc-1) ) {
     bookInFileName = argv[optind++];
@@ -239,7 +247,7 @@ int main( int argc, char **argv ) {
 	   bookInFileName, numBooks );
 #endif
     if ( !strcmp( bookInFileName, "-" ) ) {
-      if ( (n = book.load( stdin )) == 0 ) {
+      if ( (n = book->load( stdin )) == 0 ) {
 	if ( !MPC_QUIET ) {
 	  fprintf ( stderr, "mpcat warning -- Can't read atoms for book number [%d] from stdin. I'm skipping this book.\n",
 		    numBooks );
@@ -250,7 +258,7 @@ int main( int argc, char **argv ) {
 				   n, numBooks );
     }
     else {
-      if ( (n = book.load( bookInFileName )) == 0 ) {
+      if ( (n = book->load( bookInFileName )) == 0 ) {
 	if ( !MPC_QUIET ) {
 	  fprintf ( stderr, "mpcat warning -- Can't read atoms for book number [%d] from file [%s]. I'm skipping this book.\n",
 		    numBooks, bookInFileName );
@@ -264,21 +272,24 @@ int main( int argc, char **argv ) {
 
   /* Write the book */
   if ( !strcmp( bookOutFileName, "-" ) ) {
-    if ( book.print( stdout, MP_TEXT, NULL ) == 0 ) {
+    if ( book->print( stdout, MP_TEXT, NULL ) == 0 ) {
       fprintf ( stderr, "mpcat error -- No atoms could be written to stdout.\n" );
       return( ERR_WRITE );
     }
   }
   else {
-    if ( book.print( bookOutFileName, MP_BINARY, NULL ) == 0 ) {
+    if ( book->print( bookOutFileName, MP_BINARY, NULL ) == 0 ) {
       fprintf ( stderr, "mpcat error -- No atoms could be written to file [%s].\n",
 		bookOutFileName );
       return( ERR_WRITE );
     }
   }
   if ( MPC_VERBOSE ) {
-    fprintf( stderr, "mpcat msg -- The resulting book contains [%lu] atoms.\n", book.numAtoms );
+    fprintf( stderr, "mpcat msg -- The resulting book contains [%lu] atoms.\n", book->numAtoms );
   }
+
+  /* Clean the house */
+  delete( book );
 
   return(0);
 }

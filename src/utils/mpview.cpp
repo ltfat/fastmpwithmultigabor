@@ -244,7 +244,7 @@ int parse_args(int argc, char **argv) {
 /* MAIN                                           */
 /**************************************************/
 int main( int argc, char **argv ) {
-  MP_Book_c book;
+  MP_Book_c *book;
   int i;
   /* Parse the command line */
   if ( argc == 1 ) usage();
@@ -268,10 +268,18 @@ int main( int argc, char **argv ) {
     fflush( stderr );
   }
 
+  /* Make the book */
+  book = MP_Book_c::init();
+  if ( book == NULL ) {
+      fprintf( stderr, "mpr error -- Can't create a new book.\n" );
+      fflush( stderr );
+      return( ERR_BOOK );
+  }
+
  /* Read the book */
   if ( !strcmp( bookFileName, "-" ) ) {
     if ( MPVIEW_VERBOSE ) fprintf( stderr, "mpview msg -- Reading the book from stdin..." );
-    if ( book.load(stdin) == 0 ) {
+    if ( book->load(stdin) == 0 ) {
       fprintf( stderr, "mpview error -- No atoms were found in stdin.\n" );
       fflush( stderr );
       return( ERR_BOOK );
@@ -279,7 +287,7 @@ int main( int argc, char **argv ) {
   }
   else {
     if ( MPVIEW_VERBOSE ) fprintf( stderr, "mpview msg -- Reading the book from file [%s]...", bookFileName );
-    if ( book.load( bookFileName ) == 0 ) {
+    if ( book->load( bookFileName ) == 0 ) {
       fprintf( stderr, "mpview error -- No atoms were found in the book file [%s].\n", bookFileName );
       fflush( stderr );
       return( ERR_BOOK );
@@ -287,41 +295,42 @@ int main( int argc, char **argv ) {
   }
   if ( MPVIEW_VERBOSE ) { fprintf( stderr, "Done.\n" ); fflush( stderr ); }
 
-  {
-    /* Fill the pixmap */
-    if ( MPVIEW_VERBOSE ) fprintf( stderr, "mpview msg -- Initializing the pixmap..." );
-    MP_TF_Map_c* tfmap = new MP_TF_Map_c( numCols, numRows, book.numChans,
-					  0, book.numSamples,
-					  0.0, 0.5 );
-    if ( MPVIEW_VERBOSE ) fprintf( stderr, "Done.\n" );
-    if ( MPVIEW_VERBOSE ) fprintf( stderr, "mpview msg -- Filling the pixmap..." );
-    //    if ( book.add_to_tfmap( tfmap, MP_TFMAP_PSEUDO_WIGNER, NULL ) == 0 ) {
-    if ( book.add_to_tfmap( tfmap, MP_TFMAP_SUPPORTS, NULL ) == 0 ) {
-      fprintf( stderr, "mpview error -- No atoms were found in the book to fill the pixmap.\n" );
-      fflush( stderr );
-      return( ERR_BUILD );
-    }
-    if ( MPVIEW_VERBOSE ) fprintf( stderr, "Done.\n" );
-    /* Save the pixmap */
-    if ( MPVIEW_VERBOSE ) fprintf( stderr, "mpview msg -- Dumping the pixmap to file [%s]...", pixFileName );
-    if ( tfmap->dump_to_file( pixFileName, 1 ) == 0 ) {
-      fprintf( stderr, "\nmpview error -- Can't write filled pixmap to file [%s].\n", pixFileName );
-      fflush( stderr );
-      return( ERR_WRITE );
-    }
-    if ( MPVIEW_VERBOSE ) fprintf( stderr, "Done.\n" );
 
-    /* Clean the house */
-    delete tfmap;
+  /* Fill the pixmap */
+  if ( MPVIEW_VERBOSE ) fprintf( stderr, "mpview msg -- Initializing the pixmap..." );
+  MP_TF_Map_c* tfmap = new MP_TF_Map_c( numCols, numRows, book->numChans,
+					0, book->numSamples,
+					0.0, 0.5 );
+  if ( MPVIEW_VERBOSE ) fprintf( stderr, "Done.\n" );
+  if ( MPVIEW_VERBOSE ) fprintf( stderr, "mpview msg -- Filling the pixmap..." );
+  //    if ( book->add_to_tfmap( tfmap, MP_TFMAP_PSEUDO_WIGNER, NULL ) == 0 ) {
+  if ( book->add_to_tfmap( tfmap, MP_TFMAP_SUPPORTS, NULL ) == 0 ) {
+    fprintf( stderr, "mpview error -- No atoms were found in the book to fill the pixmap.\n" );
+    fflush( stderr );
+    return( ERR_BUILD );
   }
-
+  if ( MPVIEW_VERBOSE ) fprintf( stderr, "Done.\n" );
+  /* Save the pixmap */
+  if ( MPVIEW_VERBOSE ) fprintf( stderr, "mpview msg -- Dumping the pixmap to file [%s]...", pixFileName );
+  if ( tfmap->dump_to_file( pixFileName, 1 ) == 0 ) {
+    fprintf( stderr, "\nmpview error -- Can't write filled pixmap to file [%s].\n", pixFileName );
+    fflush( stderr );
+    return( ERR_WRITE );
+  }
+  if ( MPVIEW_VERBOSE ) fprintf( stderr, "Done.\n" );
+  
   /* End report */
   if ( !MPVIEW_QUIET ) {
     fprintf( stderr, "mpview msg -- The resulting pixmap has size [%d x %d] pixels and [%d] channel(s).\n",
-	     numCols,numRows, (int)(book.numChans) );
+	     numCols,numRows, (int)(book->numChans) );
     fprintf( stderr, "mpview msg -- Have a nice day !\n" );
   }
   fflush( stderr );
   fflush( stdout );
-  return(0);
+
+  /* Clean the house */
+  delete( book );
+  delete( tfmap );
+
+ return(0);
 }

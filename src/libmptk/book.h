@@ -93,10 +93,13 @@ public:
   /***************************/
 
 public:
+  static MP_Book_c* init();
 
-  /* Void constructor */
+private:
+  /* NULL constructor */
   MP_Book_c();
 
+public:
   /* Destructor */
   ~MP_Book_c();
 
@@ -137,7 +140,7 @@ public:
   /** \brief Print readable information about the book to a stream
    *
    * \param  fid A writable stream */
-  void info( FILE *fid );
+  int info( FILE *fid );
 
 
   /***************************/

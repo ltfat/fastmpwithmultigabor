@@ -239,7 +239,7 @@ int parse_args(int argc, char **argv) {
 /**************************************************/
 int main( int argc, char **argv ) {
 
-  MP_Book_c book;
+  MP_Book_c *book;
   MP_Signal_c *sig;
   int i;
 
@@ -266,10 +266,18 @@ int main( int argc, char **argv ) {
     fflush( stderr );
   }
 
+  /* Make the book */
+  book = MP_Book_c::init();
+  if ( book == NULL ) {
+      fprintf( stderr, "mpr error -- Can't create a new book.\n" );
+      fflush( stderr );
+      return( ERR_BOOK );
+  }
+
   /* Read the book */
   if ( !strcmp( bookFileName, "-" ) ) {
     if ( MPR_VERBOSE ) fprintf( stderr, "mpr msg -- Reading the book from stdin..." );
-    if ( book.load(stdin) == 0 ) {
+    if ( book->load(stdin) == 0 ) {
       fprintf( stderr, "mpr error -- No atoms were found in stdin.\n" );
       fflush( stderr );
       return( ERR_BOOK );
@@ -277,7 +285,7 @@ int main( int argc, char **argv ) {
   }
   else {
     if ( MPR_VERBOSE ) fprintf( stderr, "mpr msg -- Reading the book from file [%s]...", bookFileName );
-    if ( book.load( bookFileName ) == 0 ) {
+    if ( book->load( bookFileName ) == 0 ) {
       fprintf( stderr, "mpr error -- No atoms were found in the book file [%s].\n", bookFileName );
       fflush( stderr );
       return( ERR_BOOK );
@@ -301,7 +309,7 @@ int main( int argc, char **argv ) {
   }
   /* If no file name was given, make an empty signal */
   else {
-    sig = MP_Signal_c::init( book.numChans, book.numSamples, book.sampleRate );
+    sig = MP_Signal_c::init( book->numChans, book->numSamples, book->sampleRate );
     if ( sig == NULL ) {
       fprintf( stderr, "mpr error -- Can't make a new signal.\n" );
       fflush( stderr );
@@ -311,7 +319,7 @@ int main( int argc, char **argv ) {
 
   /* Reconstruct in addition to the residual */
   if ( MPR_VERBOSE ) fprintf( stderr, "mpr msg -- Rebuilding the signal..." );
-  if ( book.substract_add( NULL, sig, NULL ) == 0 ) {
+  if ( book->substract_add( NULL, sig, NULL ) == 0 ) {
     fprintf( stderr, "mpr error -- No atoms were found in the book to rebuild the signal.\n" );
     fflush( stderr );
     return( ERR_BUILD );
@@ -337,17 +345,18 @@ int main( int argc, char **argv ) {
   }
   if ( MPR_VERBOSE ) fprintf( stderr, "Done.\n" );
 
-  /* Clean the house */
-  delete sig;
-
   /* End report */
   if ( !MPR_QUIET ) {
     fprintf( stderr, "mpr msg -- The resulting signal has [%lu] samples in [%d] channels, with sample rate [%d]Hz.\n",
-	     book.numSamples, book.numChans, book.sampleRate );
+	     book->numSamples, book->numChans, book->sampleRate );
     fprintf( stderr, "mpr msg -- Have a nice day !\n" );
   }
   fflush( stderr );
   fflush( stdout );
+
+  /* Clean the house */
+  delete( sig );
+  delete( book );
 
   return( 0 );
 }

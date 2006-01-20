@@ -94,7 +94,9 @@ MP_Win_Server_c::~MP_Win_Server_c() {
 /* Memory release */
 void MP_Win_Server_c::release( void ) {
 
+#ifndef NDEBUG
   const char* func = "MP_Win_Server_c::release()";
+#endif
   unsigned short int i;
   unsigned long int n;
 

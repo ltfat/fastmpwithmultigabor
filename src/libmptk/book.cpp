@@ -51,21 +51,43 @@
 
 /******************/
 /* Constructor    */
+MP_Book_c* MP_Book_c::init() {
+
+  const char* func = "MP_Book_c::init()";
+  MP_Book_c *newBook = NULL;
+
+  /* Instantiate and check */
+  newBook = new MP_Book_c();
+  if ( newBook == NULL ) {
+    mp_error_msg( func, "Failed to create a new book.\n" );
+    return( NULL );
+  }
+
+  /* Set the default sampleRate */
+  newBook->sampleRate  = MP_SIGNAL_DEFAULT_SAMPLERATE;
+
+  /* Allocate the atom array */
+  if ( (newBook->atom = (MP_Atom_c**) malloc( MP_BOOK_GRANULARITY*sizeof(MP_Atom_c*) )) == NULL ) {
+    mp_warning_msg( func, "Can't allocate storage space for [%lu] atoms in the new book."
+		    " The atom array is left un-initialized.\n", MP_BOOK_GRANULARITY );
+    newBook->atom = NULL;
+    newBook->maxNumAtoms = 0;
+  }
+  else newBook->maxNumAtoms = MP_BOOK_GRANULARITY;
+
+  return( newBook );
+}
+
+/***********************/
+/* NULL constructor    */
 MP_Book_c::MP_Book_c() {
 
   numAtoms    = 0;
   numChans    = 0;
   numSamples  = 0;
-  sampleRate  = MP_SIGNAL_DEFAULT_SAMPLERATE;
-
-  /* Allocate the atom array */
-  if ( (atom = (MP_Atom_c**) malloc( MP_BOOK_GRANULARITY*sizeof(MP_Atom_c*) )) == NULL ) {
-    fprintf( stderr, "mplib warning -- MP_Book_c() - can't allocate storage space for "
-	     "[%lu] atoms. New book is left un-initialized.\n", numAtoms );
-    atom = NULL;
-    maxNumAtoms = 0;
-  }
-  else maxNumAtoms = MP_BOOK_GRANULARITY;
+  sampleRate  = 0;
+  atom = NULL;
+  maxNumAtoms = 0;
 
 }
 
@@ -73,19 +95,16 @@ MP_Book_c::MP_Book_c() {
 /* Destructor */
 MP_Book_c::~MP_Book_c() {
 
-#ifndef NDEBUG
-  fprintf(stderr,"mplib DEBUG -- Delete book\n");
-#endif
+  mp_debug_msg( MP_DEBUG_DESTRUCTION, "MP_Book_c::~MP_Book_c()",
+		"Deleting book...\n" );
 
   unsigned long int i;
 
   for ( i=0; i<numAtoms; i++ ) delete( atom[i] );
   free( atom );
 
-#ifndef NDEBUG
-  fprintf(stderr,"mplib DEBUG -- Delete book done\n");
-#endif
-
+  mp_debug_msg( MP_DEBUG_DESTRUCTION, "MP_Book_c::~MP_Book_c()",
+		"Done.\n" );
 }
 
 
@@ -98,8 +117,9 @@ MP_Book_c::~MP_Book_c() {
 /* Print some atoms to a stream */
 unsigned long int MP_Book_c::print( FILE *fid , const char mode, MP_Mask_c* mask) {
   
-  unsigned long int i;
+  const char* func = "MP_Book_c::print(fid,mask)";
   unsigned long int nAtom = 0;
+  unsigned long int i;
 
   /* determine how many atoms the printed book will contain  */
   if ( mask == NULL ) nAtom = numAtoms;
@@ -117,20 +137,25 @@ unsigned long int MP_Book_c::print( FILE *fid , const char mode, MP_Mask_c* mask
     fprintf( fid, "bin\n" );
   }
   else {
-    fprintf( stderr, "mplib error -- MP_Book_c::print() - Unknown write mode." );
+    mp_error_msg( func, "Unknown write mode.\n" );
     return( 0 );
   }
   /* Print the book header */
-  fprintf( fid, "<book nAtom=\"%lu\" numChans=\"%d\" numSamples=\"%lu\" sampleRate=\"%d\" libVersion=\"%s\">\n",
+  fprintf( fid, "<book nAtom=\"%lu\" numChans=\"%d\" numSamples=\"%lu\""
+	   " sampleRate=\"%d\" libVersion=\"%s\">\n",
 	   nAtom, numChans, numSamples, sampleRate, VERSION );
 
   /* print the atoms */
   if ( mask == NULL ) {
-    for ( i=0, nAtom=0; i<numAtoms; i++, nAtom++ ) write_atom( fid, mode, atom[i] ); /*atom[i]->write( fid, mode );*/
+    for ( nAtom = 0; nAtom < numAtoms; nAtom++ )
+      write_atom( fid, mode, atom[nAtom] ); /*atom[nAtom]->write( fid, mode );*/
   }
   else {
-    for ( i=0, nAtom=0; i<numAtoms; i++ ) {
-      if ( mask->sieve[i] ) { write_atom( fid, mode, atom[i] ); /*atom[i]->write( fid, mode );*/ nAtom++; }
+   for ( i = 0, nAtom = 0; i < numAtoms; i++ ) {
+      if ( mask->sieve[i] ) {
+	write_atom( fid, mode, atom[i] ); /*atom[i]->write( fid, mode );*/
+	nAtom++;
+      }
     }
   }
 
@@ -150,8 +175,9 @@ unsigned long int MP_Book_c::print( const char *fName , const char mode, MP_Mask
   unsigned long int nAtom = 0;
 
   if ( ( fid = fopen( fName, "w" ) ) == NULL ) {
-    fprintf(stderr,"mplib error -- MP_Book_c::print() - Could not open file %s to print a book.\n",fName);
-    return(0);
+    mp_error_msg( "MP_Book_c::print(fname,mask)",
+		  "Could not open file %s to print a book.\n", fName );
+    return( 0 );
   }
   nAtom = print( fid, mode, mask );
   fclose( fid );
@@ -178,6 +204,7 @@ unsigned long int MP_Book_c::print( const char *fName, const char mode ) {
 /* Load from a stream, either in ascii or binary format */
 unsigned long int MP_Book_c::load( FILE *fid ) {
   
+  const char* func = "MP_Book_c::load(fid)";
   int fidNumChans, fidSampleRate;
   unsigned long int i, fidNumAtoms, fidNumSamples;
   unsigned long int nRead = 0;
@@ -188,7 +215,7 @@ unsigned long int MP_Book_c::load( FILE *fid ) {
 
   /* Read the format */
   if ( fgets( line,MP_MAX_STR_LEN,fid) == NULL ) {
-    fprintf( stderr, "mplib error -- MP_Book_C::load() - Cannot get the format line. This book will remain un-changed.\n" );
+    mp_error_msg( func, "Cannot get the format line. This book will remain un-changed.\n" );
     return( 0 );
   }
 
@@ -196,17 +223,18 @@ unsigned long int MP_Book_c::load( FILE *fid ) {
   if      ( !strcmp( line, "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n" ) ) mode = MP_TEXT;
   else if ( !strcmp( line, "bin\n" ) ) mode = MP_BINARY;
   else {
-    fprintf( stderr, "mplib error -- MP_Book_C::load() - The loaded book has an erroneous file format."
-	     " This book will remain un-changed.\n" );
+    mp_error_msg( func, "The loaded book has an erroneous file format."
+		  " This book will remain un-changed.\n" );
     return( 0 );
   }
 
   /* Read the header */
   if ( ( fgets( line,MP_MAX_STR_LEN,fid) == NULL ) ||
-       (sscanf( line, "<book nAtom=\"%lu\" numChans=\"%d\" numSamples=\"%lu\" sampleRate=\"%d\" libVersion=\"%[0-9a-z.]\">\n",
+       (sscanf( line, "<book nAtom=\"%lu\" numChans=\"%d\" numSamples=\"%lu\""
+		" sampleRate=\"%d\" libVersion=\"%[0-9a-z.]\">\n",
 		&fidNumAtoms, &fidNumChans, &fidNumSamples, &fidSampleRate, str ) != 5 )
        ) {
-    fprintf( stderr, "mplib error -- MP_Book_C::load() - Cannot scan the book header. This book will remain un-changed.\n" );
+    mp_error_msg( func, "Cannot scan the book header. This book will remain un-changed.\n" );
     return( 0 );
   }
 
@@ -218,18 +246,19 @@ unsigned long int MP_Book_c::load( FILE *fid ) {
   }
   /* If the atoms have different characteristics from the existing ones, don't append them: */
   else if ( (numChans != fidNumChans) || (numSamples != fidNumSamples) || (sampleRate != fidSampleRate) ) {
-    fprintf( stderr, "mplib error -- MP_Book_C::load() - Trying to append incompatible atoms. This book will remain un-changed.\n" );
+    mp_error_msg( func, "Trying to append incompatible atoms. This book will remain un-changed.\n" );
     /* Flush the atoms anyway, in case we are reading from a stream: */
     for ( i=0; i<fidNumAtoms; i++ ) {
       newAtom = read_atom( fid, mode );
-      if ( newAtom == NULL ) fprintf(stderr,"mplib warning -- MP_Book_C::load() - Failed to flush an atom.\n");
+      if ( newAtom == NULL ) mp_warning_msg( func, "Failed to flush an atom.\n");
       else nRead++;
     }
     /* Flush the terminating </book> tag */
     if ( ( fgets( line, MP_MAX_STR_LEN, fid ) == NULL ) ||
 	 ( strcmp( line, "</book>\n" ) ) ) {
-      fprintf(stderr, "mplib warning -- MP_Book_C::load() - Could not find the </book> tag."
-	      " (%lu atoms flushed, %lu atoms expected.)\n", nRead, fidNumAtoms );
+      mp_warning_msg( func, "Could not find the </book> tag."
+		      " (%lu atoms flushed, %lu atoms expected.)\n",
+		      nRead, fidNumAtoms );
     }
     return( 0 );
   }
@@ -238,7 +267,7 @@ unsigned long int MP_Book_c::load( FILE *fid ) {
   for ( i=0; i<fidNumAtoms; i++ ) {
     /* Try to create a new atom */
     newAtom = read_atom( fid, mode );
-    if ( newAtom == NULL ) fprintf(stderr,"mplib warning -- MP_Book_C::load() - Failed to read an atom. This atom will be skipped.\n");
+    if ( newAtom == NULL ) mp_warning_msg( func, "Failed to read an atom. This atom will be skipped.\n");
     /* If the atom is OK, add it */
     else { append( newAtom ); nRead++; }
   }
@@ -246,8 +275,9 @@ unsigned long int MP_Book_c::load( FILE *fid ) {
   /* Read the terminating </book> tag */
   if ( ( fgets( line, MP_MAX_STR_LEN, fid ) == NULL ) ||
        ( strcmp( line, "</book>\n" ) ) ) {
-    fprintf(stderr, "mplib warning -- MP_Book_C::load() - Could not find the </book> tag."
-	    " (%lu atoms added, %lu atoms expected.)\n", nRead, fidNumAtoms );
+    mp_warning_msg( func, "Could not find the </book> tag."
+		    " (%lu atoms added, %lu atoms expected.)\n",
+		    nRead, fidNumAtoms );
   }
 
   return( nRead );
@@ -261,7 +291,8 @@ unsigned long int MP_Book_c::load( const char *fName ) {
   unsigned long int nAtom = 0;
 
   if ( ( fid = fopen(fName,"r") ) == NULL ) {
-    fprintf( stderr, "mplib error -- MP_Book_c::load(file) - Could not open file %s to scan for a book.\n", fName );
+    mp_error_msg( "MP_Book_c::load(fName)",
+		  "Could not open file %s to scan for a book.\n", fName );
     return( 0 );
   }
   nAtom = load( fid );
@@ -273,20 +304,23 @@ unsigned long int MP_Book_c::load( const char *fName ) {
 
 /***************************************************************/
 /* Print human readable information about the book to a stream */
-void MP_Book_c::info( FILE *fid ) {
+int MP_Book_c::info( FILE *fid ) {
   
   unsigned long int i;
+  int nChar = 0;
 
-  fprintf( fid, "Number of atoms              =[%lu] ",   numAtoms );
-  fprintf( fid, "(Current atom array size     =[%lu])\n", maxNumAtoms );
-  fprintf( fid, "Number of channels           =[%d]\n",    numChans );
-  fprintf( fid, "Number of samples per channel=[%lu]\n",   numSamples );
-  fprintf( fid, "Sampling rate                =[%d]\n",    sampleRate );
+  nChar += mp_info_msg( fid, "BOOK", "Number of atoms              =[%lu] ",   numAtoms );
+  nChar += mp_info_msg( fid, "  |-", "(Current atom array size     =[%lu])\n", maxNumAtoms );
+  nChar += mp_info_msg( fid, "  |-", "Number of channels           =[%d]\n",    numChans );
+  nChar += mp_info_msg( fid, "  |-", "Number of samples per channel=[%lu]\n",   numSamples );
+  nChar += mp_info_msg( fid, "  |-", "Sampling rate                =[%d]\n",    sampleRate );
   for ( i=0; i<numAtoms; i++ ) {
-    fprintf( fid, "--ATOM [%lu/%lu] info : ",i+1,numAtoms);
+    nChar += mp_info_msg( fid, "  |-", "--ATOM [%lu/%lu] info :\n", i+1, numAtoms );
     atom[i]->info( fid );
   }
+  nChar += mp_info_msg( fid, "  O-", "End of book.\n",    sampleRate );
 
+  return( nChar );
 }
 
 
@@ -315,6 +349,8 @@ void MP_Book_c::reset( void ) {
 /* Append an atom */
 int MP_Book_c::append( MP_Atom_c *newAtom ) {
 
+  const char* func = "MP_Book_c::append(*atom)";
+
   assert( newAtom != NULL );
 
   /* If the max storage capacity is attained for the list: */
@@ -322,9 +358,10 @@ int MP_Book_c::append( MP_Atom_c *newAtom ) {
     MP_Atom_c **tmp;
     /* re-allocate the atom array */
     if ( (tmp = (MP_Atom_c**) realloc( atom, (maxNumAtoms+MP_BOOK_GRANULARITY)*sizeof(MP_Atom_c*) )) == NULL ) {
-      fprintf( stderr, "mplib error -- MP_Book_c::append() - Can't allocate space for [%d] more atoms."
-	       " The book is left untouched, the passed atom is not saved.\n", MP_BOOK_GRANULARITY );
-      return(0);
+      mp_error_msg( func, "Can't allocate space for [%d] more atoms."
+		    " The book is left untouched, the passed atom is not saved.\n",
+		    MP_BOOK_GRANULARITY );
+      return( 0 );
     }
     else {
       atom = tmp;
@@ -338,10 +375,10 @@ int MP_Book_c::append( MP_Atom_c *newAtom ) {
   }
   /* Otherwise check that the new atom has the right number of channels */
   else if (newAtom->numChans != numChans) {
-    fprintf( stderr, "mplib error -- MP_Book_c::append() - Cannot append an atom with [%d] channels"
-	     " in a book with [%d] channels\n", newAtom->numChans, numChans );
+    mp_error_msg( func, "Cannot append an atom with [%d] channels"
+		  " in a book with [%d] channels\n", newAtom->numChans, numChans );
     
-    return(0);
+    return( 0 );
   } 
 
   /* Hook the passed atom */
@@ -385,11 +422,13 @@ unsigned long int MP_Book_c::build_waveform( MP_Signal_c *sig, MP_Mask_c* mask )
     for (i = 0; i < numAtoms; i++) {
       atom[i]->substract_add( NULL, sig );
       n++;
-#ifndef NDEBUG
+      /* #ifndef NDEBUG */
       /* display a 'progress bar' */
-      fprintf( stderr, "\r%2d %%\t [%lu]\t [%lu / %lu]",
-	       (int)(100*(float)i/(float)numAtoms), n, i, numAtoms );
-#endif
+      /* fprintf( stderr, "\r%2d %%\t [%lu]\t [%lu / %lu]",
+	 (int)(100*(float)i/(float)numAtoms), n, i, numAtoms );
+	 #endif*/
+      /* TODO: make a "progress bar" generic + text function
+	 in mp_messaging.{h,cpp} */
     }
   }
   else {
@@ -397,20 +436,20 @@ unsigned long int MP_Book_c::build_waveform( MP_Signal_c *sig, MP_Mask_c* mask )
       if ( mask->sieve[i] ) {
 	atom[i]->substract_add( NULL, sig );
 	n++;
-#ifndef NDEBUG
-      /* display a 'progress bar' */
-      fprintf( stderr, "\r%2d %%\t [%lu]\t [%lu / %lu]",
-	       (int)(100*(float)i/(float)numAtoms), n, i, numAtoms );
-#endif
+	/* #ifndef NDEBUG */
+	/* display a 'progress bar' */
+	/* fprintf( stderr, "\r%2d %%\t [%lu]\t [%lu / %lu]",
+	   (int)(100*(float)i/(float)numAtoms), n, i, numAtoms );
+	   #endif */
       }
     }
   }
 
-#ifndef NDEBUG
-      /* terminate the display of the 'progress bar' */
-      fprintf( stderr, "\r%2d %%\t [%lu]\t [%lu / %lu]\n",
-	       (int)(100*(float)i/(float)numAtoms), n, i, numAtoms );
-#endif
+  /* #ifndef NDEBUG */
+  /* terminate the display of the 'progress bar' */
+  /* fprintf( stderr, "\r%2d %%\t [%lu]\t [%lu / %lu]\n",
+     (int)(100*(float)i/(float)numAtoms), n, i, numAtoms );
+     #endif */
 
   return( n );
 }

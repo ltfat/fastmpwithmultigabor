@@ -42,7 +42,7 @@ int main( void ) {
   MP_Signal_c *sig = NULL;
   unsigned long int check;
   MP_Dict_c *dico = NULL;
-  MP_Book_c book;
+  MP_Book_c *book;
   MP_Block_c *bl = NULL;
   int i;
   unsigned long int frameIdx, freqIdx;
@@ -76,14 +76,22 @@ int main( void ) {
   freqIdx = bl->maxIPIdxInFrame[frameIdx];
   fprintf( stdout, "    at ( frame #%lu , frequency #%lu )\n", frameIdx, freqIdx );
 
+  /*****************/
+  /* Make the book */
+  book = MP_Book_c::init();
+  if ( book == NULL ) {
+    fprintf( stderr, "Book is NULL.\n" ); fflush( stderr );
+    exit( 1 );
+  }
+
   /****************/
   /* Find 2 atoms */
-  book.numSamples = dico->signal->numSamples;
+  book->numSamples = dico->signal->numSamples;
   fprintf( stdout, "STARTING ITERATIONS:\n" );
   for ( i=0; i<2; i++ ) {
 
     fprintf( stdout, "------ ITERATION [%i]...\n", i );
-    dico->iterate_mp( &book , NULL );
+    dico->iterate_mp( book , NULL );
 
     /* Check the signal */
     sprintf( str, "signals/2_atoms_after_iter_%d.flt", i );
@@ -114,30 +122,30 @@ int main( void ) {
   /* Print the BOOK */
 
   fprintf(stderr,"BOOK info :\n" ); fflush( stderr );
-  book.info( stdout ); fflush( stdout );
+  book->info( stdout ); fflush( stdout );
   fprintf(stderr,"END BOOK INFO.\n\n" ); fflush( stderr );
 
   fprintf(stderr,"BOOK PRINT (TEXT MODE) :\n" ); fflush( stderr );
-  book.print( stdout, MP_TEXT ); fflush( stdout );
-  book.print( "book_from_test_mp.xml", MP_TEXT );
+  book->print( stdout, MP_TEXT ); fflush( stdout );
+  book->print( "book_from_test_mp.xml", MP_TEXT );
 
   fprintf(stderr,"RELOADED BOOK :\n" ); fflush( stderr );
   fprintf( stderr, "Reloading..." ); fflush( stderr );
-  book.load( "book_from_test_mp.xml" );
-  fprintf( stderr, "Done. [%lu] atoms have been reloaded.\n", book.numAtoms );
+  book->load( "book_from_test_mp.xml" );
+  fprintf( stderr, "Done. [%lu] atoms have been reloaded.\n", book->numAtoms );
   fflush( stderr );
-  book.print( stdout, MP_TEXT );
-  book.print( "book_from_test_mp_after_reload.xml", MP_TEXT );
+  book->print( stdout, MP_TEXT );
+  book->print( "book_from_test_mp_after_reload.xml", MP_TEXT );
   fprintf(stderr,"END BOOK PRINT/RELOAD (TEXT).\n\n" ); fflush( stderr );
 
   fprintf(stderr,"BOOK PRINT (BINARY MODE) :\n" ); fflush( stderr );
-  book.print( "book_from_test_mp.bin", MP_BINARY );
+  book->print( "book_from_test_mp.bin", MP_BINARY );
   fprintf( stderr, "Reloading..." ); fflush( stderr );
-  book.load( "book_from_test_mp.bin" );
-  fprintf( stderr, "Done. [%lu] atoms have been reloaded.\n", book.numAtoms );
+  book->load( "book_from_test_mp.bin" );
+  fprintf( stderr, "Done. [%lu] atoms have been reloaded.\n", book->numAtoms );
   fflush( stderr );
-  book.print( stdout, MP_TEXT ); fflush( stdout );
-  book.print( "book_from_test_mp_after_reload_from_bin.xml", MP_TEXT );
+  book->print( stdout, MP_TEXT ); fflush( stdout );
+  book->print( "book_from_test_mp_after_reload_from_bin.xml", MP_TEXT );
   fprintf(stderr,"END BOOK PRINT/RELOAD (BINARY).\n\n" ); fflush( stderr );
 
 
@@ -175,21 +183,21 @@ int main( void ) {
     MP_TF_Map_c* tfmap = new MP_TF_Map_c( 640, 480, dico->signal->numChans,
 					  0, dico->signal->numSamples,
 					  0.0, 0.5 );
-    MP_Mask_c mask( book.numAtoms );
+    MP_Mask_c mask( book->numAtoms );
     mask.reset_all_false();
     mask.set_true(0);
     mask.set_true(1);
     mask.set_true(2);
-    book.info( stdout );
+    book->info( stdout );
     tfmap->info( stdout );
     fflush( stdout );
 
-    book.add_to_tfmap( tfmap, MP_TFMAP_SUPPORTS, &mask );
+    book->add_to_tfmap( tfmap, MP_TFMAP_SUPPORTS, &mask );
     tfmap->dump_to_file( "tfmap.flt", 0 );
     tfmap->dump_to_file( "tfmap_upsidedown.flt", 1 );
 
     tfmap->reset();
-    book.add_to_tfmap( tfmap, MP_TFMAP_PSEUDO_WIGNER, &mask );
+    book->add_to_tfmap( tfmap, MP_TFMAP_PSEUDO_WIGNER, &mask );
     tfmap->dump_to_file( "tfmap_wigner.flt", 1 );
 
     delete tfmap;

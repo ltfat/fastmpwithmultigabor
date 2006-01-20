@@ -55,11 +55,12 @@ static char *cvsid = "$Revision$";
 /* Error types      */
 /********************/
 #define ERR_ARG        1
-#define ERR_DICT       2
-#define ERR_SIG        3
-#define ERR_DECAY      4
-#define ERR_OPEN       5
-#define ERR_WRITE      6
+#define ERR_BOOK       2
+#define ERR_DICT       3
+#define ERR_SIG        4
+#define ERR_DECAY      5
+#define ERR_OPEN       6
+#define ERR_WRITE      7
 
 /********************/
 /* Global variables */
@@ -456,7 +457,8 @@ int parse_args(int argc, char **argv) {
 /**************************************************/
 /* GLOBAL FUNCTIONS                               */
 /**************************************************/
-void free_mem( MP_Dict_c* dict, double* decay ) {
+void free_mem( MP_Book_c* book, MP_Dict_c* dict, double* decay ) {
+  if ( book )  delete book;    book = NULL;
   if ( dict )  delete dict;    dict = NULL;
   if ( decay ) free( decay ); decay = NULL;
 }
@@ -468,7 +470,7 @@ void free_mem( MP_Dict_c* dict, double* decay ) {
 int main( int argc, char **argv ) {
 
   MP_Dict_c  *dict = NULL;
-  MP_Book_c book;
+  MP_Book_c *book = NULL;
 
   double *decay = NULL;
   double *newDecay = NULL;
@@ -494,7 +496,8 @@ int main( int argc, char **argv ) {
   /* Parse the command line */
   if ( argc == 1 ) usage();
   if ( parse_args( argc, argv ) ) {
-    fprintf (stderr, "mpd error -- Please check the syntax of your command line. (Use --help to get some help.)\n" );
+    fprintf (stderr, "mpd error -- Please check the syntax of your command line."
+	     " (Use --help to get some help.)\n" );
     fflush( stderr );
     exit( ERR_ARG );
   }
@@ -520,6 +523,14 @@ int main( int argc, char **argv ) {
     fflush( stderr );
   }
 
+  /* Make the book */
+  book = MP_Book_c::init();
+  if ( book == NULL ) {
+    fprintf( stderr, "mpd error -- Failed to create a new book.\n" );
+    free_mem( book, dict, decay );
+    return( ERR_BOOK );
+  }
+
   /* Load the dictionary */
   if ( !MPD_QUIET ) fprintf( stderr, "mpd msg -- Loading the dictionary...\n" ); fflush( stderr );
   /* Add the blocks to the dictionnary */
@@ -529,7 +540,7 @@ int main( int argc, char **argv ) {
   if ( dict == NULL ) {
     fprintf( stderr, "mpd error -- Failed to create a dictionary from XML file [%s].\n",
 	     dictFileName );
-    free_mem( dict, decay );
+    free_mem( book, dict, decay );
     return( ERR_DICT );
   }
   if ( !MPD_QUIET ) fprintf( stderr, "mpd msg -- The dictionary is now loaded.\n" );
@@ -538,7 +549,7 @@ int main( int argc, char **argv ) {
   if ( dict->copy_signal( sndFileName ) ) {
     fprintf( stderr, "mpd error -- Failed to read/copy a signal from file [%s].\n",
 	     sndFileName );
-    free_mem( dict, decay );
+    free_mem( book, dict, decay );
     return( ERR_SIG );
   }
   /* Pre-emphasize the signal if needed */
@@ -570,7 +581,7 @@ int main( int argc, char **argv ) {
     }
     if ( decay == NULL ) {
       fprintf( stderr, "mpd error -- Failed to allocate a decay array of [%lu] doubles.\n", decaySize+1 );
-      free_mem( dict, decay );
+      free_mem( book, dict, decay );
       return( ERR_DECAY );
     }
     else for ( i = 0; i < (decaySize+1); i++ ) *(decay+i) = 0.0;
@@ -597,8 +608,8 @@ int main( int argc, char **argv ) {
   }
   
   /* Set the book number of samples and sampling rate */
-  book.numSamples = dict->signal->numSamples;
-  book.sampleRate = dict->signal->sampleRate;
+  book->numSamples = dict->signal->numSamples;
+  book->sampleRate = dict->signal->sampleRate;
 
   /* Start storing the residual energy */
   residualEnergy = initialEnergy = (double)dict->signal->energy;
@@ -629,7 +640,7 @@ int main( int argc, char **argv ) {
 #endif
 
     /* ---- Actual iteration */
-    dict->iterate_mp( &book , NULL );
+    dict->iterate_mp( book , NULL );
     residualEnergy = (double)dict->signal->energy;
     /* Note: the residual energy may go negative when you use
        monstruous SNRs or too many iterations. */
@@ -647,7 +658,7 @@ int main( int argc, char **argv ) {
 	if ( newDecay == NULL ) {
 	  fprintf( stderr, "mpd error -- Failed to re-allocate the decay array to store [%lu] doubles.\n",
 		   decaySize+1 );
-	  free_mem( dict, decay );
+	  free_mem( book, dict, decay );
 	  return( ERR_DECAY );
 	}
 	else decay = newDecay;
@@ -673,7 +684,7 @@ int main( int argc, char **argv ) {
     if ( i == nextSaveHit ) {
       /* - the book: */
       if ( strcmp( bookFileName, "-" ) != 0 ) {
-	book.print( bookFileName, MP_BINARY);
+	book->print( bookFileName, MP_BINARY);
 	if ( MPD_VERBOSE ) fprintf( stderr, "mpd msg -- At iteration [%lu] : saved the book.\n", i );	  
       }
       /* - the residual: */
@@ -686,7 +697,7 @@ int main( int argc, char **argv ) {
 	if ( (decayFID = fopen( decayFileName, "w" )) == NULL ) {
 	  fprintf( stderr, "mpd error -- Failed to open the energy decay file [%s] for writing.\n",
 		   decayFileName );
-	  free_mem( dict, decay );
+	  free_mem( book, dict, decay );
 	  return( ERR_OPEN );
 	}
 	else {
@@ -754,11 +765,11 @@ int main( int argc, char **argv ) {
   }
   /* - the book: */
   if ( strcmp( bookFileName, "-" ) != 0 ) {
-    book.print( bookFileName, MP_BINARY);
+    book->print( bookFileName, MP_BINARY);
     if ( MPD_VERBOSE ) fprintf( stderr, "mpd msg -- Saved the book in binary mode.\n" );	  
   }
   else {
-    book.print( stdout, MP_TEXT );
+    book->print( stdout, MP_TEXT );
     fflush( stdout );
     if ( MPD_VERBOSE ) fprintf( stderr, "mpd msg -- Sent the book to stdout in text mode.\n" );	  
   }
@@ -767,7 +778,7 @@ int main( int argc, char **argv ) {
     if ( (decayFID = fopen( decayFileName, "w" )) == NULL ) {
       fprintf( stderr, "mpd error -- Failed to open the energy decay file [%s] for writing.\n",
 	       decayFileName );
-      free_mem( dict, decay );
+      free_mem( book, dict, decay );
       return( ERR_OPEN );
     }
     else {
@@ -783,7 +794,8 @@ int main( int argc, char **argv ) {
 
   /*******************/
   /* Clean the house */
-  free_mem( dict, decay );
+  free_mem( book, dict, decay );
+  if ( book ) delete( book );
 
   if ( !MPD_QUIET ) fprintf( stderr, "mpd msg -- Have a nice day !\n" );
   fflush( stderr );

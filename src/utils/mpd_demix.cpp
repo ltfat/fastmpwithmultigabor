@@ -509,7 +509,7 @@ int main( int argc, char **argv ) {
 /* --------------------------------------- */
 
   MP_Dict_c **dict = NULL;
-  MP_Book_c  *book = NULL;
+  MP_Book_c **book = NULL;
   MP_Gabor_Atom_c *maxAtom       = NULL;
   MP_Gabor_Atom_c *multiChanAtom = NULL;
   MP_Signal_c *inSignal = NULL;
@@ -770,7 +770,7 @@ int main( int argc, char **argv ) {
   }
 
   /* Build a multiple book */
-  if ( (book = new MP_Book_c[numSources]) == NULL ) {
+  if ( (book = new MP_Book_c*[numSources]) == NULL ) {
     fprintf( stderr, "mpd_demix error -- Can't create an array of [%u] books.\n", numSources );
     free( mixer ); free( Ah ); delete(inSignal); delete[](sigArray);
     free_mem( dict, numSources, decay );
@@ -779,8 +779,9 @@ int main( int argc, char **argv ) {
   else {
     /* Set the book number of samples and sampling rate */
     for ( j = 0; j < numSources; j++ ) {
-      book[j].numSamples = numSamples;
-      book[j].sampleRate = sampleRate;
+      book[j] = MP_Book_c::init(); /* TODO: check that return != NULL */
+      book[j]->numSamples = numSamples;
+      book[j]->sampleRate = sampleRate;
     }
   }
 
@@ -987,7 +988,7 @@ int main( int argc, char **argv ) {
 #endif
     /* Store the max atom with its original amplitude */
     maxAtom->amp[0] = maxAmp;
-    book[maxSrc].append( maxAtom );
+    book[maxSrc]->append( maxAtom );
 
     /*----------------------------*/
     /* ---- Save the decay/compute the snr if needed */
@@ -1032,7 +1033,7 @@ int main( int argc, char **argv ) {
       /* - the books: */
       for (j = 0; j < numSources; j++ ) {
 	sprintf( line, "%s_%02u.bin", bookFileName, j );
-	book[j].print( line, MP_BINARY);
+	book[j]->print( line, MP_BINARY);
 	if ( MPD_VERBOSE ) fprintf( stderr, "mpd_demix msg -- Saved book number [%02u] in file [%s], in binary mode.\n",
 				    j, line );	  
       }
@@ -1124,7 +1125,7 @@ int main( int argc, char **argv ) {
   /* - the books: */
   for (j = 0; j < numSources; j++ ) {
     sprintf( line, "%s_%02u.bin", bookFileName, j );
-    book[j].print( line, MP_BINARY);
+    book[j]->print( line, MP_BINARY);
     if ( MPD_VERBOSE ) fprintf( stderr, "mpd_demix msg -- Saved book number [%02u] in file [%s], in binary mode.\n",
 				j, line );	  
   }

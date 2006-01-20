@@ -194,7 +194,7 @@ void MP_Dirac_Atom_c::build_waveform( MP_Sample_t *outBuffer ) {
 
 
 /* Adds a pseudo Wigner-Ville of the atom to a time-frequency map */
-int MP_Dirac_Atom_c::add_to_tfmap( MP_TF_Map_c *tfmap, const char tfmapType ) {
+int MP_Dirac_Atom_c::add_to_tfmap( MP_TF_Map_c *tfmap, const char /* tfmapType */ ) {
 
   unsigned char chanIdx;
   unsigned long int tMin, nMin;
