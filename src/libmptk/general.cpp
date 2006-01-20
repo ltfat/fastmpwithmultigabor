@@ -209,3 +209,23 @@ char* deblank( char *str ) {
 
   return( str );
 }
+
+
+/* Append function for the MP_Var_Array_c class */
+template <class TYPE>
+int MP_Var_Array_c<TYPE>::append( TYPE newElem ) {
+
+  if ( nElem == maxNElem ) {
+    TYPE* tmp;
+    tmp = realloc( elem, (maxNElem+blockSize)*sizeof(TYPE) );
+    if ( tmp == NULL ) return( 0 );
+    else {
+      elem = tmp;
+      maxNElem += blockSize;
+    }
+  }
+  elem[nElem] = newElem;
+  nElem++;
+
+  return( 1 );
+}

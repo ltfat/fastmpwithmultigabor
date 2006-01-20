@@ -134,4 +134,25 @@ char* deblank( char *str );
 #define is_odd( a ) ( (a) & 0x1 )
 #define is_even( a ) ( !( (a) & 0x1 ) )
 
+
+/** \brief A simple variable-size array class */
+template <class TYPE>
+class MP_Var_Array_c {
+
+public:
+  TYPE* elem;
+  unsigned long int nElem;
+  unsigned long int maxNElem;
+  unsigned long int blockSize;
+  
+#define MP_VAR_ARRAY_DEFAULT_BLOCK_SIZE 1024
+
+  MP_Var_Array_c( void ) { elem = NULL; nElem = maxNElem = 0; blockSize = MP_VAR_ARRAY_DEFAULT_BLOCK_SIZE; }
+  MP_Var_Array_c( unsigned long int setBlockSize ) { elem = NULL; nElem = maxNElem = 0; blockSize = setBlockSize; }
+  ~MP_Var_Array_c() { if ( elem ) free( elem ); }
+  int append( TYPE newElem );
+
+};
+
+
 #endif /* __general_h_ */
