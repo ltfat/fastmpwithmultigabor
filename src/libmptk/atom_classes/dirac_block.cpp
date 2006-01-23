@@ -216,6 +216,9 @@ unsigned int MP_Dirac_Block_c::create_atom( MP_Atom_c **atom,
     return( 0 );
   }
 
+  /* Set the numSamples */
+  datom->numSamples = frameIdx + 1;
+
   /* For each channel: */
   for ( chanIdx=0; chanIdx < s->numChans; chanIdx++ ) {
  

@@ -63,11 +63,8 @@ MP_Book_c* MP_Book_c::init() {
     return( NULL );
   }
 
-  /* Set the default sampleRate */
-  newBook->sampleRate  = MP_SIGNAL_DEFAULT_SAMPLERATE;
-
   /* Allocate the atom array */
-  if ( (newBook->atom = (MP_Atom_c**) malloc( MP_BOOK_GRANULARITY*sizeof(MP_Atom_c*) )) == NULL ) {
+  if ( (newBook->atom = (MP_Atom_c**) calloc( MP_BOOK_GRANULARITY, sizeof(MP_Atom_c*) )) == NULL ) {
     mp_warning_msg( func, "Can't allocate storage space for [%lu] atoms in the new book."
 		    " The atom array is left un-initialized.\n", MP_BOOK_GRANULARITY );
     newBook->atom = NULL;
@@ -100,8 +97,12 @@ MP_Book_c::~MP_Book_c() {
 
   unsigned long int i;
 
-  for ( i=0; i<numAtoms; i++ ) delete( atom[i] );
-  free( atom );
+  if ( atom ) {
+    for ( i=0; i<numAtoms; i++ ) {
+      if ( atom[i] ) delete( atom[i] );
+    }
+    free( atom );
+  }
 
   mp_debug_msg( MP_DEBUG_DESTRUCTION, "MP_Book_c::~MP_Book_c()",
 		"Done.\n" );
@@ -238,31 +239,6 @@ unsigned long int MP_Book_c::load( FILE *fid ) {
     return( 0 );
   }
 
-  /* Check or fill the data fields */
-  if ( numAtoms == 0 ) {
-    numChans    = fidNumChans;
-    numSamples  = fidNumSamples;
-    sampleRate  = fidSampleRate;
-  }
-  /* If the atoms have different characteristics from the existing ones, don't append them: */
-  else if ( (numChans != fidNumChans) || (numSamples != fidNumSamples) || (sampleRate != fidSampleRate) ) {
-    mp_error_msg( func, "Trying to append incompatible atoms. This book will remain un-changed.\n" );
-    /* Flush the atoms anyway, in case we are reading from a stream: */
-    for ( i=0; i<fidNumAtoms; i++ ) {
-      newAtom = read_atom( fid, mode );
-      if ( newAtom == NULL ) mp_warning_msg( func, "Failed to flush an atom.\n");
-      else nRead++;
-    }
-    /* Flush the terminating </book> tag */
-    if ( ( fgets( line, MP_MAX_STR_LEN, fid ) == NULL ) ||
-	 ( strcmp( line, "</book>\n" ) ) ) {
-      mp_warning_msg( func, "Could not find the </book> tag."
-		      " (%lu atoms flushed, %lu atoms expected.)\n",
-		      nRead, fidNumAtoms );
-    }
-    return( 0 );
-  }
-
   /* Read the atoms */
   for ( i=0; i<fidNumAtoms; i++ ) {
     /* Try to create a new atom */
@@ -271,6 +247,24 @@ unsigned long int MP_Book_c::load( FILE *fid ) {
     /* If the atom is OK, add it */
     else { append( newAtom ); nRead++; }
   }
+
+  /* Check the global data fields */
+  if ( numChans != fidNumChans ) {
+    mp_warning_msg( func, "The book object contains a number of channels [%i] different from"
+		    " the one read in the stream [%i] (probably more, from a previous initialization).\n",
+		    numChans, fidNumChans );
+  }
+  if ( numSamples != fidNumSamples ) {
+    mp_warning_msg( func, "The book object contains a number of samples [%lu] different from"
+		    " the one read in the stream [%lu] (probably more, from a previous initialization).\n",
+		    numSamples, fidNumSamples );
+  }
+  if ( (sampleRate != 0) && (sampleRate != fidSampleRate) ) {
+    mp_warning_msg( func, "The book object contains a sample rate [%i] different from"
+		    " the one read in the stream [%i]. Keeping the new sample rate [%i].\n",
+		    sampleRate, fidSampleRate, fidSampleRate );
+  }
+  sampleRate = fidSampleRate;
 
   /* Read the terminating </book> tag */
   if ( ( fgets( line, MP_MAX_STR_LEN, fid ) == NULL ) ||
@@ -336,12 +330,12 @@ void MP_Book_c::reset( void ) {
   unsigned long int i;
 
   if ( atom ) {
-    for ( i=0; i<numAtoms; i++ ) delete( atom[i] );
-    free(atom);
+    for ( i=0; i<numAtoms; i++ ) {
+      if ( atom[i] ) delete( atom[i] );
+    }
   }
-  atom = NULL;
-  numAtoms    = 0;
-  maxNumAtoms = 0;
+  numAtoms = 0;
+
 }
 
 
@@ -350,43 +344,81 @@ void MP_Book_c::reset( void ) {
 int MP_Book_c::append( MP_Atom_c *newAtom ) {
 
   const char* func = "MP_Book_c::append(*atom)";
+  unsigned long int newLen;
+  int numChansAtom;
 
-  assert( newAtom != NULL );
+  /* If the passed atom is NULL, silently ignore (but return 0 as the number of added atoms) */
+  if( newAtom == NULL ) return( 0 );
+  /* Else: */
+  else {
 
-  /* If the max storage capacity is attained for the list: */
-  if (numAtoms == maxNumAtoms) {
-    MP_Atom_c **tmp;
-    /* re-allocate the atom array */
-    if ( (tmp = (MP_Atom_c**) realloc( atom, (maxNumAtoms+MP_BOOK_GRANULARITY)*sizeof(MP_Atom_c*) )) == NULL ) {
-      mp_error_msg( func, "Can't allocate space for [%d] more atoms."
-		    " The book is left untouched, the passed atom is not saved.\n",
-		    MP_BOOK_GRANULARITY );
-      return( 0 );
+    /* Re-allocate if the max storage capacity is attained for the list: */
+    if (numAtoms == maxNumAtoms) {
+      MP_Atom_c **tmp;
+      /* re-allocate the atom array */
+      if ( (tmp = (MP_Atom_c**) realloc( atom, (maxNumAtoms+MP_BOOK_GRANULARITY)*sizeof(MP_Atom_c*) )) == NULL ) {
+	mp_error_msg( func, "Can't allocate space for [%d] more atoms."
+		      " The book is left untouched, the passed atom is not saved.\n",
+		      MP_BOOK_GRANULARITY );
+	return( 0 );
+      }
+      else {
+	atom = tmp;
+	maxNumAtoms += MP_BOOK_GRANULARITY;
+      }
     }
-    else {
-      atom = tmp;
-      maxNumAtoms += MP_BOOK_GRANULARITY;
-    }
-  }
-
-  /* If the atom is the first one to be stored, set up the number of channels */
-  if (numAtoms == 0) {
-    numChans = newAtom->numChans;
-  }
-  /* Otherwise check that the new atom has the right number of channels */
-  else if (newAtom->numChans != numChans) {
-    mp_error_msg( func, "Cannot append an atom with [%d] channels"
-		  " in a book with [%d] channels\n", newAtom->numChans, numChans );
     
-    return( 0 );
-  } 
+    /* Hook the passed atom */
+    atom[numAtoms] = newAtom;
+    numAtoms++;
+    
+    /* Set the number of channels to the max among all the atoms */
+    numChansAtom = newAtom->numChans;
+    if ( numChans < numChansAtom ) numChans = numChansAtom;
+    
+    /* Rectify the numSamples if needed */
+    newLen = newAtom->numSamples;
+    if ( numSamples < newLen ) numSamples = newLen;
 
-  /* Hook the passed atom */
-  atom[numAtoms] = newAtom;
-  numAtoms++;
+  }
 
-  return(1);
+  return( 1 );
 }
+
+
+/***********************************/
+/* Re-check the number of samples  */
+int MP_Book_c::recheck_num_samples() {
+  unsigned long int i;
+  unsigned long int checkedNumSamples = 0;
+  MP_Bool_t ret = MP_TRUE;
+
+  for ( i = 0; i < numAtoms; i++ ) {
+    if ( checkedNumSamples < atom[i]->numSamples ) checkedNumSamples = atom[i]->numSamples;
+  }
+  ret = ( checkedNumSamples == numSamples );
+  numSamples = checkedNumSamples;
+
+  return( ret );
+}
+
+
+/***********************************/
+/* Re-check the number of channels */
+int MP_Book_c::recheck_num_channels() {
+  unsigned long int i;
+  int checkedNumChans = 0;
+  MP_Bool_t ret = MP_TRUE;
+
+  for ( i = 0; i < numAtoms; i++ ) {
+    if ( checkedNumChans < atom[i]->numChans ) checkedNumChans = atom[i]->numChans;
+  }
+  ret = ( checkedNumChans == numChans );
+  numChans = checkedNumChans;
+
+  return( ret );
+}
+
 
 /***************************************************************/
 /* Substract or add the sum of (some) atoms from / to a signal */

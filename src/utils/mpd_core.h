@@ -1,6 +1,6 @@
 /******************************************************************************/
 /*                                                                            */
-/*                              mpd_core.cpp                                  */
+/*                                mpd_core.h                                  */
 /*                                                                            */
 /*                        Matching Pursuit Utilities                          */
 /*                                                                            */
@@ -46,6 +46,14 @@
 #ifndef __mpd_core_h_
 #define __mpd_core_h_
 
+/* Returned events */
+#define MPD_NULL_CONDITION         0
+#define MPD_ITER_CONDITION_REACHED 1
+#define MPD_SNR_CONDITION_REACHED  2
+#define MPD_SAVE_HIT_REACHED       3
+#define MPD_REPORT_HIT_REACHED     4
+#define MPD_ITER_EXHAUSTED         5
+
 
 /***********************/
 /* MPD_CORE CLASS      */
@@ -64,28 +72,29 @@ public:
   /* Stopping criteria: */
   unsigned long int stopAfterIter;
   MP_Bool_t useStopAfterIter;
-  double stopAfterSnr;
+  double stopAfterSnr; /* In energy units, not dB. */
   MP_Bool_t useStopAfterSnr;
+
+  /* Granularity of the snr recomputation: */
+  unsigned long int snrFrequency;
+  unsigned long int nextSnrHit;  
 
   /* Verbose mode: */
   MP_Bool_t verbose;
-  unsigned long int reportHit;
+  unsigned long int reportFrequency;
   unsigned long int nextReportHit;
  
-  /* Granularity of the snr recomputation: */
-  unsigned long int snrHit;  
-  unsigned long int nextSnrHit;  
-
   /* Intermediate saves: */
-  unsigned long int saveHit;
+  unsigned long int saveFrequency;
   unsigned long int nextSaveHit;
-
-  /* Decay array */
-  MP_Var_array_c<double> decay;
 
   /* Manipulated objects */
   MP_Dict_c *dict;
+  MP_Dict_c *sig;
   MP_Book_c *book;
+
+  /* Decay array */
+  MP_Var_array_c<double> decay;
 
 
   /***********/
@@ -97,8 +106,9 @@ public:
   /***************************/
 
 public:
-  static MP_Mpd_Run_c::init();
-  static MP_Mpd_Run_c::init( unsigned long int stopAfterIter,
+  static MP_Mpd_Run_c::init( MP_Dict_c *dict, MP_Signal_c *sig, MP_Book_c *book );
+  static MP_Mpd_Run_c::init( MP_Dict_c *dict, MP_Signal_c *sig, MP_Book_c *book,
+			     unsigned long int stopAfterIter,
 			     double stopAfterSnr );
 
   /***************************/
@@ -114,15 +124,34 @@ public:
   /* OTHER METHODS           */
   /***************************/
 
-  int set_dict( MP_Dict_c *dict );
-  int set_signal( MP_Signal_c *sig );
-  int set_book( MP_Book_c *book );
+  /* Settings */
+  MP_Dict_c* set_dict( MP_Dict_c *setDict );
+  MP_Signal_c* set_signal( MP_Signal_c *setSig );
+  MP_Book_c* set_book( MP_Book_c *setBook );
 
-  int run( unsigned long int nIter );
+#define set_iter_condition( A ) { stopAfterIter = A; }
+#define reset_iter_condition()  { stopAfterIter = ULONG_MAX; }
 
-  MP_Book_c* get_current_book();
-  MP_Signal_c* get_current_signal();
-  MP_Var_Array_c* get_current_decay();
+#define set_snr_condition( SNR ) { stopAfterSnr = pow( 10.0, SNR/10 ); }
+#define reset_snr_condition()    { stopAfterSnr = 0.0; }
+
+#define set_snr_frq( A )  { snrFrequency = A; }
+#define reset_snr_freq()  { snrFrequency = ULONG_MAX; }
+
+#define set_save_freq( A ) { saveFrequency = A; }
+#define reset_save_freq()  { saveFrequency = ULONG_MAX; }
+
+#define set_report_freq( A ) { reportFrequency = A; }
+#define reset_report_freq()  { reportFrequency = ULONG_MAX; }
+
+  /* Runtime */
+  int resume();
+  int step();
+
+  /* Get results */
+#define get_current_book() book
+#define get_current_signal() signal
+#define get_current_decay_vec() decay.elem
 
 }
 

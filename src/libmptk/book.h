@@ -160,6 +160,17 @@ public:
    */
   int append( MP_Atom_c *newAtom );
 
+  /** \brief Re-check the number of samples
+   * \return MP_TRUE if numSamples was up to date, MP_FALSE if numSamples has been updated.
+   */
+  int recheck_num_samples();
+
+  /** \brief Re-check the number of channels
+   * \return MP_TRUE if numChans was up to date, MP_FALSE if numChans has been updated.
+   */
+  int recheck_num_channels();
+
+
   /** \brief Substract / add some atom waveforms from / to a signal 
    *
    * \param sigSub signal from which the sum of atom waveforms is to be removed
@@ -192,7 +203,6 @@ public:
    * \remark Passing mask == NULL forces all atoms to be used.
    */
   unsigned long int add_to_tfmap( MP_TF_Map_c *tfmap, const char tfmapType, MP_Mask_c *mask );
-
 
   /** \brief Check if numAtoms is the same in a mask and in the book. */
   MP_Bool_t is_compatible_with( MP_Mask_c mask );

@@ -54,6 +54,7 @@
 MP_Atom_c::MP_Atom_c( void ) {
   numChans = 0;
   support  = NULL;
+  numSamples = 0;
   totalChanLen = 0;
 }
 
@@ -71,6 +72,7 @@ MP_Atom_c::MP_Atom_c( FILE *fid, const char mode ) {
 
   unsigned long int nItem = 0;
   unsigned int i, iRead;
+  unsigned long int val;
 
   /* Read numChans */
   switch ( mode ) {
@@ -130,8 +132,10 @@ MP_Atom_c::MP_Atom_c( FILE *fid, const char mode ) {
 	      " %lu read, %lu expected.\n", nItem, 2 * (unsigned long int )( numChans ) );
     }
 
-    /* Compute the totalChanLen */
+    /* Compute the totalChanLen and the numSamples */
     for ( i=0, totalChanLen = 0; i<(unsigned int)numChans; i++ ) {
+      val = support[i].pos + support[i].len;
+      if (numSamples < val ) numSamples = val;
       totalChanLen += support[i].len;
     }
   }
@@ -208,6 +212,7 @@ int MP_Atom_c::alloc_atom( const unsigned int setNChan ) {
     numChans = setNChan;
   }
   totalChanLen = 0;
+  numSamples = 0;
 
   return( 1 );
 }

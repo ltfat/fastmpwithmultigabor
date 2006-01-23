@@ -458,9 +458,9 @@ int parse_args(int argc, char **argv) {
 /* GLOBAL FUNCTIONS                               */
 /**************************************************/
 void free_mem( MP_Book_c* book, MP_Dict_c* dict, double* decay ) {
-  if ( book )  delete book;    book = NULL;
-  if ( dict )  delete dict;    dict = NULL;
-  if ( decay ) free( decay ); decay = NULL;
+  if ( book )  delete book;
+  if ( dict )  delete dict;
+  if ( decay ) free( decay );
 }
 
 
@@ -795,7 +795,6 @@ int main( int argc, char **argv ) {
   /*******************/
   /* Clean the house */
   free_mem( book, dict, decay );
-  if ( book ) delete( book );
 
   if ( !MPD_QUIET ) fprintf( stderr, "mpd msg -- Have a nice day !\n" );
   fflush( stderr );

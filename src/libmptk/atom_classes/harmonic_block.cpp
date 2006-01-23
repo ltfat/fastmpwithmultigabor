@@ -433,6 +433,8 @@ unsigned int MP_Harmonic_Block_c::create_atom( MP_Atom_c **atom,
     /* 1) set the fundamental frequency and chirp of the atom */
     hatom->freq  = (MP_Real_t)( (double)(fundFreqIdx) / (double)(fft->fftSize));
     hatom->chirp = (MP_Real_t)( 0.0 );     /* So far there is no chirprate */
+    /* Set the numSamples */
+    hatom->numSamples = pos + filterLen;
 
     /* For each channel: */
     for ( chanIdx=0; chanIdx < s->numChans; chanIdx++ ) {

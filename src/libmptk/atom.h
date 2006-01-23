@@ -107,6 +107,11 @@ public:
    * output buffer in build_waveform()
    */
   unsigned long int totalChanLen;
+  /** \brief The maximum reach of the atom, in number of samples
+   *
+   * It is essentially used for efficiency
+   */
+  unsigned long int numSamples;
 
   /***********/
   /* METHODS */

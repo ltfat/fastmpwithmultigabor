@@ -276,7 +276,7 @@ int main( int argc, char **argv ) {
 
   /* Read the book */
   if ( !strcmp( bookFileName, "-" ) ) {
-    if ( MPR_VERBOSE ) fprintf( stderr, "mpr msg -- Reading the book from stdin..." );
+    if ( MPR_VERBOSE ) fprintf( stderr, "mpr msg -- Reading the book from stdin...\n" );
     if ( book->load(stdin) == 0 ) {
       fprintf( stderr, "mpr error -- No atoms were found in stdin.\n" );
       fflush( stderr );
@@ -284,7 +284,7 @@ int main( int argc, char **argv ) {
     }
   }
   else {
-    if ( MPR_VERBOSE ) fprintf( stderr, "mpr msg -- Reading the book from file [%s]...", bookFileName );
+    if ( MPR_VERBOSE ) fprintf( stderr, "mpr msg -- Reading the book from file [%s]...\n", bookFileName );
     if ( book->load( bookFileName ) == 0 ) {
       fprintf( stderr, "mpr error -- No atoms were found in the book file [%s].\n", bookFileName );
       fflush( stderr );
@@ -296,8 +296,8 @@ int main( int argc, char **argv ) {
   /* Read the residual */
   if ( resFileName ) {
     if ( MPR_VERBOSE ) {
-      if ( !strcmp( resFileName, "-" ) ) fprintf( stderr, "mpr msg -- Reading the residual from stdin..." );
-      else                               fprintf( stderr, "mpr msg -- Reading the residual from file [%s]...", resFileName );
+      if ( !strcmp( resFileName, "-" ) ) fprintf( stderr, "mpr msg -- Reading the residual from stdin...\n" );
+      else                               fprintf( stderr, "mpr msg -- Reading the residual from file [%s]...\n", resFileName );
     }
     sig = MP_Signal_c::init( resFileName );
     if ( sig == NULL ) {
@@ -318,7 +318,7 @@ int main( int argc, char **argv ) {
   }
 
   /* Reconstruct in addition to the residual */
-  if ( MPR_VERBOSE ) fprintf( stderr, "mpr msg -- Rebuilding the signal..." );
+  if ( MPR_VERBOSE ) fprintf( stderr, "mpr msg -- Rebuilding the signal...\n" );
   if ( book->substract_add( NULL, sig, NULL ) == 0 ) {
     fprintf( stderr, "mpr error -- No atoms were found in the book to rebuild the signal.\n" );
     fflush( stderr );
@@ -328,15 +328,15 @@ int main( int argc, char **argv ) {
 
   /* De-emphasize the signal if needed */
   if (MPR_DEEMP != 0.0) {
-    if ( MPR_VERBOSE ) { fprintf( stderr, "mpd msg -- De-emphasizing the signal..." ); fflush( stderr ); }
+    if ( MPR_VERBOSE ) { fprintf( stderr, "mpd msg -- De-emphasizing the signal...\n" ); fflush( stderr ); }
     sig->deemp( MPR_DEEMP );
     if ( MPR_VERBOSE ) { fprintf( stderr, "Done.\n" ); fflush( stderr ); }
   }
 
   /* Write the reconstructed signal */
   if ( MPR_VERBOSE ) {
-    if ( !strcmp( sigFileName, "-" ) ) fprintf( stderr, "mpr msg -- Writing the rebuilt signal to stdout..." );
-    else                               fprintf( stderr, "mpr msg -- Writing the rebuilt signal to file [%s]...", sigFileName );
+    if ( !strcmp( sigFileName, "-" ) ) fprintf( stderr, "mpr msg -- Writing the rebuilt signal to stdout...\n" );
+    else                               fprintf( stderr, "mpr msg -- Writing the rebuilt signal to file [%s]...\n", sigFileName );
   }
   if ( sig->wavwrite(sigFileName) == 0 ) {
     fprintf( stderr, "mpr error -- Can't write rebuilt signal to file [%s].\n", sigFileName );
