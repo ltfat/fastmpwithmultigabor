@@ -55,8 +55,9 @@ export_headers = mp_types.h \
 	atom_classes/gabor_atom.h atom_classes/gabor_block.h         \
 	atom_classes/harmonic_atom.h atom_classes/harmonic_block.h   \
 	atom_classes/chirp_block.h         \
-	atom_classes/block_io_interface.h                            \
-	atom_classes/atom_classes.h
+	atom_classes/block_io_interface.h  \
+	atom_classes/atom_classes.h        \
+	mpd_core.h
 ## NOTE: in the above list, the order of the headers is important.
 
 
@@ -81,9 +82,10 @@ libmptk_a_SOURCES = mptk.h header.h $(export_headers) regression_constants.h\
         atom_classes/gabor_atom.cpp atom_classes/gabor_block.cpp         \
         atom_classes/harmonic_atom.cpp atom_classes/harmonic_block.cpp         \
         atom_classes/chirp_block.cpp         \
-	atom_classes/dict_scanner.lpp \
-	atom_classes/block_io_interface.cpp \
-	dict.cpp mask.cpp book.cpp tfmap.cpp
+	atom_classes/dict_scanner.lpp        \
+	atom_classes/block_io_interface.cpp  \
+	dict.cpp mask.cpp book.cpp tfmap.cpp \
+	mpd_core.cpp
 
 
 mptk.h: Makefile.am $(srcdir)/header.h $(srcdir)/../../AUTHORS $(export_headers)
