@@ -56,12 +56,11 @@
 #define MP_ERROR      1
 #define MP_WARNING    (1 << 1)
 #define MP_INFO       (1 << 2)
+#define MP_PROGRESS   (1 << 3)
 /* - Reserved for future use: */
-#define MP_RESERVED_1 (1 << 3)
-#define MP_RESERVED_2 (1 << 4)
-#define MP_RESERVED_3 (1 << 5)
-#define MP_RESERVED_4 (1 << 5)
-#define MP_RESERVED_5 (1 << 6)
+#define MP_RESERVED_1 (1 << 4)
+#define MP_RESERVED_2 (1 << 5)
+#define MP_RESERVED_3 (1 << 6)
 /* - Debugging types (up to 24 types): */
 /* these types can be used to fine tune which debug messages should
    or should not be printed at runtime. See the set_debug_mask() macro. */
@@ -71,7 +70,7 @@
 /* -- when entering/exiting functions: */
 #define MP_DEBUG_FUNC_ENTER (1 << 8)
 #define MP_DEBUG_FUNC_EXIT  (1 << 9)
-#define MP_DEBUG_FUNC_BOUNDARIES ( MP_DEBUG_FUNC_ENTER + MP_DEBUG_FUNC_EXIT )
+#define MP_DEBUG_FUNC_BOUNDARIES ( MP_DEBUG_FUNC_ENTER | MP_DEBUG_FUNC_EXIT )
 /* -- information emitted during loops: */
 #define MP_DEBUG_ABUNDANT  (1 << 10)  /* for intensive loops (lots of output, e.g. in blocks) */
 #define MP_DEBUG_MEDIUM    (1 << 11) /* for medium frequency loops */
@@ -81,15 +80,19 @@
 /* -- construction/deletion of objects: */
 #define MP_DEBUG_CONSTRUCTION (1 << 14)
 #define MP_DEBUG_DESTRUCTION  (1 << 15)
-#define MP_DEBUG_OBJ_LIFE ( MP_DEBUG_CONSTRUCTION + MP_DEBUG_DESTRUCTION )
+#define MP_DEBUG_OBJ_LIFE ( MP_DEBUG_CONSTRUCTION | MP_DEBUG_DESTRUCTION )
 /* -- Matching Pursuit iterations: */
 #define MP_DEBUG_MP_ITERATIONS (1 << 16)
 /* -- Specific for function create_atom(): */
 #define MP_DEBUG_CREATE_ATOM   (1 << 17)
 /* -- Specific for function create_atom()array bounds check: */
 #define MP_DEBUG_ARRAY_BOUNDS  (1 << 18)
+/* -- Argument parsing in utils: */
+#define MP_DEBUG_PARSE_ARGS    (1 << 19)
+/* -- MPD loop in utils: */
+#define MP_DEBUG_MPD_LOOP      (1 << 20)
 
-#define MP_MSG_LAST_TYPE MP_DEBUG_ARRAY_BOUNDS
+#define MP_MSG_LAST_TYPE MP_DEBUG_MPD_LOOP
 
 #define MP_DEBUG_ALL  ULONG_MAX
 #define MP_DEBUG_NONE 0
@@ -111,6 +114,9 @@
 /** \brief The default info stream. */
 #define MP_DEFAULT_INFO_STREAM MP_DEFAULT_MSG_STREAM
 
+/** \brief The default progress stream. */
+#define MP_DEFAULT_PROGRESS_STREAM MP_DEFAULT_MSG_STREAM
+
 /** \brief The default debug stream. */
 #define MP_DEFAULT_DEBUG_STREAM MP_DEFAULT_MSG_STREAM
 
@@ -120,7 +126,7 @@
 /*******************/
 
 /** \brief The prefix printed before any message */
-#define MP_LIB_STR_PREFIX "libmptk"
+#define MP_LIB_STR_PREFIX "mptk"
 
 
 /***********************/
@@ -152,6 +158,8 @@ public:
   void (*warningHandler)( void );
   /** \brief The handler function associated with the info messages. */  
   void (*infoHandler)( void );
+  /** \brief The handler function associated with the progress messages. */  
+  void (*progressHandler)( void );
   /** \brief The handler function associated with the debug messages. */  
   void (*debugHandler)( void );
 
@@ -161,6 +169,8 @@ public:
   FILE *warningStream;
   /** \brief The output stream associated with info messages. */  
   FILE *infoStream;
+  /** \brief The output stream associated with progress messages. */  
+  FILE *progressStream;
   /** \brief The output stream associated with debug messages. */  
   FILE *debugStream;
 
@@ -228,6 +238,8 @@ void mp_msg_handler_ignore( void );
 #define set_warning_handler( H ) ( MP_GLOBAL_MSG_SERVER.warningHandler = H )
 /** \brief Set the info msg handler. */
 #define set_info_handler( H )    ( MP_GLOBAL_MSG_SERVER.infoHandler = H )
+/** \brief Set the progress msg handler. */
+#define set_progress_handler( H )    ( MP_GLOBAL_MSG_SERVER.progressHandler = H )
 /** \brief Set the debug msg handler. */
 #define set_debug_handler( H )   ( MP_GLOBAL_MSG_SERVER.debugHandler = H )
 /** \brief Set all the msg handlers (except debug). */
@@ -241,6 +253,8 @@ void mp_msg_handler_ignore( void );
 #define get_warning_handler() ( MP_GLOBAL_MSG_SERVER.warningHandler )
 /** \brief Get the info msg handler. */
 #define get_info_handler()    ( MP_GLOBAL_MSG_SERVER.infoHandler )
+/** \brief Get the progress msg handler. */
+#define get_progress_handler()    ( MP_GLOBAL_MSG_SERVER.progressHandler )
 /** \brief Get the debug msg handler. */
 #define get_debug_handler()   ( MP_GLOBAL_MSG_SERVER.debugHandler )
 
@@ -254,6 +268,8 @@ void mp_msg_handler_ignore( void );
 #define set_warning_stream( F ) ( MP_GLOBAL_MSG_SERVER.warningStream = F )
 /** \brief Redirect the info messages to (FILE*) F. */
 #define set_info_stream( F )    ( MP_GLOBAL_MSG_SERVER.infoStream = F )
+/** \brief Redirect the progress messages to (FILE*) F. */
+#define set_progress_stream( F )    ( MP_GLOBAL_MSG_SERVER.progressStream = F )
 /** \brief Redirect the debug messages to (FILE*) F. */
 #define set_debug_stream( F )   ( MP_GLOBAL_MSG_SERVER.debugStream = F )
 /** \brief Redirect all the messages (except the debug messages) to (FILE*) F. */
@@ -267,6 +283,8 @@ void mp_msg_handler_ignore( void );
 #define get_warning_stream() ( MP_GLOBAL_MSG_SERVER.warningStream )
 /** \brief Get the current (FILE*) info stream. */
 #define get_info_stream()    ( MP_GLOBAL_MSG_SERVER.infoStream )
+/** \brief Get the current (FILE*) progress stream. */
+#define get_progress_stream()    ( MP_GLOBAL_MSG_SERVER.progressStream )
 /** \brief Get the current (FILE*) debug stream. */
 #define get_debug_stream()   ( MP_GLOBAL_MSG_SERVER.debugStream )
 
@@ -349,6 +367,27 @@ size_t mp_info_msg( const char *funcName, const char *format, ... );
  * \param ... a variable list of arguments to be printed according to the format
  */
 size_t mp_info_msg( FILE *fid, const char *funcName, const char *format, ... );
+
+
+
+/** \brief Pretty-printing of the libmptk progress messages
+ *
+ * \param funcName the name of the calling function
+ * \param format a format string similar to the printf formats
+ * \param ... a variable list of arguments to be printed according to the format
+ *
+ * \sa set_progress_stream(), set_progress_handler().
+ */
+size_t mp_progress_msg( const char *funcName, const char *format, ... );
+
+/** \brief Pretty-printing of the libmptk progress messages to a specific stream
+ *
+ * \param fid the (FILE*) stream to write to
+ * \param funcName the name of the calling function
+ * \param format a format string similar to the printf formats
+ * \param ... a variable list of arguments to be printed according to the format
+ */
+size_t mp_progress_msg( FILE *fid, const char *funcName, const char *format, ... );
 
 
 
