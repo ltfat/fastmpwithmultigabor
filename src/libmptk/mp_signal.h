@@ -196,6 +196,12 @@ public:
   int info( FILE *fid );
 
 
+  /** \brief Send a brief info about the signal to the standard info output
+   * \return the number of written characters
+   */
+  int info( void );
+
+
   /***************************/
   /* OTHER METHODS           */
   /***************************/

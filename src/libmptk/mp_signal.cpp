@@ -553,6 +553,20 @@ int MP_Signal_c::info( FILE *fid ) {
   return( nChar );
 }
 
+/*************************/
+/* Readable text dump    */
+int MP_Signal_c::info( void ) {
+
+  int nChar = 0;
+
+  nChar += mp_info_msg( "SIGNAL",
+			"This signal object has [%lu] samples on [%d] channels;"
+			" its sample rate is [%d]Hz.\n",
+			numSamples, numChans, sampleRate );
+
+  return( nChar );
+}
+
 
 /***************************/
 /* MISC METHODS            */
