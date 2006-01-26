@@ -217,10 +217,11 @@ int MP_Var_Array_c<TYPE>::append( TYPE newElem ) {
 
   if ( nElem == maxNElem ) {
     TYPE* tmp;
-    tmp = realloc( elem, (maxNElem+blockSize)*sizeof(TYPE) );
+    tmp = (TYPE*) realloc( elem, (maxNElem+blockSize)*sizeof(TYPE) );
     if ( tmp == NULL ) return( 0 );
     else {
       elem = tmp;
+      memset( elem+maxNElem, 0, blockSize*sizeof( TYPE ) );
       maxNElem += blockSize;
     }
   }
@@ -229,3 +230,34 @@ int MP_Var_Array_c<TYPE>::append( TYPE newElem ) {
 
   return( 1 );
 }
+
+/* Save function for the MP_Var_Array_c class */
+template <class TYPE>
+unsigned long int MP_Var_Array_c<TYPE>::save( char* fName ) {
+
+  FILE *fid;
+  unsigned long int nWrite;
+
+  if ( (fid = fopen( fName, "w" )) == NULL ) {
+    mp_error_msg( "MP_Var_Array_c::save(fName)",
+		  "Failed to open the file [%s] for writing.\n",
+		  fName );
+    return( 0 );
+  }
+  nWrite = mp_fwrite( elem, sizeof(TYPE), nElem, fid );
+  fclose( fid );
+  return( nWrite );
+}
+
+/* Specify the MP_Var_Array template for double */
+template class MP_Var_Array_c<double>;
+
+#if defined __GNUC__ && __GNUC__ < 3
+template
+#endif
+int append ( MP_Var_Array_c<double> );
+
+#if defined __GNUC__ && __GNUC__ < 3
+template
+#endif
+unsigned long int save ( MP_Var_Array_c<double> );

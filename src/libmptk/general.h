@@ -151,7 +151,8 @@ public:
   MP_Var_Array_c( unsigned long int setBlockSize ) { elem = NULL; nElem = maxNElem = 0; blockSize = setBlockSize; }
   ~MP_Var_Array_c() { if ( elem ) free( elem ); }
   int append( TYPE newElem );
-
+  unsigned long int save( char* fName );
+  void clear() { if (elem != NULL) memset( elem, 0, maxNElem*sizeof( TYPE ) ); nElem = 0; }
 };
 
 
