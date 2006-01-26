@@ -79,12 +79,13 @@ MP_Msg_Server_c::MP_Msg_Server_c( void ) {
   currentMsgType = MP_MSG_NULL;
 
   /* Set the default handler */
-  errorHandler = warningHandler = infoHandler = debugHandler = MP_FLUSH;
+  errorHandler = warningHandler = infoHandler = progressHandler = debugHandler = MP_FLUSH;
 
   /* Set the default output file values */
   errorStream = MP_DEFAULT_ERROR_STREAM;
   warningStream = MP_DEFAULT_WARNING_STREAM;
   infoStream = MP_DEFAULT_INFO_STREAM;
+  progressStream = MP_DEFAULT_PROGRESS_STREAM;
   debugStream = MP_DEFAULT_DEBUG_STREAM;
 
   /* Initialize the debug mask to "all messages" */
@@ -170,6 +171,12 @@ void mp_msg_handler_flush( void ) {
     if ( MP_GLOBAL_MSG_SERVER.infoStream == NULL ) return;
     fprintf( MP_GLOBAL_MSG_SERVER.infoStream, "%s", MP_GLOBAL_MSG_SERVER.stdBuff );
     fflush( MP_GLOBAL_MSG_SERVER.infoStream );
+    break;
+
+  case MP_PROGRESS:
+    if ( MP_GLOBAL_MSG_SERVER.progressStream == NULL ) return;
+    fprintf( MP_GLOBAL_MSG_SERVER.progressStream, "%s", MP_GLOBAL_MSG_SERVER.stdBuff );
+    fflush( MP_GLOBAL_MSG_SERVER.progressStream );
     break;
 
   default:
@@ -378,6 +385,51 @@ size_t mp_info_msg( FILE *fid, const char *funcName, const char *format, ...  ) 
   /* Make the message string */
   va_start ( arg, format );
   done = make_msg_str( "INFO", funcName, format, arg );
+  va_end ( arg );
+  /* Print the string */
+  if ( fid == NULL ) return( 0 );
+  fprintf( fid, "%s", MP_GLOBAL_MSG_SERVER.stdBuff );
+  fflush( fid );
+
+  return( done );
+}
+
+
+/*****************/
+/* Progress messages */
+/*****************/
+
+/******************/
+/* Using handler: */
+size_t mp_progress_msg( const char *funcName, const char *format, ...  ) {
+
+  va_list arg;
+  size_t done;
+  
+  /* If the handler is MP_IGNORE, stop here and do nothing. */
+  if ( MP_GLOBAL_MSG_SERVER.progressHandler == MP_IGNORE ) return( 0 );
+  /* Store the message type in the server */
+  MP_GLOBAL_MSG_SERVER.currentMsgType = MP_PROGRESS;
+  /* Make the message string */
+  va_start ( arg, format );
+  done = make_msg_str( "PROGRESS", funcName, format, arg );
+  va_end ( arg );
+  /* Launch the message handler */
+  (MP_GLOBAL_MSG_SERVER.progressHandler)();
+
+  return( done );
+}
+
+/**********************/
+/* Bypassing handler: */
+size_t mp_progress_msg( FILE *fid, const char *funcName, const char *format, ...  ) {
+
+  va_list arg;
+  size_t done;
+  
+  /* Make the message string */
+  va_start ( arg, format );
+  done = make_msg_str( "PROGRESS", funcName, format, arg );
   va_end ( arg );
   /* Print the string */
   if ( fid == NULL ) return( 0 );
