@@ -583,7 +583,6 @@ unsigned int MP_Gabor_Block_c::create_atom( MP_Atom_c **atom,
   double real, imag, energy;
   /* Misc: */
   int chanIdx;
-  unsigned long int val;
 
   /* Allocate the atom */
   *atom = NULL;
