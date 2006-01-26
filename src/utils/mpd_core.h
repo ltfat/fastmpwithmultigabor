@@ -47,12 +47,14 @@
 #define __mpd_core_h_
 
 /* Returned events */
-#define MPD_NULL_CONDITION         0
-#define MPD_ITER_CONDITION_REACHED 1
-#define MPD_SNR_CONDITION_REACHED  2
-#define MPD_SAVE_HIT_REACHED       3
-#define MPD_REPORT_HIT_REACHED     4
-#define MPD_ITER_EXHAUSTED         5
+#define MPD_NULL_CONDITION          0
+#define MPD_ITER_CONDITION_REACHED  1
+#define MPD_SNR_CONDITION_REACHED  (1 << 1)
+#define MPD_NEG_ENERGY_REACHED     (1 << 2)
+#define MPD_INCREASING_ENERGY      (1 << 3)
+#define MPD_SAVE_HIT_REACHED       (1 << 4)
+#define MPD_REPORT_HIT_REACHED     (1 << 5)
+#define MPD_ITER_EXHAUSTED         (1 << 6)
 
 
 /***********************/
@@ -76,25 +78,38 @@ public:
   MP_Bool_t useStopAfterSnr;
 
   /* Granularity of the snr recomputation: */
-  unsigned long int snrFrequency;
+  unsigned long int snrHit;
   unsigned long int nextSnrHit;  
 
   /* Verbose mode: */
   MP_Bool_t verbose;
-  unsigned long int reportFrequency;
+  unsigned long int reportHit;
   unsigned long int nextReportHit;
  
   /* Intermediate saves: */
-  unsigned long int saveFrequency;
+  unsigned long int saveHit;
   unsigned long int nextSaveHit;
 
   /* Manipulated objects */
   MP_Dict_c *dict;
-  MP_Dict_c *sig;
+  MP_Signal_c *sig;
   MP_Book_c *book;
 
   /* Decay array */
-  MP_Var_array_c<double> decay;
+  MP_Var_Array_c<double> decay;
+
+  /* Output file names */
+  char *bookFileName;
+  char *resFileName;
+  char *decayFileName;
+
+  /* Convenient global variables */
+  unsigned long int numIter;
+  double residualEnergy;
+  double residualEnergyBefore;
+  double initialEnergy;
+  double currentSnr;
+  unsigned short int state;
 
 
   /***********/
@@ -106,10 +121,17 @@ public:
   /***************************/
 
 public:
-  static MP_Mpd_Run_c::init( MP_Dict_c *dict, MP_Signal_c *sig, MP_Book_c *book );
-  static MP_Mpd_Run_c::init( MP_Dict_c *dict, MP_Signal_c *sig, MP_Book_c *book,
-			     unsigned long int stopAfterIter,
-			     double stopAfterSnr );
+  static MP_Mpd_Core_c* init( MP_Signal_c *sig, MP_Book_c *book );
+  static MP_Mpd_Core_c* init( MP_Signal_c *sig, MP_Book_c *book, MP_Dict_c *dict );
+  static MP_Mpd_Core_c* init( MP_Signal_c *sig, MP_Book_c *book, MP_Dict_c *dict,
+			      unsigned long int stopAfterIter,
+			      double stopAfterSnr );
+
+private:
+  MP_Mpd_Core_c();
+
+public:
+  ~MP_Mpd_Core_c();
 
   /***************************/
   /* I/O METHODS             */
@@ -129,30 +151,42 @@ public:
   MP_Signal_c* set_signal( MP_Signal_c *setSig );
   MP_Book_c* set_book( MP_Book_c *setBook );
 
-#define set_iter_condition( A ) { stopAfterIter = A; }
-#define reset_iter_condition()  { stopAfterIter = ULONG_MAX; }
+  void set_iter_condition( const unsigned long int setIter ) {
+    stopAfterIter = setIter; useStopAfterIter = MP_TRUE; }
+  void reset_iter_condition() { stopAfterIter = ULONG_MAX; useStopAfterIter = MP_FALSE; }
 
-#define set_snr_condition( SNR ) { stopAfterSnr = pow( 10.0, SNR/10 ); }
-#define reset_snr_condition()    { stopAfterSnr = 0.0; }
+  void set_snr_condition( const double setSnr ) {
+    stopAfterSnr = pow( 10.0, setSnr/10 ); useStopAfterSnr = MP_TRUE; }
+  void reset_snr_condition() { stopAfterSnr = 0.0; useStopAfterSnr = MP_FALSE; }
 
-#define set_snr_frq( A )  { snrFrequency = A; }
-#define reset_snr_freq()  { snrFrequency = ULONG_MAX; }
+  void set_snr_hit( const unsigned long int setSnrHit ) {
+    snrHit = setSnrHit; nextSnrHit = numIter + setSnrHit; }
+  void reset_snr_hit() { snrHit = ULONG_MAX; nextSnrHit = ULONG_MAX; }
 
-#define set_save_freq( A ) { saveFrequency = A; }
-#define reset_save_freq()  { saveFrequency = ULONG_MAX; }
+  void set_save_hit( const unsigned long int setSaveHit,
+		     char* bookFileName, char* resFileName, char* decayFileName );
+  void reset_save_hit( void );
 
-#define set_report_freq( A ) { reportFrequency = A; }
-#define reset_report_freq()  { reportFrequency = ULONG_MAX; }
+  void set_report_hit( const unsigned long int setReportHit ) {
+    reportHit = setReportHit; nextReportHit = numIter + setReportHit; }
+  void reset_report_hit() { reportHit = ULONG_MAX;  nextReportHit = ULONG_MAX; }
+
+  void save_result( void );
 
   /* Runtime */
-  int resume();
-  int step();
+  unsigned short int step();
+  unsigned long int run();
+
+  /* Infos */
+  void info_conditions( void );
+  void info_state( void );
+  void info_result( void );
 
   /* Get results */
-#define get_current_book() book
-#define get_current_signal() signal
-#define get_current_decay_vec() decay.elem
+  MP_Book_c* get_current_book() { return( book ); }
+  MP_Signal_c* get_current_signal() { return( sig ); }
+  double* get_current_decay_vec() { return( decay.elem ); }
 
-}
+};
 
 #endif /* __mpd_core_h_ */

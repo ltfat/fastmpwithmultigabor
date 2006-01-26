@@ -1,116 +1,116 @@
-mpd msg -- ------------------------------------
-mpd msg -- MPD - MATCHING PURSUIT DECOMPOSITION
-mpd msg -- ------------------------------------
-mpd msg -- The command line was:
+mptk INFO -- mpd - ------------------------------------
+mptk INFO -- mpd - MPD - MATCHING PURSUIT DECOMPOSITION
+mptk INFO -- mpd - ------------------------------------
+mptk INFO -- mpd - The command line was:
 ../../src/utils/mpd --verbose -s 10 -R 10 -D /udd/sacha/src/project/mptk/trunk/src/tests/signals/dico_test.xml /udd/sacha/src/project/mptk/trunk/src/tests/signals/mix_58_stereo.wav /udd/sacha/src/project/mptk/trunk/src/tests/ref/book_mix_58_stereo.bin.ref /udd/sacha/src/project/mptk/trunk/src/tests/ref/res_mix_58_stereo.wav.ref 
-mpd msg -- End command line.
-mpd msg -- Loading the dictionary...
-mpd msg -- (In the following, spurious output of dictionary pieces would be a symptom of parsing errors.)
-mpd msg -- The dictionary is now loaded.
-mpd msg -- Loading the signal...
-mpd msg -- The signal is now loaded.
-mpd msg -- The dictionary read from file [/udd/sacha/src/project/mptk/trunk/src/tests/signals/dico_test.xml] contains [9] blocks:
-libmptk INFO -- GABOR BLOCK - gauss window (window opt=0) of length [128], shifted by [32] samples,
-libmptk INFO --          |- - projected on [65] frequencies;
-libmptk INFO --          O- - The number of frames for this block is [597], the search tree has [4] levels.
-libmptk INFO -- GABOR BLOCK - gauss window (window opt=0) of length [256], shifted by [64] samples,
-libmptk INFO --          |- - projected on [129] frequencies;
-libmptk INFO --          O- - The number of frames for this block is [297], the search tree has [3] levels.
-libmptk INFO -- GABOR BLOCK - gauss window (window opt=0) of length [512], shifted by [128] samples,
-libmptk INFO --          |- - projected on [257] frequencies;
-libmptk INFO --          O- - The number of frames for this block is [147], the search tree has [3] levels.
-libmptk INFO -- GABOR BLOCK - gauss window (window opt=0) of length [1024], shifted by [256] samples,
-libmptk INFO --          |- - projected on [513] frequencies;
-libmptk INFO --          O- - The number of frames for this block is [72], the search tree has [2] levels.
-libmptk INFO -- HARMONIC BLOCK - gauss window (window opt=0) of length [256], shifted by [128] samples;
-libmptk INFO --             |- - projected on [129] frequencies and [23] fundamental frequencies for a total of [152] filters;
-libmptk INFO --             |- - fundamental frequency in the index range [10 32]
-libmptk INFO --             |- -                        (normalized range [0.0390625 0.125]);
-libmptk INFO --             |- -                        (Hertz range      [312.5 1000]);
-libmptk INFO --             |- -                        (Original range   [340 1000]);
-libmptk INFO --             |- - maximum number of partials 5;
-libmptk INFO --             O- - The number of frames for this block is [149], the search tree has [3] levels.
-libmptk INFO -- HARMONIC BLOCK - gauss window (window opt=0) of length [512], shifted by [256] samples;
-libmptk INFO --             |- - projected on [257] frequencies and [37] fundamental frequencies for a total of [294] filters;
-libmptk INFO --             |- - fundamental frequency in the index range [28 64]
-libmptk INFO --             |- -                        (normalized range [0.0546875 0.125]);
-libmptk INFO --             |- -                        (Hertz range      [437.5 1000]);
-libmptk INFO --             |- -                        (Original range   [440 1000]);
-libmptk INFO --             |- - maximum number of partials 10;
-libmptk INFO --             O- - The number of frames for this block is [74], the search tree has [2] levels.
-libmptk INFO -- HARMONIC BLOCK - gauss window (window opt=0) of length [1024], shifted by [512] samples;
-libmptk INFO --             |- - projected on [513] frequencies and [73] fundamental frequencies for a total of [586] filters;
-libmptk INFO --             |- - fundamental frequency in the index range [56 128]
-libmptk INFO --             |- -                        (normalized range [0.0546875 0.125]);
-libmptk INFO --             |- -                        (Hertz range      [437.5 1000]);
-libmptk INFO --             |- -                        (Original range   [440 1000]);
-libmptk INFO --             |- - maximum number of partials 10;
-libmptk INFO --             O- - The number of frames for this block is [36], the search tree has [2] levels.
-libmptk INFO -- HARMONIC BLOCK - gauss window (window opt=0) of length [2048], shifted by [1024] samples;
-libmptk INFO --             |- - projected on [1025] frequencies and [145] fundamental frequencies for a total of [1170] filters;
-libmptk INFO --             |- - fundamental frequency in the index range [112 256]
-libmptk INFO --             |- -                        (normalized range [0.0546875 0.125]);
-libmptk INFO --             |- -                        (Hertz range      [437.5 1000]);
-libmptk INFO --             |- -                        (Original range   [440 1000]);
-libmptk INFO --             |- - maximum number of partials 10;
-libmptk INFO --             O- - The number of frames for this block is [17], the search tree has [1] levels.
-libmptk INFO -- DIRAC BLOCK - The number of frames for this block is [19200], the search tree has [6] levels.
-mpd msg -- End of dictionary.
-mpd msg -- The signal loaded from file [/udd/sacha/src/project/mptk/trunk/src/tests/signals/mix_58_stereo.wav] has:
-libmptk INFO -- SIGNAL - This signal object has [19200] samples on [2] channels; its sample rate is [8000]Hz.
-mpd msg -- -------------------------
-mpd msg -- Starting Matching Pursuit on signal [/udd/sacha/src/project/mptk/trunk/src/tests/signals/mix_58_stereo.wav] with dictionary [/udd/sacha/src/project/mptk/trunk/src/tests/signals/dico_test.xml].
-mpd msg -- -------------------------
-mpd msg -- This run will iterate until the SNR goes above [10], using [256423] atoms.
-mpd msg -- The resulting book will be written to book file [/udd/sacha/src/project/mptk/trunk/src/tests/ref/book_mix_58_stereo.bin.ref].
-mpd msg -- The residual will be written to file [/udd/sacha/src/project/mptk/trunk/src/tests/ref/res_mix_58_stereo.wav.ref].
-mpd msg -- The energy decay will not be saved.
-mpd msg -- The initial signal energy is : 1047.05
-mpd msg -- STARTING TO ITERATE
-mpd progress -- At iteration [10] : the residual energy is [813.626] and the SNR is [1.09543].
-mpd progress -- At iteration [20] : the residual energy is [694.834] and the SNR is [1.78087].
-mpd progress -- At iteration [30] : the residual energy is [608.727] and the SNR is [2.35546].
-mpd progress -- At iteration [40] : the residual energy is [540.379] and the SNR is [2.8727].
-mpd progress -- At iteration [50] : the residual energy is [490.105] and the SNR is [3.2968].
-mpd progress -- At iteration [60] : the residual energy is [446.297] and the SNR is [3.70344].
-mpd progress -- At iteration [70] : the residual energy is [408.522] and the SNR is [4.08753].
-mpd progress -- At iteration [80] : the residual energy is [376.842] and the SNR is [4.4381].
-mpd progress -- At iteration [90] : the residual energy is [350.369] and the SNR is [4.75442].
-mpd progress -- At iteration [100] : the residual energy is [327.793] and the SNR is [5.04369].
-mpd progress -- At iteration [110] : the residual energy is [307.612] and the SNR is [5.31965].
-mpd progress -- At iteration [120] : the residual energy is [289.977] and the SNR is [5.57605].
-mpd progress -- At iteration [130] : the residual energy is [274.016] and the SNR is [5.82192].
-mpd progress -- At iteration [140] : the residual energy is [259.624] and the SNR is [6.05624].
-mpd progress -- At iteration [150] : the residual energy is [246.426] and the SNR is [6.28282].
-mpd progress -- At iteration [160] : the residual energy is [234.141] and the SNR is [6.50491].
-mpd progress -- At iteration [170] : the residual energy is [222.99] and the SNR is [6.71683].
-mpd progress -- At iteration [180] : the residual energy is [212.501] and the SNR is [6.92607].
-mpd progress -- At iteration [190] : the residual energy is [202.661] and the SNR is [7.13198].
-mpd progress -- At iteration [200] : the residual energy is [193.409] and the SNR is [7.33492].
-mpd progress -- At iteration [210] : the residual energy is [184.817] and the SNR is [7.53227].
-mpd progress -- At iteration [220] : the residual energy is [176.755] and the SNR is [7.72596].
-mpd progress -- At iteration [230] : the residual energy is [168.91] and the SNR is [7.92314].
-mpd progress -- At iteration [240] : the residual energy is [161.563] and the SNR is [8.11627].
-mpd progress -- At iteration [250] : the residual energy is [154.838] and the SNR is [8.30091].
-mpd progress -- At iteration [260] : the residual energy is [148.428] and the SNR is [8.48453].
-mpd progress -- At iteration [270] : the residual energy is [142.435] and the SNR is [8.66351].
-mpd progress -- At iteration [280] : the residual energy is [136.749] and the SNR is [8.84046].
-mpd progress -- At iteration [290] : the residual energy is [131.451] and the SNR is [9.01205].
-mpd progress -- At iteration [300] : the residual energy is [126.458] and the SNR is [9.18022].
-mpd progress -- At iteration [310] : the residual energy is [121.806] and the SNR is [9.34302].
-mpd progress -- At iteration [320] : the residual energy is [117.372] and the SNR is [9.50406].
-mpd progress -- At iteration [330] : the residual energy is [113.106] and the SNR is [9.66482].
-mpd progress -- At iteration [340] : the residual energy is [109.053] and the SNR is [9.82332].
-mpd progress -- At iteration [350] : the residual energy is [105.17] and the SNR is [9.98076].
-mpd msg -- [353] ITERATIONS DONE.
-mpd msg -- ------------------------
-mpd msg -- MATCHING PURSUIT RESULTS:
-mpd msg -- ------------------------
-mpd result -- [353] iterations have been performed.
-mpd result -- ([353] atoms have been selected out of the [256423] atoms of the dictionary.)
-mpd result -- The initial signal energy was [1047.05].
-mpd result -- The residual energy is now [104.407].
-mpd result -- The SNR is now [10.0124].
-mpd msg -- Saved the residual.
-mpd msg -- Saved the book in binary mode.
-mpd msg -- Have a nice day !
+mptk INFO -- mpd - End command line.
+mptk INFO -- mpd - Loading the dictionary...
+mptk INFO -- mpd - (In the following, spurious output of dictionary pieces would be a symptom of parsing errors.)
+mptk INFO -- mpd - The dictionary is now loaded.
+mptk INFO -- mpd - Loading the signal...
+mptk INFO -- mpd - The signal is now loaded.
+mptk INFO -- mpd - The dictionary read from file [/udd/sacha/src/project/mptk/trunk/src/tests/signals/dico_test.xml] contains [9] blocks:
+mptk INFO -- GABOR BLOCK - gauss window (window opt=0) of length [128], shifted by [32] samples,
+mptk INFO --          |- - projected on [65] frequencies;
+mptk INFO --          O- - The number of frames for this block is [597], the search tree has [4] levels.
+mptk INFO -- GABOR BLOCK - gauss window (window opt=0) of length [256], shifted by [64] samples,
+mptk INFO --          |- - projected on [129] frequencies;
+mptk INFO --          O- - The number of frames for this block is [297], the search tree has [3] levels.
+mptk INFO -- GABOR BLOCK - gauss window (window opt=0) of length [512], shifted by [128] samples,
+mptk INFO --          |- - projected on [257] frequencies;
+mptk INFO --          O- - The number of frames for this block is [147], the search tree has [3] levels.
+mptk INFO -- GABOR BLOCK - gauss window (window opt=0) of length [1024], shifted by [256] samples,
+mptk INFO --          |- - projected on [513] frequencies;
+mptk INFO --          O- - The number of frames for this block is [72], the search tree has [2] levels.
+mptk INFO -- HARMONIC BLOCK - gauss window (window opt=0) of length [256], shifted by [128] samples;
+mptk INFO --             |- - projected on [129] frequencies and [23] fundamental frequencies for a total of [152] filters;
+mptk INFO --             |- - fundamental frequency in the index range [10 32]
+mptk INFO --             |- -                        (normalized range [0.0390625 0.125]);
+mptk INFO --             |- -                        (Hertz range      [312.5 1000]);
+mptk INFO --             |- -                        (Original range   [340 1000]);
+mptk INFO --             |- - maximum number of partials 5;
+mptk INFO --             O- - The number of frames for this block is [149], the search tree has [3] levels.
+mptk INFO -- HARMONIC BLOCK - gauss window (window opt=0) of length [512], shifted by [256] samples;
+mptk INFO --             |- - projected on [257] frequencies and [37] fundamental frequencies for a total of [294] filters;
+mptk INFO --             |- - fundamental frequency in the index range [28 64]
+mptk INFO --             |- -                        (normalized range [0.0546875 0.125]);
+mptk INFO --             |- -                        (Hertz range      [437.5 1000]);
+mptk INFO --             |- -                        (Original range   [440 1000]);
+mptk INFO --             |- - maximum number of partials 10;
+mptk INFO --             O- - The number of frames for this block is [74], the search tree has [2] levels.
+mptk INFO -- HARMONIC BLOCK - gauss window (window opt=0) of length [1024], shifted by [512] samples;
+mptk INFO --             |- - projected on [513] frequencies and [73] fundamental frequencies for a total of [586] filters;
+mptk INFO --             |- - fundamental frequency in the index range [56 128]
+mptk INFO --             |- -                        (normalized range [0.0546875 0.125]);
+mptk INFO --             |- -                        (Hertz range      [437.5 1000]);
+mptk INFO --             |- -                        (Original range   [440 1000]);
+mptk INFO --             |- - maximum number of partials 10;
+mptk INFO --             O- - The number of frames for this block is [36], the search tree has [2] levels.
+mptk INFO -- HARMONIC BLOCK - gauss window (window opt=0) of length [2048], shifted by [1024] samples;
+mptk INFO --             |- - projected on [1025] frequencies and [145] fundamental frequencies for a total of [1170] filters;
+mptk INFO --             |- - fundamental frequency in the index range [112 256]
+mptk INFO --             |- -                        (normalized range [0.0546875 0.125]);
+mptk INFO --             |- -                        (Hertz range      [437.5 1000]);
+mptk INFO --             |- -                        (Original range   [440 1000]);
+mptk INFO --             |- - maximum number of partials 10;
+mptk INFO --             O- - The number of frames for this block is [17], the search tree has [1] levels.
+mptk INFO -- DIRAC BLOCK - The number of frames for this block is [19200], the search tree has [6] levels.
+mptk INFO -- mpd - End of dictionary.
+mptk INFO -- mpd - The signal loaded from file [/udd/sacha/src/project/mptk/trunk/src/tests/signals/mix_58_stereo.wav] has:
+mptk INFO -- SIGNAL - This signal object has [19200] samples on [2] channels; its sample rate is [8000]Hz.
+mptk INFO -- mpd - -------------------------
+mptk INFO -- mpd - Starting Matching Pursuit on signal [/udd/sacha/src/project/mptk/trunk/src/tests/signals/mix_58_stereo.wav] with dictionary [/udd/sacha/src/project/mptk/trunk/src/tests/signals/dico_test.xml].
+mptk INFO -- mpd - -------------------------
+mptk INFO -- Conditions - This run will iterate until the SNR goes above [10], using [256423] atoms.
+mptk INFO -- Conditions - The resulting book will be written to book file [/udd/sacha/src/project/mptk/trunk/src/tests/ref/book_mix_58_stereo.bin.ref].
+mptk INFO -- Conditions - The residual will be written to file [/udd/sacha/src/project/mptk/trunk/src/tests/ref/res_mix_58_stereo.wav.ref].
+mptk INFO -- Conditions - The energy decay will not be saved.
+mptk INFO -- mpd - The initial signal energy is : 1047.05
+mptk INFO -- mpd - STARTING TO ITERATE
+mptk PROGRESS -- At iteration - [10] : the residual energy is [829.59] and the SNR is [1.01105].
+mptk PROGRESS -- At iteration - [20] : the residual energy is [704.851] and the SNR is [1.71871].
+mptk PROGRESS -- At iteration - [30] : the residual energy is [616.386] and the SNR is [2.30116].
+mptk PROGRESS -- At iteration - [40] : the residual energy is [546.265] and the SNR is [2.82565].
+mptk PROGRESS -- At iteration - [50] : the residual energy is [494.758] and the SNR is [3.25576].
+mptk PROGRESS -- At iteration - [60] : the residual energy is [450.38] and the SNR is [3.6639].
+mptk PROGRESS -- At iteration - [70] : the residual energy is [412.047] and the SNR is [4.05022].
+mptk PROGRESS -- At iteration - [80] : the residual energy is [379.807] and the SNR is [4.40406].
+mptk PROGRESS -- At iteration - [90] : the residual energy is [352.794] and the SNR is [4.72448].
+mptk PROGRESS -- At iteration - [100] : the residual energy is [329.936] and the SNR is [5.01539].
+mptk PROGRESS -- At iteration - [110] : the residual energy is [309.504] and the SNR is [5.29302].
+mptk PROGRESS -- At iteration - [120] : the residual energy is [291.663] and the SNR is [5.55087].
+mptk PROGRESS -- At iteration - [130] : the residual energy is [275.539] and the SNR is [5.79785].
+mptk PROGRESS -- At iteration - [140] : the residual energy is [261.006] and the SNR is [6.03318].
+mptk PROGRESS -- At iteration - [150] : the residual energy is [247.689] and the SNR is [6.26062].
+mptk PROGRESS -- At iteration - [160] : the residual energy is [235.329] and the SNR is [6.48294].
+mptk PROGRESS -- At iteration - [170] : the residual energy is [224.061] and the SNR is [6.69603].
+mptk PROGRESS -- At iteration - [180] : the residual energy is [213.531] and the SNR is [6.90507].
+mptk PROGRESS -- At iteration - [190] : the residual energy is [203.605] and the SNR is [7.11181].
+mptk PROGRESS -- At iteration - [200] : the residual energy is [194.306] and the SNR is [7.31483].
+mptk PROGRESS -- At iteration - [210] : the residual energy is [185.641] and the SNR is [7.51295].
+mptk PROGRESS -- At iteration - [220] : the residual energy is [177.552] and the SNR is [7.70642].
+mptk PROGRESS -- At iteration - [230] : the residual energy is [169.685] and the SNR is [7.90325].
+mptk PROGRESS -- At iteration - [240] : the residual energy is [162.257] and the SNR is [8.09766].
+mptk PROGRESS -- At iteration - [250] : the residual energy is [155.492] and the SNR is [8.28261].
+mptk PROGRESS -- At iteration - [260] : the residual energy is [149.055] and the SNR is [8.46623].
+mptk PROGRESS -- At iteration - [270] : the residual energy is [143.025] and the SNR is [8.64557].
+mptk PROGRESS -- At iteration - [280] : the residual energy is [137.298] and the SNR is [8.82305].
+mptk PROGRESS -- At iteration - [290] : the residual energy is [131.968] and the SNR is [8.99501].
+mptk PROGRESS -- At iteration - [300] : the residual energy is [126.941] and the SNR is [9.16367].
+mptk PROGRESS -- At iteration - [310] : the residual energy is [122.258] and the SNR is [9.3269].
+mptk PROGRESS -- At iteration - [320] : the residual energy is [117.808] and the SNR is [9.48793].
+mptk PROGRESS -- At iteration - [330] : the residual energy is [113.524] and the SNR is [9.6488].
+mptk PROGRESS -- At iteration - [340] : the residual energy is [109.448] and the SNR is [9.8076].
+mptk PROGRESS -- At iteration - [350] : the residual energy is [105.552] and the SNR is [9.96502].
+mptk INFO -- Current state - The current SNR [10.0124] reached or passed the target SNR [10] in [353] iterations.
+mptk INFO -- mpd - ------------------------
+mptk INFO -- mpd - MATCHING PURSUIT RESULTS:
+mptk INFO -- mpd - ------------------------
+mptk INFO -- Result - [353] iterations have been performed.
+mptk INFO -- Result - ([353] atoms have been selected out of the [256423] atoms of the dictionary.)
+mptk INFO -- Result - The initial signal energy was [1047.05].
+mptk INFO -- Result - The residual energy is now [104.407].
+mptk INFO -- Result - The SNR is now [10.0124].
+mptk INFO -- Save info - At iteration [353] : saved the book.
+mptk INFO -- Save info - At iteration [353] : saved the residual.
+mptk INFO -- mpd - Have a nice day !

@@ -34,12 +34,11 @@
 ##   $Revision$
 ##
 
-bin_PROGRAMS = mpd mpd_demix mpr mpcat mpf
-noinst_PROGRAMS = mpview
+bin_PROGRAMS = mpd mpd_demix mpr mpcat mpf mpview
 
-noinst_HEADERS = getopt.h
+noinst_HEADERS = mpd_core.h getopt.h
 
-mpd_SOURCES = mpd.cpp getopt.c getopt1.c getopt.h
+mpd_SOURCES = mpd.cpp mpd_core.cpp getopt.c getopt1.c getopt.h
 mpd_DEPENDENCIES = @LIBDSP_WIN_DIR@/libdsp_windows.a @LIBMP_DIR@/libmptk.a
 
 mpd_demix_SOURCES = mpd_demix.cpp

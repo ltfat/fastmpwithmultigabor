@@ -37,19 +37,13 @@
 
 #include <mptk.h>
 
+#include "mpd_core.h"
 #include "mp_system.h"
 #include "getopt.h"
 
 static char *cvsid = "$Revision$";
 
-/********************/
-/* Global constants */
-/********************/
-#define MPD_TRUE  (1==1)
-#define MPD_FALSE (0==1)
-#define MPD_DEFAULT_NUM_ITER   ULONG_MAX
-#define MPD_DEFAULT_SNR        0.0
-#define MPD_ALLOC_BLOCK_SIZE   1000
+char* func = "mpd";
 
 /********************/
 /* Error types      */
@@ -58,9 +52,10 @@ static char *cvsid = "$Revision$";
 #define ERR_BOOK       2
 #define ERR_DICT       3
 #define ERR_SIG        4
-#define ERR_DECAY      5
-#define ERR_OPEN       6
-#define ERR_WRITE      7
+#define ERR_CORE       5
+#define ERR_DECAY      6
+#define ERR_OPEN       7
+#define ERR_WRITE      8
 
 /********************/
 /* Global variables */
@@ -70,14 +65,16 @@ unsigned long int MPD_REPORT_HIT = ULONG_MAX; /* Default: never report during th
 unsigned long int MPD_SAVE_HIT   = ULONG_MAX; /* Default: never save during the main loop. */
 unsigned long int MPD_SNR_HIT    = ULONG_MAX; /* Default: never test the snr during the main loop. */
 
-int MPD_QUIET      = MPD_FALSE;
-int MPD_VERBOSE    = MPD_FALSE;
+int MPD_QUIET      = MP_FALSE;
+int MPD_VERBOSE    = MP_FALSE;
 
+#define MPD_DEFAULT_NUM_ITER   ULONG_MAX
 unsigned long int MPD_NUM_ITER = MPD_DEFAULT_NUM_ITER;
-int MPD_USE_ITER = MPD_FALSE;
+int MPD_USE_ITER = MP_FALSE;
 
+#define MPD_DEFAULT_SNR        0.0
 double MPD_SNR  = MPD_DEFAULT_SNR;
-int MPD_USE_SNR = MPD_FALSE;
+int MPD_USE_SNR = MP_FALSE;
 
 double MPD_PREEMP = 0.0;
 
@@ -170,181 +167,145 @@ int parse_args(int argc, char **argv) {
 
 
     case 'D':
-#ifndef NDEBUG
-      fprintf( stderr, "mpd DEBUG -- switch -D : optarg is [%s].\n", optarg );
-#endif
+      mp_debug_msg( MP_DEBUG_PARSE_ARGS, func, "switch -D : optarg is [%s].\n", optarg );
       if (optarg == NULL) {
-	fprintf( stderr, "mpd error -- After switch -D or switch --dictionary=.\n" );
-	fprintf( stderr, "mpd error -- the argument is NULL.\n" );
-	fprintf( stderr, "mpd error -- (Did you use --dictionary without the '=' character ?).\n" );
+	mp_error_msg( func, "After switch -D or switch --dictionary=.\n" );
+	mp_error_msg( func, "the argument is NULL.\n" );
+	mp_error_msg( func, "(Did you use --dictionary without the '=' character ?).\n" );
 	return( ERR_ARG );
       }
       else dictFileName = optarg;
-#ifndef NDEBUG
-      fprintf( stderr, "mpd DEBUG -- Read dictionary file name [%s].\n", dictFileName );
-#endif
+      mp_debug_msg( MP_DEBUG_PARSE_ARGS, func, "Read dictionary file name [%s].\n", dictFileName );
       break;
 
 
     case 'E':
-#ifndef NDEBUG
-      fprintf( stderr, "mpd DEBUG -- switch -E : optarg is [%s].\n", optarg );
-#endif
+      mp_debug_msg( MP_DEBUG_PARSE_ARGS, func, "switch -E : optarg is [%s].\n", optarg );
       if (optarg == NULL) {
-	fprintf( stderr, "mpd error -- After switch -E or switch --energy-decay= :\n" );
-	fprintf( stderr, "mpd error -- the argument is NULL.\n" );
-	fprintf( stderr, "mpd error -- (Did you use --energy-decay without the '=' character ?).\n" );
+	mp_error_msg( func, "After switch -E or switch --energy-decay= :\n" );
+	mp_error_msg( func, "the argument is NULL.\n" );
+	mp_error_msg( func, "(Did you use --energy-decay without the '=' character ?).\n" );
 	return( ERR_ARG );
       }
       else decayFileName = optarg;
-#ifndef NDEBUG
-      fprintf( stderr, "mpd DEBUG -- Read decay file name [%s].\n", decayFileName );
-#endif
+      mp_debug_msg( MP_DEBUG_PARSE_ARGS, func, "Read decay file name [%s].\n", decayFileName );
       break;
 
 
     case 'R':
-#ifndef NDEBUG
-      fprintf( stderr, "mpd DEBUG -- switch -R : optarg is [%s].\n", optarg );
-#endif
+      mp_debug_msg( MP_DEBUG_PARSE_ARGS, func, "switch -R : optarg is [%s].\n", optarg );
       if (optarg == NULL) {
-	fprintf( stderr, "mpd error -- After switch -R or switch --report-hit= :\n" );
-	fprintf( stderr, "mpd error -- the argument is NULL.\n" );
-	fprintf( stderr, "mpd error -- (Did you use --report-hit without the '=' character ?).\n" );
+	mp_error_msg( func, "After switch -R or switch --report-hit= :\n" );
+	mp_error_msg( func, "the argument is NULL.\n" );
+	mp_error_msg( func, "(Did you use --report-hit without the '=' character ?).\n" );
 	return( ERR_ARG );
       }
       else MPD_REPORT_HIT = strtoul(optarg, &p, 10);
       if ( (p == optarg) || (*p != 0) ) {
-	fprintf( stderr, "mpd error -- After switch -R or switch --report-hit= :\n" );
-        fprintf( stderr, "mpd error -- failed to convert argument [%s] to an unsigned long value.\n",
+	mp_error_msg( func, "After switch -R or switch --report-hit= :\n" );
+        mp_error_msg( func, "failed to convert argument [%s] to an unsigned long value.\n",
 		 optarg );
         return( ERR_ARG );
       }
-#ifndef NDEBUG
-      fprintf( stderr, "mpd DEBUG -- Read report hit [%lu].\n", MPD_REPORT_HIT );
-#endif
+      mp_debug_msg( MP_DEBUG_PARSE_ARGS, func, "Read report hit [%lu].\n", MPD_REPORT_HIT );
       break;
 
 
     case 'S':
-#ifndef NDEBUG
-      fprintf( stderr, "mpd DEBUG -- switch -S : optarg is [%s].\n", optarg );
-#endif
+      mp_debug_msg( MP_DEBUG_PARSE_ARGS, func, "switch -S : optarg is [%s].\n", optarg );
       if (optarg == NULL) {
-	fprintf( stderr, "mpd error -- After switch -S or switch --save-hit= :\n" );
-	fprintf( stderr, "mpd error -- the argument is NULL.\n" );
-	fprintf( stderr, "mpd error -- (Did you use --save-hit without the '=' character ?).\n" );
+	mp_error_msg( func, "After switch -S or switch --save-hit= :\n" );
+	mp_error_msg( func, "the argument is NULL.\n" );
+	mp_error_msg( func, "(Did you use --save-hit without the '=' character ?).\n" );
 	return( ERR_ARG );
       }
       else MPD_SAVE_HIT = strtoul(optarg, &p, 10);
       if ( (p == optarg) || (*p != 0) ) {
-	fprintf( stderr, "mpd error -- After switch -S or switch --save-hit= :\n" );
-        fprintf( stderr, "mpd error -- failed to convert argument [%s] to an unsigned long value.\n",
+	mp_error_msg( func, "After switch -S or switch --save-hit= :\n" );
+        mp_error_msg( func, "failed to convert argument [%s] to an unsigned long value.\n",
 		 optarg );
         return( ERR_ARG );
       }
-#ifndef NDEBUG
-      fprintf( stderr, "mpd DEBUG -- Read save hit [%lu].\n", MPD_SAVE_HIT );
-#endif
+      mp_debug_msg( MP_DEBUG_PARSE_ARGS, func, "Read save hit [%lu].\n", MPD_SAVE_HIT );
       break;
 
 
     case 'T':
-#ifndef NDEBUG
-      fprintf( stderr, "mpd DEBUG -- switch -T : optarg is [%s].\n", optarg );
-#endif
+      mp_debug_msg( MP_DEBUG_PARSE_ARGS, func, "switch -T : optarg is [%s].\n", optarg );
       if (optarg == NULL) {
-	fprintf( stderr, "mpd error -- After switch -T or switch --snr-hit= :\n" );
-	fprintf( stderr, "mpd error -- the argument is NULL.\n" );
-	fprintf( stderr, "mpd error -- (Did you use --snr-hit without the '=' character ?).\n" );
+	mp_error_msg( func, "After switch -T or switch --snr-hit= :\n" );
+	mp_error_msg( func, "the argument is NULL.\n" );
+	mp_error_msg( func, "(Did you use --snr-hit without the '=' character ?).\n" );
 	return( ERR_ARG );
       }
       else MPD_SNR_HIT = strtoul(optarg, &p, 10);
       if ( (p == optarg) || (*p != 0) ) {
-	fprintf( stderr, "mpd error -- After switch -T or switch --snr-hit= :\n" );
-        fprintf( stderr, "mpd error -- failed to convert argument [%s] to an unsigned long value.\n",
+	mp_error_msg( func, "After switch -T or switch --snr-hit= :\n" );
+        mp_error_msg( func, "failed to convert argument [%s] to an unsigned long value.\n",
 		 optarg );
         return( ERR_ARG );
       }
-#ifndef NDEBUG
-      fprintf( stderr, "mpd DEBUG -- Read snr hit [%lu].\n", MPD_SNR_HIT );
-#endif
+      mp_debug_msg( MP_DEBUG_PARSE_ARGS, func, "Read snr hit [%lu].\n", MPD_SNR_HIT );
       break;
 
 
 
     case 'n':
-#ifndef NDEBUG
-      fprintf( stderr, "mpd DEBUG -- switch -n : optarg is [%s].\n", optarg );
-#endif
+      mp_debug_msg( MP_DEBUG_PARSE_ARGS, func, "switch -n : optarg is [%s].\n", optarg );
       if (optarg == NULL) {
-        fprintf( stderr, "mpd error -- After switch -n/--num-iter=/--num-atom= :\n" );
-	fprintf( stderr, "mpd error -- the argument is NULL.\n" );
-	fprintf( stderr, "mpd error -- (Did you use --numiter or --numatom without the '=' character ?).\n" );
-	fflush( stderr );
+        mp_error_msg( func, "After switch -n/--num-iter=/--num-atom= :\n" );
+	mp_error_msg( func, "the argument is NULL.\n" );
+	mp_error_msg( func, "(Did you use --numiter or --numatom without the '=' character ?).\n" );
 	return( ERR_ARG );
       }
       else MPD_NUM_ITER = strtoul(optarg, &p, 10);
       if ( (p == optarg) || (*p != 0) ) {
-        fprintf( stderr, "mpd error -- After switch -n/--num-iter=/--num-atom= :\n" );
-	fprintf( stderr, "mpd error -- failed to convert argument [%s] to an unsigned long value.\n",
+        mp_error_msg( func, "After switch -n/--num-iter=/--num-atom= :\n" );
+	mp_error_msg( func, "failed to convert argument [%s] to an unsigned long value.\n",
 		 optarg );
         return( ERR_ARG );
       }
-      MPD_USE_ITER = MPD_TRUE;
-#ifndef NDEBUG
-      fprintf( stderr, "mpd DEBUG -- Read numIter [%lu].\n", MPD_NUM_ITER );
-#endif
+      MPD_USE_ITER = MP_TRUE;
+      mp_debug_msg( MP_DEBUG_PARSE_ARGS, func, "Read numIter [%lu].\n", MPD_NUM_ITER );
       break;
 
 
     case 'p':
-#ifndef NDEBUG
-      fprintf( stderr, "mpd DEBUG -- switch -p : optarg is [%s].\n", optarg );
-#endif
+      mp_debug_msg( MP_DEBUG_PARSE_ARGS, func, "switch -p : optarg is [%s].\n", optarg );
       if (optarg == NULL) {
-	fprintf( stderr, "mpd error -- After switch -p/--preemp= :\n" );
-	fprintf( stderr, "mpd error -- the argument is NULL.\n" );
-	fprintf( stderr, "mpd error -- (Did you use --preemp without the '=' character ?).\n" );
-	fflush( stderr );
+	mp_error_msg( func, "After switch -p/--preemp= :\n" );
+	mp_error_msg( func, "the argument is NULL.\n" );
+	mp_error_msg( func, "(Did you use --preemp without the '=' character ?).\n" );
 	return( ERR_ARG );
       }
       else MPD_PREEMP = strtod(optarg, &p);
       if ( (p == optarg) || (*p != 0) ) {
-        fprintf( stderr, "mpd error -- After switch -p/--preemp= :\n" );
-	fprintf( stderr, "mpd error -- failed to convert argument [%s] to a double value.\n",
+        mp_error_msg( func, "After switch -p/--preemp= :\n" );
+	mp_error_msg( func, "failed to convert argument [%s] to a double value.\n",
 		 optarg );
         return( ERR_ARG );
       }
-#ifndef NDEBUG
-      fprintf( stderr, "mpd DEBUG -- Read preemp coeff [%g].\n", MPD_PREEMP );
-#endif
+      mp_debug_msg( MP_DEBUG_PARSE_ARGS, func, "Read preemp coeff [%g].\n", MPD_PREEMP );
       break;
 
 
     case 's':
-#ifndef NDEBUG
-      fprintf( stderr, "mpd DEBUG -- switch -s : optarg is [%s].\n", optarg );
-#endif
+      mp_debug_msg( MP_DEBUG_PARSE_ARGS, func, "switch -s : optarg is [%s].\n", optarg );
       if (optarg == NULL) {
-	fprintf( stderr, "mpd error -- After switch -s/--snr= :\n" );
-	fprintf( stderr, "mpd error -- the argument is NULL.\n" );
-	fprintf( stderr, "mpd error -- (Did you use --snr without the '=' character ?).\n" );
-	fflush( stderr );
+	mp_error_msg( func, "After switch -s/--snr= :\n" );
+	mp_error_msg( func, "the argument is NULL.\n" );
+	mp_error_msg( func, "(Did you use --snr without the '=' character ?).\n" );
 	return( ERR_ARG );
       }
       else MPD_SNR = strtod(optarg, &p);
       if ( (p == optarg) || (*p != 0) ) {
-        fprintf( stderr, "mpd error -- After switch -s/--snr= :\n" );
-	fprintf( stderr, "mpd error -- failed to convert argument [%s] to a double value.\n",
+        mp_error_msg( func, "After switch -s/--snr= :\n" );
+	mp_error_msg( func, "failed to convert argument [%s] to a double value.\n",
 		 optarg );
         return( ERR_ARG );
       }
-      MPD_SNR = pow( 10.0, MPD_SNR/10 ); /* Translate the snr in linear energy scale */
-      MPD_USE_SNR = MPD_TRUE;
-#ifndef NDEBUG
-      fprintf( stderr, "mpd DEBUG -- Read SNR [%g].\n", MPD_SNR );
-#endif
+      MPD_USE_SNR = MP_TRUE;
+      mp_debug_msg( MP_DEBUG_PARSE_ARGS, func, "Read SNR [%g].\n", MPD_SNR );
       break;
 
 
@@ -355,18 +316,14 @@ int parse_args(int argc, char **argv) {
 
 
     case 'q':
-      MPD_QUIET = MPD_TRUE;
-#ifndef NDEBUG
-      fprintf( stderr, "mpd DEBUG -- MPD_QUIET is TRUE.\n" );
-#endif
+      MPD_QUIET = MP_TRUE;
+      mp_debug_msg( MP_DEBUG_PARSE_ARGS, func, "MPD_QUIET is TRUE.\n" );
       break;
 
 
     case 'v':
-      MPD_VERBOSE = MPD_TRUE;
-#ifndef NDEBUG
-      fprintf( stderr, "mpd DEBUG -- MPD_VERBOSE is TRUE.\n" );
-#endif
+      MPD_VERBOSE = MP_TRUE;
+      mp_debug_msg( MP_DEBUG_PARSE_ARGS, func, "MPD_VERBOSE is TRUE.\n" );
       break;
 
 
@@ -377,7 +334,7 @@ int parse_args(int argc, char **argv) {
 
 
     default:
-      fprintf( stderr, "mpd error -- The command line contains the unrecognized option [%s].\n",
+      mp_error_msg( func, "The command line contains the unrecognized option [%s].\n",
 	       argv[optind-1] );
       return( ERR_ARG );
 
@@ -386,35 +343,27 @@ int parse_args(int argc, char **argv) {
   } /* end while */
 
 
-#ifndef NDEBUG
-      fprintf( stderr, "mpd DEBUG -- When exiting getopt, optind is [%d].\n", optind );
-      fprintf( stderr, "mpd DEBUG -- (argc is [%d].)\n", argc );
-#endif
+  mp_debug_msg( MP_DEBUG_PARSE_ARGS, func, "When exiting getopt, optind is [%d].\n", optind );
+  mp_debug_msg( MP_DEBUG_PARSE_ARGS, func, "(argc is [%d].)\n", argc );
 
   /* Check if some file names are following the options */
   if ( (argc-optind) < 1 ) {
-    fprintf(stderr, "mpd error -- You must indicate a file name (or - for stdin) for the signal to analyze.\n");
+    mp_error_msg( func, "You must indicate a file name (or - for stdin) for the signal to analyze.\n");
     return( ERR_ARG );
   }
   if ( (argc-optind) < 2 ) {
-    fprintf(stderr, "mpd error -- You must indicate a file name (or - for stdout) for the book file.\n");
+    mp_error_msg( func, "You must indicate a file name (or - for stdout) for the book file.\n");
     return( ERR_ARG );
   }
 
   /* Read the file names after the options */
   sndFileName = argv[optind++];
-#ifndef NDEBUG
-  fprintf( stderr, "mpd DEBUG -- Read sound file name [%s].\n", sndFileName );
-#endif
+  mp_debug_msg( MP_DEBUG_PARSE_ARGS, func, "Read sound file name [%s].\n", sndFileName );
   bookFileName = argv[optind++];
-#ifndef NDEBUG
-  fprintf( stderr, "mpd DEBUG -- Read book file name [%s].\n", bookFileName );
-#endif
+  mp_debug_msg( MP_DEBUG_PARSE_ARGS, func, "Read book file name [%s].\n", bookFileName );
   if (optind < argc) {
     resFileName = argv[optind++];
-#ifndef NDEBUG
-    fprintf( stderr, "mpd DEBUG -- Read residual file name [%s].\n", resFileName );
-#endif
+    mp_debug_msg( MP_DEBUG_PARSE_ARGS, func, "Read residual file name [%s].\n", resFileName );
   }
 
 
@@ -423,20 +372,20 @@ int parse_args(int argc, char **argv) {
 
   /* Can't have quiet AND verbose (make up your mind, dude !) */
   if ( MPD_QUIET && MPD_VERBOSE ) {
-    fprintf(stderr, "mpd error -- Choose either one of --quiet or --verbose.\n");
+    mp_error_msg( func, "Choose either one of --quiet or --verbose.\n");
     return( ERR_ARG );
   }
 
   /* Was dictionary file name given ? */
   if ( dictFileName == NULL ) {
-    fprintf(stderr, "mpd error -- You must specify a dictionary using switch -D/--dictionary= .\n");
+    mp_error_msg( func, "You must specify a dictionary using switch -D/--dictionary= .\n");
     return( ERR_ARG );
   }
 
   /* Must have one of --num-iter or --snr to tell the algorithm where to stop */
   if ( (!MPD_USE_SNR) && (!MPD_USE_ITER) ) {
-    fprintf(stderr, "mpd error -- You must specify one of : --num-iter=n/--num-atoms=n\n" );
-    fprintf(stderr, "mpd error --                      or   --snr=%%f\n" );
+    mp_error_msg( func, "You must specify one of : --num-iter=n/--num-atoms=n\n" );
+    mp_error_msg( func, "                     or   --snr=%%f\n" );
     return( ERR_ARG );
   }
 
@@ -445,22 +394,23 @@ int parse_args(int argc, char **argv) {
 
   /* If having both --num-iter AND --snr, warn */
   if ( (!MPD_QUIET) && MPD_USE_SNR && MPD_USE_ITER ) {
-    fprintf(stderr, "mpd warning -- The option --num-iter=/--num-atoms= was specified together with the option --snr=.\n" );
-    fprintf(stderr, "mpd warning -- The algorithm will stop when the first of either conditions is reached.\n" );
-    fprintf(stderr, "mpd warning -- (Use --help to get help if this is not what you want.)\n" );
+    mp_warning_msg( func, "The option --num-iter=/--num-atoms= was specified together with the option --snr=.\n" );
+    mp_warning_msg( func, "The algorithm will stop when the first of either conditions is reached.\n" );
+    mp_warning_msg( func, "(Use --help to get help if this is not what you want.)\n" );
   }
 
-  return(0);
+  return( 0 );
 }
 
 
 /**************************************************/
 /* GLOBAL FUNCTIONS                               */
 /**************************************************/
-void free_mem( MP_Book_c* book, MP_Dict_c* dict, double* decay ) {
-  if ( book )  delete book;
+void free_mem( MP_Dict_c* dict, MP_Signal_c* sig, MP_Book_c* book, MP_Mpd_Core_c* mpdCore ) {
   if ( dict )  delete dict;
-  if ( decay ) free( decay );
+  if ( sig  )  delete sig;
+  if ( book )  delete book;
+  if ( mpdCore ) delete mpdCore;
 }
 
 
@@ -470,24 +420,11 @@ void free_mem( MP_Book_c* book, MP_Dict_c* dict, double* decay ) {
 int main( int argc, char **argv ) {
 
   MP_Dict_c  *dict = NULL;
+  MP_Signal_c *sig = NULL;
   MP_Book_c *book = NULL;
-
-  double *decay = NULL;
-  double *newDecay = NULL;
-  unsigned long int decaySize = 0;
-  FILE *decayFID;
-  unsigned long int nWrite = 0;
+  MP_Mpd_Core_c *mpdCore = NULL;
 
   unsigned long int i;
-
-  double residualEnergy = 0.0;
-  double initialEnergy  = 0.0;
-  double currentSnr = MPD_DEFAULT_SNR;
-
-  unsigned long int nextReportHit = 0;
-  unsigned long int nextSaveHit = 0;
-  unsigned long int nextSnrHit = 0;
-
 
   /**************************************************/
   /* PRELIMINARIES                                  */
@@ -496,242 +433,126 @@ int main( int argc, char **argv ) {
   /* Parse the command line */
   if ( argc == 1 ) usage();
   if ( parse_args( argc, argv ) ) {
-    fprintf (stderr, "mpd error -- Please check the syntax of your command line."
-	     " (Use --help to get some help.)\n" );
-    fflush( stderr );
+    mp_error_msg( func, "Please check the syntax of your command line."
+		  " (Use --help to get some help.)\n" );
     exit( ERR_ARG );
   }
 
-  if ( !MPD_QUIET ) nextReportHit = MPD_REPORT_HIT;
-  else              nextReportHit = ULONG_MAX; /* If quiet, never report */
-
-  nextSaveHit = MPD_SAVE_HIT;
-
-  if ( MPD_USE_SNR ) nextSnrHit = MPD_SNR_HIT - 1;
-  else               nextSnrHit = ULONG_MAX;
-
   /* Re-print the command line */
   if ( !MPD_QUIET ) {
-    fprintf( stderr, "mpd msg -- ------------------------------------\n" );
-    fprintf( stderr, "mpd msg -- MPD - MATCHING PURSUIT DECOMPOSITION\n" );
-    fprintf( stderr, "mpd msg -- ------------------------------------\n" );
-    fprintf( stderr, "mpd msg -- The command line was:\n" );
+    mp_info_msg( func, "------------------------------------\n" );
+    mp_info_msg( func, "MPD - MATCHING PURSUIT DECOMPOSITION\n" );
+    mp_info_msg( func, "------------------------------------\n" );
+    mp_info_msg( func, "The command line was:\n" );
     for ( i=0; i<(unsigned long int)argc; i++ ) {
       fprintf( stderr, "%s ", argv[i] );
     }
-    fprintf( stderr, "\nmpd msg -- End command line.\n" );
-    fflush( stderr );
+    fprintf( stderr, "\n"); fflush( stderr );
+    mp_info_msg( func, "End command line.\n" );
   }
+  
+  /********************************/
+  /* Make the manipulated objects */
 
-  /* Make the book */
-  book = MP_Book_c::init();
-  if ( book == NULL ) {
-    fprintf( stderr, "mpd error -- Failed to create a new book.\n" );
-    free_mem( book, dict, decay );
-    return( ERR_BOOK );
-  }
-
+  /****/
   /* Load the dictionary */
-  if ( !MPD_QUIET ) fprintf( stderr, "mpd msg -- Loading the dictionary...\n" ); fflush( stderr );
+  if ( !MPD_QUIET ) mp_info_msg( func, "Loading the dictionary...\n" );
   /* Add the blocks to the dictionnary */
-  if ( !MPD_QUIET ) fprintf( stderr, "mpd msg -- (In the following, spurious output of dictionary pieces"
-			     " would be a symptom of parsing errors.)\n" ); fflush( stderr );
+  if ( !MPD_QUIET ) mp_info_msg( func, "(In the following, spurious output of dictionary pieces"
+				 " would be a symptom of parsing errors.)\n" );
   dict = MP_Dict_c::init( dictFileName );
   if ( dict == NULL ) {
-    fprintf( stderr, "mpd error -- Failed to create a dictionary from XML file [%s].\n",
+    mp_error_msg( func, "Failed to create a dictionary from XML file [%s].\n",
 	     dictFileName );
-    free_mem( book, dict, decay );
+    free_mem( dict, sig, book, mpdCore );
     return( ERR_DICT );
   }
-  if ( !MPD_QUIET ) fprintf( stderr, "mpd msg -- The dictionary is now loaded.\n" );
-  /* Load and hook the signal */
-  if ( !MPD_QUIET ) fprintf( stderr, "mpd msg -- Loading the signal...\n" ); fflush( stderr );
-  if ( dict->copy_signal( sndFileName ) ) {
-    fprintf( stderr, "mpd error -- Failed to read/copy a signal from file [%s].\n",
-	     sndFileName );
-    free_mem( book, dict, decay );
+  if ( !MPD_QUIET ) mp_info_msg( func, "The dictionary is now loaded.\n" );
+
+  /****/
+  /* Load the signal */
+  if ( !MPD_QUIET ) mp_info_msg( func, "Loading the signal...\n" );
+  sig = MP_Signal_c::init( sndFileName );
+  if ( sig == NULL ) {
+    mp_error_msg( func, "Failed to initialize a signal from file [%s].\n",
+		  sndFileName );
+    free_mem( dict, sig, book, mpdCore );
     return( ERR_SIG );
   }
   /* Pre-emphasize the signal if needed */
   if (MPD_PREEMP != 0.0) {
-    if ( MPD_VERBOSE ) { fprintf( stderr, "mpd msg -- Pre-emphasizing the signal..." ); fflush( stderr ); }
-    dict->signal->preemp( MPD_PREEMP );
-    if ( MPD_VERBOSE ) { fprintf( stderr, "Done.\n" ); fflush( stderr ); }
+    if ( MPD_VERBOSE ) mp_info_msg( func, "Pre-emphasizing the signal...\n" );
+    sig->preemp( MPD_PREEMP );
+    if ( MPD_VERBOSE ) mp_info_msg( func, "Pre-emphasis done.\n" );
   }
-  if ( !MPD_QUIET ) fprintf( stderr, "mpd msg -- The signal is now loaded.\n" ); fflush( stderr );
+  if ( !MPD_QUIET ) mp_info_msg( func, "The signal is now loaded.\n" );
+
+  /****/
+  /* Make the book */
+  book = MP_Book_c::init();
+  if ( book == NULL ) {
+    mp_error_msg( func, "Failed to create a new book.\n" );
+    free_mem( dict, sig, book, mpdCore );
+    return( ERR_BOOK );
+  }
+  /* Set the book's sampling rate */
+  book->sampleRate = sig->sampleRate;
+
+  /****/
+  /* Make the mpdCore */
+  mpdCore = MP_Mpd_Core_c::init( sig, book, dict );
+  if ( mpdCore == NULL ) {
+    mp_error_msg( func, "Failed to create a MPD core object.\n" );
+    free_mem( dict, sig, book, mpdCore );
+    return( ERR_CORE );
+  }
+  if ( MPD_USE_ITER ) mpdCore->set_iter_condition( MPD_NUM_ITER );
+  if ( MPD_USE_SNR  ) mpdCore->set_snr_condition( MPD_SNR );
+
+  /****/
   /* Report */
   if ( MPD_VERBOSE ) {
-    fprintf( stderr, "mpd msg -- The dictionary read from file [%s] contains [%u] blocks:\n",
-	     dictFileName, dict->numBlocks );
+    mp_info_msg( func, "The dictionary read from file [%s] contains [%u] blocks:\n",
+		 dictFileName, dict->numBlocks );
     for ( i = 0; i < dict->numBlocks; i++ ) dict->block[i]->info( stderr );
-    fprintf( stderr, "mpd msg -- End of dictionary.\n" );
-    fprintf( stderr, "mpd msg -- The signal loaded from file [%s] has:\n", sndFileName );
-    dict->signal->info( stderr );
+    mp_info_msg( func, "End of dictionary.\n" );
+    mp_info_msg( func, "The signal loaded from file [%s] has:\n", sndFileName );
+    sig->info();
   }
 
-  /* Allocate some storage for the decay of the energy  */
-  if ( decayFileName ) {
-    if ( MPD_USE_ITER ) {
-      decay = (double*)malloc( (MPD_NUM_ITER+1)*sizeof(double) );
-      decaySize = MPD_NUM_ITER;
-    }
-    else {
-      decay = (double*)malloc( (MPD_ALLOC_BLOCK_SIZE+1)*sizeof(double) );
-      decaySize = MPD_ALLOC_BLOCK_SIZE;
-    }
-    if ( decay == NULL ) {
-      fprintf( stderr, "mpd error -- Failed to allocate a decay array of [%lu] doubles.\n", decaySize+1 );
-      free_mem( book, dict, decay );
-      return( ERR_DECAY );
-    }
-    else for ( i = 0; i < (decaySize+1); i++ ) *(decay+i) = 0.0;
-  }
+  /****/
+  /* Set the breakpoints and other parameters */
+  if ( !MPD_QUIET ) mpdCore->set_report_hit( MPD_REPORT_HIT );
+  mpdCore->set_save_hit( MPD_SAVE_HIT, bookFileName, resFileName, decayFileName );
+  if ( MPD_USE_SNR ) mpdCore->set_snr_hit( MPD_SNR_HIT );
+  mpdCore->verbose = MPD_VERBOSE;
 
+  /******************/
   /* Initial report */
   if ( !MPD_QUIET ) {
-    fprintf( stderr, "mpd msg -- -------------------------\n" );
-    fprintf( stderr, "mpd msg -- Starting Matching Pursuit on signal [%s] with dictionary [%s].\n",
-	     sndFileName, dictFileName );
-    fprintf( stderr, "mpd msg -- -------------------------\n" );
-    if ( MPD_USE_ITER ) fprintf( stderr, "mpd msg -- This run will perform [%lu] iterations, using [%lu] atoms.\n",
-				 MPD_NUM_ITER, dict->size() );
-    if ( MPD_USE_SNR ) fprintf( stderr, "mpd msg -- This run will iterate until the SNR goes above [%g], using [%lu] atoms.\n",
-				10*log10(MPD_SNR), dict->size() );
-    if ( MPD_VERBOSE ) {
-      fprintf( stderr, "mpd msg -- The resulting book will be written to book file [%s].\n", bookFileName );
-      if ( resFileName ) fprintf( stderr, "mpd msg -- The residual will be written to file [%s].\n", resFileName );
-      else fprintf( stderr, "mpd msg -- The residual will not be saved.\n" );
-      if ( decayFileName ) fprintf( stderr, "mpd msg -- The energy decay will be written to file [%s].\n", decayFileName );
-      else fprintf( stderr, "mpd msg -- The energy decay will not be saved.\n" );
-    }
-    fflush( stderr );
+    mp_info_msg( func, "-------------------------\n" );
+    mp_info_msg( func, "Starting Matching Pursuit on signal [%s] with dictionary [%s].\n",
+		 sndFileName, dictFileName );
+    mp_info_msg( func, "-------------------------\n" );
+    mpdCore->info_conditions();
   }
-  
-  /* Set the book number of samples and sampling rate */
-  book->numSamples = dict->signal->numSamples;
-  book->sampleRate = dict->signal->sampleRate;
-
-  /* Start storing the residual energy */
-  residualEnergy = initialEnergy = (double)dict->signal->energy;
-  if ( decay ) decay[0] = initialEnergy;
-  if ( !MPD_QUIET ) {
-    fprintf( stderr, "mpd msg -- The initial signal energy is : %g\n", initialEnergy );
-    fflush( stderr );
-  }
-
 
   /**************************************************/
   /* MAIN PURSUIT LOOP                              */
   /**************************************************/
 
   /* Report */
-  if ( !MPD_QUIET ) { fprintf( stderr, "mpd msg -- STARTING TO ITERATE\n" ); fflush( stderr ); }
+  if ( !MPD_QUIET ) {
+    mp_info_msg( func, "The initial signal energy is : %g\n", mpdCore->initialEnergy );
+    mp_info_msg( func, "STARTING TO ITERATE\n" );
+  }
 
   /* Start the pursuit */
-  for ( i = 0; ((i < MPD_NUM_ITER) && (currentSnr <= MPD_SNR) && (residualEnergy > 0.0)); i++ ) {
+  mpdCore->run();
 
-#ifndef NDEBUG
-    fprintf( stderr, "mpd DEBUG -- ENTERING iteration [%lu]/[%lu].\n", i, MPD_NUM_ITER );
-    fprintf( stderr, "mpd DEBUG -- Next report hit is [%lu].\n", nextReportHit );
-    fprintf( stderr, "mpd DEBUG -- Next save hit is   [%lu].\n", nextSaveHit );
-    fprintf( stderr, "mpd DEBUG -- Next snr hit is    [%lu].\n", nextSnrHit );
-    fprintf( stderr, "mpd DEBUG -- SNR is [%g]/[%g].\n", currentSnr, MPD_SNR );
-    fflush( stderr );
-#endif
+  /* Report */
+  if ( !MPD_QUIET ) mpdCore->info_state();
 
-    /* ---- Actual iteration */
-    dict->iterate_mp( book , NULL );
-    residualEnergy = (double)dict->signal->energy;
-    /* Note: the residual energy may go negative when you use
-       monstruous SNRs or too many iterations. */
-
-    /* ---- Save the decay/compute the snr if needed */
-    if ( decay ) {
-      /* Increase the array size if needed */
-      if ( i == decaySize ) {
-#ifndef NDEBUG
-	fprintf( stderr, " Reallocating the decay.\n" );
-	fflush( stderr );
-#endif
-	decaySize += MPD_ALLOC_BLOCK_SIZE;
-	newDecay = (double*) realloc( decay, (decaySize+1)*sizeof(double) );
-	if ( newDecay == NULL ) {
-	  fprintf( stderr, "mpd error -- Failed to re-allocate the decay array to store [%lu] doubles.\n",
-		   decaySize+1 );
-	  free_mem( book, dict, decay );
-	  return( ERR_DECAY );
-	}
-	else decay = newDecay;
-      }
-      /* Store the value */
-      decay[i+1] = residualEnergy;
-    }
-
-    if ( i == nextSnrHit ) {
-      currentSnr = ( initialEnergy / residualEnergy );
-      nextSnrHit += MPD_SNR_HIT;
-    }
-
-    /* ---- Report */
-    if ( i == nextReportHit ) {
-      fprintf( stderr, "mpd progress -- At iteration [%lu] : the residual energy is [%g] and the SNR is [%g].\n",
-	       i, residualEnergy, 10*log10( initialEnergy / residualEnergy ) );
-      fflush( stderr );
-      nextReportHit += MPD_REPORT_HIT;
-    }
-
-    /* ---- Save */
-    if ( i == nextSaveHit ) {
-      /* - the book: */
-      if ( strcmp( bookFileName, "-" ) != 0 ) {
-	book->print( bookFileName, MP_BINARY);
-	if ( MPD_VERBOSE ) fprintf( stderr, "mpd msg -- At iteration [%lu] : saved the book.\n", i );	  
-      }
-      /* - the residual: */
-      if ( resFileName ) {
-	dict->signal->wavwrite( resFileName );
-	if ( MPD_VERBOSE ) fprintf( stderr, "mpd msg -- At iteration [%lu] : saved the residual.\n", i );	  
-      }
-      /* - the decay: */
-      if ( decayFileName ) {
-	if ( (decayFID = fopen( decayFileName, "w" )) == NULL ) {
-	  fprintf( stderr, "mpd error -- Failed to open the energy decay file [%s] for writing.\n",
-		   decayFileName );
-	  free_mem( book, dict, decay );
-	  return( ERR_OPEN );
-	}
-	else {
-	  nWrite = mp_fwrite( decay, sizeof(double), i+1, decayFID );
-	  fclose( decayFID );
-	  if (nWrite != (i+1)) {
-	    fprintf( stderr, "mpd warning -- Wrote less than the expected number of doubles to the energy decay file.\n" );
-	    fprintf( stderr, "mpd warning -- ([%lu] expected, [%lu] written.)\n", i+1, nWrite );
-	  }
-	}
-	if ( MPD_VERBOSE ) fprintf( stderr, "mpd msg -- At iteration [%lu] : saved the energy decay.\n", i );	  
-      }
-      /* Compute the next save hit */
-      nextSaveHit += MPD_SAVE_HIT;
-    }
-
-#ifndef NDEBUG
-    fprintf( stderr, "mpd DEBUG -- EXITING iteration  [%lu]/[%lu].\n", i, MPD_NUM_ITER );
-    fprintf( stderr, "mpd DEBUG -- Next report hit is [%lu].\n", nextReportHit );
-    fprintf( stderr, "mpd DEBUG -- Next save hit is   [%lu].\n", nextSaveHit );
-    fprintf( stderr, "mpd DEBUG -- Next snr hit is    [%lu].\n", nextSnrHit );
-    fprintf( stderr, "mpd DEBUG -- SNR is [%g]/[%g].\n", currentSnr, MPD_SNR );
-    fflush( stderr );
-#endif
-
-  }
-  if ( !MPD_QUIET ) fprintf( stderr, "mpd msg -- [%lu] ITERATIONS DONE.\n", i );
-
-  if ( (!MPD_QUIET) && (residualEnergy < 0.0) ) {
-      fprintf( stderr, "mpd warning -- The loop has stopped because a negative residual energy has been encountered.\n" );
-      fprintf( stderr, "mpd warning -- You have gone close to the machine precision. On the next run, you should use\n" );
-      fprintf( stderr, "mpd warning -- less iterations or a lower SNR .\n" );
-      fflush( stderr );
-  }
   /*********************/
   
 
@@ -742,61 +563,27 @@ int main( int argc, char **argv ) {
   /**************/
   /* End report */
   if ( !MPD_QUIET ) {
-    fprintf( stderr, "mpd msg -- ------------------------\n" );
-    fprintf( stderr, "mpd msg -- MATCHING PURSUIT RESULTS:\n" );
-    fprintf( stderr, "mpd msg -- ------------------------\n" );
-    fprintf( stderr, "mpd result -- [%lu] iterations have been performed.\n", i );
-    fprintf( stderr, "mpd result -- ([%lu] atoms have been selected out of the [%lu] atoms of the dictionary.)\n",
-	     i, dict->size() );
-    fprintf( stderr, "mpd result -- The initial signal energy was [%g].\n", initialEnergy );
-    residualEnergy = dict->signal->energy;
-    fprintf( stderr, "mpd result -- The residual energy is now [%g].\n", residualEnergy );
-    currentSnr = 10*log10( initialEnergy / residualEnergy );
-    fprintf( stderr, "mpd result -- The SNR is now [%g].\n", currentSnr );
-    fflush( stderr );
+    mp_info_msg( func, "------------------------\n" );
+    mp_info_msg( func, "MATCHING PURSUIT RESULTS:\n" );
+    mp_info_msg( func, "------------------------\n" );
+    mpdCore->info_result();
   }
 
   /***************************/
   /* Global save at the end: */
-  /* - the residual: */
-  if ( resFileName ) {
-    dict->signal->wavwrite( resFileName );
-    if ( MPD_VERBOSE ) fprintf( stderr, "mpd msg -- Saved the residual.\n" );	  
-  }
-  /* - the book: */
-  if ( strcmp( bookFileName, "-" ) != 0 ) {
-    book->print( bookFileName, MP_BINARY);
-    if ( MPD_VERBOSE ) fprintf( stderr, "mpd msg -- Saved the book in binary mode.\n" );	  
-  }
-  else {
-    book->print( stdout, MP_TEXT );
-    fflush( stdout );
-    if ( MPD_VERBOSE ) fprintf( stderr, "mpd msg -- Sent the book to stdout in text mode.\n" );	  
-  }
-  /* - the decay: */
-  if ( decayFileName ) {
-    if ( (decayFID = fopen( decayFileName, "w" )) == NULL ) {
-      fprintf( stderr, "mpd error -- Failed to open the energy decay file [%s] for writing.\n",
-	       decayFileName );
-      free_mem( book, dict, decay );
-      return( ERR_OPEN );
-    }
-    else {
-      nWrite = mp_fwrite( decay, sizeof(double), i+1, decayFID );
-      fclose( decayFID );
-      if (nWrite != (i+1)) {
-	fprintf( stderr, "mpd warning -- Wrote less than the expected number of doubles to the energy decay file.\n" );
-	fprintf( stderr, "mpd warning -- ([%lu] expected, [%lu] written.)\n", i+1, nWrite );
-      }
-    }
-    if ( MPD_VERBOSE ) fprintf( stderr, "mpd msg -- Saved the energy decay.\n" );	  
+  mpdCore->save_result();
+  /* If the book has to be sent to stdin: */
+  if ( strcmp( bookFileName, "-" ) == 0 ) {
+    book->print( stdout, MP_TEXT ); fflush( stdout );
+    if ( MPD_VERBOSE ) mp_info_msg( func, "Sent the book to stdout in text mode.\n" );
   }
 
   /*******************/
   /* Clean the house */
-  free_mem( book, dict, decay );
+  free_mem( dict, sig, book, mpdCore );
 
-  if ( !MPD_QUIET ) fprintf( stderr, "mpd msg -- Have a nice day !\n" );
+  if ( !MPD_QUIET ) mp_info_msg( func, "Have a nice day !\n" );
+
   fflush( stderr );
   fflush( stdout );
 
