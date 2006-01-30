@@ -171,7 +171,8 @@ public:
    * (equivalent to a pass by value). Any previously present signal
    * will be replaced.
    *
-   * \param setSignal the signal to store into the dictionary
+   * \param setSignal the signal to store into the dictionary.
+   * (NULL resets any signal-related info in the dictionary.)
    *
    * \return nonzero in case of failure, zero otherwise.
    */
@@ -196,10 +197,19 @@ public:
    * will be replaced.
    *
    * \param setSignal the signal to reference into the dictionary
+   * (NULL resets any signal-related info in the dictionary.)
    *
    * \return nonzero in case of failure, zero otherwise.
    */
   int plug_signal( MP_Signal_c *setSignal );
+
+  /** \brief Detach the signal from the dictionary, and reset
+   * the dictionary signal to NULL.
+   *
+   * \return The signal which was formerly plugged/copied
+   * into the dictionary.
+   */
+  MP_Signal_c* detach_signal( void );
 
 
 private:

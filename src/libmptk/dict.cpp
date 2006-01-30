@@ -375,6 +375,7 @@ int MP_Dict_c::copy_signal( MP_Signal_c *setSignal ) {
   unsigned int i;
   int check = 0;
 
+  if ( signal ) { delete( signal ); signal = NULL; }
   if ( setSignal != NULL ) {
     signal = new MP_Signal_c( *setSignal );
     sigMode = MP_DICT_INTERNAL_SIGNAL;
@@ -417,8 +418,12 @@ int MP_Dict_c::copy_signal( const char *fName ) {
   unsigned int i;
   int check = 0;
 
-  assert( fName != NULL );
+  if( fName == NULL ) {
+    mp_error_msg( func, "Passed a NULL string for the file name.\n" );
+    return( 1 );
+  }
 
+  if ( signal ) { delete( signal ); signal = NULL; }
   signal = MP_Signal_c::init( fName );
   if ( signal == NULL ) {
     mp_error_msg( func, "Failed to instantiate a signal from file [%s]\n",
@@ -490,6 +495,18 @@ int MP_Dict_c::plug_signal( MP_Signal_c *setSignal ) {
   }
 
   return( check );
+}
+
+
+/*****************************************/
+/* Detach the signal from the dictionary */
+MP_Signal_c* MP_Dict_c::detach_signal( void ) {
+
+  MP_Signal_c *s = signal;
+
+  plug_signal( NULL );
+
+  return( s );
 }
 
 
