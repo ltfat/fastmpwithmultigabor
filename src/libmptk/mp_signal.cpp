@@ -274,7 +274,9 @@ MP_Signal_c::MP_Signal_c( const MP_Signal_c &from ) {
     return;
   }
   else {
-    memcpy( storage, from.storage, numChans*numSamples*sizeof(MP_Sample_t) );
+    int i;
+    for ( i = 0; i < from.numChans; i++ )
+      memcpy( channel[i], from.channel[i], numSamples*sizeof(MP_Sample_t) );
     energy = from.energy;
   }
 
@@ -730,4 +732,39 @@ MP_Signal_c& MP_Signal_c::operator=( const MP_Signal_c& from ) {
   mp_debug_msg( MP_DEBUG_FUNC_EXIT, "MP_Signal_c::operator=()", "Assignment done.\n" );
 
   return( *this );
+}
+
+
+/*******************/
+/* == (COMPARISON) */
+MP_Bool_t MP_Signal_c::operator==( const MP_Signal_c& s1 ) {
+
+  int chanIdx;
+  unsigned long int i;
+
+  if ( numChans != s1.numChans )     return ( (MP_Bool_t)( MP_FALSE ) );
+  if ( numSamples != s1.numSamples ) return ( (MP_Bool_t)( MP_FALSE ) );
+  if ( sampleRate != s1.sampleRate ) return ( (MP_Bool_t)( MP_FALSE ) );
+  //if ( energy != s1.energy )         return ( (MP_Bool_t)( MP_FALSE ) );
+  /* Note: the energy test is optional. Normally, if the samples are the same
+     (tested below), the energy should be synchronized as well, unless
+     something is screwed up somewhere else in the code. */
+
+  /* Browse until different sample values are found */
+  for ( chanIdx = 0; chanIdx < numChans; chanIdx++ ) {
+    for ( i = 0;
+	  (i < numSamples) && ( channel[chanIdx][i] == s1.channel[chanIdx][i] );
+	  i++ );
+    /* And check where the loop stopped: */
+    if ( i != numSamples ) return( (MP_Bool_t)( MP_FALSE ) );
+  }
+  
+  return( (MP_Bool_t)( MP_TRUE ) );
+}
+
+
+/***********************/
+/* != (NEG COMPARISON) */
+MP_Bool_t MP_Signal_c::operator!=( const MP_Signal_c& s1 ) {
+  return( !( (*this) == s1 ) );
 }

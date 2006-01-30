@@ -257,6 +257,12 @@ public:
   /** \brief Assignment operator */
   MP_Signal_c& operator=(  const MP_Signal_c& from );
 
+  /** \brief Operator == */
+  MP_Bool_t operator==( const MP_Signal_c& s1 );
+
+  /** \brief Operator != */
+  MP_Bool_t operator!=( const MP_Signal_c& s1 );
+
 };
 
 
