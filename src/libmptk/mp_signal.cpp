@@ -235,6 +235,20 @@ int MP_Signal_c::init_parameters( const int setNumChans,
 }
 
 
+/*********************************/
+/* Clearing of the storage space */
+void MP_Signal_c::clear( void ) {
+  int i;
+  for ( i=0; i<numChans; i++ ) memset( channel[i], 0, numSamples*sizeof( MP_Sample_t ) );
+  /* Note: we could avoid the loop and do directly:
+     memset( channel[i], 0, numSamples*numChans*sizeof( MP_Sample_t ) );
+     but the risk is that numSamples*numChans*sizeof( MP_Sample_t ) will
+     overflow size_t. I'm anyways not sure if size_t is the biggest possible
+     unsigned int.
+  */
+}
+
+
 /********************************/
 /* Copy constructor (deep copy) */
 MP_Signal_c::MP_Signal_c( const MP_Signal_c &from ) {

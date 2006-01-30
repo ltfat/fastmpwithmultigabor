@@ -132,6 +132,12 @@ public:
 		       const int setSampleRate );
 
 
+  /* \brief A utility to clear the stored signal and set it to zero
+   * without changing its dimensions in terms of number of samples,
+   * number of channles and sampling rate */
+  void clear( void );
+
+
   /** \brief A copy constructor
    *
    * \param from A reference to the copied signal
