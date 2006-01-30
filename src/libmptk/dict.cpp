@@ -398,7 +398,7 @@ int MP_Dict_c::copy_signal( MP_Signal_c *setSignal ) {
 
   /* Then plug the signal into all the blocks */
   for ( i = 0; i < numBlocks; i++ ) {
-    if ( block[i]->plug_signal( setSignal ) ) {
+    if ( block[i]->plug_signal( signal ) ) {
       mp_error_msg( func, "Failed to plug the given signal in the %u-th block."
 		    " Proceeding with the remaining blocks.\n", i );
       check = 1;
@@ -487,7 +487,7 @@ int MP_Dict_c::plug_signal( MP_Signal_c *setSignal ) {
 
   /* Then plug the signal into all the blocks */
   for ( i = 0; i < numBlocks; i++ ) {
-    if ( block[i]->plug_signal( setSignal ) ) {
+    if ( block[i]->plug_signal( signal ) ) {
       mp_error_msg( func, "Failed to plug the given signal in the %u-th block."
 		    " Proceeding with the remaining blocks.\n", i );
       check = 1;
