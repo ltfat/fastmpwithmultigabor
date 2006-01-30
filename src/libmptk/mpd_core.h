@@ -91,9 +91,11 @@ public:
   unsigned long int nextSaveHit;
 
   /* Manipulated objects */
-  MP_Dict_c *dict;
-  MP_Signal_c *sig;
-  MP_Book_c *book;
+  MP_Dict_c   *dict;
+  MP_Signal_c *signal;
+  MP_Book_c   *book;
+  MP_Signal_c *residual;
+  MP_Signal_c *approximant;
 
   /* Decay array */
   MP_Var_Array_c<double> decay;
@@ -121,9 +123,9 @@ public:
   /***************************/
 
 public:
-  static MP_Mpd_Core_c* init( MP_Signal_c *sig, MP_Book_c *book );
-  static MP_Mpd_Core_c* init( MP_Signal_c *sig, MP_Book_c *book, MP_Dict_c *dict );
-  static MP_Mpd_Core_c* init( MP_Signal_c *sig, MP_Book_c *book, MP_Dict_c *dict,
+  static MP_Mpd_Core_c* init( MP_Signal_c *signal, MP_Book_c *book );
+  static MP_Mpd_Core_c* init( MP_Signal_c *signal, MP_Book_c *book, MP_Dict_c *dict );
+  static MP_Mpd_Core_c* init( MP_Signal_c *signal, MP_Book_c *book, MP_Dict_c *dict,
 			      unsigned long int stopAfterIter,
 			      double stopAfterSnr );
 
@@ -146,11 +148,35 @@ public:
   /* OTHER METHODS           */
   /***************************/
 
-  /* Settings */
+  /* Set the objects */
   MP_Dict_c* set_dict( MP_Dict_c *setDict );
   MP_Signal_c* set_signal( MP_Signal_c *setSig );
   MP_Book_c* set_book( MP_Book_c *setBook );
 
+
+  /* Detach/delete the objects */
+  MP_Dict_c* detach_dict( void );
+  void delete_dict( void );
+
+  MP_Signal_c* detach_signal( void );
+  void delete_signal( void );
+
+  MP_Book_c* detach_book( void );
+  void delete_book( void );
+
+  MP_Signal_c* detach_residual( void );
+  void delete_residual( void );
+
+  MP_Signal_c* detach_approximant( void );
+  void delete_approximant( void );
+
+
+  /* Get the objects */
+  double* get_current_decay_vec( void ) { return( decay.elem ); }
+  MP_Signal_c* refresh_approximant( void );
+
+
+  /* Runtime settings */
   void set_iter_condition( const unsigned long int setIter ) {
     stopAfterIter = setIter; useStopAfterIter = MP_TRUE; }
   void reset_iter_condition() { stopAfterIter = ULONG_MAX; useStopAfterIter = MP_FALSE; }
@@ -171,7 +197,6 @@ public:
     reportHit = setReportHit; nextReportHit = numIter + setReportHit; }
   void reset_report_hit() { reportHit = ULONG_MAX;  nextReportHit = ULONG_MAX; }
 
-  void save_result( void );
 
   /* Runtime */
   unsigned short int step();
@@ -182,10 +207,8 @@ public:
   void info_state( void );
   void info_result( void );
 
-  /* Get results */
-  MP_Book_c* get_current_book() { return( book ); }
-  MP_Signal_c* get_current_signal() { return( sig ); }
-  double* get_current_decay_vec() { return( decay.elem ); }
+  /* Misc */
+  void save_result( void );
 
 };
 
