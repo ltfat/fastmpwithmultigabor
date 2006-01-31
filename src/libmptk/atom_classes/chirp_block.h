@@ -269,7 +269,7 @@ int add_chirp_blocks( MP_Dict_c *dict,
 		      const unsigned char setWindowType,
 		      const double setWindowOption,
 		      const unsigned int numFitPoints,
-		     const unsigned int numIter );
+		      const unsigned int numIter );
  
 
 #endif /* __chirp_block_h_ */

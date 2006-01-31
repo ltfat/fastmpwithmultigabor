@@ -711,7 +711,7 @@ int add_chirp_block( MP_Dict_c *dict,
 		     const unsigned long int fftSize,
 		     const unsigned char windowType,
 		     const double windowOption,
-		     const unsigned char numFitPoints,
+		     const unsigned int numFitPoints,
 		     const unsigned int numIter ) {
 
   const char* func = "add_chirp_block(...)";
@@ -742,7 +742,7 @@ int add_chirp_blocks( MP_Dict_c *dict,
 		      const MP_Real_t freqDensity, 
 		      const unsigned char setWindowType,
 		      const double setWindowOption,
-		      const unsigned char setNumFitPoints,
+		      const unsigned int setNumFitPoints,
 		      const unsigned int setNumIter ) {
 
   unsigned long int setFilterLen;
