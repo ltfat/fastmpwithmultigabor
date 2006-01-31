@@ -344,7 +344,7 @@ void MP_Mpd_Core_c::delete_approximant( void ) {
 /* (Re-)compute the approximant */
 MP_Signal_c* MP_Mpd_Core_c::refresh_approximant( void ) {
 
-  if ( approximant ) approximant->clear();
+  if ( approximant ) approximant->fill_zero();
   else if ( dict->signal ) approximant = MP_Signal_c::init( dict->signal->numChans,
 							    dict->signal->numSamples,
 							    dict->signal->sampleRate );
