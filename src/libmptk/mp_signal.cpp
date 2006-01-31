@@ -235,9 +235,9 @@ int MP_Signal_c::init_parameters( const int setNumChans,
 }
 
 
-/*********************************/
-/* Clearing of the storage space */
-void MP_Signal_c::clear( void ) {
+/************************************/
+/* Fill the storage space with zero */
+void MP_Signal_c::fill_zero( void ) {
   int i;
   for ( i=0; i<numChans; i++ ) memset( channel[i], 0, numSamples*sizeof( MP_Sample_t ) );
   /* Note: we could avoid the loop and do directly:
@@ -246,6 +246,35 @@ void MP_Signal_c::clear( void ) {
      overflow size_t. I'm anyways not sure if size_t is the biggest possible
      unsigned int.
   */
+  /* Reste the signal's energy */
+  energy = 0.0;
+}
+
+
+/*******************************************/
+/* Fill the storage space with white noise */
+void MP_Signal_c::fill_noise( MP_Real_t energyLevel ) {
+
+  int i;
+  unsigned long int k;
+  double CST = pow( 2, 64 );
+  MP_Real_t tmp_energy;
+
+  /* Reset the signal's energy */
+  energy = 0.0;
+  /* Seed the random generator */
+  init_genrand( (unsigned long int)(time(NULL)) );
+  /* Fill the signal with random doubles in the interval [0,1[ */
+  for ( i = 0; i < numChans; i++ ) 
+    for ( k = 0; k < numSamples; k++ ) channel[i][k] = (MP_Sample_t)(((double)(genrand_int32())) / CST );
+  /* Normalize */
+  for ( i = 0; i < numChans; i++ ) {
+    tmp_energy = compute_energy_in_channel( i );
+    tmp_energy = energyLevel / tmp_energy;
+    for ( k = 0; k < numSamples; k++ ) channel[i][k] *= tmp_energy;
+  }
+  refresh_energy();
+
 }
 
 

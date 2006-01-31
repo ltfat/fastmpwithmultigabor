@@ -132,10 +132,22 @@ public:
 		       const int setSampleRate );
 
 
-  /* \brief A utility to clear the stored signal and set it to zero
+  /* \brief A utility to set the stored signal to zero
    * without changing its dimensions in terms of number of samples,
-   * number of channles and sampling rate */
-  void clear( void );
+   * number of channels and sampling rate */
+  void fill_zero( void );
+
+
+  /* \brief A utility to set the stored signal to a uniform random noise
+   * without changing its dimensions in terms of number of samples,
+   * number of channels and sampling rate.
+   *
+   * \param energyLevel The energy of the noise in each channel (e.g.,
+   *  with 3 channels and energyLevel = 1.0, the total signal energy will
+   *  be 3.0).
+   *
+   */
+  void fill_noise( MP_Real_t energyLevel );
 
 
   /** \brief A copy constructor

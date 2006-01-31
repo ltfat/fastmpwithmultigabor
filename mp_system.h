@@ -49,6 +49,7 @@
 # endif
 
 # include <stdio.h>
+# include <time.h>
 
 /* stdlib stuff */
 # if STDC_HEADERS
