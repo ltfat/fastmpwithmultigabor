@@ -416,6 +416,15 @@ unsigned int MP_Harmonic_Block_c::create_atom( MP_Atom_c **atom,
     int chanIdx;
     unsigned long int pos = frameIdx*filterShift;
 
+
+    /* Check the position */
+    if ( (pos+filterLen) > s->numSamples ) {
+      mp_error_msg( func, "Trying to create an atom out of the support of the current signal."
+		    " Returning a NULL atom.\n" );
+      *atom = NULL;
+      return( 0 );
+    }
+
     /* Compute the fundamental frequency and the number of partials */
     fundFreqIdx = filterIdx - numFreqs + minFundFreqIdx;
     numPartials = (numFreqs-1) / fundFreqIdx;
@@ -433,7 +442,6 @@ unsigned int MP_Harmonic_Block_c::create_atom( MP_Atom_c **atom,
     /* 1) set the fundamental frequency and chirp of the atom */
     hatom->freq  = (MP_Real_t)( (double)(fundFreqIdx) / (double)(fft->fftSize));
     hatom->chirp = (MP_Real_t)( 0.0 );     /* So far there is no chirprate */
-    /* Set the numSamples */
     hatom->numSamples = pos + filterLen;
 
     /* For each channel: */

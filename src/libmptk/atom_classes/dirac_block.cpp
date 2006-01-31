@@ -205,8 +205,18 @@ void MP_Dirac_Block_c::update_frame(unsigned long int frameIdx,
 unsigned int MP_Dirac_Block_c::create_atom( MP_Atom_c **atom,
 					    const unsigned long int frameIdx,
 					    const unsigned long int /* filterIdx */ ) {
+
+  const char* func = "MP_Dirac_Block_c::create_atom(...)";
   MP_Dirac_Atom_c *datom;
   int chanIdx;
+
+  /* Check the position */
+  if ( (frameIdx+1) > s->numSamples ) {
+    mp_error_msg( func, "Trying to create an atom out of the support of the current signal."
+		  " Returning a NULL atom.\n" );
+    *atom = NULL;
+    return( 0 );
+  }
 
   /* Allocate the atom */
   *atom = NULL;

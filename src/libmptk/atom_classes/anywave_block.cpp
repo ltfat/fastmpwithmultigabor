@@ -269,7 +269,7 @@ int MP_Anywave_Block_c::info( FILE* fid ) {
 		    filterLen, filterShift, numFilters );
   nChar += fprintf( fid, "mplib info -- The number of frames for this block is [%lu], the search tree has [%lu] levels.\n",
 		    numFrames, numLevels );
-  nChar += fprintf( fid, "mplib info -- The number of channels is [%lu] in the signal and [%i] in the waveforms.\n",
+  nChar += fprintf( fid, "mplib info -- The number of channels is [%i] in the signal and [%i] in the waveforms.\n",
 		    s->numChans, anywaveTable->numChans );
 
   return ( nChar );
@@ -454,28 +454,44 @@ unsigned int MP_Anywave_Block_c::create_atom( MP_Atom_c **atom,
 					      const unsigned long int frameIdx,
 					      const unsigned long int filterIdx ) {
 
+  const char* func = "MP_Anywave_Block_c::create_atom";
 
   MP_Anywave_Atom_c *aatom = NULL;
 
   /* Misc: */
   unsigned short int chanIdx;
+  unsigned long int pos = frameIdx*filterShift;
+  
+  /* Check the position */
+  if ( (pos+filterLen) > s->numSamples ) {
+    mp_error_msg( func, "Trying to create an atom out of the support of the current signal."
+		  " Returning a NULL atom.\n" );
+    *atom = NULL;
+    return( 0 );
+  }
   
   /* Allocate the atom */
   *atom = NULL;
   if ( (aatom = new MP_Anywave_Atom_c( s->numChans )) == NULL ) {
-    mp_error_msg( "MP_Anywave_Block_c::create_atom","Can't create a new Anywave atom in create_atom()."
+    mp_error_msg( func, "Can't create a new Anywave atom in create_atom()."
 	     " Returning NULL as the atom reference.\n" );
     return( 0 );
   }
 
+  /* Set the parameters */
   aatom->anywaveIdx = filterIdx;
   aatom->tableIdx = tableIdx;
   aatom->anywaveTable = anywaveTable;
-
+  aatom->numSamples = pos + filterLen;
 
   /* For each channel: */
   if ((double)MP_MAX_UNSIGNED_LONG_INT / (double)s->numChans / (double)filterLen <= 1.0) {
-    mp_error_msg( "MP_Anywave_Block_c::create_atom", "numChans [%lu] . filterLen [%lu] is greater than the max for an unsigned long int [%lu]. The field totalChanLen of the atom will overflow. Returning a NULL atom.\n", s->numChans, filterLen, MP_MAX_UNSIGNED_LONG_INT);
+    mp_error_msg( func,
+		  "numChans [%lu] . filterLen [%lu] is greater than the max"
+		  " for an unsigned long int [%lu]. The field totalChanLen of the atom"
+		  " will overflow. Returning a NULL atom.\n",
+		  s->numChans, filterLen, MP_MAX_UNSIGNED_LONG_INT);
+    delete( aatom );
     *atom = NULL;
     return( 0 );
   }
@@ -483,7 +499,7 @@ unsigned int MP_Anywave_Block_c::create_atom( MP_Atom_c **atom,
   for ( chanIdx=0; chanIdx < s->numChans; chanIdx++ ) {
 
     /* 2) set the support of the atom */
-    aatom->support[chanIdx].pos = frameIdx*filterShift; 
+    aatom->support[chanIdx].pos = pos;
     aatom->support[chanIdx].len = filterLen;
     aatom->totalChanLen += filterLen;
 
@@ -518,8 +534,8 @@ unsigned int MP_Anywave_Block_c::create_atom( MP_Atom_c **atom,
 
 #ifndef NDEBUG
   for ( chanIdx=0; chanIdx < s->numChans; chanIdx++ ) {
-    fprintf( stderr, "mplib DEBUG -- filterIdx %lu amp %g\n",
-	     aatom->anywaveIdx, aatom->amp[chanIdx] );
+    mp_debug_msg( MP_DEBUG_CREATE_ATOM, func, "Channel [%d]: filterIdx %lu amp %g\n",
+		  chanIdx, aatom->anywaveIdx, aatom->amp[chanIdx] );
   }
 #endif
 
@@ -537,7 +553,11 @@ void MP_Anywave_Block_c::update_frame(unsigned long int frameIdx,
 {
   /* nothing is done. Indeed this method will never be called because
      update_ip is inherited in this class */
-  mp_error_msg( "MP_Anywave_Block_c::update_frame","this method shall not be used, it is present only for compatibility with inheritance-related classes. Use instead MP_Anywave_Block_c::update_ip(). Parameters were frameIdx=%lu, maxCorr=%p, maxFilterIdx=%p\n", frameIdx, maxCorr, maxFilterIdx );
+  mp_error_msg( "MP_Anywave_Block_c::update_frame",
+		"this method shall not be used, it is present only for compatibility"
+		" with inheritance-related classes. Use instead MP_Anywave_Block_c::update_ip()."
+		" Parameters were frameIdx=%lu, maxCorr=%p, maxFilterIdx=%p\n",
+		frameIdx, maxCorr, maxFilterIdx );
   
 }
 /*************/

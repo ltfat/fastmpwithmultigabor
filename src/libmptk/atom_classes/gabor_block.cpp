@@ -584,6 +584,14 @@ unsigned int MP_Gabor_Block_c::create_atom( MP_Atom_c **atom,
   /* Misc: */
   int chanIdx;
 
+  /* Check the position */
+  if ( (pos+filterLen) > s->numSamples ) {
+    mp_error_msg( func, "Trying to create an atom out of the support of the current signal."
+		  " Returning a NULL atom.\n" );
+    *atom = NULL;
+    return( 0 );
+  }
+
   /* Allocate the atom */
   *atom = NULL;
   if ( (gatom = new MP_Gabor_Atom_c( s->numChans, fft->windowType, fft->windowOption )) == NULL ) {
@@ -595,7 +603,6 @@ unsigned int MP_Gabor_Block_c::create_atom( MP_Atom_c **atom,
   /* 1) set the frequency and chirp of the atom */
   gatom->freq  = (MP_Real_t)( (double)(freqIdx) / (double)(fft->fftSize) );
   gatom->chirp = (MP_Real_t)( 0.0 ); /* Gabor atoms from plain gabor blocks have zero chirprate */
-  /* Set the numSamples */
   gatom->numSamples = pos + filterLen;
 
   /* For each channel: */
