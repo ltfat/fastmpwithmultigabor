@@ -45,6 +45,7 @@ export_headers = mp_types.h \
 	win_server.h      \
 	fft_interface.h   \
 	general.h \
+	mtrand.h  \
 	regression.h \
 	mp_signal.h  \
 	tfmap.h   \
@@ -73,6 +74,7 @@ noinst_HEADERS = header.h $(export_headers) regression_constants.h
 libmptk_a_SOURCES = mptk.h header.h $(export_headers) regression_constants.h\
 	mp_messaging.cpp  \
 	general.cpp       \
+	mtrand.c          \
 	regression.cpp    \
 	mp_signal.cpp     \
 	win_server.cpp    \
