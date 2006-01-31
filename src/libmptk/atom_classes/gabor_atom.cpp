@@ -74,7 +74,7 @@ MP_Gabor_Atom_c::MP_Gabor_Atom_c( const unsigned int setNChan,
 				  const double setWindowOption )
   :MP_Atom_c( setNChan ) {
   
-  int i;
+  unsigned int i;
   
   windowType   = setWindowType;
   windowOption = setWindowOption;
@@ -113,7 +113,7 @@ MP_Gabor_Atom_c::MP_Gabor_Atom_c( FILE *fid, const char mode )
   char line[MP_MAX_STR_LEN];
   char str[MP_MAX_STR_LEN];
   double fidFreq,fidChirp,fidAmp,fidPhase;
-  int i, iRead;
+  unsigned int i, iRead;
 
   switch ( mode ) {
 
@@ -199,18 +199,18 @@ MP_Gabor_Atom_c::MP_Gabor_Atom_c( FILE *fid, const char mode )
     for (i = 0; i<numChans; i++) {
       /* Opening tag */
       if ( ( fgets( str, MP_MAX_STR_LEN, fid ) == NULL  ) ||
-	   ( sscanf( str, "\t\t<gaborPar chan=\"%d\">\n", &iRead ) != 1 ) ) {
+	   ( sscanf( str, "\t\t<gaborPar chan=\"%u\">\n", &iRead ) != 1 ) ) {
 	fprintf(stderr, "mplib warning -- MP_Gabor_Atom_c(file) - Cannot scan channel index in atom.\n" );
       }
       else if ( iRead != i ) {
  	fprintf(stderr, "mplib warning -- MP_Gabor_Atom_c(file) - Potential shuffle in the parameters"
-		" of a gabor atom. (Index \"%d\" read, \"%d\" expected.)\n",
+		" of a gabor atom. (Index \"%u\" read, \"%u\" expected.)\n",
 		iRead, i );
       }
       /* amp */
       if ( ( fgets( str, MP_MAX_STR_LEN, fid ) == NULL  ) ||
 	   ( sscanf( str, "\t\t<par type=\"amp\">%lg</par>\n", &fidAmp ) != 1 ) ) {
-	fprintf(stderr, "mplib warning -- MP_Gabor_Atom_c(file) - Cannot scan amp on channel %d.\n", i );
+	fprintf(stderr, "mplib warning -- MP_Gabor_Atom_c(file) - Cannot scan amp on channel %u.\n", i );
       }
       else {
 	*(amp +i) = (MP_Real_t)fidAmp;
@@ -218,7 +218,7 @@ MP_Gabor_Atom_c::MP_Gabor_Atom_c( FILE *fid, const char mode )
       /* phase */
       if ( ( fgets( str, MP_MAX_STR_LEN, fid ) == NULL  ) ||
 	   ( sscanf( str, "\t\t<par type=\"phase\">%lg</par>\n", &fidPhase ) != 1 ) ) {
-	fprintf(stderr, "mplib warning -- MP_Gabor_Atom_c(file) - Cannot scan phase on channel %d.\n", i );
+	fprintf(stderr, "mplib warning -- MP_Gabor_Atom_c(file) - Cannot scan phase on channel %u.\n", i );
       }
       else {
 	*(phase +i) = (MP_Real_t)fidPhase;
@@ -227,7 +227,7 @@ MP_Gabor_Atom_c::MP_Gabor_Atom_c( FILE *fid, const char mode )
       if ( ( fgets( str, MP_MAX_STR_LEN, fid ) == NULL  ) ||
 	   ( strcmp( str , "\t\t</gaborPar>\n" ) ) ) {
 	fprintf(stderr, "mplib warning -- MP_Gabor_Atom_c(file) - Cannot scan the closing parameter tag"
-		" in gabor atom, channel %d.\n", i );
+		" in gabor atom, channel %u.\n", i );
       }
     }
     break;
@@ -273,7 +273,7 @@ MP_Gabor_Atom_c::~MP_Gabor_Atom_c() {
 
 int MP_Gabor_Atom_c::write( FILE *fid, const char mode ) {
   
-  int i;
+  unsigned int i;
   int nItem = 0;
 
   /* Call the parent's write function */
@@ -289,7 +289,7 @@ int MP_Gabor_Atom_c::write( FILE *fid, const char mode ) {
     nItem += fprintf( fid, "\t\t<par type=\"freq\">%g</par>\n",  (double)freq );
     nItem += fprintf( fid, "\t\t<par type=\"chirp\">%g</par>\n", (double)chirp );
     for (i = 0; i<numChans; i++) {
-      nItem += fprintf( fid, "\t\t<gaborPar chan=\"%d\">\n", i );
+      nItem += fprintf( fid, "\t\t<gaborPar chan=\"%u\">\n", i );
       nItem += fprintf( fid, "\t\t<par type=\"amp\">%g</par>\n",   (double)amp[i] );
       nItem += fprintf( fid, "\t\t<par type=\"phase\">%g</par>\n", (double)phase[i] );
       nItem += fprintf( fid, "\t\t</gaborPar>\n" );    
@@ -330,7 +330,8 @@ char * MP_Gabor_Atom_c::type_name(void) {
 /* Readable text dump */
 int MP_Gabor_Atom_c::info( FILE *fid ) {
 
-  int i, nChar = 0;
+  unsigned int i = 0;
+  int nChar = 0;
 
   nChar += fprintf( fid, "mplib info -- GABOR ATOM: %s window (window opt=%g),", window_name(windowType), windowOption );
   nChar += fprintf( fid, " [%d] channel(s)\n", numChans );
@@ -352,7 +353,7 @@ void MP_Gabor_Atom_c::build_waveform( MP_Sample_t *outBuffer ) {
   MP_Sample_t *atomBuffer;
   unsigned long int windowCenter = 0;
   /* Parameters for the atom waveform : */
-  int chanIdx;
+  unsigned int chanIdx;
   unsigned int t;
   unsigned long int len;
   double dHalfChirp, dAmp, dFreq, dPhase, dT;

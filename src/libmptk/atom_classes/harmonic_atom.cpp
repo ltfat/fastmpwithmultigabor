@@ -70,7 +70,7 @@ MP_Harmonic_Atom_c::MP_Harmonic_Atom_c( unsigned int setNChan,
 						    const unsigned int setNumPartials)
   :MP_Gabor_Atom_c( setNChan , setWindowType, setWindowOption) {
 
-  int i;
+  unsigned int i;
   unsigned int j;
 
   assert ( numPartials>=2 );
@@ -122,7 +122,7 @@ MP_Harmonic_Atom_c::MP_Harmonic_Atom_c( FILE *fid, const char mode )
   char line[MP_MAX_STR_LEN];
   char str[MP_MAX_STR_LEN];
   double fidHarmonicity,fidAmp,fidPhase;
-  int i, iRead;
+  unsigned int i, iRead;
   unsigned int j, jRead;
 
   switch ( mode ) {
@@ -214,7 +214,7 @@ MP_Harmonic_Atom_c::MP_Harmonic_Atom_c( FILE *fid, const char mode )
       }
       else if ( iRead != i ) {
  	fprintf(stderr, "mplib warning -- MP_Harmonic_Atom_c(file) - Potential shuffle in the parameters"
-		" of a gabor atom. (Index \"%d\" read, \"%d\" expected.)\n",
+		" of a gabor atom. (Index \"%u\" read, \"%u\" expected.)\n",
 		iRead, i );
       }
       
@@ -222,7 +222,7 @@ MP_Harmonic_Atom_c::MP_Harmonic_Atom_c( FILE *fid, const char mode )
 	/* partialAmp */
 	if ( ( fgets( line, MP_MAX_STR_LEN, fid ) == NULL  ) ||
 	     ( sscanf( line, "\t\t<par type=\"amp\" partial=\"%u\">%lg</par>\n", &jRead, &fidAmp ) != 2 ) ) {
-	  fprintf(stderr, "mplib warning -- MP_Harmonic_Atom_c(file) - Cannot scan amp on channel %d and partial %u.\n", i, j );
+	  fprintf(stderr, "mplib warning -- MP_Harmonic_Atom_c(file) - Cannot scan amp on channel %u and partial %u.\n", i, j );
 	} else if (jRead != j) {
 	  fprintf(stderr, "mplib warning -- MP_Harmonic_Atom_c(file) - Potential shuffle in the parameters"
 		  " of a harmonic gabor atom. (Partial Index \"%u\" read, \"%u\" expected.)\n",
@@ -234,7 +234,7 @@ MP_Harmonic_Atom_c::MP_Harmonic_Atom_c( FILE *fid, const char mode )
 	/* phase */
 	if ( ( fgets( line, MP_MAX_STR_LEN, fid ) == NULL  ) ||
 	     ( sscanf( line, "\t\t<par type=\"phase\" partial=\"%u\">%lg</par>\n", &jRead, &fidPhase ) != 2 ) ) {
-	  fprintf(stderr, "mplib warning -- MP_Harmonic_Atom_c(file) - Cannot scan phase on channel %d and partial %u.\n", i, j );
+	  fprintf(stderr, "mplib warning -- MP_Harmonic_Atom_c(file) - Cannot scan phase on channel %u and partial %u.\n", i, j );
 	} else if (jRead != j) {
 	  fprintf(stderr, "mplib warning -- MP_Harmonic_Atom_c(file) - Potential shuffle in the parameters"
 		  " of a harmonic gabor atom. (Partial Index \"%u\" read, \"%u\" expected.)\n",
@@ -247,7 +247,7 @@ MP_Harmonic_Atom_c::MP_Harmonic_Atom_c( FILE *fid, const char mode )
       if ( ( fgets( str, MP_MAX_STR_LEN, fid ) == NULL  ) ||
 	   ( strcmp( str , "\t\t</harmo_gaborPar>\n" ) ) ) {
 	fprintf(stderr, "mplib warning -- MP_Harmonic_Atom_c(file) - Cannot scan the closing parameter tag"
-		" in harmonic gabor atom, channel %d.\n", i );
+		" in harmonic gabor atom, channel %u.\n", i );
       }
     }
     break;
@@ -302,7 +302,8 @@ MP_Harmonic_Atom_c::~MP_Harmonic_Atom_c() {
 
 int MP_Harmonic_Atom_c::write( FILE *fid, const char mode ) {
   
-  int i, nItem = 0;
+  unsigned int i = 0;
+  int nItem = 0;
   unsigned int j;
 
   /* Call the parent's write function */
@@ -320,7 +321,7 @@ int MP_Harmonic_Atom_c::write( FILE *fid, const char mode ) {
     }
     /* partialAmp and partialPhase */
     for (i = 0; i<numChans; i++) {
-      nItem += fprintf( fid, "\t\t<harmo_gaborPar chan=\"%d\">\n", i );
+      nItem += fprintf( fid, "\t\t<harmo_gaborPar chan=\"%u\">\n", i );
       for (j = 0; j < numPartials; j++) { 
 	nItem += fprintf( fid, "\t\t<par type=\"amp\" partial=\"%u\">%lg</par>\n",j,(double)partialAmp[i][j] );
 	nItem += fprintf( fid, "\t\t<par type=\"phase\" partial=\"%u\">%lg</par>\n",j,(double)partialPhase[i][j] );
@@ -361,7 +362,8 @@ char * MP_Harmonic_Atom_c::type_name(void) {
 /* Readable text dump */
 int MP_Harmonic_Atom_c::info( FILE *fid ) {
 
-  int i, nChar = 0;
+  unsigned int i = 0;
+  int nChar = 0;
   unsigned int j;
 
   nChar += fprintf( fid, "HARMONIC GABOR, %s window (window opt=%g),", 
@@ -369,7 +371,7 @@ int MP_Harmonic_Atom_c::info( FILE *fid ) {
   nChar += fprintf( fid, " [%d] channel(s), [%u] partials\n", numChans, numPartials );
   nChar += fprintf( fid, "\tFreq %g\tChirp %g\n",(double)freq, (double)chirp);
   for ( i=0; i<numChans; i++ ) {
-    nChar += fprintf( fid, "(%d/%d)\tSupport=", i+1, numChans );
+    nChar += fprintf( fid, "(%u/%u)\tSupport=", i+1, numChans );
     nChar += fprintf( fid, " %lu %lu ", support[i].pos, support[i].len );
     nChar += fprintf( fid, "\t Amp %g\t Phase %g\n", (double)amp[i], (double)phase[i] );
     for ( j=0; j<numPartials; j++) {
@@ -391,7 +393,7 @@ void MP_Harmonic_Atom_c::build_waveform( MP_Sample_t *outBuffer ) {
   MP_Sample_t *atomBuffer;
   unsigned long int windowCenter = 0;
   /* Parameters for the atom waveform : */
-  int chanIdx;
+  unsigned int chanIdx;
   unsigned int t;
   unsigned long int len;
   unsigned int j;

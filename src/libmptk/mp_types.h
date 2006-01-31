@@ -45,6 +45,7 @@
 #ifndef __mp_types_h_
 #define __mp_types_h_
 
+#include <stdlib.h>
 
 /********************/
 /* Basic data types */
@@ -98,6 +99,29 @@ typedef struct {
 
 /* Minimum significant energy level */
 #define MP_ENERGY_EPSILON 1e-10
+
+/*****/
+/* Bounds of integer types */
+
+const unsigned short int MP_MAX_BITS_SHORT_INT = 8*sizeof(short int) - 1; /* 15 */
+const short int MP_MIN_SHORT_INT = (short int) (1<<MP_MAX_BITS_SHORT_INT); /*-32768*/
+const short int MP_MAX_SHORT_INT = (short int) ((1<<MP_MAX_BITS_SHORT_INT) - 1); /*32767*/
+
+const unsigned short int MP_MAX_BITS_UNSIGNED_SHORT_INT = 8*sizeof(unsigned short int); /* 16 */
+const unsigned short int MP_MIN_UNSIGNED_SHORT_INT = 0;
+const unsigned short int MP_MAX_UNSIGNED_SHORT_INT = (unsigned short int) (-1); /* 65535 */
+
+const unsigned short int MP_MAX_BITS_LONG_INT = 8*sizeof(long int) - 1; /* 31 */
+const long int MP_MIN_LONG_INT = (long int) (1<<MP_MAX_BITS_LONG_INT); /*-2147483648*/
+const long int MP_MAX_LONG_INT = (long int) ((1<<MP_MAX_BITS_LONG_INT) - 1); /* 2147483647 */
+
+const unsigned short int MP_MAX_BITS_UNSIGNED_LONG_INT = 8*sizeof(unsigned long int); /* 32 */
+const unsigned long int MP_MIN_UNSIGNED_LONG_INT = 0;
+const unsigned long int MP_MAX_UNSIGNED_LONG_INT = (unsigned long int) (-1); /* 4294967295 */
+
+const unsigned short int MP_MAX_BITS_SIZE_T = 8*sizeof(size_t);
+const size_t MP_MIN_SIZE_T = 0;
+const size_t MP_MAX_SIZE_T = (size_t) (-1);
 
 /*****/
 /* Constants for the dimensioning of the max search tree: */

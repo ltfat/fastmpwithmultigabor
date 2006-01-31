@@ -352,6 +352,56 @@ int MP_Dict_c::print( const char *fName ) {
 /* MISC METHODS            */
 /***************************/
 
+/* TEST */
+int MP_Dict_c::test( char* signalFileName, char* dicoFileName ) {
+
+  unsigned long int sampleIdx;
+  unsigned int blockIdx;
+
+  fprintf( stdout, "\n-- Entering MP_Dict_c::test \n" );
+  fflush( stdout );
+
+  MP_Dict_c* dictionary = MP_Dict_c::init( dicoFileName );
+  if (dictionary == NULL) {
+    return(false);
+  }
+  fprintf( stdout, "\n---- Dictionary created from file %s \n", dicoFileName );
+  fflush( stdout );
+
+  if ( dictionary->copy_signal( signalFileName ) ) {
+    return(false);
+  }
+  fprintf( stdout, "\n---- Plugged the signal from file %s \n", signalFileName );
+  fflush( stdout );
+
+  fprintf( stdout, "\n---- Printing the dictionary:\n" );
+  fflush( stdout );
+  dictionary->print( stdout );
+
+
+  for (blockIdx = 0;
+       blockIdx < dictionary->numBlocks;
+       blockIdx ++) {
+    if (strcmp((dictionary->block[blockIdx])->type_name(),"anywave") == 0) { 
+      fprintf( stdout, "---- Printing the 10 first samples of the first channel of the first waveform of the anywave table of the anywave block %i:\n", blockIdx);
+      for ( sampleIdx = 0;
+	    (sampleIdx < (((MP_Anywave_Block_c*)(dictionary->block[blockIdx]))->anywaveTable)->filterLen) && (sampleIdx < 10);
+	    sampleIdx ++) {
+	fprintf( stdout, "%lf ", *((((MP_Anywave_Block_c*)(dictionary->block[blockIdx]))->anywaveTable)->wave[0][0]+sampleIdx));
+      }
+    } 
+  }
+
+
+  delete(dictionary);
+  fprintf( stdout, "\n---- Dictionary deleted \n");
+  fflush( stdout );
+
+  fprintf( stdout, "\n-- Exiting MP_Dict_c::test \n" );
+  fflush( stdout );
+  
+  return(true);
+}
 
 /******************************/
 /* Return the number of atoms */
@@ -532,16 +582,17 @@ int MP_Dict_c::alloc_touch( void ) {
     else {
       int i;
       /* Initially we have to consider the whole signal as touched */
-      for ( i = 0; i < signal->numChans; i++ ) {
-	touch[i].pos = 0;
-	touch[i].len = signal->numSamples;
-      }
+      for ( i = 0; i < signal->numChans; i++ ) { touch[i].pos = 0; touch[i].len = signal->numSamples; }
+      return( 0 );
     }
 
   }
-  /* Else, if the signal is NULL, don't allocate touch. */
+  else {
+    mp_error_msg( func, "Trying to allocate the touch array from"
+		  " a NULL signal. The touch array will remain NULL.\n" );
+    return( 1 );
+  }
 
-  return( 0 );
 }
 
 

@@ -73,7 +73,7 @@ MP_Dirac_Atom_c::MP_Dirac_Atom_c( FILE *fid, const char mode )
   
   char str[MP_MAX_STR_LEN];
   double fidAmp;
-  int i, iRead;
+  unsigned int i, iRead;
   
   /* Allocate and initialize the amplitudes */
   if ( (amp = (MP_Real_t*)calloc( numChans, sizeof(MP_Real_t)) ) == NULL ) {
@@ -86,10 +86,10 @@ MP_Dirac_Atom_c::MP_Dirac_Atom_c( FILE *fid, const char mode )
     for (i = 0; i<numChans; i++) {
       if ( ( fgets( str, MP_MAX_STR_LEN, fid ) == NULL  ) ||
 	   ( sscanf( str, "\t\t<par type=\"amp\" chan=\"%d\">%lg</par>\n", &iRead,&fidAmp ) != 2 ) ) {
-	fprintf(stderr, "mplib warning -- MP_Dirac_Atom_c(file) - Cannot scan amp on channel %d.\n", i );
+	fprintf(stderr, "mplib warning -- MP_Dirac_Atom_c(file) - Cannot scan amp on channel %u.\n", i );
       } else if ( iRead != i ) {
  	fprintf(stderr, "mplib warning -- MP_Dirac_Atom_c(file) - Potential shuffle in the parameters"
-		" of a dirac atom. (Index \"%d\" read, \"%d\" expected.)\n",
+		" of a dirac atom. (Index \"%u\" read, \"%u\" expected.)\n",
 		iRead, i );
       } else {
 	*(amp+i) = (MP_Real_t)fidAmp;
@@ -129,7 +129,8 @@ MP_Dirac_Atom_c::~MP_Dirac_Atom_c() {
 
 int MP_Dirac_Atom_c::write( FILE *fid, const char mode ) {
   
-  int i, nItem = 0;
+  unsigned int i = 0;
+  int nItem = 0;
 
   /* Call the parent's write function */
   nItem += MP_Atom_c::write( fid, mode );
@@ -139,7 +140,7 @@ int MP_Dirac_Atom_c::write( FILE *fid, const char mode ) {
     
   case MP_TEXT:
     for (i = 0; i<numChans; i++) {
-      nItem += fprintf(fid, "\t\t<par type=\"amp\" chan=\"%d\">%lg</par>\n", i, (double)amp[i]);
+      nItem += fprintf(fid, "\t\t<par type=\"amp\" chan=\"%u\">%lg</par>\n", i, (double)amp[i]);
     }
     break;
 
@@ -169,12 +170,13 @@ char * MP_Dirac_Atom_c::type_name(void) {
 /* Readable text dump */
 int MP_Dirac_Atom_c::info( FILE *fid ) {
 
-  int i, nChar = 0;
+  unsigned int i = 0;
+  int nChar = 0;
 
   nChar += fprintf( fid, "mplib info -- DIRAC ATOM:");
   nChar += fprintf( fid, " [%d] channel(s)\n", numChans );
   for ( i=0; i<numChans; i++ ) {
-    nChar += fprintf( fid, "mplib info -- (%d/%d)\tSupport=", i+1, numChans );
+    nChar += fprintf( fid, "mplib info -- (%u/%u)\tSupport=", i+1, numChans );
     nChar += fprintf( fid, " %lu %lu ", support[i].pos, support[i].len );
     nChar += fprintf( fid, "\tAmp %g",(double)amp[i]);
     nChar += fprintf( fid, "\n" );
@@ -187,7 +189,7 @@ int MP_Dirac_Atom_c::info( FILE *fid ) {
 /* Waveform builder */
 void MP_Dirac_Atom_c::build_waveform( MP_Sample_t *outBuffer ) {
 
-  int chanIdx;
+  unsigned int chanIdx;
   for (chanIdx = 0 ; chanIdx < numChans; chanIdx++ ) 
     outBuffer[chanIdx] = amp[chanIdx];
 }

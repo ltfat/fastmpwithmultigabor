@@ -388,7 +388,6 @@ MP_Real_t MP_Block_c::update_max( const MP_Support_t frameSupport ) {
   /* Dereference the top values */
   maxIPValue    = elevator[numLevels-1][0];
   maxIPFrameIdx = elevatorFrame[numLevels-1][0];
-
 #ifndef NDEBUG
   mp_debug_msg( MP_DEBUG_MP_ITERATIONS, func, "After update, elevators say that max is %g"
 		" in frame %lu at position %lu.\n",

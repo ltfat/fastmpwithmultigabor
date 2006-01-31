@@ -416,7 +416,7 @@ void free_mem( MP_Dict_c* dict, MP_Signal_c* sig, MP_Book_c* book, MP_Mpd_Core_c
 /**************************************************/
 int main( int argc, char **argv ) {
 
-  MP_Dict_c  *dict = NULL;
+  MP_Dict_c *dict = NULL;
   MP_Signal_c *sig = NULL;
   MP_Book_c *book = NULL;
   MP_Mpd_Core_c *mpdCore = NULL;
@@ -460,7 +460,7 @@ int main( int argc, char **argv ) {
   dict = MP_Dict_c::init( dictFileName );
   if ( dict == NULL ) {
     mp_error_msg( func, "Failed to create a dictionary from XML file [%s].\n",
-	     dictFileName );
+		  dictFileName );
     free_mem( dict, sig, book, mpdCore );
     return( ERR_DICT );
   }
@@ -476,6 +476,7 @@ int main( int argc, char **argv ) {
     free_mem( dict, sig, book, mpdCore );
     return( ERR_SIG );
   }
+
   /* Pre-emphasize the signal if needed */
   if (MPD_PREEMP != 0.0) {
     if ( MPD_VERBOSE ) mp_info_msg( func, "Pre-emphasizing the signal...\n" );

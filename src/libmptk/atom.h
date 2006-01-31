@@ -54,14 +54,17 @@
 /***********************/
 
 /* some type of properties for atom->satisfies() */
-#define MP_LEN_PROP         0 /** Length in samples \sa MP_Atom_C::satisfies()*/
-#define MP_POS_PROP         1 /** Position in samples \sa MP_Atom_C::satisfies()*/
-#define MP_FREQ_PROP        2 /** Normalized frequency, between 0 and 0.5 \sa MP_Atom_C::satisfies() */
-#define MP_AMP_PROP         3 /** Amplitude \sa MP_Atom_C::satisfies()*/
-#define MP_PHASE_PROP       4 /** Phase in radians \sa MP_Atom_C::satisfies()*/
-#define MP_CHIRP_PROP       5 /** Chirp factor \sa MP_Atom_C::satisfies() */
+#define MP_LEN_PROP            0 /** Length in samples \sa MP_Atom_C::satisfies()*/
+#define MP_POS_PROP            1 /** Position in samples \sa MP_Atom_C::satisfies()*/
+#define MP_FREQ_PROP           2 /** Normalized frequency, between 0 and 0.5 \sa MP_Atom_C::satisfies() */
+#define MP_AMP_PROP            3 /** Amplitude \sa MP_Atom_C::satisfies()*/
+#define MP_PHASE_PROP          4 /** Phase in radians \sa MP_Atom_C::satisfies()*/
+#define MP_CHIRP_PROP          5 /** Chirp factor \sa MP_Atom_C::satisfies() */
+#define MP_TABLE_IDX_PROP      6 /** Index of the wave table in the wave server \sa MP_Atom_C::satisfies()*/
+#define MP_ANYWAVE_TABLE_PROP  7 /** Pointer to the waveTable containing the waveform \sa MP_Atom_C::satisfies() */
+#define MP_ANYWAVE_IDX_PROP    8 /** Index of the wave in the wave table \sa MP_Atom_C::satisfies() */
 
-#define MP_NUM_PROPS        6
+#define MP_NUM_PROPS           9
 
 /* some test types for atom->satisfies() */
 #define MP_SUPER 1 /** x >  val \todo document this \sa MP_Atom_C::satisfies() */

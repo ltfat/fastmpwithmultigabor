@@ -161,6 +161,10 @@ public:
   /* MISC METHODS            */
   /***************************/
 
+  /** \brief Test
+   */
+  static int test( char* signalFileName, char* dicoFileName );
+
   /** \brief Get the number of atoms of the dictionary */
   unsigned long int size( void );
 

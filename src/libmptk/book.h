@@ -76,7 +76,7 @@ public:
   MP_Atom_c **atom;
 
   /** \brief Number of channels of the atoms */
-  int numChans;                 
+  unsigned int numChans;                 
   /** \brief Number of samples in each channel of the signal that will be
    * reconstructed using the stored atoms */
   unsigned long int numSamples; 

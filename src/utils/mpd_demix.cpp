@@ -527,7 +527,7 @@ int main( int argc, char **argv ) {
   MP_Real_t *Ah = NULL;
 
   unsigned short int numSources;
-  int numChans;
+  unsigned int numChans;
   unsigned long int numSamples;
   int sampleRate;
 
@@ -543,7 +543,7 @@ int main( int argc, char **argv ) {
 
   unsigned long int i;
   unsigned short int j;
-  int k;
+  unsigned int k;
   char line[1024];
 
   double residualEnergy = 0.0;

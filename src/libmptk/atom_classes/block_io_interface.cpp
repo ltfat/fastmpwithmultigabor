@@ -5,7 +5,8 @@
 /*                        Matching Pursuit Library                            */
 /*                                                                            */
 /* Rémi Gribonval                                                             */
-/* Sacha Krstulovic                                           Mon Feb 21 2005 */
+/* Sacha Krstulovic                                                           */
+/* Sylvain Lesage                                             Mon Feb 21 2005 */
 /* -------------------------------------------------------------------------- */
 /*                                                                            */
 /*  Copyright (C) 2005 IRISA                                                  */
@@ -94,6 +95,9 @@ void MP_Scan_Info_c::reset( void ) {
   numPartials = 0;
   numPartialsIsSet = false;
   
+  strcpy(tableFileName, "");
+  tableFileNameIsSet = false;
+
   numFitPoints = 0;
   numFitPointsIsSet = false;
   
@@ -137,6 +141,9 @@ void MP_Scan_Info_c::reset_all( void ) {
   
   globNumPartials = 0;
   globNumPartialsIsSet = false;
+
+  strcmp(globTableFileName, "");
+  globTableFileNameIsSet = false;
   
   globNumFitPoints = 0;
   globNumFitPointsIsSet = false;
@@ -325,6 +332,46 @@ MP_Block_c* MP_Scan_Info_c::pop_block( MP_Signal_c *signal ) {
 
   }
   /***************************/
+  /* - anywave block: */
+  else if ( !strcmp(type,"anywave") ) {
+    /* - windowShift: */
+    if (!windowShiftIsSet) {
+      if (windowRateIsSet) {
+	windowShift = (unsigned long int)( (double)(windowLen)*windowRate + 0.5 ); /* == round(windowLen*windowRate) */
+	windowShift = ( windowShift > 1 ? windowShift : 1 ); /* windowShift has to be 1 or more */
+	windowShiftIsSet = true;
+      }
+      else if (globWindowShiftIsSet) {
+	windowShift = globWindowShift;
+	windowShiftIsSet = true;
+      }
+      else if (globWindowRateIsSet) {
+	windowShift = (unsigned long int)( (double)(windowLen)*globWindowRate + 0.5 ); /* == round(windowLen*globWindowRate) */
+	windowShift = ( windowShift > 1 ? windowShift : 1 ); /* windowShift has to be 1 or more */
+	windowShiftIsSet = true;
+      }
+      else {
+	fprintf( stderr, "mplib warning -- pop_block() - Anywave block (%u-th block) has no windowShift or windowRate."
+		 " Returning a NULL block.\n" , blockCount );
+	reset();
+	return( NULL );
+      }
+    }
+    /* - filename: */
+    if (!tableFileNameIsSet) {
+      if (globTableFileNameIsSet) {
+	strcmp(tableFileName, globTableFileName);
+	tableFileNameIsSet = true;
+      }
+      else {
+	fprintf( stderr, "mplib warning -- pop_block() - Anywave block (%u-th block) has no filename."
+		 " Returning a NULL block.\n" , blockCount );
+	reset();
+	return( NULL );
+      }
+    }
+  }
+  /***************************/
   /* - ADD YOUR BLOCKS HERE: */
   /* else if ( !strcmp(type,"TEMPLATE") ) {
     // Check the input parameters
@@ -372,6 +419,18 @@ MP_Block_c* MP_Scan_Info_c::pop_block( MP_Signal_c *signal ) {
     else {
       mp_error_msg( func, "Missing parameters in harmonic block instanciation (%u-th block)."
 		    " Returning a NULL block.\n" , blockCount );
+      reset();
+      return( NULL );
+    }
+  }
+  /* - anywave block: */
+  else if ( !strcmp(type,"anywave") ) {
+    if ( windowShiftIsSet && tableFileNameIsSet ) {
+      block = MP_Anywave_Block_c::init( signal, windowShift, tableFileName );
+    }
+    else {
+      fprintf( stderr, "mplib warning -- pop_block() - Missing parameters in anywave block instanciation (%u-th block)."
+	       " Returning a NULL block.\n" , blockCount );
       reset();
       return( NULL );
     }
@@ -476,6 +535,20 @@ int write_block( FILE *fid, MP_Block_c *block ) {
     nChar += fprintf( fid, "\t\t<par type=\"f0Min\">%.2f</par>\n", f0Min );
     nChar += fprintf( fid, "\t\t<par type=\"f0Max\">%.2f</par>\n", f0Max );
     nChar += fprintf( fid, "\t\t<par type=\"numPartials\">%u</par>\n", hblock->maxNumPartials );
+    /* Close the block */
+    nChar += fprintf( fid, "\t</block>\n" );
+  }
+
+  /**** - Anywave block: ****/
+  else if ( !strcmp( name, "anywave" ) ) {
+    /* Cast the block */
+    MP_Anywave_Block_c *ablock;
+    ablock = (MP_Anywave_Block_c*)block;
+    /* Open the block */
+    nChar += fprintf( fid, "\t<block type=\"%s\">\n", name );
+    /* Add the parameters */
+    nChar += fprintf( fid, "\t\t<par type=\"tableFileName\">%s</par>\n", ablock->anywaveTable->tableFileName );
+    nChar += fprintf( fid, "\t\t<par type=\"windowShift\">%lu</par>\n", ablock->filterShift );
     /* Close the block */
     nChar += fprintf( fid, "\t</block>\n" );
   }

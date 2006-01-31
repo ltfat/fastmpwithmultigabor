@@ -230,7 +230,7 @@ char * MP_Atom_c::type_name( void ) {
 void MP_Atom_c::substract_add( MP_Signal_c *sigSub, MP_Signal_c *sigAdd ) {
 
   MP_Sample_t *sigIn;
-  int chanIdx;
+  unsigned int chanIdx;
   unsigned int t;
   double sigEBefAdd = 0.0;
   double sigEAftAdd = 0.0;
@@ -333,7 +333,7 @@ void MP_Atom_c::substract_add( MP_Signal_c *sigSub, MP_Signal_c *sigAdd ) {
    across all channels */
 int MP_Atom_c::satisfies( int field, int test, MP_Real_t val ) {
   
-  int chanIdx;
+  unsigned int chanIdx;
   int retVal = MP_TRUE;
   
   for ( chanIdx = 0; chanIdx < numChans; chanIdx++ ) {

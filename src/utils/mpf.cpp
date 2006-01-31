@@ -5,7 +5,8 @@
 /*                        Matching Pursuit Utilities                          */
 /*                                                                            */
 /* Rémi Gribonval                                                             */
-/* Sacha Krstulovic                                           Mon Feb 21 2005 */
+/* Sacha Krstulovic                                                           */
+/* Sylvain Lesage                                             Mon Feb 21 2005 */
 /* -------------------------------------------------------------------------- */
 /*                                                                            */
 /*  Copyright (C) 2005 IRISA                                                  */
@@ -138,7 +139,7 @@ void usage( void ) {
   fprintf( stdout, "     e.g. ]min:max] will exclude the min value.\n");
   fprintf( stderr, "     The intervals can be negated with prepending the '^' character, e.g. ^[min:max].\n" );
   fprintf( stdout, " \n" );
-  fprintf( stdout, "     --type=gabor|harmonic|dirac / -t gabor|harmonic|dirac : test the atom type.\n" );
+  fprintf( stdout, "     --type=gabor|harmonic|dirac|anywave / -t gabor|harmonic|dirac|anywave : test the atom type.\n" );
   fprintf( stdout, " \n" );
   fprintf( stdout, " Other optional arguments are:\n" );
   fprintf( stdout, " \n" );

@@ -120,6 +120,11 @@ public:
   unsigned int globNumPartials;
   bool globNumPartialsIsSet;
   
+  char tableFileName[MP_MAX_STR_LEN];
+  bool tableFileNameIsSet;
+  char globTableFileName[MP_MAX_STR_LEN];
+  bool globTableFileNameIsSet;
+
   unsigned int numFitPoints;
   bool numFitPointsIsSet;
   unsigned int globNumFitPoints;

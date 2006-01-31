@@ -23,21 +23,21 @@ function [book] = bookread( fileName )
 
 fid = fopen( fileName, 'r', 'l' );
 if (fid == -1),
-   error( [ 'Can''t open file [' fileName ']' ] );
+  error( [ 'Can''t open file [' fileName ']' ] );
 end;
 
 % Get the format line
 l = fgets(fid);
 if strcmp(l,'bin\n'),
-   error( 'Bad book file, or book is not in bin format.' );
+  error( 'Bad book file, or book is not in bin format.' );
 end;
 
 % Get the header
 l = fgets( fid );
 [a,c,e,nextIndex] = sscanf( l, '<book nAtom="%lu" numChans="%d" numSamples="%lu" sampleRate="%d" ');
 if ( c < 4 ),
-   fclose(fid);
-   error('Failed to scan the header.');
+  fclose(fid);
+  error('Failed to scan the header.');
 end;
 book.numAtoms   = a(1);
 book.numChans   = a(2);
@@ -45,72 +45,86 @@ book.numSamples = a(3);
 book.sampleRate = a(4);
 [book.libVersion,c] = sscanf( l(nextIndex:end), 'libVersion="%[0-9a-z.]">\n' );
 if ( c ~= 1 ),
-   fclose(fid);
-   error('Failed to scan the lib version.');
+  fclose(fid);
+  error('Failed to scan the lib version.');
 end;
 
 % Get the atoms
 for ( i = 1:book.numAtoms );
 
-    % Get the atom type
+  % Get the atom type
+  l = fgets( fid );
+  if ( l == -1 ),
+    fclose(fid);
+    error( [ 'Can''t read an atom type for atom number [' num2str(i) '].' ] );
+  end;
+  atomType = sscanf( l, '%[a-z]\n' );
+  book.atom{i}.type = atomType;
+
+  % Get the generic atom parameters
+  numChans = fread( fid, 1, 'int' );
+  for ( c = 1:numChans ),
+    pos(c) = fread( fid, 1, 'ulong' );
+    len(c) = fread( fid, 1, 'ulong' );
+  end;
+  book.atom{i}.pos = pos;
+  book.atom{i}.len = len;
+
+  switch atomType,
+
+   case 'gabor',
     l = fgets( fid );
-    if ( l == -1 ),
-       fclose(fid);
-       error( [ 'Can''t read an atom type for atom number [' num2str(i) '].' ] );
-    end;
-    atomType = sscanf( l, '%[a-z]\n' );
-    book.atom{i}.type = atomType;
+    book.atom{i}.windowType = sscanf( l, '%[a-z]\n' );
+    book.atom{i}.windowOpt = fread( fid, 1, 'double' );
+    book.atom{i}.freq  = fread( fid, 1, 'double' );
+    book.atom{i}.chirp = fread( fid, 1, 'double' );
+    book.atom{i}.amp   = fread( fid, numChans, 'double' );
+    book.atom{i}.phase = fread( fid, numChans, 'double' );
 
-    % Get the generic atom parameters
-    numChans = fread( fid, 1, 'int' );
-    for ( c = 1:numChans ),
-	pos(c) = fread( fid, 1, 'ulong' );
-	len(c) = fread( fid, 1, 'ulong' );
-    end;
-    book.atom{i}.pos = pos;
-    book.atom{i}.len = len;
+   case 'harmonic',
+    l = fgets( fid );
+    book.atom{i}.windowType = sscanf( l, '%[a-z]\n' );
+    book.atom{i}.windowOpt = fread( fid, 1, 'double' );
+    book.atom{i}.freq  = fread( fid, 1, 'double' );
+    book.atom{i}.chirp = fread( fid, 1, 'double' );
+    book.atom{i}.amp   = fread( fid, numChans, 'double' );
+    book.atom{i}.phase = fread( fid, numChans, 'double' );
+    numPartials = fread( fid, 1, 'unsigned int' );
+    book.atom{i}.numPartials = numPartials;
+    book.atom{i}.harmonicity = fread( fid, numPartials, 'double' );
+    book.atom{i}.partialAmpStorage = fread( fid, numChans*numPartials, 'double' );
+    book.atom{i}.partialAmpStorage = reshape( book.atom{i}.partialAmpStorage, numPartials, numChans );
+    book.atom{i}.partialPhaseStorage = fread( fid, numChans*numPartials, 'double' );
+    book.atom{i}.partialPhaseStorage = reshape( book.atom{i}.partialPhaseStorage, numPartials, numChans );
 
-    switch atomType,
+   case 'dirac',
+    book.atom{i}.amp   = fread( fid, numChans, 'double' );
 
-	   case 'gabor',
-	   l = fgets( fid );
-	   book.atom{i}.windowType = sscanf( l, '%[a-z]\n' );
-	   book.atom{i}.windowOpt = fread( fid, 1, 'double' );
-	   book.atom{i}.freq  = fread( fid, 1, 'double' );
-	   book.atom{i}.chirp = fread( fid, 1, 'double' );
-	   book.atom{i}.amp   = fread( fid, numChans, 'double' );
-	   book.atom{i}.phase = fread( fid, numChans, 'double' );
+   case 'anywave'
+    n=0;book.atom{i}.dataFileName='';
+    while 1
+      n=n+1;
+      book.atom{i}.dataFileName = [book.atom{i}.dataFileName fread( fid, 1, 'char')];
+      if (book.atom{i}.dataFileName(n) == 0 )
+	book.atom{i}.dataFileName(n) = [];
+	break;
+      end
+    end
+    book.atom{i}.waveIdx = fread( fid, 1, 'long' );
+    book.atom{i}.amp   = fread( fid, numChans, 'double' );
+    book.atom{i}.phase = fread( fid, numChans, 'double' );
 
-	   case 'harmonic',
-	   l = fgets( fid );
-	   book.atom{i}.windowType = sscanf( l, '%[a-z]\n' );
-	   book.atom{i}.windowOpt = fread( fid, 1, 'double' );
-	   book.atom{i}.freq  = fread( fid, 1, 'double' );
-	   book.atom{i}.chirp = fread( fid, 1, 'double' );
-	   book.atom{i}.amp   = fread( fid, numChans, 'double' );
-	   book.atom{i}.phase = fread( fid, numChans, 'double' );
-	   numPartials = fread( fid, 1, 'unsigned int' );
-	   book.atom{i}.numPartials = numPartials;
-	   book.atom{i}.harmonicity = fread( fid, numPartials, 'double' );
-	   book.atom{i}.partialAmpStorage = fread( fid, numChans*numPartials, 'double' );
-	   book.atom{i}.partialAmpStorage = reshape( book.atom{i}.partialAmpStorage, numPartials, numChans );
-	   book.atom{i}.partialPhaseStorage = fread( fid, numChans*numPartials, 'double' );
-	   book.atom{i}.partialPhaseStorage = reshape( book.atom{i}.partialPhaseStorage, numPartials, numChans );
-
-	   case 'dirac',
-	   book.atom{i}.amp   = fread( fid, numChans, 'double' );
-
-	   % Unknown atom type
-	   otherwise,
-	   error( [ '[' atomType '] is an unknown atom type.'] );
-    end;
+    % Unknown atom type
+   otherwise,
+    error( [ '[' atomType '] is an unknown atom type.'] );
+  end;
 
 end;
 
 % Get the closing tag
 l = fgets( fid );
 if strcmp(l,'</book>\n'),
-   warning( 'Failed to read the closing </book> tag.' );
+  warning( 'Failed to read the closing </book> tag.' );
 end;
 
 fclose(fid);

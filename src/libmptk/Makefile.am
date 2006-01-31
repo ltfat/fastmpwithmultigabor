@@ -52,10 +52,14 @@ export_headers = mp_types.h \
 	atom.h  block.h \
 	mask.h              \
 	book.h dict.h   \
+	anywave_table.h anywave_server.h \
+	anywave_table_io_interface.h \
+	convolution.h \
 	atom_classes/dirac_atom.h atom_classes/dirac_block.h         \
 	atom_classes/gabor_atom.h atom_classes/gabor_block.h         \
 	atom_classes/harmonic_atom.h atom_classes/harmonic_block.h   \
 	atom_classes/chirp_block.h         \
+	atom_classes/anywave_atom.h atom_classes/anywave_block.h \
 	atom_classes/block_io_interface.h  \
 	atom_classes/atom_classes.h        \
 	mpd_core.h
@@ -80,10 +84,14 @@ libmptk_a_SOURCES = mptk.h header.h $(export_headers) regression_constants.h\
 	win_server.cpp    \
 	fft_interface.cpp \
 	block.cpp atom.cpp atom_classes/atom_classes.cpp \
+	anywave_table.cpp anywave_server.cpp \
+	anywave_table_scanner.lpp anywave_table_io_interface.cpp \
+	convolution.cpp \
         atom_classes/dirac_atom.cpp atom_classes/dirac_block.cpp         \
         atom_classes/gabor_atom.cpp atom_classes/gabor_block.cpp         \
         atom_classes/harmonic_atom.cpp atom_classes/harmonic_block.cpp         \
         atom_classes/chirp_block.cpp         \
+	atom_classes/anywave_atom.cpp atom_classes/anywave_block.cpp \
 	atom_classes/dict_scanner.lpp        \
 	atom_classes/block_io_interface.cpp  \
 	dict.cpp mask.cpp book.cpp tfmap.cpp \

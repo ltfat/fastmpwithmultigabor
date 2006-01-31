@@ -7,7 +7,8 @@
 /*                        Matching Pursuit Library                            */
 /*                                                                            */
 /* Rémi Gribonval                                                             */
-/* Sacha Krstulovic                                           Mon Feb 21 2005 */
+/* Sacha Krstulovic                                                           */
+/* Sylvain Lesage                                             Mon Feb 21 2005 */
 /* -------------------------------------------------------------------------- */
 /*                                                                            */
 /*  Copyright (C) 2005 IRISA                                                  */
@@ -51,21 +52,24 @@
 #define YY_DECL int yylex( MP_Scan_Info_c *scanInfo )
 
 /* A few global variables */
-unsigned long int *ulongPtr = NULL;
-unsigned int *uintPtr = NULL;
-double *doublePtr = NULL;
-unsigned char *ucharPtr = NULL;
-bool *boolPtr = NULL;
-bool *boolPtr2 = NULL;
+unsigned long int *dict_scan_ulongPtr = NULL;
+unsigned int *dict_scan_uintPtr = NULL;
+double *dict_scan_doublePtr = NULL;
+char* dict_scan_stringPtr = NULL;
+unsigned char *dict_scan_ucharPtr = NULL;
+bool *dict_scan_boolPtr = NULL;
+bool *dict_scan_boolPtr2 = NULL;
 
 %}
 
 %option noyywrap
 %option stack
+%option prefix="dict_scan_" outfile="lex.yy.c"
 
 %x SCAN_ULONG
 %x SCAN_UINT
 %x SCAN_DOUBLE
+%x SCAN_STRING
 
 %s SCAN_WINDOW
 %x SCAN_WINDOWTYPE
@@ -96,9 +100,9 @@ bool *boolPtr2 = NULL;
 				}
 
 <SCAN_ULONG>[[:space:]]*[0-9]+    {
-				    if (ulongPtr) {
-				       *ulongPtr = strtoul( yytext, NULL, 10 );
-				       *boolPtr = true;
+				    if (dict_scan_ulongPtr) {
+				       *dict_scan_ulongPtr = strtoul( yytext, NULL, 10 );
+				       *dict_scan_boolPtr = true;
 				    }
 				    else {
 					 fprintf( stderr, "mplib error -- yylex() - Tried to read an unsigned long into"
@@ -117,9 +121,9 @@ bool *boolPtr2 = NULL;
 				}
 
 <SCAN_UINT>[[:space:]]*[0-9]+    {
-				    if (uintPtr) {
-				       *uintPtr = (unsigned int)(strtoul( yytext, NULL, 10 ));
-				       *boolPtr = true;
+				    if (dict_scan_uintPtr) {
+				       *dict_scan_uintPtr = (unsigned int)(strtoul( yytext, NULL, 10 ));
+				       *dict_scan_boolPtr = true;
 				    }
 				    else {
 					 fprintf( stderr, "mplib error -- yylex() - Tried to read an unsigned int into"
@@ -130,9 +134,9 @@ bool *boolPtr2 = NULL;
 				}
 
 <SCAN_DOUBLE>[[:space:]]*[0-9\.eE\+-]+    {
-					    if (doublePtr) {
-					       *doublePtr = strtod( yytext, NULL );
-					       *boolPtr = true;
+					    if (dict_scan_doublePtr) {
+					       *dict_scan_doublePtr = strtod( yytext, NULL );
+					       *dict_scan_boolPtr = true;
 					    }
 					    else {
 						 fprintf( stderr, "mplib error -- yylex() - Tried to read a double into"
@@ -142,6 +146,18 @@ bool *boolPtr2 = NULL;
 					    yy_pop_state();
 					  }
 
+<SCAN_STRING>[^\<\>]+ {
+					    if (dict_scan_stringPtr) {
+					       strcpy( dict_scan_stringPtr, yytext );
+					       *dict_scan_boolPtr = true;
+					    }
+					    else {
+						 fprintf( stderr, "mplib error -- yylex() - Tried to read a string into"
+							  " a NULL pointer.\n" );
+						 return( ERROR_EVENT );
+					    }
+					    yy_pop_state();
+					  }
 
 
 \<[[:space:]]*libVersion[[:space:]]*\>	{ /* <libVersion>: launch the Lib Version scanning */
@@ -177,76 +193,84 @@ bool *boolPtr2 = NULL;
 \<[[:space:]]*glob[[:space:]]*type[[:space:]]*=[[:space:]]*\" { /* <glob type=" : launch the scanning of a global parameter. */
 								BEGIN( SCAN_GLOB ); }
 
-<SCAN_PAR>windowLen { ulongPtr = &(scanInfo->windowLen);
-		      boolPtr = &(scanInfo->windowLenIsSet);
+<SCAN_PAR>windowLen { dict_scan_ulongPtr = &(scanInfo->windowLen);
+		      dict_scan_boolPtr = &(scanInfo->windowLenIsSet);
 		      yy_push_state(SCAN_ULONG); }
 
-<SCAN_GLOB>windowLen { ulongPtr = &(scanInfo->globWindowLen);
-		       boolPtr = &(scanInfo->globWindowLenIsSet);
+<SCAN_GLOB>windowLen { dict_scan_ulongPtr = &(scanInfo->globWindowLen);
+		       dict_scan_boolPtr = &(scanInfo->globWindowLenIsSet);
 		       yy_push_state(SCAN_ULONG); }
 
-<SCAN_PAR>windowShift { ulongPtr = &(scanInfo->windowShift);
-			boolPtr = &(scanInfo->windowShiftIsSet);
+<SCAN_PAR>windowShift { dict_scan_ulongPtr = &(scanInfo->windowShift);
+			dict_scan_boolPtr = &(scanInfo->windowShiftIsSet);
 			yy_push_state(SCAN_ULONG); }
 
-<SCAN_GLOB>windowShift { ulongPtr = &(scanInfo->globWindowShift);
-			 boolPtr = &(scanInfo->globWindowShiftIsSet);
+<SCAN_GLOB>windowShift { dict_scan_ulongPtr = &(scanInfo->globWindowShift);
+			 dict_scan_boolPtr = &(scanInfo->globWindowShiftIsSet);
 			 yy_push_state(SCAN_ULONG); }
 
-<SCAN_PAR>windowRate { doublePtr = &(scanInfo->windowRate);
-		       boolPtr = &(scanInfo->windowRateIsSet);
+<SCAN_PAR>windowRate { dict_scan_doublePtr = &(scanInfo->windowRate);
+		       dict_scan_boolPtr = &(scanInfo->windowRateIsSet);
 		       yy_push_state(SCAN_DOUBLE); }
 
-<SCAN_GLOB>windowRate { doublePtr = &(scanInfo->globWindowRate);
-			boolPtr = &(scanInfo->globWindowRateIsSet);
+<SCAN_GLOB>windowRate { dict_scan_doublePtr = &(scanInfo->globWindowRate);
+			dict_scan_boolPtr = &(scanInfo->globWindowRateIsSet);
 			yy_push_state(SCAN_DOUBLE); }
 
-<SCAN_PAR>fftSize { ulongPtr = &(scanInfo->fftSize);
-		    boolPtr = &(scanInfo->fftSizeIsSet);
+<SCAN_PAR>fftSize { dict_scan_ulongPtr = &(scanInfo->fftSize);
+		    dict_scan_boolPtr = &(scanInfo->fftSizeIsSet);
 		    yy_push_state(SCAN_ULONG); }
 
-<SCAN_GLOB>fftSize { ulongPtr = &(scanInfo->globFftSize);
-		     boolPtr = &(scanInfo->globFftSizeIsSet);
+<SCAN_GLOB>fftSize { dict_scan_ulongPtr = &(scanInfo->globFftSize);
+		     dict_scan_boolPtr = &(scanInfo->globFftSizeIsSet);
 		     yy_push_state(SCAN_ULONG); }
 
-<SCAN_PAR>f0Min { doublePtr = &(scanInfo->f0Min);
-		  boolPtr = &(scanInfo->f0MinIsSet);
+<SCAN_PAR>f0Min { dict_scan_doublePtr = &(scanInfo->f0Min);
+		  dict_scan_boolPtr = &(scanInfo->f0MinIsSet);
 		  yy_push_state(SCAN_DOUBLE); }
 
-<SCAN_GLOB>f0Min { doublePtr = &(scanInfo->globF0Min);
-		   boolPtr = &(scanInfo->globF0MinIsSet);
+<SCAN_GLOB>f0Min { dict_scan_doublePtr = &(scanInfo->globF0Min);
+		   dict_scan_boolPtr = &(scanInfo->globF0MinIsSet);
 		   yy_push_state(SCAN_DOUBLE); }
 
-<SCAN_PAR>f0Max { doublePtr = &(scanInfo->f0Max);
-		  boolPtr = &(scanInfo->f0MaxIsSet);
+<SCAN_PAR>f0Max { dict_scan_doublePtr = &(scanInfo->f0Max);
+		  dict_scan_boolPtr = &(scanInfo->f0MaxIsSet);
 		  yy_push_state(SCAN_DOUBLE); }
 
-<SCAN_GLOB>f0Max { doublePtr = &(scanInfo->globF0Max);
-		   boolPtr = &(scanInfo->globF0MaxIsSet);
+<SCAN_GLOB>f0Max { dict_scan_doublePtr = &(scanInfo->globF0Max);
+		   dict_scan_boolPtr = &(scanInfo->globF0MaxIsSet);
 		   yy_push_state(SCAN_DOUBLE); }
 
-<SCAN_PAR>numPartials { uintPtr = &(scanInfo->numPartials);
-			boolPtr = &(scanInfo->numPartialsIsSet);
+<SCAN_PAR>numPartials { dict_scan_uintPtr = &(scanInfo->numPartials);
+			dict_scan_boolPtr = &(scanInfo->numPartialsIsSet);
 			yy_push_state(SCAN_UINT); }
 
-<SCAN_GLOB>numPartials { uintPtr = &(scanInfo->globNumPartials);
-			 boolPtr = &(scanInfo->globNumPartialsIsSet);
+<SCAN_GLOB>numPartials { dict_scan_uintPtr = &(scanInfo->globNumPartials);
+			 dict_scan_boolPtr = &(scanInfo->globNumPartialsIsSet);
 			 yy_push_state(SCAN_UINT); }
 
-<SCAN_PAR>numFitPoints { uintPtr = &(scanInfo->numFitPoints);
-			 boolPtr = &(scanInfo->numFitPointsIsSet);
+<SCAN_PAR>tableFileName { dict_scan_stringPtr = scanInfo->tableFileName ;
+			  dict_scan_boolPtr = &(scanInfo->tableFileNameIsSet);
+			  yy_push_state(SCAN_STRING); }
+
+<SCAN_GLOB>tableFileName { dict_scan_stringPtr = scanInfo->globTableFileName ;
+			   dict_scan_boolPtr = &(scanInfo->globTableFileNameIsSet);
+			   yy_push_state(SCAN_STRING); }
+
+<SCAN_PAR>numFitPoints { dict_scan_uintPtr = &(scanInfo->numFitPoints);
+			 dict_scan_boolPtr = &(scanInfo->numFitPointsIsSet);
 			 yy_push_state(SCAN_UINT); }
 
-<SCAN_GLOB>numFitPoints { uintPtr = &(scanInfo->globNumFitPoints);
-			  boolPtr = &(scanInfo->globNumFitPointsIsSet);
+<SCAN_GLOB>numFitPoints { dict_scan_uintPtr = &(scanInfo->globNumFitPoints);
+			  dict_scan_boolPtr = &(scanInfo->globNumFitPointsIsSet);
 			  yy_push_state(SCAN_UINT); }
 
-<SCAN_PAR>numIter { uintPtr = &(scanInfo->numIter);
-		    boolPtr = &(scanInfo->numIterIsSet);
+<SCAN_PAR>numIter { dict_scan_uintPtr = &(scanInfo->numIter);
+		    dict_scan_boolPtr = &(scanInfo->numIterIsSet);
 		    yy_push_state(SCAN_UINT); }
 
-<SCAN_GLOB>numIter { uintPtr = &(scanInfo->globNumIter);
-		     boolPtr = &(scanInfo->globNumIterIsSet);
+<SCAN_GLOB>numIter { dict_scan_uintPtr = &(scanInfo->globNumIter);
+		     dict_scan_boolPtr = &(scanInfo->globNumIterIsSet);
 		     yy_push_state(SCAN_UINT); }
 
 <*>\"[[:space:]]*\>  /* Ignore the tag endings after scanning any attribute
@@ -254,26 +278,27 @@ bool *boolPtr2 = NULL;
 
 <SCAN_GLOB,SCAN_PAR>\<[[:space:]]*\/[[:space:]]*((glob)|(par))[[:space:]]*\> { /* </par>: When exiting a parameter, reset
 						       the output value pointers and continue scanning. */
-						       ulongPtr = NULL;
-						       uintPtr = NULL;
-						       doublePtr = NULL;
-						       boolPtr = NULL;
+						       dict_scan_ulongPtr = NULL;
+						       dict_scan_uintPtr = NULL;
+						       dict_scan_doublePtr = NULL;
+						       dict_scan_boolPtr = NULL;
+						       dict_scan_stringPtr = NULL;
 						       BEGIN(INITIAL);
 						     }
 
 
 \<[[:space:]]*window[[:space:]]* { /* <window: launch the scanning of a window. */
-				   ucharPtr = &(scanInfo->windowType);
-				   boolPtr2 = &(scanInfo->windowTypeIsSet);
-				   doublePtr = &(scanInfo->windowOption);
-				   boolPtr = &(scanInfo->windowOptionIsSet);
+				   dict_scan_ucharPtr = &(scanInfo->windowType);
+				   dict_scan_boolPtr2 = &(scanInfo->windowTypeIsSet);
+				   dict_scan_doublePtr = &(scanInfo->windowOption);
+				   dict_scan_boolPtr = &(scanInfo->windowOptionIsSet);
 				   BEGIN( SCAN_WINDOW ); }
 
 \<[[:space:]]*glob[[:space:]]*window[[:space:]]* { /* <glob window: launch the scanning of a glob window. */
-						      ucharPtr = &(scanInfo->globWindowType);
-						      boolPtr2 = &(scanInfo->globWindowTypeIsSet);
-						      doublePtr = &(scanInfo->globWindowOption);
-						      boolPtr = &(scanInfo->globWindowOptionIsSet);
+						      dict_scan_ucharPtr = &(scanInfo->globWindowType);
+						      dict_scan_boolPtr2 = &(scanInfo->globWindowTypeIsSet);
+						      dict_scan_doublePtr = &(scanInfo->globWindowOption);
+						      dict_scan_boolPtr = &(scanInfo->globWindowOptionIsSet);
 						      BEGIN( SCAN_WINDOW ); }
 
 <SCAN_WINDOW>[[:space:]]*type[[:space:]]*=[[:space:]]*\" { /* type=" : launch the scanning of the type. */
@@ -282,8 +307,8 @@ bool *boolPtr2 = NULL;
 <SCAN_WINDOW>[[:space:]]*opt[[:space:]]*=[[:space:]]*\" { /* opt=" : launch the scanning of the type. */
 							  yy_push_state( SCAN_DOUBLE ); }
 
-<SCAN_WINDOWTYPE>[[:space:]]*[a-z]+    { *ucharPtr = window_type( yytext ); ucharPtr = NULL;
-					 *boolPtr2 = true;                  boolPtr2 = NULL;
+<SCAN_WINDOWTYPE>[[:space:]]*[a-z]+    { *dict_scan_ucharPtr = window_type( yytext ); dict_scan_ucharPtr = NULL;
+					 *dict_scan_boolPtr2 = true;                  dict_scan_boolPtr2 = NULL;
 					 yy_pop_state(); }
 
 <SCAN_WINDOW>\"[[:space:]]*  { /* Skip the isolated attribute endings. */ ; }
