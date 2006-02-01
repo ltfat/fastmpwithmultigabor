@@ -60,7 +60,6 @@ for ( i = 1:book.numAtoms );
   end;
   atomType = sscanf( l, '%[a-z]\n' );
   book.atom{i}.type = atomType;
-
   % Get the generic atom parameters
   numChans = fread( fid, 1, 'int' );
   for ( c = 1:numChans ),
@@ -101,20 +100,15 @@ for ( i = 1:book.numAtoms );
     book.atom{i}.amp   = fread( fid, numChans, 'double' );
 
    case 'anywave'
-    n=0;book.atom{i}.dataFileName='';
-    while 1
-      n=n+1;
-      book.atom{i}.dataFileName = [book.atom{i}.dataFileName fread( fid, 1, 'char')];
-      if (book.atom{i}.dataFileName(n) == 0 )
-	book.atom{i}.dataFileName(n) = [];
-	break;
-      end
-    end
+    numChar = fread( fid, 1, 'long' );
+    
+    book.atom{i}.tableFileName = fread( fid, numChar, '*char' )';
+    book.atom{i}.tableFileName(end) = [];
     book.atom{i}.waveIdx = fread( fid, 1, 'long' );
     book.atom{i}.amp   = fread( fid, numChans, 'double' );
-    book.atom{i}.phase = fread( fid, numChans, 'double' );
 
     % Unknown atom type
+
    otherwise,
     error( [ '[' atomType '] is an unknown atom type.'] );
   end;
