@@ -209,6 +209,7 @@ public:
 
   /* Misc */
   void save_result( void );
+  MP_Bool_t can_step( void );
 
 };
 
