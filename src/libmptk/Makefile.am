@@ -34,11 +34,8 @@
 ##   $Revision$
 ##
 
-bin_PROGRAMS = make_regression_constants
 noinst_PROGRAMS = make_regression_constants
 make_regression_constants_SOURCES = make_regression_constants.cpp
-make_regression_constants_LDADD = 
-make_regression_constants_DEPENDENCIES = 
 
 export_headers = mp_types.h \
 	mp_messaging.h    \
@@ -116,5 +113,5 @@ mptk.h: Makefile.am $(srcdir)/header.h $(srcdir)/../../AUTHORS $(export_headers)
 	echo "#endif /* __mptk_h_ */"; \
 	echo;echo;) > mptk.h;
 
-regression_constants.h: make_regression_constants
+regression_constants.h: make_regression_constants$(EXEEXT)
 	cd $(top_builddir)/src/libmptk/; ./make_regression_constants;

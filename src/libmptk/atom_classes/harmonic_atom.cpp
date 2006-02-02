@@ -467,15 +467,45 @@ void MP_Harmonic_Atom_c::build_waveform( MP_Sample_t *outBuffer ) {
 
 
 /* Adds a pseudo Wigner-Ville of the atom to a time-frequency map */
-/** \todo TO IMPLEMENT */
 int MP_Harmonic_Atom_c::add_to_tfmap( MP_TF_Map_c *tfmap, const char tfmapType ) {
-
+  static MP_Gabor_Atom_c *gatom = NULL; // A Gabor atom used to plot each partial of the harmonic atom. Implemented as static to be allocated and initialized only once
+  static int nchans = 0; // maximum number of channels the gabor atom was ever allocated. May differ from gatom->numChans 
+  unsigned int k;
+  int chanIdx;
   char flag = 0;
 
-  /* YOUR code */
-  tfmap = NULL;
-  fprintf( stderr, "Warning: Harmonic atom cannot yet be added to a time-frequency pixmap ... the atom is skipped\n");
+  if (gatom==NULL) { // first allocation of the gabor atom
+    gatom = new MP_Gabor_Atom_c(numChans,windowType, windowOption);
+    nchans = numChans;
+  }
+  else if( nchans<numChans) { // reallocation if more channels are needed
+    delete gatom;
+    gatom = new MP_Gabor_Atom_c(numChans,windowType, windowOption);
+    nchans = numChans;
+  } else { // possible decrease of gatom->numChans, keeping track of the actually allocated number of channels nchans.
+    gatom->numChans = numChans;
+    gatom->windowType = windowType;
+    gatom->windowOption = windowOption;
+  }
+  // Setting the partials support
+  for(chanIdx=0; chanIdx< numChans; chanIdx++) {
+    gatom->support[chanIdx].pos = support[chanIdx].pos;
+    gatom->support[chanIdx].len = support[chanIdx].len;
+  }
+
+  // Plotting each partial
+  for (k = 0; k < numPartials; k++) {
+    // Setting the partial freq, chirp
+    gatom->freq = harmonicity[k]*freq;
+    gatom->chirp = harmonicity[k]*chirp;
+    // Setting the amplitude and phase on each channel
+    for (chanIdx = 0; chanIdx < numChans; chanIdx++) {
+      gatom->amp[chanIdx] = amp[chanIdx]*partialAmp[chanIdx][k];
+      gatom->phase[chanIdx] = phase[chanIdx]+partialPhase[chanIdx][k];
+    }
+    // Plotting, and counting whether something was plotted or not
+    flag = flag || gatom->add_to_tfmap(tfmap, tfmapType);
+  }
   return( flag );
 }
-
 
