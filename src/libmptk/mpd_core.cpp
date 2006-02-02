@@ -512,6 +512,6 @@ void MP_Mpd_Core_c::info_result( void ) {
 		 numIter, dict->size() );
     mp_info_msg( func, "The initial signal energy was [%g].\n", initialEnergy );
     mp_info_msg( func, "The residual energy is now [%g].\n", residualEnergy );
-    mp_info_msg( func, "The SNR is now [%g].\n", 10*log10( currentSnr ) );
+    mp_info_msg( func, "The SNR is now [%g].\n", 10*log10( initialEnergy / residualEnergy ) );
 }
 
