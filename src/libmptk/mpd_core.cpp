@@ -65,8 +65,6 @@ MP_Mpd_Core_c* MP_Mpd_Core_c::init( MP_Signal_c *signal, MP_Book_c *book ) {
     delete( newCore );
     return( NULL );    
   }
-  newCore->residualEnergy = newCore->initialEnergy = signal->energy;
-  newCore->decay.append( newCore->initialEnergy );
   if ( newCore->set_book( book ) == book ) {
     mp_error_msg( func, "Failed to plug the book.\n" );
     delete( newCore );
@@ -378,7 +376,7 @@ void MP_Mpd_Core_c::save_result() {
     nWrite = decay.save( decayFileName );
     if( nWrite != (numIter+1) ) {
       mp_warning_msg( func, "Wrote less than the expected number of doubles to the energy decay file.\n" );
-      mp_warning_msg( func, "([%lu] expected, [%lu] written.)\n", numIter, nWrite );
+      mp_warning_msg( func, "([%lu] expected, [%lu] written.)\n", numIter+1, nWrite );
     }
     if ( verbose ) mp_info_msg( func, "At iteration [%lu] : saved the energy decay.\n", numIter );	  
   }
