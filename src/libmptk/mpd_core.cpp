@@ -462,7 +462,7 @@ void MP_Mpd_Core_c::info_conditions( void ) {
   if ( useStopAfterIter ) mp_info_msg( func, "This run will perform [%lu] iterations, using [%lu] atoms.\n",
 				       stopAfterIter, dict->size() );
   if ( useStopAfterSnr ) mp_info_msg( func, "This run will iterate until the SNR goes above [%g], using [%lu] atoms.\n",
-				      stopAfterSnr, dict->size() );
+				      10*log10( stopAfterSnr ), dict->size() );
   if ( bookFileName ) {  
     if ( strcmp( bookFileName, "-" ) == 0 ) mp_info_msg( func, "The resulting book will be written"
 							 " to the standard output [%s].\n", bookFileName );
