@@ -223,6 +223,9 @@ MP_Signal_c* MP_Mpd_Core_c::set_signal( MP_Signal_c *setSig ) {
     dict->copy_signal( signal );
     residual = dict->signal;
   }
+  if ( book ) {
+    book->numSamples = signal->numSamples;
+  }
 
   return( oldSig );
 }
@@ -244,6 +247,9 @@ MP_Book_c* MP_Mpd_Core_c::set_book( MP_Book_c *setBook ) {
   }
 
   book = setBook;
+  if ( signal ) {
+    book->numSamples = signal->numSamples;
+  }
 
   return( oldBook );
 }
@@ -443,6 +449,9 @@ unsigned short int MP_Mpd_Core_c::step() {
 /* Make one MP iteration */
 unsigned long int MP_Mpd_Core_c::run() {
 
+  /* Reset the state info */
+  state = 0;
+
   /* Loop while the return state is NULL */
   while( step() == 0 );
 
@@ -494,7 +503,8 @@ void MP_Mpd_Core_c::info_state( void ) {
 						      residualEnergy, numIter );
 
   if ( state & MPD_INCREASING_ENERGY )  mp_info_msg( func,
-						     "The residual energy is increasing [%g -> %g] after [%lu] iterations.\n",
+						     "The residual energy is increasing [%g -> %g]"
+						     " after [%lu] iterations.\n",
 						     residualEnergyBefore, residualEnergy, numIter );
 
   if ( state & MPD_ITER_EXHAUSTED ) mp_info_msg( func,
@@ -515,3 +525,10 @@ void MP_Mpd_Core_c::info_result( void ) {
     mp_info_msg( func, "The SNR is now [%g].\n", 10*log10( initialEnergy / residualEnergy ) );
 }
 
+
+/**********************************/
+/* Check if some objects are null */
+MP_Bool_t MP_Mpd_Core_c::can_step( void ) {
+  /* Check that all of dict, book and signal are not NULL */
+  return(  dict  &&  book  &&  dict->signal  );
+}
