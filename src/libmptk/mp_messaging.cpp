@@ -64,7 +64,7 @@ MP_Msg_Server_c MP_GLOBAL_MSG_SERVER;
 /* Void constructor */
 MP_Msg_Server_c::MP_Msg_Server_c( void ) {
 #ifndef NDEBUG
-  fprintf( stderr, MP_LIB_STR_PREFIX " DEBUG -- ~MP_Msg_Server_c -- Entering the messaging server constructor.\n" );
+  fprintf( stderr, MP_LIB_STR_PREFIX " DEBUG -- MP_Msg_Server_c -- Entering the messaging server constructor.\n" );
 #endif
 
   /* Allocate the standard string buffer */
@@ -98,7 +98,7 @@ MP_Msg_Server_c::MP_Msg_Server_c( void ) {
   maxStackSize = 0;
 
 #ifndef NDEBUG
-  fprintf( stderr, MP_LIB_STR_PREFIX " DEBUG -- ~MP_Msg_Server_c -- Exiting the messaging server destructor.\n" );
+  fprintf( stderr, MP_LIB_STR_PREFIX " DEBUG -- MP_Msg_Server_c -- Exiting the messaging server constructor.\n" );
 #endif
 }
 

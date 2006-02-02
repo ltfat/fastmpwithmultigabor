@@ -91,8 +91,10 @@
 #define MP_DEBUG_PARSE_ARGS    (1 << 19)
 /* -- MPD loop in utils: */
 #define MP_DEBUG_MPD_LOOP      (1 << 20)
+/* -- Specific for internal atom operations: */
+#define MP_DEBUG_ATOM          (1 << 21)
 
-#define MP_MSG_LAST_TYPE MP_DEBUG_MPD_LOOP
+#define MP_MSG_LAST_TYPE MP_DEBUG_ATOM
 
 #define MP_DEBUG_ALL  ULONG_MAX
 #define MP_DEBUG_NONE 0
