@@ -181,9 +181,8 @@ public:
     stopAfterIter = setIter; useStopAfterIter = MP_TRUE; }
   void reset_iter_condition() { stopAfterIter = ULONG_MAX; useStopAfterIter = MP_FALSE; }
 
-  void set_snr_condition( const double setSnr ) {
-    stopAfterSnr = pow( 10.0, setSnr/10 ); useStopAfterSnr = MP_TRUE; }
-  void reset_snr_condition() { stopAfterSnr = 0.0; useStopAfterSnr = MP_FALSE; }
+  void set_snr_condition( const double setSnr );
+  void reset_snr_condition( void );
 
   void set_snr_hit( const unsigned long int setSnrHit ) {
     snrHit = setSnrHit; nextSnrHit = numIter + setSnrHit; }

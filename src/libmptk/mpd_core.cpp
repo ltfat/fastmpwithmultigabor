@@ -255,8 +255,24 @@ MP_Book_c* MP_Mpd_Core_c::set_book( MP_Book_c *setBook ) {
 }
 
 
+/*******************************/
+/* Set/reset the snr condition */
+/****/
+void MP_Mpd_Core_c::set_snr_condition( const double setSnr ) {
+  stopAfterSnr = pow( 10.0, setSnr/10 );
+  useStopAfterSnr = MP_TRUE;
+  if ( snrHit == ULONG_MAX ) set_snr_hit( 1 );
+}
+/****/
+void MP_Mpd_Core_c::reset_snr_condition( void ) {
+  stopAfterSnr = 0.0;
+  useStopAfterSnr = MP_FALSE;
+}
+/****/
+
 /**********************/
 /* Set/reset save hit */
+/****/
 void MP_Mpd_Core_c::set_save_hit( const unsigned long int setSaveHit,
 				  char* setBookFileName,
 				  char* setResFileName,
@@ -268,7 +284,7 @@ void MP_Mpd_Core_c::set_save_hit( const unsigned long int setSaveHit,
   resFileName   = setResFileName;
   decayFileName = setDecayFileName;
 }
-
+/****/
 void MP_Mpd_Core_c::reset_save_hit( void ) {
   saveHit = ULONG_MAX;
   nextSaveHit = ULONG_MAX;
@@ -277,6 +293,7 @@ void MP_Mpd_Core_c::reset_save_hit( void ) {
   resFileName   = NULL;
   decayFileName = NULL;
 }
+/****/
 
 
 /***************************/
@@ -404,7 +421,8 @@ unsigned short int MP_Mpd_Core_c::step() {
   mp_debug_msg( MP_DEBUG_MPD_LOOP, func, "Next report hit is [%lu].\n", nextReportHit );
   mp_debug_msg( MP_DEBUG_MPD_LOOP, func, "Next save hit is   [%lu].\n", nextSaveHit );
   mp_debug_msg( MP_DEBUG_MPD_LOOP, func, "Next snr hit is    [%lu].\n", nextSnrHit );
-  mp_debug_msg( MP_DEBUG_MPD_LOOP, func, "SNR is [%g]/[%g].\n", currentSnr, stopAfterSnr );
+  mp_debug_msg( MP_DEBUG_MPD_LOOP, func, "SNR is [%g]/[%g].\n",
+		10*log10(currentSnr), 10*log10(stopAfterSnr) );
 
   /* 1) Iterate: */
   dict->iterate_mp( book , NULL );
@@ -439,7 +457,8 @@ unsigned short int MP_Mpd_Core_c::step() {
   mp_debug_msg( MP_DEBUG_MPD_LOOP, func, "Next report hit is [%lu].\n", nextReportHit );
   mp_debug_msg( MP_DEBUG_MPD_LOOP, func, "Next save hit is   [%lu].\n", nextSaveHit );
   mp_debug_msg( MP_DEBUG_MPD_LOOP, func, "Next snr hit is    [%lu].\n", nextSnrHit );
-  mp_debug_msg( MP_DEBUG_MPD_LOOP, func, "SNR is [%g]/[%g].\n", currentSnr, stopAfterSnr );
+  mp_debug_msg( MP_DEBUG_MPD_LOOP, func, "SNR is [%g]/[%g].\n",
+		10*log10(currentSnr), 10*log10(stopAfterSnr) );
 
   return( state );
 }
