@@ -110,7 +110,7 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
 
 	<!-- whole page table -->
 <table width="100%" cellpadding="5" cellspacing="0" border="0">
-<tr><td width="65%" valign="top">
+<tr><td width="65%" valign="top" bgcolor="#ffaa77">
 
 <HR>
 
@@ -128,18 +128,18 @@ echo $contents; } ?>
 <HR>
 
 <P>
-You can have a preliminary taste of what the software is all about by looking
-at the documentation available on the
+<H3>Introduction:</H3> You can have a preliminary taste of what the software is all about by looking
+at the <B><A HREF="http://gforge.inria.fr/docman/?group_id=36">documentation</A></B> available on the
 <B><A HREF="http://gforge.inria.fr/docman/?group_id=36">Doc Manager</A></B> page.
 
 <P>
-To download the latest release, go to the
+<H3>Download:</H3> To download the latest release, go to the
 <B><A HREF="http://gforge.inria.fr/project/showfiles.php?group_id=36">Released Files</A></B>
 section in the <B><A HREF="http://gforge.inria.fr/projects/mptk/">Project Summary</A></B>
 menu, on the right of this page.
 
 <P>
-If you need help with the software:
+<H3>Help and forums:</H3> If you need help with the software:
 <OL>
 <LI> check if a more recent
 <B><A HREF="http://gforge.inria.fr/project/showfiles.php?group_id=36">release</A></B>
@@ -152,9 +152,15 @@ to ask questions.
 open discussions about the Matching Pursuit algorithm and its MPTK implementation.
 
 <P>
-If you are confused by this page, or if you want to communicate privately with us,
-please write to <img src="./addrmatchp.jpg" align="middle">. Request for help sent
-to this address won't be answered. Please use the
+<H3>Related articles:</H3> Some articles exposing scientific results related to
+MPTK are available in PDF format through the 
+<B><A HREF="http://gforge.inria.fr/project/showfiles.php?group_id=36">Released Files</A></B>
+page.
+
+<P>
+<H3>Contact:</H3> If you are confused by this page, or if you want to communicate privately with us,
+please write to <img src="./addrmatchp.jpg" align="middle">.<BR>
+Request for help sent to this address won't be answered. Please use the
 <B><A HREF="http://gforge.inria.fr/forum/forum.php?forum_id=109">Help forum</A></B> instead.
 
 <P>
