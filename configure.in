@@ -34,16 +34,14 @@
 ##   $Revision$
 ##
 
-VERSION="0.5beta"
-
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(mptk,$VERSION)
+AC_INIT(mptk,0.5beta)
 
 dnl Check for architecture
 AC_CANONICAL_TARGET
 
 dnl Automake stuff
-AM_INIT_AUTOMAKE(mptk,$VERSION)
+AM_INIT_AUTOMAKE(mptk,0.5beta)
 AM_CONFIG_HEADER(config.h)
 AC_REVISION($Revision$)
 
