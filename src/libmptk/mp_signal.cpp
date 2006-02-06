@@ -238,15 +238,9 @@ int MP_Signal_c::init_parameters( const int setNumChans,
 /************************************/
 /* Fill the storage space with zero */
 void MP_Signal_c::fill_zero( void ) {
-  int i;
-  for ( i=0; i<numChans; i++ ) memset( channel[i], 0, numSamples*sizeof( MP_Sample_t ) );
-  /* Note: we could avoid the loop and do directly:
-     memset( channel[i], 0, numSamples*numChans*sizeof( MP_Sample_t ) );
-     but the risk is that numSamples*numChans*sizeof( MP_Sample_t ) will
-     overflow size_t. I'm anyways not sure if size_t is the biggest possible
-     unsigned int.
-  */
-  /* Reste the signal's energy */
+  /* Set the storage area to zero */
+  memset( storage, 0, numSamples*numChans*sizeof( MP_Sample_t ) );
+  /* Reset the signal's energy */
   energy = 0.0;
 }
 
@@ -256,25 +250,33 @@ void MP_Signal_c::fill_zero( void ) {
 void MP_Signal_c::fill_noise( MP_Real_t energyLevel ) {
 
   int i;
-  unsigned long int k;
-  double CST = pow( 2, 64 );
+  MP_Sample_t *p;
   MP_Real_t tmp_energy;
+  extern int mti; /* => a global variable from mtrand.c . */
 
   /* Reset the signal's energy */
   energy = 0.0;
-  /* Seed the random generator */
-  init_genrand( (unsigned long int)(time(NULL)) );
-  /* Fill the signal with random doubles in the interval [0,1[ */
-  for ( i = 0; i < numChans; i++ ) 
-    for ( k = 0; k < numSamples; k++ ) channel[i][k] = (MP_Sample_t)(((double)(genrand_int32())) / CST );
-  /* Normalize */
-  for ( i = 0; i < numChans; i++ ) {
-    tmp_energy = compute_energy_in_channel( i );
-    tmp_energy = energyLevel / tmp_energy;
-    for ( k = 0; k < numSamples; k++ ) channel[i][k] *= tmp_energy;
+  /* Seed the random generator if it has never been done before */
+  if (mti == MTRAND_N+1) {
+    init_genrand( (unsigned long int)(time(NULL)) );
+    mp_debug_msg( MP_DEBUG_GENERAL, "MP_Signal_c::fill_noise(e)",
+		  "SEEDING the random generator !\n" );
   }
-  refresh_energy();
+#ifndef NDEBUG
+  else {
+    mp_debug_msg( MP_DEBUG_GENERAL, "MP_Signal_c::fill_noise(e)",
+		  "Re-using the random generator in its previous state,"
+		  " no new seeding.\n" );
+  }
+#endif
+  /* Fill the signal with random doubles in the interval [-1.0,1.0] */
+  for ( p = storage;
+	p < (storage + numSamples*numChans);
+	*p++ = (MP_Sample_t)(mt_nrand( 0.0, 1.0 )) );
+  /* Normalize */
+  apply_gain( 1.0 / l2norm() );
 
+  return;
 }
 
 
@@ -591,9 +593,8 @@ int MP_Signal_c::info( FILE *fid ) {
   int nChar = 0;
 
   nChar += mp_info_msg( fid, "SIGNAL",
-			"This signal object has [%lu] samples on [%d] channels;"
-			" its sample rate is [%d]Hz.\n",
-			numSamples, numChans, sampleRate );
+			"[%lu] samples on [%d] channels; sample rate [%d]Hz; energy [%g].\n",
+			numSamples, numChans, sampleRate, energy );
 
   return( nChar );
 }
@@ -605,9 +606,8 @@ int MP_Signal_c::info( void ) {
   int nChar = 0;
 
   nChar += mp_info_msg( "SIGNAL",
-			"This signal object has [%lu] samples on [%d] channels;"
-			" its sample rate is [%d]Hz.\n",
-			numSamples, numChans, sampleRate );
+			"[%lu] samples on [%d] channels; sample rate [%d]Hz; energy [%g].\n",
+			numSamples, numChans, sampleRate, energy );
 
   return( nChar );
 }
@@ -617,11 +617,95 @@ int MP_Signal_c::info( void ) {
 /* MISC METHODS            */
 /***************************/
 
+/***********/
+/* L1 norm */
+MP_Real_t MP_Signal_c::l1norm( void ) {
+
+  double ret = 0.0;
+  MP_Real_t *p;
+
+  assert( storage != NULL );
+
+  for ( p = storage;
+	p < (storage + numChans*numSamples);
+	p++ ) {
+    ret += fabs( (double)(*p) );
+  }
+
+  return( (MP_Real_t)( ret ) );
+}
+
+
+/***********/
+/* L2 norm */
+MP_Real_t MP_Signal_c::l2norm( void ) {
+
+  double ret = 0.0;
+  double val;
+  MP_Real_t *p;
+
+  assert( storage != NULL );
+
+  for ( p = storage;
+	p < (storage + numChans*numSamples);
+	p++ ) {
+    val = (double)(*p);
+    ret += (val * val);
+  }
+
+  return( (MP_Real_t)sqrt( ret ) );
+}
+
+
+/***********/
+/* Lp norm */
+MP_Real_t MP_Signal_c::lpnorm( MP_Real_t P ) {
+
+  double ret = 0.0;
+  double val;
+  MP_Real_t *ptr;
+
+  assert( storage != NULL );
+
+  for ( ptr = storage;
+	ptr < (storage + numChans*numSamples);
+	ptr++ ) {
+    val = fabs( (double)(*ptr) );
+    ret += pow( val, (double)(P) );
+  }
+
+  return( (MP_Real_t)pow( ret, 1.0/P ) );
+}
+
+
+/*************/
+/* Linf norm */
+MP_Real_t MP_Signal_c::linfnorm( void ) {
+
+  double ret;
+  double val;
+  MP_Real_t *p;
+
+  assert( storage != NULL );
+
+  ret = (double)(*storage);
+  for ( p = storage + 1;
+	p < (storage + numChans*numSamples);
+	p++ ) {
+    val = fabs( (double)(*p) );
+    ret = ( val > ret ? val : ret ); /* max( val, ret ) */
+  }
+
+  return( (MP_Real_t)( ret ) );
+}
+
+
 /*************************************************/
 /* Refresh the energy field in the signal object */
 void MP_Signal_c::refresh_energy( void ) {
   energy = compute_energy();
 }
+
 
 /***********************/
 /* Total signal energy */
@@ -630,14 +714,12 @@ MP_Real_t MP_Signal_c::compute_energy( void ) {
   double retEnergy = 0.0;
   double val;
   MP_Real_t *p;
-  unsigned long int i;
 
   assert( storage != NULL );
 
-  for ( i = 0, p = storage;
-	i < (numChans*numSamples);
-	i++, p++ ) {
-
+  for ( p = storage;
+	p < (storage + numChans*numSamples);
+	p++ ) {
     val = (double)(*p);
     retEnergy += (val * val);
   }
@@ -653,22 +735,39 @@ MP_Real_t MP_Signal_c::compute_energy_in_channel( int numChan ) {
   double retEnergy = 0.0;
   double val;
   MP_Real_t *p;
-  unsigned long int i;
 
   assert( storage != NULL );
   assert( numChan < numChans );
   assert( channel[numChan] != NULL );
 
-  for ( i = 0, p = (storage + numChan*numSamples);
-	i < numSamples;
-	i++, p++ ) {
-
+  for ( p = (storage + numChan*numSamples);
+	p < (storage + numChan*numSamples + numSamples);
+	p++ ) {
     val = (double)(*p);
     retEnergy += (val * val);
   }
 
   return( (MP_Real_t)retEnergy );
 }
+
+
+/*****************************************/
+/* Apply a gain to the whole signal      */
+MP_Real_t MP_Signal_c::apply_gain( MP_Real_t gain ) {
+  
+  MP_Real_t *p;
+
+  assert( storage != NULL );
+
+  for ( p = storage;
+	p < (storage + numChans*numSamples);
+	*p++ = (MP_Real_t)( ((double)(*p)) * (double)(gain) ) );
+
+  refresh_energy();
+
+  return( energy );
+}
+
 
 /*****************************************/
 /* Pre_emphasis                          */

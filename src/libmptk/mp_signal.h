@@ -226,6 +226,27 @@ public:
 
 public:
 
+  /** \brief Compute the L1-norm of the signal over all the channels.
+   *  \return the computed norm. */
+  MP_Real_t l1norm( void );
+
+  /** \brief Compute the L2-norm of the signal over all the channels.
+   *  \return the computed norm. */
+  MP_Real_t l2norm( void );
+
+  /** \brief Compute the Lp-norm of the signal over all the channels.
+   *  \param p the order of the norm.
+   *  \return the computed norm.
+   *
+   *  \sa l1norm(), l2norm(), linfnorm()
+   */
+  MP_Real_t lpnorm( MP_Real_t p );
+
+  /** \brief Compute the Linf-norm of the signal over all the channels.
+   *  \return the computed norm. */
+  MP_Real_t linfnorm( void );
+
+
   /** \brief Updates the energy field in the signal object,
    *  by internally calling compute_energy(). */
   void refresh_energy( void );
@@ -242,6 +263,15 @@ public:
    * \return the computed energy
    */
   MP_Real_t compute_energy_in_channel( int numChan );
+
+
+  /** \brief Apply a gain to the signal
+   * \param gain the gain to apply
+   * \return the new energy of the signal
+   *
+   * \note signal.energy is set to the new energy.
+   */
+  MP_Real_t apply_gain( MP_Real_t gain );
 
 
   /** \brief Pre-emphasize the signal (in all the channels)
