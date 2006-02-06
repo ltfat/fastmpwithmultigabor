@@ -70,6 +70,7 @@ MP_Atom_c::MP_Atom_c( const unsigned int setNChan ) {
 /* File constructor */
 MP_Atom_c::MP_Atom_c( FILE *fid, const char mode ) {
 
+  const char* func = "MP_Atom_c::MP_Atom_c(fid,mode)";
   unsigned long int nItem = 0;
   unsigned int i, iRead;
   unsigned long int val;
@@ -79,20 +80,20 @@ MP_Atom_c::MP_Atom_c( FILE *fid, const char mode ) {
 
   case MP_TEXT:
     if ( fscanf( fid, "\t\t<par type=\"numChans\">%d</par>\n", &numChans ) != 1 ) {
-      fprintf(stderr, "mplib warning -- MP_Atom_c(file) - Cannot scan numChans. Atom will remain void.\n");
+      mp_warning_msg( func, "Cannot scan numChans. Atom will remain void.\n");
       numChans = 0;
     }
     break;
 
   case MP_BINARY:
     if ( mp_fread( &numChans,   sizeof(int), 1, fid ) != 1 ) {
-      fprintf(stderr, "mplib warning -- MP_Atom_c(file) - Cannot read numChans. Atom will remain void.\n");
+      mp_warning_msg( func, "Cannot read numChans. Atom will remain void.\n");
       numChans = 0;
     }
     break;
 
   default:
-    fprintf(stderr, "mplib warning -- MP_Atom_c(file) - Bad mode in file-atom contructor. Atom will remain void.\n");
+    mp_warning_msg( func, "Bad mode in file-atom contructor. Atom will remain void.\n");
     numChans = 0;
     break;
   }
@@ -109,9 +110,9 @@ MP_Atom_c::MP_Atom_c( FILE *fid, const char mode ) {
 	nItem += fscanf( fid, "<p>%lu</p><l>%lu</l></support>\n",
 			 &(support[i].pos), &(support[i].len) );
 	if ( iRead != i ) {
-	  fprintf(stderr, "mplib warning -- MP_Atom_c(file) - Supports may be shuffled. "
-		  "(Index \"%u\" read where \"%u\" was expected).\n",
-		  iRead, i );
+	  mp_warning_msg( func, "Supports may be shuffled. "
+			  "(Index \"%u\" read where \"%u\" was expected).\n",
+			  iRead, i );
 	}
       }
       break;
@@ -128,8 +129,9 @@ MP_Atom_c::MP_Atom_c( FILE *fid, const char mode ) {
     }
     /* Check the support information */
     if ( nItem != ( 2 * (unsigned long int)( numChans ) ) ) {
-      fprintf(stderr, "mplib warning -- MP_Atom_c(file) - Problem while reading the supports :"
-	      " %lu read, %lu expected.\n", nItem, 2 * (unsigned long int )( numChans ) );
+      mp_warning_msg( func, "Problem while reading the supports :"
+		      " %lu read, %lu expected.\n",
+		      nItem, 2 * (unsigned long int )( numChans ) );
     }
 
     /* Compute the totalChanLen and the numSamples */
@@ -177,7 +179,7 @@ int MP_Atom_c::write( FILE *fid, const char mode ) {
     break;
 
   default:
-    fprintf(stderr, "mplib warning -- MP_Atom_c::write() - Unknown write mode. No output written.\n" );
+    mp_warning_msg( "MP_Atom_c::write()", "Unknown write mode. No output written.\n" );
     nItem = 0;
     break;
   }
@@ -198,8 +200,9 @@ int MP_Atom_c::alloc_atom( const unsigned int setNChan ) {
 
   /* Allocate the support array */
   if ( ( support = (MP_Support_t*) malloc( setNChan*sizeof(MP_Support_t) )) == NULL ) {
-    fprintf( stderr, "mplib warning -- MP_Atom_c::alloc_atom() - Can't allocate support array in atom with [%u] channels. "
-             "Support array and param array are left NULL.\n", setNChan );
+    mp_warning_msg( "MP_Atom_c::alloc_atom(numChans)", "Can't allocate support array"
+		    " in atom with [%u] channels. Support array and param array"
+		    " are left NULL.\n", setNChan );
     numChans = 0;
     return( 0 );
   }
@@ -229,6 +232,7 @@ char * MP_Atom_c::type_name( void ) {
 /* Substract / add an atom from / to signals. */
 void MP_Atom_c::substract_add( MP_Signal_c *sigSub, MP_Signal_c *sigAdd ) {
 
+  const char* func = "MP_Atom_c::substract_add(...)";
   MP_Sample_t *sigIn;
   unsigned int chanIdx;
   unsigned int t;
@@ -244,13 +248,20 @@ void MP_Atom_c::substract_add( MP_Signal_c *sigSub, MP_Signal_c *sigAdd ) {
   MP_Sample_t *pa;
   unsigned long int len;
   unsigned long int pos;
+  unsigned long int tmpLen;
 
   /* Check that the addition / substraction can take place :
      the signal and atom should have the same number of channels */
-#ifndef NDEBUG
-  if ( sigSub != NULL ) assert( sigSub->numChans == numChans );
-  if ( sigAdd != NULL ) assert( sigAdd->numChans == numChans );
-#endif
+  if ( ( sigSub ) && ( sigSub->numChans != numChans ) ) {
+    mp_error_msg( func, "Incompatible number of channels between the atom and the subtraction"
+		  " signal. Returning without any addition or subtraction.\n" );
+    return;
+  }
+  if ( ( sigAdd ) && ( sigAdd->numChans != numChans ) ) {
+    mp_error_msg( func, "Incompatible number of channels between the atom and the addition"
+		  " signal. Returning without any addition or subtraction.\n" );
+    return;
+  }
 
   /* build the atom waveform */
   build_waveform( totalBuffer );
@@ -263,17 +274,19 @@ void MP_Atom_c::substract_add( MP_Signal_c *sigSub, MP_Signal_c *sigAdd ) {
     pos = support[chanIdx].pos;
 
     /* SUBTRACT the atomic waveform from the first signal */
-    if ( sigSub ) {
+    if ( (sigSub) && (pos < sigSub->numSamples) ) {
 
-      /* Assert that we don't try to write outside of the signal array */
-      assert( (pos + len) <= sigSub->numSamples );
+      /* Avoid to write outside of the signal array */
+      //assert( (pos + len) <= sigSub->numSamples );
+      tmpLen = sigSub->numSamples - pos;
+      tmpLen = ( len < tmpLen ? len : tmpLen ); /* min( len, tmpLen ) */
 
       /* Seek the right location in the signal */
       sigIn  = sigSub->channel[chanIdx] + pos;
 
       /* Waveform SUBTRACTION */
       for ( t = 0,   ps = sigIn, pa = atomIn;
-	    t < len;
+	    t < tmpLen;
 	    t++,     ps++,       pa++ ) {
 	/* Dereference the signal value */
 	sigVal   = (double)(*ps);
@@ -290,10 +303,12 @@ void MP_Atom_c::substract_add( MP_Signal_c *sigSub, MP_Signal_c *sigAdd ) {
     } /* end SUBTRACT */
     
     /* ADD the atomic waveform to the second signal */
-    if ( sigAdd ) {
+    if ( (sigAdd) && (pos < sigAdd->numSamples) ) {
 
-      /* Assert that we don't try to write outside of the signal array */
-      assert( (pos + len) <= sigAdd->numSamples );
+      /* Avoid to write outside of the signal array */
+      //assert( (pos + len) <= sigAdd->numSamples );
+      tmpLen = sigAdd->numSamples - pos;
+      tmpLen = ( len < tmpLen ? len : tmpLen ); /* min( len, tmpLen ) */
 
       /* Seek the right location in the signal */
       sigIn  = sigAdd->channel[chanIdx] + pos;
@@ -349,6 +364,7 @@ int MP_Atom_c::satisfies( int field, int test, MP_Real_t val ) {
    along one channel */
 int MP_Atom_c::satisfies( int field, int test, MP_Real_t val, int chanIdx ) {
   
+  const char* func = "MP_Atom_c::satisfies(...)";
   MP_Real_t x;
   int has = has_field ( field );
   
@@ -357,7 +373,7 @@ int MP_Atom_c::satisfies( int field, int test, MP_Real_t val, int chanIdx ) {
   }
   else {
     if ( has == MP_FALSE ) {
-      fprintf( stderr, "mplib warning -- MP_Atom_c::satisfies -- Unknown field. Returning TRUE." );
+      mp_warning_msg( func, "Unknown field. Returning TRUE." );
       return( MP_TRUE );
     } else {
       x = (MP_Real_t) get_field( field , chanIdx);
@@ -373,7 +389,7 @@ int MP_Atom_c::satisfies( int field, int test, MP_Real_t val, int chanIdx ) {
       case MP_INFER:
 	return( x < val );
       default :
-	fprintf( stderr, "mplib warning -- MP_Atom_c::satisfies -- Unknown test. Returning TRUE." );
+	mp_warning_msg( func, "Unknown test. Returning TRUE." );
 	return( MP_TRUE );
       }
     }
