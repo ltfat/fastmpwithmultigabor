@@ -81,18 +81,34 @@
 extern "C" {
 #endif
 
-/* Mersenne twister random generator */
-/* initializes the random generator with a seed */
-void init_genrand(unsigned long s);
-/* generates a random number on [0,0xffffffff]-interval */
-unsigned long genrand_int32(void);
-/* generates a random number on [0,1]-real-interval */
+  /* Period parameters */
+#define MTRAND_N 624
+#define MTRAND_M 397
+#define MTRAND_MATRIX_A 0x9908b0dfUL   /* constant vector a */
+#define MTRAND_UPPER_MASK 0x80000000UL /* most significant w-r bits */
+#define MTRAND_LOWER_MASK 0x7fffffffUL /* least significant r bits */
+
+  /* Mersenne twister random generator */
+  /* initializes the random generator with a seed */
+  void init_genrand(unsigned long s);
+  /* generates a random number on [0,0xffffffff]-interval */
+  unsigned long genrand_int32(void);
+  /* generates a random number on [0,1]-real-interval */
 #define genrand_real1()  ( ((float)(genrand_int32())) / 4294967295.0 ) /* divided by 2^32-1 */
-/* generates a random number on [0,1[-real-interval */
+  /* generates a random number on [0,1[-real-interval */
 #define genrand_real2()  ( (((float)(genrand_int32())) / 4294967296.0 ) /* divided by 2^32 */
-/* generates a random number on ]0,1[-real-interval */
-#define genrand_real3()  ( ((float)(genrand_int32())) + 0.5) / 4294967296.0 )
-                                                   /* shifted, then divided by 2^32 */
+  /* generates a random number on ]0,1[-real-interval */
+#define genrand_real3()  ( ((float)(genrand_int32())) + 0.5) / 4294967296.0 ) /* shifted,
+										 then divided by 2^32 */
+  /** \brief A normal (Gaussian) random generator based on the Mersenne-Twister
+   * uniform random generator and the polar form of the Box-Muller tranform.
+   *
+   *  \param mean the mean of the random variable
+   *  \param var the variance of the random variable
+   *  \return a Gaussian random value
+   */
+  double mt_nrand( double mean, double var );
+
 #ifdef __cplusplus
 }
 #endif
