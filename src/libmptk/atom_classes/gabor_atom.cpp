@@ -74,6 +74,7 @@ MP_Gabor_Atom_c::MP_Gabor_Atom_c( const unsigned int setNChan,
 				  const double setWindowOption )
   :MP_Atom_c( setNChan ) {
   
+  const char* func = "MP_Gabor_Atom_c::MP_Gabor_Atom_c(...)";
   unsigned int i;
   
   windowType   = setWindowType;
@@ -85,13 +86,13 @@ MP_Gabor_Atom_c::MP_Gabor_Atom_c( const unsigned int setNChan,
 
   /* amp */
   if ( (amp = (MP_Real_t*)malloc( numChans*sizeof(MP_Real_t)) ) == NULL ) {
-    fprintf( stderr, "mplib warning -- MP_Gabor_Atom_c() - Can't allocate the amp array for a new atom;"
-	     " amp stays NULL.\n" );
+    mp_warning_msg( func, "Can't allocate the amp array for a new atom;"
+		    " amp stays NULL.\n" );
   }
   /* phase */
   if ( (phase = (MP_Real_t*)malloc( numChans*sizeof(MP_Real_t)) ) == NULL ) {
-    fprintf( stderr, "mplib warning -- MP_Gabor_Atom_c() - Can't allocate the phase array for a new atom;"
-	     " phase stays NULL.\n" );
+    mp_warning_msg( func, "Can't allocate the phase array for a new atom;"
+		    " phase stays NULL.\n" );
   }
   /* Initialize */
   if ( (amp!=NULL) && (phase!=NULL) ) {
@@ -100,8 +101,8 @@ MP_Gabor_Atom_c::MP_Gabor_Atom_c( const unsigned int setNChan,
       *(phase+i) = 0.0;
     }
   }
-  else fprintf( stderr, "mplib warning -- MP_Gabor_Atom_c() - The parameter arrays"
-	      " for the new atom are left un-initialized.\n" );
+  else mp_warning_msg( func, "The parameter arrays"
+		       " for the new atom are left un-initialized.\n" );
 
 }
 
@@ -110,6 +111,7 @@ MP_Gabor_Atom_c::MP_Gabor_Atom_c( const unsigned int setNChan,
 MP_Gabor_Atom_c::MP_Gabor_Atom_c( FILE *fid, const char mode )
   :MP_Atom_c( fid, mode ) {
 
+  const char* func = "MP_Gabor_Atom_c::MP_Gabor_Atom_c(fid,mode)";
   char line[MP_MAX_STR_LEN];
   char str[MP_MAX_STR_LEN];
   double fidFreq,fidChirp,fidAmp,fidPhase;
@@ -121,8 +123,7 @@ MP_Gabor_Atom_c::MP_Gabor_Atom_c( FILE *fid, const char mode )
     /* Read the window type */
     if ( ( fgets( line, MP_MAX_STR_LEN, fid ) == NULL ) ||
 	 ( sscanf( line, "\t\t<window type=\"%[a-z]\" opt=\"%lg\"></window>\n", str, &windowOption ) != 2 ) ) {
-      fprintf(stderr,"mplib warning -- MP_Gabor_Atom_c(file) - Failed to read the window type"
-	      " and/or option in a Gabor atom structure.\n");
+      mp_warning_msg( func, "Failed to read the window type and/or option in a Gabor atom structure.\n");
       windowType = DSP_UNKNOWN_WIN;
     }
     else {
@@ -135,7 +136,7 @@ MP_Gabor_Atom_c::MP_Gabor_Atom_c( FILE *fid, const char mode )
     /* Try to read the atom window */
     if ( ( fgets( line, MP_MAX_STR_LEN, fid ) == NULL ) ||
 	 ( sscanf( line, "%[a-z]\n", str ) != 1 ) ) {
-      fprintf(stderr, "mplib warning -- MP_Gabor_Atom_c(file) - Failed to scan the atom's window type.\n");
+      mp_warning_msg( func, "Failed to scan the atom's window type.\n");
       windowType = DSP_UNKNOWN_WIN;
     }
     else {
@@ -144,24 +145,24 @@ MP_Gabor_Atom_c::MP_Gabor_Atom_c( FILE *fid, const char mode )
     }
     /* Try to read the window option */
     if ( mp_fread( &windowOption,  sizeof(double), 1, fid ) != 1 ) {
-      fprintf(stderr, "mplib warning -- MP_Gabor_Atom_c(file) - Failed to read the atom's window option.\n");
+      mp_warning_msg( func, "Failed to read the atom's window option.\n");
       windowOption = 0.0;
     }
    break;
 
   default:
-    fprintf( stderr, "mplib error -- MP_Gabor_Atom_c(file) - Unknown read mode met in MP_Gabor_Atom_c( fid , mode )." );
+    mp_error_msg( func, "Unknown read mode met in MP_Gabor_Atom_c( fid , mode )." );
     break;
   }
 
   /* Allocate and initialize */
   /* amp */
   if ( (amp = (MP_Real_t*)malloc( numChans*sizeof(MP_Real_t)) ) == NULL ) {
-    fprintf( stderr, "mplib warning -- MP_Gabor_Atom_c(file) - Can't allocate the amp array for a new atom; amp stays NULL.\n" );
+    mp_warning_msg( func, "Can't allocate the amp array for a new atom; amp stays NULL.\n" );
   }
   /* phase */
   if ( (phase = (MP_Real_t*)malloc( numChans*sizeof(MP_Real_t)) ) == NULL ) {
-    fprintf( stderr, "mplib warning -- MP_Gabor_Atom_c(file) - Can't allocate the phase array for a new atom; phase stays NULL.\n" );
+    mp_warning_msg( func, "Can't allocate the phase array for a new atom; phase stays NULL.\n" );
   }
   /* Initialize */
   if ( (amp!=NULL) && (phase!=NULL) ) {
@@ -171,7 +172,7 @@ MP_Gabor_Atom_c::MP_Gabor_Atom_c( FILE *fid, const char mode )
     }  
   }
   else {
-    fprintf( stderr, "mplib warning -- MP_Gabor_Atom_c(file) - The parameter arrays for the new atom are left un-initialized.\n" );
+    mp_warning_msg( func, "The parameter arrays for the new atom are left un-initialized.\n" );
   }
 
   /* Try to read the freq, chirp, amp, phase */
@@ -182,7 +183,7 @@ MP_Gabor_Atom_c::MP_Gabor_Atom_c( FILE *fid, const char mode )
     /* freq */
     if ( ( fgets( str, MP_MAX_STR_LEN, fid ) == NULL  ) ||
 	 ( sscanf( str, "\t\t<par type=\"freq\">%lg</par>\n", &fidFreq ) != 1 ) ) {
-      fprintf(stderr, "mplib warning -- MP_Gabor_Atom_c(file) - Cannot scan freq.\n" );
+      mp_warning_msg( func, "Cannot scan freq.\n" );
     }
     else {
       freq = (MP_Real_t)fidFreq;
@@ -190,7 +191,7 @@ MP_Gabor_Atom_c::MP_Gabor_Atom_c( FILE *fid, const char mode )
     /* chirp */
     if ( ( fgets( str, MP_MAX_STR_LEN, fid ) == NULL  ) ||
 	 ( sscanf( str, "\t\t<par type=\"chirp\">%lg</par>\n", &fidChirp ) != 1 ) ) {
-      fprintf(stderr, "mplib warning -- MP_Gabor_Atom_c(file) - Cannot scan chirp.\n" );
+      mp_warning_msg( func, "Cannot scan chirp.\n" );
     }
     else {
       chirp = (MP_Real_t)fidChirp;
@@ -200,17 +201,17 @@ MP_Gabor_Atom_c::MP_Gabor_Atom_c( FILE *fid, const char mode )
       /* Opening tag */
       if ( ( fgets( str, MP_MAX_STR_LEN, fid ) == NULL  ) ||
 	   ( sscanf( str, "\t\t<gaborPar chan=\"%u\">\n", &iRead ) != 1 ) ) {
-	fprintf(stderr, "mplib warning -- MP_Gabor_Atom_c(file) - Cannot scan channel index in atom.\n" );
+	mp_warning_msg( func, "Cannot scan channel index in atom.\n" );
       }
       else if ( iRead != i ) {
- 	fprintf(stderr, "mplib warning -- MP_Gabor_Atom_c(file) - Potential shuffle in the parameters"
-		" of a gabor atom. (Index \"%u\" read, \"%u\" expected.)\n",
-		iRead, i );
+ 	mp_warning_msg( func, "Potential shuffle in the parameters"
+			" of a gabor atom. (Index \"%u\" read, \"%u\" expected.)\n",
+			iRead, i );
       }
       /* amp */
       if ( ( fgets( str, MP_MAX_STR_LEN, fid ) == NULL  ) ||
 	   ( sscanf( str, "\t\t<par type=\"amp\">%lg</par>\n", &fidAmp ) != 1 ) ) {
-	fprintf(stderr, "mplib warning -- MP_Gabor_Atom_c(file) - Cannot scan amp on channel %u.\n", i );
+	mp_warning_msg( func, "Cannot scan amp on channel %u.\n", i );
       }
       else {
 	*(amp +i) = (MP_Real_t)fidAmp;
@@ -218,7 +219,7 @@ MP_Gabor_Atom_c::MP_Gabor_Atom_c( FILE *fid, const char mode )
       /* phase */
       if ( ( fgets( str, MP_MAX_STR_LEN, fid ) == NULL  ) ||
 	   ( sscanf( str, "\t\t<par type=\"phase\">%lg</par>\n", &fidPhase ) != 1 ) ) {
-	fprintf(stderr, "mplib warning -- MP_Gabor_Atom_c(file) - Cannot scan phase on channel %u.\n", i );
+	mp_warning_msg( func, "Cannot scan phase on channel %u.\n", i );
       }
       else {
 	*(phase +i) = (MP_Real_t)fidPhase;
@@ -226,8 +227,8 @@ MP_Gabor_Atom_c::MP_Gabor_Atom_c( FILE *fid, const char mode )
       /* Closing tag */
       if ( ( fgets( str, MP_MAX_STR_LEN, fid ) == NULL  ) ||
 	   ( strcmp( str , "\t\t</gaborPar>\n" ) ) ) {
-	fprintf(stderr, "mplib warning -- MP_Gabor_Atom_c(file) - Cannot scan the closing parameter tag"
-		" in gabor atom, channel %u.\n", i );
+	mp_warning_msg( func, "Cannot scan the closing parameter tag"
+			" in gabor atom, channel %u.\n", i );
       }
     }
     break;
@@ -235,20 +236,20 @@ MP_Gabor_Atom_c::MP_Gabor_Atom_c( FILE *fid, const char mode )
   case MP_BINARY:
     /* Try to read the freq, chirp, amp, phase */
     if ( mp_fread( &freq,  sizeof(MP_Real_t), 1 , fid ) != (size_t)1 ) {
- 	fprintf(stderr, "mplib warning -- MP_Gabor_Atom_c(file) - Failed to read the freq.\n" );     
-	freq = 0.0;
+      mp_warning_msg( func, "Failed to read the freq.\n" );     
+      freq = 0.0;
     }
     if ( mp_fread( &chirp, sizeof(MP_Real_t), 1, fid ) != (size_t)1 ) {
- 	fprintf(stderr, "mplib warning -- MP_Gabor_Atom_c(file) - Failed to read the chirp.\n" );     
-	chirp = 0.0;
+      mp_warning_msg( func, "Failed to read the chirp.\n" );     
+      chirp = 0.0;
     }
     if ( mp_fread( amp,   sizeof(MP_Real_t), numChans, fid ) != (size_t)numChans ) {
- 	fprintf(stderr, "mplib warning -- MP_Gabor_Atom_c(file) - Failed to read the amp array.\n" );     
-	for ( i=0; i<numChans; i++ ) *(amp+i) = 0.0;
+      mp_warning_msg( func, "Failed to read the amp array.\n" );     
+      for ( i=0; i<numChans; i++ ) *(amp+i) = 0.0;
     }
     if ( mp_fread( phase, sizeof(MP_Real_t), numChans, fid ) != (size_t)numChans ) {
- 	fprintf(stderr, "mplib warning -- MP_Gabor_Atom_c(file) - Failed to read the phase array.\n" );     
-	for ( i=0; i<numChans; i++ ) *(phase+i) = 0.0;
+      mp_warning_msg( func, "Failed to read the phase array.\n" );     
+      for ( i=0; i<numChans; i++ ) *(phase+i) = 0.0;
     }
     break;
     
@@ -333,14 +334,13 @@ int MP_Gabor_Atom_c::info( FILE *fid ) {
   unsigned int i = 0;
   int nChar = 0;
 
-  nChar += fprintf( fid, "mplib info -- GABOR ATOM: %s window (window opt=%g),", window_name(windowType), windowOption );
-  nChar += fprintf( fid, " [%d] channel(s)\n", numChans );
-  nChar += fprintf( fid, "\tFreq %g\tChirp %g\n", (double)freq, (double)chirp);
+  nChar += mp_info_msg( fid, "GABOR ATOM", "%s window (window opt=%g)\n", window_name(windowType), windowOption );
+  nChar += mp_info_msg( fid, "        |-", "[%d] channel(s)\n", numChans );
+  nChar += mp_info_msg( fid, "        |-", "Freq %g\tChirp %g\n", (double)freq, (double)chirp);
   for ( i=0; i<numChans; i++ ) {
-    nChar += fprintf( fid, "mplib info -- (%d/%d)\tSupport=", i+1, numChans );
-    nChar += fprintf( fid, " %lu %lu ", support[i].pos, support[i].len );
-    nChar += fprintf( fid, "\tAmp %g\tPhase %g",(double)amp[i], (double)phase[i] );
-    nChar += fprintf( fid, "\n" );
+    nChar += mp_info_msg( fid, "        |-", "(%d/%d)\tSupport= %lu %lu\tAmp %g\tPhase %g\n",
+			  i+1, numChans, support[i].pos, support[i].len,
+			  (double)amp[i], (double)phase[i] );
   }
   return( nChar );
 }
@@ -498,6 +498,7 @@ MP_Real_t wigner_ville(MP_Real_t t, MP_Real_t f, unsigned char windowType) {
 /** Addition of the atom to a time-frequency map */
 int MP_Gabor_Atom_c::add_to_tfmap( MP_TF_Map_c *tfmap, const char tfmapType ) {
 
+  const char* func = "MP_Gabor_Atom_c::add_to_tfmap(tfmap,type)";
   unsigned char chanIdx;
   unsigned long int tMin,tMax;
   MP_Real_t fMin,fMax,df;
@@ -521,20 +522,19 @@ int MP_Gabor_Atom_c::add_to_tfmap( MP_TF_Map_c *tfmap, const char tfmapType ) {
     fMin = freq - df/2;
     fMax = freq + df/2 + chirp*(tMax-tMin);
     if ( (fMin > tfmap->fMax) || (fMax < tfmap->fMin) ) return( 0 );
-#ifndef NDEBUG
-    fprintf( stderr, "Atom support in tf  coordinates: [%lu %lu]x[%g %g]\n",
-	     tMin, tMax, fMin, fMax );
-#endif
+
+    mp_debug_msg( MP_DEBUG_ATOM, func, "Atom support in tf  coordinates: [%lu %lu]x[%g %g]\n",
+		  tMin, tMax, fMin, fMax );
 
     /* 2/ Clip the support if it reaches out of the tfmap */
     if ( tMin < tfmap->tMin ) tMin = tfmap->tMin;
     if ( tMax > tfmap->tMax ) tMax = tfmap->tMax;
     if ( fMin < tfmap->fMin ) fMin = tfmap->fMin;
     if ( fMax > tfmap->fMax ) fMax = tfmap->fMax;
-#ifndef NDEBUG
-    fprintf( stderr, "Atom support in tf  coordinates, after clipping: [%lu %lu]x[%g %g]\n",
-	     tMin, tMax, fMin, fMax );
-#endif
+
+    mp_debug_msg( MP_DEBUG_ATOM, func, "Atom support in tf  coordinates, after clipping: [%lu %lu]x[%g %g]\n",
+		  tMin, tMax, fMin, fMax );
+
     /* \todo add a generic method MP_Atom_C::add_to_tfmap() that tests support intersection */
 
     /* 3/ Convert the real coordinates into pixel coordinates */
@@ -542,10 +542,9 @@ int MP_Gabor_Atom_c::add_to_tfmap( MP_TF_Map_c *tfmap, const char tfmapType ) {
     nMax = tfmap->time_to_pix( tMax );
     kMin = tfmap->freq_to_pix( fMin );
     kMax = tfmap->freq_to_pix( fMax );
-#ifndef NDEBUG
-    fprintf(stderr,"Clipped atom support in pix coordinates [%lu %lu]x[%lu %lu]\n",
-	    nMin, nMax, kMin, kMax );
-#endif
+
+    mp_debug_msg( MP_DEBUG_ATOM, func, "Clipped atom support in pix coordinates [%lu %lu]x[%lu %lu]\n",
+		  nMin, nMax, kMin, kMax );
 
     /* 4/ Fill the TF map: */
     switch( tfmapType ) {
@@ -585,8 +584,7 @@ int MP_Gabor_Atom_c::add_to_tfmap( MP_TF_Map_c *tfmap, const char tfmapType ) {
       break;
 
     default:
-      fprintf( stderr, "mptk warning -- MP_Gabor_Atom_c::add_to_tfmap() - Asked for "
-	       "an incorrect tfmap type.\n" );
+      mp_error_msg( func, "Asked for an incorrect tfmap type.\n" );
       break;
 
     } /* End switch tfmapType */
@@ -633,11 +631,10 @@ MP_Real_t MP_Gabor_Atom_c::get_field( int field, int chanIdx ) {
     x = chirp;
     break;
   default :
-    fprintf( stderr, "mplib warning -- MP_Gabor_Atom_c::get_field -- Unknown field. Returning ZERO." );
+    mp_warning_msg( "MP_Gabor_Atom_c::get_field()", "Unknown field. Returning ZERO.\n" );
     x = 0.0;
   }
 
   return( x );
 
 }
-
