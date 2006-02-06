@@ -249,9 +249,7 @@ void MP_Signal_c::fill_zero( void ) {
 /* Fill the storage space with white noise */
 void MP_Signal_c::fill_noise( MP_Real_t energyLevel ) {
 
-  int i;
   MP_Sample_t *p;
-  MP_Real_t tmp_energy;
   extern int mti; /* => a global variable from mtrand.c . */
 
   /* Reset the signal's energy */
@@ -274,7 +272,7 @@ void MP_Signal_c::fill_noise( MP_Real_t energyLevel ) {
 	p < (storage + numSamples*numChans);
 	*p++ = (MP_Sample_t)(mt_nrand( 0.0, 1.0 )) );
   /* Normalize */
-  apply_gain( 1.0 / l2norm() );
+  apply_gain( (MP_Real_t)sqrt( (double)energyLevel) / l2norm() );
 
   return;
 }
