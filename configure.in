@@ -36,9 +36,9 @@
 
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT(mptk,devel_anywave_branch.0.4beta)
+AC_INIT(mptk,0.5beta)
 AC_REVISION($Revision$)
-AM_INIT_AUTOMAKE(mptk,devel_anywave_branch.0.4beta)
+AM_INIT_AUTOMAKE(mptk,0.5beta)
 AM_CONFIG_HEADER(config.h)
 
 dnl Checks for usefuls programs (like a compiler, a precompiler, a linker...)
@@ -52,9 +52,11 @@ AC_PROG_RANLIB
 
 dnl Check for sizeof and byte-order of the standard types
 AC_CHECK_SIZEOF(unsigned int)
-AC_CHECK_SIZEOF(float)
+AC_CHECK_SIZEOF(unsigned short int)
 AC_CHECK_SIZEOF(unsigned long int)
+AC_CHECK_SIZEOF(float)
 AC_CHECK_SIZEOF(double)
+AC_CHECK_SIZEOF(void*)
 AC_C_BIGENDIAN
 
 dnl Checks for header files
