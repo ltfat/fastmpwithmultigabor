@@ -55,6 +55,7 @@
 /* Generic factory function to create atoms from streams */
 MP_Atom_c* read_atom( FILE *fid, const char mode ) {
 
+  const char* func = "read_atom(fid,mode)";
   MP_Atom_c* atom;
   char line[MP_MAX_STR_LEN];
   char str[MP_MAX_STR_LEN];
@@ -65,7 +66,7 @@ MP_Atom_c* read_atom( FILE *fid, const char mode ) {
   case MP_TEXT:
     if ( (  fgets( line, MP_MAX_STR_LEN, fid ) == NULL ) ||
 	 ( sscanf( line, "\t<atom type=\"%[a-z]\">\n", str ) != 1 ) ) {
-      fprintf(stderr, "mplib error -- read_atom() - Cannot scan the atom type (in text mode).\n");
+      mp_error_msg( func, "Cannot scan the atom type (in text mode).\n");
       return( NULL );
     }
     break;
@@ -73,13 +74,13 @@ MP_Atom_c* read_atom( FILE *fid, const char mode ) {
   case MP_BINARY:
     if ( (  fgets( line, MP_MAX_STR_LEN, fid ) == NULL ) ||
 	 ( sscanf( line, "%[a-z]\n", str ) != 1 ) ) {
-      fprintf(stderr, "mplib error -- read_atom() - Cannot scan the atom type (in binary mode).\n");
+      mp_error_msg( func, "Cannot scan the atom type (in binary mode).\n");
       return( NULL );
     }
     break;
 
   default:
-    fprintf(stderr, "mplib error -- read_atom() - Unknown read mode in read_atom().\n");
+    mp_error_msg( func, "Unknown read mode in read_atom().\n");
     return( NULL );
     break;
   }
@@ -97,7 +98,7 @@ MP_Atom_c* read_atom( FILE *fid, const char mode ) {
   //  else if ( !strcmp(str,"TEMPLATE") ) atom = new MP_TEMPLATE_Atom_c( fid, mode );
   /* - Unknown atom type: */
   else { 
-    fprintf(stderr,"mplib error -- read_atom() - Cannot read atoms of type '%s'\n",str);
+    mp_error_msg( func, "Cannot read atoms of type '%s'\n",str);
     return( NULL );
   }
   /* In text mode... */
@@ -105,7 +106,7 @@ MP_Atom_c* read_atom( FILE *fid, const char mode ) {
     /* ... try to read the closing atom tag */
     if ( ( fgets( line, MP_MAX_STR_LEN, fid ) == NULL ) ||
 	 ( strcmp( line, "\t</atom>\n" ) ) ) {
-      fprintf(stderr,"mplib error -- read_atom() - Failed to read the </atom> tag.\n");
+      mp_error_msg( func, "Failed to read the </atom> tag.\n");
       if ( atom ) delete( atom );
       return( NULL );
     }
@@ -134,7 +135,7 @@ int write_atom( FILE *fid, const char mode, MP_Atom_c *atom ) {
     break;
 
   default:
-    fprintf( stderr, "mplib error -- write_atom() - Unknown write mode." );
+    mp_error_msg( "write_atom()", "Unknown write mode." );
     return(0);
     break;
   }

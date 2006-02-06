@@ -294,6 +294,7 @@ int MP_Chirp_Block_c::info( FILE* fid ) {
 unsigned int MP_Chirp_Block_c::create_atom( MP_Atom_c **atom,
 					    const unsigned long int frameIdx,
 					    const unsigned long int filterIdx ) {
+  const char* func = "MP_Chirp_Block_c::create_atom(...)";
   MP_Gabor_Atom_c *gatom = NULL;
   unsigned long int freqIdx, k;
   MP_Real_t chirprate;
@@ -309,9 +310,7 @@ unsigned int MP_Chirp_Block_c::create_atom( MP_Atom_c **atom,
   MP_Real_t lambda,mu,deltaChirp;
   //MP_Real_t alpha,beta;
 
-#ifndef NDEBUG
-  fprintf( stderr, "mptk DEBUG -- Entering CHIRP::create_atom.\n" ); fflush( stderr );
-#endif
+  mp_debug_msg( MP_DEBUG_CREATE_ATOM, func, "Entering CHIRP::create_atom.\n" );
 
   /* Useful dereferences */
   numChans = s->numChans;
@@ -319,9 +318,8 @@ unsigned int MP_Chirp_Block_c::create_atom( MP_Atom_c **atom,
 
   /* Create the best Gabor atom with chirprate zero */
   if ( ( MP_Gabor_Block_c::create_atom( atom, frameIdx, filterIdx ) ) == 0 ) {
-    fprintf( stderr, "mptk error -- MP_Chirp_Block_c::create_atom() -"
-	     " Can't create a new Gabor atom in create_atom()."
-	     " Returning NULL as the atom reference.\n" );
+    mp_error_msg( func, "Can't create a new Gabor atom in create_atom()."
+		  " Returning NULL as the atom reference.\n" );
     return( 0 );
   }
   gatom = (MP_Gabor_Atom_c*) (*atom);
@@ -342,18 +340,16 @@ unsigned int MP_Chirp_Block_c::create_atom( MP_Atom_c **atom,
   /* Find the index closest to the frequency of the current atom */
   freqIdx = (unsigned long int) round( (double)(gatom->freq) * (double)(fftSize) );
 
-#ifndef NDEBUG
-  fprintf( stderr, "mptk DEBUG -- freqIdx was = %lu , freq = %f (cplxSize = %g).\n",
-	   freqIdx, gatom->freq, fftSize ); fflush( stderr );
-#endif
+  mp_debug_msg( MP_DEBUG_CREATE_ATOM, func,
+		"freqIdx was = %lu , freq = %f (cplxSize = %g).\n",
+		freqIdx, gatom->freq, fftSize );
 
   /* If there is not enough fit points on both sides of the frequency, 
    * keep the current chirprate ( =0 ) and return the unchanged gabor atom. */
   if ( (freqIdx <= (unsigned long int)numFitPoints) ||
        ( (freqIdx+(unsigned long int)numFitPoints) >= numFreqs ) ) {
-#ifndef NDEBUG
-    fprintf( stderr, "mptk DEBUG -- freqIdx = %lu , RETURNING.\n", freqIdx ); fflush( stderr );
-#endif
+    mp_debug_msg( MP_DEBUG_CREATE_ATOM, func,
+		  "freqIdx = %lu , RETURNING.\n", freqIdx );
     return( 1 );
   }
 
@@ -407,10 +403,9 @@ unsigned int MP_Chirp_Block_c::create_atom( MP_Atom_c **atom,
   deltaChirp = mu/(MP_PI*(lambda*lambda+mu*mu));
   chirprate += deltaChirp;
 
-#ifndef NDEBUG
-  fprintf( stderr, "mptk DEBUG -- iter  0 : delta = %g , new chirp = %g.\n",
-	   deltaChirp, chirprate ); fflush( stderr );
-#endif
+  mp_debug_msg( MP_DEBUG_CREATE_ATOM, func,
+		"iter  0 : delta = %g , new chirp = %g.\n",
+		deltaChirp, chirprate );
 
   /**********************************************/
   /* I.2) RE-LOCATE THE ATOM'S CENTER FREQUENCY */
@@ -452,8 +447,8 @@ unsigned int MP_Chirp_Block_c::create_atom( MP_Atom_c **atom,
 	/* => Compensate for a possible numerical innacuracy
 	 *    (this case should never happen in practice) */
 	if ( energy < 0 ) {
-	  fprintf( stderr, "mptk warning -- MP_Chirp_Block_c::create_atom() - A negative energy was met."
-		   " (energy = [%g])\nEnergy value is reset to 0.0 .", energy );
+	  mp_warning_msg( func, "A negative energy was met."
+			  " (energy = [%g])\nEnergy value is reset to 0.0 .", energy );
 	  energy = 0.0;
 	}
 	
@@ -469,9 +464,8 @@ unsigned int MP_Chirp_Block_c::create_atom( MP_Atom_c **atom,
       if ( fftEnergy[k] > energy) { energy = fftEnergy[k]; freqIdx = k; }
     }
 
-#ifndef NDEBUG
-    fprintf( stderr, "mptk DEBUG -- iter  0 : New freqIdx = %lu.\n", freqIdx ); fflush( stderr );
-#endif
+    mp_debug_msg( MP_DEBUG_CREATE_ATOM, func,
+		  "iter  0 : New freqIdx = %lu.\n", freqIdx );
 
     /****************************/
     /* II) FOLLOWING ITERATIONS */
@@ -535,12 +529,11 @@ unsigned int MP_Chirp_Block_c::create_atom( MP_Atom_c **atom,
     
       deltaChirp = mu/(MP_PI*(lambda*lambda+mu*mu));
       chirprate += deltaChirp;
-
-#ifndef NDEBUG
-  fprintf( stderr, "mptk DEBUG -- iter %2d : delta = %g , new chirp = %g.\n",
-	   iter, deltaChirp, chirprate ); fflush( stderr );
-#endif
-
+      
+      mp_debug_msg( MP_DEBUG_CREATE_ATOM, func,
+		    "iter %2d : delta = %g , new chirp = %g.\n",
+		    iter, deltaChirp, chirprate );
+      
       /***********************************************/
       /* II.2) RE-LOCATE THE ATOM'S CENTER FREQUENCY */
 
@@ -581,9 +574,8 @@ unsigned int MP_Chirp_Block_c::create_atom( MP_Atom_c **atom,
 	  /* => Compensate for a possible numerical innacuracy
 	   *    (this case should never happen in practice) */
 	  if ( energy < 0 ) {
-	    fprintf( stderr, "mptk warning -- MP_Chirp_Block_c::create_atom() -"
-		     " A negative energy was met."
-		     " (energy = [%g])\nEnergy value is reset to 0.0 .", energy );
+	    mp_warning_msg( func, " A negative energy was met."
+			    " (energy = [%g])\nEnergy value is reset to 0.0 .", energy );
 	    energy = 0.0;
 	  }
 	
@@ -599,9 +591,8 @@ unsigned int MP_Chirp_Block_c::create_atom( MP_Atom_c **atom,
 	if ( fftEnergy[k] > energy) { energy = fftEnergy[k]; freqIdx = k; }
       }
 
-#ifndef NDEBUG
-    fprintf( stderr, "mptk DEBUG -- iter %2d : New freqIdx = %lu.\n", iter, freqIdx ); fflush( stderr );
-#endif
+      mp_debug_msg( MP_DEBUG_CREATE_ATOM, func,
+		    "iter %2d : New freqIdx = %lu.\n", iter, freqIdx );
 
     } /* end loop on iterations */
     
@@ -613,10 +604,9 @@ unsigned int MP_Chirp_Block_c::create_atom( MP_Atom_c **atom,
     gatom->chirp = chirprate;
     gatom->freq  = (double)(freqIdx) / (double)(fftSize);
 
-#ifndef NDEBUG
-    fprintf( stderr, "mptk DEBUG -- freqIdx is now = %lu , freq = %f (cplxSize = %g).\n",
-	     freqIdx, gatom->freq, fftSize ); fflush( stderr );
-#endif
+    mp_debug_msg( MP_DEBUG_CREATE_ATOM, func,
+		  "freqIdx is now = %lu , freq = %f (cplxSize = %g).\n",
+		  freqIdx, gatom->freq, fftSize );
 
     /* Compute the magnitude of the best real chirp atom for each frequency and each channel */
     for ( chanIdx = 0; chanIdx < numChans; chanIdx++ ) {
@@ -628,9 +618,7 @@ unsigned int MP_Chirp_Block_c::create_atom( MP_Atom_c **atom,
       re  = (double)( fftRe[freqIdx] ); 
       im  = (double)( fftIm[freqIdx] );
       energy = re*re + im*im;
-#ifndef NDEBUG
       assert( sqCorrelChirp[freqIdx] <= 1.0 );
-#endif
       /* Cf. explanations about complex2amp_and_phase() in general.h */
       if ( (freqIdx != 0) && ( (freqIdx+1) < numFreqs ) ) {  
 	real = (1.0 - reCorrelChirp[freqIdx])*re + imCorrelChirp[freqIdx]*im;
@@ -641,11 +629,9 @@ unsigned int MP_Chirp_Block_c::create_atom( MP_Atom_c **atom,
       /* When the atom and its conjugate are aligned, they should be real 
        * and the phase is simply the sign of the inner product (re,im) = (re,0) */
       else {
-#ifndef NDEBUG
 	assert( reCorrelChirp[freqIdx] == 1.0 );
 	assert( imCorrelChirp[freqIdx] == 0.0 );
 	assert( im == 0 );
-#endif
 	amp = sqrt( energy );
 	if   ( re >= 0 ) atomphase = 0.0;  /* corresponds to the '+' sign */
 	else             atomphase = M_PI; /* corresponds to the '-' sign exp(i\pi) */
@@ -654,12 +640,11 @@ unsigned int MP_Chirp_Block_c::create_atom( MP_Atom_c **atom,
       /* 5) fill in the atom parameters */
       gatom->amp[chanIdx]   = (MP_Real_t)( amp   );
       gatom->phase[chanIdx] = (MP_Real_t)( atomphase );
-#ifndef NDEBUG
-      fprintf( stderr, "mptk DEBUG -- freq %g chirp %g amp %g phase %g\n reCorrelChirp %g"
-	       " imCorrelChirp %g\n re %g im %g 2*(re^2+im^2) %g\n",
-	       gatom->freq, gatom->chirp, gatom->amp[chanIdx], gatom->phase[chanIdx],
-	       reCorrelChirp[freqIdx], imCorrelChirp[freqIdx], re, im, 2*(re*re+im*im) );
-#endif
+      mp_debug_msg( MP_DEBUG_CREATE_ATOM, func,
+		    "freq %g chirp %g amp %g phase %g\n reCorrelChirp %g"
+		    " imCorrelChirp %g\n re %g im %g 2*(re^2+im^2) %g\n",
+		    gatom->freq, gatom->chirp, gatom->amp[chanIdx], gatom->phase[chanIdx],
+		    reCorrelChirp[freqIdx], imCorrelChirp[freqIdx], re, im, 2*(re*re+im*im) );
     }
   
     /* Shall we also adjust the scale ? */
@@ -692,8 +677,8 @@ int MP_Chirp_Block_c::set_chirp_demodulator( MP_Real_t chirprate ) {
 
   /* 3/ Fill reCorrelChirp and imCorrelChirp with the adequate FFT values: */
   if ( fill_correl( reCorrelChirp, imCorrelChirp, sqCorrelChirp, cstCorrelChirp ) ) {
-    fprintf( stderr, "mplib warning -- set_chirp_demodulator() - "
-	     "The tabulation of the atom's autocorrelations returned an error.\n" );
+    mp_warning_msg( "MP_Chirp_Block_c::set_chirp_demodulator(rate)",
+		    "The tabulation of the atom's autocorrelations returned an error.\n" );
   }
 
   return( 0 );

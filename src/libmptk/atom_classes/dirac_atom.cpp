@@ -62,7 +62,7 @@ MP_Dirac_Atom_c::MP_Dirac_Atom_c( unsigned int setNChan )
   :MP_Atom_c( setNChan ) {
 
   if ( (amp = (MP_Real_t*)calloc( numChans, sizeof(MP_Real_t)) ) == NULL ) {
-    fprintf( stderr, "mplib warning -- MP_Dirac_Atom_c() - Can't allocate the amp array for a new atom; amp stays NULL.\n" );
+    mp_warning_msg( "MP_Dirac_Atom_c()", "Can't allocate the amp array for a new atom; amp stays NULL.\n" );
   } 
 }
 
@@ -71,14 +71,15 @@ MP_Dirac_Atom_c::MP_Dirac_Atom_c( unsigned int setNChan )
 MP_Dirac_Atom_c::MP_Dirac_Atom_c( FILE *fid, const char mode )
   :MP_Atom_c( fid, mode ) {
   
+  const char* func = "MP_Dirac_Atom_c(file)";
   char str[MP_MAX_STR_LEN];
   double fidAmp;
   unsigned int i, iRead;
   
   /* Allocate and initialize the amplitudes */
   if ( (amp = (MP_Real_t*)calloc( numChans, sizeof(MP_Real_t)) ) == NULL ) {
-    fprintf( stderr, "mplib warning -- MP_Dirac_Atom_c(file) - Can't allocate the amp array for a new atom; amp stays NULL.\n" );
-  } 
+    mp_warning_msg( func, "Can't allocate the amp array for a new atom; amp stays NULL.\n" );
+  }
   
   switch ( mode ) {
     
@@ -86,10 +87,10 @@ MP_Dirac_Atom_c::MP_Dirac_Atom_c( FILE *fid, const char mode )
     for (i = 0; i<numChans; i++) {
       if ( ( fgets( str, MP_MAX_STR_LEN, fid ) == NULL  ) ||
 	   ( sscanf( str, "\t\t<par type=\"amp\" chan=\"%d\">%lg</par>\n", &iRead,&fidAmp ) != 2 ) ) {
-	fprintf(stderr, "mplib warning -- MP_Dirac_Atom_c(file) - Cannot scan amp on channel %u.\n", i );
+	mp_warning_msg( func, "Cannot scan amp on channel %u.\n", i );
       } else if ( iRead != i ) {
- 	fprintf(stderr, "mplib warning -- MP_Dirac_Atom_c(file) - Potential shuffle in the parameters"
-		" of a dirac atom. (Index \"%u\" read, \"%u\" expected.)\n",
+ 	mp_warning_msg( func, "Potential shuffle in the parameters"
+			" of a dirac atom. (Index \"%u\" read, \"%u\" expected.)\n",
 		iRead, i );
       } else {
 	*(amp+i) = (MP_Real_t)fidAmp;
@@ -99,15 +100,14 @@ MP_Dirac_Atom_c::MP_Dirac_Atom_c( FILE *fid, const char mode )
       
   case MP_BINARY:
     if ( mp_fread( amp,   sizeof(MP_Real_t), numChans, fid ) != (size_t)numChans ) {
-      fprintf(stderr, "mplib warning -- MP_Dirac_Atom_c(file) - Failed to read the amp array.\n" );     
+      mp_warning_msg( func, "Failed to read the amp array.\n" );     
       for ( i=0; i<numChans; i++ ) *(amp+i) = 0.0;
     }
     
     break;
     
   default:
-    fprintf( stderr, "mplib error -- MP_Dirac_Atom_c(file,mode) -"
-	     " Unknown read mode met in MP_Dirac_Atom_c( fid , mode )." );
+    mp_error_msg( func, " Unknown read mode met in MP_Dirac_Atom_c( fid , mode )." );
     break;
   }
   
@@ -173,15 +173,12 @@ int MP_Dirac_Atom_c::info( FILE *fid ) {
   unsigned int i = 0;
   int nChar = 0;
 
-  nChar += fprintf( fid, "mplib info -- DIRAC ATOM:");
-  nChar += fprintf( fid, " [%d] channel(s)\n", numChans );
+   nChar += mp_info_msg( fid, "DIRAC ATOM", "[%d] channel(s)\n", numChans );
   for ( i=0; i<numChans; i++ ) {
-    nChar += fprintf( fid, "mplib info -- (%u/%u)\tSupport=", i+1, numChans );
-    nChar += fprintf( fid, " %lu %lu ", support[i].pos, support[i].len );
-    nChar += fprintf( fid, "\tAmp %g",(double)amp[i]);
-    nChar += fprintf( fid, "\n" );
+    nChar += mp_info_msg( fid, "        |-", "(%d/%d)\tSupport= %lu %lu\tAmp %g\n",
+			  i+1, numChans, support[i].pos, support[i].len,
+			  (double)amp[i] );
   }
-
   return( nChar );
 }
 
