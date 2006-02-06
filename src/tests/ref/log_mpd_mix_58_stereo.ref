@@ -57,7 +57,7 @@ mptk INFO --             O- - The number of frames for this block is [17], the s
 mptk INFO -- DIRAC BLOCK - The number of frames for this block is [19200], the search tree has [6] levels.
 mptk INFO -- mpd - End of dictionary.
 mptk INFO -- mpd - The signal loaded from file [/udd/sacha/src/project/mptk/trunk/src/tests/signals/mix_58_stereo.wav] has:
-mptk INFO -- SIGNAL - This signal object has [19200] samples on [2] channels; its sample rate is [8000]Hz.
+mptk INFO -- SIGNAL - [19200] samples on [2] channels; sample rate [8000]Hz; energy [1047.05].
 mptk INFO -- mpd - -------------------------
 mptk INFO -- mpd - Starting Matching Pursuit on signal [/udd/sacha/src/project/mptk/trunk/src/tests/signals/mix_58_stereo.wav] with dictionary [/udd/sacha/src/project/mptk/trunk/src/tests/signals/dico_test.xml].
 mptk INFO -- mpd - -------------------------
