@@ -34,12 +34,18 @@
 ##   $Revision$
 ##
 
-dnl Process this file with autoconf to produce a configure script.
+VERSION="0.5beta"
 
-AC_INIT(mptk,0.5beta)
-AC_REVISION($Revision$)
-AM_INIT_AUTOMAKE(mptk,0.5beta)
+dnl Process this file with autoconf to produce a configure script.
+AC_INIT(mptk,$VERSION)
+
+dnl Check for architecture
+AC_CANONICAL_TARGET
+
+dnl Automake stuff
+AM_INIT_AUTOMAKE(mptk,$VERSION)
 AM_CONFIG_HEADER(config.h)
+AC_REVISION($Revision$)
 
 dnl Checks for usefuls programs (like a compiler, a precompiler, a linker...)
 AC_PROG_INSTALL
@@ -124,24 +130,14 @@ dnl ------------------------------------------------------------
 dnl -- Export some locations for created includes and libs
 dnl ------------------------------------------------------------
 
-LIBDSP_WIN_DIR='$(top_builddir)/src/libdsp_windows'
-AC_SUBST(LIBDSP_WIN_DIR)
-
-LIBMP_DIR='$(top_builddir)/src/libmptk'
-AC_SUBST(LIBMP_DIR)
-
-
+MP_SYSTEM_H_DIR='$(top_srcdir)'
 DSP_WIN_H_DIR='$(top_srcdir)/src/libdsp_windows'
 MPTK_H_DIR='$(top_builddir)/src/libmptk'
-MP_SYSTEM_H_DIR='$(top_srcdir)'
 
 INCLUDES="$INCLUDES -I$MP_SYSTEM_H_DIR -I$DSP_WIN_H_DIR -I$MPTK_H_DIR"
 
-
-LIBMP_LIBS='-L$(top_builddir)/src/libmptk'
-LIBDSP_WIN_LIBS='-L$(top_builddir)/src/libdsp_windows -ldsp_windows'
-
-LIBS="$LIBS $LIBMP_LIBS"
+LOCAL_BUILD_LIBS='$(top_builddir)/src/libmptk/libmptk.a $(top_builddir)/src/libdsp_windows/libdsp_windows.a'
+AC_SUBST(LOCAL_BUILD_LIBS)
 
 
 dnl ------------------------------------------------------------
@@ -175,7 +171,7 @@ AC_CHECK_LIB(sndfile,main,[AC_DEFINE(HAVE_SNDFILE,1,"Turn on the LIBSNDFILE supp
 	[AC_MSG_ERROR(LIBSNDFILE library not found --  Please make sure that LIBSNDFILE is installed on your system and/or indicate its location with the switch: --with-libsndfile=PATH-TO-LIBSNDFILE. (See configure --help.) )],
 )
 
-LIBS="$LIBS -lmptk -lm -lfftw3 -ldsp_windows -lsndfile"
+LIBS="$LIBS -lm -lfftw3 -lsndfile"
 
 
 dnl ------------------------------------------------------------

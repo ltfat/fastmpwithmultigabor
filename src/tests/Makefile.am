@@ -40,28 +40,36 @@ noinst_PROGRAMS = test_win test_fft test_parabolic_regression test_mp test_mask 
 	 test_messaging test_anywave test_behaviour_in_noise
 
 test_win_SOURCES = test_win.c
-test_win_DEPENDENCIES = @LIBDSP_WIN_DIR@/libdsp_windows.a
+test_win_LDADD = ../libdsp_windows/libdsp_windows.a
+test_win_DEPENDENCIES = ../libdsp_windows/libdsp_windows.a
 
 test_fft_SOURCES = test_fft.cpp
-test_fft_DEPENDENCIES = @LIBDSP_WIN_DIR@/libdsp_windows.a @LIBMP_DIR@/libmptk.a
+test_fft_LDADD = @LOCAL_BUILD_LIBS@
+test_fft_DEPENDENCIES = @LOCAL_BUILD_LIBS@
 
 test_parabolic_regression_SOURCES = test_parabolic_regression.cpp
-test_parabolic_regression_DEPENDENCIES = @LIBDSP_WIN_DIR@/libdsp_windows.a @LIBMP_DIR@/libmptk.a
+test_parabolic_regression_LDADD = @LOCAL_BUILD_LIBS@
+test_parabolic_regression_DEPENDENCIES = @LOCAL_BUILD_LIBS@
 
 test_mp_SOURCES = test_mp.cpp
-test_mp_DEPENDENCIES = @LIBDSP_WIN_DIR@/libdsp_windows.a @LIBMP_DIR@/libmptk.a
+test_mp_LDADD = @LOCAL_BUILD_LIBS@
+test_mp_DEPENDENCIES = @LOCAL_BUILD_LIBS@
 
 test_mask_SOURCES = test_mask.cpp
-test_mask_DEPENDENCIES = @LIBDSP_WIN_DIR@/libdsp_windows.a @LIBMP_DIR@/libmptk.a
+test_mask_LDADD = @LOCAL_BUILD_LIBS@
+test_mask_DEPENDENCIES = @LOCAL_BUILD_LIBS@
 
 test_messaging_SOURCES = test_messaging.cpp
-test_messaging_DEPENDENCIES = @LIBDSP_WIN_DIR@/libdsp_windows.a @LIBMP_DIR@/libmptk.a
+test_messaging_LDADD = @LOCAL_BUILD_LIBS@
+test_messaging_DEPENDENCIES = @LOCAL_BUILD_LIBS@
 
 test_anywave_SOURCES = test_anywave.cpp
-test_anywave_DEPENDENCIES = @LIBDSP_WIN_DIR@/libdsp_windows.a @LIBMP_DIR@/libmptk.a
+test_anywave_LDADD = @LOCAL_BUILD_LIBS@
+test_anywave_DEPENDENCIES = @LOCAL_BUILD_LIBS@
 
 test_behaviour_in_noise_SOURCES = test_behaviour_in_noise.cpp
-test_behaviour_in_noise_DEPENDENCIES = @LIBDSP_WIN_DIR@/libdsp_windows.a @LIBMP_DIR@/libmptk.a
+test_behaviour_in_noise_LDADD = @LOCAL_BUILD_LIBS@
+test_behaviour_in_noise_DEPENDENCIES = @LOCAL_BUILD_LIBS@
 
 
 TESTS = test_mpcycle.sh

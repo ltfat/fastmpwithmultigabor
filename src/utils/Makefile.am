@@ -39,19 +39,25 @@ bin_PROGRAMS = mpd mpd_demix mpr mpcat mpf mpview
 noinst_HEADERS = getopt.h
 
 mpd_SOURCES = mpd.cpp getopt.c getopt1.c getopt.h
-mpd_DEPENDENCIES = @LIBDSP_WIN_DIR@/libdsp_windows.a @LIBMP_DIR@/libmptk.a
+mpd_LDADD = @LOCAL_BUILD_LIBS@
+mpd_DEPENDENCIES = @LOCAL_BUILD_LIBS@
 
 mpd_demix_SOURCES = mpd_demix.cpp
-mpd_demix_DEPENDENCIES = @LIBDSP_WIN_DIR@/libdsp_windows.a @LIBMP_DIR@/libmptk.a
+mpd_demix_LDADD = @LOCAL_BUILD_LIBS@
+mpd_demix_DEPENDENCIES = @LOCAL_BUILD_LIBS@
 
 mpr_SOURCES = mpr.cpp
-mpr_DEPENDENCIES = @LIBDSP_WIN_DIR@/libdsp_windows.a @LIBMP_DIR@/libmptk.a
+mpr_LDADD = @LOCAL_BUILD_LIBS@
+mpr_DEPENDENCIES = @LOCAL_BUILD_LIBS@
 
 mpf_SOURCES = mpf.cpp
-mpf_DEPENDENCIES = @LIBDSP_WIN_DIR@/libdsp_windows.a @LIBMP_DIR@/libmptk.a
+mpf_LDADD = @LOCAL_BUILD_LIBS@
+mpf_DEPENDENCIES = @LOCAL_BUILD_LIBS@
 
 mpcat_SOURCES = mpcat.cpp
-mpcat_DEPENDENCIES = @LIBDSP_WIN_DIR@/libdsp_windows.a @LIBMP_DIR@/libmptk.a
+mpcat_LDADD = @LOCAL_BUILD_LIBS@
+mpcat_DEPENDENCIES = @LOCAL_BUILD_LIBS@
 
 mpview_SOURCES = mpview.cpp
-mpview_DEPENDENCIES = @LIBDSP_WIN_DIR@/libdsp_windows.a @LIBMP_DIR@/libmptk.a
+mpview_LDADD = @LOCAL_BUILD_LIBS@
+mpview_DEPENDENCIES = @LOCAL_BUILD_LIBS@

@@ -1,2 +1,2 @@
 #!/bin/sh
-aclocal ; autoheader ; automake -a; autoconf
+aclocal ; autoheader ; automake -ac; autoconf
