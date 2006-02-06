@@ -288,15 +288,8 @@ MP_Support_t MP_Anywave_Block_c::update_ip( const MP_Support_t *touch ) {
   unsigned long int signalLen;
   unsigned long int numTouchedFrames;
 
-  double* ampPtr;
-  double* currentAmpPtr;
-
-  double amp;
-  double corr;
-
   unsigned short int chanIdx;
   unsigned long int frameIdx;
-  unsigned long int filterIdx;
 
   MP_Support_t frameSupport;
 
@@ -357,91 +350,12 @@ MP_Support_t MP_Anywave_Block_c::update_ip( const MP_Support_t *touch ) {
 
   /*---------------------------*/
 
-  for ( frameIdx = fromFrame; frameIdx <= toFrame; frameIdx++ ) {
-    maxIPValueInFrame[frameIdx] = 0.0;
-  }
-
-  /* computing + finding the max */
-
-  /* Needs initialization before pointing to its adress */
-  if ((double)MP_MAX_SIZE_T / (double)s->numChans / (double)numTouchedFrames / (double)anywaveTable->numFilters / (double)sizeof(double) <= 1.0) {
-    mp_error_msg( func, "numChans [%lu] . numTouchedFrames [%lu] . numFilters [%lu] .sizeof(double) [%lu] is greater than the max for a size_t [%lu]. Cannot use malloc for allocating space for the amplitudes array. it is set to NULL\n", s->numChans, numTouchedFrames, anywaveTable->numFilters, sizeof(double), MP_MAX_SIZE_T);
-    ampPtr = NULL;
-  } else if ((ampPtr = (double * ) malloc(s->numChans * numTouchedFrames * anywaveTable->numFilters * sizeof(double))) == NULL ) {
-    mp_error_msg( func, "Can't allocate an array of [%lu] double elements"
-		  " for the ampPtr array. This pointer will remain NULL.\n", s->numChans * numTouchedFrames * anywaveTable->numFilters );
-  }
-
-  if (ampPtr == NULL) {
-    /* Return a null mono-channel support */
-    frameSupport.pos = fromFrame;
-    frameSupport.len = 0;
-    return( frameSupport );
-  }
-
-  if (anywaveTable->numChans == s->numChans) {
-
-    mp_debug_msg( MP_DEBUG, func, "As many channels in signal as in waveforms");
-    /* multichannel atoms */
-    for (chanIdx = 0, currentAmpPtr = ampPtr;
-	 chanIdx < s->numChans;
-	 chanIdx ++, currentAmpPtr += numTouchedFrames * anywaveTable->numFilters) {
-
-      mp_debug_msg( MP_DEBUG, func, "Computing inner products between channel [%hu] of the signal and channel [%hu] of the filters", chanIdx, chanIdx);
-      
-      convolution->compute_IP( s->channel[chanIdx]+fromSample, signalLen, chanIdx, &currentAmpPtr );
-    }
-    for (filterIdx = 0;
-	 filterIdx < anywaveTable->numFilters; 
-	 filterIdx++) {
-      mp_debug_msg( MP_DEBUG, func, "Meeting IPs of the different channels to give global IPs between filter [%lu] and the frames of signal", chanIdx);
-      
-      for ( frameIdx = fromFrame; 
-	    frameIdx <= toFrame; 
-	    frameIdx++ ) {
-	amp = 0.0;
-	currentAmpPtr = ampPtr + filterIdx * numTouchedFrames + (frameIdx - fromFrame);	
-	for ( chanIdx = 0;
-	      chanIdx < s->numChans; 
-	      chanIdx++, currentAmpPtr += numTouchedFrames * anywaveTable->numFilters ) {
-	  amp += (*currentAmpPtr);
-	}
-	corr = amp * amp;
-	if (corr >= maxIPValueInFrame[frameIdx]) { 
-	  maxIPValueInFrame[frameIdx] = corr; maxIPIdxInFrame[frameIdx] = filterIdx;
-	}
-      }
-    }      
-  } else {
-    /* monochannel atoms */
-    for (chanIdx = 0, currentAmpPtr = ampPtr;
-	 chanIdx < s->numChans;
-	 chanIdx ++, currentAmpPtr += numTouchedFrames * anywaveTable->numFilters) {
-	convolution->compute_IP( s->channel[chanIdx]+fromSample, signalLen, 0, &currentAmpPtr );
-    }
-    for (filterIdx = 0;
-	 filterIdx < anywaveTable->numFilters; 
-	 filterIdx++) {
-      for ( frameIdx = fromFrame; frameIdx <= toFrame; frameIdx++ ) {
-	corr = 0.0;
-	currentAmpPtr = ampPtr + filterIdx * numTouchedFrames + (frameIdx - fromFrame);
-	for ( chanIdx = 0;
-	      chanIdx < s->numChans; 
-	      chanIdx++, currentAmpPtr += numTouchedFrames * anywaveTable->numFilters ) {
-	  corr += (*currentAmpPtr) * (*currentAmpPtr);
-	}
-	if (corr >= maxIPValueInFrame[frameIdx]) { maxIPValueInFrame[frameIdx] = corr; maxIPIdxInFrame[frameIdx] = filterIdx; }	     
-      }
-    }
-  }
-  /*---------------------------*/
+  convolution->compute_max_IP(s, signalLen, fromSample, maxIPValueInFrame + fromFrame, maxIPIdxInFrame + fromFrame);
 
   /* Return a mono-channel support */
   frameSupport.pos = fromFrame;
   frameSupport.len = numTouchedFrames;
 
-  /* clean the house */
-  if (ampPtr) {free(ampPtr);}
 
   return( frameSupport );
 }

@@ -166,6 +166,9 @@ class MP_Convolution_c {
    **/
   virtual void compute_IP( MP_Sample_t* input, unsigned long int inputLen, unsigned short int chanIdx, double** output ) = 0;
 
+  virtual void compute_max_IP( MP_Signal_c* s, unsigned long int inputLen, unsigned long int fromSample, MP_Real_t* ampOutput, unsigned long int* idxOutput ) = 0;
+
+
 };
 
 /*********************************/
@@ -324,6 +327,9 @@ class MP_Convolution_Fastest_c:public MP_Convolution_c {
    **/
   virtual double compute_IP( MP_Sample_t* input, unsigned long int filterIdx, unsigned short int chanIdx );
 
+  virtual void compute_max_IP( MP_Signal_c* s, unsigned long int inputLen, unsigned long int fromSample, MP_Real_t* ampOutput, unsigned long int* idxOutput );
+
+
 };
 
 /*************************************/
@@ -426,6 +432,8 @@ class MP_Convolution_Direct_c:public MP_Convolution_c {
    **/
   inline virtual double compute_IP( MP_Sample_t* input, unsigned long int filterIdx, unsigned short int chanIdx );
 
+  virtual void compute_max_IP( MP_Signal_c* s, unsigned long int inputLen, unsigned long int fromSample, MP_Real_t* ampOutput, unsigned long int* idxOutput );
+
 };
 
 /***********************************/
@@ -436,6 +444,8 @@ class MP_Convolution_Direct_c:public MP_Convolution_c {
 
 /** \brief The implementation of MP_Convolution_c using
  * fast convolution with overlap-add
+ * - Decomposition of the convolution in modules
+ * - Add of the compute_max_ip method
  */
 class MP_Convolution_FFT_c:public MP_Convolution_c {
 
@@ -482,6 +492,9 @@ class MP_Convolution_FFT_c:public MP_Convolution_c {
   /** \brief output of the \a ifftPlan of length fftCplxSize */
   double *outputBuffer;
 
+  /** \brief output of the \a ifftPlan of length fftCplxSize */
+  double *circularBuffer;
+
   /** \brief storage of the FFT of the filters of length fftRealSize *
    * anywaveTable->numFilters * anywaveTable->numChans
    */
@@ -494,6 +507,19 @@ class MP_Convolution_FFT_c:public MP_Convolution_c {
    * chanIdx*numFilters]
    */
   fftw_complex*** filterFftBuffer;
+
+  /** brief array of size numFilters of pointers to the output of the
+   * first slice of the method circular_convolution
+   *
+   */
+  double** outputBufferAdd;
+
+  /** brief array of size numFilters of pointers to the output of the
+   * second slice of the method circular_convolution
+   *
+   */
+  double** outputBufferNew;
+
     
   /***********/
   /* METHODS */
@@ -511,7 +537,7 @@ class MP_Convolution_FFT_c:public MP_Convolution_c {
    * \param filterShift length between two successive frames of signal
    */
   MP_Convolution_FFT_c( MP_Anywave_Table_c* anywaveTable,
-				    const unsigned long int filterShift );
+			    const unsigned long int filterShift );
 
   /** \brief Destructor
    */
@@ -548,6 +574,42 @@ class MP_Convolution_FFT_c:public MP_Convolution_c {
   /***************************/
   /* OTHER METHODS           */
   /***************************/
+
+ private: 
+  /** \brief points to the first sample of the slice #sliceIdx
+   *
+   * The signal is cut in slices of length 2*filterLen, in order to
+   * compute fast convolution via the overlapp-add technique. As the
+   * first slice begins with the signal, and as the delay between two
+   * successive slices is filterLen, the first sample of the slice
+   * #sliceIdx is the sample #sliceIdx*filterLen
+   *
+   * \param sliceIdx the index of the slice
+   *
+   * \param inputStart pointer to the first sample of the input
+   *
+   * \return a pointer on the first sample of the sliceIdx'th slice
+   */
+  MP_Sample_t* slice( unsigned long int sliceIdx, MP_Sample_t* inputStart );
+
+  /** \brief perform the circular convolution of the slice pointed
+   * with slicePtr with the channel chanIdx of all the filters of the
+   * anywave table
+   *
+   * performs the FFT of the slice, then multiplies it with the FFT of
+   * each filter, and then perform inverse FFT to fill the output
+   * buffer ( sliceBuffer, size : numFilters * 2 * filterLen ) in.
+   *
+   * \param pSlice a pointer to the start of slice
+   *
+   * \param pNextSlice a pointer to the first sample after the end of
+   * the slice
+   *
+   * \param chanIdx channel of the filters used in the computation
+   *
+   * \param outputBufferAdd array of numFilters pointers to the outputs where to add the contribution of the second slice
+   */
+  void circular_convolution( MP_Sample_t* pSlice, MP_Sample_t* pNextSlice, unsigned short int chanIdx, double** outputBufferAdd, double** outputBufferNew, unsigned long int firstFrameSample, unsigned long int numFramesAdd, unsigned long int numFramesNew );
 
  public:
 
@@ -588,12 +650,12 @@ class MP_Convolution_FFT_c:public MP_Convolution_c {
    *
    * This convolution is not achieved directly, but going through the
    * Fourier domain and using the overlap-add technique. More
-   * precisely, slides of the signal \a input of length
+   * precisely, slices of the signal \a input of length
    * \f$filterLen\f$ are copied successively to \a signalBuffer of
    * size \f$2.filterLen\f$, with zero-padding on the last
-   * \f$filterLen\f$ samples. The last slide of signal is the one
+   * \f$filterLen\f$ samples. The last slice of signal is the one
    * containing the last sample of \a input, i.e. there are \f$\lceil
-   * \frac{inputLen}{filterLen} \rceil \f$ slides.
+   * \frac{inputLen}{filterLen} \rceil \f$ slices.
    *
    * \a signalFftBuffer is the discrete Fourier transform (DFT) of \a
    * signalBuffer :
@@ -615,17 +677,17 @@ class MP_Convolution_FFT_c:public MP_Convolution_c {
    * inverseOut[p]=\frac{1}{2.filterLen}.\sum_{k=0}^{2.filterLen-1}
    * outputFftBuffer[k].\exp (2\pi \imath \frac{kp}{2.filterLen}).\f]
    *
-   * Then, theoretically, the slides \a outputBuffer, each shifted by
+   * Then, theoretically, the slices \a outputBuffer, each shifted by
    * \a filterLen, are summed to give the whole
    * convolution. Practically, we only need the inner products between
    * the filters and the frames of the \a input (all the filterShift
-   * samples of \a input). To do so, for each slide \a slideIdx, one
+   * samples of \a input). To do so, for each slice \a sliceIdx, one
    * finds the indices of the frames of \ input that are involved in
    * the current convolution: one finds \a minFrameIdx and \a
    * maxFrameIdx, and then one adds, for \a frameIdx between \a
    * minFrameIdx and \a maxFrameIdx : \f[ output[frameIdx +
    * filterIdx*numFrames] += outputBuffer[frameIdx.filterShift -
-   * slideIdx.filterLen].\f]
+   * sliceIdx.filterLen].\f]
    *
    * The overlap-add technique allows to perform the convolution using
    * only FFT of size 2.filterLen, instead of signalLen. This leads to
@@ -655,6 +717,107 @@ class MP_Convolution_FFT_c:public MP_Convolution_c {
    **/
   virtual void compute_IP( MP_Sample_t* input, unsigned long int inputLen, unsigned short int chanIdx, double** output );
 
+  /** \brief finds the max inner product, for every frame, between the
+   * input and all the filters, using fast convolution with
+   * overlap-add
+   *
+   * computes the inner products between frames of \a input and all
+   * the channels of all the filters of the \a anywaveTable, and then
+   * compute the amplitude of the inner products, and select only the
+   * maximum one for each frame.
+   * 
+   * A loop upon the filters allows to fill \a output in
+   * iteratively. For each filter, the following is done.
+   *
+   * The first frame begins at \a input, and the following ones are
+   * all shifted by \a filterShift samples. There are \f$ numFrames =
+   * \lfloor \frac{inputLen - filterLen}{filterShift}\rfloor +1 \f$
+   * frames. The inner products between the frame \f$ frameIdx \f$ and
+   * the filters anywaveTable->wave[filterIdx][chanIdx] (now denoted
+   * by \a filter) are performed, for every channel of every filter,
+   * and then the amplitudes are computed, and the max for the given
+   * frame is saved in \a output[frameIdx + filterIdx*numFrames]
+   *
+   * The inner products are computed via convolution. This means in
+   * more details, that a convolution is computed between the signal
+   * and the flipped filter, corresponding to all the inner products
+   * between the filter and a frame of the signal. To finish, we then
+   * pick the only inner products corresponding to the frames defined
+   * by \a filterShift. This means that more inner products than
+   * needed are computed.
+   *
+   * The convolution is not achieved directly, but going through the
+   * Fourier domain and using the overlap-add technique. More
+   * precisely, slices of the signal \a input of length
+   * \f$filterLen\f$ are copied successively to \a signalBuffer of
+   * size \f$2.filterLen\f$, with zero-padding on the last
+   * \f$filterLen\f$ samples. The last slice of signal is the one
+   * containing the last sample of \a input, i.e. there are \f$\lceil
+   * \frac{inputLen}{filterLen} \rceil \f$ slices.
+   *
+   * \a signalFftBuffer is the discrete Fourier transform (DFT) of \a
+   * signalBuffer :
+   * \f[ signalFftBuffer[k]=\sum_{m=0}^{2.filterLen-1}signalBuffer[m].\exp
+   * (-2\pi \imath \frac{km}{2.filterLen} ).\f] \a
+   * filterFftBuffer[filterIdx][chanIdx] is the DFT of \a
+   * anywaveTable->wave[filterIdx][chanIdx] (assuming there is
+   * zero-padding for \f$ n \ge filterLen \f$ ; note that these DFT are
+   * computed at the creation of the MP_convolution_c object) : \f[
+   * filterFftBuffer[filterIdx][chanIdx][k]=\sum_{n=0}^{2.filterLen-1}filter[n].\exp
+   * (-2\pi \imath \frac{kn}{2.filterLen} ).\f]
+   *
+   * \a outputFftBuffer is the products between the two DFT of the
+   * signal and the current filter \f$outputFftBuffer[k] =
+   * signalFftBuffer[k].filterFftBuffer[filterIdx][chanIdx][k] \f$
+   *
+   * Last, \a outputBuffer is the inverse DFT of \a outputFftBuffer :
+   * \f[
+   * inverseOut[p]=\frac{1}{2.filterLen}.\sum_{k=0}^{2.filterLen-1}
+   * outputFftBuffer[k].\exp (2\pi \imath \frac{kp}{2.filterLen}).\f]
+   *
+   * Then, theoretically, the slices \a outputBuffer, each shifted by
+   * \a filterLen, are summed to give the whole
+   * convolution. Practically, we only need the inner products between
+   * the filters and the frames of the \a input (all the filterShift
+   * samples of \a input). To do so, for each slice \a sliceIdx, one
+   * finds the indices of the frames of \ input that are involved in
+   * the current convolution: one finds \a minFrameIdx and \a
+   * maxFrameIdx, and then one adds, for \a frameIdx between \a
+   * minFrameIdx and \a maxFrameIdx : \f[ output[frameIdx +
+   * filterIdx*numFrames] += outputBuffer[frameIdx.filterShift -
+   * sliceIdx.filterLen].\f]
+   *
+   * The overlap-add technique allows to perform the convolution using
+   * only FFT of size 2.filterLen, instead of signalLen. This leads to
+   * a large gain of speed and memory.
+   * 
+   * For computing efficiency, as the signals and filters are real, we
+   * use the function fftw_plan_dft_r2c_1d for DFT that only gives the
+   * real part of the spectrum, thus \a signalFftBuffer, \a
+   * filterFftBuffer and \a outputFftBuffer have half the size of \a
+   * signalBuffer, padded filters and \a outputBuffer. To perform the
+   * inverse DFT, we use the function fftw_plan_dft_c2r_1d.
+   *
+   * \param s the signal one wants to compute the inner product
+   * with the filters
+   *
+   * \param inputLen the length of the piece of the input signal to process
+   *
+   * \param fromSample the first sample of the piece of the input signal to process
+   *
+   * \param ampOutput the address of the array of size \f$ numFrames
+   * \f$ of the amplitudes of the max inner products between the
+   * frames of \a input and the filters. It must have been allocated
+   * before calling this function.
+   *
+   * \param idxOutput the address of the array of size \f$ numFrames
+   * \f$ of the filter index of the max inner products between the
+   * frames of \a input and the filters. It must have been allocated
+   * before calling this function.
+   *
+   * \remark inputLen shall not be lower than anywaveTable->filterLen
+   **/
+  virtual void compute_max_IP( MP_Signal_c* s, unsigned long int inputLen, unsigned long int fromSample, MP_Real_t* ampOutput, unsigned long int* idxOutput );
 };
 
 

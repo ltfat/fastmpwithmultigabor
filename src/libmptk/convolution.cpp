@@ -316,7 +316,7 @@ void MP_Convolution_Fastest_c::initialize( const unsigned short int computationM
 
   methods[0] = (MP_Convolution_c *) new MP_Convolution_Direct_c( anywaveTable, filterShift );
   methods[1] = (MP_Convolution_c *) new MP_Convolution_FFT_c( anywaveTable, filterShift );
-  
+
   if (computationMethod == MP_ANYWAVE_COMPUTE_FFT) {
     methodSwitchLimit = anywaveTable->filterLen + 1;
   } else {
@@ -371,6 +371,12 @@ double MP_Convolution_Fastest_c::compute_IP( MP_Sample_t* input, unsigned long i
   
 }
 
+void MP_Convolution_Fastest_c::compute_max_IP( MP_Signal_c* s, unsigned long int inputLen, unsigned long int fromSample, MP_Real_t* ampOutput, unsigned long int* idxOutput ) {
+
+  methods[ find_fastest_method( inputLen) ]->compute_max_IP(s, inputLen, fromSample, ampOutput, idxOutput);
+
+}
+
 /*************************************/
 /*                                   */
 /* DIRECT COMPUTATION IMPLEMENTATION */
@@ -420,7 +426,7 @@ void MP_Convolution_Direct_c::compute_IP( MP_Sample_t* input, unsigned long int 
   }
 
   if ( ( inputLen == 0 ) || ( anywaveTable->filterLen == 0 ) ) {
-     mp_error_msg( "MP_Convolution_FFT_c::compute_IP", "Can't compute inner products because the input or filter length has not been filled in :\n inputLen=%lu - filterLen=%lu  ... aborting\n", inputLen, anywaveTable->filterLen);
+     mp_error_msg( "MP_Convolution_Direct_c::compute_IP", "Can't compute inner products because the input or filter length has not been filled in :\n inputLen=%lu - filterLen=%lu  ... aborting\n", inputLen, anywaveTable->filterLen);
     exit(1);
   }
 
@@ -468,6 +474,115 @@ inline double MP_Convolution_Direct_c::compute_IP( MP_Sample_t* input, unsigned 
 
   }
   return(temp);
+}
+
+
+void MP_Convolution_Direct_c::compute_max_IP( MP_Signal_c* s, unsigned long int inputLen, unsigned long int fromSample, MP_Real_t* ampOutput, unsigned long int* idxOutput ) {
+
+  unsigned short int chanIdx;
+
+
+  unsigned long int numFrames;
+  unsigned long int frameIdx;
+
+  MP_Sample_t** pSignal;
+
+  double tmp;
+  double* pAmp;
+  unsigned long int* pIdx;
+
+  double doubleTmp;
+
+  unsigned long int filterIdx;
+
+  if ( fromSample > s->numSamples) {
+    mp_error_msg( "MP_Convolution_Direct_c::compute_IP","Inputs ask to process a slice of signal beginning at sample [%lu], whereas the signal contains only [%lu] samples... aborting\n", fromSample, s->numSamples);
+    return;
+  }
+  if ( inputLen > s->numSamples - fromSample ) {
+    mp_error_msg( "MP_Convolution_Direct_c::compute_IP","Inputs ask to process the slice of signal beginning at sample [%lu], of length [%lu], whereas the signal contains only [%lu] samples... aborting\n", fromSample, inputLen, s->numSamples);
+    return;
+  }
+
+  if( inputLen < anywaveTable->filterLen ) {
+    mp_error_msg( "MP_Convolution_Direct_c::compute_IP","Can't compute inner products because the input signal is smaller than the filter\n inputLen=%lu - filterLen=%lu... aborting\n", inputLen, anywaveTable->filterLen);
+    return;
+  }
+
+  if ( ( inputLen == 0 ) || ( anywaveTable->filterLen == 0 ) ) {
+    mp_error_msg( "MP_Convolution_Direct_c::compute_IP","Can't compute inner products because the input or filter length has not been filled in :\n inputLen=%lu - filterLen=%lu  ... aborting\n", inputLen, anywaveTable->filterLen);
+    return;
+  }
+
+  if ( inputLen == MP_MAX_UNSIGNED_LONG_INT ) {
+    mp_error_msg( "MP_Convolution_Direct_c::compute_IP", "inputLen [%lu] is equal to the max for an unsigned long int [%lu]. Cannot initialize the number of slices. Exiting from compute_IP()\n", inputLen, MP_MAX_UNSIGNED_LONG_INT );
+    return;
+  }
+
+  numFrames = ((inputLen - anywaveTable->filterLen)/filterShift) + 1;
+
+  if ( (double)MP_MAX_UNSIGNED_LONG_INT / (double)anywaveTable->numFilters / (double)numFrames <= 1.0) {
+    mp_error_msg( "MP_Convolution_Direct_c::compute_IP", "anywaveTable->numFilters [%lu] . numFrames [%lu] is greater than the max for an unsigned long int [%lu]. Cannot initialize local variable. Exiting from compute_IP().\n", anywaveTable->numFilters, numFrames, MP_MAX_UNSIGNED_LONG_INT);
+    return;
+  }
+
+  pAmp = ampOutput;
+  pIdx = idxOutput;
+
+  if ( (pSignal = (MP_Sample_t**) malloc( sizeof(MP_Sample_t*) * s->numChans ) ) == NULL ) {
+    mp_error_msg( "MP_Convolution_FFT_c::initialize", "Can't allocate an array of [%lu] MP_Sample_t* elements"
+		  " for the pSignal array using malloc. This pointer will remain NULL.\n", s->numChans );
+  } else {
+    for ( chanIdx = 0;
+	  chanIdx < s->numChans;
+	  chanIdx ++ ) {
+      pSignal[chanIdx] = s->channel[chanIdx] + fromSample;
+    }
+  }
+
+  for (frameIdx = 0;
+       frameIdx < numFrames;
+       frameIdx ++) {
+
+    *pAmp = 0.0;
+    *pIdx = 0;
+
+    for (filterIdx = 0;
+	 filterIdx < anywaveTable->numFilters; 
+	 filterIdx ++) {
+      
+      doubleTmp = 0.0;
+      
+      for ( chanIdx = 0;
+	    chanIdx < s->numChans;
+	    chanIdx ++ ) {
+	if (s->numChans == anywaveTable->numChans){
+	  doubleTmp += compute_IP( pSignal[chanIdx], filterIdx, chanIdx );
+	} else {
+	  tmp = compute_IP( pSignal[chanIdx], filterIdx, 0 );
+	  doubleTmp += tmp * tmp;
+	}
+      }
+      if (s->numChans == anywaveTable->numChans){
+	doubleTmp *= doubleTmp;
+      }	
+	
+      if (doubleTmp > *pAmp) {
+	*pAmp = (MP_Real_t)doubleTmp;
+	*pIdx = filterIdx;
+      }
+    }
+    fprintf(stderr,"Amp[%lf]Idx[%lu]",*pAmp,*pIdx);
+    fflush(stderr);
+    pAmp ++;
+    pIdx ++;
+    for ( chanIdx = 0;
+	  chanIdx < s->numChans;
+	  chanIdx ++ ) {
+      pSignal[chanIdx] += filterShift;
+    }
+    
+  }
 }
 
 /*************************************/
@@ -638,6 +753,16 @@ void MP_Convolution_FFT_c::initialize(void) {
     }
   }
 
+  /* Allocates the tabs outputBufferAdd and outputBufferNew */
+  if ( (outputBufferAdd = (double**) malloc( sizeof(double*) * anywaveTable->numFilters ) ) == NULL ) {
+    mp_error_msg( "MP_Convolution_FFT_c::initialize", "Can't allocate an array of [%lu] double* elements"
+		  " for the outputBufferAdd array using malloc. This pointer will remain NULL.\n", anywaveTable->numFilters );
+  }
+  if ( (outputBufferNew = (double**) malloc( sizeof(double*) * anywaveTable->numFilters ) ) == NULL ) {
+    mp_error_msg( "MP_Convolution_FFT_c::initialize", "Can't allocate an array of [%lu] double* elements"
+		  " for the outputBufferNew array using malloc. This pointer will remain NULL.\n", anywaveTable->numFilters );
+  } 
+
 }
 
 void MP_Convolution_FFT_c::release( void ) {
@@ -665,32 +790,36 @@ void MP_Convolution_FFT_c::release( void ) {
   
   if (fftPlan) {fftw_destroy_plan( fftPlan );}
   if (ifftPlan) {fftw_destroy_plan( ifftPlan );}
-
+  
+  if (outputBufferAdd) {free( outputBufferAdd );}
+  if (outputBufferNew) {free( outputBufferNew );}
 }
 
 /***************************/
 /* OTHER METHODS           */
 /***************************/
 
-void MP_Convolution_FFT_c::compute_IP( MP_Sample_t* input, unsigned long int inputLen, unsigned short int chanIdx, double** output ) {
+MP_Sample_t* MP_Convolution_FFT_c::slice( unsigned long int sliceIdx, MP_Sample_t* inputStart ) {
+  
+  if ( (double) MP_MAX_UNSIGNED_LONG_INT / (double) sliceIdx / (double) anywaveTable->filterLen < 1.0 ) {
+    mp_error_msg( "MP_Convolution_FFT_c::slice","Can't add the sliceIdx [%lu] . anywaveTable->filterLen [%lu] to inputStart, because it is bigger than the max unsigned long int [%lu].\n Returning NULL.", sliceIdx, anywaveTable->filterLen, MP_MAX_UNSIGNED_LONG_INT );
+    return( NULL );
+  } else {
+    return( inputStart + sliceIdx * anywaveTable->filterLen );
+  }
+}
 
-  unsigned long int slideIdx;
-  unsigned long int lowerFrameIdx;
-  unsigned long int upperFrameIdx;
+void MP_Convolution_FFT_c::circular_convolution( MP_Sample_t* pSlice, MP_Sample_t* pNextSlice, unsigned short int chanIdx, double** outputBufferAdd, double** outputBufferNew, unsigned long int firstFrameSample, unsigned long int numFramesAdd, unsigned long int numFramesNew ) {
 
-  unsigned long int numFrames;
-  unsigned long int numSlides;
-
-  MP_Sample_t* pSlide;
-  MP_Sample_t* pSlideEnd;
-  MP_Sample_t* pInputEnd;
-
+  MP_Sample_t* pSample;
   double* pBuffer;
+  unsigned long int frameIdx;
+
+  MP_Sample_t* pSliceEnd;
+
   double* pOutputBuffer;
   double* pOutputBufferStart;
   double* pOutput;
-  double* pOutputStart;
-  double* pOutputEnd;
 
   fftw_complex* pFftSignal;
   fftw_complex* pFftSignalEnd;
@@ -699,6 +828,96 @@ void MP_Convolution_FFT_c::compute_IP( MP_Sample_t* input, unsigned long int inp
 
   unsigned long int filterIdx;
 
+
+  /* puts this slice of the input signal in signalBuffer (first half of the buffer) */
+  pSliceEnd = pSlice + anywaveTable->filterLen;
+  for (pBuffer = signalBuffer, pSample = pSlice;
+       pSample < pNextSlice;
+       pBuffer++, pSample++ ) {
+    *pBuffer = (double)*pSample;
+  }
+  for (;
+       pSample < pSliceEnd;
+       pBuffer++, pSample++ ) {
+    *pBuffer = 0.0;
+  }
+
+
+  /* computes the FFT of this slice of the input signal */
+  fftw_execute( fftPlan );
+
+  /* init pFftFilter to the first filter in the channel chanIdx,
+     since for each channel, all the FFTs of the filters are put one
+     after the other */
+  pFftFilter = filterFftBuffer[0][chanIdx];
+    
+  /* points to the element of outputBuffer to add to the inner
+     products in output corresponding to the first involved frame in
+     the slice sliceIdx */ 
+  pOutputBufferStart = outputBuffer + firstFrameSample;
+  
+  pFftSignalEnd = signalFftBuffer + fftRealSize;
+
+  /* loop on the filters */
+  for (filterIdx = 0;
+       filterIdx < anywaveTable->numFilters;
+       filterIdx ++) {
+    
+    /* multiplies the FFT of the signal by the FFT of the inverted filter filterIdx */
+    for ( pFftSignal = signalFftBuffer, pFftOutput = outputFftBuffer, pFftFilter = filterFftBuffer[filterIdx][chanIdx];
+	  pFftSignal < pFftSignalEnd;
+	  pFftSignal += 1, pFftFilter += 1, pFftOutput += 1 ) {
+      (*pFftOutput)[0] = ((*pFftSignal)[0]) * ((*pFftFilter)[0]) - ((*pFftSignal)[1]) * ((*pFftFilter)[1]);
+      (*pFftOutput)[1] = ((*pFftSignal)[0]) * ((*pFftFilter)[1]) + ((*pFftSignal)[1]) * ((*pFftFilter)[0]);	
+    }
+    
+    /* computes the IFFT of the multiplication between the FFT of the slice of signal and the filter */
+    fftw_execute( ifftPlan );
+    
+    /* update the inner products in the output arrays */    
+    for (pOutput = outputBufferAdd[filterIdx], pOutputBuffer = pOutputBufferStart,frameIdx = 0;
+	 frameIdx < numFramesAdd;
+	 pOutput++, pOutputBuffer += filterShift, frameIdx++) {      
+      *pOutput += *pOutputBuffer / fftCplxSize;      
+    }
+
+    for (pOutput = outputBufferNew[filterIdx],frameIdx = 0;
+	 frameIdx < numFramesNew;
+	 pOutput++, pOutputBuffer += filterShift, frameIdx++) {      
+      *pOutput = *pOutputBuffer / fftCplxSize;      
+    }    
+  }
+  
+}
+
+void MP_Convolution_FFT_c::compute_IP( MP_Sample_t* input, unsigned long int inputLen, unsigned short int chanIdx, double** output ) {
+
+  unsigned long int sliceIdx;
+
+  unsigned long int numFrames;
+  unsigned long int frameIdx;
+  unsigned long int numFramesAdd;
+  unsigned long int numFramesNew;
+  unsigned long int firstFrameSample;
+  unsigned long int nextFirstFrameSample;
+  unsigned long int numSlices;
+
+  MP_Sample_t* p;
+  MP_Sample_t* pSlice;
+  MP_Sample_t* pNextSlice;
+  MP_Sample_t* pInputEnd;
+
+  double** tmp;
+  
+  double* pOutput;
+  double* pOutputStart;
+
+  unsigned long int filterIdx;
+
+  if( chanIdx >= anywaveTable->numChans ) {
+    mp_error_msg( "MP_Convolution_FFT_c::compute_IP","chanIdx [%hu] is larger than the number of channels [%hu]... aborting\n", chanIdx, anywaveTable->numChans);
+    return;
+  }
 
   if( inputLen < anywaveTable->filterLen ) {
     mp_error_msg( "MP_Convolution_FFT_c::compute_IP","Can't compute inner products because the input signal is smaller than the filter\n inputLen=%lu - filterLen=%lu... aborting\n", inputLen, anywaveTable->filterLen);
@@ -711,127 +930,352 @@ void MP_Convolution_FFT_c::compute_IP( MP_Sample_t* input, unsigned long int inp
   }
 
   if ( inputLen == MP_MAX_UNSIGNED_LONG_INT ) {
-    mp_error_msg( "MP_Convolution_FFT_c::compute_IP", "inputLen [%lu] is equal to the max for an unsigned long int [%lu]. Cannot initialize the number of slides. Exiting from compute_IP()\n", inputLen, MP_MAX_UNSIGNED_LONG_INT );
+    mp_error_msg( "MP_Convolution_FFT_c::compute_IP", "inputLen [%lu] is equal to the max for an unsigned long int [%lu]. Cannot initialize the number of slices. Exiting from compute_IP()\n", inputLen, MP_MAX_UNSIGNED_LONG_INT );
     return;
   }
   numFrames = ((inputLen - anywaveTable->filterLen)/filterShift) + 1;
-  numSlides = ( inputLen / anywaveTable->filterLen ) + 1;
+  numSlices = ( inputLen / anywaveTable->filterLen ) + 1;
 
-  /* sets all the elements of output to zero */
   pOutputStart = *output;
   if ( (double)MP_MAX_UNSIGNED_LONG_INT / (double)anywaveTable->numFilters / (double)numFrames <= 1.0) {
     mp_error_msg( "MP_Convolution_FFT_c::compute_IP", "anywaveTable->numFilters [%lu] . numFrames [%lu] is greater than the max for an unsigned long int [%lu]. Cannot initialize local variable. Exiting from compute_IP().\n", anywaveTable->numFilters, numFrames, MP_MAX_UNSIGNED_LONG_INT);
     return;
   }
-  pOutputEnd = pOutputStart + anywaveTable->numFilters * numFrames;
-  for (pOutput = pOutputStart; pOutput < pOutputEnd; pOutput ++) {
-    *pOutput = 0.0;
-  }
 
-  /* inits pSlide to the first sample of input */
-  pSlide = input;
+  /* inits pSlice to the first sample of input */
+  pSlice = input;
+  pNextSlice = pSlice + anywaveTable->filterLen;
+  numFramesAdd = 0;
+  numFramesNew = 0;
+  nextFirstFrameSample = 0;
+
   /* first MP_Sample_t* after input */
   pInputEnd = input + inputLen;
-  /* first fftw_complex* after signalFftBuffer */
-  pFftSignalEnd = signalFftBuffer + fftRealSize;
   
-  /* loop on the slides of size anywaveTable->filterLen */
-  for (slideIdx = 0;
-       slideIdx < numSlides;
-       slideIdx ++) {
+  p = pSlice;
+  while ((p < pNextSlice)&&(p < (pInputEnd - anywaveTable->filterLen + 1))) {
+    numFramesNew ++;
+    p += filterShift;
+  }
 
-    /* puts the slide slideIdx of the input signal in signalBuffer (first half of the buffer) */
-    pSlideEnd = pSlide + anywaveTable->filterLen;
-    if (pSlideEnd < pInputEnd) {
-      for (pBuffer = signalBuffer;
-	   pSlide < pSlideEnd;
-	   pBuffer++, pSlide++ ) {
-	*pBuffer = (double)*pSlide;
-      }
-    } else {
-      for (pBuffer = signalBuffer;
-	   pSlide < pInputEnd;
-	   pBuffer++, pSlide++ ) {
-	*pBuffer = (double)*pSlide;
-      }
-      for (;
-	   pSlide < pSlideEnd;
-	   pBuffer++, pSlide++ ) {
-	*pBuffer = 0.0;
-      }
-    }      
 
-    /* computes the FFT of the slide slideIdx of the input signal */
-    fftw_execute( fftPlan );
+  /* sets the elements of the first slice of output to zero */
+  for (filterIdx = 0;
+       filterIdx < anywaveTable->numFilters; 
+       filterIdx ++) {
+    outputBufferNew[filterIdx] = pOutputStart + filterIdx*numFrames;
 
-    /* init pFfftFilter to the first filter in the channel chanIdx,
-       since for each channel, all the FFTs of the filters are put one
-       after the other */
-    pFftFilter = filterFftBuffer[0][chanIdx];
+    for (frameIdx = 0, pOutput = outputBufferNew[filterIdx];
+	 frameIdx < numFramesNew; 
+	 frameIdx ++, pOutput++) {
+      *pOutput = 0.0;
+    }
+  }
+
+  /* loop on the slices of size anywaveTable->filterLen */
+
+  for (sliceIdx = 0, pSlice = input;
+       sliceIdx < numSlices;
+       sliceIdx ++, pSlice += anywaveTable->filterLen) {
     
-    /* find the inner products corresponding to a frame of the input signal */
-    /* lower bound */
-    if (slideIdx == 0) {
-      lowerFrameIdx = 0;
-    } else {
-      lowerFrameIdx = (((slideIdx - 1) * anywaveTable->filterLen + 1) / filterShift);
-      while (lowerFrameIdx * filterShift < (slideIdx - 1) * anywaveTable->filterLen + 1) {
-	lowerFrameIdx ++;
-      }
+    pNextSlice = pSlice + anywaveTable->filterLen;
+    if ( pNextSlice > pInputEnd ) {      
+      pNextSlice = pInputEnd;
+    }
+    
+    tmp = outputBufferAdd;
+    outputBufferAdd = outputBufferNew;
+    outputBufferNew = tmp;
+    numFramesAdd = numFramesNew;
+    numFramesNew = 0;
+
+    firstFrameSample = nextFirstFrameSample;
+    nextFirstFrameSample = p - pNextSlice;    
+
+    while ((p < pNextSlice + anywaveTable->filterLen)&&(p < (pInputEnd - anywaveTable->filterLen + 1))) {
+      numFramesNew ++;
+      p += filterShift;
     }
 
-    /* upper bound */
-    upperFrameIdx = (( (slideIdx+1) * anywaveTable->filterLen  )/ filterShift);
-    /* greater or EQUAL->in order not to take the last sample in outputBuffer (theoritically, it is always zero)*/
-    while ((upperFrameIdx * filterShift >= (slideIdx + 1) * anywaveTable->filterLen ) && (upperFrameIdx > 0)) {
-      upperFrameIdx --;
-    }
-    if (upperFrameIdx >= numFrames) {
-      upperFrameIdx = numFrames - 1;
-    }
-
-    /* points to the element of outputBuffer to add to the inner
-       products in output corresponding to the first involved frame in
-       the slide slideIdx */ 
-    pOutputBufferStart = outputBuffer + lowerFrameIdx*filterShift - (slideIdx - 1) *anywaveTable->filterLen - 1;
-
-    /* points to inner product in output corresponding to the first
-       involved frame in the slide slideIdx */
-    pOutputStart = *output + lowerFrameIdx;
-    /* points to inner product in output corresponding to the (last+1)
-       involved frame in the slide slideIdx */
-    pOutputEnd = *output + upperFrameIdx + 1;
-
-    /* loop on the filters */
     for (filterIdx = 0;
-	 filterIdx < anywaveTable->numFilters;
+	 filterIdx < anywaveTable->numFilters; 
 	 filterIdx ++) {
-      
-      /* multiplies the FFT of the signal by the FFT of the inverted filter filterIdx */
-      for ( pFftSignal = signalFftBuffer, pFftOutput = outputFftBuffer, pFftFilter = filterFftBuffer[filterIdx][chanIdx];
-	    pFftSignal < pFftSignalEnd;
-	    pFftSignal += 1, pFftFilter += 1, pFftOutput += 1 ) {
-	(*pFftOutput)[0] = ((*pFftSignal)[0]) * ((*pFftFilter)[0]) - ((*pFftSignal)[1]) * ((*pFftFilter)[1]);
-	(*pFftOutput)[1] = ((*pFftSignal)[0]) * ((*pFftFilter)[1]) + ((*pFftSignal)[1]) * ((*pFftFilter)[0]);	
-      }
-
-      /* computes the IFFT of the multiplication between the FFT of the slide of signal and the filter */
-      fftw_execute( ifftPlan );
-
-      /* update the inner products in the output array */
-      long int frameIdx;
-      for (pOutput = pOutputStart, pOutputBuffer = pOutputBufferStart,frameIdx = lowerFrameIdx;
-	   pOutput < pOutputEnd;
-	   pOutput++, pOutputBuffer += filterShift, frameIdx++) {
-
-	*pOutput += *pOutputBuffer / fftCplxSize;
-	
-      }
-      pOutputStart += numFrames;
-      pOutputEnd += numFrames;
-
+      outputBufferNew[filterIdx] = outputBufferAdd[filterIdx] + numFramesAdd;
     }
+    circular_convolution( pSlice, pNextSlice, chanIdx, outputBufferAdd, outputBufferNew, firstFrameSample, numFramesAdd, numFramesNew );
+
   }
 }
 
 
+void MP_Convolution_FFT_c::compute_max_IP( MP_Signal_c* s, unsigned long int inputLen, unsigned long int fromSample, MP_Real_t* ampOutput, unsigned long int* idxOutput ) {
+
+  unsigned short int chanIdx;
+
+  unsigned long int sliceIdx;
+
+  unsigned long int numFrames;
+  unsigned long int frameIdx;
+
+  unsigned long int numFramesAdd;
+  unsigned long int numFramesNew;
+  unsigned long int maxNumFramesPerSlice;
+  unsigned long int firstFrameSample;
+  unsigned long int nextFirstFrameSample;
+  unsigned long int numSlices;
+
+  MP_Sample_t** pSlice;
+  MP_Sample_t** pNextSlice;
+  MP_Sample_t** pInputEnd;
+
+  unsigned long int tmp;
+  unsigned long int tmpMax;
+  double* pAmp;
+  unsigned long int* pIdx;
+
+  double doubleTmp;
+
+  double* outputAdd;
+  double* outputNew;
+  double* pOutputAdd;
+  double* pOutputNew;
+
+  double*** accessOutputAdd;
+  double*** accessOutputNew;
+  double*** accessSwitch;
+
+  unsigned long int filterIdx;
+
+  if ( fromSample > s->numSamples) {
+    mp_error_msg( "MP_Convolution_FFT_c::compute_IP","Inputs ask to process a slice of signal beginning at sample [%lu], whereas the signal contains only [%lu] samples... aborting\n", fromSample, s->numSamples);
+    return;
+  }
+  if ( inputLen > s->numSamples - fromSample ) {
+    mp_error_msg( "MP_Convolution_FFT_c::compute_IP","Inputs ask to process the slice of signal beginning at sample [%lu], of length [%lu], whereas the signal contains only [%lu] samples... aborting\n", fromSample, inputLen, s->numSamples);
+    return;
+  }
+
+  if( inputLen < anywaveTable->filterLen ) {
+    mp_error_msg( "MP_Convolution_FFT_c::compute_IP","Can't compute inner products because the input signal is smaller than the filter\n inputLen=%lu - filterLen=%lu... aborting\n", inputLen, anywaveTable->filterLen);
+    return;
+  }
+
+  if ( ( inputLen == 0 ) || ( anywaveTable->filterLen == 0 ) ) {
+    mp_error_msg( "MP_Convolution_FFT_c::compute_IP","Can't compute inner products because the input or filter length has not been filled in :\n inputLen=%lu - filterLen=%lu  ... aborting\n", inputLen, anywaveTable->filterLen);
+    return;
+  }
+
+  if ( inputLen == MP_MAX_UNSIGNED_LONG_INT ) {
+    mp_error_msg( "MP_Convolution_FFT_c::compute_IP", "inputLen [%lu] is equal to the max for an unsigned long int [%lu]. Cannot initialize the number of slices. Exiting from compute_IP()\n", inputLen, MP_MAX_UNSIGNED_LONG_INT );
+    return;
+  }
+  numFrames = ((inputLen - anywaveTable->filterLen)/filterShift) + 1;
+  numSlices = ( inputLen / anywaveTable->filterLen ) + 1;
+
+  pAmp = ampOutput;
+  pIdx = idxOutput;
+
+  /* inits pSlice to the first sample of input */
+  numFramesAdd = 0;
+
+  numFramesNew = 1;
+  nextFirstFrameSample = anywaveTable->filterLen-1;
+  tmp = nextFirstFrameSample;
+  tmpMax = inputLen;
+
+  tmp += filterShift;
+  tmp -= anywaveTable->filterLen;
+  tmpMax -= anywaveTable->filterLen;
+  maxNumFramesPerSlice = ( (anywaveTable->filterLen - 1) / filterShift) + 1;
+
+  if ( (double)MP_MAX_SIZE_T / (double)anywaveTable->numFilters / (double)maxNumFramesPerSlice / (double)s->numChans / (double)sizeof(double) <= 1.0) {
+    mp_error_msg( "MP_Convolution_FFT_c::compute_max_IP", "anywaveTable->numFilters [%lu] . maxNumFramesPerSlice [%lu] . s->numChans [%lu] is greater than the max for a size_t [%lu]. Cannot initialize local variable. Exiting from compute_max_IP().\n", anywaveTable->numFilters, maxNumFramesPerSlice, s->numChans, MP_MAX_SIZE_T);
+    return;
+  } else {
+    if ( (outputAdd = (double*) calloc( maxNumFramesPerSlice * anywaveTable->numFilters * s->numChans, sizeof(double) ) ) == NULL ) {
+      mp_error_msg( "MP_Convolution_FFT_c::compute_max_IP", "Can't allocate an array of [%lu] double elements"
+		    " for the outputAdd array using malloc. This pointer will remain NULL.\n", maxNumFramesPerSlice * anywaveTable->numFilters * s->numChans );
+    }
+    if ( (outputNew = (double*) calloc( maxNumFramesPerSlice * anywaveTable->numFilters * s->numChans, sizeof(double) ) ) == NULL ) {
+      mp_error_msg( "MP_Convolution_FFT_c::compute_max_IP", "Can't allocate an array of [%lu] double elements"
+		    " for the outputNew array using malloc. This pointer will remain NULL.\n", maxNumFramesPerSlice * anywaveTable->numFilters * s->numChans );
+    }    
+  }
+
+  if ( (accessOutputAdd = (double***) malloc( sizeof(double**) * anywaveTable->numFilters ) ) == NULL ) {
+    mp_error_msg( "MP_Convolution_FFT_c::compute_max_IP", "Can't allocate an array of [%lu] double elements"
+		  " for the accessOutputAdd array using malloc. This pointer will remain NULL.\n", anywaveTable->numFilters );
+  } else {
+    for (filterIdx = 0, pOutputAdd = outputAdd;
+	 filterIdx < anywaveTable->numFilters; 
+	 filterIdx ++) {
+      if ( (accessOutputAdd[filterIdx] = (double**) malloc( sizeof(double*) * s->numChans ) ) == NULL ) {
+    mp_error_msg( "MP_Convolution_FFT_c::compute_max_IP", "Can't allocate an array of [%lu] double elements"
+		  " for the accessOutputAdd[%lu] array using malloc. This pointer will remain NULL.\n", s->numChans, filterIdx );
+      } else {
+	for ( chanIdx = 0;
+	      chanIdx < s->numChans;
+	      chanIdx ++, pOutputAdd += maxNumFramesPerSlice ) {
+	  accessOutputAdd[filterIdx][chanIdx] = pOutputAdd;
+	}
+      }
+    }
+  }
+  if ( (accessOutputNew = (double***) malloc( sizeof(double**) * anywaveTable->numFilters ) ) == NULL ) {
+    mp_error_msg( "MP_Convolution_FFT_c::compute_max_IP", "Can't allocate an array of [%lu] double elements"
+		  " for the accessOutputNew array using malloc. This pointer will remain NULL.\n", anywaveTable->numFilters );
+  } else {
+    for (filterIdx = 0, pOutputNew = outputNew;
+	 filterIdx < anywaveTable->numFilters; 
+	 filterIdx ++) {
+      if ( (accessOutputNew[filterIdx] = (double**) malloc( sizeof(double*) * s->numChans ) ) == NULL ) {
+    mp_error_msg( "MP_Convolution_FFT_c::compute_max_IP", "Can't allocate an array of [%lu] double elements"
+		  " for the accessOutputNew[%lu] array using malloc. This pointer will remain NULL.\n", s->numChans, filterIdx );
+      } else {
+	for ( chanIdx = 0;
+	      chanIdx < s->numChans;
+	      chanIdx ++, pOutputNew += maxNumFramesPerSlice ) {
+	  accessOutputNew[filterIdx][chanIdx] = pOutputNew;
+	}
+      }
+    }
+  }   
+
+  if ( (pSlice = (MP_Sample_t**) malloc( sizeof(MP_Sample_t*) * s->numChans ) ) == NULL ) {
+    mp_error_msg( "MP_Convolution_FFT_c::compute_max_IP", "Can't allocate an array of [%lu] MP_Sample_t* elements"
+		  " for the pSlice array using malloc. This pointer will remain NULL.\n", s->numChans );
+  }
+  if ( (pInputEnd = (MP_Sample_t**) malloc( sizeof(MP_Sample_t*) * s->numChans ) ) == NULL ) {
+    mp_error_msg( "MP_Convolution_FFT_c::compute_max_IP", "Can't allocate an array of [%lu] MP_Sample_t* elements"
+		  " for the pInputEnd array using malloc. This pointer will remain NULL.\n", s->numChans );
+  }
+  if ( (pNextSlice = (MP_Sample_t**) malloc( sizeof(MP_Sample_t*) * s->numChans ) ) == NULL ) {
+    mp_error_msg( "MP_Convolution_FFT_c::compute_max_IP", "Can't allocate an array of [%lu] MP_Sample_t* elements"
+		  " for the pNextSlice array using malloc. This pointer will remain NULL.\n", s->numChans );
+  }
+
+  for (chanIdx = 0;
+       chanIdx < s->numChans;
+       chanIdx ++) {
+    pSlice[chanIdx] = s->channel[chanIdx] + fromSample;
+    pInputEnd[chanIdx] = pSlice[chanIdx] + inputLen;
+    pNextSlice[chanIdx] = pSlice[chanIdx] + anywaveTable->filterLen;
+  }
+
+  /* loop on the slices of size anywaveTable->filterLen */
+  for (sliceIdx = 0;
+       sliceIdx < numSlices;
+       sliceIdx ++) {
+
+    accessSwitch = accessOutputAdd;
+    accessOutputAdd = accessOutputNew;    
+    accessOutputNew = accessSwitch;
+    
+    numFramesAdd = numFramesNew;
+    numFramesNew = 0;
+    
+    firstFrameSample = nextFirstFrameSample;
+    nextFirstFrameSample = tmp;    
+    
+    while ((tmp < anywaveTable->filterLen)&&(tmp < tmpMax)) {
+      numFramesNew ++;
+      tmp += filterShift;
+    }
+    if (tmp >= (inputLen - anywaveTable->filterLen + 1)) {
+      tmp -= inputLen + anywaveTable->filterLen - 1;
+    } else {
+      tmp -= anywaveTable->filterLen;
+      tmpMax -= anywaveTable->filterLen;
+    }
+
+    for ( chanIdx = 0;
+	  chanIdx < s->numChans;
+	  chanIdx ++ ) {
+
+      if ( pNextSlice[chanIdx] > pInputEnd[chanIdx] ) {      
+	pNextSlice[chanIdx] = pInputEnd[chanIdx];
+      }
+    
+      for (filterIdx = 0, pOutputNew = outputNew;
+	   filterIdx < anywaveTable->numFilters; 
+	   filterIdx ++) {
+	outputBufferAdd[filterIdx] = accessOutputAdd[filterIdx][chanIdx];
+	outputBufferNew[filterIdx] = accessOutputNew[filterIdx][chanIdx];
+      }
+
+      if (s->numChans == anywaveTable->numChans){
+	circular_convolution( pSlice[chanIdx], pNextSlice[chanIdx], chanIdx, outputBufferAdd, outputBufferNew, firstFrameSample, numFramesAdd, numFramesNew );
+      } else {
+	circular_convolution( pSlice[chanIdx], pNextSlice[chanIdx], 0, outputBufferAdd, outputBufferNew, firstFrameSample, numFramesAdd, numFramesNew );
+      }
+
+      pSlice[chanIdx] += anywaveTable->filterLen;
+      pNextSlice[chanIdx] += anywaveTable->filterLen;
+
+    }
+    /* computes the inner products and find the max */
+
+    for (frameIdx = 0;
+	 frameIdx < numFramesAdd;
+	 frameIdx ++ ) {
+      *pAmp = 0.0;
+      *pIdx = 0;
+
+      for (filterIdx = 0;
+	   filterIdx < anywaveTable->numFilters; 
+	   filterIdx ++) {
+
+	doubleTmp = 0.0;
+
+	for ( chanIdx = 0;
+	      chanIdx < s->numChans;
+	      chanIdx ++ ) {
+
+	  if (s->numChans == anywaveTable->numChans){
+	    doubleTmp += accessOutputAdd[filterIdx][chanIdx][frameIdx];
+	  } else {
+	    doubleTmp += accessOutputAdd[filterIdx][chanIdx][frameIdx] * accessOutputAdd[filterIdx][chanIdx][frameIdx];
+	  }
+	}
+	if (s->numChans == anywaveTable->numChans){
+	  doubleTmp *= doubleTmp;
+	}	
+	
+	if (doubleTmp > *pAmp) {
+	  *pAmp = (MP_Real_t)doubleTmp;
+	  *pIdx = filterIdx;
+	}
+      }
+
+      pAmp ++;
+      pIdx ++;
+    }
+  }
+
+  /* clean the house */
+
+  if ( outputAdd ) { free (outputAdd); }
+  if ( outputNew ) { free (outputNew); }
+
+  if ( accessOutputAdd) {
+    for (filterIdx = 0;
+	 filterIdx < anywaveTable->numFilters; 
+	 filterIdx ++) {
+      if ( accessOutputAdd[filterIdx] ) {
+	free( accessOutputAdd[filterIdx] );
+      }
+    }
+    free( accessOutputAdd );
+  }
+  if ( accessOutputNew) {
+    for (filterIdx = 0;
+	 filterIdx < anywaveTable->numFilters; 
+	 filterIdx ++) {
+      if ( accessOutputNew[filterIdx] ) {
+	free( accessOutputNew[filterIdx] );
+      }
+    }
+    free( accessOutputNew );
+  }
+
+}
