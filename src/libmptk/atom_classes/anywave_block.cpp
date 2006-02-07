@@ -289,7 +289,6 @@ MP_Support_t MP_Anywave_Block_c::update_ip( const MP_Support_t *touch ) {
   unsigned long int numTouchedFrames;
 
   unsigned short int chanIdx;
-  unsigned long int frameIdx;
 
   MP_Support_t frameSupport;
 

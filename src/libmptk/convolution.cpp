@@ -572,8 +572,6 @@ void MP_Convolution_Direct_c::compute_max_IP( MP_Signal_c* s, unsigned long int 
 	*pIdx = filterIdx;
       }
     }
-    fprintf(stderr,"Amp[%lf]Idx[%lu]",*pAmp,*pIdx);
-    fflush(stderr);
     pAmp ++;
     pIdx ++;
     for ( chanIdx = 0;
