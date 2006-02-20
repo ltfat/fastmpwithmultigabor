@@ -246,8 +246,9 @@ void mp_msg_handler_ignore( void );
 #define set_debug_handler( H )   ( MP_GLOBAL_MSG_SERVER.debugHandler = H )
 /** \brief Set all the msg handlers (except debug). */
 #define set_msg_handler( H )   set_error_handler( H );   \
-                               set_warning_handler( H ); \
-                               set_info_handler( H )
+  set_warning_handler( H );				 \
+  set_info_handler( H );				 \
+  set_progress_handler( H );
 
 /** \brief Get the error msg handler. */
 #define get_error_handler()   ( MP_GLOBAL_MSG_SERVER.errorHandler )

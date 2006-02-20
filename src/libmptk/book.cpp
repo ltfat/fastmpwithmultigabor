@@ -206,7 +206,8 @@ unsigned long int MP_Book_c::print( const char *fName, const char mode ) {
 unsigned long int MP_Book_c::load( FILE *fid ) {
   
   const char* func = "MP_Book_c::load(fid)";
-  int fidNumChans, fidSampleRate;
+  unsigned int fidNumChans;
+  int fidSampleRate;
   unsigned long int i, fidNumAtoms, fidNumSamples;
   unsigned long int nRead = 0;
   char mode;
@@ -300,20 +301,58 @@ unsigned long int MP_Book_c::load( const char *fName ) {
 /* Print human readable information about the book to a stream */
 int MP_Book_c::info( FILE *fid ) {
   
+  int nChar = 0;
+  FILE* bakStream;
+  void (*bakHandler)( void );
+
+  /* Backup the current stream/handler */
+  bakStream = get_info_stream();
+  bakHandler = get_info_handler();
+  /* Redirect to the given file */
+  set_info_stream( fid );
+  set_info_handler( MP_FLUSH );
+  /* Launch the info output */
+  nChar += info();
+  /* Reset to the previous stream/handler */
+  set_info_stream( bakStream );
+  set_info_handler( bakHandler );
+
+  return( nChar );
+}
+
+
+/*******************************************************************************/
+/* Print human readable information about the book to the default info handler */
+int MP_Book_c::info() {
+  
   unsigned long int i;
   int nChar = 0;
 
-  nChar += mp_info_msg( fid, "BOOK", "Number of atoms              =[%lu] ",   numAtoms );
-  nChar += mp_info_msg( fid, "  |-", "(Current atom array size     =[%lu])\n", maxNumAtoms );
-  nChar += mp_info_msg( fid, "  |-", "Number of channels           =[%d]\n",    numChans );
-  nChar += mp_info_msg( fid, "  |-", "Number of samples per channel=[%lu]\n",   numSamples );
-  nChar += mp_info_msg( fid, "  |-", "Sampling rate                =[%d]\n",    sampleRate );
+  nChar += mp_info_msg( "BOOK", "Number of atoms              =[%lu]  (Current atom array size =[%lu])\n",
+			numAtoms, maxNumAtoms );
+  nChar += mp_info_msg( "  |-", "Number of channels           =[%d]\n",    numChans );
+  nChar += mp_info_msg( "  |-", "Number of samples per channel=[%lu]\n",   numSamples );
+  nChar += mp_info_msg( "  |-", "Sampling rate                =[%d]\n",    sampleRate );
   for ( i=0; i<numAtoms; i++ ) {
-    nChar += mp_info_msg( fid, "  |-", "--ATOM [%lu/%lu] info :\n", i+1, numAtoms );
-    atom[i]->info( fid );
+    nChar += mp_info_msg( "  |-", "--ATOM [%lu/%lu] info :\n", i+1, numAtoms );
+    atom[i]->info();
   }
-  nChar += mp_info_msg( fid, "  O-", "End of book.\n",    sampleRate );
+  nChar += mp_info_msg( "  O-", "End of book.\n",    sampleRate );
 
+  return( nChar );
+}
+
+
+/*******************************************************************************/
+/* Print human readable information about the book to the default info handler */
+int MP_Book_c::short_info() {
+  
+  int nChar = 0;
+
+  nChar += mp_info_msg( "BOOK", "[%lu] atoms (current atom array size = [%lu])\n",
+			numAtoms, maxNumAtoms );
+  nChar += mp_info_msg( "  |-", "[%lu] samples on [%d] channels; sample rate [%d]Hz.\n",
+			numSamples, numChans, sampleRate );
   return( nChar );
 }
 
@@ -506,6 +545,40 @@ unsigned long int MP_Book_c::add_to_tfmap(MP_TF_Map_c *tfmap, const char tfmapTy
   return( n );
 }
 
+/******************************************************/
+/*  Returns the atom which is the closest to a given 
+ *  time-frequency location, as well as its index in the book->atom[] array
+ */
+MP_Atom_c* MP_Book_c::get_closest_atom(MP_Real_t time, MP_Real_t freq, int chanIdx, MP_Mask_c* mask, unsigned long int *nClosest ) {
+
+  unsigned long int i;
+  MP_Atom_c *atomClosest = NULL;
+  MP_Real_t dist, distClosest;
+  
+  if (mask == NULL) {
+    for (i = 0; i < numAtoms; i++) {
+      dist = atom[i]->dist_to_tfpoint( time, freq , chanIdx );
+      if (NULL == atomClosest || dist < distClosest) {
+	atomClosest = atom[i];
+	*nClosest = i;
+	distClosest = dist;
+      }
+    }
+  }
+  else {
+    for (i = 0; i < numAtoms; i++) {
+      if ( mask->sieve[i] ) { 
+	dist = atom[i]->dist_to_tfpoint( time, freq , chanIdx );
+	if (NULL == atomClosest || dist < distClosest) {
+	  atomClosest = atom[i];
+	  *nClosest = i;
+	  distClosest = dist;
+	}
+      }
+    }
+  }
+  return( atomClosest );
+}
 
 /***********************************/
 /* Check compatibility with a mask */

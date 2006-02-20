@@ -197,5 +197,5 @@ unsigned long int MP_TF_Map_c::freq_to_pix( MP_Real_t f ) {
   return( (unsigned long int)( floor( (double)(f-fMin) / (double)(df) ) ) );
 }
 MP_Real_t MP_TF_Map_c::pix_to_freq( unsigned long int k ) {
-  return( (MP_Real_t)( fMin + k*df ) );
+  return( (MP_Real_t)( fMin + ((MP_Real_t)k)*df ) );
 }

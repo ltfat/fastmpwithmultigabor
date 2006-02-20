@@ -363,21 +363,44 @@ char * MP_Harmonic_Atom_c::type_name(void) {
 /**********************/
 /* Readable text dump */
 int MP_Harmonic_Atom_c::info( FILE *fid ) {
+  
+  int nChar = 0;
+  FILE* bakStream;
+  void (*bakHandler)( void );
+
+  /* Backup the current stream/handler */
+  bakStream = get_info_stream();
+  bakHandler = get_info_handler();
+  /* Redirect to the given file */
+  set_info_stream( fid );
+  set_info_handler( MP_FLUSH );
+  /* Launch the info output */
+  nChar += info();
+  /* Reset to the previous stream/handler */
+  set_info_stream( bakStream );
+  set_info_handler( bakHandler );
+
+  return( nChar );
+}
+
+/**********************/
+/* Readable text dump */
+int MP_Harmonic_Atom_c::info() {
 
   unsigned int i = 0;
   int nChar = 0;
   unsigned int j;
 
-  nChar += mp_info_msg( fid, "HARMONIC ATOM", "%s window (window opt=%g)\n",
+  nChar += mp_info_msg( "HARMONIC ATOM", "%s window (window opt=%g)\n",
 			window_name(windowType), windowOption );
-  nChar += mp_info_msg( fid, "        |-", "[%d] channel(s), [%u] partials\n", numChans, numPartials );
-  nChar += mp_info_msg( fid, "        |-", "Freq %g\tChirp %g\n", (double)freq, (double)chirp);
+  nChar += mp_info_msg( "        |-", "[%d] channel(s), [%u] partials\n", numChans, numPartials );
+  nChar += mp_info_msg( "        |-", "Freq %g\tChirp %g\n", (double)freq, (double)chirp);
   for ( i=0; i<numChans; i++ ) {
-    nChar += mp_info_msg( fid, "        |-", "(%d/%d)\tSupport= %lu %lu\tAmp %g\tPhase %g\n",
+    nChar += mp_info_msg( "        |-", "(%d/%d)\tSupport= %lu %lu\tAmp %g\tPhase %g\n",
 			  i+1, numChans, support[i].pos, support[i].len,
 			  (double)amp[i], (double)phase[i] );
     for ( j=0; j<numPartials; j++) {
-      nChar += mp_info_msg( fid, "        |-", "\t[%g]\tAmp %g\tPhase %g\n",
+      nChar += mp_info_msg( "        |-", "\t[%g]\tAmp %g\tPhase %g\n",
 			    (double)harmonicity[j], (double)partialAmp[i][j], (double)partialPhase[i][j] );
     }
   }

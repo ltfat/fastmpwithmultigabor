@@ -97,11 +97,13 @@ public:
   virtual char * type_name(void);
 
   virtual int info( FILE *fid );
+  virtual int info();
 
   virtual void build_waveform( MP_Sample_t *outBuffer );
 
   virtual int add_to_tfmap( MP_TF_Map_c *tfmap, const char tfmapType );
 
+  virtual MP_Real_t dist_to_tfpoint( MP_Real_t time, MP_Real_t freq , int chanIdx );
   virtual int       has_field( int field );
   virtual MP_Real_t get_field( int field , int chanIdx );
 

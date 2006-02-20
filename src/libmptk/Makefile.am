@@ -38,17 +38,17 @@ noinst_PROGRAMS = make_regression_constants
 make_regression_constants_SOURCES = make_regression_constants.cpp
 
 export_headers = mp_types.h \
-	mp_messaging.h    \
-	win_server.h      \
-	fft_interface.h   \
-	general.h \
-	mtrand.h  \
-	regression.h \
-	mp_signal.h  \
-	tfmap.h   \
-	atom.h  block.h \
+	mp_messaging.h      \
+	win_server.h        \
+	fft_interface.h     \
+	general.h           \
+	mtrand.h            \
+	regression.h        \
+	mp_signal.h         \
+	tfmap.h             \
+	atom.h  block.h     \
 	mask.h              \
-	book.h dict.h   \
+	book.h dict.h       \
 	anywave_table.h anywave_server.h \
 	anywave_table_io_interface.h \
 	convolution.h \

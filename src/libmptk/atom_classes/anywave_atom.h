@@ -206,6 +206,7 @@ public:
    * \param fid the stream
    **/
   virtual int info( FILE *fid );
+  virtual int info();
 
   /** \brief Build the waveform of an anywave atom. 
    *

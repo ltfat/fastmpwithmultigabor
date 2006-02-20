@@ -47,10 +47,30 @@
 /* Factory functions: */
 /********************/
 /* - signal+book only: */
-MP_Mpd_Core_c* MP_Mpd_Core_c::init( MP_Signal_c *signal, MP_Book_c *book ) {
+MP_Mpd_Core_c* MP_Mpd_Core_c::init( MP_Signal_c *signal, MP_Book_c *book, const char use_approximant ) {
 
   const char* func = "MP_Mpd_Core_c::init(2 args)";
   MP_Mpd_Core_c* newCore;
+
+  /* Check for NULL entries */
+  if ( signal == NULL ) {
+    mp_error_msg( func, "Can't initialize a MP_Mpd_Core_c from a NULL signal.\n" );
+    return( NULL );
+  }
+  if ( book == NULL ) {
+    mp_error_msg( func, "Can't initialize a MP_Mpd_Core_c from a NULL book.\n" );
+    return( NULL );
+  }
+
+  /* Check the sample rate compatibility */
+  if ( signal->sampleRate != book->sampleRate ) {
+    mp_warning_msg( func,
+		    "The new signal has a sample rate [%i] different"
+		    " from the book's sample rate [%i]."
+		    " Defaulting all to the signal sample rate.\n",
+		    signal->sampleRate, book->sampleRate );
+    book->sampleRate = signal->sampleRate;
+  }
 
   /* Instantiate and check */
   newCore = new MP_Mpd_Core_c();
@@ -59,17 +79,31 @@ MP_Mpd_Core_c* MP_Mpd_Core_c::init( MP_Signal_c *signal, MP_Book_c *book ) {
     return( NULL );
   }
 
-  /* plug the objects */
-  if ( newCore->set_signal( signal ) == signal ) {
-    mp_error_msg( func, "Failed to plug the signal.\n" );
-    delete( newCore );
-    return( NULL );    
+  /* Plug the book */
+  newCore->book = book;
+
+  /* Plug the signal */
+  newCore->signal = signal;
+  newCore->residual = new MP_Signal_c( *signal );
+  newCore->residualEnergy = newCore->initialEnergy = signal->energy;
+  newCore->decay.clear();
+  newCore->decay.append( newCore->initialEnergy );
+
+  if ( use_approximant ) {
+    /* Initialize the approximant */
+    newCore->approximant = MP_Signal_c::init( signal->numChans,
+					      signal->numSamples,
+					      signal->sampleRate );
+    if ( newCore->approximant == NULL ) {
+      mp_error_msg( func, "Failed to create an approximant in the new mpd core."
+		    " Returning NULL.\n" );
+      delete( newCore );
+      return( NULL );
+    }
+    /* Rebuild from the book */
+    book->substract_add( NULL, newCore->approximant, NULL );
   }
-  if ( newCore->set_book( book ) == book ) {
-    mp_error_msg( func, "Failed to plug the book.\n" );
-    delete( newCore );
-    return( NULL );    
-  }
+  else newCore->approximant = NULL;
 
   return( newCore );
 }
@@ -77,13 +111,14 @@ MP_Mpd_Core_c* MP_Mpd_Core_c::init( MP_Signal_c *signal, MP_Book_c *book ) {
 
 /***********************/
 /* - signal+book+dict: */
-MP_Mpd_Core_c* MP_Mpd_Core_c::init( MP_Signal_c *signal, MP_Book_c *book, MP_Dict_c *dict ) {
+MP_Mpd_Core_c* MP_Mpd_Core_c::init( MP_Signal_c *signal, MP_Book_c *book, const char use_approximant,
+				    MP_Dict_c *dict ) {
 
   const char* func = "MP_Mpd_Core_c::init(3 args)";
   MP_Mpd_Core_c* newCore;
 
   /* Instantiate and check */
-  newCore = MP_Mpd_Core_c::init( signal, book );
+  newCore = MP_Mpd_Core_c::init( signal, book, use_approximant );
   if ( newCore == NULL ) {
     return( NULL );
   }
@@ -100,7 +135,8 @@ MP_Mpd_Core_c* MP_Mpd_Core_c::init( MP_Signal_c *signal, MP_Book_c *book, MP_Dic
 
 /**********************************/
 /* - signal+book+dict+conditions: */
-MP_Mpd_Core_c* MP_Mpd_Core_c::init( MP_Signal_c *signal, MP_Book_c *book, MP_Dict_c *dict,
+MP_Mpd_Core_c* MP_Mpd_Core_c::init( MP_Signal_c *signal, MP_Book_c *book, const char use_approximant,
+				    MP_Dict_c *dict,
 				    unsigned long int stopAfterIter,
 				    double stopAfterSnr ) {
 
@@ -115,7 +151,7 @@ MP_Mpd_Core_c* MP_Mpd_Core_c::init( MP_Signal_c *signal, MP_Book_c *book, MP_Dic
   }
 
   /* Instantiate and check */
-  newCore =  MP_Mpd_Core_c::init( signal, book, dict );
+  newCore =  MP_Mpd_Core_c::init( signal, book, use_approximant, dict );
   if ( newCore == NULL ) {
     return( NULL );
   }
@@ -160,6 +196,7 @@ MP_Mpd_Core_c::MP_Mpd_Core_c() {
 
   /* File names */
   bookFileName  = NULL;
+  approxFileName   = NULL;
   resFileName   = NULL;
   decayFileName = NULL;
 
@@ -176,7 +213,11 @@ MP_Mpd_Core_c::MP_Mpd_Core_c() {
 /**************/
 /* Destructor */
 MP_Mpd_Core_c::~MP_Mpd_Core_c() {
-  /* Nothing to be freed. */
+  if ( dict )        delete( dict );
+  if ( signal )      delete( signal );
+  if ( book )        delete( book );
+  if ( residual )    delete( residual );
+  if ( approximant ) delete( approximant );
 }
 
 
@@ -190,68 +231,24 @@ MP_Dict_c* MP_Mpd_Core_c::set_dict( MP_Dict_c *setDict ) {
 
   MP_Dict_c* oldDict = dict;
 
+  /* If there was a non-NULL dictionary before, detach the residual
+     to avoid its destruction: */
+  if ( oldDict ) residual = oldDict->detach_signal();
+
+  /* Set the new dictionary: */
   dict = setDict;
-  if ( dict ) {
-    dict->copy_signal( signal );
-    residual = dict->signal;
-  }
+
+  /* If the new dictionary is not NULL, replug the residual: */
+  if ( dict ) dict->plug_signal( residual );
+
+  /* Note:
+     - if a NULL dictionary is given, the residual is kept alive
+     in the residual variable;
+     - at the first use of set_dict(dict), the oldDict is NULL and
+     the residual is copy-constructed from the signal at
+     the mpdCore->init(signal,book) pahse. */
 
   return( oldDict );
-}
-
-/***********/
-/* Set signal */
-MP_Signal_c* MP_Mpd_Core_c::set_signal( MP_Signal_c *setSig ) {
-
-  MP_Signal_c* oldSig = signal;
-
-  /* If there is already a book, check the sample rate compatibility */
-  if ( (setSig != NULL) && (book != NULL) && (setSig->sampleRate != book->sampleRate) ) {
-    mp_warning_msg( "mpd::set_signal()",
-		    "The new signal has a sample rate [%i] different"
-		    " from the book's sample rate [%i]."
-		    " Returning the new signal, keeping the previous one.\n",
-		    setSig->sampleRate, book->sampleRate );
-    return( setSig );
-  }
-
-  signal = setSig;
-  residualEnergy = initialEnergy = signal->energy;
-  decay.clear();
-  decay.append( initialEnergy );
-  if ( dict ) {
-    dict->copy_signal( signal );
-    residual = dict->signal;
-  }
-  if ( book ) {
-    book->numSamples = signal->numSamples;
-  }
-
-  return( oldSig );
-}
-
-/************/
-/* Set book */
-MP_Book_c* MP_Mpd_Core_c::set_book( MP_Book_c *setBook ) {
-
-  MP_Book_c* oldBook = book;
-
-  /* If there is already a signal, check the sample rate compatibility */
-  if ( (signal != NULL) && (setBook != NULL) && (signal->sampleRate != setBook->sampleRate) ) {
-    mp_warning_msg( "mpd::set_book()",
-		    "The new book has a sample rate [%i] different"
-		    " from the signal's sample rate [%i]."
-		    " Returning the new book, keeping the previous one.\n",
-		    setBook->sampleRate, signal->sampleRate );
-    return( setBook );
-  }
-
-  book = setBook;
-  if ( signal ) {
-    book->numSamples = signal->numSamples;
-  }
-
-  return( oldBook );
 }
 
 
@@ -274,13 +271,15 @@ void MP_Mpd_Core_c::reset_snr_condition( void ) {
 /* Set/reset save hit */
 /****/
 void MP_Mpd_Core_c::set_save_hit( const unsigned long int setSaveHit,
-				  char* setBookFileName,
-				  char* setResFileName,
-				  char* setDecayFileName ) {
+				  const char* setBookFileName,
+				  const char* setApproxFileName,
+				  const char* setResFileName,
+				  const char* setDecayFileName ) {
   saveHit = setSaveHit;
   nextSaveHit = numIter + setSaveHit;
 
   bookFileName  = setBookFileName;
+  approxFileName = setApproxFileName;
   resFileName   = setResFileName;
   decayFileName = setDecayFileName;
 }
@@ -288,10 +287,6 @@ void MP_Mpd_Core_c::set_save_hit( const unsigned long int setSaveHit,
 void MP_Mpd_Core_c::reset_save_hit( void ) {
   saveHit = ULONG_MAX;
   nextSaveHit = ULONG_MAX;
-
-  bookFileName  = NULL;
-  resFileName   = NULL;
-  decayFileName = NULL;
 }
 /****/
 
@@ -347,7 +342,7 @@ void MP_Mpd_Core_c::delete_residual( void ) {
 }
 
 MP_Signal_c* MP_Mpd_Core_c::detach_approximant( void ) {
-  MP_Signal_c *s = refresh_approximant();
+  MP_Signal_c *s = approximant;
   approximant = NULL;
   return( s );
 }
@@ -362,22 +357,6 @@ void MP_Mpd_Core_c::delete_approximant( void ) {
 /***************************/
 
 /********************************/
-/* (Re-)compute the approximant */
-MP_Signal_c* MP_Mpd_Core_c::refresh_approximant( void ) {
-
-  if ( approximant ) approximant->fill_zero();
-  else if ( dict->signal ) approximant = MP_Signal_c::init( dict->signal->numChans,
-							    dict->signal->numSamples,
-							    dict->signal->sampleRate );
-  else approximant = NULL;
-
-  if ( book ) book->substract_add( NULL, approximant, NULL );
-
-  return( approximant );
-}
-
-
-/********************************/
 /* Save the book/residual/decay */
 void MP_Mpd_Core_c::save_result() {
 
@@ -388,9 +367,14 @@ void MP_Mpd_Core_c::save_result() {
     book->print( bookFileName, MP_BINARY);
     if ( verbose ) mp_info_msg( func, "At iteration [%lu] : saved the book.\n", numIter );  
   }
+  /* - Save the approximant: */
+  if ( approxFileName ) {
+    approximant->wavwrite( approxFileName );
+    if ( verbose ) mp_info_msg( func, "At iteration [%lu] : saved the approximant.\n", numIter );
+  }
   /* - Save the residual: */
   if ( resFileName ) {
-    dict->signal->wavwrite( resFileName );
+    residual->wavwrite( resFileName );
     if ( verbose ) mp_info_msg( func, "At iteration [%lu] : saved the residual.\n", numIter );
   }
   /* - the decay: */
@@ -410,9 +394,7 @@ void MP_Mpd_Core_c::save_result() {
 /* Make one MP iteration */
 unsigned short int MP_Mpd_Core_c::step() {
 
-#ifndef NDEBUG
   const char* func = "MP_Mpd_Core_c::step()";
-#endif
 
   /* Reset the state info */
   state = 0;
@@ -425,7 +407,8 @@ unsigned short int MP_Mpd_Core_c::step() {
 		10*log10(currentSnr), 10*log10(stopAfterSnr) );
 
   /* 1) Iterate: */
-  dict->iterate_mp( book , NULL );
+  dict->iterate_mp( book , approximant ); /* Note: if approximant is NULL, no computation
+					     will be performed on it. */
   residualEnergyBefore = residualEnergy;
   residualEnergy = (double)dict->signal->energy;
   if ( decayFileName ) decay.append( residualEnergy );
@@ -451,7 +434,13 @@ unsigned short int MP_Mpd_Core_c::step() {
   if ( useStopAfterIter && (numIter >= stopAfterIter) )   state = ( state | MPD_ITER_CONDITION_REACHED );
   if ( useStopAfterSnr  && (currentSnr >= stopAfterSnr) ) state = ( state | MPD_SNR_CONDITION_REACHED );
   if ( residualEnergy < 0.0 ) state = ( state | MPD_NEG_ENERGY_REACHED );
-  if ( residualEnergy >= residualEnergyBefore ) state = ( state | MPD_INCREASING_ENERGY );
+  if ( residualEnergy >= residualEnergyBefore ) {
+    mp_warning_msg( func, "This iteration increases the energy of the residual ! Before: [%g] Now: [%g]\n",
+		    residualEnergyBefore, residualEnergy );
+    mp_warning_msg( func, "Last atom found is sent to stderr.\n" );
+    book->atom[book->numAtoms-1]->info( stderr );
+    state = ( state | MPD_INCREASING_ENERGY );
+  }
 
   mp_debug_msg( MP_DEBUG_MPD_LOOP, func, "EXITING iteration [%lu]/[%lu].\n", numIter, stopAfterIter );
   mp_debug_msg( MP_DEBUG_MPD_LOOP, func, "Next report hit is [%lu].\n", nextReportHit );
@@ -463,6 +452,12 @@ unsigned short int MP_Mpd_Core_c::step() {
   return( state );
 }
 
+
+/********************************/
+/* Set the state to forced stop */
+void MP_Mpd_Core_c::force_stop() {
+  state = MPD_FORCED_STOP;
+}
 
 /*************************/
 /* Make one MP iteration */
@@ -529,6 +524,10 @@ void MP_Mpd_Core_c::info_state( void ) {
   if ( state & MPD_ITER_EXHAUSTED ) mp_info_msg( func,
 						 "Reached the absolute maximum number of iterations [%lu].\n",
 						 numIter );
+
+  if ( state & MPD_FORCED_STOP ) mp_info_msg( func,
+					      "Forced stop at iteration [%lu].\n",
+					      numIter );
 
 }
 

@@ -330,15 +330,38 @@ char * MP_Gabor_Atom_c::type_name(void) {
 /**********************/
 /* Readable text dump */
 int MP_Gabor_Atom_c::info( FILE *fid ) {
+  
+  int nChar = 0;
+  FILE* bakStream;
+  void (*bakHandler)( void );
+
+  /* Backup the current stream/handler */
+  bakStream = get_info_stream();
+  bakHandler = get_info_handler();
+  /* Redirect to the given file */
+  set_info_stream( fid );
+  set_info_handler( MP_FLUSH );
+  /* Launch the info output */
+  nChar += info();
+  /* Reset to the previous stream/handler */
+  set_info_stream( bakStream );
+  set_info_handler( bakHandler );
+
+  return( nChar );
+}
+
+/**********************/
+/* Readable text dump */
+int MP_Gabor_Atom_c::info() {
 
   unsigned int i = 0;
   int nChar = 0;
 
-  nChar += mp_info_msg( fid, "GABOR ATOM", "%s window (window opt=%g)\n", window_name(windowType), windowOption );
-  nChar += mp_info_msg( fid, "        |-", "[%d] channel(s)\n", numChans );
-  nChar += mp_info_msg( fid, "        |-", "Freq %g\tChirp %g\n", (double)freq, (double)chirp);
+  nChar += mp_info_msg( "GABOR ATOM", "%s window (window opt=%g)\n", window_name(windowType), windowOption );
+  nChar += mp_info_msg( "        |-", "[%d] channel(s)\n", numChans );
+  nChar += mp_info_msg( "        |-", "Freq %g\tChirp %g\n", (double)freq, (double)chirp);
   for ( i=0; i<numChans; i++ ) {
-    nChar += mp_info_msg( fid, "        |-", "(%d/%d)\tSupport= %lu %lu\tAmp %g\tPhase %g\n",
+    nChar += mp_info_msg( "        |-", "(%d/%d)\tSupport= %lu %lu\tAmp %g\tPhase %g\n",
 			  i+1, numChans, support[i].pos, support[i].len,
 			  (double)amp[i], (double)phase[i] );
   }
@@ -504,7 +527,9 @@ int MP_Gabor_Atom_c::add_to_tfmap( MP_TF_Map_c *tfmap, const char tfmapType ) {
   MP_Real_t fMin,fMax,df;
   unsigned long int nMin,nMax,kMin,kMax;
   unsigned long int i, j;
-  unsigned long int t; MP_Real_t f;
+  //  unsigned long int t; MP_Real_t f;
+  MP_Real_t t; MP_Real_t f;
+
   MP_Tfmap_t *column;
   MP_Real_t val;
 
@@ -512,19 +537,28 @@ int MP_Gabor_Atom_c::add_to_tfmap( MP_TF_Map_c *tfmap, const char tfmapType ) {
 
   for (chanIdx = 0; chanIdx < numChans; chanIdx++) {
 
-    /* 1/ Is the support inside the tfmap ? */
-    /* Time: */
+    /* 1/ Is the atom support inside the tfmap ?
+       (in real time-frequency coordinates) */
+    /* Time interval [tMin tMax) that contains the time support: */
     tMin = support[chanIdx].pos;
     tMax = tMin + support[chanIdx].len;
     if ( (tMin > tfmap->tMax) || (tMax < tfmap->tMin) ) return( 0 );
-    /* Freq: */
-    df   = 40 / ( (MP_Real_t)(support[chanIdx].len) ); /* TODO : determine a constant factor */
-    fMin = freq - df/2;
-    fMax = freq + df/2 + chirp*(tMax-tMin);
+    /* Freq interval [fMin fMax] that (nearly) contains the freq support : */
+    df   = 40 / ( (MP_Real_t)(support[chanIdx].len) ); /* freq bandwidth */
+    /** \todo: determine the right constant factor to replace '40' in the computation of the freq width of a Gabor atom*/
+    if (chirp >= 0.0) {
+      fMin = freq - df/2;
+      fMax = freq + df/2 + chirp*(tMax-tMin);
+    } else {
+      fMax = freq + df/2;
+      fMin = freq - df/2 + chirp*(tMax-tMin);
+    }
     if ( (fMin > tfmap->fMax) || (fMax < tfmap->fMin) ) return( 0 );
 
     mp_debug_msg( MP_DEBUG_ATOM, func, "Atom support in tf  coordinates: [%lu %lu]x[%g %g]\n",
-		  tMin, tMax, fMin, fMax );
+    		  tMin, tMax, fMin, fMax );
+    //    mp_info_msg( func, "Atom support in tf  coordinates: [%lu %lu]x[%g %g]\n",
+    //		  tMin, tMax, fMin, fMax );
 
     /* 2/ Clip the support if it reaches out of the tfmap */
     if ( tMin < tfmap->tMin ) tMin = tfmap->tMin;
@@ -533,9 +567,11 @@ int MP_Gabor_Atom_c::add_to_tfmap( MP_TF_Map_c *tfmap, const char tfmapType ) {
     if ( fMax > tfmap->fMax ) fMax = tfmap->fMax;
 
     mp_debug_msg( MP_DEBUG_ATOM, func, "Atom support in tf  coordinates, after clipping: [%lu %lu]x[%g %g]\n",
-		  tMin, tMax, fMin, fMax );
+    		  tMin, tMax, fMin, fMax );
+    //    mp_info_msg( func, "Atom support in tf  coordinates, after clipping: [%lu %lu]x[%g %g]\n",
+    //		  tMin, tMax, fMin, fMax );
 
-    /* \todo add a generic method MP_Atom_C::add_to_tfmap() that tests support intersection */
+    /** \todo add a generic method MP_Atom_C::add_to_tfmap() that tests support intersection */
 
     /* 3/ Convert the real coordinates into pixel coordinates */
     nMin = tfmap->time_to_pix( tMin );
@@ -543,9 +579,14 @@ int MP_Gabor_Atom_c::add_to_tfmap( MP_TF_Map_c *tfmap, const char tfmapType ) {
     kMin = tfmap->freq_to_pix( fMin );
     kMax = tfmap->freq_to_pix( fMax );
 
-    mp_debug_msg( MP_DEBUG_ATOM, func, "Clipped atom support in pix coordinates [%lu %lu]x[%lu %lu]\n",
-		  nMin, nMax, kMin, kMax );
+    if(nMax==nMin) nMax++;
+    if(kMax==kMin) kMax++;
 
+    mp_debug_msg( MP_DEBUG_ATOM, func, "Clipped atom support in pix coordinates [%lu %lu)x[%lu %lu)\n",
+    		  nMin, nMax, kMin, kMax );
+    //    mp_info_msg( func, "Clipped atom support in pix coordinates [%lu %lu)x[%lu %lu)\n",
+    //		  nMin, nMax, kMin, kMax );
+    
     /* 4/ Fill the TF map: */
     switch( tfmapType ) {
 
@@ -554,7 +595,7 @@ int MP_Gabor_Atom_c::add_to_tfmap( MP_TF_Map_c *tfmap, const char tfmapType ) {
       for ( i = nMin; i < nMax; i++ ) {
 	column = tfmap->channel[chanIdx] + i*tfmap->numRows; /* Seek the column */
 	for ( j = kMin; j < kMax; j++ ) {
-	  val = (MP_Real_t)(column[j]) + amp[chanIdx];
+	  val = (MP_Real_t)(column[j]) + amp[chanIdx]*amp[chanIdx];
 	  column[j] = (MP_Tfmap_t)( val );
 	  /* Test the min/max */
 	  if ( tfmap->ampMax < val ) tfmap->ampMax = val;
@@ -566,14 +607,17 @@ int MP_Gabor_Atom_c::add_to_tfmap( MP_TF_Map_c *tfmap, const char tfmapType ) {
       /* - with pseudo-Wigner, with a linear amplitude scale: */
     case MP_TFMAP_PSEUDO_WIGNER:
       for ( i = nMin; i < nMax; i++ ) {
-	t = tfmap->pix_to_time(i);
 	column = tfmap->channel[chanIdx] + i*tfmap->numRows; /* Seek the column */
+	//	t = tfmap->pix_to_time(i);
+	//	if (nMax==nMin+1) t = tMin;
+	t = ((MP_Real_t)tfmap->tMin)+(((MP_Real_t)i)*tfmap->dt);
 	for ( j = kMin; j < kMax; j++ ) {
 	  f = tfmap->pix_to_freq(j);
+	  if (kMax==kMin+1) f = fMin;
 	  val = (MP_Real_t)(column[j]) +
 	    amp[chanIdx]*amp[chanIdx]
 	    * wigner_ville( ((double)(t - tMin)) / ((double)support[chanIdx].len),
-			    (f - freq - chirp*(t-tMin)) * support[chanIdx].len,
+			    (f - freq - chirp*(t-(MP_Real_t)tMin)) * (MP_Real_t)support[chanIdx].len,
 			    windowType );
 	  column[j] = (MP_Tfmap_t)( val );
 	  /* Test the min/max */
@@ -594,6 +638,20 @@ int MP_Gabor_Atom_c::add_to_tfmap( MP_TF_Map_c *tfmap, const char tfmapType ) {
   return( 0 );
 }
 
+MP_Real_t MP_Gabor_Atom_c::dist_to_tfpoint( MP_Real_t time, MP_Real_t freq , int chanIdx ) {
+
+  MP_Real_t duration,tcenter,fcenter,deltat,deltaf,a2,b2;
+
+  /* Compute distance to current atom */
+  duration = support[chanIdx].len;
+  tcenter  = (float)(support[chanIdx].pos) +0.5*duration;
+  fcenter  = freq+chirp*0.5*duration;
+  deltat = (time-tcenter); deltaf = (freq-fcenter);
+  a2 = (deltat+chirp*deltaf)*(deltat+chirp*deltaf)/(1+chirp*chirp);
+  b2 = (-chirp*deltat+deltaf)*(-chirp*deltat+deltaf)/(1+chirp*chirp);
+  //	dist = a2/(duration*duration)+b2*duration*duration;
+  return(a2+b2);
+}
 
 
 /***********************************************************************/

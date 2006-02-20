@@ -498,7 +498,7 @@ int main( int argc, char **argv ) {
 
   /****/
   /* Make the mpdCore */
-  mpdCore = MP_Mpd_Core_c::init( sig, book, dict );
+  mpdCore = MP_Mpd_Core_c::init( sig, book, MPD_NO_APPROXIMANT, dict );
   if ( mpdCore == NULL ) {
     mp_error_msg( func, "Failed to create a MPD core object.\n" );
     free_mem( dict, sig, book, mpdCore );
@@ -521,7 +521,7 @@ int main( int argc, char **argv ) {
   /****/
   /* Set the breakpoints and other parameters */
   if ( !MPD_QUIET ) mpdCore->set_report_hit( MPD_REPORT_HIT );
-  mpdCore->set_save_hit( MPD_SAVE_HIT, bookFileName, resFileName, decayFileName );
+  mpdCore->set_save_hit( MPD_SAVE_HIT, bookFileName, NULL, resFileName, decayFileName );
   if ( MPD_USE_SNR ) mpdCore->set_snr_hit( MPD_SNR_HIT );
   mpdCore->verbose = MPD_VERBOSE;
 
@@ -578,7 +578,7 @@ int main( int argc, char **argv ) {
 
   /*******************/
   /* Clean the house */
-  free_mem( dict, sig, book, mpdCore );
+  delete( mpdCore );
 
   if ( !MPD_QUIET ) mp_info_msg( func, "Have a nice day !\n" );
 

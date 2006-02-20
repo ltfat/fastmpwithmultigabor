@@ -418,3 +418,9 @@ MP_Real_t MP_Atom_c::get_field( int field , int chanIdx ) {
   }
   return(x);
 }
+
+
+MP_Real_t MP_Atom_c::dist_to_tfpoint( MP_Real_t time, MP_Real_t freq , int chanIdx )
+{
+  return(1e6);
+}

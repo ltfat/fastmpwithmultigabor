@@ -1,0 +1,57 @@
+1)
+Pour le vecteur de vues associée à la frame, il nous a semblé préférable de créer un super type pour les vues signal et temps-fréquence. En effet, ces différentes vues géraient toutes deux des zooms, on a donc définit des méthodes virtuelles dans la classe mère (MptkGuiExtendedView) et ce sont les classes filles qui les redéfinissent (MptkGuiExtendedSignalView et MptkGuiExtendedTFView). Ainsi lors d'un zoom sur une vue, la frame répercute ce zoom sur les autres vues sans forcer le type de la vue courante, le zoom s'appliquant toujours sur une vue de type MptkGuiExtendedView (classe mère), la liaison dynamique permettant d'appeler la fonction zoom correcte. Si la vue ayant généré le zoom était une vue signal, on répercute le zoom en temps et en amplitude sur les autres vues signal et seulement en temps sur les vues temps-fréquences.
+La classe mère (MptkGuiExtendedView) définit donc deux méthodes zoom :
+- une simplement entre deux temps
+- une autre entre deux temps et deux valeurs 'min' et 'max' pouvant correspondre soient à une amplitude soit à une fréquence (cas de MptkGuiExtendedTFView)
+
+2)
+Pour les vues temps-fréquence, le problème d'aliasing ne se pose pas. En effet, pour l'affichage, on créée une MP_TF_Map_c de la même taille que le composant graphique wxWidget (ici un wxPanel), elle se charge de régler le problème d'aliasing
+
+
+2a) Nombreuses créations d'événements pour régler des problèmes de mise à jour des menus et des vues
+Par exemple : 
+    MptkSettingEvent sert à mettre à le menu Decompositon de la frame ainsi que les éléménts associés dans la barre d'outils
+    MptkGuiZoomEvent pour synchroniser les vues
+    MptkGuiListenFinishedEvent pour réactiver le bouton play, et désactiver le bouton pause.
+
+2c) On s'est retrouvé parfois dans l'obligation d'étendre les créateurs pour simplifier certaines actions. 
+    Par exemple la MptkGuiConsole, en plus d'être construit à parti de son parent, a un pointeur sur la MptkGuiFrame pour permettre le rafraichissement automatique de vues à chaque message envoyer dans cette console lors d'itérations.
+    Le constructeur de MptkGuiCallback comprend lui aussi un pointeur sur le MptkGuiFrame pour pouvoir lui envoyer l'événement de fin de lecture d'un signal (MptkGuiListenFinishedEvent) et donc mettre à jour certains controls.
+
+
+3a)Pb restants :
+      - Parfois, lorsque l'on zoom sur un atom, le zoom parait décalé. On a pourtant essayé de limiter cette imprecision en faisant certains cast en flottant lors de divisions ou multuplication pour convertir les échantillons(entier) en temps. Peu être cela n'est pas totalement de notre de fait, cela peut aussi venir de la MP_TF_Map_c.
+      - Les valeurs affichées sur la MptkGuiColorMapView ne sont pas toujours très réalistes et on ne retrouve pas les couleurs initailes, même en remettant les curseurs aux limites.
+
+4) Brève description des classes de la libmptk :
+MP_Signal_c : classe permettant de représenter un signal sous forme de tableau à deux dimension (channel, echantillons associé).
+MP_Book_c : classe permettant de charger un book, le book étant un ensemble d'atomes.
+MP_TF_Map_c : classe spécifique pour l'affichage de données de type temps-fréquence (par exemple de atomes). Se construit à partir d'une taille en pixel définnissant l'espace de dessin des objets, d'un book (bientôt un signal pour le spectrogramme) en ajoutant automatiquement les éléments temps-fréquence au bon endroit, des bornes de temps (temps de début et de fin) et des bornes de fréquence.
+MP_Mpd_Core_c : permet de spécifier les paramètres de décomposition ainsi que de lance des itérations sur les objets. Se construit à partir d'un signal et d'un book.
+
+4a)SVN
+Lorsque plusieurs développeurs sont amenés à travailler sur un même projet et donc potentiellement sur les mêmes fichiers sources, il peut se produire de nombreux conflits, problèmes d'accès etc. L'outil svn permet de gérer ces problèmes de synchronisation, en évitant par exemple que des modifcations soient perdues (principe de la fusion lorsque qu'un même fichier source a été modifié à des endroits différents).
+Lorsque l'on développe il est plus moins courant de vouloir revenir à des versions précédentes d'un fichier ou même d'un projet tout entier, svn le permet en gardant l'historique des modifications.
+On peut aussi être améné à vouloir comparé deux versions disctontes d'un même fichier, une commande de svn le permet (svn diff).
+
+4b)wxWidgets
+WxWidgets introduit une couche d'abstraction supplémentaire par rapporrt à GTK+ (qui lui en apporte une par rapport à X11). Elle peut s'établir sur différentes libraires (MOTIF, GTK, Cocoa etc).
+
+4c) portaudio
+API open source d'entrée sortie audio. On définit les fonctions de lecture (en mettant les échantillons dans un buffer ensuite lu par les routines de portaudio). Portaudio est également multiplatforme.
+
+5)
+Informations complémentaires :
+
+L'équipe METISS :
+http://www.irisa.fr/metiss/accueil.html
+
+Matching Pursuit ToolKit :
+http://gforge.inria.fr/projects/mptk/
+
+wxWidgets :
+http://www.wxWidgets.org
+
+portaudio :
+http://www.portaudio.com
+

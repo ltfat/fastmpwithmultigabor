@@ -149,6 +149,7 @@ public:
   virtual char * type_name(void);
 
   virtual int info( FILE *fid );
+  virtual int info();
 
   /** \brief Build concatenated waveforms corresponding to each channel of a harmonic atom. 
    *

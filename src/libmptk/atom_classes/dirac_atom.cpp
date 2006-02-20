@@ -169,13 +169,36 @@ char * MP_Dirac_Atom_c::type_name(void) {
 /**********************/
 /* Readable text dump */
 int MP_Dirac_Atom_c::info( FILE *fid ) {
+  
+  int nChar = 0;
+  FILE* bakStream;
+  void (*bakHandler)( void );
+
+  /* Backup the current stream/handler */
+  bakStream = get_info_stream();
+  bakHandler = get_info_handler();
+  /* Redirect to the given file */
+  set_info_stream( fid );
+  set_info_handler( MP_FLUSH );
+  /* Launch the info output */
+  nChar += info();
+  /* Reset to the previous stream/handler */
+  set_info_stream( bakStream );
+  set_info_handler( bakHandler );
+
+  return( nChar );
+}
+
+/**********************/
+/* Readable text dump */
+int MP_Dirac_Atom_c::info() {
 
   unsigned int i = 0;
   int nChar = 0;
 
-   nChar += mp_info_msg( fid, "DIRAC ATOM", "[%d] channel(s)\n", numChans );
+  nChar += mp_info_msg( "DIRAC ATOM", "[%d] channel(s)\n", numChans );
   for ( i=0; i<numChans; i++ ) {
-    nChar += mp_info_msg( fid, "        |-", "(%d/%d)\tSupport= %lu %lu\tAmp %g\n",
+    nChar += mp_info_msg( "        |-", "(%d/%d)\tSupport= %lu %lu\tAmp %g\n",
 			  i+1, numChans, support[i].pos, support[i].len,
 			  (double)amp[i] );
   }
@@ -196,10 +219,10 @@ void MP_Dirac_Atom_c::build_waveform( MP_Sample_t *outBuffer ) {
 int MP_Dirac_Atom_c::add_to_tfmap( MP_TF_Map_c *tfmap, const char /* tfmapType */ ) {
 
   unsigned char chanIdx;
-  unsigned long int tMin, nMin;
+  unsigned long int tMin, nMin, nMax;
   MP_Tfmap_t *column;
   MP_Real_t val;
-  unsigned long int j;
+  unsigned long int i,j;
 
   assert( numChans == tfmap->numChans );
 
@@ -212,20 +235,30 @@ int MP_Dirac_Atom_c::add_to_tfmap( MP_TF_Map_c *tfmap, const char /* tfmapType *
 
     /* 2/ Convert the real coordinates into pixel coordinates */
     nMin = tfmap->time_to_pix( tMin );
+    //    nMax = tfmap->time_to_pix( tMin+1);
+    nMax = nMin +1;
 
     /* 3/ Fill the TF map: */
-    column = tfmap->channel[chanIdx] + nMin*tfmap->numRows; /* Seek the column */
-    for ( j = 0; j < tfmap->numRows; j++ ) {
-      val = (MP_Real_t)(column[j]) + amp[chanIdx];
-      column[j] = (MP_Tfmap_t)( val );
-      /* Test the min/max */
-      if ( tfmap->ampMax < val ) tfmap->ampMax = val;
-      if ( tfmap->ampMin > val ) tfmap->ampMin = val;
-    }
-
+    for ( i = nMin; i < nMax; i++) {
+      /* Seek the column */
+      column = tfmap->channel[chanIdx] + i*tfmap->numRows;
+      for ( j = 0; j < tfmap->numRows; j++ ) {
+	val = (MP_Real_t)(column[j]) + amp[chanIdx]*amp[chanIdx];
+	column[j] = (MP_Tfmap_t)( val );
+	/* Test the min/max */
+	if ( tfmap->ampMax < val ) tfmap->ampMax = val;
+	if ( tfmap->ampMin > val ) tfmap->ampMin = val;
+      } /* End for each row */
+    } /* End for each column */
   } /* End foreach channel */
 
   return( 0 );
+}
+
+
+MP_Real_t MP_Dirac_Atom_c::dist_to_tfpoint( MP_Real_t time, MP_Real_t freq , int chanIdx ) {
+  MP_Real_t deltat = (time-(MP_Real_t)(support[chanIdx].pos));
+  return(deltat*deltat); 
 }
 
 

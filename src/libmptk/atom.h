@@ -199,6 +199,10 @@ public :
    * \return The number of characters written to the stream */
   virtual int info( FILE *fid ) = 0;
 
+  /** \brief Print human readable information about the atom to the default info handler
+   * \return The number of characters written to the stream */
+  virtual int info() = 0;
+
   /** \brief Build concatenated waveforms corresponding to each channel of an atom. 
    * \param outBuffer the array of size \b totalChanLen which is filled with the  concatenated 
    * waveforms of all channels. */ 
@@ -211,6 +215,8 @@ public :
    * \return one if the atom printed something into the map, zero otherwise
    */
   virtual int add_to_tfmap( MP_TF_Map_c *tfmap, const char tfmapType ) = 0;
+
+  virtual MP_Real_t dist_to_tfpoint( MP_Real_t time, MP_Real_t freq , int chanIdx );
 
   /** \brief Tests if a field of an atom satisfies a property on a given channel 
    * \param field the type of the property (ex: MP_AMP_PROP, MP_FREQ_PROP, ...)

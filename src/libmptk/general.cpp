@@ -233,7 +233,7 @@ int MP_Var_Array_c<TYPE>::append( TYPE newElem ) {
 
 /* Save function for the MP_Var_Array_c class */
 template <class TYPE>
-unsigned long int MP_Var_Array_c<TYPE>::save( char* fName ) {
+unsigned long int MP_Var_Array_c<TYPE>::save( const char* fName ) {
 
   FILE *fid;
   unsigned long int nWrite;

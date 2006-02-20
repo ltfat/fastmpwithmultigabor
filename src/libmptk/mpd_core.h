@@ -55,6 +55,11 @@
 #define MPD_SAVE_HIT_REACHED       (1 << 4)
 #define MPD_REPORT_HIT_REACHED     (1 << 5)
 #define MPD_ITER_EXHAUSTED         (1 << 6)
+#define MPD_FORCED_STOP            (1 << 7)
+
+/* Initialization modes */
+#define MPD_WITH_APPROXIMANT MP_TRUE
+#define MPD_NO_APPROXIMANT   MP_FALSE
 
 
 /***********************/
@@ -101,9 +106,10 @@ public:
   MP_Var_Array_c<double> decay;
 
   /* Output file names */
-  char *bookFileName;
-  char *resFileName;
-  char *decayFileName;
+  const char *bookFileName;
+  const char *approxFileName;
+  const char *resFileName;
+  const char *decayFileName;
 
   /* Convenient global variables */
   unsigned long int numIter;
@@ -123,9 +129,11 @@ public:
   /***************************/
 
 public:
-  static MP_Mpd_Core_c* init( MP_Signal_c *signal, MP_Book_c *book );
-  static MP_Mpd_Core_c* init( MP_Signal_c *signal, MP_Book_c *book, MP_Dict_c *dict );
-  static MP_Mpd_Core_c* init( MP_Signal_c *signal, MP_Book_c *book, MP_Dict_c *dict,
+  static MP_Mpd_Core_c* init( MP_Signal_c *signal, MP_Book_c *book, const char use_approximant );
+  static MP_Mpd_Core_c* init( MP_Signal_c *signal, MP_Book_c *book, const char use_approximant,
+			      MP_Dict_c *dict );
+  static MP_Mpd_Core_c* init( MP_Signal_c *signal, MP_Book_c *book, const char use_approximant,
+			      MP_Dict_c *dict,
 			      unsigned long int stopAfterIter,
 			      double stopAfterSnr );
 
@@ -150,9 +158,6 @@ public:
 
   /* Set the objects */
   MP_Dict_c* set_dict( MP_Dict_c *setDict );
-  MP_Signal_c* set_signal( MP_Signal_c *setSig );
-  MP_Book_c* set_book( MP_Book_c *setBook );
-
 
   /* Detach/delete the objects */
   MP_Dict_c* detach_dict( void );
@@ -173,7 +178,6 @@ public:
 
   /* Get the objects */
   double* get_current_decay_vec( void ) { return( decay.elem ); }
-  MP_Signal_c* refresh_approximant( void );
 
 
   /* Runtime settings */
@@ -189,7 +193,10 @@ public:
   void reset_snr_hit() { snrHit = ULONG_MAX; nextSnrHit = ULONG_MAX; }
 
   void set_save_hit( const unsigned long int setSaveHit,
-		     char* bookFileName, char* resFileName, char* decayFileName );
+		      const char* bookFileName,
+		     const char* approxFileName,
+		     const char* resFileName,
+		     const char* decayFileName );
   void reset_save_hit( void );
 
   void set_report_hit( const unsigned long int setReportHit ) {
@@ -209,6 +216,7 @@ public:
   /* Misc */
   void save_result( void );
   MP_Bool_t can_step( void );
+  void force_stop( void );
 
 };
 

@@ -142,6 +142,18 @@ public:
    * \param  fid A writable stream */
   int info( FILE *fid );
 
+  /** \brief Print readable information about the book to the default info handler,
+   *  including info about every atom in the book
+   *
+   */
+  int info();
+
+  /** \brief Print readable information about the book to the default info handler,
+   *  in a short form (no atom info)
+   *
+   */
+  int short_info();
+
 
   /***************************/
   /* MISC METHODS            */
@@ -182,7 +194,7 @@ public:
    * \remark An exception (assert) is throwed if the signals numChans does not match the atoms numChans.
    * \remark An exception (assert) is throwed if the support of the atom exceeds the limits of the signal.
    */
-  unsigned long int substract_add( MP_Signal_c *sigSub, MP_Signal_c *sigAdd, MP_Mask_c  *mask );
+  unsigned long int substract_add( MP_Signal_c *sigSub, MP_Signal_c *sigAdd, MP_Mask_c *mask );
 
   /** \brief Build the waveform corresponding to the sum of some atoms of the book into a signal 
    *
@@ -203,6 +215,19 @@ public:
    * \remark Passing mask == NULL forces all atoms to be used.
    */
   unsigned long int add_to_tfmap( MP_TF_Map_c *tfmap, const char tfmapType, MP_Mask_c *mask );
+
+  /** \brief Returns the atom which is the closest to a given 
+   *  time-frequency location, as well as its index in the book->atom[] array
+   *  Masked atoms are not considered.
+   * \param time the time-location, in sample coordinates
+   * \param freq the frequency-location, between 0 and 0.5
+   * \param chanIdx the considered channel
+   * \param mask a mask indicating which atoms are considered (set it to NULL to consider all atoms)
+   * \param n points to the index of the resulting atom in the book->atom[] array. Meaningless if no matching atom is found.
+   * \return atom, the closest atom, NULL if no matching atom is found
+   */
+  MP_Atom_c *get_closest_atom(MP_Real_t time,MP_Real_t freq, int chanIdx, MP_Mask_c *mask, unsigned long int *n);
+
 
   /** \brief Check if numAtoms is the same in a mask and in the book. */
   MP_Bool_t is_compatible_with( MP_Mask_c mask );

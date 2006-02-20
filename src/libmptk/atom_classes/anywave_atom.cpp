@@ -393,19 +393,41 @@ char * MP_Anywave_Atom_c::type_name(void) {
 /**********************/
 /* Readable text dump */
 int MP_Anywave_Atom_c::info( FILE *fid ) {
+  
+  int nChar = 0;
+  FILE* bakStream;
+  void (*bakHandler)( void );
+
+  /* Backup the current stream/handler */
+  bakStream = get_info_stream();
+  bakHandler = get_info_handler();
+  /* Redirect to the given file */
+  set_info_stream( fid );
+  set_info_handler( MP_FLUSH );
+  /* Launch the info output */
+  nChar += info();
+  /* Reset to the previous stream/handler */
+  set_info_stream( bakStream );
+  set_info_handler( bakHandler );
+
+  return( nChar );
+}
+
+/**********************/
+/* Readable text dump */
+int MP_Anywave_Atom_c::info() {
 
   unsigned short int chanIdx = 0;
   int nChar = 0;
-  nChar += fprintf( fid, "mplib info -- ANYWAVE ATOM" );
-  nChar += fprintf( fid, " [%d] channel(s)\n", numChans );
-  nChar += fprintf( fid, "\tFilename %s\tanywaveIdx %li\n", anywaveTable->tableFileName, anywaveIdx );
+  nChar += mp_info_msg( "HARMONIC ATOM", "[%d] channel(s)\n", numChans );
+  nChar += mp_info_msg( "           |-", "\tFilename %s\tanywaveIdx %li\n",
+			anywaveTable->tableFileName, anywaveIdx );
   for ( chanIdx = 0;
 	chanIdx < numChans; 
 	chanIdx ++ ) {
-    nChar += fprintf( fid, "mplib info -- (%u/%u)\tSupport=", chanIdx+1, numChans );
-    nChar += fprintf( fid, " %lu %lu ", support[chanIdx].pos, support[chanIdx].len );
-    nChar += fprintf( fid, "\tAmp %g",(double)amp[chanIdx] );
-    nChar += fprintf( fid, "\n" );
+    nChar += mp_info_msg( "           |-", "(%u/%u)\tSupport= %lu %lu\tAmp %g\n",
+			  chanIdx+1, numChans, support[chanIdx].pos, support[chanIdx].len,
+			  (double)amp[chanIdx] );
   }
   return( nChar );
 }

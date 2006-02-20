@@ -1,0 +1,171 @@
+CORRECTIONS DIVERSES
+1) segfault quand on charge un signal et un book ... pas bien coordonnés
+ (ex : schubert.book et metiss_logo.wav)
+
+2) bug du zoom (tf et signal): 
+  -cliquer et maintenir appuyer dans la fenetre signal/book
+  -deplacer hors de la fenetre
+  -relacher -> un rectangle reste affiché, pas de zoom effectué
+
+3) quand on charge un book, on est un peu surpris du temps de reconstruction de l'approximant et d'affichage de la tfmap)
+-peut-on afficher un popup / un message dans la barre du bas "busy" ?
+-il faut pouvoir afficher les signaux disponibles pour écouter l'approximant quand il est disponible
+-visualiser/écouter la somme du résidu et de l'approximant (qui doit en principe être égale au signal de base) ?
+
+4) quand on charge un signal, le bouton 'Stop' devient actif meme si on n'a pas declenche de lecture, mais pas le bouton pause. Est-ce voulu ?
+
+5) les controle de nbatoms / SNR pour la décomposition, dans la barre d'outils, ne sont pas actifs et pas synchro avec les contrôles depuis les MP Settings. 
+
+
+
+
+INSTALLATION  :
+---------------
+i) vérifier et documenter les options de compilation et d'installation de
+   wxWidgets
+$ télécharger et décompresser la version 'all ports' de wxWidgets 2.6.2
+$ ./configure --with-gtk --disable-precomp-headers --disable-shared
+$ make
+$ make install
+
+ii) modifier les Makefile pour gérer la compilation de portaudio en fonction de l'architecture
+
+DOCUMENTATION :
+---------------
+i) ajouter un minimum de /** \brief TOTO */ pour décrire les classes et leurs
+   principaux membres de façon à pouvoir utiliser doxygen
+
+BUGS CRITIQUES :
+----------------
+i)Zoom 'monopixel' à éliminer (segfault si double/triple click)
+ (MptkGuiApp:2212): Gdk-CRITICAL **: gdk_draw_drawable: assertion `src != NULL' failed
+Segmentation fault (core dumped)
+===========>fait
+
+ATTENTION : segfault reste si double click ...
+
+ii) menu Listen > Signal ... > : Approximant et Residual devraient être grisés lorsque non disponible (segfault)
+===========>fait
+
+iii) segfault quand on charge un signal seul et
+- qu'on fait 'Iterate all' ou 'Iterate once' sans avoir ouvert le menu Decomposition > Settings > Apply
+ou bien
+- qu'on fait 'View > New atom view'
+===========>fait
+
+BUGS GENANTS :
+--------------
+i) le menu et le bouton 'Play' devraient redevenir actifs à la fin de la lecture en cours, sans qu'on ai besoin d'appuyer sur 'Stop' ou 'Pause'
+===========>fait
+
+ii) après une décomposition, il faut rafraîchir les fenêtres 'book' 'reconstruit' et 'residuel' 
+===========>fait
+
+iii) le contrôle des colorbar est mal rafraîchi
+===========>fait
+
+iv) menu Listen : quand ils sont disponibles, Approximant et Residual ne devraient pas être le même signal!
+===========>fait
+
+v) menu Listen : ou est le contrôle de gain ? Il y a du clipping!
+===========>On ne controle pas le gain mais normalement le clipping est évité (si des valeurs non comprises entre -1 et 1 sont dans le son
+les samples seront normalisés en étant divisés par la valeur absolue maximal des samples)
+
+vi) affichage d'un book : 
+    charger devel_diic3/src/bugs/schubert.book
+    -> l'affichage est tout bleu, la colorbar indique 
+    min = -40 dB > max = -80.8 dB !!!!!!
+    [s'agit-il d'un bug de la GUI ou de la tfmap ?]
+===========>Désormais le max>=min mais pour l'affichage cela vient de la tfmap si on agrandi l'image on voit apparaitre les atomes mais si l'image
+est toute petite les atomes diparaissent.
+
+vii) interface de réglage des 'limits settings' : il faut un message plus explicite que 'amplitude min inconsistent' (etc.) du genre 'amplitude min should be (an integer) / (at least -23.11) / (positive) ...' sinon c'est inutilisable. Il faut pouvoir rouvrir le menu setting quand on l'a fermé une fois!
+
+VIII) l'autofill du menu save se comporte très bizarrement, à vérifier.  
+    
+AMELIORATIONS IMPORTANTES: 
+--------------------------
+
+i) créer une entrée de Menu 'File  > Close' qui remette book et signaux (ou directement mpd_core) à NULL pour repartir de zéro sans quitter l'appli
+  (fermer toutes les views, etc.)
+===========>fait
+
+ii) il faudrait pouvoir afficher les signaux 'reconstruit' et 'residuel', si
+     possible par le 'Menu' de la signal view, avec des champs grisés si les
+     signaux ne sont pas disponibles.
+===========>fait
+
+iii) Placer des contrôles de décomposition dans la toolbar
+   un contrôle 'iterate once '
+   un contrôle 'iterate all'
+   un champ texte de contrôle de 'num iter'
+   un un champ texte de contrôle de 'SNR' 
+
+   Fonctionnalité : 
+   -le contrôle 'num iter' (toolbar ou menu settings) devrait
+   être le nombre *additionnel* d'itérations par rapport à l'état actuel
+
+   -le  contrôle 'SNR' (idem) devrait également être relatif à l'état actuel
+
+AMELIORATIONS UTILES :
+----------------------
+i) modifier le Menu 'File > Open ...' pour l'ouverture de fichier
+
+    Option A) : trois entrées
+    1) 'File > Open ...'
+    
+    (ferme les views existantes et les book/signaux correspondants)
+
+    charge successivement un signal (premiere fenêtre 'browse' standard) ET un
+    book (le 'OK' de fermeture de la première fenêtre ouvre une seconde
+    fenêtre 'browse' standard avec le nom du book autorempli) et vérifie leur
+    cohérence pour les mettre dans le mpd_core
+===========>fait
+
+    2) 'File > Open signal only ...' 
+    (ferme les views existantes ....)
+    ouvre une fenêtre 'browse' et crée/reset le mpd_core avec book = NULL 
+===========>fait
+
+    3) 'File > Open book only ...'
+    (ferme les views existantes ....)
+    ouvre une fenêtre 'browse' et crée/reset le mpd_core avec signal = NULL
+  
+    Option B) une seule entrée 'File > Open ...' 
+
+    ouvre le dialogue actuel auquel on ajoute, devant le champ de nom du
+    signal et du book, une case à cocher 'keep current signal' ('keep current
+    book'). Si elle est cochée, le champ de nom n'est plus
+    remplissable. Sinon, il faut fermer les views existants correspondant au
+    book/signal qu'on va écraser/effacer.
+
+    Lorsqu'on ferme le dialogue avec le bouton OK 
+    -si on a spécifié qu'on garde le book (le signal) actuel ou si on a donné le nom d'un fichier correspondant, créer/reste le mpd_core en conséquence
+    -si aucun book (aucun signal) n'est spécifié, créer/reset le mpd_core avec un book (un signal) NULL
+
+===========>fait
+
+ii) Menu 'Decomposition > Iterate once / all' devraient faire un report
+   lorsqu'ils ont fini, quels que soient les settings
+
+
+iii) afficher dans la console au démarrage, et via le menu help
+     -infos de copyright 
+     -principales infos sur le fonctionnement du zoom, de open/save, de décomp
+
+iv) ajouter un contrôle 'stop iterations' ? (toolbar et menu?)
+   astuce : il suffit de mettre le critère d'arrêt, en nombre d'itérations, égal au nombre d'atomes déjà dans le book (ça marche via l'interface settings + apply)
+
+v) ajouter dans MP settings un champ 'refresh display every XXX iterations'
+   (équivalent au 'report progress ...' mais au lieu d'afficher le 'progress' dans la console on fait un refresh)
+
+
+
+CERISE SUR LE GATEAU :
+----------------------
+i) brancher le menu 'Play | Pause | Stop' des signal views
+
+ii) créer menu des signal views / book views qui affiche dans la console book.info() signal.info()
+
+iii) supprimer le Menu 'Decomposition > Reset' ou déplacer dans Settings 'Reset to default values' ?
+

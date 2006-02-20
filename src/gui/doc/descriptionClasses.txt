@@ -1,0 +1,113 @@
+MptkGuiApp :
+C'est la classe principale, elle lance l'application (l'éxécutable). Elle créée la frame de type MptkGuiFrame lui spécifiant entre autre sa taille.
+
+MptkGuiFrame :
+Cette classe décrit la fénêtre principale. Elle est au coeur de l'application : elle gère de nombreuses méthodes de réactions aux événements (tous les événement des menus, boutons raccourcis, zoom sur les vues, ajustement des vues).
+Elle utilise ainsi de nombreux objets tels que :
+1) Les objets affichant des fenêtres de dialogue à l'utilisateur :
+     - MptkGuiOpenDialog : affiche et gère les valeurs entrées dans le menu open, permet l'ouverture simultanée (ou non, si un des champs est vide) d'un signal et d'un book.
+     - MptkGuiSaveDialog : affiche un menu pour sauver le book, l'approximant (signal reconstruit à partir du book) et le résidu (sur lequel on itère)
+     - MptkGuiLicenseDialog : permet d'afficher la license GPL
+     - MptkGuiLimitsSettingsDialogs : affiche une fenêtre autorisant le réglage des bornes (fréquence, amplitude temps) des vues ainsi que le choix de la colormap (carte des couleurs des vues temps/fréquence)
+     - MptkGuiMPSettingsDialog : pour le réglage des paramètres de décomposition de matching pursuit (choix du dictionnaire, condition(s) d'arrêt, rafraichissement automatique des vues, affichage des informations de décomposition dans la console)
+
+2) Un vecteur de MptkGuiSashWindow, les MptkGuiSashWindow encapsulant soit la vue MptkGuiConsole, soit des vues MptkGuiExtendedView (pouvant être soit des vues du signal (MptkGuiExtendedSignalView), soit des vues temps/fréquence (MptkGuiExtendedTFView)). Les MptkGuiSashWindow permettent de donner aux vues la possibilité de les redimmensionner.
+   Cependant ce vecteur ne contient que des MptkGuiSashWindow contenant des MptkGuiExtendView, la console (MptkGuiConsole) n'est pas dans le vecteur. En effet, ce vecteur ne sert qu'à parcourir facilement les vues signal ou temps/fréquence pour synchroniser les zooms, mettre à jour les bornes, tester la présence d'une vue temps/fréquence après la décomposition pour en ajouter une automatiquement. Et la console ne rentre pas dans ces cas.
+
+3) un objet de type MptkGuiCallback. La classe MptkGuiCallback permet le lien entre le côté purement graphique de MptkGuiFrame et le côté applicatif, à savoir le noyau de Matching Pursuit ToolKit (MPTK) mis en oeuvre par l'intermédiaire du MP_Mpd_Core_c. La MptkGuiFrame appelle l'objet callback par exemple lors des ouvertures de fichiers, des sauvergardes, des actions de lecture et c'est l'objet MptkGuiCallback qui gère ensuite les divers liens avec MPTK et également la lecture/arrêt du son (mis en oeuvre par MptkGuiAudio)
+
+
+// Views
+
+MptkGuiExtendedView :
+Super type pour les deux grands types de vues présentes, à savoir les MptkGuiExtendedSignalView (vues signal) et MptkGuiExtendedTFView (vues temps fréquence, pour l'instant seulement les vues des atomes d'un book). Elle contient donc des méthodes virtuelles étant redéfinies par ses classes filles (typiquement, les méthodes pour le zoom). Elle permet l'abstraction au niveau de la MptkGuiFrame lorsque cette dernière se charge par exemple de synchroniser les zooms entre les vues qui la compose.
+
+MptkGuiExtendedSignalView : 
+Hérite de MptkGuiExtendedView. Affiche la vue du signal (en utilisant la MptkGuiSignalView) et y ajoutant le menu, le menu de sélection du canal, les boutons permettant la sélection du signal à afficher dans la MptkGuiSignalView qui lui est associée. Deux boutons sont présents pour lire soit le canal courant soit tous les canaux du signal sélectionné. Seul ce qui est affiché est lu. Les lectures font appel au même objet de control MptkGuiCallback que celui de la MptkGuiFrame. Elle contient aussi un MptkGuiUpDownPanel permettant l'envoi d'événements (MptkGuiUpEvent ou MptkGuiDownEvent) à la MptkGuiFrame pour repositionner la vue relativement aux autres dans la MptkGuiFrame. Un bouton close pour fermer la vue est également présent.
+
+MptkGuiSignalView :
+Dessine le signal chargé en évitant l'aliasing. Permet également de zoomer sur le signal en gérant les réactions au événements de la souris (clic gauche, clic droit)
+
+MptkExtendedTFView :
+Hérite de MptkGuiExtendedView. Suivant les paramètres du constructeur, construit soit une vue temps fréquences du book (pour visualiser les atomes), soit un spectrogramme (pas encore implémenté). A l'instar de MptkGuiExtendedSignalView, elle ajoute à MptkGuiTFView le menu de sélection du canal à afficher, la MptkGuiColorMapView pour ajuster les couleur de la vue temps-fréquence, le MptkGuiUpDownPanel (pour le repositionement dans la MptkGuiFrame), le bouton close pour fermer la vue.
+
+MptkGuiColorMapView :
+Permet la selection des birnes pour l'affichage des couleurs d'une vue temps-fréquence. Utilisée par les MptkGuiExtendedTFView.
+
+MptkGuiTFView : 
+Super classe pour MptkGuiAtomView et MptkGuiSpectrogramView. Mis en oeuvre des méthodes de zoom et des envois d'événements.
+
+MptkGuiAtomView : 
+Hérite de MptkGuiTFView. Elle s'occupe d'afficher les atomes du book, en utilisant la classe MptkGuiAtomDessin. Elle redessine son contenu à chaque redimensionnement en appelant la méthode dessine sur son MptkGuiAtomDessin.
+
+MptkGuiSpectrogramView :
+Hérite de MptkGuiTFView. Affiche la vue du signal sous forme de spectrogramme (pas encore inplémenté).
+
+MptkGuiDessin :
+Super classe pour dessiner la MP_TF_Map_c. 
+
+MptkGuiAtomDessin :
+Hérite de MptkGuiDessin. Cette classe ajoute les atomes du book dans la MP_TF_Map_c et les dessine.
+
+MptkGuiSpectrogramDessin :
+Hérite de MptkGuiDessin. Cette classe ajoute le signal dans une MP_TF_Map pour voir son spectrogramme (vue temps-fréquence).
+
+// Console,Callback, Handler,  Audio
+
+MptkGuiConsole :
+Elle permet la visualisation des messages d'info (typiquement ceux affichés lors de la décomposition) ainsi que tous les autres types de messages autres que ceux d'erreur.
+Elle peut-être cachée, son contenu peut être sauvé dans un fichier ("Save") ou bien ajouté à la suite d'un autre ("Append").
+
+MptkGuiCallback :
+Classe faisant le lien entre la MptkGuiFrame mais aussi d'autres objets graphiques tels que les vues signal (MptkGuiExtendedSignalView) en gérant notamment  les appels aux procédures de lecture du son, initialisant le MP_Mpd_Core_c pour lancer ensuite des décompositions (affectant au MP_Mpd_Core_c les différents paramètres de décomposition, lui donnant également le signal et le book à charger).
+
+MptkGuiAudio :
+Permet la lecture d'un signal. Gère également les méthodes stop, pause de la lecture en cours. Elle s'appuie sur portaudio pour jouer le signal. Elle autorise également la lecture entre deux échantiloons (méthode utilisée lors de la lecture locale aux MptkGuiExtendedSignalView).
+
+MptkGuiHandler.h : 
+Définition des fonctions handler qui sont appelées par le MP_Msg_Server_c. L'association d'un handler à un type de message se fait lors de la création du MptkGuiCallback.
+// Objet Graphiques spécifiques
+MptkGuiUpDownPanel :
+Créée avec le même identificateur que celui de la vue qui l'utilise (MptkGuiExtendedSignalView, MptkGuiExtendedTFView ou MptkGuiConsole).
+Contient deux boutons (Up et Down) envoyant des événements MptkGuiUpEvent (Up pressé) ou MptkGuiDownEvent (bouton down pressé). Ces événements sont ensuite captés par le MptkGuiFrame qui repositionne la vue identifiée par ces événements.
+
+MptkGuiSashWindow :
+Permet le redimensionnement de la vue qui lui a été associée via sa méthode setView(MptkGuiExtendedView *).
+
+// Evénements
+MptkGuiUpEvent :
+Evénement généré par le MptkGuiUpDownPanel lors de la pression sur le bouton "Up".
+
+MptkGuiDownEvent :
+Evénement généré par le MptkGuiUpDownPanel lors de la pression sur le bouton "Down".
+
+MptkGuiZoomEvent :
+Evénement généré par le différentes vu pour notifier à la MptkGuiFrame que l'utilisateur a zoomé sur une vue. Cet événement est créé avec le même identificateur que celui de la vue qui l'a généré. Ainsi, la MptkGuiFrame sait quelle vue a généré le zoom et ne rezoome donc pas une autre fois sur cette vue. Elle sait aussi grâce à cet identifiant quelle type de vue (signal ou temps-fréquence) a été zoomée et répercute ainsi soit un simple zoom en temps, soit un zoom en temps-fréquence (si la vue origine est une vue atome) ou temps-amplitude (si la vue origine est une vue signal).
+On utilise également cet événement pour synchroniser les "resetZoom" (zoom 1:1) et ainsi remettre les différentes vues avec la même échelle de temps (et de fréquence ou amplitude).
+
+MptkGuiSettingEvent : 
+Cet événement est généré par MptkGuiMPSettingsDialog. Il l'envoie à la frame pour lui signifier qu'un apply a été fait (mise à jour de paramètres de décomposition) et ce afin de mettre à jour les controls (dans le menu et la barre d'outils) associés à la décompositon. Ainsi, l'utilisateur peut faire des "Iterate Once" et "Iterate All". C'est événement n'étant bien sûr généré que si les paramètres entrés via le manu MptkGuiMPSettingsDilaog sont valides.
+
+MptkGuiDeleteViewEvent :
+Lorsque que l'utilisateur ferme une MptkGuiExtendedView, cette dernière génère cet événement et c'est la MptkGuiFrame qui le capte. MptkGuiFrame peut ainsi mettre à jour le vecteur de MptkGuiSashWindow en retirant la vue fermée du vecteur. Et également détruire l'objet MptkGuiSashWindow.
+
+MptkGuiCMapZoomEvent :
+Evénement envoyé lorsque l'on déplace les curseurs de la MptkGuiColorMapView associée à une MptkGuiExtendedTFView. C'est cette dernière qui capte l'événement et rafraichit les couleurs de sa vue associée (soit une vue atome, soit une vue spectrogramme).
+
+MptkGuiListenFinishedEvent :
+Généré par MptkGuiAudio lorsque que la lecture d'un signal est terminé. Cet événement est capté par MptkGuiFrame afin de mettre à jour le menu "Listen" et les éléments de la barre d'outils.
+
+MptkGuiResizeTFMapEvent :
+Créé dans MptkGuiAtomView ou dans MptkGuiSpectrogramView, cet événement est reçu par MptkGuiExtendedTFView. Il sert à mettre à jour les bornes de la MptkGuiColorMapView par rapport aux valeurs de le MP_TF_Map_c.
+
+
+// Points obscurs :
+
+La création de la classe MptkGuiSashWindow n'arrange pas forcément la "lisibilité" au niveau de MptkGuiFrame. En effet, on aurait préféré que MptkGuiFrame ait un vecteur de MptkGuiExtendedView et non un vecteur de MptkGuiSashWindow (chacune étant associée à une MptkGuiExtendedView). Mais le double héritage au niveau de MptkGuiExtendedSignalView (et MptkGuiExtendTFView) d'un wxPanel et d'une wxSashWindow (objets de la librairie wxWidgets) n'était apparemment pas possible car chacune définissait sa propre table d'événements et avoir deux tables d'événements distinctes est impossible. 
+
+
+// Ce qui reste à faire
+
+Avec un peu plus de temps, nous pensons qu'il nous aurait été possible d'ajouter la sélection d'atomes afin de les déplacer sur les vues temps-fréquence et également de les supprimer.
+La définition de mask aurait aussi pu être un plus mais pour l'instant seul le menu et les liens de actions du menu dans MptkGuiFrame sont définis. Nous avons donc par conséquent caché ce menu à l'utilisateur.
+

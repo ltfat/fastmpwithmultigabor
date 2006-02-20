@@ -34,4 +34,5 @@
 ##   $Revision$
 ##
 
-SUBDIRS = libdsp_windows libmptk utils tests
+SUBDIRS = libdsp_windows libmptk utils tests @GUI_DIR@
+# GUI_DIR may be empty if the gui compilation is disabled by configure.

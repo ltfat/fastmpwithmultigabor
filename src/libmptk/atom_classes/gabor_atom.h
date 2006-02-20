@@ -138,6 +138,7 @@ public:
   virtual char * type_name( void );
 
   virtual int info( FILE *fid );
+  virtual int info();
 
   /** \brief Build concatenated waveforms corresponding to each channel of a Gabor atom. 
    *
@@ -157,6 +158,8 @@ public:
 
   /** \brief Adds the representation of a Gabor atom to a time-frequency map */
   virtual int add_to_tfmap( MP_TF_Map_c *tfmap, const char tfmapType );
+
+  virtual MP_Real_t dist_to_tfpoint( MP_Real_t time, MP_Real_t freq , int chanIdx );
 
 };
 
