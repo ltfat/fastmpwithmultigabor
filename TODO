@@ -1,56 +1,60 @@
-TODO:
+				 -----------------
+                                       TODO
+				 -----------------
+
+   --------------
+I) GENERAL TOPICS
+   --------------
 
 * URGENT:
-  - Do signal.add_spectro_to_tfmap( tfmap ) for Nico.
-  - Complete the error message handling mechanism, interface it with the GUI.
-  - Extract the core functionalities of mpd/mpf/mpr etc. so that they can be
-    called from the GUI, leave only the command-line interfacing in the utils.
+  - CLIPPING ISSUE: see section III) below.
+  - Extract the core functionalities of mpf/mpr etc. (done for mpd),
+    and add them to the MP_Mpd_Core_c class so that they can be called
+    from any kind of interface (GUI and/or command line).
 
 * PRE-RELEASE:
   - Dict/block/book/atom I/O:
-      + do more error checks on writes
+      + do more error checks on writes ?
       + decide upon a strategy for the book parsing in binary and text
   - Reinforce the detection/warning of wrong syntaxes in XML dictionaries.
   - mpf : select a given channel ?
 
-				 -----------------
 * BUGS:
-  - make_regression_constants is not built correctly under Cygwin.
+  - Lots of them in the GUI (section IV below).
 
 				 -----------------
 
-* IMPROVEMENTS TO THE CORE LIBRARY
+    --------------------------------
+II) IMPROVEMENTS TO THE CORE LIBRARY
+    --------------------------------
 
-  FUNCTIONALITIES
+* GENERAL CODE STRUCTURE
+  - move the header from atom_classes/atom_classes.h (read_atom,write_atom)
+    to atom.h, and make it a factory method. 
+  - introduce a true plugin structure to load new atom classes (as DLLs ?) without a recompile.
+  - split dict::iterate_mp into update_all update_ip update_max
+  - fix integer types : unsigned long int -> uint32 etc
+  - fix char/int in array arguments
+  - replace MP_Sample_t with MP_Real_t, eliminate MP_Sample_t and remove the unnecessary castings
+  - reinforce the test suite
+  - Implement factory functions for atoms ?
+  - restructure atom / book classes to introduce molecules MP_Molecule_c -> MP_Atom_c -> MP_Gabor_c ...
+							   MP_Molecule_c -> MP_Book_c
+							   book->append(MP_Molecule_c)
+  - replace round by a simpler ANSI trick, and check double-to-int potential overflow
+    where applicable.
 
+* ALGORITHMIC ENHANCEMENTS/FUNCTIONALITIES
+  - Solve the clipping problem introduced by the PCM format in libsndfile.
+  - more testing of the chirp and harmonic blocks
   - enable mpd_demix to use one dictionary for each source
   - enable mpd_demix with a matrix of filters 
   - allow atom selection with weights/penalties (applications include auditory masking)
   - implement anywave_atoms and anywave_blocks with Hilbert transform
-  - restructure atom / book classes to introduce molecules MP_Molecule_c -> MP_Atom_c -> MP_Gabor_c ...
-							   MP_Molecule_c -> MP_Book_c
-							   book->append(MP_Molecule_c)
   - implement orthonormal matching pursuit
-  - dict::iterate_mp à scinder en update_all update_ip update_max
-  - factor some code in MP_Atom_C::add_to_tfmap() ?
-  - complete mpview.m by dealing with several channels
-  - replace MP_Sample_t with MP_Real_t and remove the unnecessary castings
-  - (BOOKS only:) replace file constructors by factory functions to improve
-    the robustness to corrupted input files. (Done for dictionaries.)
-
-  PORTABILITY AND ROBUSTNESS
-  - fix integer types : unsigned long int -> uint32 etc
-  - fix char/int in array arguments
-  - reinforce the test suite
   - check the divergence between signal.compute_energy() and signal.energy
 
-  EASE OF DEVELOPMENT
-  - document 'how to add a block' including how to interface with dict_scanner
-  - move the header from atom_classes/atom_classes.h (read_atom,write_atom)
-    to atom.h, and make it a factory method. 
-  - introduce a true plugin structure to load new atom classes (as DLLs ?) without a recompile.
-
-  SPEED
+* SPEED
   - Go multi-thread, pthreads style, in dict.update_ip() .
   - OPTIONAL: tabulate the cosines in a "cosines server" ?
     Note:
@@ -58,46 +62,64 @@ TODO:
     => compute cos(phi)/sin(phi) once, get some tabulated cos(omega*t)/sin(omega*t).
   - accelerate first step of MP by computing IP only on good frames
 
- MISC/OPTIONAL:
-  - options in autoconf/automake to build a shared lib ?
-  - turn MP_Support_t into a class to get constructors (especially a clean copy
-    constructor) and nicer toFrame/fromFrame stuff ? Or make a merge_support
-    function to get a mono-channel support which merges the supports across the
-    channels ?
-  - make a mpmix util to mix sound sources directly in C++ ?
-
 * MID TERM:
   - allow for chirp detection in harmonic blocks
   - Make a parsable/storable format for mpf sorting rules, that could be
     compiled into binary masks for book masking; cleanup the atom-sorting
     mechanism (atom.satisfies etc.).
 
-
 * LONG TERM:
   - create a MP_Mixer_c class
   - new atom classes: chirps, wavelets, arbitrary waveform templates,
     LPC-style spectral envelopes for unvoiced sounds
-  - finalize the tfmap concept/functions/utilities (mpview) + related
-    Matlab and/or Lastwave interface
 
-
+* MISC/OPTIONAL:
+  - turn MP_Support_t into a class to get constructors (especially a clean copy
+    constructor) and nicer toFrame/fromFrame stuff ? Or make a merge_support
+    function to get a mono-channel support which merges the supports across the
+    channels ?
 
 
 				 -----------------
+     --------------------------
+III) INTERFACES, GENERAL TOPICS
+     --------------------------
 
-* IMPROVEMENTS TO THE INTERFACES
-
-  TFMAPs
+* TFMAPs
+  - Do signal.add_spectro_to_tfmap( tfmap ) for the GUI.
+  - factor some code in MP_Atom_C::add_to_tfmap() ?
   - implement pseudo wigner_ville for non Gaussian windows
+  - fuse the Wigner-Ville function into the add_to_tfmap function ?
   - store max and sum by line / by column (to possibly normalize the display and to display marginal tf cuts)
   - add bark/mel scales for frequencies ?
+  - more debug to the TFMaps.
+  - implement some TFMap output for the anywave atoms.
 
-  FILE I/O
-  - mpd/mpr/mpf/mpcat/mpd_demix: leave choice between binary or text when
-    reading or writing from/to a pipe?
-  - get rid of libsndfile to read wav files or add 'gain' option when reading/writing sound files
+* FILE I/O
+  - CLIPPING ISSUE:
+    get rid of libsndfile to read wav files or add a 'gain' option when reading/writing sound files
+    (to solve the "clipping problem").
 
-  GUI
+
+				 -----------------
+    ------------------------
+IV) GRAPHICAL USER INTERFACE
+    ------------------------
+
+* BUGS
+  - ZOOM:
+    - left-click in signal view and drag the rectangle out of the main window -> segfault.
+      Seems it does it when loading signal only, but not when loading book (check more).
+    - double click in signal view -> segfault (atom view seems OK).
+  - when loading a signal, the "play" and "stop" buttons are active, but not the "pause"
+    button => harmonize.
+  - Are there still bugs when loading bugs/shubert.book ?
+
+
+* WISHLIST
+  - limits settings:
+    - add an "Apply" button
+    - make the inconsistency checking messages more explicit
   - display the scale of the time/frequency/amplitude axes
   - add a tool to build new dictionaries
   - implement a pile of zoom event to 'undo' a zooming
@@ -108,7 +130,67 @@ TODO:
   - selection, cut and paste of atoms from one document to another.
 
 
+				 -----------------
+   ---------------
+V) TEXT INTERFACES
+   ---------------
+
+* WISHLIST
+  - mpd/mpr/mpf/mpcat/mpd_demix: leave choice between binary or text when
+    reading or writing from/to a pipe?
+  - complete mpview.m by dealing with several channels
+  - make a mpmix util to mix sound sources directly in C++ ?
 
 
+				 -----------------
+    ----------------
+VI) MATLAB INTERFACE
+    ----------------
 
- 
+* BUGS
+  - bookover.m: check if the spectrogram image masks the atom patches;
+                modify the height of the spectrogram image accordingly.
+
+* WISHLIST
+  - bookover.m: add window length/shift/type controls for the spectrogram,
+                to override the default ones.
+  - Check/distribute bookwrite ?
+
+
+				 -----------------
+     ----------------------------------
+VII) AUTOMAKE/AUTOCONF, BUILDING SYSTEM
+     ----------------------------------
+
+* WISHLIST
+  - options in autoconf/automake to build a shared lib ?
+  - conversely, options to make sure everything is statically linked
+    (e.g., to avoid DLL hell under Cygwin) ?
+
+
+				 -----------------
+      -------------
+VIII) DOCUMENTATION
+      -------------
+
+* WISHLIST
+  - document 'how to add a block' including how to interface with dict_scanner
+  - Document the scanner
+  - Document the messaging system
+  - Make a simplified API reference for the blocks/atoms
+  - Make a basic GUI user man
+  - Document the extra libs: original website, short description, compilation/install "tricks" etc.
+    Note: for wxWidgets, one should use the "All ports" version, and use:
+    $ ./configure --with-gtk --disable-precomp-headers --disable-shared
+    before make and make install.
+  - Split the user manual into a user manual and a developer's manual ?
+
+
+				 -----------------
+    ------
+IX) GFORGE
+    ------
+
+* WISHLIST
+  - Mirror wxWidgets in the EXTRA_LIBS section of the distributed files
+  - Use the bug/feature trackers instead of this TODO file ?
