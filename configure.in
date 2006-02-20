@@ -202,7 +202,7 @@ WXWIDGETS_CXXFLAGS=""
 
 AC_ARG_ENABLE(gui,
 [  --disable-gui           Do not compile the GUI],
-        GUI_MODE=$enableval, GUI_MODE=yes)
+        GUI_MODE=$enableval, GUI_MODE=no)
 
 if test "x$GUI_MODE" = "xyes"; then
    AC_CHECK_PROG(WXCONFIG,[wx-config],yes,no)
@@ -213,6 +213,7 @@ if test "x$GUI_MODE" = "xyes"; then
       GUI_DIR="gui"
       AC_MSG_CHECKING([for the wxWidgets lib directory])
       AC_MSG_RESULT([$WXWIDGETS_DIR])
+      AC_CONFIG_FILES( src/gui/Makefile )
    else
       AC_MSG_WARN(The program wx-config was not found in your path: the wxWidgets library can't be found on your system.)
       AC_MSG_ERROR(MPTK's GUI cannot be built. Use --disable-gui or check your installation of wxWidgets.)
@@ -220,6 +221,14 @@ if test "x$GUI_MODE" = "xyes"; then
    fi
 else
    GUI_DIR=""
+   AC_MSG_NOTICE([
+
+   The building of MPTK's Graphical User Interface is disabled by default.
+   MPTK's GUI requires a GTK-based version of the wxWidgets API to be installed
+   on your system. (See: http://www.wxwidgets.org/ .)
+   If this requirement is met and you want to build the GUI,
+   use --enable-gui (see configure --help).
+   ])
 fi
 
 AC_SUBST(GUI_DIR)
@@ -278,11 +287,14 @@ if test "x$DOCUMENTATION_MODE" = "xyes" ; then
 		    doc/userman/Makefile            \
 		    doc/short_description/Makefile  )
 else
-  AC_MSG_NOTICE([The re-generation of the doc is disabled by default.
-  If pre-compiled docs (in pdf and/or postscript) are not included in this package,
-  you can download them from:
+  AC_MSG_NOTICE([
+
+  The re-generation of MPTK's documentation is disabled by default.
+  Pre-compiled docs (in pdf and/or postscript) should be included in this package.
+  If not, they are available on:
                  http://mptk.gforge.inria.fr
-  If you need to re-generate the docs yourself, use --enable-doc (see configure --help).])
+  If you need to re-generate the docs yourself, use --enable-doc (see configure --help).
+  ])
 fi
 
 AC_SUBST(DOC_DIR)
@@ -311,7 +323,6 @@ AC_CONFIG_FILES( Makefile                        \
 		 src/tests/test_mpcycle.sh       \
 		 src/tests/signals/Makefile      \
 		 src/tests/ref/Makefile          \
-		 src/gui/Makefile                \
 		 extras/Makefile                 \
 		 extras/matlab/Makefile          )
 
