@@ -64,17 +64,18 @@ mptk_gui_headers = MptkGuiApp.h \
 	MptkGuiExtendedTFView.h \
 	MptkGuiZoomEvent.h \
 	MptkGuiDeleteViewEvent.h \
+	MptkGuiHandlers.h \
 	MptkGuiColorMapView.h \
 	MptkGuiConsoleView.h \
 	MptkGuiUpDownPanel.h \
 	MptkGuiUpEvent.h \
-	MptkGuiDownEvent.h
+	MptkGuiDownEvent.h \
 	MptkGuiConsoleView.h \
 	MptkGuiCMapZoomEvent.h \
 	MptkGuiSaveDialog.h \
-	MptkGuiResizeTFMapEvent \
+	MptkGuiResizeTFMapEvent.h \
 	MptkGuiLimitsSettingsDialog.h \
-	MptkGuiListenFinishedEvent.h	\
+	MptkGuiListenFinishedEvent.h \
 	MptkGuiSettingEvent.h \
 	MptkGuiSettingUpdateEvent.h \
 	gpl.h \
@@ -148,3 +149,10 @@ MptkGuiApp_CXXFLAGS = @WXWIDGETS_CXXFLAGS@ -I$(srcdir)/portaudio_v18_1/pa_common
 MptkGuiApp_CFLAGS = -I$(srcdir)/portaudio_v18_1/pa_common/  -I$(srcdir)/portaudio_v18_1/pablio/
 MptkGuiApp_LDADD = @LIBS@ @LOCAL_BUILD_LIBS@ @WXWIDGETS_LIBS@ @PA_FLAGS@
 MptkGuiApp_DEPENDENCIES = @LOCAL_BUILD_LIBS@
+
+
+## Add the whole of portaudio plus the bitmaps to the distrib...
+EXTRA_DIST = portaudio_v18_1 bitmaps
+## ... but without the .svn directories:
+dist-hook:
+	rm -rf `find $(distdir) -name '.svn'`;
