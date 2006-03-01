@@ -248,7 +248,7 @@ int MP_FFT_Interface_c::test( const unsigned long int setWindowSize ,
 			      const double windowOption,
 			      MP_Sample_t *samples) {
 
-  MP_FFT_Interface_c* fft = MP_FFT_Interface_c::init( setWindowSize, windowType, windowOption, setWindowSize/2+1 );
+  MP_FFT_Interface_c* fft = MP_FFT_Interface_c::init( setWindowSize, windowType, windowOption, setWindowSize );
   unsigned long int i;
   MP_Real_t amp,energy1,energy2,tmp;
 
