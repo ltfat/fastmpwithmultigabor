@@ -161,6 +161,7 @@ bool MP_Anywave_Table_c::load_data( void ) {
 
   FILE * pFile = NULL;
   unsigned long int numElements;
+  unsigned long int numReadElements;
   unsigned long int filterIdx;
   unsigned short int chanIdx;  
   MP_Sample_t *pSample;
@@ -197,8 +198,8 @@ bool MP_Anywave_Table_c::load_data( void ) {
 	} else {
 	  /* try to read the file */	
 	  
-	  if ( mp_fread( storage, sizeof(MP_Sample_t), numElements, pFile ) != (size_t)numElements ) {
-	    mp_error_msg( "MP_Anywave_Table_c::load_data", "number of elements read is %li instead of %i. Clear the storage\n" );
+	  if ( (numReadElements = (unsigned long int)mp_fread( storage, sizeof(MP_Sample_t), numElements, pFile )) != numElements ) {
+	    mp_error_msg( "MP_Anywave_Table_c::load_data", "number of elements read is %lu instead of %lu. Clear the storage\n", numReadElements, numElements );
 	    if (storage != NULL) {
 	      free( storage );
 	    }
