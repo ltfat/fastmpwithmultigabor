@@ -132,7 +132,7 @@ public:
    * It must be either 1, either the same number as in the signal to
    * analyze.
    */
-  int numChans;
+  MP_Chan_t numChans;
 
   /** \brief Length of the waveforms
    */

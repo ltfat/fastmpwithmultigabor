@@ -94,7 +94,7 @@ class MP_Atom_c {
 
 public:
   /** \brief The number of channels of the atom */
-  int numChans;
+  MP_Chan_t numChans;
   /** \brief The time support of the atom on each channel 
    * 
    * Examples : 
@@ -110,6 +110,10 @@ public:
    * output buffer in build_waveform()
    */
   unsigned long int totalChanLen;
+  /** \brief The amplitude of the atom on each channel. 
+   *
+   * Example : the amplitude on the first channel is amp[0] */
+  MP_Real_t *amp;
   /** \brief The maximum reach of the atom, in number of samples
    *
    * It is essentially used for efficiency
@@ -132,7 +136,7 @@ public:
   /** \brief A constructor that allocates storage for the supports 
    * \param setNumChans the desired number of channels
    */
-  MP_Atom_c( const unsigned int setNumChans );
+  MP_Atom_c( const MP_Chan_t setNumChans );
 
   /** \brief A constructor that reads from a file
    * \param  fid A readable stream
@@ -167,7 +171,7 @@ public:
 
 private :
 
-  int alloc_atom( const unsigned int setNChan );
+  int alloc_atom( const MP_Chan_t setNChan );
 
 public :
 
@@ -216,7 +220,7 @@ public :
    */
   virtual int add_to_tfmap( MP_TF_Map_c *tfmap, const char tfmapType ) = 0;
 
-  virtual MP_Real_t dist_to_tfpoint( MP_Real_t time, MP_Real_t freq , int chanIdx );
+  virtual MP_Real_t dist_to_tfpoint( MP_Real_t time, MP_Real_t freq , MP_Chan_t chanIdx );
 
   /** \brief Tests if a field of an atom satisfies a property on a given channel 
    * \param field the type of the property (ex: MP_AMP_PROP, MP_FREQ_PROP, ...)
@@ -233,7 +237,7 @@ public :
    * \return MP_TRUE if the test is succesful, MP_FALSE otherwise
    * \sa has_field() get_field()
    */
-  int satisfies( int field, int test, MP_Real_t val, int chanIdx );
+  int satisfies( int field, int test, MP_Real_t val, MP_Chan_t chanIdx );
   /** \brief Tests if a field of an atom satisfies a property on ALL channels
    * \sa satisfies
    */
@@ -247,7 +251,7 @@ public :
    * \param field the field type
    * \param chanIdx the desired channel
    * \return the desired field value, zero if the atom has no such field */
-  virtual MP_Real_t get_field( int field , int chanIdx);
+  virtual MP_Real_t get_field( int field , MP_Chan_t chanIdx );
 };
 
 

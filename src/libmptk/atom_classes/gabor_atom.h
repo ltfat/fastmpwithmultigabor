@@ -86,10 +86,6 @@ public:
   MP_Real_t freq;
   /** \brief The chirprate of the atom on all channels. */
   MP_Real_t chirp;
-  /** \brief The amplitude of the atom on each channel. 
-   *
-   * Example : the amplitude on the first channel is amp[0] */
-  MP_Real_t *amp;
   /** \brief The phase of the atom on each channel. */
   MP_Real_t *phase;
 
@@ -154,12 +150,12 @@ public:
   virtual void build_waveform( MP_Sample_t *outBuffer );
 
   virtual int       has_field( int field );
-  virtual MP_Real_t get_field( int field , int chanIdx);
+  virtual MP_Real_t get_field( int field , MP_Chan_t chanIdx);
 
   /** \brief Adds the representation of a Gabor atom to a time-frequency map */
   virtual int add_to_tfmap( MP_TF_Map_c *tfmap, const char tfmapType );
 
-  virtual MP_Real_t dist_to_tfpoint( MP_Real_t time, MP_Real_t freq , int chanIdx );
+  virtual MP_Real_t dist_to_tfpoint( MP_Real_t time, MP_Real_t freq , MP_Chan_t chanIdx );
 
 };
 

@@ -102,11 +102,6 @@ public:
   /** \brief Index of the waveform in the anywave table
    */
   unsigned long int anywaveIdx;
-  /** \brief The amplitude of the atom on each channel.
-   *
-   * Example : the amplitude on the first channel is amp[0]
-   */
-  MP_Real_t* amp;
 
   /***********/
   /* METHODS */
@@ -261,7 +256,7 @@ public:
    *
    * \return the value of the field on the specified channel
    **/
-  virtual MP_Real_t get_field( int field , int chanIdx );
+  virtual MP_Real_t get_field( int field , MP_Chan_t chanIdx );
 
  private:
   /** \brief Read the string containing the filename in the line, and copy it to str

@@ -63,7 +63,6 @@ MP_Gabor_Atom_c::MP_Gabor_Atom_c( void )
   windowOption = 0.0;
   freq  = 0.0;
   chirp = 0.0;
-  amp   = NULL;
   phase = NULL;
 }
 
@@ -75,7 +74,6 @@ MP_Gabor_Atom_c::MP_Gabor_Atom_c( const unsigned int setNChan,
   :MP_Atom_c( setNChan ) {
   
   const char* func = "MP_Gabor_Atom_c::MP_Gabor_Atom_c(...)";
-  unsigned int i;
   
   windowType   = setWindowType;
   windowOption = setWindowOption;
@@ -84,25 +82,11 @@ MP_Gabor_Atom_c::MP_Gabor_Atom_c( const unsigned int setNChan,
   freq  = 0.0;
   chirp = 0.0;
 
-  /* amp */
-  if ( (amp = (MP_Real_t*)malloc( numChans*sizeof(MP_Real_t)) ) == NULL ) {
-    mp_warning_msg( func, "Can't allocate the amp array for a new atom;"
-		    " amp stays NULL.\n" );
-  }
   /* phase */
-  if ( (phase = (MP_Real_t*)malloc( numChans*sizeof(MP_Real_t)) ) == NULL ) {
+  if ( (phase = (MP_Real_t*)calloc( numChans, sizeof(MP_Real_t)) ) == NULL ) {
     mp_warning_msg( func, "Can't allocate the phase array for a new atom;"
 		    " phase stays NULL.\n" );
   }
-  /* Initialize */
-  if ( (amp!=NULL) && (phase!=NULL) ) {
-    for (i = 0; i<numChans; i++) {
-      *(amp  +i) = 0.0;
-      *(phase+i) = 0.0;
-    }
-  }
-  else mp_warning_msg( func, "The parameter arrays"
-		       " for the new atom are left un-initialized.\n" );
 
 }
 
@@ -156,23 +140,9 @@ MP_Gabor_Atom_c::MP_Gabor_Atom_c( FILE *fid, const char mode )
   }
 
   /* Allocate and initialize */
-  /* amp */
-  if ( (amp = (MP_Real_t*)malloc( numChans*sizeof(MP_Real_t)) ) == NULL ) {
-    mp_warning_msg( func, "Can't allocate the amp array for a new atom; amp stays NULL.\n" );
-  }
   /* phase */
-  if ( (phase = (MP_Real_t*)malloc( numChans*sizeof(MP_Real_t)) ) == NULL ) {
+  if ( (phase = (MP_Real_t*)calloc( numChans, sizeof(MP_Real_t)) ) == NULL ) {
     mp_warning_msg( func, "Can't allocate the phase array for a new atom; phase stays NULL.\n" );
-  }
-  /* Initialize */
-  if ( (amp!=NULL) && (phase!=NULL) ) {
-    for (i = 0; i<numChans; i++) {
-      *(amp  +i) = 0.0;
-      *(phase+i) = 0.0;
-    }  
-  }
-  else {
-    mp_warning_msg( func, "The parameter arrays for the new atom are left un-initialized.\n" );
   }
 
   /* Try to read the freq, chirp, amp, phase */
@@ -263,7 +233,6 @@ MP_Gabor_Atom_c::MP_Gabor_Atom_c( FILE *fid, const char mode )
 /**************/
 /* Destructor */
 MP_Gabor_Atom_c::~MP_Gabor_Atom_c() {
-  if (amp)   free( amp );
   if (phase) free( phase );
 }
 
@@ -376,7 +345,7 @@ void MP_Gabor_Atom_c::build_waveform( MP_Sample_t *outBuffer ) {
   MP_Sample_t *atomBuffer;
   unsigned long int windowCenter = 0;
   /* Parameters for the atom waveform : */
-  unsigned int chanIdx;
+  MP_Chan_t chanIdx;
   unsigned int t;
   unsigned long int len;
   double dHalfChirp, dAmp, dFreq, dPhase, dT;
@@ -638,7 +607,7 @@ int MP_Gabor_Atom_c::add_to_tfmap( MP_TF_Map_c *tfmap, const char tfmapType ) {
   return( 0 );
 }
 
-MP_Real_t MP_Gabor_Atom_c::dist_to_tfpoint( MP_Real_t time, MP_Real_t freq , int chanIdx ) {
+MP_Real_t MP_Gabor_Atom_c::dist_to_tfpoint( MP_Real_t time, MP_Real_t freq , MP_Chan_t chanIdx ) {
 
   MP_Real_t duration,tcenter,fcenter,deltat,deltaf,a2,b2;
 
@@ -662,14 +631,13 @@ int MP_Gabor_Atom_c::has_field( int field ) {
   if ( MP_Atom_c::has_field( field ) ) return ( MP_TRUE );
   else switch (field) {
   case MP_FREQ_PROP :  return( MP_TRUE );
-  case MP_AMP_PROP :   return( MP_TRUE );
   case MP_PHASE_PROP : return( MP_TRUE );
   case MP_CHIRP_PROP : return( MP_TRUE );
   default : return( MP_FALSE );
   }
 }
 
-MP_Real_t MP_Gabor_Atom_c::get_field( int field, int chanIdx ) {
+MP_Real_t MP_Gabor_Atom_c::get_field( int field, MP_Chan_t chanIdx ) {
   MP_Real_t x;
   if ( MP_Atom_c::has_field( field ) ) return ( MP_Atom_c::get_field(field,chanIdx) );
   else switch (field) {
@@ -678,9 +646,6 @@ MP_Real_t MP_Gabor_Atom_c::get_field( int field, int chanIdx ) {
     break;
   case MP_FREQ_PROP :
     x = freq;
-    break;
-  case MP_AMP_PROP :
-    x = amp[chanIdx];
     break;
   case MP_PHASE_PROP :
     x = phase[chanIdx];

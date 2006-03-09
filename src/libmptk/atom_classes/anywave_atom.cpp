@@ -45,9 +45,6 @@
 #include "mptk.h"
 #include "mp_system.h"
 
-//#include <dsp_windows.h>
-
-/* YOUR includes go here */
 
 /***************************/
 /* CONSTRUCTORS/DESTRUCTOR */
@@ -60,7 +57,6 @@ MP_Anywave_Atom_c::MP_Anywave_Atom_c( void )
     tableIdx = 0;
     anywaveTable = NULL;
     anywaveIdx = 0;
-    amp = NULL;
 }
 
 /**************************/
@@ -70,26 +66,6 @@ MP_Anywave_Atom_c::MP_Anywave_Atom_c( unsigned short int setNumChans )
     tableIdx = 0;
     anywaveTable = NULL;
     anywaveIdx = 0;
-    
-    unsigned short int chanIdx;
-
-    /* amp */
-    if ((double)MP_MAX_SIZE_T / (double)numChans / (double)sizeof(MP_Real_t) <= 1.0) {
-      mp_error_msg( "MP_Anywave_Atom_c::MP_Anywave_Atom_c", "numChans [%lu] . sizeof(MP_Real_t) [%lu] is greater than the max for a size_t [%lu]. Cannot use malloc for allocating space for the amplitudes array. amp is set to NULL\n", numChans, sizeof(MP_Real_t), MP_MAX_SIZE_T);
-      amp = NULL;
-    } else if ( (amp = (MP_Real_t*)malloc( numChans*sizeof(MP_Real_t)) ) == NULL ) {
-      mp_error_msg( "MP_Anywave_Atom_c::MP_Anywave_Atom_c()","Can't allocate the amp array for a new atom;"
-	       " amp stays NULL.\n" );
-    }
-    
-    /* Initialize */
-    if ( (amp!=NULL) ) {
-      for (chanIdx = 0; chanIdx<numChans; chanIdx++) {
-	*(amp  +chanIdx) = 0.0;
-      }
-    }
-    else mp_error_msg( "MP_Anywave_Atom_c::MP_Anywave_Atom_c()","The parameter arrays"
-		  " for the new atom are left un-initialized.\n" );
 }
 
 /********************/
@@ -122,73 +98,15 @@ MP_Anywave_Atom_c::MP_Anywave_Atom_c( FILE *fid, const char mode )
       tableIdx = MP_GLOBAL_ANYWAVE_SERVER.add( str );
       anywaveTable = MP_GLOBAL_ANYWAVE_SERVER.tables[tableIdx];
     }
-    break;
-
-  case MP_BINARY:
-    /* Try to read the filename */
-    if ( read_filename_bin( fid, str ) == false ) {
-      mp_error_msg( "MP_Anywave_Atom_c::MP_Anywave_Atom_c","Failed to scan the atom's table filename.\n");
-    } else {
-      /* if the table corresponding to filename is already in the anywave
-	 server, update tableIdx and anywaveTable. If not, add the table
-	 and update tableIdx and anywaveTable*/
-      /* create a new table */
-      tableIdx = MP_GLOBAL_ANYWAVE_SERVER.add( str );      
-      anywaveTable = MP_GLOBAL_ANYWAVE_SERVER.tables[tableIdx];
-    }
-    break;
-
-  default:
-    mp_error_msg( "MP_Anywave_Atom_c::MP_Anywave_Atom_c","Unknown read mode met in MP_Anywave_Atom_c( fid , mode )." );
-    break;
-  }
-
-  /* Allocate and initialize */
-  /* amp */
-  if ((double)MP_MAX_SIZE_T / (double)numChans / (double)sizeof(MP_Real_t) <= 1.0) {
-    mp_error_msg( "MP_Anywave_Atom_c::MP_Anywave_Atom_c", "numChans [%lu] . sizeof(MP_Real_t) [%lu] is greater than the max for a size_t [%lu]. Cannot use malloc for allocating space for the amplitudes array. amp is set to NULL\n", numChans, sizeof(MP_Real_t), MP_MAX_SIZE_T);
-    amp = NULL;
-  } else if ( (amp = (MP_Real_t*)malloc( numChans*sizeof(MP_Real_t)) ) == NULL ) {
-    mp_error_msg( "MP_Anywave_Atom_c::MP_Anywave_Atom_c","Can't allocate the amp array for a new atom; amp stays NULL.\n" );
-  } else {
-    /* Initialize */
-    pAmpEnd = amp + numChans;
-    for (pAmp = amp;
-	 pAmp < pAmpEnd;
-	 pAmp ++) {
-      *pAmp = 0.0;
-    }  
-  }
-
-  switch ( mode ) {
-
-  case MP_TEXT:
     /* Read the anywave number */
     if ( ( fgets( line, MP_MAX_STR_LEN, fid ) == NULL ) ||
 	 ( sscanf( line, "\t\t<par type=\"anywaveIdx\">%lu</par>\n", &anywaveIdx ) != 1 ) ) {
-      mp_error_msg( "MP_Anywave_Atom_c::MP_Anywave_Atom_c","Failed to read the anywave number.\n");      
+      mp_error_msg( "MP_Anywave_Atom_c::MP_Anywave_Atom_c", "Failed to read the anywave number.\n");      
     } else if ( anywaveIdx >= anywaveTable->numFilters ) {
-      mp_error_msg( "MP_Anywave_Atom_c::MP_Anywave_Atom_c","Anywave index is bigger than the number of anywaves in the table.\n");
+      mp_error_msg( "MP_Anywave_Atom_c::MP_Anywave_Atom_c","Anywave index is bigger"
+		    " than the number of anywaves in the table.\n");
     }
-    break;
-  case MP_BINARY:
-    /* Try to read the anywave number */    
-    if ( mp_fread( &anywaveIdx, sizeof(long int), 1, fid ) != 1 ) {
-      mp_error_msg( "MP_Anywave_Atom_c::MP_Anywave_Atom_c","Failed to scan the atom number.\n");      
-    } else if (anywaveIdx >= anywaveTable->numFilters ) {
-      mp_error_msg( "MP_Anywave_Atom_c::MP_Anywave_Atom_c","Anywave index is bigger than the number of anywaves in the table.\n");
-    }
-    break;
-
-  default:
-    mp_error_msg( "MP_Anywave_Atom_c::MP_Anywave_Atom_c","Unknown read mode met in MP_Anywave_Atom_c( fid , mode )." );
-    break;
-  }
-  /* Try to read the amp */
-  switch (mode ) {
-    
-  case MP_TEXT:
-
+    /* Try to read the amp */
     for (chanIdx = 0;
 	 chanIdx < numChans;
 	 chanIdx ++) {
@@ -218,8 +136,26 @@ MP_Anywave_Atom_c::MP_Anywave_Atom_c( FILE *fid, const char mode )
       }
     }
     break;
-    
+
   case MP_BINARY:
+    /* Try to read the filename */
+    if ( read_filename_bin( fid, str ) == false ) {
+      mp_error_msg( "MP_Anywave_Atom_c::MP_Anywave_Atom_c","Failed to scan the atom's table filename.\n");
+    } else {
+      /* if the table corresponding to filename is already in the anywave
+	 server, update tableIdx and anywaveTable. If not, add the table
+	 and update tableIdx and anywaveTable*/
+      /* create a new table */
+      tableIdx = MP_GLOBAL_ANYWAVE_SERVER.add( str );      
+      anywaveTable = MP_GLOBAL_ANYWAVE_SERVER.tables[tableIdx];
+    }
+    /* Try to read the anywave number */    
+    if ( mp_fread( &anywaveIdx, sizeof(long int), 1, fid ) != 1 ) {
+      mp_error_msg( "MP_Anywave_Atom_c::MP_Anywave_Atom_c","Failed to scan the atom number.\n");      
+    } else if (anywaveIdx >= anywaveTable->numFilters ) {
+      mp_error_msg( "MP_Anywave_Atom_c::MP_Anywave_Atom_c","Anywave index is bigger than"
+		    " the number of anywaves in the table.\n");
+    }
     /* Try to read the amp */
     if ( mp_fread( amp,   sizeof(MP_Real_t), numChans, fid ) != (size_t)numChans ) {
  	mp_error_msg( "MP_Anywave_Atom_c::MP_Anywave_Atom_c()","Failed to read the amp array.\n" );     
@@ -231,17 +167,19 @@ MP_Anywave_Atom_c::MP_Anywave_Atom_c( FILE *fid, const char mode )
 	}
     }
     break;
-    
+
   default:
+    mp_error_msg( "MP_Anywave_Atom_c::MP_Anywave_Atom_c","Unknown read mode met"
+		  " in MP_Anywave_Atom_c( fid , mode )." );
     break;
   }
+
 }
 
 
 /**************/
 /* Destructor */
 MP_Anywave_Atom_c::~MP_Anywave_Atom_c() {
-  if (amp)   free( amp );
 }
 
 
@@ -253,7 +191,7 @@ MP_Anywave_Atom_c::~MP_Anywave_Atom_c() {
 bool MP_Anywave_Atom_c::test( char* filename ) {
 
   unsigned long int sampleIdx;
-  unsigned short int chanIdx;
+  MP_Chan_t chanIdx;
   MP_Sample_t* buffer;
 
   fprintf( stdout, "\n-- Entering MP_Anywave_Atom_c::test \n" );
@@ -338,7 +276,7 @@ bool MP_Anywave_Atom_c::test( char* filename ) {
 int MP_Anywave_Atom_c::write( FILE *fid, const char mode ) {
   
   int nItem = 0;
-  unsigned short int chanIdx = 0;
+  MP_Chan_t chanIdx = 0;
   int numChar;
 
   /* Call the parent's write function */
@@ -417,7 +355,7 @@ int MP_Anywave_Atom_c::info( FILE *fid ) {
 /* Readable text dump */
 int MP_Anywave_Atom_c::info() {
 
-  unsigned short int chanIdx = 0;
+  MP_Chan_t chanIdx = 0;
   int nChar = 0;
   nChar += mp_info_msg( "HARMONIC ATOM", "[%d] channel(s)\n", numChans );
   nChar += mp_info_msg( "           |-", "\tFilename %s\tanywaveIdx %li\n",
@@ -437,7 +375,7 @@ int MP_Anywave_Atom_c::info() {
 void MP_Anywave_Atom_c::build_waveform( MP_Sample_t *outBuffer ) {
 
   MP_Sample_t *atomBuffer;
-  unsigned short int chanIdx;
+  MP_Chan_t chanIdx;
   unsigned long int len;
   MP_Sample_t* waveBuffer;
   double dAmp;
@@ -495,13 +433,12 @@ int MP_Anywave_Atom_c::has_field( int field ) {
   case MP_TABLE_IDX_PROP :  return( MP_TRUE );
   case MP_ANYWAVE_TABLE_PROP :  return( MP_TRUE );
   case MP_ANYWAVE_IDX_PROP :   return( MP_TRUE );
-  case MP_AMP_PROP : return( MP_TRUE );
   default:
     return( MP_FALSE );
   }
 }
 
-MP_Real_t MP_Anywave_Atom_c::get_field( int field , int chanIdx ) {
+MP_Real_t MP_Anywave_Atom_c::get_field( int field , MP_Chan_t chanIdx ) {
 
   MP_Real_t x;
 
@@ -512,9 +449,6 @@ MP_Real_t MP_Anywave_Atom_c::get_field( int field , int chanIdx ) {
     break;
   case MP_ANYWAVE_IDX_PROP :
     x = (MP_Real_t)(anywaveIdx);
-    break;
-  case MP_AMP_PROP :
-    x = (MP_Real_t)(amp[chanIdx]);
     break;
   default:
     mp_error_msg( "MP_Anywave_Atom_c::get_field","Unknown field. Returning ZERO." );

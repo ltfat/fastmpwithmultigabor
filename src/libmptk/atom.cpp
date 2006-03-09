@@ -55,12 +55,13 @@ MP_Atom_c::MP_Atom_c( void ) {
   numChans = 0;
   support  = NULL;
   numSamples = 0;
+  amp = NULL;
   totalChanLen = 0;
 }
 
 /*************************/
 /* Constructor/allocator */
-MP_Atom_c::MP_Atom_c( const unsigned int setNChan ) {
+MP_Atom_c::MP_Atom_c( const MP_Chan_t setNChan ) {
 
   alloc_atom( setNChan );
 
@@ -79,7 +80,7 @@ MP_Atom_c::MP_Atom_c( FILE *fid, const char mode ) {
   switch ( mode ) {
 
   case MP_TEXT:
-    if ( fscanf( fid, "\t\t<par type=\"numChans\">%d</par>\n", &numChans ) != 1 ) {
+    if ( fscanf( fid, "\t\t<par type=\"numChans\">%hu</par>\n", &numChans ) != 1 ) {
       mp_warning_msg( func, "Cannot scan numChans. Atom will remain void.\n");
       numChans = 0;
     }
@@ -149,6 +150,7 @@ MP_Atom_c::MP_Atom_c( FILE *fid, const char mode ) {
 /* Destructor */
 MP_Atom_c::~MP_Atom_c() {
   if (support) free(support);
+  if (amp) free(amp);
 }
 
 
@@ -194,27 +196,33 @@ int MP_Atom_c::write( FILE *fid, const char mode ) {
 
 /***********************/
 /* Internal allocation */
-int MP_Atom_c::alloc_atom( const unsigned int setNChan ) {
+int MP_Atom_c::alloc_atom( const MP_Chan_t setNChan ) {
 
-  unsigned int i;
+  const char* func = "MP_Atom_c::alloc_atom(numChan)";
 
   /* Allocate the support array */
-  if ( ( support = (MP_Support_t*) malloc( setNChan*sizeof(MP_Support_t) )) == NULL ) {
+  if ( ( support = (MP_Support_t*) calloc( setNChan, sizeof(MP_Support_t) )) == NULL ) {
     mp_warning_msg( "MP_Atom_c::alloc_atom(numChans)", "Can't allocate support array"
 		    " in atom with [%u] channels. Support array and param array"
 		    " are left NULL.\n", setNChan );
     numChans = 0;
     return( 0 );
   }
-  else {
-    /* Initialize the support array */
-    for (i = 0; i < setNChan; i++) {
-      support[i].pos = 0;
-      support[i].len = 0;
-    }
-    numChans = setNChan;
-  }
+  else numChans = setNChan;
+  /* Init totalChanLen */
   totalChanLen = 0;
+  /* Init the amp vector */
+  if ((double)MP_MAX_SIZE_T / (double)numChans / (double)sizeof(MP_Real_t) <= 1.0) {
+    mp_error_msg( "MP_Anywave_Atom_c::MP_Anywave_Atom_c", "numChans [%lu] x sizeof(MP_Real_t) [%lu]"
+		  " is greater than the maximum value for a size_t [%lu]. Cannot use calloc"
+		  " for allocating space for the amplitudes array. amp is set to NULL\n",
+		  numChans, sizeof(MP_Real_t), MP_MAX_SIZE_T);
+    amp = NULL;
+  } else if ( (amp = (MP_Real_t*)calloc( numChans, sizeof(MP_Real_t)) ) == NULL ) {
+    mp_warning_msg( func, "Can't allocate the amp array for a new atom;"
+		    " amp stays NULL.\n" );
+  }
+  /* Init the number of samples */
   numSamples = 0;
 
   return( 1 );
@@ -234,7 +242,7 @@ void MP_Atom_c::substract_add( MP_Signal_c *sigSub, MP_Signal_c *sigAdd ) {
 
   const char* func = "MP_Atom_c::substract_add(...)";
   MP_Sample_t *sigIn;
-  unsigned int chanIdx;
+  MP_Chan_t chanIdx;
   unsigned int t;
   double sigEBefAdd = 0.0;
   double sigEAftAdd = 0.0;
@@ -348,7 +356,7 @@ void MP_Atom_c::substract_add( MP_Signal_c *sigSub, MP_Signal_c *sigAdd ) {
    across all channels */
 int MP_Atom_c::satisfies( int field, int test, MP_Real_t val ) {
   
-  unsigned int chanIdx;
+  MP_Chan_t chanIdx;
   int retVal = MP_TRUE;
   
   for ( chanIdx = 0; chanIdx < numChans; chanIdx++ ) {
@@ -362,7 +370,7 @@ int MP_Atom_c::satisfies( int field, int test, MP_Real_t val ) {
 /***********************************************************************/
 /* Sorting function which characterizes various properties of the atom,
    along one channel */
-int MP_Atom_c::satisfies( int field, int test, MP_Real_t val, int chanIdx ) {
+int MP_Atom_c::satisfies( int field, int test, MP_Real_t val, MP_Chan_t chanIdx ) {
   
   const char* func = "MP_Atom_c::satisfies(...)";
   MP_Real_t x;
@@ -400,11 +408,12 @@ int MP_Atom_c::has_field( int field ) {
   switch (field) {
   case MP_LEN_PROP :   return( MP_TRUE );
   case MP_POS_PROP :   return( MP_TRUE );
+  case MP_AMP_PROP :   return( MP_TRUE );
   default : return( MP_FALSE );
   }
 }
 
-MP_Real_t MP_Atom_c::get_field( int field , int chanIdx ) {
+MP_Real_t MP_Atom_c::get_field( int field , MP_Chan_t chanIdx ) {
   MP_Real_t x;
   switch (field) {
   case MP_LEN_PROP :
@@ -413,6 +422,9 @@ MP_Real_t MP_Atom_c::get_field( int field , int chanIdx ) {
   case MP_POS_PROP :
     x = (MP_Real_t)(support[chanIdx].pos);
     break;
+  case MP_AMP_PROP :
+    x = amp[chanIdx];
+    break;
   default :
     x = (MP_Real_t)0.0;
   }
@@ -420,7 +432,7 @@ MP_Real_t MP_Atom_c::get_field( int field , int chanIdx ) {
 }
 
 
-MP_Real_t MP_Atom_c::dist_to_tfpoint( MP_Real_t time, MP_Real_t freq , int chanIdx )
+MP_Real_t MP_Atom_c::dist_to_tfpoint( MP_Real_t /* time */, MP_Real_t /* freq */, MP_Chan_t /* chanIdx */)
 {
   return(1e6);
 }

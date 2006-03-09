@@ -52,18 +52,12 @@
 /* Void constructor */
 MP_Dirac_Atom_c::MP_Dirac_Atom_c( void )
   :MP_Atom_c() {
-
-  amp = NULL;
 }
 
 /************************/
 /* Specific constructor */
 MP_Dirac_Atom_c::MP_Dirac_Atom_c( unsigned int setNChan )
   :MP_Atom_c( setNChan ) {
-
-  if ( (amp = (MP_Real_t*)calloc( numChans, sizeof(MP_Real_t)) ) == NULL ) {
-    mp_warning_msg( "MP_Dirac_Atom_c()", "Can't allocate the amp array for a new atom; amp stays NULL.\n" );
-  } 
 }
 
 /********************/
@@ -75,11 +69,6 @@ MP_Dirac_Atom_c::MP_Dirac_Atom_c( FILE *fid, const char mode )
   char str[MP_MAX_STR_LEN];
   double fidAmp;
   unsigned int i, iRead;
-  
-  /* Allocate and initialize the amplitudes */
-  if ( (amp = (MP_Real_t*)calloc( numChans, sizeof(MP_Real_t)) ) == NULL ) {
-    mp_warning_msg( func, "Can't allocate the amp array for a new atom; amp stays NULL.\n" );
-  }
   
   switch ( mode ) {
     
@@ -117,9 +106,6 @@ MP_Dirac_Atom_c::MP_Dirac_Atom_c( FILE *fid, const char mode )
 /**************/
 /* Destructor */
 MP_Dirac_Atom_c::~MP_Dirac_Atom_c() {
-
-  if (amp) free(amp);
-
 }
 
 
@@ -209,7 +195,7 @@ int MP_Dirac_Atom_c::info() {
 /* Waveform builder */
 void MP_Dirac_Atom_c::build_waveform( MP_Sample_t *outBuffer ) {
 
-  unsigned int chanIdx;
+  MP_Chan_t chanIdx;
   for (chanIdx = 0 ; chanIdx < numChans; chanIdx++ ) 
     outBuffer[chanIdx] = amp[chanIdx];
 }
@@ -256,7 +242,7 @@ int MP_Dirac_Atom_c::add_to_tfmap( MP_TF_Map_c *tfmap, const char /* tfmapType *
 }
 
 
-MP_Real_t MP_Dirac_Atom_c::dist_to_tfpoint( MP_Real_t time, MP_Real_t freq , int chanIdx ) {
+MP_Real_t MP_Dirac_Atom_c::dist_to_tfpoint( MP_Real_t time, MP_Real_t /* freq */, MP_Chan_t chanIdx ) {
   MP_Real_t deltat = (time-(MP_Real_t)(support[chanIdx].pos));
   return(deltat*deltat); 
 }
@@ -266,21 +252,17 @@ int MP_Dirac_Atom_c::has_field( int field ) {
 
   if ( MP_Atom_c::has_field( field ) ) return (MP_TRUE);
   else switch (field) {
-  case MP_AMP_PROP:
-    return( MP_TRUE );
   default:
     return( MP_FALSE );
   }
 }
 
-MP_Real_t MP_Dirac_Atom_c::get_field( int field , int chanIdx ) {
+MP_Real_t MP_Dirac_Atom_c::get_field( int field , MP_Chan_t chanIdx ) {
 
   MP_Real_t x;
 
   if ( MP_Atom_c::has_field( field ) ) return (MP_Atom_c::get_field(field,chanIdx));
   else switch (field) {
-  case MP_AMP_PROP :
-    return (amp[chanIdx]);
   default:
     x = 0.0;
   }

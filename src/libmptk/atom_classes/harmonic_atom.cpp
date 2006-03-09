@@ -166,7 +166,6 @@ MP_Harmonic_Atom_c::MP_Harmonic_Atom_c( FILE *fid, const char mode )
 
 
   /* amp */
- 
   if ( (partialAmpStorage = (MP_Real_t*)calloc(numChans*numPartials, sizeof(MP_Real_t)) ) == NULL ) {
     mp_warning_msg( func, "Can't allocate partialAmpStorage for a new atom;"
 		    " partialAmpStorage and partialAmp stay NULL.\n" );
@@ -415,7 +414,7 @@ void MP_Harmonic_Atom_c::build_waveform( MP_Sample_t *outBuffer ) {
   MP_Sample_t *atomBuffer;
   unsigned long int windowCenter = 0;
   /* Parameters for the atom waveform : */
-  unsigned int chanIdx;
+  MP_Chan_t chanIdx;
   unsigned int t;
   unsigned long int len;
   unsigned int j;
@@ -491,9 +490,9 @@ void MP_Harmonic_Atom_c::build_waveform( MP_Sample_t *outBuffer ) {
 /* Adds a pseudo Wigner-Ville of the atom to a time-frequency map */
 int MP_Harmonic_Atom_c::add_to_tfmap( MP_TF_Map_c *tfmap, const char tfmapType ) {
   static MP_Gabor_Atom_c *gatom = NULL; // A Gabor atom used to plot each partial of the harmonic atom. Implemented as static to be allocated and initialized only once
-  static int nchans = 0; // maximum number of channels the gabor atom was ever allocated. May differ from gatom->numChans 
+  static MP_Chan_t nchans = 0; // maximum number of channels the gabor atom was ever allocated. May differ from gatom->numChans 
   unsigned int k;
-  int chanIdx;
+  MP_Chan_t chanIdx;
   char flag = 0;
 
   if (gatom==NULL) { // first allocation of the gabor atom

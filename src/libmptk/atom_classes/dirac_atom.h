@@ -63,9 +63,6 @@ class MP_Dirac_Atom_c: public MP_Atom_c {
   /********/
 
 public:
-  /** \brief An array of numChans positive or negative amplitude
-   * corresponding to the nonzero sample value of the atom on each channel */
-  MP_Real_t *amp;
 
   /***********/
   /* METHODS */
@@ -103,9 +100,9 @@ public:
 
   virtual int add_to_tfmap( MP_TF_Map_c *tfmap, const char tfmapType );
 
-  virtual MP_Real_t dist_to_tfpoint( MP_Real_t time, MP_Real_t freq , int chanIdx );
+  virtual MP_Real_t dist_to_tfpoint( MP_Real_t time, MP_Real_t freq , MP_Chan_t chanIdx );
   virtual int       has_field( int field );
-  virtual MP_Real_t get_field( int field , int chanIdx );
+  virtual MP_Real_t get_field( int field , MP_Chan_t chanIdx );
 
 };
 
