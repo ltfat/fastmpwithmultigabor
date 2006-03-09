@@ -220,7 +220,7 @@ unsigned int MP_Dirac_Block_c::create_atom( MP_Atom_c **atom,
 
   /* Allocate the atom */
   *atom = NULL;
-  if ( (datom = new MP_Dirac_Atom_c( s->numChans )) == NULL ) {
+  if ( (datom = MP_Dirac_Atom_c::init( s->numChans )) == NULL ) {
     mp_error_msg( "MP_Dirac_Block_c::create_atom(...)", "Can't create a new Dirac atom in create_atom()."
 	     " Returning NULL as the atom reference.\n" );
     return( 0 );

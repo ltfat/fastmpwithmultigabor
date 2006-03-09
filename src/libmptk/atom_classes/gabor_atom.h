@@ -98,18 +98,19 @@ public:
   /* CONSTRUCTORS/DESTRUCTOR */
   /***************************/
 
-  /* Void constructor */
-  MP_Gabor_Atom_c( void );
-  /** \brief Constructor that allocates storage space for the amplitudes and phase 
+public:
+
+  /** \brief Factory function that allocates storage space
    * \param setNumChans the desired number of channels
    * \param setWindowType the type of window (e.g. Gauss, Hamming, ... )
    * \param setWindowOption an optional parameter for Gauss, generalized Hamming and exponential windows
    * \sa make_window()
    */
-  MP_Gabor_Atom_c( const unsigned int setNumChans,
-		   const unsigned char setWindowType,
-		   const double setWindowOption );
-  /** \brief A constructor that reads from a file
+  static MP_Gabor_Atom_c* init( const MP_Chan_t setNumChans,
+				const unsigned char setWindowType,
+				const double setWindowOption );
+
+  /** \brief A factory function that reads from a file
    *
    * \param  fid A readable stream
    * \param  mode The reading mode (MP_TEXT or MP_BINARY) 
@@ -117,7 +118,24 @@ public:
    * \remark in MP_TEXT mode, NO enclosing XML tag <atom type="*"> ... </atom> is looked for
    * \sa read_atom()
    */
-  MP_Gabor_Atom_c( FILE *fid, const char mode );
+  static MP_Gabor_Atom_c* init( FILE *fid, const char mode );
+
+protected:
+
+  /** \brief Void constructor */
+  MP_Gabor_Atom_c( void );
+
+  /** \brief Internal allocations of the local vectors */
+  int local_alloc( const MP_Chan_t setNChan );
+
+  /** \brief Internal allocations of all the vectors */
+  int global_alloc( const MP_Chan_t setNChan );
+
+  /** \brief File reader */
+  virtual int read( FILE *fid, const char mode );
+
+public:
+
   /* Destructor */
   virtual ~MP_Gabor_Atom_c( void );
 

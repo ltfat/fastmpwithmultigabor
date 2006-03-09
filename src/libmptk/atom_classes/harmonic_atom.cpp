@@ -50,11 +50,85 @@
 /* CONSTRUCTORS/DESTRUCTOR */
 /***************************/
 
+/*****************************/
+/* Specific factory function */
+MP_Harmonic_Atom_c* MP_Harmonic_Atom_c::init( const MP_Chan_t setNChan,  
+					      const unsigned char setWindowType,
+					      const double setWindowOption,
+					      const unsigned int setNumPartials) {
+
+  const char* func = "MP_Harmonic_Atom_c::init(4args)";
+  MP_Harmonic_Atom_c* newAtom = NULL;
+
+  /* Instantiate and check */
+  newAtom = new MP_Harmonic_Atom_c();
+  if ( newAtom == NULL ) {
+    mp_error_msg( func, "Failed to create a new Harmonic atom.\n" );
+    return( NULL );
+  }
+
+  /* Set the window-related values */
+  if ( window_type_is_ok( setWindowType ) ) {
+    newAtom->windowType   = setWindowType;
+    newAtom->windowOption = setWindowOption;
+  }
+  else {
+    mp_error_msg( func, "The window type is unknown. Returning a NULL atom.\n" );
+    delete( newAtom );
+    return( NULL );
+  }
+  
+  /* Set numPartials */
+  if ( setNumPartials < 2 ) {
+    mp_error_msg( func, "When constructing a Harmonic atom, the number of partials [%u]"
+		  " must be greater than 2. Returning a NULL atom.\n", setNumPartials );
+    delete( newAtom );
+    return( NULL );
+  }
+  else newAtom->numPartials  = setNumPartials;
+
+  /* Allocate and check */
+  if ( newAtom->global_alloc( setNChan, setNumPartials ) ) {
+    mp_error_msg( func, "Failed to allocate some vectors in the new Harmonic atom.\n" );
+    delete( newAtom );
+    return( NULL );
+  }
+
+  return( newAtom );
+}
+
+
+/*************************/
+/* File factory function */
+MP_Harmonic_Atom_c* MP_Harmonic_Atom_c::init( FILE *fid, const char mode ) {
+  
+  const char* func = "MP_Harmonic_Atom_c::init(fid,mode)";
+  
+  MP_Harmonic_Atom_c* newAtom = NULL;
+
+  /* Instantiate and check */
+  newAtom = new MP_Harmonic_Atom_c();
+  if ( newAtom == NULL ) {
+    mp_error_msg( func, "Failed to create a new atom.\n" );
+    return( NULL );
+  }
+
+  /* Read and check */
+  if ( newAtom->read( fid, mode ) ) {
+    mp_error_msg( func, "Failed to read the new Harmonic atom.\n" );
+    delete( newAtom );
+    return( NULL );
+  }
+  
+  return( newAtom );
+}
+
+
 /********************/
 /* Void constructor */
 MP_Harmonic_Atom_c::MP_Harmonic_Atom_c( void )
   :MP_Gabor_Atom_c() {
-  numPartials         = 1;
+  numPartials         = 0;
   harmonicity         = NULL;
   partialAmpStorage   = NULL;
   partialPhaseStorage = NULL;
@@ -62,71 +136,91 @@ MP_Harmonic_Atom_c::MP_Harmonic_Atom_c( void )
   partialPhase        = NULL;
 }
 
-/************************/
-/* Specific constructor */
-MP_Harmonic_Atom_c::MP_Harmonic_Atom_c( unsigned int setNChan,  
-					const unsigned char setWindowType,
-					const double setWindowOption,
-					const unsigned int setNumPartials)
-  :MP_Gabor_Atom_c( setNChan , setWindowType, setWindowOption) {
 
-  const char* func = "MP_Harmonic_Atom_c::MP_Harmonic_Atom_c(4args)";
+/************************/
+/* Local allocations    */
+int MP_Harmonic_Atom_c::local_alloc( MP_Chan_t setNChan,  
+				     const unsigned int setNumPartials ) {
+
+  const char* func = "MP_Harmonic_Atom_c::local_alloc(numChans,numPartials)";
   unsigned int i;
   unsigned int j;
 
-  assert ( setNumPartials>=2 );
-  numPartials  = setNumPartials;
-
   /* harmonicity */
-  if ( (harmonicity = (MP_Real_t*)calloc(numPartials, sizeof(MP_Real_t)) ) == NULL ) {
-    mp_warning_msg( func, "Can't allocate harmonicity for a new atom;"
-		    " harmonicity stays NULL.\n" );
+  if ( (harmonicity = (MP_Real_t*)calloc(setNumPartials, sizeof(MP_Real_t)) ) == NULL ) {
+    mp_error_msg( func, "Can't allocate harmonicity.\n" );
+    return( 1 );
   } else {
-    for (j = 0; j < numPartials; j++) {*(harmonicity+j) = (MP_Real_t)(j+1);}
+    for (j = 0; j < setNumPartials; j++) {*(harmonicity+j) = (MP_Real_t)(j+1);}
   }
 
-  /* amp */
- 
-  if ( (partialAmpStorage = (MP_Real_t*)calloc(numChans*numPartials, sizeof(MP_Real_t)) ) == NULL ) {
-    mp_warning_msg( func, "Can't allocate partialAmpStorage for a new atom;"
-		    " partialAmpStorage and partialAmp stay NULL.\n" );
-    partialAmp        = NULL;
-  } else if  ( (partialAmp = (MP_Real_t**) malloc(numChans*sizeof(MP_Real_t*)) ) == NULL ) {
-    mp_warning_msg( func, "Can't allocate partialAmp array for a new atom;"
-		    " partialAmpStorage and partialAmp stay NULL.\n" );
-    free(partialAmpStorage);
-    partialAmpStorage = NULL;
+  /* partial's amp */
+  if ( (partialAmpStorage = (MP_Real_t*)calloc(setNChan*setNumPartials, sizeof(MP_Real_t)) ) == NULL ) {
+    mp_warning_msg( func, "Can't allocate the partialAmpStorage array.\n" );
+    return( 1 );
+  } else if  ( (partialAmp = (MP_Real_t**) malloc(setNChan*sizeof(MP_Real_t*)) ) == NULL ) {
+    mp_warning_msg( func, "Can't allocate the partialAmp array.\n" );
+    return( 1 );
   } else {
-    for (i=0; i < numChans; i++) {partialAmp[i] = partialAmpStorage+i*numPartials;}
+    for (i=0; i < setNChan; i++) {partialAmp[i] = partialAmpStorage+i*setNumPartials;}
   }
 
-  /* phase */
-  if ( (partialPhaseStorage = (MP_Real_t*)calloc(numChans*numPartials,sizeof(MP_Real_t)) ) == NULL ) {
-    mp_warning_msg( func, "Can't allocate partialPhaseStorage for a new atom;"
-		    " partialPhaseStorage and partialPhase stay NULL.\n" );
-    partialPhase = NULL;
-  } else if ( (partialPhase = (MP_Real_t**)malloc(numChans*sizeof(MP_Real_t*)) ) == NULL ) {
-    mp_warning_msg( func, "Can't allocate partialPhase for a new atom;"
-		    " partialPhaseStorage and partialPhase stay NULL.\n" );
-    free(partialPhaseStorage);
-    partialPhaseStorage = NULL;
+  /* partial's phase */
+  if ( (partialPhaseStorage = (MP_Real_t*)calloc(setNChan*setNumPartials,sizeof(MP_Real_t)) ) == NULL ) {
+    mp_warning_msg( func, "Can't allocate the partialPhaseStorage array.\n" );
+    return( 1 );
+  } else if ( (partialPhase = (MP_Real_t**)malloc(setNChan*sizeof(MP_Real_t*)) ) == NULL ) {
+    mp_warning_msg( func, "Can't allocate the partialPhase array.\n" );
+    return( 1 );
   } else {
-    for (i=0; i < numChans; i++) {partialPhase[i] = partialPhaseStorage+i*numPartials;}
+    for (i=0; i < setNChan; i++) {partialPhase[i] = partialPhaseStorage+i*setNumPartials;}
   }
+
+  return( 0 );
 }
 
-/********************/
-/* File constructor */
-MP_Harmonic_Atom_c::MP_Harmonic_Atom_c( FILE *fid, const char mode ) 
-  :MP_Gabor_Atom_c( fid, mode ) { 
 
-  const char* func = "MP_Harmonic_Atom_c::MP_Harmonic_Atom_c(fid,mode)";
+/************************/
+/* Global allocation    */
+int MP_Harmonic_Atom_c::global_alloc( MP_Chan_t setNChan,  
+				      const unsigned int setNumPartials ) {
+
+  const char* func = "MP_Harmonic_Atom_c::global_alloc(numChans,numPartials)";
+
+  /* Go up one level */
+  if ( MP_Gabor_Atom_c::global_alloc( setNChan ) ) {
+    mp_error_msg( func, "Allocation of Harmonic atom failed at the Gabor atom level.\n" );
+    return( 1 );
+  }
+
+  /* Alloc at local level */
+  if ( local_alloc( setNChan, setNumPartials ) ) {
+    mp_error_msg( func, "Allocation of Harmonic atom failed at the local level.\n" );
+    return( 1 );
+  }
+
+  return( 0 );
+}
+
+
+/********************/
+/* File reader      */
+int MP_Harmonic_Atom_c::read( FILE *fid, const char mode ) { 
+
+  const char* func = "MP_Harmonic_Atom_c::read(fid,mode)";
   char line[MP_MAX_STR_LEN];
   char str[MP_MAX_STR_LEN];
   double fidHarmonicity,fidAmp,fidPhase;
   unsigned int i, iRead;
   unsigned int j, jRead;
 
+  /* Go up one level */
+  if ( MP_Gabor_Atom_c::read( fid, mode ) ) {
+    mp_error_msg( func, "Reading of Harmonic atom fails at the Gabor atom level.\n" );
+    return( 1 );
+  }
+
+  /* Read at local level */
   switch ( mode ) {
 
   case MP_TEXT:
@@ -134,65 +228,33 @@ MP_Harmonic_Atom_c::MP_Harmonic_Atom_c( FILE *fid, const char mode )
     if ( ( fgets( line, MP_MAX_STR_LEN, fid ) == NULL ) ||
 	 ( sscanf( line, "\t\t<par type=\"numPartials\">%u</par>\n", &numPartials ) != 1 ) ||
 	 (numPartials <=1) ) {
-      mp_warning_msg( func, "Failed to read the number of partials"
-		      " in a Harmonic Gabor atom structure.\n");
-      numPartials = 0;
+      mp_error_msg( func, "Failed to read the number of partials (in text mode).\n");
+      return( 1 );
     }
     break;
 
   case MP_BINARY:
-    /* Try to read the number of partials */
+    /* Read the number of partials */
     if ( ( mp_fread( &numPartials,  sizeof(unsigned int), 1, fid ) != 1) ||
 	 (numPartials <=1) ) {
-      mp_warning_msg( func, "Failed to read the atom's number of partials.\n");
-      numPartials = 0;
+      mp_error_msg( func, "Failed to read the number of partials (in binary mode).\n");
+      return( 1 );
     }
 
    break;
 
   default:
     mp_error_msg( func, "Unknown read mode met in MP_Harmonic_Atom_c( fid , mode )." );
+    return( 1 );
     break;
   }
 
-  /* Allocate and initialize */
-  /* harmonicity */
-  if ( (harmonicity = (MP_Real_t*)calloc(numPartials, sizeof(MP_Real_t)) ) == NULL ) {
-    mp_warning_msg( func, "Can't allocate harmonicity for a new atom;"
-		    " harmonicity stays NULL.\n" );
-  } else {
-    for (j = 0; j < numPartials; j++) {*(harmonicity+j) = (MP_Real_t)(j+1);}
+  /* Alloc at local level */
+  if ( local_alloc( numChans, numPartials ) ) {
+    mp_error_msg( func, "Allocation of Harmonic atom failed at the local level.\n" );
+    return( 1 );
   }
-
-
-  /* amp */
-  if ( (partialAmpStorage = (MP_Real_t*)calloc(numChans*numPartials, sizeof(MP_Real_t)) ) == NULL ) {
-    mp_warning_msg( func, "Can't allocate partialAmpStorage for a new atom;"
-		    " partialAmpStorage and partialAmp stay NULL.\n" );
-    partialAmp        = NULL;
-  } else if  ( (partialAmp = (MP_Real_t**) malloc(numChans*sizeof(MP_Real_t*)) ) == NULL ) {
-    mp_warning_msg( func, "Can't allocate partialAmp array for a new atom;"
-		    " partialAmpStorage and partialAmp stay NULL.\n" );
-    free(partialAmpStorage);
-    partialAmpStorage = NULL;
-  } else {
-    for (i=0; i < numChans; i++) {partialAmp[i] = partialAmpStorage+i*numPartials;}
-  }
-
-  /* phase */
-  if ( (partialPhaseStorage = (MP_Real_t*)calloc(numChans*numPartials,sizeof(MP_Real_t)) ) == NULL ) {
-    mp_warning_msg( func, "Can't allocate partialPhaseStorage for a new atom;"
-		    " partialPhaseStorage and partialPhase stay NULL.\n" );
-    partialPhase = NULL;
-  } else if ( (partialPhase = (MP_Real_t**)malloc(numChans*sizeof(MP_Real_t*)) ) == NULL ) {
-    mp_warning_msg( func, "Can't allocate partialPhase for a new atom;"
-		    " partialPhaseStorage and partialPhase stay NULL.\n" );
-    free(partialPhaseStorage);
-    partialPhaseStorage = NULL;
-  } else {
-    for (i=0; i < numChans; i++) {partialPhase[i] = partialPhaseStorage+i*numPartials;}
-  }
-
+  
   /* Try to read the harmonicity, partialAmp and partialPhase */
   switch (mode ) {
     
@@ -277,8 +339,9 @@ MP_Harmonic_Atom_c::MP_Harmonic_Atom_c( FILE *fid, const char mode )
   default: /* This case is never reached */
     break;
   }
-}
 
+  return( 0 );
+}
 
 /**************/
 /* Destructor */
@@ -496,14 +559,15 @@ int MP_Harmonic_Atom_c::add_to_tfmap( MP_TF_Map_c *tfmap, const char tfmapType )
   char flag = 0;
 
   if (gatom==NULL) { // first allocation of the gabor atom
-    gatom = new MP_Gabor_Atom_c(numChans,windowType, windowOption);
+    gatom = MP_Gabor_Atom_c::init(numChans,windowType, windowOption);
     nchans = numChans;
   }
   else if( nchans<numChans) { // reallocation if more channels are needed
     delete gatom;
-    gatom = new MP_Gabor_Atom_c(numChans,windowType, windowOption);
+    gatom = MP_Gabor_Atom_c::init(numChans,windowType, windowOption);
     nchans = numChans;
-  } else { // possible decrease of gatom->numChans, keeping track of the actually allocated number of channels nchans.
+  } else { /* possible decrease of gatom->numChans, keeping track of
+	      the actually allocated number of channels nchans. */
     gatom->numChans = numChans;
     gatom->windowType = windowType;
     gatom->windowOption = windowOption;

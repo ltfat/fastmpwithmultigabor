@@ -594,7 +594,7 @@ unsigned int MP_Gabor_Block_c::create_atom( MP_Atom_c **atom,
 
   /* Allocate the atom */
   *atom = NULL;
-  if ( (gatom = new MP_Gabor_Atom_c( s->numChans, fft->windowType, fft->windowOption )) == NULL ) {
+  if ( (gatom = MP_Gabor_Atom_c::init( s->numChans, fft->windowType, fft->windowOption )) == NULL ) {
     mp_error_msg( func, "Can't create a new Gabor atom in create_atom()."
 		  " Returning NULL as the atom reference.\n" );
     return( 0 );

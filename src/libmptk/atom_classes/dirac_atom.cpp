@@ -48,58 +48,90 @@
 /* CONSTRUCTORS/DESTRUCTOR */
 /***************************/
 
+/*****************************/
+/* Specific factory function */
+MP_Dirac_Atom_c* MP_Dirac_Atom_c::init( const MP_Chan_t setNChan ) {
+
+  const char* func = "MP_Dirac_Atom_c::init(numChan)";
+  MP_Dirac_Atom_c* newAtom = NULL;
+
+  /* Instantiate and check */
+  newAtom = new MP_Dirac_Atom_c();
+  if ( newAtom == NULL ) {
+    mp_error_msg( func, "Failed to create a new Dirac atom.\n" );
+    return( NULL );
+  }
+
+  /* Allocate and check */
+  if ( newAtom->global_alloc( setNChan ) ) {
+    mp_error_msg( func, "Failed to allocate some vectors in the new Dirac atom.\n" );
+    delete( newAtom );
+    return( NULL );
+  }
+  
+  return( newAtom );
+}
+
+/*************************/
+/* File factory function */
+MP_Dirac_Atom_c* MP_Dirac_Atom_c::init( FILE *fid, const char mode ) {
+
+  const char* func = "MP_Dirac_Atom_c::init(fid,mode)";
+  MP_Dirac_Atom_c* newAtom = NULL;
+
+  /* Instantiate and check */
+  newAtom = new MP_Dirac_Atom_c();
+  if ( newAtom == NULL ) {
+    mp_error_msg( func, "Failed to create a new Dirac atom.\n" );
+    return( NULL );
+  }
+
+  /* Read and check */
+  if ( newAtom->read( fid, mode ) ) {
+    mp_error_msg( func, "Failed read the new Dirac atom.\n" );
+    delete( newAtom );
+    return( NULL );
+  }
+  
+  return( newAtom );
+}
+
 /********************/
 /* Void constructor */
 MP_Dirac_Atom_c::MP_Dirac_Atom_c( void )
   :MP_Atom_c() {
 }
 
+
 /************************/
-/* Specific constructor */
-MP_Dirac_Atom_c::MP_Dirac_Atom_c( unsigned int setNChan )
-  :MP_Atom_c( setNChan ) {
+/* Global allocations  */
+int MP_Dirac_Atom_c::global_alloc( const MP_Chan_t setNChan ) {
+
+  const char* func = "MP_Dirac_Atom_c::internal_alloc(numChans)";
+
+  /* Go up one level */
+  if ( MP_Atom_c::global_alloc( setNChan ) ) {
+    mp_error_msg( func, "Allocation of Dirac atom failed at the generic atom level.\n" );
+    return( 1 );
+  }
+
+  return( 0 );
 }
 
+
 /********************/
-/* File constructor */
-MP_Dirac_Atom_c::MP_Dirac_Atom_c( FILE *fid, const char mode )
-  :MP_Atom_c( fid, mode ) {
+/* File reader      */
+int MP_Dirac_Atom_c::read( FILE *fid, const char mode ) {
   
   const char* func = "MP_Dirac_Atom_c(file)";
-  char str[MP_MAX_STR_LEN];
-  double fidAmp;
-  unsigned int i, iRead;
   
-  switch ( mode ) {
-    
-  case MP_TEXT:
-    for (i = 0; i<numChans; i++) {
-      if ( ( fgets( str, MP_MAX_STR_LEN, fid ) == NULL  ) ||
-	   ( sscanf( str, "\t\t<par type=\"amp\" chan=\"%d\">%lg</par>\n", &iRead,&fidAmp ) != 2 ) ) {
-	mp_warning_msg( func, "Cannot scan amp on channel %u.\n", i );
-      } else if ( iRead != i ) {
- 	mp_warning_msg( func, "Potential shuffle in the parameters"
-			" of a dirac atom. (Index \"%u\" read, \"%u\" expected.)\n",
-		iRead, i );
-      } else {
-	*(amp+i) = (MP_Real_t)fidAmp;
-      }
-    }
-    break;
-      
-  case MP_BINARY:
-    if ( mp_fread( amp,   sizeof(MP_Real_t), numChans, fid ) != (size_t)numChans ) {
-      mp_warning_msg( func, "Failed to read the amp array.\n" );     
-      for ( i=0; i<numChans; i++ ) *(amp+i) = 0.0;
-    }
-    
-    break;
-    
-  default:
-    mp_error_msg( func, " Unknown read mode met in MP_Dirac_Atom_c( fid , mode )." );
-    break;
+  /* Go up one level */
+  if ( MP_Atom_c::read( fid, mode ) ) {
+    mp_error_msg( func, "Reading of Dirac atom fails at the generic atom level.\n" );
+    return( 1 );
   }
-  
+
+  return( 0 );
 }
 
 
@@ -115,28 +147,12 @@ MP_Dirac_Atom_c::~MP_Dirac_Atom_c() {
 
 int MP_Dirac_Atom_c::write( FILE *fid, const char mode ) {
   
-  unsigned int i = 0;
   int nItem = 0;
 
   /* Call the parent's write function */
   nItem += MP_Atom_c::write( fid, mode );
 
-  /* Print the other dirac-specific parameters */
-  switch ( mode ) {
-    
-  case MP_TEXT:
-    for (i = 0; i<numChans; i++) {
-      nItem += fprintf(fid, "\t\t<par type=\"amp\" chan=\"%u\">%lg</par>\n", i, (double)amp[i]);
-    }
-    break;
-
-  case MP_BINARY:
-    nItem += mp_fwrite( amp,   sizeof(MP_Real_t), numChans, fid );
-    break;
-
-  default:
-    break;
-  }
+  /* Nothing to print as dirac-specific parameters */
 
   return( nItem );
 }
@@ -204,7 +220,7 @@ void MP_Dirac_Atom_c::build_waveform( MP_Sample_t *outBuffer ) {
 /* Adds a pseudo Wigner-Ville of the atom to a time-frequency map */
 int MP_Dirac_Atom_c::add_to_tfmap( MP_TF_Map_c *tfmap, const char /* tfmapType */ ) {
 
-  unsigned char chanIdx;
+  MP_Chan_t chanIdx;
   unsigned long int tMin, nMin, nMax;
   MP_Tfmap_t *column;
   MP_Real_t val;

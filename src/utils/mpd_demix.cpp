@@ -527,7 +527,7 @@ int main( int argc, char **argv ) {
   MP_Real_t *Ah = NULL;
 
   unsigned short int numSources;
-  unsigned int numChans;
+  MP_Chan_t numChans;
   unsigned long int numSamples;
   int sampleRate;
 
@@ -589,7 +589,7 @@ int main( int argc, char **argv ) {
   }
   else {
     if ( ( fgets( line, MP_MAX_STR_LEN, mixerFID ) == NULL ) ||
-	 ( sscanf( line,"%i %hu\n", &numChans, &numSources ) != 2 ) ) {
+	 ( sscanf( line,"%hu %hu\n", &numChans, &numSources ) != 2 ) ) {
       fprintf( stderr, "mpd_demix error -- Failed to read numChans and numSources from the mixer matrix file [%s].\n",
 	       mixerFileName );
       fclose( mixerFID );
@@ -786,7 +786,7 @@ int main( int argc, char **argv ) {
   }
 
   /* Make a multi-channel atom */
-  if ( (multiChanAtom = new MP_Gabor_Atom_c( inSignal->numChans, 0, 0.0 )) == NULL ) {
+  if ( (multiChanAtom = MP_Gabor_Atom_c::init( inSignal->numChans, 0, 0.0 )) == NULL ) {
     free( mixer ); free( Ah ); delete(inSignal); delete[](sigArray); delete[](book);
     free_mem( dict, numSources, decay );
     return( ERR_NEW );

@@ -59,21 +59,67 @@ MP_Atom_c::MP_Atom_c( void ) {
   totalChanLen = 0;
 }
 
-/*************************/
-/* Constructor/allocator */
-MP_Atom_c::MP_Atom_c( const MP_Chan_t setNChan ) {
 
-  alloc_atom( setNChan );
+/***********************/
+/* Internal allocation */
+int MP_Atom_c::local_alloc( const MP_Chan_t setNChan ) {
 
+  const char* func = "MP_Atom_c::internal_alloc(numChan)";
+
+  /* Check the allocation size */
+  if ((double)MP_MAX_SIZE_T / (double)setNChan / (double)sizeof(MP_Real_t) <= 1.0) {
+    mp_error_msg( "MP_Anywave_Atom_c::MP_Anywave_Atom_c", "numChans [%lu] x sizeof(MP_Real_t) [%lu]"
+		  " is greater than the maximum value for a size_t [%lu]. Cannot use calloc"
+		  " for allocating space for the arrays. The arrays stay NULL.\n",
+		  setNChan, sizeof(MP_Real_t), MP_MAX_SIZE_T);
+    return( 1 );
+  }
+
+  /* Allocate the support array */
+  if ( ( support = (MP_Support_t*) calloc( setNChan, sizeof(MP_Support_t) )) == NULL ) {
+    mp_warning_msg( "MP_Atom_c::internal_alloc(numChans)", "Can't allocate support array"
+		    " in atom with [%u] channels. Support array and param array"
+		    " are left NULL.\n", setNChan );
+    return( 1 );
+  }
+  else numChans = setNChan;
+
+  /* Allocate the amp array */
+  if ( (amp = (MP_Real_t*)calloc( numChans, sizeof(MP_Real_t)) ) == NULL ) {
+    mp_warning_msg( func, "Failed to allocate the amp array for a new atom;"
+		    " amp stays NULL.\n" );
+    return( 1 );
+  }
+
+  return( 0 );
 }
 
-/********************/
-/* File constructor */
-MP_Atom_c::MP_Atom_c( FILE *fid, const char mode ) {
 
-  const char* func = "MP_Atom_c::MP_Atom_c(fid,mode)";
+/************************/
+/* Global allocations   */
+int MP_Atom_c::global_alloc( const MP_Chan_t setNChan ) {
+
+  const char* func = "MP_Atom_c::global_alloc(numChans)";
+
+  /* Alloc at local level */
+  if ( local_alloc( setNChan ) ) {
+    mp_error_msg( func, "Allocation of generic atom failed at the local level.\n" );
+    return( 1 );
+  }
+
+  return( 0 );
+}
+
+
+/********************/
+/* File reader      */
+int MP_Atom_c::read( FILE *fid, const char mode ) {
+
+  const char* func = "MP_Atom_c::read(fid,mode)";
   unsigned long int nItem = 0;
-  unsigned int i, iRead;
+  char str[MP_MAX_STR_LEN];
+  double fidAmp;
+  MP_Chan_t i, iRead;
   unsigned long int val;
 
   /* Read numChans */
@@ -81,69 +127,95 @@ MP_Atom_c::MP_Atom_c( FILE *fid, const char mode ) {
 
   case MP_TEXT:
     if ( fscanf( fid, "\t\t<par type=\"numChans\">%hu</par>\n", &numChans ) != 1 ) {
-      mp_warning_msg( func, "Cannot scan numChans. Atom will remain void.\n");
-      numChans = 0;
+      mp_error_msg( func, "Cannot scan numChans.\n");
+      return( 1 );
     }
     break;
 
   case MP_BINARY:
     if ( mp_fread( &numChans,   sizeof(int), 1, fid ) != 1 ) {
-      mp_warning_msg( func, "Cannot read numChans. Atom will remain void.\n");
-      numChans = 0;
+      mp_error_msg( func, "Cannot read numChans.\n");
+      return( 1 );
     }
     break;
 
   default:
-    mp_warning_msg( func, "Bad mode in file-atom contructor. Atom will remain void.\n");
-    numChans = 0;
+    mp_error_msg( func, "Unknown mode in file reader.\n");
+    return( 1 );
     break;
   }
 
   /* Allocate the storage space... */
-  if ( alloc_atom( numChans ) ) {
-
-    /* ... and upon success, read the support information */
-    switch ( mode ) {
-      
-    case MP_TEXT:
-      for ( i=0, nItem = 0; i<(unsigned int)numChans; i++ ) {
-	fscanf( fid, "\t\t<support chan=\"%u\">", &iRead );
-	nItem += fscanf( fid, "<p>%lu</p><l>%lu</l></support>\n",
-			 &(support[i].pos), &(support[i].len) );
-	if ( iRead != i ) {
-	  mp_warning_msg( func, "Supports may be shuffled. "
-			  "(Index \"%u\" read where \"%u\" was expected).\n",
-			  iRead, i );
-	}
-      }
-      break;
-      
-    case MP_BINARY:
-      for ( i=0, nItem = 0; i<(unsigned int)numChans; i++ ) {
-	nItem += mp_fread( &(support[i].pos), sizeof(unsigned long int), 1, fid );
-	nItem += mp_fread( &(support[i].len), sizeof(unsigned long int), 1, fid );
-      }
-      break;
-      
-    default:
-      break;
-    }
-    /* Check the support information */
-    if ( nItem != ( 2 * (unsigned long int)( numChans ) ) ) {
-      mp_warning_msg( func, "Problem while reading the supports :"
-		      " %lu read, %lu expected.\n",
-		      nItem, 2 * (unsigned long int )( numChans ) );
-    }
-
-    /* Compute the totalChanLen and the numSamples */
-    for ( i=0, totalChanLen = 0; i<(unsigned int)numChans; i++ ) {
-      val = support[i].pos + support[i].len;
-      if (numSamples < val ) numSamples = val;
-      totalChanLen += support[i].len;
-    }
+  if ( local_alloc( numChans ) ) {
+    mp_error_msg( func, "Failed to allocate some vectors in the new atom.\n" );
+    return( 1 );
   }
-  /* If allocation failed, do nothing and support will stay NULL */
 
+  /* ... and upon success, read the support and amp information */
+  switch ( mode ) {
+    
+  case MP_TEXT:
+    /* Support */
+    for ( i=0, nItem = 0; i<(unsigned int)numChans; i++ ) {
+      fscanf( fid, "\t\t<support chan=\"%hu\">", &iRead );
+      nItem += fscanf( fid, "<p>%lu</p><l>%lu</l></support>\n",
+		       &(support[i].pos), &(support[i].len) );
+      if ( iRead != i ) {
+	mp_warning_msg( func, "Supports may be shuffled. "
+			"(Index \"%u\" read where \"%u\" was expected).\n",
+			iRead, i );
+      }
+    }
+    /* Amp */
+    for (i = 0; i<numChans; i++) {
+      if ( ( fgets( str, MP_MAX_STR_LEN, fid ) == NULL  ) ||
+	   ( sscanf( str, "\t\t<par type=\"amp\" chan=\"%hu\">%lg</par>\n", &iRead,&fidAmp ) != 2 ) ) {
+	mp_error_msg( func, "Cannot scan the amplitude on channel %hu.\n", i );
+	return( 1 );
+
+      } else *(amp+i) = (MP_Real_t)fidAmp;
+
+      if ( iRead != i ) {
+ 	mp_warning_msg( func, "Potential shuffle in the amplitudes"
+			" of a generic atom. (Index \"%hu\" read, \"%hu\" expected.)\n",
+			iRead, i );
+      }
+    }
+    break;
+    
+  case MP_BINARY:
+    /* Support */
+    for ( i=0, nItem = 0; i<(unsigned int)numChans; i++ ) {
+      nItem += mp_fread( &(support[i].pos), sizeof(unsigned long int), 1, fid );
+      nItem += mp_fread( &(support[i].len), sizeof(unsigned long int), 1, fid );
+    }
+    /* Amp */
+    if ( mp_fread( amp,   sizeof(MP_Real_t), numChans, fid ) != (size_t)numChans ) {
+      mp_error_msg( func, "Failed to read the amp array.\n" );
+      return( 1 );
+    }
+    break;
+    
+  default:
+    break;
+  }
+
+  /* Check the support information */
+  if ( nItem != ( 2 * (unsigned long int)( numChans ) ) ) {
+    mp_error_msg( func, "Problem while reading the supports :"
+		  " %lu read, %lu expected.\n",
+		  nItem, 2 * (unsigned long int )( numChans ) );
+    return( 1 );
+  }
+  
+  /* Compute the totalChanLen and the numSamples */
+  for ( i=0, totalChanLen = 0; i<(unsigned int)numChans; i++ ) {
+    val = support[i].pos + support[i].len;
+    if (numSamples < val ) numSamples = val;
+    totalChanLen += support[i].len;
+  }
+
+  return( 0 );
 }
 
 /**************/
@@ -160,24 +232,34 @@ MP_Atom_c::~MP_Atom_c() {
 
 int MP_Atom_c::write( FILE *fid, const char mode ) {
 
-  unsigned int i;
+  MP_Chan_t i;
   int nItem = 0;
   
   switch ( mode ) {
 
   case MP_TEXT:
+    /* numChans */
     nItem += fprintf( fid, "\t\t<par type=\"numChans\">%d</par>\n", numChans );
+    /* Support */
     for ( i=0; i<(unsigned int)numChans; i++ )
       nItem += fprintf( fid, "\t\t<support chan=\"%u\"><p>%lu</p><l>%lu</l></support>\n",
 			i, support[i].pos,support[i].len );
+    /* Amp */
+    for (i = 0; i<numChans; i++) {
+      nItem += fprintf(fid, "\t\t<par type=\"amp\" chan=\"%hu\">%lg</par>\n", i, (double)amp[i]);
+    }
     break;
 
   case MP_BINARY:
+    /* numChans */
     nItem += mp_fwrite( &numChans, sizeof(int), 1, fid );
+    /* Support */
     for ( i=0; i<(unsigned int)numChans; i++ ) {
       nItem += mp_fwrite( &(support[i].pos), sizeof(unsigned long int), 1, fid );
       nItem += mp_fwrite( &(support[i].len), sizeof(unsigned long int), 1, fid );
     }
+    /* Amp */
+    nItem += mp_fwrite( amp,   sizeof(MP_Real_t), numChans, fid );
     break;
 
   default:
@@ -193,41 +275,6 @@ int MP_Atom_c::write( FILE *fid, const char mode ) {
 /***************************/
 /* OTHER METHODS           */
 /***************************/
-
-/***********************/
-/* Internal allocation */
-int MP_Atom_c::alloc_atom( const MP_Chan_t setNChan ) {
-
-  const char* func = "MP_Atom_c::alloc_atom(numChan)";
-
-  /* Allocate the support array */
-  if ( ( support = (MP_Support_t*) calloc( setNChan, sizeof(MP_Support_t) )) == NULL ) {
-    mp_warning_msg( "MP_Atom_c::alloc_atom(numChans)", "Can't allocate support array"
-		    " in atom with [%u] channels. Support array and param array"
-		    " are left NULL.\n", setNChan );
-    numChans = 0;
-    return( 0 );
-  }
-  else numChans = setNChan;
-  /* Init totalChanLen */
-  totalChanLen = 0;
-  /* Init the amp vector */
-  if ((double)MP_MAX_SIZE_T / (double)numChans / (double)sizeof(MP_Real_t) <= 1.0) {
-    mp_error_msg( "MP_Anywave_Atom_c::MP_Anywave_Atom_c", "numChans [%lu] x sizeof(MP_Real_t) [%lu]"
-		  " is greater than the maximum value for a size_t [%lu]. Cannot use calloc"
-		  " for allocating space for the amplitudes array. amp is set to NULL\n",
-		  numChans, sizeof(MP_Real_t), MP_MAX_SIZE_T);
-    amp = NULL;
-  } else if ( (amp = (MP_Real_t*)calloc( numChans, sizeof(MP_Real_t)) ) == NULL ) {
-    mp_warning_msg( func, "Can't allocate the amp array for a new atom;"
-		    " amp stays NULL.\n" );
-  }
-  /* Init the number of samples */
-  numSamples = 0;
-
-  return( 1 );
-}
-
 
 /***************/
 /* Name output */

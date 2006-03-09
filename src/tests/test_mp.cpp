@@ -134,7 +134,7 @@ int main( void ) {
   book->load( "book_from_test_mp.xml" );
   fprintf( stderr, "Done. [%lu] atoms have been reloaded.\n", book->numAtoms );
   fflush( stderr );
-  book->print( stdout, MP_TEXT );
+  book->print( stdout, MP_TEXT ); fflush( stdout );
   book->print( "book_from_test_mp_after_reload.xml", MP_TEXT );
   fprintf(stderr,"END BOOK PRINT/RELOAD (TEXT).\n\n" ); fflush( stderr );
 

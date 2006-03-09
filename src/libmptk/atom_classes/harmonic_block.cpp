@@ -432,8 +432,8 @@ unsigned int MP_Harmonic_Block_c::create_atom( MP_Atom_c **atom,
     
     /* Allocate the atom */
     *atom = NULL;
-    if ( (hatom = new MP_Harmonic_Atom_c( s->numChans, fft->windowType,
-					  fft->windowOption , numPartials )) == NULL ) {
+    if ( (hatom = MP_Harmonic_Atom_c::init( s->numChans, fft->windowType,
+					    fft->windowOption , numPartials )) == NULL ) {
       mp_error_msg( func, "Can't allocate a new Harmonic atom."
 		    " Returning NULL as the atom reference.\n" );
       return( 0 );

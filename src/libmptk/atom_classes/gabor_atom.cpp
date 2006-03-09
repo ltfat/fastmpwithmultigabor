@@ -55,6 +55,71 @@
 /* CONSTRUCTORS/DESTRUCTOR */
 /***************************/
 
+/************************/
+/* Factory function     */
+MP_Gabor_Atom_c* MP_Gabor_Atom_c::init( const MP_Chan_t setNChan,
+					const unsigned char setWindowType,
+					const double setWindowOption ) {
+  
+  const char* func = "MP_Gabor_Atom_c::init(params)";
+  
+  MP_Gabor_Atom_c* newAtom = NULL;
+
+  /* Instantiate and check */
+  newAtom = new MP_Gabor_Atom_c();
+  if ( newAtom == NULL ) {
+    mp_error_msg( func, "Failed to create a new Gabor atom. Returning a NULL.\n" );
+    return( NULL );
+  }
+
+  /* Set the window-related values */
+  if ( window_type_is_ok( setWindowType ) ) {
+    newAtom->windowType   = setWindowType;
+    newAtom->windowOption = setWindowOption;
+  }
+  else {
+    mp_error_msg( func, "The window type is unknown. Returning a NULL atom.\n" );
+    delete( newAtom );
+    return( NULL );
+  }
+  
+  /* Allocate and check */
+  if ( newAtom->global_alloc( setNChan ) ) {
+    mp_error_msg( func, "Failed to allocate some vectors in the new Gabor atom. Returning a NULL atom.\n" );
+    delete( newAtom );
+    return( NULL );
+  }
+
+  return( newAtom );
+}
+
+
+/*************************/
+/* File factory function */
+MP_Gabor_Atom_c* MP_Gabor_Atom_c::init( FILE *fid, const char mode ) {
+  
+  const char* func = "MP_Gabor_Atom_c::init(fid,mode)";
+  
+  MP_Gabor_Atom_c* newAtom = NULL;
+
+  /* Instantiate and check */
+  newAtom = new MP_Gabor_Atom_c();
+  if ( newAtom == NULL ) {
+    mp_error_msg( func, "Failed to create a new atom.\n" );
+    return( NULL );
+  }
+
+  /* Read and check */
+  if ( newAtom->read( fid, mode ) ) {
+    mp_error_msg( func, "Failed to read the new Gabor atom.\n" );
+    delete( newAtom );
+    return( NULL );
+  }
+  
+  return( newAtom );
+}
+
+
 /********************/
 /* Void constructor */
 MP_Gabor_Atom_c::MP_Gabor_Atom_c( void )
@@ -66,94 +131,87 @@ MP_Gabor_Atom_c::MP_Gabor_Atom_c( void )
   phase = NULL;
 }
 
+
 /************************/
-/* Specific constructor */
-MP_Gabor_Atom_c::MP_Gabor_Atom_c( const unsigned int setNChan,
-				  const unsigned char setWindowType,
-				  const double setWindowOption )
-  :MP_Atom_c( setNChan ) {
-  
-  const char* func = "MP_Gabor_Atom_c::MP_Gabor_Atom_c(...)";
-  
-  windowType   = setWindowType;
-  windowOption = setWindowOption;
-  
-  /* default freq and chirp */
-  freq  = 0.0;
-  chirp = 0.0;
+/* Local allocations    */
+int MP_Gabor_Atom_c::local_alloc( const MP_Chan_t setNChan ) {
+
+  const char* func = "MP_Gabor_Atom_c::local_alloc(numChans)";
 
   /* phase */
-  if ( (phase = (MP_Real_t*)calloc( numChans, sizeof(MP_Real_t)) ) == NULL ) {
-    mp_warning_msg( func, "Can't allocate the phase array for a new atom;"
-		    " phase stays NULL.\n" );
+  if ( (phase = (MP_Real_t*)calloc( setNChan, sizeof(MP_Real_t)) ) == NULL ) {
+    mp_error_msg( func, "Can't allocate the phase array.\n" );
+    return( 1 );
   }
 
+  return( 0 );
 }
 
-/********************/
-/* File constructor */
-MP_Gabor_Atom_c::MP_Gabor_Atom_c( FILE *fid, const char mode )
-  :MP_Atom_c( fid, mode ) {
 
-  const char* func = "MP_Gabor_Atom_c::MP_Gabor_Atom_c(fid,mode)";
+/************************/
+/* Global allocations   */
+int MP_Gabor_Atom_c::global_alloc( const MP_Chan_t setNChan ) {
+
+  const char* func = "MP_Gabor_Atom_c::global_alloc(numChans)";
+
+  /* Go up one level */
+  if ( MP_Atom_c::global_alloc( setNChan ) ) {
+    mp_error_msg( func, "Allocation of Gabor atom failed at the generic atom level.\n" );
+    return( 1 );
+  }
+
+  /* Alloc at local level */
+  if ( local_alloc( setNChan ) ) {
+    mp_error_msg( func, "Allocation of Gabor atom failed at the local level.\n" );
+    return( 1 );
+  }
+
+  return( 0 );
+}
+
+
+/********************/
+/* File reader      */
+int MP_Gabor_Atom_c::read( FILE *fid, const char mode ) {
+
+  const char* func = "MP_Gabor_Atom_c::read(fid,mode)";
   char line[MP_MAX_STR_LEN];
   char str[MP_MAX_STR_LEN];
-  double fidFreq,fidChirp,fidAmp,fidPhase;
-  unsigned int i, iRead;
+  double fidFreq,fidChirp,fidPhase;
+  MP_Chan_t i, iRead;
 
+  /* Go up one level */
+  if ( MP_Atom_c::read( fid, mode ) ) {
+    mp_error_msg( func, "Reading of Gabor atom fails at the generic atom level.\n" );
+    return( 1 );
+  }
+
+  /* Alloc at local level */
+  if ( local_alloc( numChans ) ) {
+    mp_error_msg( func, "Allocation of Gabor atom failed at the local level.\n" );
+    return( 1 );
+  }
+
+  /* Then read this level's info */
   switch ( mode ) {
-
-  case MP_TEXT:
-    /* Read the window type */
-    if ( ( fgets( line, MP_MAX_STR_LEN, fid ) == NULL ) ||
-	 ( sscanf( line, "\t\t<window type=\"%[a-z]\" opt=\"%lg\"></window>\n", str, &windowOption ) != 2 ) ) {
-      mp_warning_msg( func, "Failed to read the window type and/or option in a Gabor atom structure.\n");
-      windowType = DSP_UNKNOWN_WIN;
-    }
-    else {
-      /* Convert the window type string */
-      windowType = window_type( str );
-    }
-    break;
-
-  case MP_BINARY:
-    /* Try to read the atom window */
-    if ( ( fgets( line, MP_MAX_STR_LEN, fid ) == NULL ) ||
-	 ( sscanf( line, "%[a-z]\n", str ) != 1 ) ) {
-      mp_warning_msg( func, "Failed to scan the atom's window type.\n");
-      windowType = DSP_UNKNOWN_WIN;
-    }
-    else {
-      /* Convert the window type string */
-      windowType = window_type( str );
-    }
-    /* Try to read the window option */
-    if ( mp_fread( &windowOption,  sizeof(double), 1, fid ) != 1 ) {
-      mp_warning_msg( func, "Failed to read the atom's window option.\n");
-      windowOption = 0.0;
-    }
-   break;
-
-  default:
-    mp_error_msg( func, "Unknown read mode met in MP_Gabor_Atom_c( fid , mode )." );
-    break;
-  }
-
-  /* Allocate and initialize */
-  /* phase */
-  if ( (phase = (MP_Real_t*)calloc( numChans, sizeof(MP_Real_t)) ) == NULL ) {
-    mp_warning_msg( func, "Can't allocate the phase array for a new atom; phase stays NULL.\n" );
-  }
-
-  /* Try to read the freq, chirp, amp, phase */
-  switch (mode ) {
     
   case MP_TEXT:
 
+    /* Window type and option */
+    if ( ( fgets( line, MP_MAX_STR_LEN, fid ) == NULL ) ||
+	 ( sscanf( line, "\t\t<window type=\"%[a-z]\" opt=\"%lg\"></window>\n", str, &windowOption ) != 2 ) ) {
+      mp_error_msg( func, "Failed to read the window type and/or option in a Gabor atom structure.\n");
+      return( 1 );
+    }
+    else {
+      /* Convert the window type string */
+      windowType = window_type( str );
+    }
     /* freq */
     if ( ( fgets( str, MP_MAX_STR_LEN, fid ) == NULL  ) ||
 	 ( sscanf( str, "\t\t<par type=\"freq\">%lg</par>\n", &fidFreq ) != 1 ) ) {
-      mp_warning_msg( func, "Cannot scan freq.\n" );
+      mp_error_msg( func, "Cannot scan freq.\n" );
+      return( 1 );
     }
     else {
       freq = (MP_Real_t)fidFreq;
@@ -161,72 +219,68 @@ MP_Gabor_Atom_c::MP_Gabor_Atom_c( FILE *fid, const char mode )
     /* chirp */
     if ( ( fgets( str, MP_MAX_STR_LEN, fid ) == NULL  ) ||
 	 ( sscanf( str, "\t\t<par type=\"chirp\">%lg</par>\n", &fidChirp ) != 1 ) ) {
-      mp_warning_msg( func, "Cannot scan chirp.\n" );
+      mp_error_msg( func, "Cannot scan chirp.\n" );
+      return( 1 );
     }
     else {
       chirp = (MP_Real_t)fidChirp;
     }
-  
+    /* phase */
     for (i = 0; i<numChans; i++) {
-      /* Opening tag */
+
       if ( ( fgets( str, MP_MAX_STR_LEN, fid ) == NULL  ) ||
-	   ( sscanf( str, "\t\t<gaborPar chan=\"%u\">\n", &iRead ) != 1 ) ) {
-	mp_warning_msg( func, "Cannot scan channel index in atom.\n" );
-      }
-      else if ( iRead != i ) {
- 	mp_warning_msg( func, "Potential shuffle in the parameters"
-			" of a gabor atom. (Index \"%u\" read, \"%u\" expected.)\n",
+	   ( sscanf( str, "\t\t<par type=\"phase\" chan=\"%hu\">%lg</par>\n", &iRead,&fidPhase ) != 2 ) ) {
+	mp_error_msg( func, "Cannot scan the phase on channel %hu.\n", i );
+	return( 1 );
+
+      } else *(phase+i) = (MP_Real_t)fidPhase;
+
+      if ( iRead != i ) {
+ 	mp_warning_msg( func, "Potential shuffle in the phases"
+			" of a Gabor atom. (Index \"%hu\" read, \"%hu\" expected.)\n",
 			iRead, i );
-      }
-      /* amp */
-      if ( ( fgets( str, MP_MAX_STR_LEN, fid ) == NULL  ) ||
-	   ( sscanf( str, "\t\t<par type=\"amp\">%lg</par>\n", &fidAmp ) != 1 ) ) {
-	mp_warning_msg( func, "Cannot scan amp on channel %u.\n", i );
-      }
-      else {
-	*(amp +i) = (MP_Real_t)fidAmp;
-      }
-      /* phase */
-      if ( ( fgets( str, MP_MAX_STR_LEN, fid ) == NULL  ) ||
-	   ( sscanf( str, "\t\t<par type=\"phase\">%lg</par>\n", &fidPhase ) != 1 ) ) {
-	mp_warning_msg( func, "Cannot scan phase on channel %u.\n", i );
-      }
-      else {
-	*(phase +i) = (MP_Real_t)fidPhase;
-      }
-      /* Closing tag */
-      if ( ( fgets( str, MP_MAX_STR_LEN, fid ) == NULL  ) ||
-	   ( strcmp( str , "\t\t</gaborPar>\n" ) ) ) {
-	mp_warning_msg( func, "Cannot scan the closing parameter tag"
-			" in gabor atom, channel %u.\n", i );
       }
     }
     break;
     
   case MP_BINARY:
-    /* Try to read the freq, chirp, amp, phase */
+    /* Window type */
+    if ( ( fgets( line, MP_MAX_STR_LEN, fid ) == NULL ) ||
+	 ( sscanf( line, "%[a-z]\n", str ) != 1 ) ) {
+      mp_error_msg( func, "Failed to scan the atom's window type.\n");
+      return( 1 );
+    }
+    else {
+      /* Convert the window type string */
+      windowType = window_type( str );
+    }
+    /* Window option */
+    if ( mp_fread( &windowOption,  sizeof(double), 1, fid ) != 1 ) {
+      mp_error_msg( func, "Failed to read the atom's window option.\n");
+      return( 1 );
+    }
+    /* Try to read the freq, chirp, phase */
     if ( mp_fread( &freq,  sizeof(MP_Real_t), 1 , fid ) != (size_t)1 ) {
-      mp_warning_msg( func, "Failed to read the freq.\n" );     
-      freq = 0.0;
+      mp_error_msg( func, "Failed to read the freq.\n" );     
+      return( 1 );
     }
     if ( mp_fread( &chirp, sizeof(MP_Real_t), 1, fid ) != (size_t)1 ) {
-      mp_warning_msg( func, "Failed to read the chirp.\n" );     
-      chirp = 0.0;
-    }
-    if ( mp_fread( amp,   sizeof(MP_Real_t), numChans, fid ) != (size_t)numChans ) {
-      mp_warning_msg( func, "Failed to read the amp array.\n" );     
-      for ( i=0; i<numChans; i++ ) *(amp+i) = 0.0;
+      mp_error_msg( func, "Failed to read the chirp.\n" );     
+      return( 1 );
     }
     if ( mp_fread( phase, sizeof(MP_Real_t), numChans, fid ) != (size_t)numChans ) {
-      mp_warning_msg( func, "Failed to read the phase array.\n" );     
-      for ( i=0; i<numChans; i++ ) *(phase+i) = 0.0;
+      mp_error_msg( func, "Failed to read the phase array.\n" );     
+      return( 1 );
     }
     break;
     
   default:
+    mp_error_msg( func, "Unknown mode in file reader.\n");
+    return( 1 );
     break;
   }
 
+  return( 0 );
 }
 
 
@@ -243,7 +297,7 @@ MP_Gabor_Atom_c::~MP_Gabor_Atom_c() {
 
 int MP_Gabor_Atom_c::write( FILE *fid, const char mode ) {
   
-  unsigned int i;
+  MP_Chan_t i;
   int nItem = 0;
 
   /* Call the parent's write function */
@@ -254,15 +308,13 @@ int MP_Gabor_Atom_c::write( FILE *fid, const char mode ) {
     
   case MP_TEXT:
     /* Window name */
-    nItem += fprintf( fid, "\t\t<window type=\"%s\" opt=\"%g\"></window>\n", window_name(windowType), windowOption );
-    /* print the freq, chirp, amp, phase */
+    nItem += fprintf( fid, "\t\t<window type=\"%s\" opt=\"%g\"></window>\n",
+		      window_name(windowType), windowOption );
+    /* print the freq, chirp, phase */
     nItem += fprintf( fid, "\t\t<par type=\"freq\">%g</par>\n",  (double)freq );
     nItem += fprintf( fid, "\t\t<par type=\"chirp\">%g</par>\n", (double)chirp );
     for (i = 0; i<numChans; i++) {
-      nItem += fprintf( fid, "\t\t<gaborPar chan=\"%u\">\n", i );
-      nItem += fprintf( fid, "\t\t<par type=\"amp\">%g</par>\n",   (double)amp[i] );
-      nItem += fprintf( fid, "\t\t<par type=\"phase\">%g</par>\n", (double)phase[i] );
-      nItem += fprintf( fid, "\t\t</gaborPar>\n" );    
+      nItem += fprintf(fid, "\t\t<par type=\"phase\" chan=\"%u\">%lg</par>\n", i, (double)phase[i]);
     }
     break;
 
@@ -274,7 +326,6 @@ int MP_Gabor_Atom_c::write( FILE *fid, const char mode ) {
     /* Binary parameters */
     nItem += mp_fwrite( &freq,  sizeof(MP_Real_t), 1, fid );
     nItem += mp_fwrite( &chirp, sizeof(MP_Real_t), 1, fid );
-    nItem += mp_fwrite( amp,   sizeof(MP_Real_t), numChans, fid );
     nItem += mp_fwrite( phase, sizeof(MP_Real_t), numChans, fid );
     break;
 

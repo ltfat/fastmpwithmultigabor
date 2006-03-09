@@ -384,7 +384,7 @@ int MP_Book_c::append( MP_Atom_c *newAtom ) {
 
   const char* func = "MP_Book_c::append(*atom)";
   unsigned long int newLen;
-  int numChansAtom;
+  MP_Chan_t numChansAtom;
 
   /* If the passed atom is NULL, silently ignore (but return 0 as the number of added atoms) */
   if( newAtom == NULL ) return( 0 );
@@ -446,7 +446,7 @@ int MP_Book_c::recheck_num_samples() {
 /* Re-check the number of channels */
 int MP_Book_c::recheck_num_channels() {
   unsigned long int i;
-  int checkedNumChans = 0;
+  MP_Chan_t checkedNumChans = 0;
   MP_Bool_t ret = MP_TRUE;
 
   for ( i = 0; i < numAtoms; i++ ) {
@@ -549,12 +549,16 @@ unsigned long int MP_Book_c::add_to_tfmap(MP_TF_Map_c *tfmap, const char tfmapTy
 /*  Returns the atom which is the closest to a given 
  *  time-frequency location, as well as its index in the book->atom[] array
  */
-MP_Atom_c* MP_Book_c::get_closest_atom(MP_Real_t time, MP_Real_t freq, int chanIdx, MP_Mask_c* mask, unsigned long int *nClosest ) {
+MP_Atom_c* MP_Book_c::get_closest_atom(MP_Real_t time, MP_Real_t freq,
+				       MP_Chan_t chanIdx, MP_Mask_c* mask,
+				       unsigned long int *nClosest ) {
 
   unsigned long int i;
   MP_Atom_c *atomClosest = NULL;
   MP_Real_t dist, distClosest;
   
+  distClosest = 1e700;
+
   if (mask == NULL) {
     for (i = 0; i < numAtoms; i++) {
       dist = atom[i]->dist_to_tfpoint( time, freq , chanIdx );

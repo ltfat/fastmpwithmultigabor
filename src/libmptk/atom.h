@@ -128,24 +128,21 @@ public:
   /* CONSTRUCTORS/DESTRUCTOR */
   /***************************/
 
-public:
+protected:
 
-  /** \brief A constructor that does not allocate anything  */
+  /** \brief a constructor which initializes everything to zero or NULL */
   MP_Atom_c( void );
 
-  /** \brief A constructor that allocates storage for the supports 
-   * \param setNumChans the desired number of channels
-   */
-  MP_Atom_c( const MP_Chan_t setNumChans );
+  /** \brief Internal allocations of the local vectors */
+  int local_alloc( const MP_Chan_t setNChan );
 
-  /** \brief A constructor that reads from a file
-   * \param  fid A readable stream
-   * \param  mode The reading mode (MP_TEXT or MP_BINARY) 
-   *
-   * \remark in MP_TEXT mode, NO enclosing XML tag <atom type="*"> ... </atom> is looked for
-   * \sa read_atom()
-   */
-  MP_Atom_c( FILE *fid, const char mode );
+  /** \brief Internal allocations of the global vectors */
+  int global_alloc( const MP_Chan_t setNChan );
+
+  /** \brief File reader */
+  virtual int read( FILE *fid, const char mode );
+
+public:
 
   /* Destructor */
   virtual ~MP_Atom_c();
@@ -168,10 +165,6 @@ public:
   /***************************/
   /* OTHER METHODS           */
   /***************************/
-
-private :
-
-  int alloc_atom( const MP_Chan_t setNChan );
 
 public :
 

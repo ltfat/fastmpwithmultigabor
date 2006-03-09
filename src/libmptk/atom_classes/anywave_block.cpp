@@ -385,7 +385,7 @@ unsigned int MP_Anywave_Block_c::create_atom( MP_Atom_c **atom,
   
   /* Allocate the atom */
   *atom = NULL;
-  if ( (aatom = new MP_Anywave_Atom_c( s->numChans )) == NULL ) {
+  if ( (aatom = MP_Anywave_Atom_c::init( s->numChans )) == NULL ) {
     mp_error_msg( func, "Can't create a new Anywave atom in create_atom()."
 	     " Returning NULL as the atom reference.\n" );
     return( 0 );

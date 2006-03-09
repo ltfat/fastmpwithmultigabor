@@ -50,6 +50,61 @@
 /* CONSTRUCTORS/DESTRUCTOR */
 /***************************/
 extern MP_Anywave_Server_c MP_GLOBAL_ANYWAVE_SERVER;
+
+
+/************************/
+/* Factory function     */
+MP_Anywave_Atom_c* MP_Anywave_Atom_c::init( const MP_Chan_t setNChan ) {
+  
+  const char* func = "MP_Anywave_Atom_c::init(numChan)";
+  
+  MP_Anywave_Atom_c* newAtom = NULL;
+
+  /* Instantiate and check */
+  newAtom = new MP_Anywave_Atom_c();
+  if ( newAtom == NULL ) {
+    mp_error_msg( func, "Failed to create a new Anywave atom. Returning a NULL.\n" );
+    return( NULL );
+  }
+
+  /* Allocate and check */
+  if ( newAtom->global_alloc( setNChan ) ) {
+    mp_error_msg( func, "Failed to allocate some vectors in the new Anywave atom."
+		  " Returning a NULL atom.\n" );
+    delete( newAtom );
+    return( NULL );
+  }
+
+  return( newAtom );
+}
+
+
+/*************************/
+/* File factory function */
+MP_Anywave_Atom_c* MP_Anywave_Atom_c::init( FILE *fid, const char mode ) {
+  
+  const char* func = "MP_Anywave_Atom_c::init(fid,mode)";
+  
+  MP_Anywave_Atom_c* newAtom = NULL;
+
+  /* Instantiate and check */
+  newAtom = new MP_Anywave_Atom_c();
+  if ( newAtom == NULL ) {
+    mp_error_msg( func, "Failed to create a new atom.\n" );
+    return( NULL );
+  }
+
+  /* Read and check */
+  if ( newAtom->read( fid, mode ) ) {
+    mp_error_msg( func, "Failed to read the new Anywave atom.\n" );
+    delete( newAtom );
+    return( NULL );
+  }
+  
+  return( newAtom );
+}
+
+
 /********************/
 /* Void constructor */
 MP_Anywave_Atom_c::MP_Anywave_Atom_c( void )
@@ -59,29 +114,40 @@ MP_Anywave_Atom_c::MP_Anywave_Atom_c( void )
     anywaveIdx = 0;
 }
 
-/**************************/
-/* Specific constructor 1 */
-MP_Anywave_Atom_c::MP_Anywave_Atom_c( unsigned short int setNumChans ) 
-  :MP_Atom_c(setNumChans) {
-    tableIdx = 0;
-    anywaveTable = NULL;
-    anywaveIdx = 0;
+
+/************************/
+/* Global allocations   */
+int MP_Anywave_Atom_c::global_alloc( const MP_Chan_t setNChan ) {
+
+  const char* func = "MP_Anywave_Atom_c::global_alloc(numChans)";
+
+  /* Go up one level */
+  if ( MP_Atom_c::global_alloc( setNChan ) ) {
+    mp_error_msg( func, "Allocation of Anywave atom failed at the generic atom level.\n" );
+    return( 1 );
+  }
+
+  return( 0 );
 }
 
-/********************/
-/* File constructor */
-MP_Anywave_Atom_c::MP_Anywave_Atom_c( FILE *fid, const char mode )
-  :MP_Atom_c( fid, mode ) {
 
+/********************/
+/* File reader      */
+int MP_Anywave_Atom_c::read( FILE *fid, const char mode ) {
+
+  const char* func = "MP_Anywave_Atom_c::read(fid,mode)";
   char line[MP_MAX_STR_LEN];
   char str[MP_MAX_STR_LEN];
-  double fidAmp;
-  unsigned short int readChanIdx, chanIdx;
-  MP_Real_t* pAmp;
-  MP_Real_t* pAmpEnd;
 
   extern MP_Anywave_Server_c MP_GLOBAL_ANYWAVE_SERVER;  
   
+  /* Go up one level */
+  if ( MP_Atom_c::read( fid, mode ) ) {
+    mp_error_msg( func, "Reading of Anywave atom fails at the generic atom level.\n" );
+    return( 1 );
+  }
+
+  /* Read at the local level */
   switch ( mode ) {
 
   case MP_TEXT:
@@ -106,35 +172,6 @@ MP_Anywave_Atom_c::MP_Anywave_Atom_c( FILE *fid, const char mode )
       mp_error_msg( "MP_Anywave_Atom_c::MP_Anywave_Atom_c","Anywave index is bigger"
 		    " than the number of anywaves in the table.\n");
     }
-    /* Try to read the amp */
-    for (chanIdx = 0;
-	 chanIdx < numChans;
-	 chanIdx ++) {
-      /* Opening tag */
-      if ( ( fgets( str, MP_MAX_STR_LEN, fid ) == NULL  ) ||
-	   ( sscanf( str, "\t\t<anywavePar chan=\"%hu\">\n", &readChanIdx ) != 1 ) ) {
-	mp_error_msg( "MP_Anywave_Atom_c::MP_Anywave_Atom_c()","Cannot scan channel index in atom.\n" );
-      }
-      else if ( readChanIdx != chanIdx ) {
- 	mp_error_msg( "MP_Anywave_Atom_c::MP_Anywave_Atom_c()","Potential shuffle in the parameters"
-		" of an anywave atom. (Index \"%hu\" read, \"%hu\" expected.)\n",
-		readChanIdx, chanIdx );
-      }
-      /* amp */
-      if ( ( fgets( str, MP_MAX_STR_LEN, fid ) == NULL  ) ||
-	   ( sscanf( str, "\t\t\t<par type=\"amp\">%lg</par>\n", &fidAmp ) != 1 ) ) {
-	mp_error_msg( "MP_Anywave_Atom_c::MP_Anywave_Atom_c()","Cannot scan amp on channel %u.\n", chanIdx );
-      }
-      else {
-	*(amp + chanIdx) = (MP_Real_t)fidAmp;
-      }
-      /* Closing tag */
-      if ( ( fgets( str, MP_MAX_STR_LEN, fid ) == NULL  ) ||
-	   ( strcmp( str , "\t\t</anywavePar>\n" ) ) ) {
-	mp_error_msg( "MP_Anywave_Atom_c::MP_Anywave_Atom_c()","Cannot scan the closing parameter tag"
-		" in anywave atom, channel %hu.\n", chanIdx );
-      }
-    }
     break;
 
   case MP_BINARY:
@@ -156,16 +193,6 @@ MP_Anywave_Atom_c::MP_Anywave_Atom_c( FILE *fid, const char mode )
       mp_error_msg( "MP_Anywave_Atom_c::MP_Anywave_Atom_c","Anywave index is bigger than"
 		    " the number of anywaves in the table.\n");
     }
-    /* Try to read the amp */
-    if ( mp_fread( amp,   sizeof(MP_Real_t), numChans, fid ) != (size_t)numChans ) {
- 	mp_error_msg( "MP_Anywave_Atom_c::MP_Anywave_Atom_c()","Failed to read the amp array.\n" );     
-	pAmpEnd = amp + numChans;
-	for ( pAmp = amp;
-	      pAmp < pAmpEnd;
-	      pAmp ++ ) {
-	  *pAmp = 0.0;
-	}
-    }
     break;
 
   default:
@@ -174,6 +201,7 @@ MP_Anywave_Atom_c::MP_Anywave_Atom_c( FILE *fid, const char mode )
     break;
   }
 
+  return( 0 );
 }
 
 
@@ -200,7 +228,7 @@ bool MP_Anywave_Atom_c::test( char* filename ) {
   MP_GLOBAL_ANYWAVE_SERVER.add(filename);
 
   /* create an anywave atom corresponding to the first filter of the first table in the anywave server */
-  MP_Anywave_Atom_c* atom = new MP_Anywave_Atom_c( MP_GLOBAL_ANYWAVE_SERVER.tables[0]->numChans );
+  MP_Anywave_Atom_c* atom = MP_Anywave_Atom_c::init( MP_GLOBAL_ANYWAVE_SERVER.tables[0]->numChans );
   
   if (atom == NULL) {
     return(false);
@@ -276,7 +304,6 @@ bool MP_Anywave_Atom_c::test( char* filename ) {
 int MP_Anywave_Atom_c::write( FILE *fid, const char mode ) {
   
   int nItem = 0;
-  MP_Chan_t chanIdx = 0;
   int numChar;
 
   /* Call the parent's write function */
@@ -288,15 +315,8 @@ int MP_Anywave_Atom_c::write( FILE *fid, const char mode ) {
   case MP_TEXT:
     /* Filename of the table containing the waveform */
     nItem += fprintf( fid, "\t\t<par type=\"filename\">%s</par>\n", anywaveTable->tableFileName );
-    /* print the anywaveIdx, amp */
+    /* print the anywaveIdx */
     nItem += fprintf( fid, "\t\t<par type=\"waveIdx\">%li</par>\n",  anywaveIdx );
-    for (chanIdx = 0; 
-	 chanIdx < numChans; 
-	 chanIdx++) {
-      nItem += fprintf( fid, "\t\t<anywavePar chan=\"%u\">\n", chanIdx );
-      nItem += fprintf( fid, "\t\t\t<par type=\"amp\">%g</par>\n",   (double)amp[chanIdx] );
-      nItem += fprintf( fid, "\t\t</anywavePar>\n" );    
-    }
     break;
 
   case MP_BINARY:
@@ -307,7 +327,6 @@ int MP_Anywave_Atom_c::write( FILE *fid, const char mode ) {
 
     /* Binary parameters */
     nItem += mp_fwrite( &anywaveIdx,  sizeof(long int), 1, fid );
-    nItem += mp_fwrite( amp,   sizeof(MP_Real_t), numChans, fid );
     break;
 
   default:

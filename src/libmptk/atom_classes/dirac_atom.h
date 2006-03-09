@@ -63,6 +63,7 @@ class MP_Dirac_Atom_c: public MP_Atom_c {
   /********/
 
 public:
+  /* VOID */
 
   /***********/
   /* METHODS */
@@ -72,12 +73,27 @@ public:
   /* CONSTRUCTORS/DESTRUCTOR */
   /***************************/
 
+public:
+
+  /* Specific factory function */
+  static MP_Dirac_Atom_c* init( const MP_Chan_t setNumChans );
+
+  /* File factory function */
+  static MP_Dirac_Atom_c* init( FILE *fid, const char mode );
+
+protected:
+
   /* Void constructor */
   MP_Dirac_Atom_c( void );
-  /* Specific constructor */
-  MP_Dirac_Atom_c( const unsigned int setNumChans );
-  /* File constructor */
-  MP_Dirac_Atom_c( FILE *fid, const char mode );
+
+  /** \brief Global allocations of the vectors */
+  int global_alloc( const MP_Chan_t setNChan );
+
+  /** \brief File reader */
+  virtual int read( FILE *fid, const char mode );
+
+public:
+
   /* Destructor */
   virtual ~MP_Dirac_Atom_c( void );
 

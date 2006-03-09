@@ -87,13 +87,13 @@ MP_Atom_c* read_atom( FILE *fid, const char mode ) {
 
   /* Allocate an atom of the right type */
   /* - Dirac atom: */
-  if ( !strcmp(str,"dirac") ) atom = new MP_Dirac_Atom_c( fid, mode );
+  if ( !strcmp(str,"dirac") ) atom = (MP_Atom_c*) MP_Dirac_Atom_c::init( fid, mode );
   /* - Gabor atom: */
-  else if ( !strcmp(str,"gabor") ) atom = new MP_Gabor_Atom_c( fid, mode );
+  else if ( !strcmp(str,"gabor") ) atom = (MP_Atom_c*) MP_Gabor_Atom_c::init( fid, mode );
   /* - Harmonic atom: */
-  else if ( !strcmp(str,"harmonic") ) atom = new MP_Harmonic_Atom_c( fid, mode );
+  else if ( !strcmp(str,"harmonic") ) atom = (MP_Atom_c*) MP_Harmonic_Atom_c::init( fid, mode );
   /* - Anywave atom: */
-  else if ( !strcmp(str,"anywave") ) atom = new MP_Anywave_Atom_c( fid, mode );
+  else if ( !strcmp(str,"anywave") ) atom = (MP_Atom_c*) MP_Anywave_Atom_c::init( fid, mode );
   /* - ADD YOUR ATOMS HERE: */
   //  else if ( !strcmp(str,"TEMPLATE") ) atom = new MP_TEMPLATE_Atom_c( fid, mode );
   /* - Unknown atom type: */

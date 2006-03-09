@@ -76,7 +76,7 @@ public:
   MP_Atom_c **atom;
 
   /** \brief Number of channels of the atoms */
-  unsigned int numChans;                 
+  MP_Chan_t numChans;                 
   /** \brief Number of samples in each channel of the signal that will be
    * reconstructed using the stored atoms */
   unsigned long int numSamples; 
@@ -226,7 +226,9 @@ public:
    * \param n points to the index of the resulting atom in the book->atom[] array. Meaningless if no matching atom is found.
    * \return atom, the closest atom, NULL if no matching atom is found
    */
-  MP_Atom_c *get_closest_atom(MP_Real_t time,MP_Real_t freq, int chanIdx, MP_Mask_c *mask, unsigned long int *n);
+  MP_Atom_c *get_closest_atom(MP_Real_t time,MP_Real_t freq,
+			      MP_Chan_t chanIdx, MP_Mask_c *mask,
+			      unsigned long int *n);
 
 
   /** \brief Check if numAtoms is the same in a mask and in the book. */

@@ -111,16 +111,9 @@ public:
   /* CONSTRUCTORS/DESTRUCTOR */
   /***************************/
 
-  /** \brief Default constructor 
-   *
-   * set the amp array and anywaveTable to NULL, anywaveIdx and
-   * tableIdx to zero, and the other members are initialized by the
-   * default MP_Atom_c constructor.
-   *
-   **/
-  MP_Anywave_Atom_c( void );
+public:
 
-  /** \brief Specific constructor
+  /** \brief Specific factory function
    *
    * sets anywaveIdx and tableIdx to zero, anywaveTable to NULL, and calls
    * the MP_Atom_c constructor setting the number of channels to
@@ -131,9 +124,9 @@ public:
    * 
    * \param setNumChans the number of channels of the atom
    **/
-  MP_Anywave_Atom_c::MP_Anywave_Atom_c( unsigned short int setNumChans );
+  static MP_Anywave_Atom_c* init( const MP_Chan_t setNumChans );
 
-  /** \brief File constructor
+  /** \brief File factory function
    *
    * construct the atom from a stream, in general when reading a
    * book. The stream shall follow the syntax of books, e.g. for text
@@ -150,7 +143,26 @@ public:
    *
    * \param mode MP_TEXT or MP_BINARY
    **/
-  MP_Anywave_Atom_c( FILE *fid, const char mode );
+  static MP_Anywave_Atom_c* init( FILE *fid, const char mode );
+
+protected:
+
+  /** \brief Default void constructor 
+   *
+   * set the amp array and anywaveTable to NULL, anywaveIdx and
+   * tableIdx to zero, and the other members are initialized by the
+   * default MP_Atom_c constructor.
+   *
+   **/
+  MP_Anywave_Atom_c( void );
+
+  /** \brief Internal allocations of all the vectors */
+  int global_alloc( const MP_Chan_t setNChan );
+
+  /** \brief File reader */
+  virtual int read( FILE *fid, const char mode );
+
+public:
 
   /** \brief Default destructor 
    **/
