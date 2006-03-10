@@ -7,6 +7,7 @@ I) GENERAL TOPICS
    --------------
 
 * URGENT:
+  - Document the main known bugs (clipping, pb with harmonic atoms)
   - CLIPPING ISSUE: see section III) below.
   - Extract the core functionalities of mpf/mpr etc. (done for mpd),
     and add them to the MP_Mpd_Core_c class so that they can be called
@@ -21,6 +22,9 @@ I) GENERAL TOPICS
 
 * BUGS:
   - Lots of them in the GUI (section IV below).
+  - harmonic blocks can select atoms that increase the energy !
+  - segfault can occur (in GUI at least) if a small signal is plugged into a dictionary 
+    which Gabor blocks have too long windows
 
 				 -----------------
 
@@ -35,12 +39,19 @@ II) IMPROVEMENTS TO THE CORE LIBRARY
   - split dict::iterate_mp into update_all update_ip update_max
   - fix integer types : unsigned long int -> uint32 etc
   - fix char/int in array arguments
+  - standardize semantic of the info() print() mechanisms
+  - standardize names nChan nChans numChan numChans ...  
+  - add MP_Dict_c::numAtoms() and MP_Block_c::numAtoms()
   - replace MP_Sample_t with MP_Real_t, eliminate MP_Sample_t and remove the unnecessary castings
   - reinforce the test suite
   - Implement factory functions for atoms ?
   - restructure atom / book classes to introduce molecules MP_Molecule_c -> MP_Atom_c -> MP_Gabor_c ...
 							   MP_Molecule_c -> MP_Book_c
 							   book->append(MP_Molecule_c)
+  - to perform MPD_DEMIX convolutive, define variant of MP_Atom_c::sustract_add which 
+   instead of building only the atom waveform \atom_k(t) takes multichannel  filters and 
+   builds the filtered waveforms (a_i*\atom_k)(t) to substract_add it up
+
   - replace round by a simpler ANSI trick, and check double-to-int potential overflow
     where applicable.
 
@@ -94,12 +105,18 @@ III) INTERFACES, GENERAL TOPICS
   - add bark/mel scales for frequencies ?
   - more debug to the TFMaps.
   - implement some TFMap output for the anywave atoms.
+  - tfmaps are sometimes incorrectly displayed (wrong time location) for Gabor_Atom_c
+  and should have float tMin tMax instead of int
 
 * FILE I/O
   - CLIPPING ISSUE:
     get rid of libsndfile to read wav files or add a 'gain' option when reading/writing sound files
-    (to solve the "clipping problem").
-
+    (to solve the "clipping problem" : when writing signals to wav format clipping can happen which
+     is not due to MP: even if the analyzed signal has amplitude strictly less than one, the residual 
+     or the approximant might have samples that exceeds one for early iterations)
+  - allow read of aiff, pcm, ...
+  - choice between sample units and physical units (Hertz, seconds, ...) for blocks / atoms I/O ?
+    need to be consistent : harmonic blocks use Hertz, Gabor use normalized freq
 
 				 -----------------
     ------------------------
@@ -115,6 +132,9 @@ IV) GRAPHICAL USER INTERFACE
     button => harmonize.
   - Are there still bugs when loading bugs/shubert.book ?
 
+* CODE STRUCTURE
+  - switch to english names in the code, make methods virtual when useful
+
 
 * WISHLIST
   - limits settings:
@@ -128,6 +148,15 @@ IV) GRAPHICAL USER INTERFACE
   - provide an interface for mpf and mpd_demix
   - go multi-document (1 document = 1 mpd_core ?)
   - selection, cut and paste of atoms from one document to another.
+  - circle the closest atom, select/edit/move it
+    => MP_Atom_c::dist_to_tfpoint(t,f) [float]
+       MP_Atom_c::get_tf_support() [returns a union of polygons ?]
+       MP_Atom_c::description() [string]
+       MP_Book_c::get_closest_atom(t,f,mask) 
+       MP_TF_Map_c::intersect_tf_support() [computation with geometric approach]
+  - add a control bar similar to the color control bar allowing the selection of atoms duration
+  - provide a tool for reconstruction with options (scale, ...)
+  - implement masks and filters (= virtual book)
 
 
 				 -----------------
@@ -174,6 +203,7 @@ VIII) DOCUMENTATION
       -------------
 
 * WISHLIST
+  - create a web site with examples
   - document 'how to add a block' including how to interface with dict_scanner
   - Document the scanner
   - Document the messaging system
@@ -184,6 +214,7 @@ VIII) DOCUMENTATION
     $ ./configure --with-gtk --disable-precomp-headers --disable-shared
     before make and make install.
   - Split the user manual into a user manual and a developer's manual ?
+
 
 
 				 -----------------
