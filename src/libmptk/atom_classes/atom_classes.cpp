@@ -94,6 +94,8 @@ MP_Atom_c* read_atom( FILE *fid, const char mode ) {
   else if ( !strcmp(str,"harmonic") ) atom = (MP_Atom_c*) MP_Harmonic_Atom_c::init( fid, mode );
   /* - Anywave atom: */
   else if ( !strcmp(str,"anywave") ) atom = (MP_Atom_c*) MP_Anywave_Atom_c::init( fid, mode );
+  /* - Anywave Hilbert atom: */
+  else if ( !strcmp(str,"anywavehilbert") ) atom = (MP_Atom_c*) MP_Anywave_Hilbert_Atom_c::init( fid, mode );
   /* - ADD YOUR ATOMS HERE: */
   //  else if ( !strcmp(str,"TEMPLATE") ) atom = new MP_TEMPLATE_Atom_c( fid, mode );
   /* - Unknown atom type: */

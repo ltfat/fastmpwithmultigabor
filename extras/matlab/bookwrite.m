@@ -18,10 +18,10 @@ function bookwrite( book , fileName )
 %% Error handling not implemented yet.
 %% Routine to determine if book structure is correct not implemented yet.
 %%
-                        
+
 fid = fopen( fileName, 'w', 'l' );
 if (fid == -1),
-   error( [ 'Can''t open file [' fileName ']' ] );
+  error( [ 'Can''t open file [' fileName ']' ] );
 end;
 
 % Write the formating line
@@ -32,46 +32,55 @@ fprintf(fid, '<book nAtom="%lu" numChans="%d" numSamples="%lu" sampleRate="%d" l
 
 % Write the atoms
 for ( i = 1:book.numAtoms );
-    
-    % Write the atom type
-    fprintf(fid,'%s\n', book.atom{i}.type);
-   
-    % Write the generic atom parameters
-    fwrite( fid, book.numChans,'int');
-    for ( c = 1:book.numChans ),
+  
+  % Write the atom type
+  fprintf(fid,'%s\n', book.atom{i}.type);
+  
+  % Write the generic atom parameters
+  fwrite( fid, book.numChans,'ushort');
+  for ( c = 1:book.numChans ),
     fwrite( fid, book.atom{i}.pos(c),'ulong');   
     fwrite( fid, book.atom{i}.len(c),'ulong');  
-    end;
- 
+  end;
+  fwrite( fid, book.atom{i},'double');
 
+  switch book.atom{i}.type,
 
-
-     switch book.atom{i}.type,
-
-	   case 'gabor',
- 	   fprintf( fid, '%s\n', book.atom{i}.windowType);
- 	   fwrite( fid, book.atom{i}.windowOpt, 'double' );
- 	   fwrite( fid, book.atom{i}.freq, 'double' );
- 	   fwrite( fid, book.atom{i}.chirp, 'double' );
- 	   fwrite( fid, book.atom{i}.amp, 'double' );
- 	   fwrite( fid, book.atom{i}.phase, 'double' );
- 
- 	   case 'harmonic',
-       fprintf( fid, '%s\n', book.atom{i}.windowType);
- 	   fwrite( fid, book.atom{i}.windowOpt, 'double' );
- 	   fwrite( fid, book.atom{i}.freq, 'double' );
- 	   fwrite( fid, book.atom{i}.chirp, 'double' );
- 	   fwrite( fid, book.atom{i}.amp, 'double' );
- 	   fwrite( fid, book.atom{i}.phase, 'double' );
- 	   fwrite( fid, book.atom{i}.numPartials, 'unsigned int' );
-       fwrite( fid, book.atom{i}.harmonicity , 'double' );
-       fwrite( fid, book.atom{i}.partialAmpStorage, 'double' );
-       fwrite( fid, book.atom{i}.partialPhaseStorage, 'double' );
-
- 	   case 'dirac',
-       fwrite( fid, book.atom{i}.amp, 'double' );
+   case 'gabor',
+    fprintf( fid, '%s\n', book.atom{i}.windowType);
+    fwrite( fid, book.atom{i}.windowOpt, 'double' );
+    fwrite( fid, book.atom{i}.freq, 'double' );
+    fwrite( fid, book.atom{i}.chirp, 'double' );
+    fwrite( fid, book.atom{i}.phase, 'double' );
     
-     end
+   case 'harmonic',
+    fprintf( fid, '%s\n', book.atom{i}.windowType);
+    fwrite( fid, book.atom{i}.windowOpt, 'double' );
+    fwrite( fid, book.atom{i}.freq, 'double' );
+    fwrite( fid, book.atom{i}.chirp, 'double' );
+    fwrite( fid, book.atom{i}.phase, 'double' );
+    fwrite( fid, book.atom{i}.numPartials, 'unsigned int' );
+    fwrite( fid, book.atom{i}.harmonicity , 'double' );
+    fwrite( fid, book.atom{i}.partialAmpStorage, 'double' );
+    fwrite( fid, book.atom{i}.partialPhaseStorage, 'double' );
+
+   case 'dirac',
+    
+   case 'anywave'
+    fwrite( fid, length(book.atom{i}.tableFileName), 'ulong');
+    fprintf( fid, '%s\n', book.atom{i}.tableFileName);
+    fwrite( fid, book.atom{i}.waveIdx, 'ulong');
+
+   case 'anywavehilbert'
+    fwrite( fid, length(book.atom{i}.tableFileName), 'ulong');
+    fprintf( fid, '%s\n', book.atom{i}.tableFileName);
+    fwrite( fid, book.atom{i}.waveIdx, 'ulong');
+    fwrite( fid, book.atom{i}.meanPart, 'double');
+    fwrite( fid, book.atom{i}.nyquistPart, 'double');
+    fwrite( fid, book.atom{i}.realPart, 'double');
+    fwrite( fid, book.atom{i}.hilbertPart, 'double');
+  
+  end
 end
 
 % Write the closing tag

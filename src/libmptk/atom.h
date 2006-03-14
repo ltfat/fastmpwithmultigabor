@@ -54,25 +54,33 @@
 /***********************/
 
 /* some type of properties for atom->satisfies() */
-#define MP_LEN_PROP            0 /** Length in samples \sa MP_Atom_C::satisfies()*/
-#define MP_POS_PROP            1 /** Position in samples \sa MP_Atom_C::satisfies()*/
-#define MP_FREQ_PROP           2 /** Normalized frequency, between 0 and 0.5 \sa MP_Atom_C::satisfies() */
-#define MP_AMP_PROP            3 /** Amplitude \sa MP_Atom_C::satisfies()*/
-#define MP_PHASE_PROP          4 /** Phase in radians \sa MP_Atom_C::satisfies()*/
-#define MP_CHIRP_PROP          5 /** Chirp factor \sa MP_Atom_C::satisfies() */
-#define MP_TABLE_IDX_PROP      6 /** Index of the wave table in the wave server \sa MP_Atom_C::satisfies()*/
-#define MP_ANYWAVE_TABLE_PROP  7 /** Pointer to the waveTable containing the waveform \sa MP_Atom_C::satisfies() */
-#define MP_ANYWAVE_IDX_PROP    8 /** Index of the wave in the wave table \sa MP_Atom_C::satisfies() */
+#define MP_LEN_PROP                    0 /** Length in samples \sa MP_Atom_c::satisfies()*/
+#define MP_POS_PROP                    1 /** Position in samples \sa MP_Atom_c::satisfies()*/
+#define MP_FREQ_PROP                   2 /** Normalized frequency, between 0 and 0.5 \sa MP_Atom_c::satisfies() */
+#define MP_AMP_PROP                    3 /** Amplitude \sa MP_Atom_c::satisfies()*/
+#define MP_PHASE_PROP                  4 /** Phase in radians \sa MP_Atom_c::satisfies()*/
+#define MP_CHIRP_PROP                  5 /** Chirp factor \sa MP_Atom_c::satisfies() */
+#define MP_TABLE_IDX_PROP              6 /** Index of the wave table in the wave server \sa MP_Atom_c::satisfies()*/
+#define MP_ANYWAVE_TABLE_PROP          7 /** Pointer to the waveTable containing the waveform \sa MP_Atom_c::satisfies() */
+#define MP_ANYWAVE_IDX_PROP            8 /** Index of the wave in the wave table \sa MP_Atom_c::satisfies() */
+#define MP_MEAN_PART_PROP              9 /** Part of the amplitude due to the mean \sa MP_Anywave_Hilbert_Atom_c::satisfies()*/
+#define MP_NYQUIST_PART_PROP          10 /** Part of the amplitude due to nyquist \sa MP_Anywave_Hilbert_Atom_c::satisfies()*/
+#define MP_REAL_PART_PROP             11 /** Part of the amplitude due to the real waveform \sa MP_Anywave_Hilbert_Atom_c::satisfies()*/
+#define MP_HILBERT_PART_PROP          12 /** Part of the amplitude due to the hilbert waveform \sa MP_Anywave_Hilbert_Atom_c::satisfies()*/
+#define MP_REAL_TABLE_IDX_PROP        13 /** Index of the wave table in the wave server \sa MP_Anywave_Hilbert_Atom_c::satisfies()*/
+#define MP_ANYWAVE_REAL_TABLE_PROP    14 /** Pointer to the waveTable containing the waveform \sa MP_Anywave_Hilbert_Atom_c::satisfies() */
+#define MP_HILBERT_TABLE_IDX_PROP     15 /** Index of the wave table in the wave server \sa MP_Anywave_Hilbert_Atom_c::satisfies()*/
+#define MP_ANYWAVE_HILBERT_TABLE_PROP 16 /** Pointer to the waveTable containing the waveform \sa MP_Anywave_Hilbert_Atom_c::satisfies() */
 
-#define MP_NUM_PROPS           9
+#define MP_NUM_PROPS                  17
 
 /* some test types for atom->satisfies() */
-#define MP_SUPER 1 /** x >  val \todo document this \sa MP_Atom_C::satisfies() */
-#define MP_SUPEQ 2 /** x >= val \todo document this \sa MP_Atom_C::satisfies() */
-#define MP_EQ    3 /** x == val \todo document this \sa MP_Atom_C::satisfies() */
-#define MP_INFEQ 4 /** x <= val \todo document this \sa MP_Atom_C::satisfies() */
-#define MP_INFER 5 /** x <  val \todo document this \sa MP_Atom_C::satisfies() */
-#define MP_HAS   6 /** \todo document this \sa MP_Atom_C::satisfies() */
+#define MP_SUPER 1 /** x >  val \todo document this \sa MP_Atom_c::satisfies() */
+#define MP_SUPEQ 2 /** x >= val \todo document this \sa MP_Atom_c::satisfies() */
+#define MP_EQ    3 /** x == val \todo document this \sa MP_Atom_c::satisfies() */
+#define MP_INFEQ 4 /** x <= val \todo document this \sa MP_Atom_c::satisfies() */
+#define MP_INFER 5 /** x <  val \todo document this \sa MP_Atom_c::satisfies() */
+#define MP_HAS   6 /** \todo document this \sa MP_Atom_c::satisfies() */
 
 
 /***********************/

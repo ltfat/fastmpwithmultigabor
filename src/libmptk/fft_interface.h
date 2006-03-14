@@ -207,6 +207,29 @@ public:
    */  
   virtual void exec_complex( MP_Sample_t *in, MP_Real_t *re, MP_Real_t *im ) = 0;
 
+  /** \brief Performs the complex inverse FFT of two input buffers and puts the result in an output signal buffer.
+   *
+   * \param re  input FFT real part buffer, only the first numFreqs values are filled.
+   * \param im  input FFT imaginary part buffer, only the first numFreqs values are filled.
+   * \param out output signal buffer, only the first windowSize values are used.
+   *
+   * These input values correspond to the frequency components between the DC
+   * component and the Nyquist frequency, inclusive.
+   *
+   * The output buffer is filled with the values
+   * \f[
+   * \mbox{out}[n] = \frac{1}{fftCplxSize}\sum_{k=0}^{\mbox{fftCplxSize}-1} \mbox{window}[k]
+   * \cdot (\mbox{re}[k] + i \mbox{im}[k])  \cdot \exp\left(\frac{2i\pi\ k \cdot n}{\mbox{fftCplxSize}}\right).
+   * \f]
+   * for \f$0 \leq n < \mbox{fftCplxSize}\f$, 
+   * where the frequency components upon the Nyquist frequency of re
+   * and im are completed, symmetrically, with the conjugate
+   * components of the frequency components below the Nyquist
+   * frequency.
+   *
+   */  
+  virtual void exec_complex_inverse( MP_Real_t *re, MP_Real_t *im, MP_Sample_t *output ) = 0;
+
   /** \brief Performs the complex FFT of an input signal buffer multiplied by a
       demodulation function, and puts the result in two output buffers.
    */
@@ -269,6 +292,9 @@ private:
   /* FFTW parameters */
   /** \brief object that performs the FFT computations as fast as it can */
   fftw_plan p;
+  /** \brief object that performs the FFT computations as fast as it can */
+  fftw_plan iP;
+
   /** \brief input signal multiplied by the window and zero padded,
    * used as input by the plan  */
   double *inPrepared;
@@ -306,6 +332,8 @@ public:
   /***************************/
 public:
   void exec_complex( MP_Sample_t *in, MP_Real_t *re, MP_Real_t *im );
+
+  void exec_complex_inverse( MP_Real_t *re, MP_Real_t *im, MP_Sample_t *output );
 
 };
 

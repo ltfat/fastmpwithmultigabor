@@ -329,6 +329,7 @@ class MP_Convolution_Fastest_c:public MP_Convolution_c {
 
   virtual void compute_max_IP( MP_Signal_c* s, unsigned long int inputLen, unsigned long int fromSample, MP_Real_t* ampOutput, unsigned long int* idxOutput );
 
+  virtual void compute_max_hilbert_IP( MP_Signal_c* s, unsigned long int inputLen, unsigned long int fromSample, MP_Real_t* ampOutput, unsigned long int* idxOutput );
 
 };
 
@@ -430,10 +431,9 @@ class MP_Convolution_Direct_c:public MP_Convolution_c {
    *
    * \return the inner product
    **/
-  inline virtual double compute_IP( MP_Sample_t* input, unsigned long int filterIdx, unsigned short int chanIdx );
+  virtual double compute_IP( MP_Sample_t* input, unsigned long int filterIdx, unsigned short int chanIdx );
 
   virtual void compute_max_IP( MP_Signal_c* s, unsigned long int inputLen, unsigned long int fromSample, MP_Real_t* ampOutput, unsigned long int* idxOutput );
-
 };
 
 /***********************************/
@@ -492,9 +492,6 @@ class MP_Convolution_FFT_c:public MP_Convolution_c {
   /** \brief output of the \a ifftPlan of length fftCplxSize */
   double *outputBuffer;
 
-  /** \brief output of the \a ifftPlan of length fftCplxSize */
-  double *circularBuffer;
-
   /** \brief storage of the FFT of the filters of length fftRealSize *
    * anywaveTable->numFilters * anywaveTable->numChans
    */
@@ -508,18 +505,61 @@ class MP_Convolution_FFT_c:public MP_Convolution_c {
    */
   fftw_complex*** filterFftBuffer;
 
+  /** \brief storage of the FFT of the mean component, of length fftRealSize
+   */
+  fftw_complex* meanFftStorage;
+
+  /** \brief storage of the FFT of the nyquist component (inverted), of length fftRealSize
+   */
+  fftw_complex* nyquistFftStorage;
+
   /** brief array of size numFilters of pointers to the output of the
    * first slice of the method circular_convolution
    *
    */
-  double** outputBufferAdd;
+  double* outputMeanBufferAdd;
 
   /** brief array of size numFilters of pointers to the output of the
    * second slice of the method circular_convolution
    *
    */
-  double** outputBufferNew;
+  double* outputMeanBufferNew;
 
+  /** brief array of size numFilters of pointers to the output of the
+   * first slice of the method circular_convolution
+   *
+   */
+  double* outputNyquistBufferAdd;
+
+  /** brief array of size numFilters of pointers to the output of the
+   * second slice of the method circular_convolution
+   *
+   */
+  double* outputNyquistBufferNew;
+
+  /** brief array of size numFilters of pointers to the output of the
+   * first slice of the method circular_convolution
+   *
+   */
+  double** outputRealBufferAdd;
+
+  /** brief array of size numFilters of pointers to the output of the
+   * second slice of the method circular_convolution
+   *
+   */
+  double** outputRealBufferNew;
+
+  /** brief array of size numFilters of pointers to the output of the
+   * first slice of the method circular_convolution
+   *
+   */
+  double** outputHilbertBufferAdd;
+
+  /** brief array of size numFilters of pointers to the output of the
+   * second slice of the method circular_convolution
+   *
+   */
+  double** outputHilbertBufferNew;
     
   /***********/
   /* METHODS */
@@ -609,7 +649,9 @@ class MP_Convolution_FFT_c:public MP_Convolution_c {
    *
    * \param outputBufferAdd array of numFilters pointers to the outputs where to add the contribution of the second slice
    */
-  void circular_convolution( MP_Sample_t* pSlice, MP_Sample_t* pNextSlice, unsigned short int chanIdx, double** outputBufferAdd, double** outputBufferNew, unsigned long int firstFrameSample, unsigned long int numFramesAdd, unsigned long int numFramesNew );
+  void circular_convolution( MP_Sample_t* pSlice, MP_Sample_t* pNextSlice, unsigned short int chanIdx, unsigned long int firstFrameSample, unsigned long int numFramesAdd, unsigned long int numFramesNew );
+
+  void circular_convolution_hilbert( MP_Sample_t* pSlice, MP_Sample_t* pNextSlice, unsigned short int chanIdx, unsigned long int firstFrameSample, unsigned long int numFramesAdd, unsigned long int numFramesNew );
 
  public:
 
@@ -818,6 +860,8 @@ class MP_Convolution_FFT_c:public MP_Convolution_c {
    * \remark inputLen shall not be lower than anywaveTable->filterLen
    **/
   virtual void compute_max_IP( MP_Signal_c* s, unsigned long int inputLen, unsigned long int fromSample, MP_Real_t* ampOutput, unsigned long int* idxOutput );
+
+  virtual void compute_max_hilbert_IP( MP_Signal_c* s, unsigned long int inputLen, unsigned long int fromSample, MP_Real_t* ampOutput, unsigned long int* idxOutput );
 };
 
 

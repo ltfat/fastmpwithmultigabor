@@ -61,13 +61,14 @@ for ( i = 1:book.numAtoms );
   atomType = sscanf( l, '%[a-z]\n' );
   book.atom{i}.type = atomType;
   % Get the generic atom parameters
-  numChans = fread( fid, 1, 'int' );
+  numChans = fread( fid, 1, 'ushort' );
   for ( c = 1:numChans ),
     pos(c) = fread( fid, 1, 'ulong' );
     len(c) = fread( fid, 1, 'ulong' );
   end;
   book.atom{i}.pos = pos;
   book.atom{i}.len = len;
+  book.atom{i}.amp   = fread( fid, numChans, 'double' );
 
   switch atomType,
 
@@ -77,7 +78,6 @@ for ( i = 1:book.numAtoms );
     book.atom{i}.windowOpt = fread( fid, 1, 'double' );
     book.atom{i}.freq  = fread( fid, 1, 'double' );
     book.atom{i}.chirp = fread( fid, 1, 'double' );
-    book.atom{i}.amp   = fread( fid, numChans, 'double' );
     book.atom{i}.phase = fread( fid, numChans, 'double' );
 
    case 'harmonic',
@@ -86,7 +86,6 @@ for ( i = 1:book.numAtoms );
     book.atom{i}.windowOpt = fread( fid, 1, 'double' );
     book.atom{i}.freq  = fread( fid, 1, 'double' );
     book.atom{i}.chirp = fread( fid, 1, 'double' );
-    book.atom{i}.amp   = fread( fid, numChans, 'double' );
     book.atom{i}.phase = fread( fid, numChans, 'double' );
     numPartials = fread( fid, 1, 'unsigned int' );
     book.atom{i}.numPartials = numPartials;
@@ -97,18 +96,26 @@ for ( i = 1:book.numAtoms );
     book.atom{i}.partialPhaseStorage = reshape( book.atom{i}.partialPhaseStorage, numPartials, numChans );
 
    case 'dirac',
-    book.atom{i}.amp   = fread( fid, numChans, 'double' );
 
    case 'anywave'
-    numChar = fread( fid, 1, 'long' );
+    numChar = fread( fid, 1, 'ulong' );
     
     book.atom{i}.tableFileName = fread( fid, numChar, '*char' )';
     book.atom{i}.tableFileName(end) = [];
-    book.atom{i}.waveIdx = fread( fid, 1, 'long' );
-    book.atom{i}.amp   = fread( fid, numChans, 'double' );
+    book.atom{i}.waveIdx = fread( fid, 1, 'ulong' );
+
+   case 'anywavehilbert'
+    numChar = fread( fid, 1, 'ulong' )
+    
+    book.atom{i}.tableFileName = fread( fid, numChar, '*char' )';
+    book.atom{i}.tableFileName(end) = [];
+    book.atom{i}.waveIdx = fread( fid, 1, 'ulong' );
+    book.atom{i}.meanPart    = fread( fid, numChans, 'double' );
+    book.atom{i}.nyquistPart = fread( fid, numChans, 'double' );
+    book.atom{i}.realPart    = fread( fid, numChans, 'double' );
+    book.atom{i}.hilbertPart = fread( fid, numChans, 'double' );
 
     % Unknown atom type
-
    otherwise,
     error( [ '[' atomType '] is an unknown atom type.'] );
   end;

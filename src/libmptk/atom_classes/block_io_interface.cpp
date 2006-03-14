@@ -371,6 +371,46 @@ MP_Block_c* MP_Scan_Info_c::pop_block( MP_Signal_c *signal ) {
       }
     }
   }
+  /****************************/
+  /* - anywave hilbert block: */
+  else if ( !strcmp(type,"anywavehilbert") ) {
+    /* - windowShift: */
+    if (!windowShiftIsSet) {
+      if (windowRateIsSet) {
+	windowShift = (unsigned long int)( (double)(windowLen)*windowRate + 0.5 ); /* == round(windowLen*windowRate) */
+	windowShift = ( windowShift > 1 ? windowShift : 1 ); /* windowShift has to be 1 or more */
+	windowShiftIsSet = true;
+      }
+      else if (globWindowShiftIsSet) {
+	windowShift = globWindowShift;
+	windowShiftIsSet = true;
+      }
+      else if (globWindowRateIsSet) {
+	windowShift = (unsigned long int)( (double)(windowLen)*globWindowRate + 0.5 ); /* == round(windowLen*globWindowRate) */
+	windowShift = ( windowShift > 1 ? windowShift : 1 ); /* windowShift has to be 1 or more */
+	windowShiftIsSet = true;
+      }
+      else {
+	fprintf( stderr, "mplib warning -- pop_block() - Anywave block (%u-th block) has no windowShift or windowRate."
+		 " Returning a NULL block.\n" , blockCount );
+	reset();
+	return( NULL );
+      }
+    }
+    /* - filename: */
+    if (!tableFileNameIsSet) {
+      if (globTableFileNameIsSet) {
+	strcmp(tableFileName, globTableFileName);
+	tableFileNameIsSet = true;
+      }
+      else {
+	fprintf( stderr, "mplib warning -- pop_block() - Anywave block (%u-th block) has no filename."
+		 " Returning a NULL block.\n" , blockCount );
+	reset();
+	return( NULL );
+      }
+    }
+  }
   /***************************/
   /* - ADD YOUR BLOCKS HERE: */
   /* else if ( !strcmp(type,"TEMPLATE") ) {
@@ -427,6 +467,18 @@ MP_Block_c* MP_Scan_Info_c::pop_block( MP_Signal_c *signal ) {
   else if ( !strcmp(type,"anywave") ) {
     if ( windowShiftIsSet && tableFileNameIsSet ) {
       block = MP_Anywave_Block_c::init( signal, windowShift, tableFileName );
+    }
+    else {
+      fprintf( stderr, "mplib warning -- pop_block() - Missing parameters in anywave block instanciation (%u-th block)."
+	       " Returning a NULL block.\n" , blockCount );
+      reset();
+      return( NULL );
+    }
+  }
+  /* - anywave hilbert block: */
+  else if ( !strcmp(type,"anywavehilbert") ) {
+    if ( windowShiftIsSet && tableFileNameIsSet ) {
+      block = MP_Anywave_Hilbert_Block_c::init( signal, windowShift, tableFileName );
     }
     else {
       fprintf( stderr, "mplib warning -- pop_block() - Missing parameters in anywave block instanciation (%u-th block)."
@@ -544,6 +596,20 @@ int write_block( FILE *fid, MP_Block_c *block ) {
     /* Cast the block */
     MP_Anywave_Block_c *ablock;
     ablock = (MP_Anywave_Block_c*)block;
+    /* Open the block */
+    nChar += fprintf( fid, "\t<block type=\"%s\">\n", name );
+    /* Add the parameters */
+    nChar += fprintf( fid, "\t\t<par type=\"tableFileName\">%s</par>\n", ablock->anywaveTable->tableFileName );
+    nChar += fprintf( fid, "\t\t<par type=\"windowShift\">%lu</par>\n", ablock->filterShift );
+    /* Close the block */
+    nChar += fprintf( fid, "\t</block>\n" );
+  }
+
+  /**** - Anywave Hilbert block: ****/
+  else if ( !strcmp( name, "anywavehilbert" ) ) {
+    /* Cast the block */
+    MP_Anywave_Hilbert_Block_c *ablock;
+    ablock = (MP_Anywave_Hilbert_Block_c*)block;
     /* Open the block */
     nChar += fprintf( fid, "\t<block type=\"%s\">\n", name );
     /* Add the parameters */

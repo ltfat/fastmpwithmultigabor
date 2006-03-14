@@ -440,7 +440,7 @@ unsigned int MP_Anywave_Block_c::create_atom( MP_Atom_c **atom,
 	 chanIdx < s->numChans;
 	 chanIdx ++) {
 
-      aatom->amp[chanIdx] += (MP_Real_t) convolution->compute_IP( s->channel[chanIdx]+aatom->support[chanIdx].pos, filterIdx, 0 );
+      aatom->amp[chanIdx] = (MP_Real_t) convolution->compute_IP( s->channel[chanIdx]+aatom->support[chanIdx].pos, filterIdx, 0 );
 
     }
   }

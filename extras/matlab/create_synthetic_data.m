@@ -89,6 +89,24 @@ for filterIdx=1:dict1.numFilters
   end
 end
 
+nyq = (floor(filterLen/2)*2 == filterLen);
+nyqIdx = filterLen/2+1;
+dict3.numFilters = numFilters;
+dict3.numChans = numChansMono;
+dict3.filterLen = filterLen;
+for filterIdx=1:dict3.numFilters
+  for chanIdx = 1:dict3.numChans
+    tempWave = dict1.filters(filterIdx).chans(chanIdx).wave;
+    fTempWave = fft(tempWave);
+    fTempWave(1) = 0;
+    if (nyq)
+      fTempWave(nyqIdx) = 0;
+    end
+    tempWave = ifft(fTempWave);
+    dict3.filters(filterIdx).chans(chanIdx).wave = tempWave/sqrt(sum(tempWave*tempWave'));
+  end
+end
+
 dict2.numFilters = numFilters;
 dict2.numChans = numChansStereo;
 dict2.filterLen = filterLen;
@@ -105,6 +123,7 @@ for filterIdx=1:dict2.numFilters
   end
   
 end
+
 
 
 % create the signals
@@ -169,6 +188,18 @@ end
 sig4Factor = 0.95/max(abs(sig4(:)));
 sig4 = sig4 * sig4Factor;
 
+% signal 5
+
+sig5 = randn(1,sigLen);
+sig5Factor = 0.95/max(abs(sig5(:)));
+sig5 = sig5 * sig5Factor;
+
+% signal 6
+
+sig6 = randn(1,sigLen);
+sig6Factor = 0.95/max(abs(sig6(:)));
+sig6 = sig6 * sig6Factor;
+
 % saves
 
 samplingFreq = 16000;
@@ -182,10 +213,13 @@ wavwrite(sig1',samplingFreq, bitNum, [savePath '/sig1.wav']);
 wavwrite(sig2',samplingFreq, bitNum, [savePath '/sig2.wav']);
 wavwrite(sig3',samplingFreq, bitNum, [savePath '/sig3.wav']);
 wavwrite(sig4',samplingFreq, bitNum, [savePath '/sig4.wav']);
+wavwrite(sig5',samplingFreq, bitNum, [savePath '/sig5.wav']);
+wavwrite(sig6',samplingFreq, bitNum, [savePath '/sig6.wav']);
 
 % tables
 savetable( dict1, [savePath '/table1.bin'], [savePath '/table1_data.bin'] );
-savetable( dict2, [savePath '/table2.bin'], [savePath '/table2_data.bin'] );
+savetable( dict2, [savePath '/table2.bin'], [savePath '/table2_data.bin'] )
+savetable( dict3, [savePath '/table3.bin'], [savePath '/table3_data.bin'] );
 
 % dictionaries
 fid = fopen( [savePath '/dict1.xml'], 'wt');
@@ -210,6 +244,34 @@ fprintf(fid, '<libVersion>0.4beta</libVersion>\n');
 fprintf(fid, '<dict>\n');
 fprintf(fid, '\t<block type="anywave">\n');
 fprintf(fid, '\t\t<par type="tableFileName">%s</par>\n', [savePath '/table2.bin']);
+fprintf(fid, '\t\t<par type="windowShift">%i</par>\n', filterShift);
+fprintf(fid, '\t</block>\n');
+fprintf(fid, '</dict>');
+
+fclose( fid );
+
+fid = fopen( [savePath '/dict3.xml'], 'wt');
+
+fprintf(fid, '<?xml version="1.0" encoding="ISO-8859-1"?>\n');
+fprintf(fid, '<libVersion>0.4beta</libVersion>\n');
+
+fprintf(fid, '<dict>\n');
+fprintf(fid, '\t<block type="anywave">\n');
+fprintf(fid, '\t\t<par type="tableFileName">%s</par>\n', [savePath '/table3.bin']);
+fprintf(fid, '\t\t<par type="windowShift">%i</par>\n', filterShift);
+fprintf(fid, '\t</block>\n');
+fprintf(fid, '</dict>');
+
+fclose( fid );
+
+fid = fopen( [savePath '/dict3_hilbert.xml'], 'wt');
+
+fprintf(fid, '<?xml version="1.0" encoding="ISO-8859-1"?>\n');
+fprintf(fid, '<libVersion>0.4beta</libVersion>\n');
+
+fprintf(fid, '<dict>\n');
+fprintf(fid, '\t<block type="anywavehilbert">\n');
+fprintf(fid, '\t\t<par type="tableFileName">%s</par>\n', [savePath '/table3.bin']);
 fprintf(fid, '\t\t<par type="windowShift">%i</par>\n', filterShift);
 fprintf(fid, '\t</block>\n');
 fprintf(fid, '</dict>');

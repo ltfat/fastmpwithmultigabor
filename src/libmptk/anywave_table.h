@@ -149,6 +149,7 @@ public:
    * 2 if an error occured during the normalization.
    */
   unsigned long int normalized;
+  unsigned long int centeredAndDenyquisted;
 
   /** \brief Table of pointers to the waveforms
    *
@@ -221,6 +222,14 @@ public:
   **/
   bool load_data( void );
 
+
+
+  /* Creates a copy of this table (with all allocations needed) */
+  MP_Anywave_Table_c* copy( void );
+
+  /* Creates the dual table, named name, containing, for each filter, its hilbert transform */
+  MP_Anywave_Table_c* create_hilbert_dual( char* name );
+
  private:
   /** \brief Parse the stream pFile that describes the table
    *
@@ -253,6 +262,13 @@ public:
    * \returns 1 if succeed or 2 if an error occured
    */
   unsigned long int normalize( void );
+
+  /** \brief Sets the mean and the nyquist component of the waveforms
+   * to 0, and update the flag \a centeredAndDenyquisted
+   *
+   * \returns 1 if succeed or 2 if an error occured
+   */
+  unsigned long int center_and_denyquist( void );
 
   /** \brief set the \a tableFileName member to  \a fileName
    * \return pointer to the string \a tableFileName

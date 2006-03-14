@@ -93,8 +93,10 @@
 #define MP_DEBUG_MPD_LOOP      (1 << 20)
 /* -- Specific for internal atom operations: */
 #define MP_DEBUG_ATOM          (1 << 21)
+/* -- Specific for addressing issues */
+#define MP_DEBUG_ADDR          (1 << 22)
 
-#define MP_MSG_LAST_TYPE MP_DEBUG_ATOM
+#define MP_MSG_LAST_TYPE MP_DEBUG_ADDR
 
 #define MP_DEBUG_ALL  ULONG_MAX
 #define MP_DEBUG_NONE 0

@@ -252,7 +252,7 @@ int MP_Atom_c::write( FILE *fid, const char mode ) {
 
   case MP_BINARY:
     /* numChans */
-    nItem += mp_fwrite( &numChans, sizeof(int), 1, fid );
+    nItem += mp_fwrite( &numChans, sizeof(MP_Chan_t), 1, fid );
     /* Support */
     for ( i=0; i<(unsigned int)numChans; i++ ) {
       nItem += mp_fwrite( &(support[i].pos), sizeof(unsigned long int), 1, fid );

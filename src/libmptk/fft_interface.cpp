@@ -310,6 +310,7 @@ MP_FFTW_Interface_c::MP_FFTW_Interface_c( const unsigned long int setWindowSize,
   out        = (fftw_complex*) fftw_malloc( sizeof(fftw_complex) * numFreqs );
   /* Call the FFTW planning utility */
   p = fftw_plan_dft_r2c_1d( (int)(fftSize), inPrepared, out, FFTW_MEASURE );
+  iP = fftw_plan_dft_c2r_1d( (int)(fftSize), out, inPrepared, FFTW_MEASURE );
   
 }
 
@@ -321,6 +322,7 @@ MP_FFTW_Interface_c::~MP_FFTW_Interface_c() {
   fftw_free( inPrepared );
   fftw_free( out );
   fftw_destroy_plan( p );
+  fftw_destroy_plan( iP );
 }
 
 
@@ -366,7 +368,38 @@ void MP_FFTW_Interface_c::exec_complex( MP_Sample_t *in, MP_Real_t *re, MP_Real_
     *(im+i) = (MP_Real_t)( im_out );
   }
   /* Ensure that the imaginary part of the DC and Nyquist frequency components are zero */
-  *(im) = 0.0;
-  *(im+numFreqs-1) = 0.0;
+  *(im) = (MP_Real_t)0.0;
+  *(im+numFreqs-1) = (MP_Real_t)0.0;
+
+}
+
+
+/***********************/
+/* Get the real result */
+void MP_FFTW_Interface_c::exec_complex_inverse( MP_Real_t *re, MP_Real_t *im, MP_Sample_t *output ) {
+
+  unsigned long int i;
+//  double re_out, im_out;
+
+  /* Simple buffer check */
+  assert( output != NULL );
+  assert( re != NULL );
+  assert( im != NULL );
+
+  /* Copy and window the input frequency components */
+  for ( i=0; i<numFreqs; i++ ) {
+    out[i][0] = (double)(*(window+i)) * (double)(*(re+i));
+    out[i][1] = (double)(*(window+i)) * (double)(*(im+i));
+  }
+
+  /* Execute the inverse FFT described by plan "iP"
+     (which itself points to the right input/ouput buffers,
+     such as buffer inPrepared etc.) */
+  fftw_execute( iP );
+
+  /* Cast and copy the result */
+  for ( i=0; i<fftSize; i++ ) {
+    *(output+i) = (MP_Sample_t)( *(inPrepared+i) );
+  }
 
 }

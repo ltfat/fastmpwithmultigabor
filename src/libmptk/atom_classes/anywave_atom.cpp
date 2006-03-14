@@ -304,7 +304,7 @@ bool MP_Anywave_Atom_c::test( char* filename ) {
 int MP_Anywave_Atom_c::write( FILE *fid, const char mode ) {
   
   int nItem = 0;
-  int numChar;
+  unsigned long int numChar;
 
   /* Call the parent's write function */
   nItem += MP_Atom_c::write( fid, mode );
@@ -321,12 +321,12 @@ int MP_Anywave_Atom_c::write( FILE *fid, const char mode ) {
 
   case MP_BINARY:
     /* Filename of the table containing the waveform */
-    numChar = strlen(anywaveTable->tableFileName)+1;
-    nItem += mp_fwrite( &numChar,  sizeof(long int), 1, fid );
+    numChar = (unsigned long int) strlen(anywaveTable->tableFileName)+1;
+    nItem += mp_fwrite( &numChar,  sizeof(unsigned long int), 1, fid );
     nItem += fprintf( fid, "%s\n", anywaveTable->tableFileName );
 
     /* Binary parameters */
-    nItem += mp_fwrite( &anywaveIdx,  sizeof(long int), 1, fid );
+    nItem += mp_fwrite( &anywaveIdx,  sizeof(unsigned long int), 1, fid );
     break;
 
   default:
