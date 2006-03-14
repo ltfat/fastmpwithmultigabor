@@ -105,7 +105,7 @@ for ( i = 1:book.numAtoms );
     book.atom{i}.waveIdx = fread( fid, 1, 'ulong' );
 
    case 'anywavehilbert'
-    numChar = fread( fid, 1, 'ulong' )
+    numChar = fread( fid, 1, 'ulong' );
     
     book.atom{i}.tableFileName = fread( fid, numChar, '*char' )';
     book.atom{i}.tableFileName(end) = [];
