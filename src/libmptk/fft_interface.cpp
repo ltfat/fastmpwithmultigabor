@@ -231,9 +231,6 @@ void MP_FFT_Interface_c::exec_complex_demod( MP_Sample_t *in,
     *(re+i) = bufferRe[i] - buffer2Im[i];
     *(im+i) = bufferIm[i] + buffer2Re[i];
   }
-  /* Ensure that the imaginary part of the DC and Nyquist frequency components are zero */
-  *(im) = 0.0;
-  *(im+numFreqs-1) = 0.0;
 
 }
 
