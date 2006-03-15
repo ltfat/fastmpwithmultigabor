@@ -37,7 +37,7 @@
 SUBDIRS = signals ref
 
 noinst_PROGRAMS = test_win test_fft test_parabolic_regression test_mp test_mask \
-	 test_messaging test_anywave test_behaviour_in_noise
+	 test_messaging test_anywave test_behaviour_in_noise test_convolution
 
 test_win_SOURCES = test_win.c
 test_win_LDADD = ../libdsp_windows/libdsp_windows.a
@@ -71,6 +71,9 @@ test_behaviour_in_noise_SOURCES = test_behaviour_in_noise.cpp
 test_behaviour_in_noise_LDADD = @LOCAL_BUILD_LIBS@
 test_behaviour_in_noise_DEPENDENCIES = @LOCAL_BUILD_LIBS@
 
+test_convolution_SOURCES = test_convolution.cpp
+test_convolution_LDADD = @LOCAL_BUILD_LIBS@
+test_convolution_DEPENDENCIES = @LOCAL_BUILD_LIBS@
 
 TESTS = test_mpcycle.sh
 TESTS_ENVIRONMENT = $(SHELL)

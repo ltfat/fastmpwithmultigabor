@@ -36,7 +36,7 @@
  */
 
 /** \file test_fft.cpp
- * A file with some code that serves both as an example of how to use the 
+ * A file with some code that serves both as an example of how to use the
  *  FFT interface and as a test that it is properly working.
  *
  */

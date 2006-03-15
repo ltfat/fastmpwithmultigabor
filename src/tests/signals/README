@@ -19,3 +19,8 @@ Test signals:
 - 2_cosines.flt : 8000 samples of a mix of 2 cosines (spectrum should have
                   2 noticeable peaks).
 
+- anywave_signal.wav : 1000 samples randomly generated @ 16000Hz
+
+- anywave_table.bin : an anywave table of 4 filters of length 128
+
+- anywave_table_data.bin : the data of the table anywave_table.bin

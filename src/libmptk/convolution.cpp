@@ -1215,6 +1215,7 @@ void MP_Convolution_FFT_c::compute_IP( MP_Sample_t* input, unsigned long int inp
   MP_Sample_t* pSlice;
   MP_Sample_t* pNextSlice;
   MP_Sample_t* pInputEnd;
+  MP_Sample_t* pConvEnd;
 
   double** tmp;
   
@@ -1242,10 +1243,12 @@ void MP_Convolution_FFT_c::compute_IP( MP_Sample_t* input, unsigned long int inp
     mp_error_msg( "MP_Convolution_FFT_c::compute_IP", "inputLen [%lu] is equal to the max for an unsigned long int [%lu]. Cannot initialize the number of slices. Exiting from compute_IP()\n", inputLen, MP_MAX_UNSIGNED_LONG_INT );
     return;
   }
+
   numFrames = ((inputLen - anywaveTable->filterLen)/filterShift) + 1;
-  numSlices = ( inputLen / anywaveTable->filterLen ) + 1;
+  numSlices = (unsigned long int) ceil( (double)(inputLen) / (double)anywaveTable->filterLen );
 
   pOutputStart = *output;
+
   if ( (double)MP_MAX_UNSIGNED_LONG_INT / (double)anywaveTable->numFilters / (double)numFrames <= 1.0) {
     mp_error_msg( "MP_Convolution_FFT_c::compute_IP", "anywaveTable->numFilters [%lu] . numFrames [%lu] is greater than the max for an unsigned long int [%lu]. Cannot initialize local variable. Exiting from compute_IP().\n", anywaveTable->numFilters, numFrames, MP_MAX_UNSIGNED_LONG_INT);
     return;
@@ -1256,17 +1259,14 @@ void MP_Convolution_FFT_c::compute_IP( MP_Sample_t* input, unsigned long int inp
   pNextSlice = pSlice + anywaveTable->filterLen;
   numFramesAdd = 0;
   numFramesNew = 0;
-  nextFirstFrameSample = 0;
 
   /* first MP_Sample_t* after input */
   pInputEnd = input + inputLen;
   
-  p = pSlice;
-  while ((p < pNextSlice)&&(p < (pInputEnd - anywaveTable->filterLen + 1))) {
-    numFramesNew ++;
-    p += filterShift;
-  }
-
+  numFramesNew = 1;
+  p = pSlice + anywaveTable->filterLen - 1 + filterShift;
+  nextFirstFrameSample = anywaveTable->filterLen - 1;
+  firstFrameSample = 0;
 
   /* sets the elements of the first slice of output to zero */
   for (filterIdx = 0;
@@ -1301,7 +1301,7 @@ void MP_Convolution_FFT_c::compute_IP( MP_Sample_t* input, unsigned long int inp
     firstFrameSample = nextFirstFrameSample;
     nextFirstFrameSample = p - pNextSlice;    
 
-    while ((p < pNextSlice + anywaveTable->filterLen)&&(p < (pInputEnd - anywaveTable->filterLen + 1))) {
+    while ((p < pNextSlice + anywaveTable->filterLen)&&(p < (pInputEnd))) {
       numFramesNew ++;
       p += filterShift;
     }
