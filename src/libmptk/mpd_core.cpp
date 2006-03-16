@@ -435,8 +435,8 @@ unsigned short int MP_Mpd_Core_c::step() {
   if ( useStopAfterSnr  && (currentSnr >= stopAfterSnr) ) state = ( state | MPD_SNR_CONDITION_REACHED );
   if ( residualEnergy < 0.0 ) state = ( state | MPD_NEG_ENERGY_REACHED );
   if ( residualEnergy >= residualEnergyBefore ) {
-    mp_warning_msg( func, "This iteration increases the energy of the residual ! Before: [%g] Now: [%g]\n",
-		    residualEnergyBefore, residualEnergy );
+    mp_warning_msg( func, "Iteration [%lu] increases the energy of the residual ! Before: [%g] Now: [%g]\n",
+		    numIter, residualEnergyBefore, residualEnergy );
     mp_warning_msg( func, "Last atom found is sent to stderr.\n" );
     book->atom[book->numAtoms-1]->info( stderr );
     state = ( state | MPD_INCREASING_ENERGY );
