@@ -133,7 +133,7 @@ int MP_Atom_c::read( FILE *fid, const char mode ) {
     break;
 
   case MP_BINARY:
-    if ( mp_fread( &numChans,   sizeof(int), 1, fid ) != 1 ) {
+    if ( mp_fread( &numChans, sizeof(MP_Chan_t), 1, fid ) != 1 ) {
       mp_error_msg( func, "Cannot read numChans.\n");
       return( 1 );
     }
@@ -156,7 +156,7 @@ int MP_Atom_c::read( FILE *fid, const char mode ) {
     
   case MP_TEXT:
     /* Support */
-    for ( i=0, nItem = 0; i<(unsigned int)numChans; i++ ) {
+    for ( i=0, nItem = 0; i<numChans; i++ ) {
       fscanf( fid, "\t\t<support chan=\"%hu\">", &iRead );
       nItem += fscanf( fid, "<p>%lu</p><l>%lu</l></support>\n",
 		       &(support[i].pos), &(support[i].len) );
@@ -185,7 +185,7 @@ int MP_Atom_c::read( FILE *fid, const char mode ) {
     
   case MP_BINARY:
     /* Support */
-    for ( i=0, nItem = 0; i<(unsigned int)numChans; i++ ) {
+    for ( i=0, nItem = 0; i<numChans; i++ ) {
       nItem += mp_fread( &(support[i].pos), sizeof(unsigned long int), 1, fid );
       nItem += mp_fread( &(support[i].len), sizeof(unsigned long int), 1, fid );
     }
@@ -209,7 +209,7 @@ int MP_Atom_c::read( FILE *fid, const char mode ) {
   }
   
   /* Compute the totalChanLen and the numSamples */
-  for ( i=0, totalChanLen = 0; i<(unsigned int)numChans; i++ ) {
+  for ( i=0, totalChanLen = 0; i<numChans; i++ ) {
     val = support[i].pos + support[i].len;
     if (numSamples < val ) numSamples = val;
     totalChanLen += support[i].len;
@@ -241,7 +241,7 @@ int MP_Atom_c::write( FILE *fid, const char mode ) {
     /* numChans */
     nItem += fprintf( fid, "\t\t<par type=\"numChans\">%d</par>\n", numChans );
     /* Support */
-    for ( i=0; i<(unsigned int)numChans; i++ )
+    for ( i=0; i<numChans; i++ )
       nItem += fprintf( fid, "\t\t<support chan=\"%u\"><p>%lu</p><l>%lu</l></support>\n",
 			i, support[i].pos,support[i].len );
     /* Amp */
@@ -254,7 +254,7 @@ int MP_Atom_c::write( FILE *fid, const char mode ) {
     /* numChans */
     nItem += mp_fwrite( &numChans, sizeof(MP_Chan_t), 1, fid );
     /* Support */
-    for ( i=0; i<(unsigned int)numChans; i++ ) {
+    for ( i=0; i<numChans; i++ ) {
       nItem += mp_fwrite( &(support[i].pos), sizeof(unsigned long int), 1, fid );
       nItem += mp_fwrite( &(support[i].len), sizeof(unsigned long int), 1, fid );
     }
