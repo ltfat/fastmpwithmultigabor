@@ -444,6 +444,7 @@ size_t mp_progress_msg( FILE *fid, const char *funcName, const char *format, ...
 /* Debug messages */
 /******************/
 
+/* ---- "Ghost" debug functions */
 #ifndef NDEBUG
 
 /******************/
@@ -471,7 +472,7 @@ size_t mp_debug_msg( const unsigned long int msgType, const char *funcName, cons
 
 /**********************/
 /* Bypassing handler: */
-size_t mp_debug_msg( FILE *fid, const char *funcName, const char *format, ...  ) {
+size_t mp_debug_msg( FILE *fid, const unsigned long int msgType, const char *funcName, const char *format, ...  ) {
 
   va_list arg;
   size_t done;
@@ -480,6 +481,8 @@ size_t mp_debug_msg( FILE *fid, const char *funcName, const char *format, ...  )
   va_start ( arg, format );
   done = make_msg_str( "DEBUG", funcName, format, arg );
   va_end ( arg );
+ /* If the message type does not fit the mask, stop here and do nothing. */
+  if ( !(msgType & MP_GLOBAL_MSG_SERVER.debugMask) ) return( 0 );
   /* Print the string */
   if ( fid == NULL ) return( 0 );
   fprintf( fid, "%s", MP_GLOBAL_MSG_SERVER.stdBuff );
@@ -489,3 +492,49 @@ size_t mp_debug_msg( FILE *fid, const char *funcName, const char *format, ...  )
 }
 
 #endif /* #ifndef NDEBUG */
+
+/*---- "Forced" debug functions */
+
+/******************/
+/* Using handler: */
+size_t mp_debug_msg_forced( const unsigned long int msgType, const char *funcName,
+			    const char *format, ...  ) {
+
+  va_list arg;
+  size_t done;
+  
+  /* If the handler is MP_IGNORE, stop here and do nothing. */
+  if ( MP_GLOBAL_MSG_SERVER.debugHandler == MP_IGNORE ) return( 0 );
+  /* NOTE: In this version, the mask is ignored, the message is output in any case. */
+  /* Store the message type in the server */
+  MP_GLOBAL_MSG_SERVER.currentMsgType = msgType;
+  /* Make the message string */
+  va_start ( arg, format );
+  done = make_msg_str( "DEBUG", funcName, format, arg );
+  va_end ( arg );
+  /* Launch the message handler */
+  (MP_GLOBAL_MSG_SERVER.debugHandler)();
+
+  return( done );
+}
+
+/**********************/
+/* Bypassing handler: */
+size_t mp_debug_msg_forced( FILE *fid, const unsigned long int /* msgType */,
+			    const char *funcName, const char *format, ...  ) {
+
+  va_list arg;
+  size_t done;
+  
+  /* Make the message string */
+  va_start ( arg, format );
+  done = make_msg_str( "DEBUG", funcName, format, arg );
+  va_end ( arg );
+  /* NOTE: In this version, the mask is ignored, the message is output in any case. */
+  /* Print the string */
+  if ( fid == NULL ) return( 0 );
+  fprintf( fid, "%s", MP_GLOBAL_MSG_SERVER.stdBuff );
+  fflush( fid );
+
+  return( done );
+}

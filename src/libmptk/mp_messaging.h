@@ -398,11 +398,15 @@ size_t mp_progress_msg( FILE *fid, const char *funcName, const char *format, ...
 
 /** \brief Pretty-printing of the libmptk debug messages
  *
+ * \param msgType a message type, defined in mp_messaging.h, which allows to
+ * sort the debug output according to the mask set with set_debug_mask()
  * \param funcName the name of the calling function
  * \param format a format string similar to the printf formats
  * \param ... a variable list of arguments to be printed according to the format
  *
- * \sa set_debug_stream(), set_debug_handler(), set_debug_mask().
+ * \note The mp_debug_msg functions are not compiled when the flag -DNDEBUG is used.
+ *
+ * \sa mp_debug_msg_forced(), set_debug_stream(), set_debug_handler(), set_debug_mask().
  */
 #ifndef NDEBUG
 size_t mp_debug_msg( const unsigned long int msgType, const char *funcName, const char *format, ... );
@@ -413,13 +417,51 @@ size_t mp_debug_msg( const unsigned long int msgType, const char *funcName, cons
 /** \brief Pretty-printing of the libmptk debug messages to a specific stream
  *
  * \param fid the (FILE*) stream to write to
+ * \param msgType a message type, defined in mp_messaging.h, which allows to
+ * sort the debug output according to the mask set with set_debug_mask()
  * \param funcName the name of the calling function
  * \param format a format string similar to the printf formats
  * \param ... a variable list of arguments to be printed according to the format
+ *
+ * \note The mp_debug_msg functions are not compiled when the flag -DNDEBUG is used.
+ *
+ * \sa mp_debug_msg_forced(), set_debug_stream(), set_debug_handler(), set_debug_mask().
  */
 #ifndef NDEBUG
 size_t mp_debug_msg( FILE *fid, const unsigned long int msgType, const char *funcName, const char *format, ... );
 #endif
+
+
+/** \brief Forced pretty-printing of the libmptk debug messages
+ *
+ * \param msgType a message type, defined in mp_messaging.h. For this function,
+ * the debug messages mask is ignored.
+ * \param funcName the name of the calling function
+ * \param format a format string similar to the printf formats
+ * \param ... a variable list of arguments to be printed according to the format
+ *
+ * \note This function is always compiled in (no interaction with -DNDEBUG). This "alias"
+ * can be used to force the output of a particular debug function.
+ *
+ * \sa mp_msg_debug(), set_debug_stream(), set_debug_handler(), set_debug_mask().
+ */
+size_t mp_debug_msg_forced( const unsigned long int msgType, const char *funcName, const char *format, ... );
+
+/** \brief Forced pretty-printing of the libmptk debug messages to a specific stream
+ *
+ * \param fid the (FILE*) stream to write to
+ * \param msgType a message type, defined in mp_messaging.h, which allows to
+ * sort the debug output according to the mask set with set_debug_mask()
+ * \param funcName the name of the calling function
+ * \param format a format string similar to the printf formats
+ * \param ... a variable list of arguments to be printed according to the format
+ *
+ * \note This function is always compiled in (no interaction with -DNDEBUG). This "alias"
+ * can be used to force the output of a particular debug function.
+ *
+ * \sa mp_msg_debug(), set_debug_stream(), set_debug_handler(), set_debug_mask().
+ */
+size_t mp_debug_msg_forced( FILE *fid, const unsigned long int msgType, const char *funcName, const char *format, ... );
 
 
 #endif /* __mp_messaging_h_ */
