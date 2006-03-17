@@ -60,7 +60,7 @@ class MP_Anywave_Hilbert_Atom_c: public MP_Anywave_Atom_c {
   /* DATA */
   /********/
 
-public:
+ public:
   /** \brief Index of the anywave hilbert table
    *
    * Index of the anywave hilbert table that contains the hilbert
@@ -91,7 +91,11 @@ public:
   MP_Real_t* realPart;
   MP_Real_t* hilbertPart;
 
+ private:
+  unsigned short int criteriumWithMeanAndNyquist;
+  unsigned short int reconstructionWithMeanAndNyquist;
 
+ public:
   /***********/
   /* METHODS */
   /***********/
@@ -118,6 +122,10 @@ public:
    **/
   static MP_Anywave_Hilbert_Atom_c* init( const MP_Chan_t setNumChans );
 
+  static MP_Anywave_Hilbert_Atom_c* init( const MP_Chan_t setNumChans,
+					  unsigned short int setCriteriumWithMeanAndNyquist,
+					  unsigned short int setReconstructionWithMeanAndNyquist );
+
   /** \brief File constructor
    *
    * construct the atom from a stream, in general when reading a
@@ -143,6 +151,9 @@ public:
    **/
   static MP_Anywave_Hilbert_Atom_c* init( FILE *fid, const char mode );
 
+  static MP_Anywave_Hilbert_Atom_c* init( FILE *fid, const char mode,
+					  unsigned short int setCriteriumWithMeanAndNyquist,
+					  unsigned short int setReconstructionWithMeanAndNyquist);
   /** \brief Default destructor 
    **/
   virtual ~MP_Anywave_Hilbert_Atom_c( void );
@@ -151,8 +162,14 @@ public:
   int init_parts(void);
 
   int init_tables( void);
-  virtual int global_alloc( const MP_Chan_t setNChan );
-  virtual int read( FILE *fid, const char mode );
+  virtual int global_alloc( const MP_Chan_t setNChan,
+			    unsigned short int setCriteriumWithMeanAndNyquist,
+			    unsigned short int setReconstructionWithMeanAndNyquist );
+
+  virtual int read( FILE *fid, 
+		    const char mode,
+		    unsigned short int setCriteriumWithMeanAndNyquist,
+		    unsigned short int setReconstructionWithMeanAndNyquist );
   
 
   /***************************/

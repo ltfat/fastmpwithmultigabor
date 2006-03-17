@@ -108,6 +108,18 @@ class MP_Convolution_c {
   */
   MP_Anywave_Table_c* anywaveTable;
 
+  /** \brief the anywave table containing all the filters (of same
+      length) that will be used to perform inner products with
+      a signal - REAL part (no mean, no nyquist)
+  */
+  MP_Anywave_Table_c* anywaveRealTable;
+
+  /** \brief the anywave table containing all the filters (of same
+      length) that will be used to perform inner products with
+      a signal - HILBERT transform
+  */
+  MP_Anywave_Table_c* anywaveHilbertTable;
+
   /***********/
   /* METHODS */
   /***********/
@@ -125,6 +137,11 @@ class MP_Convolution_c {
    * \param filterShift length between two successive frames of signal   
    */
   MP_Convolution_c( MP_Anywave_Table_c* anywaveTable,
+		   const unsigned long int filterShift );
+
+  MP_Convolution_c( MP_Anywave_Table_c* anywaveTable,
+		    MP_Anywave_Table_c* anywaveRealTable,
+		    MP_Anywave_Table_c* anywaveHilbertTable,
 		   const unsigned long int filterShift );
 
  public:
@@ -224,6 +241,11 @@ class MP_Convolution_Fastest_c:public MP_Convolution_c {
   MP_Convolution_Fastest_c( MP_Anywave_Table_c* anywaveTable,
 			   const unsigned long int filterShift );
 
+  MP_Convolution_Fastest_c( MP_Anywave_Table_c* anywaveTable,
+			    MP_Anywave_Table_c* anywaveRealTable,
+			    MP_Anywave_Table_c* anywaveHilbertTable,
+			   const unsigned long int filterShift );
+
   /** \brief The constructor where only one method is used
    *
    * calls the function initialize to perform the initializations
@@ -235,6 +257,12 @@ class MP_Convolution_Fastest_c:public MP_Convolution_c {
   MP_Convolution_Fastest_c( MP_Anywave_Table_c* anywaveTable,
 			   const unsigned long int filterShift,
 			   const unsigned short int computationMethod );
+
+  MP_Convolution_Fastest_c( MP_Anywave_Table_c* anywaveTable,
+			    MP_Anywave_Table_c* anywaveRealTable,
+			    MP_Anywave_Table_c* anywaveHilbertTable,
+			    const unsigned long int filterShift,
+			    const unsigned short int computationMethod );
 
   /** \brief Destructor
    */
@@ -327,9 +355,19 @@ class MP_Convolution_Fastest_c:public MP_Convolution_c {
    **/
   virtual double compute_IP( MP_Sample_t* input, unsigned long int filterIdx, unsigned short int chanIdx );
 
+  virtual double compute_mean_IP( MP_Sample_t* input );
+
+  virtual double compute_nyquist_IP( MP_Sample_t* input );
+
+  virtual double compute_real_IP( MP_Sample_t* input, unsigned long int filterIdx, unsigned short int chanIdx );
+
+  virtual double compute_hilbert_IP( MP_Sample_t* input, unsigned long int filterIdx, unsigned short int chanIdx );
+
   virtual void compute_max_IP( MP_Signal_c* s, unsigned long int inputLen, unsigned long int fromSample, MP_Real_t* ampOutput, unsigned long int* idxOutput );
 
   virtual void compute_max_hilbert_IP( MP_Signal_c* s, unsigned long int inputLen, unsigned long int fromSample, MP_Real_t* ampOutput, unsigned long int* idxOutput );
+
+  virtual void compute_max_hilbert_no_mean_no_nyquist_IP( MP_Signal_c* s, unsigned long int inputLen, unsigned long int fromSample, MP_Real_t* ampOutput, unsigned long int* idxOutput );
 
 };
 
@@ -366,6 +404,11 @@ class MP_Convolution_Direct_c:public MP_Convolution_c {
    */
   MP_Convolution_Direct_c( MP_Anywave_Table_c* anywaveTable,
 			  const unsigned long int filterShift );
+
+  MP_Convolution_Direct_c( MP_Anywave_Table_c* anywaveTable,
+			   MP_Anywave_Table_c* anywaveRealTable,
+			   MP_Anywave_Table_c* anywaveHilbertTable,
+			   const unsigned long int filterShift );
   
   /** \brief Destructor
    */
@@ -433,7 +476,16 @@ class MP_Convolution_Direct_c:public MP_Convolution_c {
    **/
   virtual double compute_IP( MP_Sample_t* input, unsigned long int filterIdx, unsigned short int chanIdx );
 
+  virtual double compute_mean_IP( MP_Sample_t* input );
+
+  virtual double compute_nyquist_IP( MP_Sample_t* input );
+
+  virtual double compute_real_IP( MP_Sample_t* input, unsigned long int filterIdx, unsigned short int chanIdx );
+
+  virtual double compute_hilbert_IP( MP_Sample_t* input, unsigned long int filterIdx, unsigned short int chanIdx );
+
   virtual void compute_max_IP( MP_Signal_c* s, unsigned long int inputLen, unsigned long int fromSample, MP_Real_t* ampOutput, unsigned long int* idxOutput );
+
 };
 
 /***********************************/
@@ -504,6 +556,30 @@ class MP_Convolution_FFT_c:public MP_Convolution_c {
    * chanIdx*numFilters]
    */
   fftw_complex*** filterFftBuffer;
+
+  /** \brief storage of the FFT of the REAL filters of length
+   * fftRealSize * anywaveTable->numFilters * anywaveTable->numChans
+   */
+  fftw_complex* filterRealFftStorage;
+
+  /** \brief tab for accessing the FFT of the REAL filters in \a
+   * filterRealFftStorage. For example
+   * filterRealFftBuffer[filterIdx][chanIdx][j] corresponds to
+   * filterRealFftStorage[j + filterIdx*fftRealSize + chanIdx*numFilters]
+   */
+  fftw_complex*** filterRealFftBuffer;
+
+  /** \brief storage of the FFT of the HILBERT filters of length
+   * fftHilbertSize * anywaveTable->numFilters * anywaveTable->numChans
+   */
+  fftw_complex* filterHilbertFftStorage;
+
+  /** \brief tab for accessing the FFT of the HILBERT filters in \a
+   * filterHilbertFftStorage. For example
+   * filterHilbertFftBuffer[filterIdx][chanIdx][j] corresponds to
+   * filterHilbertFftStorage[j + filterIdx*fftHilbertSize + chanIdx*numFilters]
+   */
+  fftw_complex*** filterHilbertFftBuffer;
 
   /** \brief storage of the FFT of the mean component, of length fftRealSize
    */
@@ -578,6 +654,11 @@ class MP_Convolution_FFT_c:public MP_Convolution_c {
    */
   MP_Convolution_FFT_c( MP_Anywave_Table_c* anywaveTable,
 			    const unsigned long int filterShift );
+
+  MP_Convolution_FFT_c( MP_Anywave_Table_c* anywaveTable,
+			MP_Anywave_Table_c* anywaveRealTable,
+			MP_Anywave_Table_c* anywaveHilbertTable,
+			const unsigned long int filterShift );
 
   /** \brief Destructor
    */
@@ -862,6 +943,15 @@ class MP_Convolution_FFT_c:public MP_Convolution_c {
   virtual void compute_max_IP( MP_Signal_c* s, unsigned long int inputLen, unsigned long int fromSample, MP_Real_t* ampOutput, unsigned long int* idxOutput );
 
   virtual void compute_max_hilbert_IP( MP_Signal_c* s, unsigned long int inputLen, unsigned long int fromSample, MP_Real_t* ampOutput, unsigned long int* idxOutput );
+
+  virtual void compute_max_hilbert_no_mean_no_nyquist_IP( MP_Signal_c* s, unsigned long int inputLen, unsigned long int fromSample, MP_Real_t* ampOutput, unsigned long int* idxOutput );
+
+ private : 
+  /* 
+    if with_mean == 1 : compute_max_hilbert_IP
+    if with_mean == 0 : compute_max_hilbert_no_mean_no_nyquist_IP
+  */
+  virtual void compute_max_hilbert_IP( MP_Signal_c* s, unsigned long int inputLen, unsigned long int fromSample, MP_Real_t* ampOutput, unsigned long int* idxOutput, int with_mean );
 };
 
 

@@ -60,17 +60,35 @@
 /***************/
 /* Constructor */
 MP_Convolution_c::  MP_Convolution_c( MP_Anywave_Table_c* setAnywaveTable,
-				    const unsigned long int setFilterShift ) {
+				      const unsigned long int setFilterShift ) {
   anywaveTable = setAnywaveTable;
+  anywaveRealTable = setAnywaveTable->copy();
+  anywaveRealTable->center_and_denyquist();
+  anywaveRealTable->normalize();
+  anywaveHilbertTable = setAnywaveTable->create_hilbert_dual(setAnywaveTable->tableFileName);
+  anywaveHilbertTable->normalize();
+
   filterShift = setFilterShift;
 }
 
+MP_Convolution_c::  MP_Convolution_c( MP_Anywave_Table_c* setAnywaveTable,
+				      MP_Anywave_Table_c* setAnywaveRealTable,
+				      MP_Anywave_Table_c* setAnywaveHilbertTable,
+				      const unsigned long int setFilterShift ) {
+  anywaveTable = setAnywaveTable;
+  anywaveRealTable = setAnywaveRealTable;
+  anywaveHilbertTable = setAnywaveHilbertTable;
+
+  filterShift = setFilterShift;
+}
 
 /**************/
 /* Destructor */
 MP_Convolution_c::~MP_Convolution_c( ) {
 
   anywaveTable = NULL;
+  anywaveRealTable = NULL;
+  anywaveHilbertTable = NULL;
 }
 
 /*********************************/
@@ -84,7 +102,7 @@ MP_Convolution_c::~MP_Convolution_c( ) {
 /***************************/
 
 MP_Convolution_Fastest_c::MP_Convolution_Fastest_c( MP_Anywave_Table_c* anywaveTable,
-						  const unsigned long int filterShift )
+						    const unsigned long int filterShift )
   : MP_Convolution_c( anywaveTable, filterShift ) {
     
     /* if filterShift is greater or equal to anywaveTable->filterLen,
@@ -98,9 +116,35 @@ MP_Convolution_Fastest_c::MP_Convolution_Fastest_c( MP_Anywave_Table_c* anywaveT
   }
 
 MP_Convolution_Fastest_c::MP_Convolution_Fastest_c( MP_Anywave_Table_c* anywaveTable,
-						  const unsigned long int filterShift,
-						  const unsigned short int computationMethod )
+						    MP_Anywave_Table_c* anywaveRealTable,
+						    MP_Anywave_Table_c* anywaveHilbertTable,
+						    const unsigned long int filterShift )
+  : MP_Convolution_c( anywaveTable, anywaveRealTable, anywaveHilbertTable, filterShift ) {
+    
+    /* if filterShift is greater or equal to anywaveTable->filterLen,
+       then the fastest method is the direct one. Else the methods are
+       compared depending on the length of the signal */
+    if (filterShift >= anywaveTable->filterLen) {
+      initialize( MP_ANYWAVE_COMPUTE_DIRECT );
+    } else {
+      initialize();
+    }
+  }
+
+MP_Convolution_Fastest_c::MP_Convolution_Fastest_c( MP_Anywave_Table_c* anywaveTable,
+						    const unsigned long int filterShift,
+						    const unsigned short int computationMethod )
   : MP_Convolution_c( anywaveTable, filterShift ) {
+    
+    initialize( computationMethod );
+  }
+
+MP_Convolution_Fastest_c::MP_Convolution_Fastest_c( MP_Anywave_Table_c* anywaveTable,
+						    MP_Anywave_Table_c* anywaveRealTable,
+						    MP_Anywave_Table_c* anywaveHilbertTable,
+						    const unsigned long int filterShift,
+						    const unsigned short int computationMethod )
+  : MP_Convolution_c( anywaveTable, anywaveRealTable, anywaveHilbertTable, filterShift ) {
     
     initialize( computationMethod );
   }
@@ -114,7 +158,7 @@ MP_Convolution_Fastest_c::~MP_Convolution_Fastest_c() {
 void MP_Convolution_Fastest_c::initialize(void) {
 
   /*
-  */
+   */
   unsigned short int count;
   unsigned long int currSignalLen;
   unsigned long int precSignalLen;
@@ -141,8 +185,8 @@ void MP_Convolution_Fastest_c::initialize(void) {
 
   bool goOn;
   
-  methods[0] = (MP_Convolution_c *) new MP_Convolution_Direct_c( anywaveTable, filterShift );
-  methods[1] = (MP_Convolution_c *) new MP_Convolution_FFT_c( anywaveTable, filterShift );
+  methods[0] = (MP_Convolution_c *) new MP_Convolution_Direct_c( anywaveTable, anywaveRealTable, anywaveHilbertTable, filterShift );
+  methods[1] = (MP_Convolution_c *) new MP_Convolution_FFT_c( anywaveTable, anywaveRealTable, anywaveHilbertTable, filterShift );
 
   methodSwitchLimit = 0;
   
@@ -191,8 +235,8 @@ void MP_Convolution_Fastest_c::initialize(void) {
     }
 
     if ( (output = (double *)realloc( output, anywaveTable->numFilters * (currFactor+1) * sizeof(double) ) ) == NULL ) {
-	mp_error_msg( "MP_Convolution_Fastest_c::initialize", "Can't allocate an array of [%lu] double elements"
-		      " for the output array using realloc. This pointer will remain NULL.\n", anywaveTable->numFilters * (currFactor+1) );
+      mp_error_msg( "MP_Convolution_Fastest_c::initialize", "Can't allocate an array of [%lu] double elements"
+		    " for the output array using realloc. This pointer will remain NULL.\n", anywaveTable->numFilters * (currFactor+1) );
     }
 
     if ( (signal == NULL) || (output == NULL) ) {
@@ -213,8 +257,8 @@ void MP_Convolution_Fastest_c::initialize(void) {
 	if (i > 30) {
 	  i = 30;
 #ifndef NDEBUG
-	fprintf(stderr," -> reducing the number of runs to %lu",30);
-	fflush(stderr);
+	  fprintf(stderr," -> reducing the number of runs to %lu",30);
+	  fflush(stderr);
 #endif
 	}
 	num = i;      
@@ -314,8 +358,8 @@ void MP_Convolution_Fastest_c::initialize( const unsigned short int computationM
     return;
   }
 
-  methods[0] = (MP_Convolution_c *) new MP_Convolution_Direct_c( anywaveTable, filterShift );
-  methods[1] = (MP_Convolution_c *) new MP_Convolution_FFT_c( anywaveTable, filterShift );
+  methods[0] = (MP_Convolution_c *) new MP_Convolution_Direct_c( anywaveTable, anywaveRealTable, anywaveHilbertTable, filterShift );
+  methods[1] = (MP_Convolution_c *) new MP_Convolution_FFT_c( anywaveTable, anywaveRealTable, anywaveHilbertTable, filterShift );
 
   if (computationMethod == MP_ANYWAVE_COMPUTE_FFT) {
     methodSwitchLimit = anywaveTable->filterLen + 1;
@@ -371,6 +415,30 @@ double MP_Convolution_Fastest_c::compute_IP( MP_Sample_t* input, unsigned long i
   
 }
 
+double MP_Convolution_Fastest_c::compute_mean_IP( MP_Sample_t* input ) {
+  
+  return( ((MP_Convolution_Direct_c*)methods[ MP_ANYWAVE_COMPUTE_DIRECT ])->compute_mean_IP(input) );
+  
+}
+
+double MP_Convolution_Fastest_c::compute_nyquist_IP( MP_Sample_t* input ) {
+  
+  return( ((MP_Convolution_Direct_c*)methods[ MP_ANYWAVE_COMPUTE_DIRECT ])->compute_nyquist_IP(input) );
+  
+}
+
+double MP_Convolution_Fastest_c::compute_real_IP( MP_Sample_t* input, unsigned long int filterIdx, unsigned short int chanIdx ) {
+  
+  return( ((MP_Convolution_Direct_c*)methods[ MP_ANYWAVE_COMPUTE_DIRECT ])->compute_real_IP(input,filterIdx,chanIdx) );
+  
+}
+
+double MP_Convolution_Fastest_c::compute_hilbert_IP( MP_Sample_t* input, unsigned long int filterIdx, unsigned short int chanIdx ) {
+  
+  return( ((MP_Convolution_Direct_c*)methods[ MP_ANYWAVE_COMPUTE_DIRECT ])->compute_hilbert_IP(input,filterIdx,chanIdx) );
+  
+}
+
 void MP_Convolution_Fastest_c::compute_max_IP( MP_Signal_c* s, unsigned long int inputLen, unsigned long int fromSample, MP_Real_t* ampOutput, unsigned long int* idxOutput ) {
 
   methods[ find_fastest_method( inputLen) ]->compute_max_IP(s, inputLen, fromSample, ampOutput, idxOutput);
@@ -380,6 +448,12 @@ void MP_Convolution_Fastest_c::compute_max_IP( MP_Signal_c* s, unsigned long int
 void MP_Convolution_Fastest_c::compute_max_hilbert_IP( MP_Signal_c* s, unsigned long int inputLen, unsigned long int fromSample, MP_Real_t* ampOutput, unsigned long int* idxOutput ) {
 
   ((MP_Convolution_FFT_c*)methods[ MP_ANYWAVE_COMPUTE_FFT ])->compute_max_hilbert_IP(s, inputLen, fromSample, ampOutput, idxOutput);
+
+}
+
+void MP_Convolution_Fastest_c::compute_max_hilbert_no_mean_no_nyquist_IP( MP_Signal_c* s, unsigned long int inputLen, unsigned long int fromSample, MP_Real_t* ampOutput, unsigned long int* idxOutput ) {
+
+  ((MP_Convolution_FFT_c*)methods[ MP_ANYWAVE_COMPUTE_FFT ])->compute_max_hilbert_no_mean_no_nyquist_IP(s, inputLen, fromSample, ampOutput, idxOutput);
 
 }
 
@@ -395,10 +469,18 @@ void MP_Convolution_Fastest_c::compute_max_hilbert_IP( MP_Signal_c* s, unsigned 
 
 
 MP_Convolution_Direct_c::MP_Convolution_Direct_c(  MP_Anywave_Table_c* anywaveTable,
-						 const unsigned long int filterShift )
+						   const unsigned long int filterShift )
   : MP_Convolution_c( anywaveTable, filterShift ) {
     
-}
+  }
+
+MP_Convolution_Direct_c::MP_Convolution_Direct_c(  MP_Anywave_Table_c* anywaveTable,
+						   MP_Anywave_Table_c* anywaveRealTable,
+						   MP_Anywave_Table_c* anywaveHilbertTable,
+						   const unsigned long int filterShift )
+  : MP_Convolution_c( anywaveTable, anywaveRealTable, anywaveHilbertTable, filterShift ) {
+    
+  }
 
 /**************/
 /* Destructor */
@@ -432,12 +514,12 @@ void MP_Convolution_Direct_c::compute_IP( MP_Sample_t* input, unsigned long int 
   }
 
   if( inputLen < anywaveTable->filterLen ) {
-     mp_error_msg( "MP_Convolution_Direct_c::compute_IP", "Can't compute inner products because the input signal is smaller than the filter\n inputLen=%lu - filterLen=%lu... aborting\n", inputLen, anywaveTable->filterLen);
+    mp_error_msg( "MP_Convolution_Direct_c::compute_IP", "Can't compute inner products because the input signal is smaller than the filter\n inputLen=%lu - filterLen=%lu... aborting\n", inputLen, anywaveTable->filterLen);
     exit(1);
   }
 
   if ( ( inputLen == 0 ) || ( anywaveTable->filterLen == 0 ) ) {
-     mp_error_msg( "MP_Convolution_Direct_c::compute_IP", "Can't compute inner products because the input or filter length has not been filled in :\n inputLen=%lu - filterLen=%lu  ... aborting\n", inputLen, anywaveTable->filterLen);
+    mp_error_msg( "MP_Convolution_Direct_c::compute_IP", "Can't compute inner products because the input or filter length has not been filled in :\n inputLen=%lu - filterLen=%lu  ... aborting\n", inputLen, anywaveTable->filterLen);
     exit(1);
   }
 
@@ -484,6 +566,104 @@ double MP_Convolution_Direct_c::compute_IP( MP_Sample_t* input, unsigned long in
   temp = 0.0;
   pFilterEnd = anywaveTable->wave[filterIdx][chanIdx] + anywaveTable->filterLen;
   for ( pInput = input, pFilter = anywaveTable->wave[filterIdx][chanIdx];
+	pFilter < pFilterEnd;
+	pInput++, pFilter++ ) {
+    temp += ((double)*pFilter) * ((double)*pInput);
+
+  }
+  return(temp);
+}
+
+double MP_Convolution_Direct_c::compute_mean_IP( MP_Sample_t* input ) {
+
+  MP_Sample_t* pInput;
+  MP_Sample_t* pInputEnd;
+  
+  pInputEnd = input + anywaveTable->filterLen;
+  
+  double temp;
+  
+  temp = 0.0;
+  for ( pInput = input;
+	pInput < pInputEnd;
+	pInput++ ) {
+    temp += (double)*pInput;
+  }
+  temp /= sqrt((double)anywaveTable->filterLen);
+
+  return(temp);
+}
+
+double MP_Convolution_Direct_c::compute_nyquist_IP( MP_Sample_t* input ) {
+
+  if ((anywaveTable->filterLen>>2)<<2 == anywaveTable->filterLen) {
+
+    MP_Sample_t* pInput;
+    MP_Sample_t* pInputEnd;
+  
+    pInputEnd = input + anywaveTable->filterLen;
+    
+    double temp;
+    
+    temp = 0.0;
+    for ( pInput = input;
+	  pInput < pInputEnd;
+	  pInput+=2 ) {
+      temp += (double)*pInput;
+      temp -= (double)*(pInput+1);
+    }
+    temp /= sqrt((double)anywaveTable->filterLen);
+
+    return(temp);
+
+  } else {
+    return(0.0);
+  }
+}
+
+double MP_Convolution_Direct_c::compute_real_IP( MP_Sample_t* input, unsigned long int filterIdx, unsigned short int chanIdx ) {
+
+  MP_Sample_t* pFilter;
+  MP_Sample_t* pFilterEnd;
+
+  MP_Sample_t* pInput;
+  
+  double temp;
+
+  if( chanIdx > anywaveRealTable->numChans - 1 ) {
+    mp_error_msg( "MP_Convolution_Direct_c::compute_IP", "Can't compute inner products because the channel index [%hu] is larger than the number of channels [%hu]... aborting\n", chanIdx, anywaveRealTable->numChans);
+    exit(1);
+  }
+  
+  temp = 0.0;
+  pFilterEnd = anywaveRealTable->wave[filterIdx][chanIdx] + anywaveRealTable->filterLen;
+  for ( pInput = input, pFilter = anywaveRealTable->wave[filterIdx][chanIdx];
+	pFilter < pFilterEnd;
+	pInput++, pFilter++ ) {
+    temp += ((double)*pFilter) * ((double)*pInput);
+
+  }
+  return(temp);
+}
+
+
+double MP_Convolution_Direct_c::compute_hilbert_IP( MP_Sample_t* input, unsigned long int filterIdx, unsigned short int chanIdx ) {
+
+  MP_Sample_t* pFilter;
+  MP_Sample_t* pFilterEnd;
+
+  MP_Sample_t* pInput;
+  
+  double temp;
+
+  if( chanIdx > anywaveHilbertTable->numChans - 1 ) {
+    mp_error_msg( "MP_Convolution_Direct_c::compute_IP", "Can't compute inner products because the channel index [%hu] is larger than the number of channels [%hu]... aborting\n", chanIdx, anywaveHilbertTable->numChans);
+    exit(1);
+  }
+  
+  temp = 0.0;
+  pFilterEnd = anywaveHilbertTable->wave[filterIdx][chanIdx] + anywaveHilbertTable->filterLen;
+  for ( pInput = input, pFilter = anywaveHilbertTable->wave[filterIdx][chanIdx];
 	pFilter < pFilterEnd;
 	pInput++, pFilter++ ) {
     temp += ((double)*pFilter) * ((double)*pInput);
@@ -599,6 +779,7 @@ void MP_Convolution_Direct_c::compute_max_IP( MP_Signal_c* s, unsigned long int 
   }
 }
 
+
 /*************************************/
 /*                                   */
 /* FAST CONVOLUTION IMPLEMENTATION   */
@@ -611,8 +792,18 @@ void MP_Convolution_Direct_c::compute_max_IP( MP_Signal_c* s, unsigned long int 
 
 
 MP_Convolution_FFT_c::MP_Convolution_FFT_c( MP_Anywave_Table_c* anywaveTable,
-								    const unsigned long int filterShift )
+					    const unsigned long int filterShift )
   : MP_Convolution_c( anywaveTable, filterShift ) {
+
+    initialize();
+
+  }
+
+MP_Convolution_FFT_c::MP_Convolution_FFT_c( MP_Anywave_Table_c* anywaveTable,
+					    MP_Anywave_Table_c* anywaveRealTable,
+					    MP_Anywave_Table_c* anywaveHilbertTable,
+					    const unsigned long int filterShift )
+  : MP_Convolution_c( anywaveTable, anywaveRealTable, anywaveHilbertTable, filterShift ) {
 
     initialize();
 
@@ -713,17 +904,20 @@ void MP_Convolution_FFT_c::initialize(void) {
   /* Creates the local plan for performing IFFT */
   ifftPlan = fftw_plan_dft_c2r_1d( (int)(fftCplxSize), outputFftBuffer, outputBuffer, FFTW_MEASURE );
   
+
+
+
   /* Allocates the tab for accessing the FFT of the filters in filterFftStorage */
   if ( (filterFftBuffer = (fftw_complex***) malloc( sizeof(fftw_complex **) * anywaveTable->numFilters ) ) == NULL ) {
     mp_error_msg( "MP_Convolution_FFT_c::initialize", "Can't allocate an array of [%lu] fftw_complex** elements"
-		  " for the filterIn array using malloc. This pointer will remain NULL.\n", anywaveTable->numFilters );
+		  " for the filterFftBuffer array using malloc. This pointer will remain NULL.\n", anywaveTable->numFilters );
   } else {
     for (filterIdx = 0;
 	 filterIdx < anywaveTable->numFilters;
 	 filterIdx ++) {
       if ( (filterFftBuffer[filterIdx] = (fftw_complex**) malloc( sizeof(fftw_complex *) * anywaveTable->numChans ) ) == NULL ) {
 	mp_error_msg( "MP_Convolution_FFT_c::initialize", "Can't allocate an array of [%lu] fftw_complex* elements"
-		      " for the filterIn array using malloc. This pointer will remain NULL.\n", anywaveTable->numChans );
+		      " for the filterFftBuffer[%lu] array using malloc. This pointer will remain NULL.\n", anywaveTable->numChans, filterIdx );
       }
     }
   }
@@ -731,7 +925,7 @@ void MP_Convolution_FFT_c::initialize(void) {
   /* Allocates the storage for all the fft of the filters and fill it in */
   if ((filterFftStorage = (fftw_complex*) fftw_malloc( sizeof(fftw_complex) * anywaveTable->numFilters * anywaveTable->numChans * fftRealSize )) == NULL ) {
     mp_error_msg( "MP_Convolution_FFT_c::initialize", "Can't allocate an array of [%lu] fftw_complex* elements"
-		  " for the filterIn array using fftw_malloc. This pointer will remain NULL.\n", anywaveTable->numFilters * anywaveTable->numChans * fftRealSize );
+		  " for the filterFftStorage array using fftw_malloc. This pointer will remain NULL.\n", anywaveTable->numFilters * anywaveTable->numChans * fftRealSize );
   } else {
     /* fftPlan is used for performing the FFT of the filters */
     pStorage = filterFftStorage;
@@ -760,6 +954,121 @@ void MP_Convolution_FFT_c::initialize(void) {
 	
 	pFftBufferEnd = signalFftBuffer + fftRealSize;
 	/* copies the FFT to filterFftStorage */
+	for (pFftBuffer = signalFftBuffer;
+	     pFftBuffer < pFftBufferEnd;
+	     pFftBuffer++, pStorage++ ) {
+	  (*pStorage)[0] = (*pFftBuffer)[0];
+	  (*pStorage)[1] = (*pFftBuffer)[1];
+	}
+      }
+    }
+  }
+
+  /* Allocates the tab for accessing the FFT of the filters in filterRealFftStorage */
+  if ( (filterRealFftBuffer = (fftw_complex***) malloc( sizeof(fftw_complex **) * anywaveRealTable->numFilters ) ) == NULL ) {
+    mp_error_msg( "MP_Convolution_FFT_c::initialize", "Can't allocate an array of [%lu] fftw_complex** elements"
+		  " for the filterReafFftBuffer array using malloc. This pointer will remain NULL.\n", anywaveRealTable->numFilters );
+  } else {
+    for (filterIdx = 0;
+	 filterIdx < anywaveRealTable->numFilters;
+	 filterIdx ++) {
+      if ( (filterRealFftBuffer[filterIdx] = (fftw_complex**) malloc( sizeof(fftw_complex *) * anywaveRealTable->numChans ) ) == NULL ) {
+	mp_error_msg( "MP_Convolution_FFT_c::initialize", "Can't allocate an array of [%lu] fftw_complex* elements"
+		      " for the filterRealFftBuffer[%lu] array using malloc. This pointer will remain NULL.\n", anywaveRealTable->numChans, filterIdx );
+      }
+    }
+  }
+
+  /* Allocates the storage for all the fft of the filters and fill it in */
+  if ((filterRealFftStorage = (fftw_complex*) fftw_malloc( sizeof(fftw_complex) * anywaveRealTable->numFilters * anywaveRealTable->numChans * fftRealSize )) == NULL ) {
+    mp_error_msg( "MP_Convolution_FFT_c::initialize", "Can't allocate an array of [%lu] fftw_complex* elements"
+		  " for the filterReafFftStorage array using fftw_malloc. This pointer will remain NULL.\n", anywaveRealTable->numFilters * anywaveRealTable->numChans * fftRealSize );
+  } else {
+    /* fftPlan is used for performing the FFT of the filters */
+    pStorage = filterRealFftStorage;
+    
+    for (chanIdx = 0;
+	 chanIdx < anywaveRealTable->numChans;
+	 chanIdx ++) {
+      for (filterIdx = 0;
+	   filterIdx < anywaveRealTable->numFilters;
+	   filterIdx ++) {
+	
+	/* copies the pointer to the storage of the FFT of the channel chanIdx of the filter filterIdx to filterFftBuffer */
+	filterRealFftBuffer[filterIdx][chanIdx] = pStorage;
+
+	/* copies the filter, BACKWARDS, to the first half of signalBuffer */
+	pFilterStart = anywaveRealTable->wave[filterIdx][chanIdx] - 1;
+	
+	for (pBuffer = signalBuffer, pFilter = pFilterStart + anywaveRealTable->filterLen;
+	     pFilter > pFilterStart;
+	     pBuffer++, pFilter-- ) {
+	  *pBuffer = (double)*pFilter;
+	}
+
+	/* performs FFT */
+	fftw_execute( fftPlan );
+	
+	pFftBufferEnd = signalFftBuffer + fftRealSize;
+	/* copies the FFT to filterRealFftStorage */
+	for (pFftBuffer = signalFftBuffer;
+	     pFftBuffer < pFftBufferEnd;
+	     pFftBuffer++, pStorage++ ) {
+	  (*pStorage)[0] = (*pFftBuffer)[0];
+	  (*pStorage)[1] = (*pFftBuffer)[1];
+	}
+      }
+    }
+  }
+
+
+  /* Allocates the tab for accessing the FFT of the filters in filterHilbertFftStorage */
+  if ( (filterHilbertFftBuffer = (fftw_complex***) malloc( sizeof(fftw_complex **) * anywaveHilbertTable->numFilters ) ) == NULL ) {
+    mp_error_msg( "MP_Convolution_FFT_c::initialize", "Can't allocate an array of [%lu] fftw_complex** elements"
+		  " for the filterReafFftBuffer array using malloc. This pointer will remain NULL.\n", anywaveHilbertTable->numFilters );
+  } else {
+    for (filterIdx = 0;
+	 filterIdx < anywaveHilbertTable->numFilters;
+	 filterIdx ++) {
+      if ( (filterHilbertFftBuffer[filterIdx] = (fftw_complex**) malloc( sizeof(fftw_complex *) * anywaveHilbertTable->numChans ) ) == NULL ) {
+	mp_error_msg( "MP_Convolution_FFT_c::initialize", "Can't allocate an array of [%lu] fftw_complex* elements"
+		      " for the filterHilbertFftBuffer[%lu] array using malloc. This pointer will remain NULL.\n", anywaveHilbertTable->numChans, filterIdx );
+      }
+    }
+  }
+
+  /* Allocates the storage for all the fft of the filters and fill it in */
+  if ((filterHilbertFftStorage = (fftw_complex*) fftw_malloc( sizeof(fftw_complex) * anywaveHilbertTable->numFilters * anywaveHilbertTable->numChans * fftRealSize )) == NULL ) {
+    mp_error_msg( "MP_Convolution_FFT_c::initialize", "Can't allocate an array of [%lu] fftw_complex* elements"
+		  " for the filterReafFftStorage array using fftw_malloc. This pointer will remain NULL.\n", anywaveHilbertTable->numFilters * anywaveHilbertTable->numChans * fftRealSize );
+  } else {
+    /* fftPlan is used for performing the FFT of the filters */
+    pStorage = filterHilbertFftStorage;
+    
+    for (chanIdx = 0;
+	 chanIdx < anywaveHilbertTable->numChans;
+	 chanIdx ++) {
+      for (filterIdx = 0;
+	   filterIdx < anywaveHilbertTable->numFilters;
+	   filterIdx ++) {
+	
+	/* copies the pointer to the storage of the FFT of the channel chanIdx of the filter filterIdx to filterFftBuffer */
+	filterHilbertFftBuffer[filterIdx][chanIdx] = pStorage;
+
+	/* copies the filter, BACKWARDS, to the first half of signalBuffer */
+	pFilterStart = anywaveHilbertTable->wave[filterIdx][chanIdx] - 1;
+	
+	for (pBuffer = signalBuffer, pFilter = pFilterStart + anywaveHilbertTable->filterLen;
+	     pFilter > pFilterStart;
+	     pBuffer++, pFilter-- ) {
+	  *pBuffer = (double)*pFilter;
+	}
+
+	/* performs FFT */
+	fftw_execute( fftPlan );
+	
+	pFftBufferEnd = signalFftBuffer + fftRealSize;
+	/* copies the FFT to filterHilbertFftStorage */
 	for (pFftBuffer = signalFftBuffer;
 	     pFftBuffer < pFftBufferEnd;
 	     pFftBuffer++, pStorage++ ) {
@@ -898,15 +1207,41 @@ void MP_Convolution_FFT_c::release( void ) {
     }
     free( filterFftBuffer );
   }
+
+  if (filterRealFftStorage) { fftw_free( filterRealFftStorage );}
+
+  if (filterRealFftBuffer) {
+    for ( filterIdx = 0; 
+	  filterIdx < anywaveRealTable->numFilters; 
+	  filterIdx ++) {
+      if ( filterRealFftBuffer[filterIdx] ) {
+	free( filterRealFftBuffer[filterIdx] );
+      }
+    }
+    free( filterRealFftBuffer );
+  }
+  if (filterHilbertFftStorage) { fftw_free( filterHilbertFftStorage );}
+
+  if (filterHilbertFftBuffer) {
+    for ( filterIdx = 0; 
+	  filterIdx < anywaveHilbertTable->numFilters; 
+	  filterIdx ++) {
+      if ( filterHilbertFftBuffer[filterIdx] ) {
+	free( filterHilbertFftBuffer[filterIdx] );
+      }
+    }
+    free( filterHilbertFftBuffer );
+  }
+
   
   if (fftPlan) {fftw_destroy_plan( fftPlan );}
   if (ifftPlan) {fftw_destroy_plan( ifftPlan );}
   
-/*  if (outputMeanBufferAdd) {free( outputMeanBufferAdd );}
-  if (outputMeanBufferNew) {free( outputMeanBufferNew );}
-  if (outputNyquistBufferAdd) {free( outputNyquistBufferAdd );}
-  if (outputNyquistBufferNew) {free( outputNyquistBufferNew );}
-*/
+  /*  if (outputMeanBufferAdd) {free( outputMeanBufferAdd );}
+      if (outputMeanBufferNew) {free( outputMeanBufferNew );}
+      if (outputNyquistBufferAdd) {free( outputNyquistBufferAdd );}
+      if (outputNyquistBufferNew) {free( outputNyquistBufferNew );}
+  */
   if (outputRealBufferAdd) {free( outputRealBufferAdd );}
   if (outputRealBufferNew) {free( outputRealBufferNew );}
   if (outputHilbertBufferAdd) {free( outputHilbertBufferAdd );}
@@ -1138,11 +1473,12 @@ void MP_Convolution_FFT_c::circular_convolution_hilbert( MP_Sample_t* pSlice, MP
 	  fflush(stderr);
     */
     /* multiplies the FFT of the signal by the FFT of the inverted filter filterIdx */
-    for ( pFftSignal = signalFftBuffer, pFftOutput = outputFftBuffer, pFftFilter = filterFftBuffer[filterIdx][chanIdx];
+    for ( pFftSignal = signalFftBuffer, pFftOutput = outputFftBuffer, pFftFilter = filterRealFftBuffer[filterIdx][chanIdx];
 	  pFftSignal < pFftSignalEnd;
 	  pFftSignal += 1, pFftFilter += 1, pFftOutput += 1 ) {
       (*pFftOutput)[0] = ((*pFftSignal)[0]) * ((*pFftFilter)[0]) - ((*pFftSignal)[1]) * ((*pFftFilter)[1]);
       (*pFftOutput)[1] = ((*pFftSignal)[0]) * ((*pFftFilter)[1]) + ((*pFftSignal)[1]) * ((*pFftFilter)[0]);	
+
     }
     
     /* computes the IFFT of the multiplication between the FFT of the slice of signal and the filter */
@@ -1153,6 +1489,9 @@ void MP_Convolution_FFT_c::circular_convolution_hilbert( MP_Sample_t* pSlice, MP
 	 frameIdx < numFramesAdd;
 	 pOutput++, pOutputBuffer += filterShift, frameIdx++) {      
       *pOutput += *pOutputBuffer / fftCplxSize;      
+/*
+      fprintf(stdout,"\nFilter %lu Frame %lu - %lg ",filterIdx,frameIdx,*pOutput);
+*/
     }
 
     for (pOutput = outputRealBufferNew[filterIdx],frameIdx = 0;
@@ -1167,27 +1506,24 @@ void MP_Convolution_FFT_c::circular_convolution_hilbert( MP_Sample_t* pSlice, MP
     /*    fprintf(stderr,"\nhilbert part filter %ld/%ld",filterIdx, anywaveTable->numFilters);
 	  fflush(stderr);
     */  
-    (*outputFftBuffer)[0] = 0.0;
-    (*outputFftBuffer)[1] = 0.0;
-    for ( pFftSignal = signalFftBuffer+1, pFftOutput = outputFftBuffer+1, pFftFilter = filterFftBuffer[filterIdx][chanIdx]+1;
+    for ( pFftSignal = signalFftBuffer, pFftOutput = outputFftBuffer, pFftFilter = filterHilbertFftBuffer[filterIdx][chanIdx];
 	  pFftSignal < pFftSignalEnd;
 	  pFftSignal += 1, pFftFilter += 1, pFftOutput += 1 ) {
-      (*pFftOutput)[0] = ((*pFftSignal)[0]) * ((*pFftFilter)[1]) + ((*pFftSignal)[1]) * ((*pFftFilter)[0]);
-      (*pFftOutput)[1] = ((*pFftSignal)[1]) * ((*pFftFilter)[1]) - ((*pFftSignal)[0]) * ((*pFftFilter)[0]);	
+      (*pFftOutput)[0] = ((*pFftSignal)[0]) * ((*pFftFilter)[0]) - ((*pFftSignal)[1]) * ((*pFftFilter)[1]);
+      (*pFftOutput)[1] = ((*pFftSignal)[0]) * ((*pFftFilter)[1]) + ((*pFftSignal)[1]) * ((*pFftFilter)[0]);	
     }
-    if ( (fftRealSize-1) * 2 == fftCplxSize ) {
-      (*(outputFftBuffer + fftRealSize - 1))[0] = 0.0;
-      (*(outputFftBuffer + fftRealSize - 1))[1] = 0.0;
-    }
-
     /* computes the IFFT of the multiplication between the FFT of the slice of signal and the hilbert transform of the filter */
     fftw_execute( ifftPlan );
     
     /* update the inner products in the output arrays */    
+    /* "-" is because the hilbert transform of an inverted filter is the opposite of the inverted hilbert transform of a filter */
     for (pOutput = outputHilbertBufferAdd[filterIdx], pOutputBuffer = pOutputBufferStart,frameIdx = 0;
 	 frameIdx < numFramesAdd;
 	 pOutput++, pOutputBuffer += filterShift, frameIdx++) {      
       *pOutput += *pOutputBuffer / fftCplxSize;      
+/*
+      fprintf(stdout,"\nFilter %lu Frame %lu - %lg ",filterIdx,frameIdx,*pOutput);
+*/
     }
 
     for (pOutput = outputHilbertBufferNew[filterIdx],frameIdx = 0;
@@ -1215,7 +1551,6 @@ void MP_Convolution_FFT_c::compute_IP( MP_Sample_t* input, unsigned long int inp
   MP_Sample_t* pSlice;
   MP_Sample_t* pNextSlice;
   MP_Sample_t* pInputEnd;
-  MP_Sample_t* pConvEnd;
 
   double** tmp;
   
@@ -1419,8 +1754,8 @@ void MP_Convolution_FFT_c::compute_max_IP( MP_Signal_c* s, unsigned long int inp
 	 filterIdx < anywaveTable->numFilters; 
 	 filterIdx ++) {
       if ( (accessOutputAdd[filterIdx] = (double**) malloc( sizeof(double*) * s->numChans ) ) == NULL ) {
-    mp_error_msg( "MP_Convolution_FFT_c::compute_max_IP", "Can't allocate an array of [%lu] double elements"
-		  " for the accessOutputAdd[%lu] array using malloc. This pointer will remain NULL.\n", s->numChans, filterIdx );
+	mp_error_msg( "MP_Convolution_FFT_c::compute_max_IP", "Can't allocate an array of [%lu] double elements"
+		      " for the accessOutputAdd[%lu] array using malloc. This pointer will remain NULL.\n", s->numChans, filterIdx );
       } else {
 	for ( chanIdx = 0;
 	      chanIdx < s->numChans;
@@ -1438,8 +1773,8 @@ void MP_Convolution_FFT_c::compute_max_IP( MP_Signal_c* s, unsigned long int inp
 	 filterIdx < anywaveTable->numFilters; 
 	 filterIdx ++) {
       if ( (accessOutputNew[filterIdx] = (double**) malloc( sizeof(double*) * s->numChans ) ) == NULL ) {
-    mp_error_msg( "MP_Convolution_FFT_c::compute_max_IP", "Can't allocate an array of [%lu] double elements"
-		  " for the accessOutputNew[%lu] array using malloc. This pointer will remain NULL.\n", s->numChans, filterIdx );
+	mp_error_msg( "MP_Convolution_FFT_c::compute_max_IP", "Can't allocate an array of [%lu] double elements"
+		      " for the accessOutputNew[%lu] array using malloc. This pointer will remain NULL.\n", s->numChans, filterIdx );
       } else {
 	for ( chanIdx = 0;
 	      chanIdx < s->numChans;
@@ -1589,7 +1924,7 @@ void MP_Convolution_FFT_c::compute_max_IP( MP_Signal_c* s, unsigned long int inp
 
 }
 
-void MP_Convolution_FFT_c::compute_max_hilbert_IP( MP_Signal_c* s, unsigned long int inputLen, unsigned long int fromSample, MP_Real_t* ampOutput, unsigned long int* idxOutput ) {
+void MP_Convolution_FFT_c::compute_max_hilbert_IP( MP_Signal_c* s, unsigned long int inputLen, unsigned long int fromSample, MP_Real_t* ampOutput, unsigned long int* idxOutput, int with_mean ) {
 
   unsigned short int chanIdx;
 
@@ -1784,8 +2119,8 @@ void MP_Convolution_FFT_c::compute_max_hilbert_IP( MP_Signal_c* s, unsigned long
 	 filterIdx < anywaveTable->numFilters; 
 	 filterIdx ++) {
       if ( (accessOutputRealAdd[filterIdx] = (double**) malloc( sizeof(double*) * s->numChans ) ) == NULL ) {
-    mp_error_msg( "MP_Convolution_FFT_c::compute_max_IP", "Can't allocate an array of [%lu] double elements"
-		  " for the accessOutputRealAdd[%lu] array using malloc. This pointer will remain NULL.\n", s->numChans, filterIdx );
+	mp_error_msg( "MP_Convolution_FFT_c::compute_max_IP", "Can't allocate an array of [%lu] double elements"
+		      " for the accessOutputRealAdd[%lu] array using malloc. This pointer will remain NULL.\n", s->numChans, filterIdx );
       } else {
 	for ( chanIdx = 0;
 	      chanIdx < s->numChans;
@@ -1803,8 +2138,8 @@ void MP_Convolution_FFT_c::compute_max_hilbert_IP( MP_Signal_c* s, unsigned long
 	 filterIdx < anywaveTable->numFilters; 
 	 filterIdx ++) {
       if ( (accessOutputRealNew[filterIdx] = (double**) malloc( sizeof(double*) * s->numChans ) ) == NULL ) {
-    mp_error_msg( "MP_Convolution_FFT_c::compute_max_IP", "Can't allocate an array of [%lu] double elements"
-		  " for the accessOutputRealNew[%lu] array using malloc. This pointer will remain NULL.\n", s->numChans, filterIdx );
+	mp_error_msg( "MP_Convolution_FFT_c::compute_max_IP", "Can't allocate an array of [%lu] double elements"
+		      " for the accessOutputRealNew[%lu] array using malloc. This pointer will remain NULL.\n", s->numChans, filterIdx );
       } else {
 	for ( chanIdx = 0;
 	      chanIdx < s->numChans;
@@ -1822,8 +2157,8 @@ void MP_Convolution_FFT_c::compute_max_hilbert_IP( MP_Signal_c* s, unsigned long
 	 filterIdx < anywaveTable->numFilters; 
 	 filterIdx ++) {
       if ( (accessOutputHilbertAdd[filterIdx] = (double**) malloc( sizeof(double*) * s->numChans ) ) == NULL ) {
-    mp_error_msg( "MP_Convolution_FFT_c::compute_max_IP", "Can't allocate an array of [%lu] double elements"
-		  " for the accessOutputHilbertAdd[%lu] array using malloc. This pointer will remain NULL.\n", s->numChans, filterIdx );
+	mp_error_msg( "MP_Convolution_FFT_c::compute_max_IP", "Can't allocate an array of [%lu] double elements"
+		      " for the accessOutputHilbertAdd[%lu] array using malloc. This pointer will remain NULL.\n", s->numChans, filterIdx );
       } else {
 	for ( chanIdx = 0;
 	      chanIdx < s->numChans;
@@ -1841,8 +2176,8 @@ void MP_Convolution_FFT_c::compute_max_hilbert_IP( MP_Signal_c* s, unsigned long
 	 filterIdx < anywaveTable->numFilters; 
 	 filterIdx ++) {
       if ( (accessOutputHilbertNew[filterIdx] = (double**) malloc( sizeof(double*) * s->numChans ) ) == NULL ) {
-    mp_error_msg( "MP_Convolution_FFT_c::compute_max_IP", "Can't allocate an array of [%lu] double elements"
-		  " for the accessOutputHilbertNew[%lu] array using malloc. This pointer will remain NULL.\n", s->numChans, filterIdx );
+	mp_error_msg( "MP_Convolution_FFT_c::compute_max_IP", "Can't allocate an array of [%lu] double elements"
+		      " for the accessOutputHilbertNew[%lu] array using malloc. This pointer will remain NULL.\n", s->numChans, filterIdx );
       } else {
 	for ( chanIdx = 0;
 	      chanIdx < s->numChans;
@@ -1956,19 +2291,24 @@ void MP_Convolution_FFT_c::compute_max_hilbert_IP( MP_Signal_c* s, unsigned long
       *pIdx = 0;
 
       mnTmp = 0.0;
-      for ( chanIdx = 0;
-	    chanIdx < s->numChans;
-	    chanIdx ++ ) {
-	mnTmp += accessOutputMeanAdd[chanIdx][frameIdx] * accessOutputMeanAdd[chanIdx][frameIdx];
-	if (nyquistExists) {
-	  mnTmp += accessOutputNyquistAdd[chanIdx][frameIdx] * accessOutputNyquistAdd[chanIdx][frameIdx];
+      if (with_mean == 1) {
+	for ( chanIdx = 0;
+	      chanIdx < s->numChans;
+	      chanIdx ++ ) {
+	  mnTmp += accessOutputMeanAdd[chanIdx][frameIdx] * accessOutputMeanAdd[chanIdx][frameIdx];
+	  if (nyquistExists) {
+	    mnTmp += accessOutputNyquistAdd[chanIdx][frameIdx] * accessOutputNyquistAdd[chanIdx][frameIdx];
+	  }
+/*
+	  fprintf(stdout,"\nFrame%lu_a+b=%lg\n",frameIdx,mnTmp);
+	  fflush(stdout);
+*/
 	}
       }
-
       for (filterIdx = 0;
 	   filterIdx < anywaveTable->numFilters;
 	   filterIdx ++) {
-
+	
 	doubleTmp = 0.0;
 
 	for ( chanIdx = 0;
@@ -1977,13 +2317,20 @@ void MP_Convolution_FFT_c::compute_max_hilbert_IP( MP_Signal_c* s, unsigned long
 	  doubleTmp += accessOutputRealAdd[filterIdx][chanIdx][frameIdx] * accessOutputRealAdd[filterIdx][chanIdx][frameIdx];
 	  doubleTmp += accessOutputHilbertAdd[filterIdx][chanIdx][frameIdx] * accessOutputHilbertAdd[filterIdx][chanIdx][frameIdx];
 	}
+
+/*
+	fprintf(stdout,"\nFilter %lu_c=%lg_d=%lg_abcd=%lg",filterIdx,accessOutputRealAdd[filterIdx][0][frameIdx] * accessOutputRealAdd[filterIdx][0][frameIdx],accessOutputHilbertAdd[filterIdx][0][frameIdx] * accessOutputHilbertAdd[filterIdx][0][frameIdx],doubleTmp);
+	fflush(stdout);
+*/
 	if (doubleTmp > *pAmp) {
 	  *pAmp = (MP_Real_t)doubleTmp;
 	  *pIdx = filterIdx;
 	}
       }
 
-      *pAmp += mnTmp;
+      if (with_mean == 1) {
+	*pAmp += mnTmp;
+      }
       pAmp ++;
       pIdx ++;
     }
@@ -2046,4 +2393,14 @@ void MP_Convolution_FFT_c::compute_max_hilbert_IP( MP_Signal_c* s, unsigned long
     free( accessOutputHilbertNew );
   }
 
+}  
+
+void MP_Convolution_FFT_c::compute_max_hilbert_IP( MP_Signal_c* s, unsigned long int inputLen, unsigned long int fromSample, MP_Real_t* ampOutput, unsigned long int* idxOutput ) {    
+  int with_mean = 1;
+  this->compute_max_hilbert_IP( s, inputLen, fromSample, ampOutput, idxOutput, with_mean );
+}
+
+void MP_Convolution_FFT_c::compute_max_hilbert_no_mean_no_nyquist_IP( MP_Signal_c* s, unsigned long int inputLen, unsigned long int fromSample, MP_Real_t* ampOutput, unsigned long int* idxOutput ) {    
+  int with_mean = 0;
+  this->compute_max_hilbert_IP( s, inputLen, fromSample, ampOutput, idxOutput, with_mean );
 }

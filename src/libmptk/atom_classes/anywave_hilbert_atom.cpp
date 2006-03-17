@@ -55,6 +55,13 @@ extern MP_Anywave_Server_c MP_GLOBAL_ANYWAVE_SERVER;
 /* Factory function     */
 MP_Anywave_Hilbert_Atom_c* MP_Anywave_Hilbert_Atom_c::init( const MP_Chan_t setNChan ) {
   
+  return( MP_Anywave_Hilbert_Atom_c::init( setNChan, WITH_MEAN, WITH_MEAN ) );
+}
+
+MP_Anywave_Hilbert_Atom_c* MP_Anywave_Hilbert_Atom_c::init( const MP_Chan_t setNChan,
+					  unsigned short int setCriteriumWithMeanAndNyquist,
+					  unsigned short int setReconstructionWithMeanAndNyquist ) {
+  
   const char* func = "MP_Anywave_Hilbert_Atom_c::init(numChan)";
   
   MP_Anywave_Hilbert_Atom_c* newAtom = NULL;
@@ -67,7 +74,7 @@ MP_Anywave_Hilbert_Atom_c* MP_Anywave_Hilbert_Atom_c::init( const MP_Chan_t setN
   }
 
   /* Allocate and check */
-  if ( newAtom->global_alloc( setNChan ) ) {
+  if ( newAtom->global_alloc( setNChan, setCriteriumWithMeanAndNyquist, setReconstructionWithMeanAndNyquist ) ) {
     mp_error_msg( func, "Failed to allocate some vectors in the new Anywave Hilbert atom."
 		  " Returning a NULL atom.\n" );
     delete( newAtom );
@@ -77,11 +84,18 @@ MP_Anywave_Hilbert_Atom_c* MP_Anywave_Hilbert_Atom_c::init( const MP_Chan_t setN
   return( newAtom );
 }
 
-
 /*************************/
 /* File factory function */
 MP_Anywave_Hilbert_Atom_c* MP_Anywave_Hilbert_Atom_c::init( FILE *fid, const char mode ) {
-  
+ 
+  return( MP_Anywave_Hilbert_Atom_c::init( fid, mode, WITH_MEAN, WITH_MEAN ) );
+}
+
+MP_Anywave_Hilbert_Atom_c* MP_Anywave_Hilbert_Atom_c::init( FILE *fid, 
+							    const char mode,
+							    unsigned short int setCriteriumWithMeanAndNyquist,
+							    unsigned short int setReconstructionWithMeanAndNyquist ) {
+
   const char* func = "MP_Anywave_Hilbert_Atom_c::init(fid,mode)";
   
   MP_Anywave_Hilbert_Atom_c* newAtom = NULL;
@@ -94,7 +108,7 @@ MP_Anywave_Hilbert_Atom_c* MP_Anywave_Hilbert_Atom_c::init( FILE *fid, const cha
   }
 
   /* Read and check */
-  if ( newAtom->read( fid, mode ) ) {
+  if ( newAtom->read( fid, mode, setCriteriumWithMeanAndNyquist, setReconstructionWithMeanAndNyquist ) ) {
     mp_error_msg( func, "Failed to read the new Anywave atom.\n" );
     delete( newAtom );
     return( NULL );
@@ -112,6 +126,9 @@ MP_Anywave_Hilbert_Atom_c::MP_Anywave_Hilbert_Atom_c( void )
     realPart = NULL;
     hilbertPart = NULL;
 
+    criteriumWithMeanAndNyquist = WITH_MEAN;
+    reconstructionWithMeanAndNyquist = WITH_MEAN;
+
     anywaveRealTable = NULL;
     realTableIdx = 0;
     anywaveHilbertTable = NULL;
@@ -120,7 +137,9 @@ MP_Anywave_Hilbert_Atom_c::MP_Anywave_Hilbert_Atom_c( void )
 
 /************************/
 /* Global allocations   */
-int MP_Anywave_Hilbert_Atom_c::global_alloc( const MP_Chan_t setNChan ) {
+int MP_Anywave_Hilbert_Atom_c::global_alloc( const MP_Chan_t setNChan,
+					     unsigned short int setCriteriumWithMeanAndNyquist,
+					     unsigned short int setReconstructionWithMeanAndNyquist ) {
 
   const char* func = "MP_Anywave_Hilbert_Atom_c::global_alloc(numChans)";
 
@@ -129,6 +148,10 @@ int MP_Anywave_Hilbert_Atom_c::global_alloc( const MP_Chan_t setNChan ) {
     mp_error_msg( func, "Allocation of Anywave Hilbert atom failed at the Anywave atom level.\n" );
     return( 1 );
   }
+
+  criteriumWithMeanAndNyquist = setCriteriumWithMeanAndNyquist;
+  reconstructionWithMeanAndNyquist = setReconstructionWithMeanAndNyquist;
+
   if ( init_parts() ) {
     return( 1 );
   }
@@ -253,7 +276,10 @@ int MP_Anywave_Hilbert_Atom_c::init_tables( void ) {
 
 /********************/
 /* File reader      */
-int MP_Anywave_Hilbert_Atom_c::read( FILE *fid, const char mode ) {
+int MP_Anywave_Hilbert_Atom_c::read( FILE *fid,
+				     const char mode,
+				     unsigned short int setCriteriumWithMeanAndNyquist,
+				     unsigned short int setReconstructionWithMeanAndNyquist ) {
     
   double fidParam;
   unsigned short int readChanIdx, chanIdx;
@@ -266,6 +292,9 @@ int MP_Anywave_Hilbert_Atom_c::read( FILE *fid, const char mode ) {
     mp_error_msg( "MP_Anywave_Hilbert_Atom_c::init_tables()", "Allocation of Anywave Hilbert atom failed at the Anywave atom level.\n" );
     return( 1 );
   }
+
+  criteriumWithMeanAndNyquist = setCriteriumWithMeanAndNyquist;
+  reconstructionWithMeanAndNyquist = setReconstructionWithMeanAndNyquist;
 
   if ( ( str = (char*) malloc( MP_MAX_STR_LEN * sizeof(char) ) ) == NULL ) {
     mp_error_msg( "MP_Anywave_Hilbert_Atom_c::init_tables()","The string str cannot be allocated.\n" );    
@@ -302,24 +331,28 @@ int MP_Anywave_Hilbert_Atom_c::read( FILE *fid, const char mode ) {
 		readChanIdx, chanIdx );
 	return(1);
       }
-      /* mean part */
-      if ( ( fgets( str, MP_MAX_STR_LEN, fid ) == NULL  ) ||
-	   ( sscanf( str, "\t\t\t<par type=\"meanPart\">%lg</par>\n", &fidParam ) != 1 ) ) {
-	mp_error_msg( "MP_Anywave_Hilbert_Atom_c::MP_Anywave_Hilbert_Atom_c()","Cannot scan the mean part on channel %u.\n", chanIdx );
-	return(1);
+
+      if ( reconstructionWithMeanAndNyquist == WITH_MEAN ) {
+	/* mean part */
+	if ( ( fgets( str, MP_MAX_STR_LEN, fid ) == NULL  ) ||
+	     ( sscanf( str, "\t\t\t<par type=\"meanPart\">%lg</par>\n", &fidParam ) != 1 ) ) {
+	  mp_error_msg( "MP_Anywave_Hilbert_Atom_c::MP_Anywave_Hilbert_Atom_c()","Cannot scan the mean part on channel %u.\n", chanIdx );
+	  return(1);
+	}
+	else {
+	  *(meanPart + chanIdx) = (MP_Real_t)fidParam;
+	}
+	/* nyquist part */
+	if ( ( fgets( str, MP_MAX_STR_LEN, fid ) == NULL  ) ||
+	     ( sscanf( str, "\t\t\t<par type=\"nyquistPart\">%lg</par>\n", &fidParam ) != 1 ) ) {
+	  mp_error_msg( "MP_Anywave_Hilbert_Atom_c::MP_Anywave_Hilbert_Atom_c()","Cannot scan nyquist part on channel %u.\n", chanIdx );
+	  return(1);
+	}
+	else {
+	  *(nyquistPart + chanIdx) = (MP_Real_t)fidParam;
+	}
       }
-      else {
-	*(meanPart + chanIdx) = (MP_Real_t)fidParam;
-      }
-      /* nyquist part */
-      if ( ( fgets( str, MP_MAX_STR_LEN, fid ) == NULL  ) ||
-	   ( sscanf( str, "\t\t\t<par type=\"nyquistPart\">%lg</par>\n", &fidParam ) != 1 ) ) {
-	mp_error_msg( "MP_Anywave_Hilbert_Atom_c::MP_Anywave_Hilbert_Atom_c()","Cannot scan nyquist part on channel %u.\n", chanIdx );
-	return(1);
-      }
-      else {
-	*(nyquistPart + chanIdx) = (MP_Real_t)fidParam;
-      }
+
       /* real part */
       if ( ( fgets( str, MP_MAX_STR_LEN, fid ) == NULL  ) ||
 	   ( sscanf( str, "\t\t\t<par type=\"realPart\">%lg</par>\n", &fidParam ) != 1 ) ) {
@@ -349,27 +382,30 @@ int MP_Anywave_Hilbert_Atom_c::read( FILE *fid, const char mode ) {
     break;
     
   case MP_BINARY:
-    /* Try to read the mean part */
-    if ( mp_fread( meanPart,   sizeof(MP_Real_t), numChans, fid ) != (size_t)numChans ) {
-      mp_error_msg( "MP_Anywave_Hilbert_Atom_c::MP_Anywave_Hilbert_Atom_c()","Failed to read the meanPart array.\n" );     
-      pParamEnd = meanPart + numChans;
-      for ( pParam = meanPart;
-	    pParam < pParamEnd;
-	    pParam ++ ) {
-	*pParam = 0.0;
+
+    if ( reconstructionWithMeanAndNyquist == WITH_MEAN ) {
+      /* Try to read the mean part */
+      if ( mp_fread( meanPart,   sizeof(MP_Real_t), numChans, fid ) != (size_t)numChans ) {
+	mp_error_msg( "MP_Anywave_Hilbert_Atom_c::MP_Anywave_Hilbert_Atom_c()","Failed to read the meanPart array.\n" );     
+	pParamEnd = meanPart + numChans;
+	for ( pParam = meanPart;
+	      pParam < pParamEnd;
+	      pParam ++ ) {
+	  *pParam = 0.0;
+	}
+	return(1);
       }
-      return(1);
-    }
-    /* Try to read the nyquist part */
-    if ( mp_fread( nyquistPart,   sizeof(MP_Real_t), numChans, fid ) != (size_t)numChans ) {
-      mp_error_msg( "MP_Anywave_Hilbert_Atom_c::MP_Anywave_Hilbert_Atom_c()","Failed to read the nyquistPart array.\n" );     
-      pParamEnd = nyquistPart + numChans;
-      for ( pParam = nyquistPart;
-	    pParam < pParamEnd;
-	    pParam ++ ) {
-	*pParam = 0.0;
+      /* Try to read the nyquist part */
+      if ( mp_fread( nyquistPart,   sizeof(MP_Real_t), numChans, fid ) != (size_t)numChans ) {
+	mp_error_msg( "MP_Anywave_Hilbert_Atom_c::MP_Anywave_Hilbert_Atom_c()","Failed to read the nyquistPart array.\n" );     
+	pParamEnd = nyquistPart + numChans;
+	for ( pParam = nyquistPart;
+	      pParam < pParamEnd;
+	      pParam ++ ) {
+	  *pParam = 0.0;
+	}
+	return(1);
       }
-      return(1);
     }
     /* Try to read the real part */
     if ( mp_fread( realPart,   sizeof(MP_Real_t), numChans, fid ) != (size_t)numChans ) {
@@ -435,8 +471,10 @@ int MP_Anywave_Hilbert_Atom_c::write( FILE *fid, const char mode ) {
 	 chanIdx < numChans; 
 	 chanIdx++) {
       nItem += fprintf( fid, "\t\t<anywavePar chan=\"%u\">\n", chanIdx );
-      nItem += fprintf( fid, "\t\t\t<par type=\"meanPart\">%g</par>\n",   (double)meanPart[chanIdx] );
-      nItem += fprintf( fid, "\t\t\t<par type=\"nyquistPart\">%g</par>\n",   (double)nyquistPart[chanIdx] );
+      if ( reconstructionWithMeanAndNyquist == WITH_MEAN ) {
+	nItem += fprintf( fid, "\t\t\t<par type=\"meanPart\">%g</par>\n",   (double)meanPart[chanIdx] );
+	nItem += fprintf( fid, "\t\t\t<par type=\"nyquistPart\">%g</par>\n",   (double)nyquistPart[chanIdx] );
+      }
       nItem += fprintf( fid, "\t\t\t<par type=\"realPart\">%g</par>\n",   (double)realPart[chanIdx] );
       nItem += fprintf( fid, "\t\t\t<par type=\"hilbertPart\">%g</par>\n",   (double)hilbertPart[chanIdx] );
       nItem += fprintf( fid, "\t\t</anywavePar>\n" );    
@@ -446,8 +484,10 @@ int MP_Anywave_Hilbert_Atom_c::write( FILE *fid, const char mode ) {
   case MP_BINARY:
 
     /* Binary parameters */
-    if(meanPart) nItem += mp_fwrite( meanPart, sizeof(MP_Real_t), (size_t)numChans, fid );
-    if(nyquistPart) nItem += mp_fwrite( nyquistPart, sizeof(MP_Real_t), (size_t)numChans, fid );
+    if ( reconstructionWithMeanAndNyquist == WITH_MEAN ) {
+      if(meanPart) nItem += mp_fwrite( meanPart, sizeof(MP_Real_t), (size_t)numChans, fid );
+      if(nyquistPart) nItem += mp_fwrite( nyquistPart, sizeof(MP_Real_t), (size_t)numChans, fid );
+    }
     if(realPart) nItem += mp_fwrite( realPart, sizeof(MP_Real_t), (size_t)numChans, fid );
     if(hilbertPart) nItem += mp_fwrite( hilbertPart, sizeof(MP_Real_t), (size_t)numChans, fid );
     break;
@@ -467,7 +507,15 @@ int MP_Anywave_Hilbert_Atom_c::write( FILE *fid, const char mode ) {
 /*************/
 /* Type name */
 char * MP_Anywave_Hilbert_Atom_c::type_name(void) {
-  return ("anywavehilbert");
+  if ( criteriumWithMeanAndNyquist == WITHOUT_MEAN ) {
+    if ( reconstructionWithMeanAndNyquist == WITH_MEAN ) {
+      return ("anywavehilbertny");
+    } else {
+      return ("anywavehilbertnn");
+    }
+  } else {
+    return("anywavehilbertyy");
+  }
 }
 
 /**********************/
@@ -477,6 +525,15 @@ int MP_Anywave_Hilbert_Atom_c::info() {
   unsigned short int chanIdx = 0;
   int nChar = 0;
   nChar += mp_info_msg( "ANYWAVE HILBERT ATOM", "[%d] channel(s)\n", numChans );
+  if ( criteriumWithMeanAndNyquist == WITHOUT_MEAN ) {
+    if ( reconstructionWithMeanAndNyquist == WITH_MEAN ) {
+      nChar += mp_info_msg( "           |-","mean and nyquist used for reconstruction, but not for criterium" );
+    } else {
+      nChar += mp_info_msg( "           |-","mean and nyquist neither used for criterium nor reconstruction" );
+    }
+  } else {
+    nChar += mp_info_msg( "           |-","mean and nyquist used for criterium and reconstruction" );
+  }
   
   nChar += mp_info_msg( "           |-", "\tFilename %s\tanywaveIdx %li\n",
 			anywaveTable->tableFileName, anywaveIdx );
@@ -520,7 +577,7 @@ void MP_Anywave_Hilbert_Atom_c::build_waveform( MP_Sample_t *outBuffer ) {
     /* Dereference the atom length in the current channel once and for all */
     len = support[chanIdx].len;
     /* Dereference the arguments once and for all */
-    dAmpMean       = (double)(   amp[chanIdx] ) * (double) meanPart[chanIdx] / sqrt((double) len);
+
     dAmpReal       = (double)(   amp[chanIdx] ) * ( double ) realPart[chanIdx] ;
     dAmpHilbert    = (double)(   amp[chanIdx] ) * ( double ) hilbertPart[chanIdx] ;
 
@@ -533,21 +590,33 @@ void MP_Anywave_Hilbert_Atom_c::build_waveform( MP_Sample_t *outBuffer ) {
       waveBuffer = anywaveRealTable->wave[anywaveIdx][0];
       waveHilbertBuffer = anywaveHilbertTable->wave[anywaveIdx][0];
     }
-    for ( t = 0, atomBuffer = atomBufferStart;
-	  t < len; 
-	  t++, atomBuffer++, waveBuffer++, waveHilbertBuffer++ ) {
-      /* Compute the waveform samples */
-      (*atomBuffer) = dAmpMean + (*waveBuffer) * dAmpReal + (*waveHilbertBuffer) * dAmpHilbert;
-    }
-    if ((len>>2)<<2 == len) {
-      dAmpNyquist    = (double)(   amp[chanIdx] ) * (double) nyquistPart[chanIdx] / sqrt((double) len);
+
+    if ( reconstructionWithMeanAndNyquist == WITH_MEAN ) {
+      dAmpMean       = (double)(   amp[chanIdx] ) * (double) meanPart[chanIdx] / sqrt((double) len);
+
       for ( t = 0, atomBuffer = atomBufferStart;
 	    t < len; 
-	    t+=2, atomBuffer+=2 ) {
+	    t++, atomBuffer++, waveBuffer++, waveHilbertBuffer++ ) {
 	/* Compute the waveform samples */
-	(*atomBuffer) += dAmpNyquist;
-	(*(atomBuffer+1)) -= dAmpNyquist;
-      }      
+	(*atomBuffer) = dAmpMean + (*waveBuffer) * dAmpReal + (*waveHilbertBuffer) * dAmpHilbert;
+      }
+      if ((len>>2)<<2 == len) {
+	dAmpNyquist    = (double)(   amp[chanIdx] ) * (double) nyquistPart[chanIdx] / sqrt((double) len);
+	for ( t = 0, atomBuffer = atomBufferStart;
+	      t < len; 
+	      t+=2, atomBuffer+=2 ) {
+	  /* Compute the waveform samples */
+	  (*atomBuffer) += dAmpNyquist;
+	  (*(atomBuffer+1)) -= dAmpNyquist;
+	}      
+      } else {
+	for ( t = 0, atomBuffer = atomBufferStart;
+	      t < len; 
+	      t++, atomBuffer++, waveBuffer++, waveHilbertBuffer++ ) {
+	  /* Compute the waveform samples */
+	  (*atomBuffer) = (*waveBuffer) * dAmpReal + (*waveHilbertBuffer) * dAmpHilbert;
+	}
+      }
     }
 
     atomBufferStart += len;
@@ -582,6 +651,8 @@ int MP_Anywave_Hilbert_Atom_c::has_field( int field ) {
   case MP_NYQUIST_PART_PROP : return( MP_TRUE );
   case MP_REAL_PART_PROP : return( MP_TRUE );
   case MP_HILBERT_PART_PROP : return( MP_TRUE );
+  case MP_CRITERIUM_WITH_MEAN_AND_NYQUIST_PROP : return( MP_TRUE );
+  case MP_RECONSTRUCTION_WITH_MEAN_AND_NYQUIST_PROP : return( MP_TRUE );
   default:
     return( MP_FALSE );
   }
@@ -610,6 +681,12 @@ MP_Real_t MP_Anywave_Hilbert_Atom_c::get_field( int field , int chanIdx ) {
     break;
   case MP_HILBERT_PART_PROP :
     x = (MP_Real_t)(hilbertPart[chanIdx]);
+    break;
+  case MP_CRITERIUM_WITH_MEAN_AND_NYQUIST_PROP : 
+    x = (MP_Real_t)(criteriumWithMeanAndNyquist);
+    break;
+  case MP_RECONSTRUCTION_WITH_MEAN_AND_NYQUIST_PROP : 
+    x = (MP_Real_t)(reconstructionWithMeanAndNyquist);
     break;
   default:
     mp_error_msg( "MP_Anywave_Hilbert_Atom_c::get_field","Unknown field. Returning ZERO." );

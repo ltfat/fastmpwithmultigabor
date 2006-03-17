@@ -56,6 +56,16 @@ MP_Anywave_Hilbert_Block_c* MP_Anywave_Hilbert_Block_c::init( MP_Signal_c *setSi
 							      const unsigned long int setFilterShift,
 							      char* anywaveTableFilename ) {
 
+  return( MP_Anywave_Hilbert_Block_c::init( setSignal, setFilterShift,anywaveTableFilename, WITH_MEAN, WITH_MEAN ) );
+  
+}
+
+MP_Anywave_Hilbert_Block_c* MP_Anywave_Hilbert_Block_c::init( MP_Signal_c *setSignal,
+							      const unsigned long int setFilterShift,
+							      char* anywaveTableFilename,
+							      unsigned short int setCriteriumWithMeanAndNyquist,
+							      unsigned short int setReconstructionWithMeanAndNyquist) {
+
   const char* func = "MP_Anywave_Hilbert_Block_c::init()";
   MP_Anywave_Hilbert_Block_c *newBlock = NULL;
 
@@ -67,7 +77,7 @@ MP_Anywave_Hilbert_Block_c* MP_Anywave_Hilbert_Block_c::init( MP_Signal_c *setSi
   }
 
   /* Set the block parameters (that are independent from the signal) */
-  if ( newBlock->init_parameters( setFilterShift, anywaveTableFilename ) ) {
+  if ( newBlock->init_parameters( setFilterShift, anywaveTableFilename, setCriteriumWithMeanAndNyquist, setReconstructionWithMeanAndNyquist ) ) {
     mp_error_msg( func, "Failed to initialize some block parameters in the new Anywave hilbert block.\n" );
     delete( newBlock );
     return( NULL );
@@ -87,13 +97,18 @@ MP_Anywave_Hilbert_Block_c* MP_Anywave_Hilbert_Block_c::init( MP_Signal_c *setSi
 /*********************************************************/
 /* Initialization of signal-independent block parameters */
 int MP_Anywave_Hilbert_Block_c::init_parameters( const unsigned long int setFilterShift,
-						 char* anywaveTableFilename ) {
+						 char* anywaveTableFilename,
+						 unsigned short int setCriteriumWithMeanAndNyquist,
+						 unsigned short int setReconstructionWithMeanAndNyquist ) {
 
   const char* func = "MP_Anywave_Hilbert_Block_c::init_parameters(...)";
 
   /* Go up the inheritance graph : copied because the convolution
      object cannot be initialized as in MP_Anywave_Block_c */ 
   extern MP_Anywave_Server_c MP_GLOBAL_ANYWAVE_SERVER;  
+
+  criteriumWithMeanAndNyquist = setCriteriumWithMeanAndNyquist;
+  reconstructionWithMeanAndNyquist = setReconstructionWithMeanAndNyquist;
 
   /* Load the table */
   tableIdx = MP_GLOBAL_ANYWAVE_SERVER.add(anywaveTableFilename);
@@ -116,11 +131,7 @@ int MP_Anywave_Hilbert_Block_c::init_parameters( const unsigned long int setFilt
  
   /* Create the convolution and hilbert convolution objects */ 
   if (convolution != NULL) { delete(convolution); }
-  if ( ( convolution = new MP_Convolution_Fastest_c( anywaveRealTable, setFilterShift ) ) == NULL ) {
-    return(1);
-  }
-  if (hilbertConvolution != NULL) { delete(hilbertConvolution); }
-  if ( ( hilbertConvolution = new MP_Convolution_Direct_c( anywaveHilbertTable, setFilterShift ) ) == NULL ) {
+  if ( ( convolution = new MP_Convolution_Fastest_c( anywaveTable, anywaveRealTable, anywaveHilbertTable, setFilterShift ) ) == NULL ) {
     return(1);
   }
 
@@ -202,7 +213,8 @@ MP_Anywave_Hilbert_Block_c::MP_Anywave_Hilbert_Block_c( void )
     realTableIdx = 0;
     anywaveHilbertTable = NULL;
     hilbertTableIdx = 0;
-    hilbertConvolution = NULL;
+    criteriumWithMeanAndNyquist = WITH_MEAN;
+    reconstructionWithMeanAndNyquist = WITH_MEAN;
     
     mp_debug_msg( MP_DEBUG_CONSTRUCTION, "MP_Anywave_Hilbert_Block_c::MP_Anywave_Hilbert_Block_c()",
 		  "Done.\n" );
@@ -216,9 +228,7 @@ MP_Anywave_Hilbert_Block_c::~MP_Anywave_Hilbert_Block_c() {
 		"Deleting an Anywave hilbert block...\n" );
 
   anywaveRealTable = NULL;
-
   anywaveHilbertTable = NULL;
-  if ( hilbertConvolution ) { delete( hilbertConvolution ); }
 
   mp_debug_msg( MP_DEBUG_CONSTRUCTION, "MP_Anywave_Hilbert_Block_c::~MP_Anywave_Hilbert_Block_c()",
 		"Done.\n" );
@@ -233,7 +243,15 @@ MP_Anywave_Hilbert_Block_c::~MP_Anywave_Hilbert_Block_c() {
 /********/
 /* Type */
 char* MP_Anywave_Hilbert_Block_c::type_name() {
-  return ("anywavehilbert");
+  if ( criteriumWithMeanAndNyquist == WITHOUT_MEAN ) {
+    if ( reconstructionWithMeanAndNyquist == WITH_MEAN ) {
+      return ("anywavehilbertny");
+    } else {
+      return ("anywavehilbertnn");
+    }
+  } else {
+    return("anywavehilbertyy");
+  }
 }
 
 
@@ -244,6 +262,15 @@ int MP_Anywave_Hilbert_Block_c::info( FILE* fid ) {
   int nChar = 0;
 
   nChar += fprintf( fid, "mplib info -- ANYWAVE HILBERT BLOCK" );
+  if ( criteriumWithMeanAndNyquist == WITHOUT_MEAN ) {
+    if ( reconstructionWithMeanAndNyquist == WITH_MEAN ) {
+      nChar += fprintf( fid, "mplib info -- mean and nyquist used for reconstruction, but not for criterium" );
+    } else {
+      nChar += fprintf( fid, "mplib info -- mean and nyquist neither used for criterium nor reconstruction" );
+    }
+  } else {
+    nChar += fprintf( fid, "mplib info -- mean and nyquist used for criterium and reconstruction" );
+  }
   nChar += fprintf( fid, " of length [%lu], shifted by [%lu] samples, with [%lu] different waveforms;\n",
 		    filterLen, filterShift, numFilters );
   nChar += fprintf( fid, "mplib info -- The number of frames for this block is [%lu], the search tree has [%lu] levels.\n",
@@ -328,7 +355,11 @@ MP_Support_t MP_Anywave_Hilbert_Block_c::update_ip( const MP_Support_t *touch ) 
 
   /*---------------------------*/
 
-  convolution->compute_max_hilbert_IP(s, signalLen, fromSample, maxIPValueInFrame + fromFrame, maxIPIdxInFrame + fromFrame);
+  if ( criteriumWithMeanAndNyquist == WITH_MEAN ) {
+    convolution->compute_max_hilbert_IP(s, signalLen, fromSample, maxIPValueInFrame + fromFrame, maxIPIdxInFrame + fromFrame);
+  } else {
+    convolution->compute_max_hilbert_no_mean_no_nyquist_IP(s, signalLen, fromSample, maxIPValueInFrame + fromFrame, maxIPIdxInFrame + fromFrame);
+  }
 
   /* Return a mono-channel support */
   frameSupport.pos = fromFrame;
@@ -352,7 +383,9 @@ unsigned int MP_Anywave_Hilbert_Block_c::create_atom( MP_Atom_c **atom,
   /* Misc: */
   unsigned short int chanIdx;
   unsigned long int pos = frameIdx*filterShift;
+/*
   MP_Sample_t* pSample;
+*/
   MP_Sample_t* pSampleStart;
 
   /* Check the position */
@@ -410,31 +443,24 @@ unsigned int MP_Anywave_Hilbert_Block_c::create_atom( MP_Atom_c **atom,
        chanIdx ++) {
     pSampleStart = s->channel[chanIdx]+aatom->support[chanIdx].pos;
 
-    aatom->meanPart[chanIdx] = (MP_Real_t) 0.0;
-    for (pSample = pSampleStart;
-	 pSample < pSampleStart + filterLen;
-	 pSample ++) {
-      aatom->meanPart[chanIdx] += (MP_Real_t) *pSample;
+    if (reconstructionWithMeanAndNyquist == WITH_MEAN) {
+      aatom->meanPart[chanIdx] = convolution->compute_mean_IP(pSampleStart);
+    } else {
+      aatom->meanPart[chanIdx] = 0.0;
     }
-    aatom->meanPart[chanIdx] /= (MP_Real_t) sqrt(filterLen);
-    
-    aatom->nyquistPart[chanIdx] = (MP_Real_t) 0.0;
-    if ((filterLen>>2)<<2 == filterLen) {
-      for (pSample = pSampleStart;
-	   pSample < pSampleStart + filterLen;
-	   pSample += 2) {
-	aatom->nyquistPart[chanIdx] += (MP_Real_t) *pSample;
-	aatom->nyquistPart[chanIdx] -= (MP_Real_t) *(pSample+1);
-      }
-      aatom->nyquistPart[chanIdx] /= (MP_Real_t) sqrt(filterLen);
+
+    if (reconstructionWithMeanAndNyquist == WITH_MEAN) {
+      aatom->nyquistPart[chanIdx] = convolution->compute_nyquist_IP(pSampleStart);
+    } else {
+      aatom->nyquistPart[chanIdx] = 0.0;
     }
 
     if (anywaveTable->numChans == s->numChans) {
-      aatom->realPart[chanIdx] = convolution->compute_IP( pSampleStart, filterIdx, chanIdx );
-      aatom->hilbertPart[chanIdx] = hilbertConvolution->compute_IP( pSampleStart, filterIdx, chanIdx );
+      aatom->realPart[chanIdx] = convolution->compute_real_IP( pSampleStart, filterIdx, chanIdx );
+      aatom->hilbertPart[chanIdx] = convolution->compute_hilbert_IP( pSampleStart, filterIdx, chanIdx );
     } else {
-      aatom->realPart[chanIdx] = convolution->compute_IP( pSampleStart, filterIdx, 0 );
-      aatom->hilbertPart[chanIdx] = hilbertConvolution->compute_IP( pSampleStart, filterIdx, 0 );
+      aatom->realPart[chanIdx] = convolution->compute_real_IP( pSampleStart, filterIdx, 0 );
+      aatom->hilbertPart[chanIdx] = convolution->compute_hilbert_IP( pSampleStart, filterIdx, 0 );
     }
 
     aatom->amp[chanIdx] = (MP_Real_t) sqrt( (double) (aatom->meanPart[chanIdx]*aatom->meanPart[chanIdx] + aatom->nyquistPart[chanIdx]*aatom->nyquistPart[chanIdx] + aatom->realPart[chanIdx]*aatom->realPart[chanIdx] + aatom->hilbertPart[chanIdx]*aatom->hilbertPart[chanIdx] ) );

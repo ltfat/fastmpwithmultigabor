@@ -47,6 +47,9 @@
 #define __anywave_hilbert_block_h_
 
 
+#define WITHOUT_MEAN 0
+#define WITH_MEAN 1
+
 /************************/
 /* ANYWAVE_HILBERT BLOCK CLASS  */
 /************************/
@@ -97,12 +100,10 @@ public:
    */
   unsigned long int hilbertTableIdx;
   unsigned long int realTableIdx;
-  
-  /** \brief An object for performing the inner products between a
-   * signal and a hilbert transformed filter
-   *
-   */
-  MP_Convolution_Direct_c* hilbertConvolution;
+
+ private:
+  unsigned short int criteriumWithMeanAndNyquist;
+  unsigned short int reconstructionWithMeanAndNyquist;
 
   /***********/
   /* METHODS */
@@ -112,7 +113,7 @@ public:
   /* CONSTRUCTORS/DESTRUCTOR */
   /***************************/
 
-public:
+ public:
   
   /** \brief Factory function for a Anywave Hilbert block
    *
@@ -132,10 +133,18 @@ public:
 					   const unsigned long int setFilterShift,
 					   char* anywaveTableFileName );
 
+  static MP_Anywave_Hilbert_Block_c* init( MP_Signal_c *setSignal,
+					   const unsigned long int setFilterShift,
+					   char* anywaveTableFileName,
+					   unsigned short int setCriteriumWithMeanAndNyquist,
+					   unsigned short int setReconstructionWithMeanAndNyquist);
+
 protected:
   /** \brief an initializer for the parameters which ARE NOT related to the signal */
   virtual int init_parameters( const unsigned long int setFilterShift,
-			       char* anywaveTableFileName );
+			       char* anywaveTableFileName,
+			       unsigned short int setCriteriumWithMeanAndNyquist,
+			       unsigned short int setReconstructionWithMeanAndNyquist );
 
   void init_tables(void);
   /** \brief an initializer for the parameters which ARE related to the signal 
