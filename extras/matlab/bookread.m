@@ -115,6 +115,37 @@ for ( i = 1:book.numAtoms );
     book.atom{i}.realPart    = fread( fid, numChans, 'double' );
     book.atom{i}.hilbertPart = fread( fid, numChans, 'double' );
 
+   case 'anywavehilbertyy'
+    numChar = fread( fid, 1, 'ulong' );
+    
+    book.atom{i}.tableFileName = fread( fid, numChar, '*char' )';
+    book.atom{i}.tableFileName(end) = [];
+    book.atom{i}.waveIdx = fread( fid, 1, 'ulong' );
+    book.atom{i}.meanPart    = fread( fid, numChans, 'double' );
+    book.atom{i}.nyquistPart = fread( fid, numChans, 'double' );
+    book.atom{i}.realPart    = fread( fid, numChans, 'double' );
+    book.atom{i}.hilbertPart = fread( fid, numChans, 'double' );
+   
+   case 'anywavehilbertny'
+    numChar = fread( fid, 1, 'ulong' );
+    
+    book.atom{i}.tableFileName = fread( fid, numChar, '*char' )';
+    book.atom{i}.tableFileName(end) = [];
+    book.atom{i}.waveIdx = fread( fid, 1, 'ulong' );
+    book.atom{i}.meanPart    = fread( fid, numChans, 'double' );
+    book.atom{i}.nyquistPart = fread( fid, numChans, 'double' );
+    book.atom{i}.realPart    = fread( fid, numChans, 'double' );
+    book.atom{i}.hilbertPart = fread( fid, numChans, 'double' );
+   
+   case 'anywavehilbertnn'
+    numChar = fread( fid, 1, 'ulong' );
+    
+    book.atom{i}.tableFileName = fread( fid, numChar, '*char' )';
+    book.atom{i}.tableFileName(end) = [];
+    book.atom{i}.waveIdx = fread( fid, 1, 'ulong' );
+    book.atom{i}.realPart    = fread( fid, numChans, 'double' );
+    book.atom{i}.hilbertPart = fread( fid, numChans, 'double' );
+
     % Unknown atom type
    otherwise,
     error( [ '[' atomType '] is an unknown atom type.'] );

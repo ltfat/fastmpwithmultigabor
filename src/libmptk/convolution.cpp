@@ -1364,12 +1364,20 @@ void MP_Convolution_FFT_c::circular_convolution_hilbert( MP_Sample_t* pSlice, MP
   unsigned long int filterIdx;
 
   /* check that the filters are centered, denyquisted and normalized */
-  if ((anywaveTable->normalized == 0)) {
+  if ((anywaveRealTable->normalized == 0)) {
     mp_error_msg( "MP_Convolution_FFT_c::circular_convolution_hilbert","The filters must have been normalized\n");
     return;
   }
-  if ( anywaveTable->centeredAndDenyquisted == 0 ) {
-    mp_error_msg( "MP_Convolution_FFT_c::circular_convolution_hilbert","The mean adn nyquist components of the filters must have been removed\n");
+  if ( anywaveRealTable->centeredAndDenyquisted == 0 ) {
+    mp_error_msg( "MP_Convolution_FFT_c::circular_convolution_hilbert","The mean and nyquist components of the filters must have been removed\n");
+    return;
+  }
+  if ((anywaveHilbertTable->normalized == 0)) {
+    mp_error_msg( "MP_Convolution_FFT_c::circular_convolution_hilbert","The filters must have been normalized\n");
+    return;
+  }
+  if ( anywaveHilbertTable->centeredAndDenyquisted == 0 ) {
+    mp_error_msg( "MP_Convolution_FFT_c::circular_convolution_hilbert","The mean and nyquist components of the filters must have been removed\n");
     return;
   }
 

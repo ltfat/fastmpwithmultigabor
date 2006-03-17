@@ -667,6 +667,8 @@ MP_Anywave_Table_c* MP_Anywave_Table_c::create_hilbert_dual( char* name ) {
       
     }
   }	      
-  
+
+  newTable->centeredAndDenyquisted = 1;
+
   return(newTable);
 }
