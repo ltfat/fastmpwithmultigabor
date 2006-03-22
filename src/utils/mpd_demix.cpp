@@ -510,11 +510,11 @@ int main( int argc, char **argv ) {
 
   MP_Dict_c **dict = NULL;
   MP_Book_c **book = NULL;
-  MP_Gabor_Atom_c *maxAtom       = NULL;
-  MP_Gabor_Atom_c *multiChanAtom = NULL;
+  MP_Atom_c   *maxAtom  = NULL;
   MP_Signal_c *inSignal = NULL;
   MP_Signal_c *sigArray = NULL;
   double maxAmp;
+  MP_Real_t *amp = NULL;
 
   double max, val;
   unsigned short int maxSrc;
@@ -785,13 +785,6 @@ int main( int argc, char **argv ) {
     }
   }
 
-  /* Make a multi-channel atom */
-  if ( (multiChanAtom = MP_Gabor_Atom_c::init( inSignal->numChans, 0, 0.0 )) == NULL ) {
-    free( mixer ); free( Ah ); delete(inSignal); delete[](sigArray); delete[](book);
-    free_mem( dict, numSources, decay );
-    return( ERR_NEW );
-  }
-
   /* Allocate some storage for the decay of the energy  */
   if ( decayFileName ) {
     if ( MPD_USE_ITER ) {
@@ -804,7 +797,7 @@ int main( int argc, char **argv ) {
     }
     if ( decay == NULL ) {
       fprintf( stderr, "mpd_demix error -- Failed to allocate a decay array of [%lu] doubles.\n", decaySize+1 );
-      free( mixer ); free( Ah ); delete(inSignal); delete[](sigArray); delete[](book); delete(multiChanAtom);
+      free( mixer ); free( Ah ); delete(inSignal); delete[](sigArray); delete[](book);
       free_mem( dict, numSources, decay );
       return( ERR_DECAY );
     }
@@ -818,17 +811,25 @@ int main( int argc, char **argv ) {
       srcSeqSize = MPD_NUM_ITER;
     }
     else {
-      srcSequence = (unsigned short int*)malloc( MPD_ALLOC_BLOCK_SIZE*sizeof(double) );
+      srcSequence = (unsigned short int*)calloc( MPD_ALLOC_BLOCK_SIZE, sizeof(double) );
       srcSeqSize = MPD_ALLOC_BLOCK_SIZE;
     }
     if ( srcSequence == NULL ) {
       fprintf( stderr, "mpd_demix error -- Failed to allocate an array of [%lu] unsigned short ints"
 	       " to store the sequence of source indexes.\n", srcSeqSize );
-      free( mixer ); free( Ah ); delete(inSignal); delete[](sigArray); delete[](book); delete(multiChanAtom);
+      free( mixer ); free( Ah ); delete(inSignal); delete[](sigArray); delete[](book);
       free_mem( dict, numSources, decay );
       return( ERR_MALLOC );
     }
-    else for ( i=0; i<srcSeqSize; i++ ) *(srcSequence+i) = 0;
+  }
+
+  /* Allocate the amp array */
+  if ( (amp = (MP_Real_t*) calloc( numChans, sizeof(MP_Real_t) )) == NULL ){
+      fprintf( stderr, "mpd_demix error -- Failed to allocate an array of [%hu] real values"
+	       " to store the atom's amplitudes.\n", numChans );
+      free( srcSequence ); free( mixer ); free( Ah ); delete(inSignal); delete[](sigArray); delete[](book);
+      free_mem( dict, numSources, decay );
+      return( ERR_MALLOC );
   }
 
   /* Initial report */
@@ -932,7 +933,7 @@ int main( int argc, char **argv ) {
 	if ( newSeq == NULL ) {
 	  fprintf( stderr, "mpd_demix error -- Failed to re-allocate the source sequence array to store [%lu] unsigned short ints.\n",
 		   srcSeqSize );
-	  free( mixer ); free( Ah ); delete(inSignal); delete[](sigArray); delete[](book); delete(multiChanAtom);
+	  free( srcSequence ); free( mixer ); free( Ah ); delete(inSignal); delete[](sigArray); delete[](book);
 	  free_mem( dict, numSources, decay );
 	  return( ERR_MALLOC );
 	}
@@ -964,30 +965,18 @@ int main( int argc, char **argv ) {
       maxAtom->amp[0] = maxAmp * (*(Ah + j*numSources + maxSrc));
       maxAtom->substract_add( dict[j]->signal, NULL );
     }
+    /* Restore the initial atom's amplitude */
+    maxAtom->amp[0] = maxAmp;
     /* - update the input signal */
-    multiChanAtom->totalChanLen = 0;
-    multiChanAtom->windowType = maxAtom->windowType;
-    multiChanAtom->freq  = maxAtom->freq;
-    multiChanAtom->chirp = maxAtom->chirp;
     for ( k = 0; k < numChans; k++) {
-      multiChanAtom->amp[k]   = maxAmp * (*(mixer + k*numSources + maxSrc));
-      multiChanAtom->phase[k] = maxAtom->phase[0];
-      multiChanAtom->support[k] = maxAtom->support[0];
-      multiChanAtom->totalChanLen += maxAtom->totalChanLen;
+      amp[k] = maxAmp * (*(mixer + k*numSources + maxSrc));
     }
-#ifndef NDEBUG
-    fprintf( stderr, "mpd_demix DEBUG -- MULTICHAN ATOM HAS:\n" );
-    multiChanAtom->info( stderr );
-    fprintf( stderr, "mpd_demix DEBUG -- MULTICHAN ATOM TOTLEN IS: %lu\n",
-	     multiChanAtom->totalChanLen );
-#endif
-    multiChanAtom->substract_add( inSignal, NULL );    
+    maxAtom->substract_add_var_amp( amp, numChans, inSignal, NULL );
     residualEnergy = (double)inSignal->energy;
 #ifndef NDEBUG
     fprintf( stderr, " Done.\n" );
 #endif
-    /* Store the max atom with its original amplitude */
-    maxAtom->amp[0] = maxAmp;
+    /* Store the max atom (with its original amplitude) */
     book[maxSrc]->append( maxAtom );
 
     /*----------------------------*/
@@ -1003,7 +992,7 @@ int main( int argc, char **argv ) {
 	if ( newDecay == NULL ) {
 	  fprintf( stderr, "mpd_demix error -- Failed to re-allocate the decay array to store [%lu] doubles.\n",
 		   decaySize+1 );
-	  free( mixer ); free( Ah ); delete(inSignal); delete[](sigArray); delete[](book); delete(multiChanAtom);
+	  free( srcSequence ); free( mixer ); free( Ah ); delete(inSignal); delete[](sigArray); delete[](book);
 	  free_mem( dict, numSources, decay );
 	  return( ERR_DECAY );
 	}
@@ -1139,7 +1128,7 @@ int main( int argc, char **argv ) {
     if ( (fid = fopen( decayFileName, "w" )) == NULL ) {
       fprintf( stderr, "mpd_demix error -- Failed to open the energy decay file [%s] for writing.\n",
 	       decayFileName );
-      free( mixer ); free( Ah ); delete(inSignal); delete[](sigArray); delete[](book); delete(multiChanAtom);
+      free( srcSequence ); free( mixer ); free( Ah ); delete(inSignal); delete[](sigArray); delete[](book);
       free_mem( dict, numSources, decay );
       free( srcSequence );
       return( ERR_OPEN );
@@ -1159,7 +1148,7 @@ int main( int argc, char **argv ) {
     if ( (fid = fopen( srcSeqFileName, "w" )) == NULL ) {
       fprintf( stderr, "mpd_demix error -- Failed to open the source sequence file [%s] for writing.\n",
 	       srcSeqFileName );
-      free( mixer ); free( Ah ); delete(inSignal); delete[](sigArray); delete[](book); delete(multiChanAtom);
+      free( srcSequence ); free( mixer ); free( Ah ); delete(inSignal); delete[](sigArray); delete[](book);
       free_mem( dict, numSources, decay );
       free( srcSequence );
       return( ERR_OPEN );
@@ -1168,7 +1157,8 @@ int main( int argc, char **argv ) {
       nWrite = mp_fwrite( srcSequence, sizeof(unsigned short int), i, fid );
       fclose( fid );
       if (nWrite != i) {
-	fprintf( stderr, "mpd_demix warning -- Wrote less than the expected number of unsigned short ints to the source sequence file.\n" );
+	fprintf( stderr, "mpd_demix warning -- Wrote less than the expected number of"
+		 " unsigned short ints to the source sequence file.\n" );
 	fprintf( stderr, "mpd_demix warning -- ([%lu] expected, [%lu] written.)\n", i, nWrite );
       }
     }
@@ -1177,7 +1167,7 @@ int main( int argc, char **argv ) {
 
   /*******************/
   /* Clean the house */
-  free( mixer ); free( Ah ); delete(inSignal); delete[](sigArray); delete[](book); delete(multiChanAtom);
+  free( srcSequence ); free( mixer ); free( Ah ); delete(inSignal); delete[](sigArray); delete[](book);
   free_mem( dict, numSources, decay );
   free( srcSequence );
 

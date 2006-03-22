@@ -183,16 +183,25 @@ public :
    * \return the type as a string */
   virtual char* type_name( void );
 
-  /** \brief Substract /add the atom (multichannel) waveform from / to a (multichannel) signal
+  /** \brief Substract /add the atom's multichannel waveform from / to a multichannel signal
    * \param sigSub signal from which the atom waveform is to be removed
    * \param sigAdd signal to which the atom waveform is to be added
    *
    * \remark Passing sigSub == NULL or sigAdd == NULL skips the corresponding substraction / addition.
-   * \warning the behaviour is undefined if the signals numChans does not match the atoms numChans,
-   * or if the support of the atom exceeds the limits of the signal.
-   * (in debug mode, an exception (assert) is throwed in both cases)
    */
   void substract_add( MP_Signal_c *sigSub, MP_Signal_c *sigAdd );
+
+  /** \brief Substract/add the atom's monochannel waveform from / to a multichannel signal
+   *  with various amplitudes
+   *
+   * \param amp an array of the amplitudes to be used for each channel
+   * \param numAmps the number of elements in the amp array (used for testing purposes)
+   * \param sigSub signal from which the atom waveform is to be removed
+   * \param sigAdd signal to which the atom waveform is to be added
+   *
+   * \remark Passing sigSub == NULL or sigAdd == NULL skips the corresponding substraction / addition.
+   */
+  void substract_add_var_amp( MP_Real_t *amp, MP_Chan_t numAmps, MP_Signal_c *sigSub, MP_Signal_c *sigAdd );
 
 
   /*****************************************************/

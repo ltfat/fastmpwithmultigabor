@@ -398,6 +398,139 @@ void MP_Atom_c::substract_add( MP_Signal_c *sigSub, MP_Signal_c *sigAdd ) {
 }
 
 
+/**********************************************/
+/* Substract / add a monochannel atom from / to multichannel signals. */
+void MP_Atom_c::substract_add_var_amp( MP_Real_t *amp, MP_Chan_t numAmps,
+				       MP_Signal_c *sigSub, MP_Signal_c *sigAdd ) {
+
+  const char* func = "MP_Atom_c::substract_add_var_amp(...)";
+  MP_Sample_t *sigIn;
+  MP_Chan_t chanIdx;
+  unsigned int t;
+  double sigEBefAdd = 0.0;
+  double sigEAftAdd = 0.0;
+  double sigEBefSub = 0.0;
+  double sigEAftSub = 0.0;
+  double sigVal;
+
+  MP_Sample_t totalBuffer[numAmps*totalChanLen];
+  MP_Sample_t *atomIn;
+  MP_Sample_t *ps;
+  MP_Sample_t *pa;
+  unsigned long int len;
+  unsigned long int pos;
+  unsigned long int tmpLen;
+
+  /* Check that the addition / substraction can take place :
+     the amp vector should have as many elements as channels in the signals */
+  if ( ( sigSub ) && ( sigSub->numChans != numAmps ) ) {
+    mp_error_msg( func, "The number of amplitudes is incompatible with the number of channels"
+		  " in the subtraction signal. Returning without any addition or subtraction.\n" );
+    return;
+  }
+  if ( ( sigAdd ) && ( sigAdd->numChans != numAmps ) ) {
+    mp_error_msg( func, "The number of amplitudes is incompatible with the number of channels"
+		  " in the addition signal. Returning without any addition or subtraction.\n" );
+    return;
+  }
+  /* The original atom should be mono-channel */
+  if ( numChans != 1 ) {
+    mp_error_msg( func, "This method applies to mono-channel atoms only."
+		  " Returning without any addition or subtraction.\n" );
+    return;
+  }
+
+  /* Dereference the atom support once and for all */
+  len = support[0].len;
+  pos = support[0].pos;
+
+  /* build the atom waveform "template", in the first segment of the buffer */
+  build_waveform( totalBuffer );
+  /* Replicate the template and multiply it with the various amplitudes,
+     in the segments that come after the first one */
+  for ( chanIdx = 1; chanIdx < numAmps; chanIdx++ ) {
+    sigVal = amp[chanIdx];
+    for ( t = 0, pa = totalBuffer, ps = (totalBuffer + len*chanIdx);
+	  t < len;
+	  t++,   pa++,             ps++ ) (*ps) = sigVal * (*pa);
+  }
+  /* - Then, correct the amplitude of the initial template */
+  sigVal = amp[0];
+  for ( t = 0, pa = totalBuffer; t < len; t++,   pa++ ) (*pa) = sigVal * (*pa);  
+  
+  /* loop on channels, seeking the right location in the totalBuffer */
+  for ( chanIdx = 0 , atomIn = totalBuffer; chanIdx < numChans; chanIdx++ ) {
+
+    /* SUBTRACT the atomic waveform from the first signal */
+    if ( (sigSub) && (pos < sigSub->numSamples) ) {
+
+      /* Avoid to write outside of the signal array */
+      //assert( (pos + len) <= sigSub->numSamples );
+      tmpLen = sigSub->numSamples - pos;
+      tmpLen = ( len < tmpLen ? len : tmpLen ); /* min( len, tmpLen ) */
+
+      /* Seek the right location in the signal */
+      sigIn  = sigSub->channel[chanIdx] + pos;
+
+      /* Waveform SUBTRACTION */
+      for ( t = 0,   ps = sigIn, pa = atomIn;
+	    t < tmpLen;
+	    t++,     ps++,       pa++ ) {
+	/* Dereference the signal value */
+	sigVal   = (double)(*ps);
+	/* Accumulate the energy before the subtraction */
+	sigEBefSub += (sigVal*sigVal);
+	/* Subtract the atom sample from the signal sample */
+	sigVal   = sigVal - *pa;
+	/* Accumulate the energy after the subtraction */
+	sigEAftSub += (sigVal*sigVal);
+	/* Record the new signal sample value */
+	*ps = (MP_Sample_t)(sigVal);
+      }
+
+    } /* end SUBTRACT */
+    
+    /* ADD the atomic waveform to the second signal */
+    if ( (sigAdd) && (pos < sigAdd->numSamples) ) {
+
+      /* Avoid to write outside of the signal array */
+      //assert( (pos + len) <= sigAdd->numSamples );
+      tmpLen = sigAdd->numSamples - pos;
+      tmpLen = ( len < tmpLen ? len : tmpLen ); /* min( len, tmpLen ) */
+
+      /* Seek the right location in the signal */
+      sigIn  = sigAdd->channel[chanIdx] + pos;
+
+      /* Waveform ADDITION */
+      for ( t = 0,   ps = sigIn, pa = atomIn;
+	    t < len;
+	    t++,     ps++,       pa++ ) {
+	/* Dereference the signal value */
+	sigVal   = (double)(*ps);
+	/* Accumulate the energy before the subtraction */
+	sigEBefAdd += (sigVal*sigVal);
+	/* Add the atom sample to the signal sample */
+	sigVal   = sigVal + *pa;
+	/* Accumulate the energy after the subtraction */
+	sigEAftAdd += (sigVal*sigVal);
+	/* Record the new signal sample value */
+	*ps = (MP_Sample_t)(sigVal);
+      }
+
+    } /* end ADD */
+
+    /* Go to the next channel */
+    atomIn += len;
+
+  } /* end for chanIdx */
+
+  /* Update the energies of the signals */
+  if ( sigSub ) sigSub->energy = sigSub->energy - sigEBefSub + sigEAftSub;
+  if ( sigAdd ) sigAdd->energy = sigAdd->energy - sigEBefAdd + sigEAftAdd;
+
+}
+
+
 /***********************************************************************/
 /* Sorting function which characterizes various properties of the atom,
    across all channels */
