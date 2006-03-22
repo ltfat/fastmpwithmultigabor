@@ -141,10 +141,10 @@ protected:
   MP_Harmonic_Atom_c( void );
 
   /** \brief Internal allocations of the local vectors */
-  int local_alloc( const MP_Chan_t setNChan, const unsigned int setNumPartials );
+  int local_alloc( const MP_Chan_t setNumChans, const unsigned int setNumPartials );
 
   /** \brief Internal allocations of all the vectors */
-  int global_alloc( const MP_Chan_t setNChan, const unsigned int setNumPartials );
+  int global_alloc( const MP_Chan_t setNumChans, const unsigned int setNumPartials );
 
   /** \brief File reader */
   virtual int read( FILE *fid, const char mode );

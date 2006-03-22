@@ -53,12 +53,12 @@ extern MP_Anywave_Server_c MP_GLOBAL_ANYWAVE_SERVER;
 
 /************************/
 /* Factory function     */
-MP_Anywave_Hilbert_Atom_c* MP_Anywave_Hilbert_Atom_c::init( const MP_Chan_t setNChan ) {
+MP_Anywave_Hilbert_Atom_c* MP_Anywave_Hilbert_Atom_c::init( const MP_Chan_t setNumChans ) {
   
-  return( MP_Anywave_Hilbert_Atom_c::init( setNChan, WITH_MEAN, WITH_MEAN ) );
+  return( MP_Anywave_Hilbert_Atom_c::init( setNumChans, WITH_MEAN, WITH_MEAN ) );
 }
 
-MP_Anywave_Hilbert_Atom_c* MP_Anywave_Hilbert_Atom_c::init( const MP_Chan_t setNChan,
+MP_Anywave_Hilbert_Atom_c* MP_Anywave_Hilbert_Atom_c::init( const MP_Chan_t setNumChans,
 					  unsigned short int setCriteriumWithMeanAndNyquist,
 					  unsigned short int setReconstructionWithMeanAndNyquist ) {
   
@@ -74,7 +74,7 @@ MP_Anywave_Hilbert_Atom_c* MP_Anywave_Hilbert_Atom_c::init( const MP_Chan_t setN
   }
 
   /* Allocate and check */
-  if ( newAtom->global_alloc( setNChan, setCriteriumWithMeanAndNyquist, setReconstructionWithMeanAndNyquist ) ) {
+  if ( newAtom->global_alloc( setNumChans, setCriteriumWithMeanAndNyquist, setReconstructionWithMeanAndNyquist ) ) {
     mp_error_msg( func, "Failed to allocate some vectors in the new Anywave Hilbert atom."
 		  " Returning a NULL atom.\n" );
     delete( newAtom );
@@ -137,14 +137,14 @@ MP_Anywave_Hilbert_Atom_c::MP_Anywave_Hilbert_Atom_c( void )
 
 /************************/
 /* Global allocations   */
-int MP_Anywave_Hilbert_Atom_c::global_alloc( const MP_Chan_t setNChan,
+int MP_Anywave_Hilbert_Atom_c::global_alloc( const MP_Chan_t setNumChans,
 					     unsigned short int setCriteriumWithMeanAndNyquist,
 					     unsigned short int setReconstructionWithMeanAndNyquist ) {
 
   const char* func = "MP_Anywave_Hilbert_Atom_c::global_alloc(numChans)";
 
   /* Go up one level */
-  if ( MP_Anywave_Atom_c::global_alloc( setNChan ) ) {
+  if ( MP_Anywave_Atom_c::global_alloc( setNumChans ) ) {
     mp_error_msg( func, "Allocation of Anywave Hilbert atom failed at the Anywave atom level.\n" );
     return( 1 );
   }

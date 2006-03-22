@@ -144,10 +144,10 @@ protected:
   MP_Atom_c( void );
 
   /** \brief Internal allocations of the local vectors */
-  int local_alloc( const MP_Chan_t setNChan );
+  int local_alloc( const MP_Chan_t setNumChans );
 
   /** \brief Internal allocations of the global vectors */
-  int global_alloc( const MP_Chan_t setNChan );
+  int global_alloc( const MP_Chan_t setNumChans );
 
   /** \brief File reader */
   virtual int read( FILE *fid, const char mode );

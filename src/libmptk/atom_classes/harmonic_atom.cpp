@@ -52,7 +52,7 @@
 
 /*****************************/
 /* Specific factory function */
-MP_Harmonic_Atom_c* MP_Harmonic_Atom_c::init( const MP_Chan_t setNChan,  
+MP_Harmonic_Atom_c* MP_Harmonic_Atom_c::init( const MP_Chan_t setNumChans,  
 					      const unsigned char setWindowType,
 					      const double setWindowOption,
 					      const unsigned int setNumPartials) {
@@ -88,7 +88,7 @@ MP_Harmonic_Atom_c* MP_Harmonic_Atom_c::init( const MP_Chan_t setNChan,
   else newAtom->numPartials  = setNumPartials;
 
   /* Allocate and check */
-  if ( newAtom->global_alloc( setNChan, setNumPartials ) ) {
+  if ( newAtom->global_alloc( setNumChans, setNumPartials ) ) {
     mp_error_msg( func, "Failed to allocate some vectors in the new Harmonic atom.\n" );
     delete( newAtom );
     return( NULL );
@@ -139,7 +139,7 @@ MP_Harmonic_Atom_c::MP_Harmonic_Atom_c( void )
 
 /************************/
 /* Local allocations    */
-int MP_Harmonic_Atom_c::local_alloc( MP_Chan_t setNChan,  
+int MP_Harmonic_Atom_c::local_alloc( MP_Chan_t setNumChans,  
 				     const unsigned int setNumPartials ) {
 
   const char* func = "MP_Harmonic_Atom_c::local_alloc(numChans,numPartials)";
@@ -155,25 +155,25 @@ int MP_Harmonic_Atom_c::local_alloc( MP_Chan_t setNChan,
   }
 
   /* partial's amp */
-  if ( (partialAmpStorage = (MP_Real_t*)calloc(setNChan*setNumPartials, sizeof(MP_Real_t)) ) == NULL ) {
+  if ( (partialAmpStorage = (MP_Real_t*)calloc(setNumChans*setNumPartials, sizeof(MP_Real_t)) ) == NULL ) {
     mp_warning_msg( func, "Can't allocate the partialAmpStorage array.\n" );
     return( 1 );
-  } else if  ( (partialAmp = (MP_Real_t**) malloc(setNChan*sizeof(MP_Real_t*)) ) == NULL ) {
+  } else if  ( (partialAmp = (MP_Real_t**) malloc(setNumChans*sizeof(MP_Real_t*)) ) == NULL ) {
     mp_warning_msg( func, "Can't allocate the partialAmp array.\n" );
     return( 1 );
   } else {
-    for (i=0; i < setNChan; i++) {partialAmp[i] = partialAmpStorage+i*setNumPartials;}
+    for (i=0; i < setNumChans; i++) {partialAmp[i] = partialAmpStorage+i*setNumPartials;}
   }
 
   /* partial's phase */
-  if ( (partialPhaseStorage = (MP_Real_t*)calloc(setNChan*setNumPartials,sizeof(MP_Real_t)) ) == NULL ) {
+  if ( (partialPhaseStorage = (MP_Real_t*)calloc(setNumChans*setNumPartials,sizeof(MP_Real_t)) ) == NULL ) {
     mp_warning_msg( func, "Can't allocate the partialPhaseStorage array.\n" );
     return( 1 );
-  } else if ( (partialPhase = (MP_Real_t**)malloc(setNChan*sizeof(MP_Real_t*)) ) == NULL ) {
+  } else if ( (partialPhase = (MP_Real_t**)malloc(setNumChans*sizeof(MP_Real_t*)) ) == NULL ) {
     mp_warning_msg( func, "Can't allocate the partialPhase array.\n" );
     return( 1 );
   } else {
-    for (i=0; i < setNChan; i++) {partialPhase[i] = partialPhaseStorage+i*setNumPartials;}
+    for (i=0; i < setNumChans; i++) {partialPhase[i] = partialPhaseStorage+i*setNumPartials;}
   }
 
   return( 0 );
@@ -182,19 +182,19 @@ int MP_Harmonic_Atom_c::local_alloc( MP_Chan_t setNChan,
 
 /************************/
 /* Global allocation    */
-int MP_Harmonic_Atom_c::global_alloc( MP_Chan_t setNChan,  
+int MP_Harmonic_Atom_c::global_alloc( MP_Chan_t setNumChans,  
 				      const unsigned int setNumPartials ) {
 
   const char* func = "MP_Harmonic_Atom_c::global_alloc(numChans,numPartials)";
 
   /* Go up one level */
-  if ( MP_Gabor_Atom_c::global_alloc( setNChan ) ) {
+  if ( MP_Gabor_Atom_c::global_alloc( setNumChans ) ) {
     mp_error_msg( func, "Allocation of Harmonic atom failed at the Gabor atom level.\n" );
     return( 1 );
   }
 
   /* Alloc at local level */
-  if ( local_alloc( setNChan, setNumPartials ) ) {
+  if ( local_alloc( setNumChans, setNumPartials ) ) {
     mp_error_msg( func, "Allocation of Harmonic atom failed at the local level.\n" );
     return( 1 );
   }

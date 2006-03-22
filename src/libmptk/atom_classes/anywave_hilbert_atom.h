@@ -162,7 +162,7 @@ class MP_Anywave_Hilbert_Atom_c: public MP_Anywave_Atom_c {
   int init_parts(void);
 
   int init_tables( void);
-  virtual int global_alloc( const MP_Chan_t setNChan,
+  virtual int global_alloc( const MP_Chan_t setNumChans,
 			    unsigned short int setCriteriumWithMeanAndNyquist,
 			    unsigned short int setReconstructionWithMeanAndNyquist );
 

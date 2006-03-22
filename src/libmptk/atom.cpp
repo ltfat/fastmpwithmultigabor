@@ -62,27 +62,27 @@ MP_Atom_c::MP_Atom_c( void ) {
 
 /***********************/
 /* Internal allocation */
-int MP_Atom_c::local_alloc( const MP_Chan_t setNChan ) {
+int MP_Atom_c::local_alloc( const MP_Chan_t setNumChans ) {
 
-  const char* func = "MP_Atom_c::internal_alloc(numChan)";
+  const char* func = "MP_Atom_c::internal_alloc(numChans)";
 
   /* Check the allocation size */
-  if ((double)MP_MAX_SIZE_T / (double)setNChan / (double)sizeof(MP_Real_t) <= 1.0) {
+  if ((double)MP_MAX_SIZE_T / (double)setNumChans / (double)sizeof(MP_Real_t) <= 1.0) {
     mp_error_msg( "MP_Anywave_Atom_c::MP_Anywave_Atom_c", "numChans [%lu] x sizeof(MP_Real_t) [%lu]"
 		  " is greater than the maximum value for a size_t [%lu]. Cannot use calloc"
 		  " for allocating space for the arrays. The arrays stay NULL.\n",
-		  setNChan, sizeof(MP_Real_t), MP_MAX_SIZE_T);
+		  setNumChans, sizeof(MP_Real_t), MP_MAX_SIZE_T);
     return( 1 );
   }
 
   /* Allocate the support array */
-  if ( ( support = (MP_Support_t*) calloc( setNChan, sizeof(MP_Support_t) )) == NULL ) {
+  if ( ( support = (MP_Support_t*) calloc( setNumChans, sizeof(MP_Support_t) )) == NULL ) {
     mp_warning_msg( "MP_Atom_c::internal_alloc(numChans)", "Can't allocate support array"
 		    " in atom with [%u] channels. Support array and param array"
-		    " are left NULL.\n", setNChan );
+		    " are left NULL.\n", setNumChans );
     return( 1 );
   }
-  else numChans = setNChan;
+  else numChans = setNumChans;
 
   /* Allocate the amp array */
   if ( (amp = (MP_Real_t*)calloc( numChans, sizeof(MP_Real_t)) ) == NULL ) {
@@ -97,12 +97,12 @@ int MP_Atom_c::local_alloc( const MP_Chan_t setNChan ) {
 
 /************************/
 /* Global allocations   */
-int MP_Atom_c::global_alloc( const MP_Chan_t setNChan ) {
+int MP_Atom_c::global_alloc( const MP_Chan_t setNumChans ) {
 
   const char* func = "MP_Atom_c::global_alloc(numChans)";
 
   /* Alloc at local level */
-  if ( local_alloc( setNChan ) ) {
+  if ( local_alloc( setNumChans ) ) {
     mp_error_msg( func, "Allocation of generic atom failed at the local level.\n" );
     return( 1 );
   }

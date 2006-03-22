@@ -47,7 +47,6 @@ II) IMPROVEMENTS TO THE CORE LIBRARY
   - fix integer types : unsigned long int -> uint32 etc
   - fix char/int in array arguments
   - standardize semantic of the info() print() mechanisms
-  - standardize names nChan nChans numChan numChans ...  
   - replace MP_Sample_t with MP_Real_t, eliminate MP_Sample_t and remove the unnecessary castings
   - reinforce the test suite
   - restructure atom / book classes to introduce molecules MP_Molecule_c -> MP_Atom_c -> MP_Gabor_c ...

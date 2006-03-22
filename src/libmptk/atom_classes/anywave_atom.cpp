@@ -54,9 +54,9 @@ extern MP_Anywave_Server_c MP_GLOBAL_ANYWAVE_SERVER;
 
 /************************/
 /* Factory function     */
-MP_Anywave_Atom_c* MP_Anywave_Atom_c::init( const MP_Chan_t setNChan ) {
+MP_Anywave_Atom_c* MP_Anywave_Atom_c::init( const MP_Chan_t setNumChans ) {
   
-  const char* func = "MP_Anywave_Atom_c::init(numChan)";
+  const char* func = "MP_Anywave_Atom_c::init(numChans)";
   
   MP_Anywave_Atom_c* newAtom = NULL;
 
@@ -68,7 +68,7 @@ MP_Anywave_Atom_c* MP_Anywave_Atom_c::init( const MP_Chan_t setNChan ) {
   }
 
   /* Allocate and check */
-  if ( newAtom->global_alloc( setNChan ) ) {
+  if ( newAtom->global_alloc( setNumChans ) ) {
     mp_error_msg( func, "Failed to allocate some vectors in the new Anywave atom."
 		  " Returning a NULL atom.\n" );
     delete( newAtom );
@@ -117,12 +117,12 @@ MP_Anywave_Atom_c::MP_Anywave_Atom_c( void )
 
 /************************/
 /* Global allocations   */
-int MP_Anywave_Atom_c::global_alloc( const MP_Chan_t setNChan ) {
+int MP_Anywave_Atom_c::global_alloc( const MP_Chan_t setNumChans ) {
 
   const char* func = "MP_Anywave_Atom_c::global_alloc(numChans)";
 
   /* Go up one level */
-  if ( MP_Atom_c::global_alloc( setNChan ) ) {
+  if ( MP_Atom_c::global_alloc( setNumChans ) ) {
     mp_error_msg( func, "Allocation of Anywave atom failed at the generic atom level.\n" );
     return( 1 );
   }

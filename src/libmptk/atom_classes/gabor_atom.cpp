@@ -57,7 +57,7 @@
 
 /************************/
 /* Factory function     */
-MP_Gabor_Atom_c* MP_Gabor_Atom_c::init( const MP_Chan_t setNChan,
+MP_Gabor_Atom_c* MP_Gabor_Atom_c::init( const MP_Chan_t setNumChans,
 					const unsigned char setWindowType,
 					const double setWindowOption ) {
   
@@ -84,7 +84,7 @@ MP_Gabor_Atom_c* MP_Gabor_Atom_c::init( const MP_Chan_t setNChan,
   }
   
   /* Allocate and check */
-  if ( newAtom->global_alloc( setNChan ) ) {
+  if ( newAtom->global_alloc( setNumChans ) ) {
     mp_error_msg( func, "Failed to allocate some vectors in the new Gabor atom. Returning a NULL atom.\n" );
     delete( newAtom );
     return( NULL );
@@ -134,12 +134,12 @@ MP_Gabor_Atom_c::MP_Gabor_Atom_c( void )
 
 /************************/
 /* Local allocations    */
-int MP_Gabor_Atom_c::local_alloc( const MP_Chan_t setNChan ) {
+int MP_Gabor_Atom_c::local_alloc( const MP_Chan_t setNumChans ) {
 
   const char* func = "MP_Gabor_Atom_c::local_alloc(numChans)";
 
   /* phase */
-  if ( (phase = (MP_Real_t*)calloc( setNChan, sizeof(MP_Real_t)) ) == NULL ) {
+  if ( (phase = (MP_Real_t*)calloc( setNumChans, sizeof(MP_Real_t)) ) == NULL ) {
     mp_error_msg( func, "Can't allocate the phase array.\n" );
     return( 1 );
   }
@@ -150,18 +150,18 @@ int MP_Gabor_Atom_c::local_alloc( const MP_Chan_t setNChan ) {
 
 /************************/
 /* Global allocations   */
-int MP_Gabor_Atom_c::global_alloc( const MP_Chan_t setNChan ) {
+int MP_Gabor_Atom_c::global_alloc( const MP_Chan_t setNumChans ) {
 
   const char* func = "MP_Gabor_Atom_c::global_alloc(numChans)";
 
   /* Go up one level */
-  if ( MP_Atom_c::global_alloc( setNChan ) ) {
+  if ( MP_Atom_c::global_alloc( setNumChans ) ) {
     mp_error_msg( func, "Allocation of Gabor atom failed at the generic atom level.\n" );
     return( 1 );
   }
 
   /* Alloc at local level */
-  if ( local_alloc( setNChan ) ) {
+  if ( local_alloc( setNumChans ) ) {
     mp_error_msg( func, "Allocation of Gabor atom failed at the local level.\n" );
     return( 1 );
   }

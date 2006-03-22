@@ -87,7 +87,7 @@ protected:
   MP_Dirac_Atom_c( void );
 
   /** \brief Global allocations of the vectors */
-  int global_alloc( const MP_Chan_t setNChan );
+  int global_alloc( const MP_Chan_t setNumChans );
 
   /** \brief File reader */
   virtual int read( FILE *fid, const char mode );

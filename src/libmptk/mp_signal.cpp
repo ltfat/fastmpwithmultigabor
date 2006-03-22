@@ -131,7 +131,7 @@ MP_Signal_c* MP_Signal_c::init( const char *fName ) {
   newSig = MP_Signal_c::init( sfinfo.channels, sfinfo.frames, sfinfo.samplerate );
   if ( newSig == NULL ) {
     mp_error_msg( func, "Failed to instantiate a new signal with parameters:"
-		  " numChannels = %d, numFrames = %lu, sampleRate = %d.\n",
+		  " numChans = %d, numFrames = %lu, sampleRate = %d.\n",
 		  sfinfo.channels, sfinfo.frames, sfinfo.samplerate );
     return( NULL );
   }
@@ -144,14 +144,14 @@ MP_Signal_c* MP_Signal_c::init( const char *fName ) {
     mp_debug_msg( MP_DEBUG_FILE_IO, func, "-- numSamples : %lu\n", newSig->numSamples) ;
     mp_debug_msg( MP_DEBUG_FILE_IO, func, "-- end after init.\n");
 
-    int nChan = newSig->numChans;
-    double frame[nChan];
+    MP_Chan_t numChans = newSig->numChans;
+    double frame[numChans];
     unsigned long int sample;
-    int chanIdx;
+    MP_Chan_t chanIdx;
     MP_Sample_t** chan = newSig->channel;
     for ( sample = 0; sample < newSig->numSamples; sample++ ) { /* loop on frames           */
       sf_readf_double ( file, frame, 1 );                       /* read one frame at a time */
-      for ( chanIdx = 0; chanIdx < nChan; chanIdx++ ) {         /* de-interleave it         */
+      for ( chanIdx = 0; chanIdx < numChans; chanIdx++ ) {         /* de-interleave it         */
 	chan[chanIdx][sample] = frame[chanIdx];
       }
     }
@@ -838,18 +838,18 @@ MP_Real_t MP_Signal_c::compute_energy( void ) {
 
 /*****************************************/
 /* Signal energy over a specific channel */
-MP_Real_t MP_Signal_c::compute_energy_in_channel( int numChan ) {
+MP_Real_t MP_Signal_c::compute_energy_in_channel( MP_Chan_t chanIdx ) {
 
   double retEnergy = 0.0;
   double val;
   MP_Real_t *p;
 
   assert( storage != NULL );
-  assert( numChan < numChans );
-  assert( channel[numChan] != NULL );
+  assert( chanIdx < numChans );
+  assert( channel[chanIdx] != NULL );
 
-  for ( p = (storage + numChan*numSamples);
-	p < (storage + numChan*numSamples + numSamples);
+  for ( p = (storage + chanIdx*numSamples);
+	p < (storage + chanIdx*numSamples + numSamples);
 	p++ ) {
     val = (double)(*p);
     retEnergy += (val * val);

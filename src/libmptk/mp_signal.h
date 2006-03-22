@@ -295,10 +295,10 @@ public:
 
 
   /** \brief Compute the signal energy over a specified channel
-   * \param numChan the channel number 
+   * \param chanIdx the channel index 
    * \return the computed energy
    */
-  MP_Real_t compute_energy_in_channel( int numChan );
+  MP_Real_t compute_energy_in_channel( MP_Chan_t chanIdx );
 
 
   /** \brief Apply a gain to the signal

@@ -50,9 +50,9 @@
 
 /*****************************/
 /* Specific factory function */
-MP_Dirac_Atom_c* MP_Dirac_Atom_c::init( const MP_Chan_t setNChan ) {
+MP_Dirac_Atom_c* MP_Dirac_Atom_c::init( const MP_Chan_t setNumChans ) {
 
-  const char* func = "MP_Dirac_Atom_c::init(numChan)";
+  const char* func = "MP_Dirac_Atom_c::init(numChans)";
   MP_Dirac_Atom_c* newAtom = NULL;
 
   /* Instantiate and check */
@@ -63,7 +63,7 @@ MP_Dirac_Atom_c* MP_Dirac_Atom_c::init( const MP_Chan_t setNChan ) {
   }
 
   /* Allocate and check */
-  if ( newAtom->global_alloc( setNChan ) ) {
+  if ( newAtom->global_alloc( setNumChans ) ) {
     mp_error_msg( func, "Failed to allocate some vectors in the new Dirac atom.\n" );
     delete( newAtom );
     return( NULL );
@@ -105,12 +105,12 @@ MP_Dirac_Atom_c::MP_Dirac_Atom_c( void )
 
 /************************/
 /* Global allocations  */
-int MP_Dirac_Atom_c::global_alloc( const MP_Chan_t setNChan ) {
+int MP_Dirac_Atom_c::global_alloc( const MP_Chan_t setNumChans ) {
 
   const char* func = "MP_Dirac_Atom_c::internal_alloc(numChans)";
 
   /* Go up one level */
-  if ( MP_Atom_c::global_alloc( setNChan ) ) {
+  if ( MP_Atom_c::global_alloc( setNumChans ) ) {
     mp_error_msg( func, "Allocation of Dirac atom failed at the generic atom level.\n" );
     return( 1 );
   }

@@ -48,7 +48,7 @@
 /***************/
 /* Constructor */
 MP_TF_Map_c::MP_TF_Map_c( const unsigned long int setNCols,  const unsigned long int setNRows,
-			  const int setNChans, 
+			  const int setNumChans, 
 			  const unsigned long int setTMin,   const unsigned long int setTMax,
 			  const MP_Real_t setFMin,           const MP_Real_t setFMax ) {
 
@@ -74,26 +74,26 @@ MP_TF_Map_c::MP_TF_Map_c( const unsigned long int setNCols,  const unsigned long
   ampMax = 0.0;
 
   /* Try to allocate storage */
-  if ( (storage = (MP_Tfmap_t*)calloc(setNChans*setNCols*setNRows,sizeof(MP_Tfmap_t))) == NULL ) {
+  if ( (storage = (MP_Tfmap_t*)calloc(setNumChans*setNCols*setNRows,sizeof(MP_Tfmap_t))) == NULL ) {
     mp_warning_msg( func, "Can't allocate storage in tfmap with size [%d]x[%lu]x[%lu]. "
-	     "Storage and columns are left NULL.\n", setNChans, setNCols, setNRows );
+	     "Storage and columns are left NULL.\n", setNumChans, setNCols, setNRows );
   }
   /* "Fold" the storage space into separate channels */
   else {
-    if ( (channel = (MP_Tfmap_t**) malloc( setNChans*sizeof(MP_Tfmap_t*) ) ) == NULL) {
+    if ( (channel = (MP_Tfmap_t**) malloc( setNumChans*sizeof(MP_Tfmap_t*) ) ) == NULL) {
       mp_warning_msg( func, "Can't allocate [%d] channels in tfmap. "
-	       "Storage and channels are left NULL.\n", setNChans);
+	       "Storage and channels are left NULL.\n", setNumChans);
       free( storage ); storage = NULL;
     }
     /* If everything went OK fold the storage space */
     else {
       int i;
       unsigned long int size = (setNRows*setNCols);
-      for ( i = 0; i < setNChans; i++) channel[i] = storage + i*size;
+      for ( i = 0; i < setNumChans; i++) channel[i] = storage + i*size;
 
       numCols = setNCols;
       numRows = setNRows;
-      numChans = setNChans;
+      numChans = setNumChans;
 
       tMin = setTMin;
       tMax = setTMax;
