@@ -61,8 +61,7 @@ MP_Signal_c* MP_Signal_c::init( const int setNumChans,
   const char* func = "MP_Signal_c::init(3 params)";
   MP_Signal_c *newSig = NULL;
 
-  mp_debug_msg( MP_DEBUG_CONSTRUCTION, func,
-		"Initializing a new signal...\n");
+  mp_debug_msg( MP_DEBUG_CONSTRUCTION, func, "Initializing a new signal...\n");
 
   /* Instantiate and check */
   newSig = new MP_Signal_c();
@@ -77,7 +76,7 @@ MP_Signal_c* MP_Signal_c::init( const int setNumChans,
     return( NULL );    
   }
 
-  mp_debug_msg( MP_DEBUG_FUNC_EXIT, "MP_Signal_c::MP_Signal_c( 3 params )", "Done.\n");
+  mp_debug_msg( MP_DEBUG_FUNC_EXIT, func, "Done.\n");
 
   return( newSig );
 }
@@ -164,6 +163,85 @@ MP_Signal_c* MP_Signal_c::init( const char *fName ) {
   newSig->refresh_energy();
 
   mp_debug_msg( MP_DEBUG_CONSTRUCTION, func, "Done.\n");
+
+  return( newSig );
+}
+
+
+/****************************************/
+/* Factory function from channel export */
+MP_Signal_c* MP_Signal_c::init( MP_Signal_c *sig, MP_Chan_t chanIdx ) {
+
+  const char* func = "MP_Signal_c::init(sig,chanIdx)";
+  MP_Signal_c *newSig = NULL;
+
+  mp_debug_msg( MP_DEBUG_CONSTRUCTION, func,
+		"Exporting a channel...\n");
+
+  /* Initial checks */
+  if ( sig == NULL ) {
+    mp_error_msg( func, "Trying to export a channel from a NULL signal. Returning NULL.\n" );
+    return( NULL );
+  }
+  if ( chanIdx > sig->numChans ) {
+    mp_error_msg( func, "Asked for export of channel [%hu] from a signal with [%hu] channels.\n",
+		  chanIdx, sig->numChans );
+    return( NULL );
+  }
+
+  /* Instantiate and check */
+  newSig = MP_Signal_c::init( 1, sig->numSamples, sig->sampleRate );
+  if ( newSig == NULL ) {
+    mp_error_msg( func, "Failed to instantiate a new signal.\n" );
+    return( NULL );
+  }
+
+  /* Copy the relevant channel */
+  memcpy( newSig->storage, sig->channel[chanIdx], sig->numSamples*sizeof(MP_Sample_t) );
+
+  mp_debug_msg( MP_DEBUG_FUNC_EXIT, func, "Done.\n");
+
+  return( newSig );
+}
+
+
+/****************************************/
+/* Factory function from support export */
+MP_Signal_c* MP_Signal_c::init( MP_Signal_c *sig, MP_Support_t supp ) {
+
+  const char* func = "MP_Signal_c::init(sig,support)";
+  MP_Signal_c *newSig = NULL;
+  MP_Chan_t chanIdx;
+
+  mp_debug_msg( MP_DEBUG_CONSTRUCTION, func,
+		"Exporting a support...\n");
+
+  /* Initial checks */
+  if ( sig == NULL ) {
+    mp_error_msg( func, "Trying to export a channel from a NULL signal.\n" );
+    return( NULL );
+  }
+  if ( (supp.pos+supp.len) > sig->numSamples ) {
+    mp_error_msg( func, "Asked for the export of a support which reaches out"
+		  " of the initial signal:"
+		  " pos[%lu] + len[%lu] = [%lu], sig->numSamples = [%lu]. Returning NULL.\n",
+		  supp.pos, supp.len, supp.pos+supp.len, sig->numSamples );
+    return( NULL );
+  }
+
+  /* Instantiate and check */
+  newSig = MP_Signal_c::init( sig->numChans, supp.len, sig->sampleRate );
+  if ( newSig == NULL ) {
+    mp_error_msg( func, "Failed to instantiate a new signal.\n" );
+    return( NULL );
+  }
+
+  /* Copy the relevant support */
+  for ( chanIdx = 0; chanIdx < sig->numChans; chanIdx++ ) {
+    memcpy( newSig->channel[chanIdx], sig->channel[chanIdx]+supp.pos, supp.len*sizeof(MP_Sample_t) );
+  }
+
+  mp_debug_msg( MP_DEBUG_FUNC_EXIT, func, "Done.\n");
 
   return( newSig );
 }

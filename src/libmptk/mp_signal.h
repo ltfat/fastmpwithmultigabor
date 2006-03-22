@@ -118,6 +118,27 @@ public:
   static MP_Signal_c* init( const char *fName );
 
 
+  /** \brief A factory function which exports a channel from an existing signal
+   *
+   * \param sig the signal to export the channel from
+   * \param chanIdx the index of the channel to export
+   *
+   * \return NULL if something failed.
+   */
+  static MP_Signal_c* init( MP_Signal_c *sig, MP_Chan_t chanIdx );
+
+
+  /** \brief A factory function which exports a particular support
+   *  from an existing signal
+   *
+   * \param sig the signal to export the channel from
+   * \param supp the support to export
+   *
+   * \return NULL if something failed.
+   */
+  static MP_Signal_c* init( MP_Signal_c *sig, MP_Support_t supp );
+
+
   /* \brief A utility to clear and reallocate the storage at a given
    * size, possibly changing the sampling rate
    *
