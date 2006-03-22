@@ -53,6 +53,8 @@
 /** \brief The default sample rate of signals */
 #define MP_SIGNAL_DEFAULT_SAMPLERATE 44100
 
+/* Declare that the class MP_Atom_c will be used in the signal class */
+class MP_Atom_c;
 
 /***********************/
 /* SIGNAL CLASS        */
@@ -137,6 +139,19 @@ public:
    * \return NULL if something failed.
    */
   static MP_Signal_c* init( MP_Signal_c *sig, MP_Support_t supp );
+
+
+  /** \brief A factory function which makes a signal from an atom's waveform
+   *
+   * \param atom the atom to create the signal from
+   * \param sampleRate the sampleRate to affect to the signal
+   *
+   * \return NULL if something failed.
+   *
+   * \warning This method won't work if the atom has different supports
+   * over its different channels.
+   */
+  static MP_Signal_c* init( MP_Atom_c *atom, const int sampleRate );
 
 
   /* \brief A utility to clear and reallocate the storage at a given

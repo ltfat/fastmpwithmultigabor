@@ -168,8 +168,8 @@ MP_Signal_c* MP_Signal_c::init( const char *fName ) {
 }
 
 
-/****************************************/
-/* Factory function from channel export */
+/***************************************/
+/* Factory function for channel export */
 MP_Signal_c* MP_Signal_c::init( MP_Signal_c *sig, MP_Chan_t chanIdx ) {
 
   const char* func = "MP_Signal_c::init(sig,chanIdx)";
@@ -205,8 +205,8 @@ MP_Signal_c* MP_Signal_c::init( MP_Signal_c *sig, MP_Chan_t chanIdx ) {
 }
 
 
-/****************************************/
-/* Factory function from support export */
+/***************************************/
+/* Factory function for support export */
 MP_Signal_c* MP_Signal_c::init( MP_Signal_c *sig, MP_Support_t supp ) {
 
   const char* func = "MP_Signal_c::init(sig,support)";
@@ -240,6 +240,38 @@ MP_Signal_c* MP_Signal_c::init( MP_Signal_c *sig, MP_Support_t supp ) {
   for ( chanIdx = 0; chanIdx < sig->numChans; chanIdx++ ) {
     memcpy( newSig->channel[chanIdx], sig->channel[chanIdx]+supp.pos, supp.len*sizeof(MP_Sample_t) );
   }
+
+  mp_debug_msg( MP_DEBUG_FUNC_EXIT, func, "Done.\n");
+
+  return( newSig );
+}
+
+
+/************************************/
+/* Factory function for atom export */
+MP_Signal_c* MP_Signal_c::init( MP_Atom_c *atom, const int sampleRate ) {
+
+  const char* func = "MP_Signal_c::init(atom)";
+  MP_Signal_c *newSig = NULL;
+
+  mp_debug_msg( MP_DEBUG_CONSTRUCTION, func,
+		"Exporting an atom...\n");
+
+  /* Initial checks */
+  if ( atom == NULL ) {
+    mp_error_msg( func, "Trying to export a signal from a NULL atom.\n" );
+    return( NULL );
+  }
+
+  /* Instantiate and check */
+  newSig = MP_Signal_c::init( atom->numChans, atom->support[0].len, sampleRate );
+  if ( newSig == NULL ) {
+    mp_error_msg( func, "Failed to instantiate a new signal.\n" );
+    return( NULL );
+  }
+
+  /* Make the waveform */
+  atom->build_waveform( newSig->storage );
 
   mp_debug_msg( MP_DEBUG_FUNC_EXIT, func, "Done.\n");
 
