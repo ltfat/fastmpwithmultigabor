@@ -493,6 +493,6 @@ MP_Support_t MP_Block_c::update_ip( const MP_Support_t *touch ) {
 
 /********************************/
 /* Number of atoms in the block */
-unsigned long int MP_Block_c::size(void) {
+unsigned long int MP_Block_c::num_atoms(void) {
   return( numFilters*numFrames );
 }

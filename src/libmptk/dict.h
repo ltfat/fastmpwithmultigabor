@@ -166,7 +166,7 @@ public:
   static int test( char* signalFileName, char* dicoFileName );
 
   /** \brief Get the number of atoms of the dictionary */
-  unsigned long int size( void );
+  unsigned long int num_atoms( void );
 
 
   /** \brief Copy a signal into the dictionary

@@ -141,8 +141,9 @@ public:
    * \return The number of written characters.
    */
   virtual int info( FILE *fid ) = 0;
+
   /** \brief Get the number of atoms of the block */
-  virtual unsigned long int size( void );
+  virtual unsigned long int num_atoms( void );
 
   /* Other */
   /** \brief update the inner products with a minimum number of arithmetic operations

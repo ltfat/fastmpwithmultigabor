@@ -33,6 +33,13 @@ II) IMPROVEMENTS TO THE CORE LIBRARY
     --------------------------------
 
 * GENERAL CODE STRUCTURE
+  - discuss/reform the notion of support in the multi-channel case. Do we really
+    need different supports per channel ? If yes, shouldn't that be the case
+    for the signals too ? E.G., this introduces an indefinite case
+    when building a signal from an atom waveform: if the support is different
+    on each channel, what should the signal.numSamples be ?
+    => better reflection on objects interaction. (Would it make sense that
+       MP_Atom_c inherits from MP_Signal_c ?)
   - move the header from atom_classes/atom_classes.h (read_atom,write_atom)
     to atom.h, and make it a factory method. 
   - introduce a true plugin structure to load new atom classes (as DLLs ?) without a recompile.
@@ -41,17 +48,11 @@ II) IMPROVEMENTS TO THE CORE LIBRARY
   - fix char/int in array arguments
   - standardize semantic of the info() print() mechanisms
   - standardize names nChan nChans numChan numChans ...  
-  - add MP_Dict_c::numAtoms() and MP_Block_c::numAtoms()
   - replace MP_Sample_t with MP_Real_t, eliminate MP_Sample_t and remove the unnecessary castings
   - reinforce the test suite
-  - Implement factory functions for atoms ?
   - restructure atom / book classes to introduce molecules MP_Molecule_c -> MP_Atom_c -> MP_Gabor_c ...
 							   MP_Molecule_c -> MP_Book_c
 							   book->append(MP_Molecule_c)
-  - to perform MPD_DEMIX convolutive, define variant of MP_Atom_c::sustract_add which 
-   instead of building only the atom waveform \atom_k(t) takes multichannel  filters and 
-   builds the filtered waveforms (a_i*\atom_k)(t) to substract_add it up
-
   - replace round by a simpler ANSI trick, and check double-to-int potential overflow
     where applicable.
 
@@ -223,5 +224,5 @@ IX) GFORGE
     ------
 
 * WISHLIST
-  - Mirror wxWidgets in the EXTRA_LIBS section of the distributed files
   - Use the bug/feature trackers instead of this TODO file ?
+

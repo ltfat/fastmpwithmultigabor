@@ -405,13 +405,13 @@ int MP_Dict_c::test( char* signalFileName, char* dicoFileName ) {
 
 /******************************/
 /* Return the number of atoms */
-unsigned long int MP_Dict_c::size(void) {
+unsigned long int MP_Dict_c::num_atoms(void) {
 
   unsigned long int numAtoms = 0;
   unsigned int i;
 
   for (i = 0; i < numBlocks; i++)
-    numAtoms += block[i]->size();
+    numAtoms += block[i]->num_atoms();
 
   return(numAtoms);
 }

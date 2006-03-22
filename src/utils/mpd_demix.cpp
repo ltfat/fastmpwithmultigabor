@@ -846,11 +846,11 @@ int main( int argc, char **argv ) {
 	     numSamples );
     if ( MPD_USE_ITER ) {
       fprintf( stderr, "mpd_demix msg -- This run will perform [%lu] iterations, using [%lu] atoms per dictionary replica.\n",
-	       MPD_NUM_ITER, dict[0]->size() );
+	       MPD_NUM_ITER, dict[0]->num_atoms() );
     }
     if ( MPD_USE_SNR ) {
       fprintf( stderr, "mpd_demix msg -- This run will iterate until the SNR goes above [%g], using [%lu] atoms per dictionary replica.\n",
-	       10*log10(MPD_SNR), dict[0]->size() );
+	       10*log10(MPD_SNR), dict[0]->num_atoms() );
     }
     if ( MPD_VERBOSE ) {
       fprintf( stderr, "mpd_demix msg -- The resulting book will be written to [%u] book files with basename [%s].\n",
@@ -1100,7 +1100,7 @@ int main( int argc, char **argv ) {
     fprintf( stderr, "mpd_demix msg -- ------------------------\n" );
     fprintf( stderr, "mpd_demix result -- [%lu] iterations have been performed.\n", i );
     fprintf( stderr, "mpd_demix result -- ([%lu] atoms have been selected out of the [%lu] atoms of each dictionary.)\n",
-	     i, dict[0]->size() );
+	     i, dict[0]->num_atoms() );
     fprintf( stderr, "mpd_demix result -- The initial signal energy was [%g].\n", initialEnergy );
     residualEnergy = inSignal->energy;
     fprintf( stderr, "mpd_demix result -- The residual energy is now [%g].\n", residualEnergy );

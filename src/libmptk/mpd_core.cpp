@@ -481,9 +481,9 @@ void MP_Mpd_Core_c::info_conditions( void ) {
   const char* func = "Conditions";
 
   if ( useStopAfterIter ) mp_info_msg( func, "This run will perform [%lu] iterations, using [%lu] atoms.\n",
-				       stopAfterIter, dict->size() );
+				       stopAfterIter, dict->num_atoms() );
   if ( useStopAfterSnr ) mp_info_msg( func, "This run will iterate until the SNR goes above [%g], using [%lu] atoms.\n",
-				      10*log10( stopAfterSnr ), dict->size() );
+				      10*log10( stopAfterSnr ), dict->num_atoms() );
   if ( bookFileName ) {  
     if ( strcmp( bookFileName, "-" ) == 0 ) mp_info_msg( func, "The resulting book will be written"
 							 " to the standard output [%s].\n", bookFileName );
@@ -537,7 +537,7 @@ void MP_Mpd_Core_c::info_result( void ) {
   const char* func = "Result";
     mp_info_msg( func, "[%lu] iterations have been performed.\n", numIter );
     mp_info_msg( func, "([%lu] atoms have been selected out of the [%lu] atoms of the dictionary.)\n",
-		 numIter, dict->size() );
+		 numIter, dict->num_atoms() );
     mp_info_msg( func, "The initial signal energy was [%g].\n", initialEnergy );
     mp_info_msg( func, "The residual energy is now [%g].\n", residualEnergy );
     mp_info_msg( func, "The SNR is now [%g].\n", 10*log10( initialEnergy / residualEnergy ) );
