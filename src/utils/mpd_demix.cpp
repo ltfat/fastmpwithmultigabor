@@ -527,6 +527,7 @@ int main( int argc, char **argv ) {
   MP_Real_t *Ah = NULL;
 
   unsigned short int numSources;
+  unsigned short int numDictionaries;
   MP_Chan_t numChans;
   unsigned long int numSamples;
   int sampleRate;
@@ -545,6 +546,7 @@ int main( int argc, char **argv ) {
   unsigned short int j;
   unsigned int k;
   char line[1024];
+  char **dictFileNameList  = NULL;
 
   double residualEnergy = 0.0;
   double initialEnergy  = 0.0;
@@ -731,25 +733,76 @@ int main( int argc, char **argv ) {
     return( ERR_DICT );
   }
   else {
+    if ( (dictFileNameList = (char**)malloc(numSources * sizeof(char*))) == NULL ) {
+      mp_error_msg( "main","mpd_demix error -- Can't create the char** array of size [%hu] called dictFileNameList.\n", numSources );
+      return( ERR_DICT );
+    } else {
+      for ( j = 0; j < numSources; j++ ) {
+	if ( (dictFileNameList[j] = (char*)malloc(1024 * sizeof(char))) == NULL ) {
+	  mp_error_msg( "main","mpd_demix error -- Can't create the char* array of size [%hu] called dictFileNameList[%hu].\n", 1024, j );
+	  return( ERR_DICT );	  
+	}
+      }
+    }
+    if ( dictFileName != NULL ) {
+      /* If dictFileName is the file */
+      if ( ( fid = fopen( dictFileName, "r" ) ) == NULL ) {
+	mp_error_msg( "main","mpd_demix error -- Can't open file %s to read the dictionary.\n", dictFileName );
+	return( ERR_DICT );
+      }
+      if (fgets( line, MP_MAX_STR_LEN, fid ) == NULL) {
+	mp_error_msg( "main","mpd_demix error -- Can't read the file %s.\n", dictFileName );
+	return( ERR_DICT );
+      }
+      numDictionaries = 0;
+      if (sscanf( line, "%hu dictionaries\n", &numDictionaries ) == 1 ) {
+	/* dictFileName contains a list of numDictionaries dictionary file names*/
+	if (numDictionaries != numSources) {
+	  mp_error_msg( "main","mpd_demix error -- the file %s must contain [%hu] dictionary filenames, instead of [%hu].\n", dictFileName, numSources, numDictionaries );
+	  return( ERR_DICT );
+	}
+	for ( j = 0; j < numSources; j++ ) {
+	  if ( (fgets( line, MP_MAX_STR_LEN, fid ) == NULL) ||
+	       (strlen(line) == 0) ){
+	    mp_error_msg( "main","mpd_demix error -- Can't read the name of the [%hu]th dictionary filename from file %s.\n", j, dictFileName );
+	    return( ERR_DICT );
+	  }
+	  /* cut the newline character */
+	  strncpy(dictFileNameList[j],line,strlen(line) - 1);
+	  dictFileNameList[j][strlen(line)-1] = '\0';
+	
+	}
+	
+      } else {
+	for ( j = 0; j < numSources; j++ ) {
+	  strcpy(dictFileNameList[j],dictFileName);
+	}      
+      }
+      fclose( fid );
+    } else {
+      for ( j = 0; j < numSources; j++ ) {
+	dictFileNameList[j] = NULL;
+      }
+    }
     /* Build the dictionary array */
     for ( j = 0; j < numSources; j++ ) {
       dict[j] = MP_Dict_c::init();
       if ( dict[j] == NULL ) {
-	fprintf( stderr, "mpd_demix error -- Can't create a new dictionary for source [%u].\n", j );
+	fprintf( stderr, "mpd_demix error -- Can't create a new dictionary for source [%hu].\n", j );
 	free( mixer ); free( Ah ); delete(inSignal); delete[](sigArray);
 	free_mem( dict, numSources, decay );
 	return( ERR_DICT );
       }
       if ( dict[j]->plug_signal( &(sigArray[j]) ) ) {
 	fprintf( stderr, "mpd_demix error -- Can't plug the relevant signal into"
-		 " the dictionary for source [%u].\n", j );
+		 " the dictionary for source [%hu].\n", j );
 	free( mixer ); free( Ah ); delete(inSignal); delete[](sigArray);
 	free_mem( dict, numSources, decay );
 	return( ERR_DICT );
       }
-      if ( dictFileName != NULL ) {
-	if ( dict[j]->add_blocks( dictFileName ) == 0 ) {
-	  fprintf( stderr, "mpd_demix error -- Can't read blocks from file [%s].\n", dictFileName );
+      if ( dictFileNameList[j] != NULL ) {
+	if ( dict[j]->add_blocks( dictFileNameList[j] ) == 0 ) {
+	  fprintf( stderr, "mpd_demix error -- Can't read blocks from file [%s].\n", dictFileNameList[j] );
 	  free( mixer ); free( Ah ); delete(inSignal); delete[](sigArray);
 	  free_mem( dict, numSources, decay );
 	  return( ERR_DICT );
@@ -757,7 +810,17 @@ int main( int argc, char **argv ) {
       }
       /* If no file name is given, use the following default dictionnary: */
       else add_gabor_blocks( dict[j], numSamples, 4, 1, DSP_GAUSS_WIN, DSP_GAUSS_DEFAULT_OPT );
+
+      if ( MPD_VERBOSE ) {
+	if ( dictFileNameList[j] ) fprintf( stderr, "mpd_demix msg -- The dictionary for source [%hu], read from file [%s], contains [%u] blocks:\n",
+					    j,dictFileNameList[j], dict[0]->numBlocks );
+	else fprintf( stderr, "mpd_demix msg -- The default dictionary for source [%hu] contains [%u] blocks:\n", j, dict[0]->numBlocks );
+	for ( i = 0; i < dict[j]->numBlocks; i++ ) dict[j]->block[i]->info( stderr );
+	fprintf( stderr, "mpd_demix msg -- End of dictionary for source [%hu].\n",j );
+      }
+
     }
+
   }
   if ( !MPD_QUIET ) fprintf( stderr, "mpd_demix msg -- The multiple dictionary is built.\n" );
 
