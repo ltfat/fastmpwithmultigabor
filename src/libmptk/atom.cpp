@@ -452,14 +452,18 @@ void MP_Atom_c::substract_add_var_amp( MP_Real_t *amp, MP_Chan_t numAmps,
     sigVal = amp[chanIdx];
     for ( t = 0, pa = totalBuffer, ps = (totalBuffer + len*chanIdx);
 	  t < len;
-	  t++,   pa++,             ps++ ) (*ps) = sigVal * (*pa);
+	  t++,   pa++,             ps++ ) {
+      (*ps) = sigVal * (*pa);
+    }
   }
   /* - Then, correct the amplitude of the initial template */
   sigVal = amp[0];
-  for ( t = 0, pa = totalBuffer; t < len; t++,   pa++ ) (*pa) = sigVal * (*pa);  
+  for ( t = 0, pa = totalBuffer; t < len; t++,   pa++ ) {
+    (*pa) = sigVal * (*pa);  
+  }
   
   /* loop on channels, seeking the right location in the totalBuffer */
-  for ( chanIdx = 0 , atomIn = totalBuffer; chanIdx < numChans; chanIdx++ ) {
+  for ( chanIdx = 0 , atomIn = totalBuffer; chanIdx < numAmps; chanIdx++ ) {
 
     /* SUBTRACT the atomic waveform from the first signal */
     if ( (sigSub) && (pos < sigSub->numSamples) ) {

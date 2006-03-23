@@ -966,12 +966,18 @@ int main( int argc, char **argv ) {
       maxAtom->substract_add( dict[j]->signal, NULL );
     }
     /* Restore the initial atom's amplitude */
+    
     maxAtom->amp[0] = maxAmp;
-    /* - update the input signal */
+    /* - update the input signal 
+       (note that maxAmp will be used in build_waveform, when calling
+       substract_add_var_amp. that's why amp[k] is not multiplied by
+       maxAmp) */
     for ( k = 0; k < numChans; k++) {
-      amp[k] = maxAmp * (*(mixer + k*numSources + maxSrc));
+      amp[k] = (*(mixer + k*numSources + maxSrc));
     }
+    fflush(stdout);
     maxAtom->substract_add_var_amp( amp, numChans, inSignal, NULL );
+    inSignal->refresh_energy();
     residualEnergy = (double)inSignal->energy;
 #ifndef NDEBUG
     fprintf( stderr, " Done.\n" );

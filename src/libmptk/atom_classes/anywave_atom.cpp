@@ -146,7 +146,7 @@ int MP_Anywave_Atom_c::read( FILE *fid, const char mode ) {
     mp_error_msg( func, "Reading of Anywave atom fails at the generic atom level.\n" );
     return( 1 );
   }
-
+  
   /* Read at the local level */
   switch ( mode ) {
 
@@ -494,14 +494,11 @@ bool MP_Anywave_Atom_c::read_filename_txt( char* line, char* pattern, char* outp
 }
  
 bool MP_Anywave_Atom_c::read_filename_bin( FILE* fid, char* outputStr) {
-  int charIdx;
-  char tempChar;
-  for (charIdx = 0;
-       ((charIdx < MP_MAX_STR_LEN) && ((tempChar = getc(fid)) != '\0'));
-       charIdx ++) {
-    outputStr[charIdx] = tempChar;
-  }
-  outputStr[charIdx+1] = '\0';
+
+  size_t numChar;
+  fread(&numChar, sizeof(unsigned long int), 1, fid );
+  fread(outputStr, sizeof(char), numChar, fid);
+  outputStr[numChar-1] = '\0';
   return(true);
 }
  

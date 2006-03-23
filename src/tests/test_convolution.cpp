@@ -36,7 +36,7 @@
  *
  */
 
-/** \file convolution_fft.cpp
+/** \file test_convolution.cpp
  * A file with some code that serves both as an example of how to use the 
  *  convolution class and as a test that it is properly working.
  *
