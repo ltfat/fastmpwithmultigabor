@@ -66,6 +66,9 @@ bool *dict_scan_boolPtr2 = NULL;
 %option stack
 %option prefix="dict_scan_" outfile="lex.yy.c"
 
+%x XMLTRASH
+%x CTRASH
+
 %x SCAN_ULONG
 %x SCAN_UINT
 %x SCAN_DOUBLE
@@ -85,7 +88,24 @@ bool *dict_scan_boolPtr2 = NULL;
 
 \<\?xml.*\?\>	/* Ignore the XML declaration line */ ;
 
-\<!--(.|\n)*--\>	/* Trash any XML style comments */ ;
+
+"\<!--"		{ fprintf(stderr,"BORK IN\n"); fflush(stderr); yy_push_state(XMLTRASH); /* Trash any XML style comments */ }
+
+<XMLTRASH>[^\-\n]*  /* eat anything that's not a '-' */
+
+<XMLTRASH>"-"+[^\-\>\n]*   /* eat up '-'s not followed by '->' */
+
+<XMLTRASH>"-"+"-\>" { fprintf(stderr,"BORK OUT\n"); fflush(stderr); yy_pop_state(); /* Get out of XML style comments */ }
+
+
+"/*"		yy_push_state(CTRASH); /* Trash any C style comments */
+
+<CTRASH>[^*\n]*  /* eat anything that's not a '*' */
+
+<CTRASH>"*"+[^*/\n]*   /* eat up '*'s not followed by '/'s */
+
+<CTRASH>"*"+"/"	yy_pop_state(); /* Get out of C style comments */
+
 
 #.*$		/* Trash any shell-style comments */ ;
 
