@@ -54,36 +54,23 @@
 /* Initialization including signal loading */
 MP_Dict_c* MP_Dict_c::init(  const char *dictFileName, const char *sigFileName ) {
 
-  const char* func = "MP_Dict_c::init(dictFileName)";
+  const char* func = "MP_Dict_c::init(dictFileName,sigFileName)";
   MP_Dict_c *newDict = NULL;
 
   /* Instantiate and check */
-  newDict = new MP_Dict_c();
+  newDict = MP_Dict_c::init( dictFileName );
   if ( newDict == NULL ) {
     mp_error_msg( func, "Failed to create a new dictionary.\n" );
     return( NULL );
   }
 
-  /* Load the signal directly into the dictionnary */
-  newDict->signal = MP_Signal_c::init( sigFileName );
-  if ( newDict->signal == NULL ) {
-    mp_error_msg( func, "Failed to create a new signal within the dictionary.\n" );
+  /* Load the signal directly into the dictionary */
+  if ( newDict->copy_signal( sigFileName ) ) {
+    mp_error_msg( func, "Failed to copy the signal from file [%s] into the dictionary.\n",
+		  sigFileName );
     delete( newDict );
     return( NULL );
   }
-  /* If the siganl is OK: */
-  newDict->sigMode = MP_DICT_INTERNAL_SIGNAL;
-  /* Allocate the touch array */
-  if ( newDict->alloc_touch() ) {
-    mp_error_msg( func, "Failed to allocate and initialize the touch array"
-		  " in the dictionary constructor. Returning a NULL dictionary.\n" );
-    delete( newDict );
-    return( NULL );
-  }
- 
-
-  /* Add some blocks read from the dict file */
-  newDict->add_blocks( dictFileName );
 
   return( newDict );
 }
@@ -108,6 +95,13 @@ MP_Dict_c* MP_Dict_c::init(  const char *dictFileName ) {
   /* Note: with a NULL signal, add_blocks will build all the signal-independent
      parts of the blocks. It is then necessary to run a dict.copy_signal(sig)
      or a dict.plug_signal(sig) to actually use the dictionary. */
+
+  if ( newDict->numBlocks == 0 ) {
+    mp_error_msg( func, "The dictionary scanned from file [%s] contains no blocks.\n",
+		  dictFileName );
+    delete( newDict );
+    return( NULL );
+  }
 
   return( newDict );
 }
