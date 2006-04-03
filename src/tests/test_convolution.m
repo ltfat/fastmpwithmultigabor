@@ -107,13 +107,6 @@ results3Amp = zeros(numFrames,1);
 results3Idx = zeros(numFrames,1);
 results3FileName = [signalsPath 'anywave_results_3.bin'];
 
-% mean
-E = ones(filterLen,1);
-E = E/norm(E);
-% nyquist
-N = ones(filterLen,1);
-N(2:2:end) = -1;
-N = N/norm(N);
 % filter without mean and nyquist
 % and
 % filter transformed via Hilbert
@@ -131,12 +124,10 @@ for m=1:numFilters,
 end  
 for n=1:numFrames,
   s = signal( (n-1)*filterShift + (1:filterLen), 1 )';
-  a = s*E*E'*s';
-  b = s*N*N'*s';
   for m=1:numFilters,
     c = s*tableM.filters(m).chans(1).wave*tableM.filters(m).chans(1).wave'*s';
     d = s*tableH.filters(m).chans(1).wave*tableH.filters(m).chans(1).wave'*s';
-    results3( (m-1)*numFrames + n ) = a+b+c+d;    
+    results3( (m-1)*numFrames + n ) = c+d;    
   end  
 end
 

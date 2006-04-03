@@ -86,14 +86,8 @@ class MP_Anywave_Hilbert_Atom_c: public MP_Anywave_Atom_c {
   /** \brief The four parameters
    * (the sum of the squares is one)
    */
-  MP_Real_t* meanPart;
-  MP_Real_t* nyquistPart;
   MP_Real_t* realPart;
   MP_Real_t* hilbertPart;
-
- private:
-  unsigned short int criteriumWithMeanAndNyquist;
-  unsigned short int reconstructionWithMeanAndNyquist;
 
  public:
   /***********/
@@ -122,10 +116,6 @@ class MP_Anywave_Hilbert_Atom_c: public MP_Anywave_Atom_c {
    **/
   static MP_Anywave_Hilbert_Atom_c* init( const MP_Chan_t setNumChans );
 
-  static MP_Anywave_Hilbert_Atom_c* init( const MP_Chan_t setNumChans,
-					  unsigned short int setCriteriumWithMeanAndNyquist,
-					  unsigned short int setReconstructionWithMeanAndNyquist );
-
   /** \brief File constructor
    *
    * construct the atom from a stream, in general when reading a
@@ -133,17 +123,12 @@ class MP_Anywave_Hilbert_Atom_c: public MP_Anywave_Atom_c {
    * formatted stream :
    *
    * - \<par type="filename"\>./anywaveTable.bin\</par\>
-   * - \<par type="waveIdx"\>13\</par\>
+   * - \<par type="filterIdx"\>13\</par\>
    * - \<anywavePar chan = "1"\>
    *   - \<par type="amp"\>12.7\</par\>
    *   - \<par type="phase"\>0.23\</par\>
    * - \</anywavePar\>
    * - ...
-   *
-   * Note that if the atom is :
-   *  - the mean component, waveIdx is anywaveTable->numFilters
-   *  - the Nyquist component, waveIdx is anywaveTable->numFilters + 1
-   *  - an atom of the anywaveTable, waveIdx is the index in this table
    *
    * \param fid the stream 
    *
@@ -151,9 +136,6 @@ class MP_Anywave_Hilbert_Atom_c: public MP_Anywave_Atom_c {
    **/
   static MP_Anywave_Hilbert_Atom_c* init( FILE *fid, const char mode );
 
-  static MP_Anywave_Hilbert_Atom_c* init( FILE *fid, const char mode,
-					  unsigned short int setCriteriumWithMeanAndNyquist,
-					  unsigned short int setReconstructionWithMeanAndNyquist);
   /** \brief Default destructor 
    **/
   virtual ~MP_Anywave_Hilbert_Atom_c( void );
@@ -162,14 +144,10 @@ class MP_Anywave_Hilbert_Atom_c: public MP_Anywave_Atom_c {
   int init_parts(void);
 
   int init_tables( void);
-  virtual int global_alloc( const MP_Chan_t setNumChans,
-			    unsigned short int setCriteriumWithMeanAndNyquist,
-			    unsigned short int setReconstructionWithMeanAndNyquist );
+  virtual int global_alloc( const MP_Chan_t setNumChans );
 
   virtual int read( FILE *fid, 
-		    const char mode,
-		    unsigned short int setCriteriumWithMeanAndNyquist,
-		    unsigned short int setReconstructionWithMeanAndNyquist );
+		    const char mode );
   
 
   /***************************/
@@ -183,17 +161,12 @@ class MP_Anywave_Hilbert_Atom_c: public MP_Anywave_Atom_c {
    * example :
    *
    * - \<par type="filename"\>./anywaveTable.bin\</par\>
-   * - \<par type="waveIdx"\>13\</par\>
+   * - \<par type="filterIdx"\>13\</par\>
    * - \<anywavePar chan = "1"\>
    *   - \<par type="amp"\>12.7\</par\>
    *   - \<par type="phase"\>0.62\</par\>
    * - \</anywavePar\>
    * - ...
-   *
-   * Note that if the atom is :
-   *  - the mean component, waveIdx is anywaveTable->numFilters
-   *  - the Nyquist component, waveIdx is anywaveTable->numFilters + 1
-   *  - an atom of the anywaveTable, waveIdx is the index in this table
    *
    * \param fid the stream
    *
@@ -205,8 +178,8 @@ class MP_Anywave_Hilbert_Atom_c: public MP_Anywave_Atom_c {
   /* OTHER METHODS           */
   /***************************/
 
-  /** \brief returns the type of the atom : "anywave_hilbert"
-   * \return the string "anywave_hilbert"
+  /** \brief returns the type of the atom : "anywavehilbert"
+   * \return the string "anywavehilbert"
    **/
   virtual char * type_name(void);
 
@@ -244,10 +217,10 @@ class MP_Anywave_Hilbert_Atom_c: public MP_Anywave_Atom_c {
    *
    * The following fields will return MP_TRUE in this class, in
    * addition to those of the class MP_Anywave_Atom_c :
-   * - MP_MEAN_PART_PROP (meanPart)
-   * - MP_NYQUIST_PART_PROP (nyquistPart)
    * - MP_REAL_PART_PROP (realPart)
    * - MP_HILBERT_PART_PROP (hilbertPart)
+   * - MP_REAL_TABLE_IDX_PROP (realTableIdx)
+   * - MP_ANYWAVE_REAL_TABLE_PROP (anywaveRealTable)
    * - MP_HILBERT_TABLE_IDX_PROP (hilbertTableIdx)
    * - MP_ANYWAVE_HILBERT_TABLE_PROP (anywaveHilbertTable)
    *
@@ -265,9 +238,8 @@ class MP_Anywave_Hilbert_Atom_c: public MP_Anywave_Atom_c {
    * amplitude part due to the mean on the second channel.
    * 
    * The available fields for the get_value() function are :
+   * - MP_REAL_TABLE_IDX_PROP (realTableIdx)
    * - MP_HILBERT_TABLE_IDX_PROP (hilbertTableIdx)
-   * - MP_MEAN_PART_PROP (meanPart)
-   * - MP_NYQUIST_PART_PROP (nyquistPart)
    * - MP_REAL_PART_PROP (realPart)
    * - MP_HILBERT_PART_PROP (hilbertPart)
    *

@@ -63,18 +63,14 @@
 #define MP_TABLE_IDX_PROP              6 /** Index of the wave table in the wave server \sa MP_Atom_c::satisfies()*/
 #define MP_ANYWAVE_TABLE_PROP          7 /** Pointer to the waveTable containing the waveform \sa MP_Atom_c::satisfies() */
 #define MP_ANYWAVE_IDX_PROP            8 /** Index of the wave in the wave table \sa MP_Atom_c::satisfies() */
-#define MP_MEAN_PART_PROP              9 /** Part of the amplitude due to the mean \sa MP_Anywave_Hilbert_Atom_c::satisfies()*/
-#define MP_NYQUIST_PART_PROP          10 /** Part of the amplitude due to nyquist \sa MP_Anywave_Hilbert_Atom_c::satisfies()*/
-#define MP_REAL_PART_PROP             11 /** Part of the amplitude due to the real waveform \sa MP_Anywave_Hilbert_Atom_c::satisfies()*/
-#define MP_HILBERT_PART_PROP          12 /** Part of the amplitude due to the hilbert waveform \sa MP_Anywave_Hilbert_Atom_c::satisfies()*/
-#define MP_REAL_TABLE_IDX_PROP        13 /** Index of the wave table in the wave server \sa MP_Anywave_Hilbert_Atom_c::satisfies()*/
-#define MP_ANYWAVE_REAL_TABLE_PROP    14 /** Pointer to the waveTable containing the waveform \sa MP_Anywave_Hilbert_Atom_c::satisfies() */
-#define MP_HILBERT_TABLE_IDX_PROP     15 /** Index of the wave table in the wave server \sa MP_Anywave_Hilbert_Atom_c::satisfies()*/
-#define MP_ANYWAVE_HILBERT_TABLE_PROP 16 /** Pointer to the waveTable containing the waveform \sa MP_Anywave_Hilbert_Atom_c::satisfies() */
-#define MP_CRITERIUM_WITH_MEAN_AND_NYQUIST_PROP 17 /** flag on the use of the mean in the selection criterium \sa MP_Anywave_Hilbert_Atom_c::satisfies() */
-#define MP_RECONSTRUCTION_WITH_MEAN_AND_NYQUIST_PROP 18 /** flag on the use of the mean in the reconstruction \sa MP_Anywave_Hilbert_Atom_c::satisfies() */
+#define MP_REAL_PART_PROP              9 /** Part of the amplitude due to the real waveform \sa MP_Anywave_Hilbert_Atom_c::satisfies()*/
+#define MP_HILBERT_PART_PROP          10 /** Part of the amplitude due to the hilbert waveform \sa MP_Anywave_Hilbert_Atom_c::satisfies()*/
+#define MP_REAL_TABLE_IDX_PROP        11 /** Index of the wave table in the wave server \sa MP_Anywave_Hilbert_Atom_c::satisfies()*/
+#define MP_ANYWAVE_REAL_TABLE_PROP    12 /** Pointer to the waveTable containing the waveform \sa MP_Anywave_Hilbert_Atom_c::satisfies() */
+#define MP_HILBERT_TABLE_IDX_PROP     13 /** Index of the wave table in the wave server \sa MP_Anywave_Hilbert_Atom_c::satisfies()*/
+#define MP_ANYWAVE_HILBERT_TABLE_PROP 14 /** Pointer to the waveTable containing the waveform \sa MP_Anywave_Hilbert_Atom_c::satisfies() */
 
-#define MP_NUM_PROPS                  19
+#define MP_NUM_PROPS                  15
 
 /* some test types for atom->satisfies() */
 #define MP_SUPER 1 /** x >  val \todo document this \sa MP_Atom_c::satisfies() */

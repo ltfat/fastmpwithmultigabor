@@ -120,6 +120,7 @@ class MP_Convolution_c {
   */
   MP_Anywave_Table_c* anywaveHilbertTable;
 
+
   /***********/
   /* METHODS */
   /***********/
@@ -155,6 +156,22 @@ class MP_Convolution_c {
   /***************************/
 
  public:
+
+  /** \brief Deletes anywaveRealTable and anywaveHilbertTable if
+      needed, inits them with the inputs, and puts localTables to
+      zero. */
+  virtual void add_real_and_hilbert_tables( MP_Anywave_Table_c* setAnywaveRealTable,
+					    MP_Anywave_Table_c* setAnywaveHilbertTable);
+
+  /** \brief Deletes anywaveRealTable and anywaveHilbertTable if
+      needed, creates them from anywaveTable, and puts localTables to
+      one. */
+  virtual void add_real_and_hilbert_tables( void );
+  
+  /** \brief Deletes anywaveRealTable and anywaveHilbertTable if
+      needed, and puts localTables to zero. */
+  virtual void delete_real_and_hilbert_tables( void );
+
   /** \brief computes the inner products between frames of \a input
    * and the channel \a chanIdx of all the filters of the \a
    * anywaveTable.
@@ -184,7 +201,6 @@ class MP_Convolution_c {
   virtual void compute_IP( MP_Sample_t* input, unsigned long int inputLen, unsigned short int chanIdx, double** output ) = 0;
 
   virtual void compute_max_IP( MP_Signal_c* s, unsigned long int inputLen, unsigned long int fromSample, MP_Real_t* ampOutput, unsigned long int* idxOutput ) = 0;
-
 
 };
 
@@ -267,6 +283,21 @@ class MP_Convolution_Fastest_c:public MP_Convolution_c {
   /** \brief Destructor
    */
   ~MP_Convolution_Fastest_c();
+
+  /** \brief Deletes anywaveRealTable and anywaveHilbertTable if
+      needed, inits them with the inputs, and puts localTables to
+      zero. */
+  virtual void add_real_and_hilbert_tables( MP_Anywave_Table_c* setAnywaveRealTable,
+					    MP_Anywave_Table_c* setAnywaveHilbertTable);
+
+  /** \brief Deletes anywaveRealTable and anywaveHilbertTable if
+      needed, creates them from anywaveTable, and puts localTables to
+      one. */
+  virtual void add_real_and_hilbert_tables( void );
+  
+  /** \brief Deletes anywaveRealTable and anywaveHilbertTable if
+      needed, and puts localTables to zero. */
+  virtual void delete_real_and_hilbert_tables( void );
 
   /** \brief Initializes the member \a methods and \a methodSwitchLimit
    *
@@ -367,8 +398,6 @@ class MP_Convolution_Fastest_c:public MP_Convolution_c {
 
   virtual void compute_max_hilbert_IP( MP_Signal_c* s, unsigned long int inputLen, unsigned long int fromSample, MP_Real_t* ampOutput, unsigned long int* idxOutput );
 
-  virtual void compute_max_hilbert_no_mean_no_nyquist_IP( MP_Signal_c* s, unsigned long int inputLen, unsigned long int fromSample, MP_Real_t* ampOutput, unsigned long int* idxOutput );
-
 };
 
 /*************************************/
@@ -413,6 +442,21 @@ class MP_Convolution_Direct_c:public MP_Convolution_c {
   /** \brief Destructor
    */
   ~MP_Convolution_Direct_c();
+
+  /** \brief Deletes anywaveRealTable and anywaveHilbertTable if
+      needed, inits them with the inputs, and puts localTables to
+      zero. */
+  virtual void add_real_and_hilbert_tables( MP_Anywave_Table_c* setAnywaveRealTable,
+					    MP_Anywave_Table_c* setAnywaveHilbertTable);
+
+  /** \brief Deletes anywaveRealTable and anywaveHilbertTable if
+      needed, creates them from anywaveTable, and puts localTables to
+      one. */
+  virtual void add_real_and_hilbert_tables( void );
+  
+  /** \brief Deletes anywaveRealTable and anywaveHilbertTable if
+      needed, and puts localTables to zero. */
+  virtual void delete_real_and_hilbert_tables( void );
 
   /***************************/
   /* OTHER METHODS           */
@@ -581,38 +625,6 @@ class MP_Convolution_FFT_c:public MP_Convolution_c {
    */
   fftw_complex*** filterHilbertFftBuffer;
 
-  /** \brief storage of the FFT of the mean component, of length fftRealSize
-   */
-  fftw_complex* meanFftStorage;
-
-  /** \brief storage of the FFT of the nyquist component (inverted), of length fftRealSize
-   */
-  fftw_complex* nyquistFftStorage;
-
-  /** brief array of size numFilters of pointers to the output of the
-   * first slice of the method circular_convolution
-   *
-   */
-  double* outputMeanBufferAdd;
-
-  /** brief array of size numFilters of pointers to the output of the
-   * second slice of the method circular_convolution
-   *
-   */
-  double* outputMeanBufferNew;
-
-  /** brief array of size numFilters of pointers to the output of the
-   * first slice of the method circular_convolution
-   *
-   */
-  double* outputNyquistBufferAdd;
-
-  /** brief array of size numFilters of pointers to the output of the
-   * second slice of the method circular_convolution
-   *
-   */
-  double* outputNyquistBufferNew;
-
   /** brief array of size numFilters of pointers to the output of the
    * first slice of the method circular_convolution
    *
@@ -664,6 +676,21 @@ class MP_Convolution_FFT_c:public MP_Convolution_c {
    */
   ~MP_Convolution_FFT_c();
 
+  /** \brief Deletes anywaveRealTable and anywaveHilbertTable if
+      needed, inits them with the inputs, and puts localTables to
+      zero. */
+  virtual void add_real_and_hilbert_tables( MP_Anywave_Table_c* setAnywaveRealTable,
+					    MP_Anywave_Table_c* setAnywaveHilbertTable);
+
+  /** \brief Deletes anywaveRealTable and anywaveHilbertTable if
+      needed, creates them from anywaveTable, and puts localTables to
+      one. */
+  virtual void add_real_and_hilbert_tables( void );
+  
+  /** \brief Deletes anywaveRealTable and anywaveHilbertTable if
+      needed, and puts localTables to zero. */
+  virtual void delete_real_and_hilbert_tables( void );
+
  private:
 
   /** \brief Initialize the members
@@ -688,9 +715,13 @@ class MP_Convolution_FFT_c:public MP_Convolution_c {
    */
   void initialize(void);
 
+  void initialize_real_and_hilbert( void );
+
   /** \brief Release all that is allocated in initialize()
    */
   void release(void);
+
+  void release_real_and_hilbert( void );
 
   /***************************/
   /* OTHER METHODS           */
@@ -944,14 +975,6 @@ class MP_Convolution_FFT_c:public MP_Convolution_c {
 
   virtual void compute_max_hilbert_IP( MP_Signal_c* s, unsigned long int inputLen, unsigned long int fromSample, MP_Real_t* ampOutput, unsigned long int* idxOutput );
 
-  virtual void compute_max_hilbert_no_mean_no_nyquist_IP( MP_Signal_c* s, unsigned long int inputLen, unsigned long int fromSample, MP_Real_t* ampOutput, unsigned long int* idxOutput );
-
- private : 
-  /* 
-    if with_mean == 1 : compute_max_hilbert_IP
-    if with_mean == 0 : compute_max_hilbert_no_mean_no_nyquist_IP
-  */
-  virtual void compute_max_hilbert_IP( MP_Signal_c* s, unsigned long int inputLen, unsigned long int fromSample, MP_Real_t* ampOutput, unsigned long int* idxOutput, int with_mean );
 };
 
 

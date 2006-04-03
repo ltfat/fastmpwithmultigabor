@@ -166,7 +166,7 @@ int MP_Anywave_Atom_c::read( FILE *fid, const char mode ) {
     }
     /* Read the anywave number */
     if ( ( fgets( line, MP_MAX_STR_LEN, fid ) == NULL ) ||
-	 ( sscanf( line, "\t\t<par type=\"anywaveIdx\">%lu</par>\n", &anywaveIdx ) != 1 ) ) {
+	 ( sscanf( line, "\t\t<par type=\"filterIdx\">%lu</par>\n", &anywaveIdx ) != 1 ) ) {
       mp_error_msg( "MP_Anywave_Atom_c::MP_Anywave_Atom_c", "Failed to read the anywave number.\n");      
     } else if ( anywaveIdx >= anywaveTable->numFilters ) {
       mp_error_msg( "MP_Anywave_Atom_c::MP_Anywave_Atom_c","Anywave index is bigger"
@@ -316,7 +316,7 @@ int MP_Anywave_Atom_c::write( FILE *fid, const char mode ) {
     /* Filename of the table containing the waveform */
     nItem += fprintf( fid, "\t\t<par type=\"filename\">%s</par>\n", anywaveTable->tableFileName );
     /* print the anywaveIdx */
-    nItem += fprintf( fid, "\t\t<par type=\"waveIdx\">%li</par>\n",  anywaveIdx );
+    nItem += fprintf( fid, "\t\t<par type=\"filterIdx\">%li</par>\n",  anywaveIdx );
     break;
 
   case MP_BINARY:
@@ -376,8 +376,8 @@ int MP_Anywave_Atom_c::info() {
 
   MP_Chan_t chanIdx = 0;
   int nChar = 0;
-  nChar += mp_info_msg( "HARMONIC ATOM", "[%d] channel(s)\n", numChans );
-  nChar += mp_info_msg( "           |-", "\tFilename %s\tanywaveIdx %li\n",
+  nChar += mp_info_msg( "ANYWAVE ATOM", "[%d] channel(s)\n", numChans );
+  nChar += mp_info_msg( "           |-", "\tFilename %s\tfilterIdx %li\n",
 			anywaveTable->tableFileName, anywaveIdx );
   for ( chanIdx = 0;
 	chanIdx < numChans; 
