@@ -110,7 +110,9 @@ for ( i = 1:book.numAtoms );
     book.atom{i}.tableFileName = fread( fid, numChar, '*char' )';
     book.atom{i}.tableFileName(end) = [];
     book.atom{i}.filterIdx = fread( fid, 1, 'ulong' );
-    book.atom{i}.phase    = fread( fid, numChans, 'double' );
+    realPart = fread( fid, numChans, 'double' );
+    hilbertPart = fread( fid, numChans, 'double' );
+    book.atom{i}.phase = atan2(hilbertPart,realPart);
 
     % Unknown atom type
    otherwise,
