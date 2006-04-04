@@ -99,7 +99,7 @@ for ( i = 1:book.numAtoms );
 
    case 'anywave'
     numChar = fread( fid, 1, 'ulong' );
-    
+
     book.atom{i}.tableFileName = fread( fid, numChar, '*char' )';
     book.atom{i}.tableFileName(end) = [];
     book.atom{i}.filterIdx = fread( fid, 1, 'ulong' );

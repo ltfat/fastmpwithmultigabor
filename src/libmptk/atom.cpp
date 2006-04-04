@@ -320,13 +320,14 @@ void MP_Atom_c::substract_add( MP_Signal_c *sigSub, MP_Signal_c *sigAdd ) {
 
   /* build the atom waveform */
   build_waveform( totalBuffer );
-  
+
   /* loop on channels, seeking the right location in the totalBuffer */
   for ( chanIdx = 0 , atomIn = totalBuffer; chanIdx < numChans; chanIdx++ ) {
 
     /* Dereference the atom support in the current channel once and for all */
     len = support[chanIdx].len;
     pos = support[chanIdx].pos;
+
 
     /* SUBTRACT the atomic waveform from the first signal */
     if ( (sigSub) && (pos < sigSub->numSamples) ) {

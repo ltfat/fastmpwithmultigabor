@@ -411,6 +411,48 @@ MP_Block_c* MP_Scan_Info_c::pop_block( MP_Signal_c *signal ) {
       }
     }
   }
+  /********************************/
+  /* constant and nyquist blocks: */
+  else if ( (!strcmp(type,"constant")) || (!strcmp(type,"nyquist")) ) {
+    /* - windowLen: */
+    if (!windowLenIsSet) {
+      if (globWindowLenIsSet) {
+	windowLen = globWindowLen;
+	windowLenIsSet = true;
+      }
+      else {
+	mp_error_msg( func, "Constant or nyquist block (%u-th block) must have a windowLen."
+		      " Returning a NULL block.\n" , blockCount );
+	reset();
+	return( NULL );
+      }
+    }
+    /* - windowShift: */
+    if (!windowShiftIsSet) {
+      if (windowRateIsSet) {
+	windowShift = (unsigned long int)( (double)(windowLen)*windowRate + 0.5 );
+	/* == round(windowLen*windowRate) */
+	windowShift = ( windowShift > 1 ? windowShift : 1 ); /* windowShift has to be 1 or more */
+	windowShiftIsSet = true;
+      }
+      else if (globWindowShiftIsSet) {
+	windowShift = globWindowShift;
+	windowShiftIsSet = true;
+      }
+      else if (globWindowRateIsSet) {
+	windowShift = (unsigned long int)( (double)(windowLen)*globWindowRate + 0.5 );
+	/* == round(windowLen*globWindowRate) */
+	windowShift = ( windowShift > 1 ? windowShift : 1 ); /* windowShift has to be 1 or more */
+	windowShiftIsSet = true;
+      }
+      else {
+	mp_error_msg( func, "Constant or nyquist block (%u-th block) must have a windowShift"
+		      " or a windowRate. Returning a NULL block.\n" , blockCount );
+	reset();
+	return( NULL );
+      }
+    }
+  }
   /***************************/
   /* - ADD YOUR BLOCKS HERE: */
   /* else if ( !strcmp(type,"TEMPLATE") ) {
@@ -419,7 +461,7 @@ MP_Block_c* MP_Scan_Info_c::pop_block( MP_Signal_c *signal ) {
   /********************/
   /* - unknown block: */
   else {
-    mp_error_msg( func, "Cannot create a block of type \"%s\" (%u-th block)."
+    mp_error_msg( func, "Failure when checking. Cannot create a block of type \"%s\" (%u-th block)."
 		  " Returning a NULL block.\n", type, blockCount );
     reset();
     return( NULL );
@@ -502,6 +544,30 @@ MP_Block_c* MP_Scan_Info_c::pop_block( MP_Signal_c *signal ) {
       return( NULL );
     }
   }
+  /* - Constant block: */
+  else if ( !strcmp(type,"constant") ) {
+    if ( windowLenIsSet && windowShiftIsSet ) {
+      block = MP_Constant_Block_c::init( signal, windowLen, windowShift );
+    }
+    else {
+      mp_error_msg( func, "Missing parameters in constant block instanciation (%u-th block)."
+		    " Returning a NULL block.\n" , blockCount );
+      reset();
+      return( NULL );
+    }
+  }
+  /* - Nyquist block: */
+  else if ( !strcmp(type,"nyquist") ) {
+    if ( windowLenIsSet && windowShiftIsSet ) {
+      block = MP_Nyquist_Block_c::init( signal, windowLen, windowShift );
+    }
+    else {
+      mp_error_msg( func, "Missing parameters in nyquist block instanciation (%u-th block)."
+		    " Returning a NULL block.\n" , blockCount );
+      reset();
+      return( NULL );
+    }
+  }
   /* - ADD YOUR BLOCKS HERE: */
   /* else if ( !strcmp(type,"TEMPLATE") ) {
      block = new MP_TEMPLATE_Block_c( signal, windowLen, windowShift, fftSize );
@@ -509,7 +575,7 @@ MP_Block_c* MP_Scan_Info_c::pop_block( MP_Signal_c *signal ) {
   /* - unknown block: */
   else { /* (This case should never be reached, since it should
 	    be blocked at the parameter check level above.) */
-    mp_error_msg( func, "Cannot create a block of type \"%s\" (%u-th block)."
+    mp_error_msg( func, "Failure when instanciating. Cannot create a block of type \"%s\" (%u-th block)."
 		  " Returning a NULL block.\n", type, blockCount );
     block = NULL;
   }
@@ -633,6 +699,34 @@ int write_block( FILE *fid, MP_Block_c *block ) {
     nChar += fprintf( fid, "\t\t<window type=\"%s\" opt=\"%lg\"></window>\n",
 		      window_name(cblock->fft->windowType), cblock->fft->windowOption );
     nChar += fprintf( fid, "\t\t<par type=\"numFitPoints\">%u</par>\n", cblock->numFitPoints );
+    /* Close the block */
+    nChar += fprintf( fid, "\t</block>\n" );
+  }
+
+  /**** - Constant block: ****/
+  else if ( !strcmp( name, "constant" ) ) {
+    /* Cast the block */
+    MP_Constant_Block_c *cblock;
+    cblock = (MP_Constant_Block_c*)block;
+    /* Open the block */
+    nChar += fprintf( fid, "\t<block type=\"%s\">\n", name );
+    /* Add the parameters */
+    nChar += fprintf( fid, "\t\t<par type=\"windowLen\">%lu</par>\n", cblock->filterLen );
+    nChar += fprintf( fid, "\t\t<par type=\"windowShift\">%lu</par>\n", cblock->filterShift );
+    /* Close the block */
+    nChar += fprintf( fid, "\t</block>\n" );
+  }
+
+  /**** - Nyquist block: ****/
+  else if ( !strcmp( name, "nyquist" ) ) {
+    /* Cast the block */
+    MP_Nyquist_Block_c *nblock;
+    nblock = (MP_Nyquist_Block_c*)block;
+    /* Open the block */
+    nChar += fprintf( fid, "\t<block type=\"%s\">\n", name );
+    /* Add the parameters */
+    nChar += fprintf( fid, "\t\t<par type=\"windowLen\">%lu</par>\n", nblock->filterLen );
+    nChar += fprintf( fid, "\t\t<par type=\"windowShift\">%lu</par>\n", nblock->filterShift );
     /* Close the block */
     nChar += fprintf( fid, "\t</block>\n" );
   }

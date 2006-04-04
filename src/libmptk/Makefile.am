@@ -58,6 +58,8 @@ export_headers = mp_types.h \
 	atom_classes/chirp_block.h         \
 	atom_classes/anywave_atom.h atom_classes/anywave_block.h \
 	atom_classes/anywave_hilbert_atom.h atom_classes/anywave_hilbert_block.h\
+	atom_classes/constant_atom.h atom_classes/constant_block.h\
+	atom_classes/nyquist_atom.h atom_classes/nyquist_block.h\
 	atom_classes/block_io_interface.h  \
 	atom_classes/atom_classes.h        \
 	mpd_core.h
@@ -91,6 +93,8 @@ libmptk_a_SOURCES = mptk.h header.h $(export_headers) regression_constants.h\
         atom_classes/chirp_block.cpp         \
 	atom_classes/anywave_atom.cpp atom_classes/anywave_block.cpp \
 	atom_classes/anywave_hilbert_atom.cpp atom_classes/anywave_hilbert_block.cpp\
+	atom_classes/constant_atom.cpp atom_classes/constant_block.cpp\
+	atom_classes/nyquist_atom.cpp atom_classes/nyquist_block.cpp\
 	atom_classes/dict_scanner.lpp        \
 	atom_classes/block_io_interface.cpp  \
 	dict.cpp mask.cpp book.cpp tfmap.cpp \
