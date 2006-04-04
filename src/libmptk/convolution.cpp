@@ -1543,6 +1543,10 @@ void MP_Convolution_FFT_c::circular_convolution_hilbert( MP_Sample_t* pSlice, MP
   if ( (anywaveRealTable == NULL) || (anywaveHilbertTable == NULL) ){
     add_real_and_hilbert_tables();
   }
+  if (outputHilbertBufferAdd == NULL) {
+    initialize_real_and_hilbert();
+  }
+  
   if ( (anywaveRealTable == NULL) || (anywaveHilbertTable == NULL) ){
     mp_error_msg( "MP_Convolution_FFT_c::circular_convolution", "Can't compute the circular convolution because one of anywaveRealTable and anywaveHilbertTable does not exists... aborting\n");
     exit(1);
@@ -2099,6 +2103,9 @@ void MP_Convolution_FFT_c::compute_max_hilbert_IP( MP_Signal_c* s, unsigned long
   if ( (anywaveRealTable == NULL) || (anywaveHilbertTable == NULL) ){
     add_real_and_hilbert_tables();
   }
+  if (outputHilbertBufferAdd == NULL) {
+    initialize_real_and_hilbert();
+  }
 
   if ( (anywaveRealTable == NULL) || (anywaveHilbertTable == NULL) ){
     mp_error_msg( "MP_Convolution_FFT_c::compute_max_hilbert_IP", "Can't compute the inner products because one of anywaveRealTable and anywaveHilbertTable does not exists... aborting\n");
@@ -2170,12 +2177,12 @@ void MP_Convolution_FFT_c::compute_max_hilbert_IP( MP_Signal_c* s, unsigned long
     }    
   }
 
-  if ( (accessOutputRealAdd = (double***) malloc( sizeof(double**) * anywaveTable->numFilters ) ) == NULL ) {
+  if ( (accessOutputRealAdd = (double***) malloc( sizeof(double**) * anywaveRealTable->numFilters ) ) == NULL ) {
     mp_error_msg( "MP_Convolution_FFT_c::compute_max_IP", "Can't allocate an array of [%lu] double elements"
-		  " for the accessOutputRealAdd array using malloc. This pointer will remain NULL.\n", anywaveTable->numFilters );
+		  " for the accessOutputRealAdd array using malloc. This pointer will remain NULL.\n", anywaveRealTable->numFilters );
   } else {
     for (filterIdx = 0, pOutputAdd = outputRealAdd;
-	 filterIdx < anywaveTable->numFilters; 
+	 filterIdx < anywaveRealTable->numFilters; 
 	 filterIdx ++) {
       if ( (accessOutputRealAdd[filterIdx] = (double**) malloc( sizeof(double*) * s->numChans ) ) == NULL ) {
 	mp_error_msg( "MP_Convolution_FFT_c::compute_max_IP", "Can't allocate an array of [%lu] double elements"
@@ -2189,12 +2196,12 @@ void MP_Convolution_FFT_c::compute_max_hilbert_IP( MP_Signal_c* s, unsigned long
       }
     }
   }
-  if ( (accessOutputRealNew = (double***) malloc( sizeof(double**) * anywaveTable->numFilters ) ) == NULL ) {
+  if ( (accessOutputRealNew = (double***) malloc( sizeof(double**) * anywaveRealTable->numFilters ) ) == NULL ) {
     mp_error_msg( "MP_Convolution_FFT_c::compute_max_IP", "Can't allocate an array of [%lu] double elements"
-		  " for the accessOutputRealNew array using malloc. This pointer will remain NULL.\n", anywaveTable->numFilters );
+		  " for the accessOutputRealNew array using malloc. This pointer will remain NULL.\n", anywaveRealTable->numFilters );
   } else {
     for (filterIdx = 0, pOutputNew = outputRealNew;
-	 filterIdx < anywaveTable->numFilters; 
+	 filterIdx < anywaveRealTable->numFilters; 
 	 filterIdx ++) {
       if ( (accessOutputRealNew[filterIdx] = (double**) malloc( sizeof(double*) * s->numChans ) ) == NULL ) {
 	mp_error_msg( "MP_Convolution_FFT_c::compute_max_IP", "Can't allocate an array of [%lu] double elements"
@@ -2210,12 +2217,12 @@ void MP_Convolution_FFT_c::compute_max_hilbert_IP( MP_Signal_c* s, unsigned long
   }   
 
 
-  if ( (accessOutputHilbertAdd = (double***) malloc( sizeof(double**) * anywaveTable->numFilters ) ) == NULL ) {
+  if ( (accessOutputHilbertAdd = (double***) malloc( sizeof(double**) * anywaveHilbertTable->numFilters ) ) == NULL ) {
     mp_error_msg( "MP_Convolution_FFT_c::compute_max_IP", "Can't allocate an array of [%lu] double elements"
-		  " for the accessOutputHilbertAdd array using malloc. This pointer will remain NULL.\n", anywaveTable->numFilters );
+		  " for the accessOutputHilbertAdd array using malloc. This pointer will remain NULL.\n", anywaveHilbertTable->numFilters );
   } else {
     for (filterIdx = 0, pOutputAdd = outputHilbertAdd;
-	 filterIdx < anywaveTable->numFilters; 
+	 filterIdx < anywaveHilbertTable->numFilters; 
 	 filterIdx ++) {
       if ( (accessOutputHilbertAdd[filterIdx] = (double**) malloc( sizeof(double*) * s->numChans ) ) == NULL ) {
 	mp_error_msg( "MP_Convolution_FFT_c::compute_max_IP", "Can't allocate an array of [%lu] double elements"
@@ -2229,12 +2236,12 @@ void MP_Convolution_FFT_c::compute_max_hilbert_IP( MP_Signal_c* s, unsigned long
       }
     }
   }
-  if ( (accessOutputHilbertNew = (double***) malloc( sizeof(double**) * anywaveTable->numFilters ) ) == NULL ) {
+  if ( (accessOutputHilbertNew = (double***) malloc( sizeof(double**) * anywaveHilbertTable->numFilters ) ) == NULL ) {
     mp_error_msg( "MP_Convolution_FFT_c::compute_max_IP", "Can't allocate an array of [%lu] double elements"
-		  " for the accessOutputHilbertNew array using malloc. This pointer will remain NULL.\n", anywaveTable->numFilters );
+		  " for the accessOutputHilbertNew array using malloc. This pointer will remain NULL.\n", anywaveHilbertTable->numFilters );
   } else {
     for (filterIdx = 0, pOutputNew = outputHilbertNew;
-	 filterIdx < anywaveTable->numFilters; 
+	 filterIdx < anywaveHilbertTable->numFilters; 
 	 filterIdx ++) {
       if ( (accessOutputHilbertNew[filterIdx] = (double**) malloc( sizeof(double*) * s->numChans ) ) == NULL ) {
 	mp_error_msg( "MP_Convolution_FFT_c::compute_max_IP", "Can't allocate an array of [%lu] double elements"
