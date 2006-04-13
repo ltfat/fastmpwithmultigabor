@@ -54,14 +54,14 @@ for blockIdx = 1:dict.numBlocks
     fprintf(fidDict, '\t\t<par type = "windowShift">%lu</par>\n', b.filterShift );
     fprintf(fidDict, '\t\t<par type = "windowLen">%lu</par>\n', b.filterLen );
     fprintf(fidDict, '\t\t<par type = "fftSize">%lu</par>\n', b.numFilters );
-    fprintf(fidDict, '\t\t<window type = "%s" opt = "%f"></par>\n', b.windowType, b.windowOpt );
+    fprintf(fidDict, '\t\t<window type = "%s" opt = "%f"></window>\n', b.windowType, b.windowOpt );
     fprintf(fidDict, '\t</block>\n');    
    case 'harmonic'
     fprintf(fidDict, '\t<block type="%s">\n',b.type);
     fprintf(fidDict, '\t\t<par type = "windowShift">%lu</par>\n', b.filterShift );
     fprintf(fidDict, '\t\t<par type = "windowLen">%lu</par>\n', b.filterLen );
     fprintf(fidDict, '\t\t<par type = "fftSize">%lu</par>\n', b.numFilters );
-    fprintf(fidDict, '\t\t<window type = "%s" opt = "%f"></par>\n', b.windowType, b.windowOpt );
+    fprintf(fidDict, '\t\t<window type = "%s" opt = "%f"></window>\n', b.windowType, b.windowOpt );
     fprintf(fidDict, '\t\t<par type = "f0Min">%lu</par>\n', b.f0Min );
     fprintf(fidDict, '\t\t<par type = "f0Max">%lu</par>\n', b.f0Max );
     fprintf(fidDict, '\t\t<par type = "numPartials">%lu</par>\n', b.numPartials );
@@ -71,7 +71,7 @@ for blockIdx = 1:dict.numBlocks
     fprintf(fidDict, '\t\t<par type = "windowShift">%lu</par>\n', b.filterShift );
     fprintf(fidDict, '\t\t<par type = "windowLen">%lu</par>\n', b.filterLen );
     fprintf(fidDict, '\t\t<par type = "fftSize">%lu</par>\n', b.numFilters );
-    fprintf(fidDict, '\t\t<window type = "%s" opt = "%f"></par>\n', b.windowType, b.windowOpt );
+    fprintf(fidDict, '\t\t<window type = "%s" opt = "%f"></window>\n', b.windowType, b.windowOpt );
     fprintf(fidDict, '\t\t<par type = "numFitPoints">%u</par>\n', b.numFitPoints );
     fprintf(fidDict, '\t</block>\n');    
    case {'anywave','centeredanywave','anywavehilbert'}
