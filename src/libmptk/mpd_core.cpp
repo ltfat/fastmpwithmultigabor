@@ -439,7 +439,40 @@ unsigned short int MP_Mpd_Core_c::step() {
 		    numIter, residualEnergyBefore, residualEnergy );
     mp_warning_msg( func, "Last atom found is sent to stderr.\n" );
     book->atom[book->numAtoms-1]->info( stderr );
-    state = ( state | MPD_INCREASING_ENERGY );
+    //state = ( state | MPD_INCREASING_ENERGY );
+  }
+  if ( (residualEnergyBefore - residualEnergy) < 5e-4 ) {
+    mp_warning_msg( func, "At iteration [%lu]: the energy decreases very slowly !"
+		    " Before: [%g] Now: [%g] Diff: [%g]\n",
+		    numIter, residualEnergyBefore, residualEnergy, residualEnergyBefore - residualEnergy );
+    mp_warning_msg( func, "Last atom found is sent to stderr.\n" );
+    book->atom[book->numAtoms-1]->info( stderr );
+    /* BORK BORK BORK */
+    /* Export the considered signal portion */
+    /* RES */
+    /* MP_Signal_c *exportSig = MP_Signal_c::init( dict->signal, book->atom[book->numAtoms-1]->support[0] );
+    if ( exportSig != NULL ) exportSig->dump_to_double_file( "res.dbl" );
+    fprintf( stderr, "Exported [%hu] channels from support p[%lu]l[%lu] to file [res.dbl].\n",
+	     exportSig->numChans,
+	     book->atom[book->numAtoms-1]->support[0].pos,  book->atom[book->numAtoms-1]->support[0].len );*/
+    /* ATOM */
+    /*MP_Signal_c *atomSig = MP_Signal_c::init( book->atom[book->numAtoms-1], dict->signal->sampleRate );
+    if ( atomSig != NULL ) atomSig->dump_to_double_file( "atom.dbl" );
+    fprintf( stderr, "Exported [%hu] channels from atom of length [%lu] to file [atom.dbl].\n",
+    atomSig->numChans, atomSig->numSamples );*/
+    /* SUM */
+    /*unsigned long int i;
+    for ( i = 0; i < (exportSig->numSamples*exportSig->numChans); i++ ) {
+      exportSig->storage[i] = exportSig->storage[i] + atomSig->storage[i];
+    }
+    exportSig->dump_to_double_file( "bad_signal.dbl" );
+    exportSig->wavwrite( "bad_signal.wav" );
+    fprintf( stderr, "Exported [%hu] channels from support p[%lu]l[%lu] to file [bad_signal.dbl].\n",
+	     exportSig->numChans,
+	     book->atom[book->numAtoms-1]->support[0].pos,  book->atom[book->numAtoms-1]->support[0].len );
+    fflush( stderr );
+    exit( 0 );*/
+    /* \BORK BORK BORK */
   }
 
   mp_debug_msg( MP_DEBUG_MPD_LOOP, func, "EXITING iteration [%lu]/[%lu].\n", numIter, stopAfterIter );
