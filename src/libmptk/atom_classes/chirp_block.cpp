@@ -296,8 +296,8 @@ unsigned int MP_Chirp_Block_c::create_atom( MP_Atom_c **atom,
 					    const unsigned long int filterIdx ) {
   const char* func = "MP_Chirp_Block_c::create_atom(...)";
   MP_Gabor_Atom_c *gatom = NULL;
-  unsigned long int freqIdx, k;
-  MP_Real_t chirprate;
+  unsigned long int freqIdx, fIdxMin, fIdxMax, k;
+  MP_Real_t chirprate, chirprateBefore = 0.0;
   unsigned int l;
   unsigned int iter;
 
@@ -312,6 +312,14 @@ unsigned int MP_Chirp_Block_c::create_atom( MP_Atom_c **atom,
 
   mp_debug_msg( MP_DEBUG_CREATE_ATOM, func, "Entering CHIRP::create_atom.\n" );
 
+  /* Check that the treated Gabor atom is the max one
+     (otherwise the chirp detection model is not valid) */
+  if ( (frameIdx != maxIPFrameIdx) || (filterIdx != maxIPIdxInFrame[maxIPFrameIdx]) ) {
+    mp_error_msg( func, "It is forbidden to re-evaluate the chirp rate of a non-max Gabor atom."
+		  " Returning NULL as the atom reference.\n" );
+    return( 0 );
+  }
+
   /* Useful dereferences */
   numChans = s->numChans;
   fftSize = (MP_Real_t)(fft->fftSize);
@@ -322,9 +330,8 @@ unsigned int MP_Chirp_Block_c::create_atom( MP_Atom_c **atom,
 		  " Returning NULL as the atom reference.\n" );
     return( 0 );
   }
-  gatom = (MP_Gabor_Atom_c*) (*atom);
+  gatom = (MP_Gabor_Atom_c*)(*atom);
   chirprate = gatom->chirp;
-
 #ifndef NDEBUG
   gatom->info( stderr ); fflush( stderr );
 #endif
@@ -402,6 +409,17 @@ unsigned int MP_Chirp_Block_c::create_atom( MP_Atom_c **atom,
 
   deltaChirp = mu/(MP_PI*(lambda*lambda+mu*mu));
   chirprate += deltaChirp;
+  /* BORK */
+  //#define MP_CHIRP_THRESH 1e-5
+#define MP_CHIRP_THRESH 0.5e-5
+  //#define MP_CHIRP_THRESH 0.2e-5
+  if ( fabs(chirprate) > MP_CHIRP_THRESH ) {
+    mp_debug_msg( MP_DEBUG_CREATE_ATOM, func,
+		  "Chirp rate threshold hit ! chirp = %g , abs = %g."
+		  " Returning the original (un-chirped) Gabor atom.\n",
+		  chirprate, fabs(chirprate) );
+    return( 1 );
+  }
 
   mp_debug_msg( MP_DEBUG_CREATE_ATOM, func,
 		"iter  0 : delta = %g , new chirp = %g.\n",
@@ -460,8 +478,26 @@ unsigned int MP_Chirp_Block_c::create_atom( MP_Atom_c **atom,
     
     /* Find the best frequency */
     energy = 0.0;
-    for ( k = 0; k < numFreqs; k++ ) {
+#define MP_FREQ_RELOC_RANGE 10
+    if ( freqIdx > MP_FREQ_RELOC_RANGE ) fIdxMin = freqIdx - MP_FREQ_RELOC_RANGE;
+    else                                 fIdxMin = 0;
+    fIdxMax = freqIdx + MP_FREQ_RELOC_RANGE;
+    if ( fIdxMax > numFreqs ) fIdxMax = numFreqs;
+    for ( k = fIdxMin; k < fIdxMax; k++ ) {
+    /* for ( k = 0; k < numFreqs; k++ ) { */
       if ( fftEnergy[k] > energy) { energy = fftEnergy[k]; freqIdx = k; }
+    }
+
+    /* TEST: if the correlation of the chirped atom is less than or equal to
+       the correlation of the original unchirped one, it's a case where the chirp
+       detection model is invalid => keep the unchirped one and exit. */
+    if (energy <= maxIPValue ) {
+      mp_debug_msg( MP_DEBUG_CREATE_ATOM, func,
+		    "At iteration 0 in the chirp estimation: the chirping model does not apply."
+		    " (Original IP: %g; Chirped IP: %g)"
+		    " Returning the original (un-chirped) Gabor atom.\n",
+		    maxIPValue, energy );
+      return( 1 );
     }
 
     mp_debug_msg( MP_DEBUG_CREATE_ATOM, func,
@@ -528,6 +564,7 @@ unsigned int MP_Chirp_Block_c::create_atom( MP_Atom_c **atom,
       //beta   = ( freqIdx - e/(2*d) ) / fftSize;
     
       deltaChirp = mu/(MP_PI*(lambda*lambda+mu*mu));
+      chirprateBefore = chirprate;
       chirprate += deltaChirp;
       
       mp_debug_msg( MP_DEBUG_CREATE_ATOM, func,
@@ -587,8 +624,26 @@ unsigned int MP_Chirp_Block_c::create_atom( MP_Atom_c **atom,
     
       /* Find the best frequency */
       energy = 0.0;
-      for ( k = 0; k < numFreqs; k++ ) {
+      if ( freqIdx > MP_FREQ_RELOC_RANGE ) fIdxMin = freqIdx - MP_FREQ_RELOC_RANGE;
+      else                                 fIdxMin = 0;
+      fIdxMax = freqIdx + MP_FREQ_RELOC_RANGE;
+      if ( fIdxMax > numFreqs ) fIdxMax = numFreqs;
+      for ( k = fIdxMin; k < fIdxMax; k++ ) {
+	/* for ( k = 0; k < numFreqs; k++ ) { */
 	if ( fftEnergy[k] > energy) { energy = fftEnergy[k]; freqIdx = k; }
+      }
+
+    /* TEST: if the correlation of the chirped atom is less than or equal to
+       the correlation of the original unchirped one, it's a case where the chirp
+       detection model is invalid => keep the unchirped one and exit. */
+      if (energy <= maxIPValue ) {
+	mp_debug_msg( MP_DEBUG_CREATE_ATOM, func,
+		      "At iteration %2d in the chirp estimation: the chirping model ceases to apply."
+		      " (Original IP: %g; Chirped IP: %g)"
+		      " Returning an atom with the last valid chirprate.\n",
+		      iter, maxIPValue, energy );
+	chirprate = chirprateBefore;
+	break;
       }
 
       mp_debug_msg( MP_DEBUG_CREATE_ATOM, func,
