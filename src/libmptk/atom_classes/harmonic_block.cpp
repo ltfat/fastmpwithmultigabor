@@ -113,9 +113,9 @@ int MP_Harmonic_Block_c::init_parameters( const unsigned long int setFilterLen,
   }
 
   /* Check the harmonic fields */
-  if ( setF0Min <= 0.0 ) {
-    mp_error_msg( func, "f0Min [%.2f] is negative or null;"
-		  " f0Min must be a strictly positive frequency value"
+  if ( setF0Min < 0.0 ) {
+    mp_error_msg( func, "f0Min [%.2f] is negative;"
+		  " f0Min must be a positive frequency value"
 		  " (in Hz).\n", setF0Min );
     return( 1 );
   }
@@ -180,6 +180,7 @@ int MP_Harmonic_Block_c::plug_signal( MP_Signal_c *setSignal ) {
 		   " Nyquist frequency.\n" );
       minFundFreqIdx = numFreqs - 1;
     }
+    if ( maxFundFreqIdx > numFreqs ) maxFundFreqIdx = (numFreqs - 1); /* For f0Max, rectify silently. */
     /* - Check for going under the DC */
     if ( minFundFreqIdx == 0 ) {
       mp_warning_msg( func, "f0Min [%.2f Hz] is into the signal's DC frequency range [<%.2f Hz].\n" ,

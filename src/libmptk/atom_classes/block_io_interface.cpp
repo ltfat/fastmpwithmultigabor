@@ -276,8 +276,10 @@ MP_Block_c* MP_Scan_Info_c::pop_block( MP_Signal_c *signal ) {
 	  f0Max = globF0Max;
 	  f0MaxIsSet = true;
 	}
-	else { /* Default to the Nyquist frequency */
-	  f0Max = ( (double)(signal->sampleRate) / 2.0 );
+	else { /* Default to an arbitrary "big value" which will be
+		  reduced to the Nyquist frequency when a signal
+		  is plugged (see plug_signal() in harmonic_block.cpp) */
+	  f0Max = 1e6; //( (double)(signal->sampleRate) / 2.0 );
 	  f0MaxIsSet = true;
 	}
       }
