@@ -13,14 +13,15 @@ function [h,gh,hh,dh] = bookover( book, x, chan );
 %    [sh,gh,hh,dh] = BOOKOVER( book, sig, chan ) return handles
 %    on the created objects:
 %       sh => spectrogram surf
-%       gh => gabor atoms patch    (green patch)
-%       hh => harmonic atoms patch (red patch)
-%       dh => dirac atoms line     (cyan line)
+%       gh => gabor atoms patch
+%       hh => harmonic atoms patch
+%       dh => dirac atoms line
 %    The patches indicate the locations of the atom supports.
+%    The color indicates the energy level according to the JET
+%    colormap (more energy => closer to red, less energy =>
+%    closer to blue)
 %
 %    Notes:
-%    - The colors are NOT proportional to the amplitudes.
-%      (Use BOOKPLOT instead.)
 %    - BOOKOVER will resize the current axes to fit
 %      the spectrogram area.
 %
@@ -83,18 +84,49 @@ tmax = l/fs;
 wl = 2^nextpow2( 0.025*fs );
 [S,F,T] = specgram(x,wl,fs,hamming(wl),wl/2);
 %imagesc(20*log10(abs(S)));
-h = surf( T, F, 20*log10(abs(S)) - 30 );
-shading flat;
-colormap(flipud(gray));
+h = surf( T, F, 20*log10(abs(S)) );
+shading interp; %shading flat;
+%colormap(flipud(gray));
 
 xlabel('time ->');
 ylabel('frequency ->');
 
 % Book plot
 [gh,hh,dh] = bookplot( book, chan );
-set( gh, 'facecolor', 'r', 'edgecolor', 'none', 'facealpha', 0.4 );
-set( hh, 'facecolor', 'g', 'edgecolor', 'none', 'facealpha', 0.4 );
-set( dh, 'color', 'c', 'alpha', 0.5 );
+%set( gh, 'facecolor', 'r', 'edgecolor', 'none', 'facealpha', 0.4 );
+%set( hh, 'facecolor', 'g', 'edgecolor', 'none', 'facealpha', 0.4 );
+%set( dh, 'color', 'c', 'alpha', 0.5 );
+
+% Cheat the colormaps
+%colormap([flipud(gray(64));hot(64)]);
+colormap([flipud(gray(64));jet(64)]);
+cax = caxis;
+mncaxrng = cax(1);
+caxrng = cax(2) - cax(1);
+caxis([0 1]);
+
+% - Spectro:
+cdat = get( h, 'cdata' );
+mncd = min(min(cdat)); mxcd = max(max(cdat)); rngcd = mxcd-mncd;
+cdat = (cdat - mncd) / rngcd / 2;
+set( h, 'cdata', cdat);
+
+% - Book plot:
+cdat = get( gh, 'cdata' );
+cdat = [cdat; get( hh, 'cdata' )];
+mncd = min(min(cdat)); mxcd = max(max(cdat)); rngcd = mxcd-mncd;
+
+cdat = get( gh, 'cdata' );
+cdat = 0.5 + (cdat - mncd) / rngcd / 2;
+set( gh, 'cdata', cdat);
+
+cdat = get( hh, 'cdata' );
+cdat = 0.5 + (cdat - mncd) / rngcd /2;
+set( hh, 'cdata', cdat);
+
+% Cheat the spectrogram's height
+SPECTRO_OFFSET_LEVEL = 100;
+set( h, 'zdata', get(h,'zdata') - SPECTRO_OFFSET_LEVEL );
 
 set(gca,'xlim',[0 tmax-wl/fs],'ylim',[0 fs/2]);
 axis xy; view(2); drawnow;

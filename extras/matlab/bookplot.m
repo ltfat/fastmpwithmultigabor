@@ -1,4 +1,4 @@
-function [gaborP,harmP,diracL] = bookplot( book, channel );
+function [gaborP,harmP,diracL] = bookplot( book, channel, bwfactor );
 
 % BOOKPLOT  Plot a Matching Pursuit book in the current axes
 %
@@ -17,6 +17,12 @@ function [gaborP,harmP,diracL] = bookplot( book, channel );
 %    The patches delimit the support of the atoms. Their
 %    color is proportional to the atom's amplitudes,
 %    mapped to the current colormap and the current caxis.
+%
+%    BOOKPLOT( book, chan, bwfactor ) allows to specify
+%    the bandwidths of the atoms, calculated as:
+%      bw = ( fs / (atom.length(channel)/2) ) / bwfactor;
+%    where fs is the signal sample frequency. When omitted,
+%    bwfactor defaults to 2.
 %
 %    See also BOOKREAD, BOOKOVER, COLORMAP, CAXIS and
 %    the patch handle graphics properties.
@@ -50,6 +56,10 @@ if channel > book.numChans,
 	       channel, book.numChans );
 end;
 
+if nargin < 3,
+   bwfactor = 2;
+end;
+
 l = book.numSamples;
 fs = book.sampleRate;
 
@@ -74,7 +84,7 @@ for i = 1:book.numAtoms,
 	   case 'gabor',
 		p = atom.pos(channel)/fs;
 		l = atom.len(channel)/fs;
-		bw2 = ( fs / (atom.len(channel)/2) ) / 2;
+		bw2 = ( fs / (atom.len(channel)/2) ) / bwfactor;
 		A = atom.amp(channel); A = 20*log10(A);
 		f = fs*atom.freq;
 		c = fs*fs*atom.chirp;
@@ -91,7 +101,7 @@ for i = 1:book.numAtoms,
 	   case 'harmonic',
 		p = atom.pos(channel)/fs;
 		l = atom.len(channel)/fs;
-		bw2 = ( fs / (atom.len(channel)/2 + 1) ) / 2;
+		bw2 = ( fs / (atom.len(channel)/2 + 1) ) / bwfactor;
 		A = atom.amp(channel);
 		f = atom.freq;
 		c = fs*fs*atom.chirp;
