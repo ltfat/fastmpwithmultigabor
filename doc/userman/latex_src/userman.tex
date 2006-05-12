@@ -41,19 +41,35 @@ amplitude, a chirp factor and a given shaping window). In our code, the
 corresponding object knows how to subtract itself from a signal, and how to
 generate its own waveform.
 
-\paragraph{Block --} A block operates a time-frequency transform
-along the whole support of a signal. The time-frequency transform could be of
-any type (STFT, wavelets etc.) provided it can be interpreted as a set of
-correlations between the signal and a set of atoms which cover the
-time-frequency plane. For the moment, only Gabor blocks and Harmonic blocks are
-implemented, based on Short-Term Fourier Transforms\footnote{Dirac blocks are
-  also available. They provide no particular time-frequency transform, they
-  just find signal sample with a high energy.}. In this case, one block equals
-one STFT with a given scale.
+\paragraph{Block --} A block computes the correlations (inner products) between
+a signal to analyze and a set of atoms for which the computation of the
+correlations can be factorized in an efficient manner, along the whole support
+of a signal.
 
-Several blocks corresponding to various scales or various transforms can be
-concurrently applied to the same signal, thus providing for multi-scale or
-multiple-basis analysis.
+For instance, the inner products can stem from a time-frequency transform, such
+as the Fourier Transform or a wavelet transform, provided the transform can be
+interpreted as a set of correlations between the signal and a set of atoms
+which cover the time-frequency plane.  Several blocks corresponding to various
+scales or various transforms can be concurrently applied to the same signal,
+thus providing for multi-scale or multiple-basis analysis.
+
+For the moment, the following blocks are implemented:
+\begin{itemize}
+\item Gabor blocks, based on Short-Time Fourier Transforms, which compute the
+  correlations with windowed sinusoids having a ``flat'' frequency (chirp rate
+  == 0). In this case, one block is conceptually equivalent to one STFT with a
+  given scale;
+\item Harmonic blocks, based on the harmonic grouping of Gabor atoms, and
+  inheriting from the Gabor block;
+\item Chirp blocks, based on a post-processing of the Gabor atoms and aimed at
+  optimizing the chirp rate;
+\item AnyWave blocks, based on a fast convolution algorithm to compute some
+  correlations with arbitrary waveforms.
+\end{itemize}
+In addition, a Dirac block is also available, which provides no particular
+time-frequency transform, but just finds the signal samples which have a high
+energy. In the future, blocks based on fast wavelet transforms could also be
+designed.
 
 Each block object can search for the location of the maximum correlation
 between the atoms and the signal, and can thus deduce which atom contributes
@@ -69,15 +85,10 @@ a book gives a signal.
 
 \bigskip
 
-\begin{figure}[p]
-\centerline{\psfig{figure=mpcycle.eps, width=15cm}}
-\caption{\label{mpcycle}Our implementation of Matching Pursuit. \newline
-  (See sections~\ref{term} and~\ref{algo} for a detailed explanation.)}
-\end{figure}
-%
-Figure~\ref{mpcycle} illustrates the fact that a dictionary contains a signal
-and a collection of blocks, and that a books contains a collection of atoms.
-The algorithm linking these objects will be explained in the next section.
+\noindent Figure~\ref{mpcycle} illustrates the fact that a dictionary contains
+a signal and a collection of blocks, and that a books contains a collection of
+atoms.  The algorithm linking these objects will be explained in the next
+section.
 
 
 %%%%%%%%%
@@ -87,8 +98,8 @@ Our implementation of the Matching Pursuit algorithm uses roughly 3 steps, as
 illustrated in figure~\ref{mpcycle}:
 \begin{enumerate}
 \item update the correlations in the blocks, by applying the relevant
-  time-frequency transforms to the analyzed signal, and find the maximum
-  correlation in the same loop;
+  correlation computation algorithm to the analyzed signal, and find the
+  maximum correlation in the same loop;
 \item create the atom which corresponds to the maximum correlation with the
   signal (and store this atom in the book);
 \item subtract the created atom from the analyzed signal, thus obtaining a
@@ -97,8 +108,16 @@ illustrated in figure~\ref{mpcycle}:
 At each step, the original signal can be rebuilt exactly by summing all the
 atoms of the book and adding them to the residual signal.
 
+\begin{figure}[hbp]
+\vspace{2em}
+\centerline{\psfig{figure=mpcycle.eps, height=10cm}}
+\caption{\label{mpcycle}Our implementation of Matching Pursuit. (See
+  sections~\ref{term} and~\ref{algo} for a detailed explanation.)}
+\end{figure}
+
 
 %%%%%%%%%
+\clearpage
 \section{User manual for the standalone utilities \label{man}}
 %%%%%%%%%
 
@@ -117,9 +136,9 @@ provides blind source separation using Matching Pursuit when the mixing matrix
 is known. Each of the cited utilities have a {\tt -h} switch to get
 command-line help.
 
-\bigskip
+\smallskip
 
-\noindent Some typical processing chains include:
+Some typical processing chains include:
 \begin{itemize}
 \item Signal approximation with N atoms: \\
       \mbox{\tt mpd -D dictionary -n N soundFile.wav book.bin;} \\
@@ -142,6 +161,24 @@ command-line help.
 Lots of other combinations are possible. The relevant utilities are described
 with more detail in the next sections.
 
+\paragraph{Note about the signal file formats} -- MPTK has been originally designed for sound
+processing, but it is applicable to any kind of signal.
+
+For input, we have mostly been using the WAV format, but any file format
+recognized by the \verb+libsndfile+ library (i.e., most audio formats, see
+\verb+http://www.mega-nerd.com/libsndfile/+) should work with the provided MPTK
+utilities.
+
+The signal output is more specific: the MPTK binaries output signals in the WAV
+format only. {\em (WARNING: in the \verb+libsndfile+ implementation, this
+  format is not protected against clipping, which may happen for some books and
+  is not an artifact of the MPTK analysis.)} Nevertheless, the MPTK API also
+offers Matlab, raw \verb+double+ and raw \verb+float+ signal output formats:
+those could be quickly enabled by simple hacks of the relevant utilities. To
+enable other output formats, please contribute some code to the
+\verb+mp_signal.{h,cpp}+ API.
+
+
 %%%%%%%%%
 \clearpage
 \subsection{mpd: signal decomposition}
@@ -153,7 +190,7 @@ mpd [options] -D dictFILE.txt (-n N|-s SNR) (sndFILE.wav|-) (bookFILE.bin|-) ...
 \end{verbatim}
 
 \subsubsection*{Synopsis:}
-Iterates Matching Pursuit on signal sndFILE.wav with dictionary dictFile.txt
+Iterates Matching Pursuit on signal sndFILE.wav with dictionary dictFILE.txt
 and gives the resulting book bookFILE.bin (and an optional residual signal)
 after N iterations or after reaching the signal-to-residual ratio SNR.  See
 section~\ref{dict_format} for a description of the syntax of the dictionary
@@ -186,6 +223,9 @@ AND/OR -s<SNR>, --snr=<SNR>                   Stop when the SNR value SNR
      -T<N>,    --snr-hit=<N>          Test the SNR every N iterations only
                                       (instead of each iteration).
 
+     -p<double>, --preemp=<double>    Pre-emphasize the input signal with
+                                      coefficient <double>.
+
      residualFILE.wav                The residual signal after subtraction
                                      of the atoms.
 
@@ -204,7 +244,7 @@ AND/OR -s<SNR>, --snr=<SNR>                   Stop when the SNR value SNR
 The dictionary files use a syntax ``\`a la XML'', with tags enclosed between
 angle brackets. Strict XML compliance is not mandatory, it is just provided as
 a convenience for interested users or for easy checking of the dictionary's
-syntax\footnote{Uh, that is, when the DTD is ready.}.
+syntax\footnote{Uh, that is, if a DTD or a Schema get ready someday.}.
 
 \subsubsection*{General rules}
 A dictionary should include, in the following order:
@@ -218,11 +258,12 @@ A dictionary should include, in the following order:
 \end{enumerate}
 Any text included after the dictionary closing tag will be ignored. Blank
 spaces and line breaks are ignored. Any part of the file can be commented out
-either by enclosing it between \verb+<!--+ and \verb+-->+ (XML style), or by
-adding a '\verb+#+' at the beginning of the commented lines (shell style, NOT
-XML compliant). The parser will send any text it can't match to stderr.
-Therefore, in the event of syntax errors, spurious text output will show up in
-stderr.
+either by enclosing it between \verb+<!--+ and \verb+-->+ (XML style) or
+\verb+/*+ and \verb+*/+ (C style, breaks the XML compliance), or by adding a
+'\verb+#+' or '\verb+//+' at the beginning of the commented lines (shell or C
+style, breaks the XML compliance). The parser will send any text it can't match
+to stderr: in the event of syntax errors in a dictionary, some dictionary
+pieces will therefore show up in stderr.
 
 
 \subsubsection*{Valid tags}
@@ -239,44 +280,52 @@ stderr.
 \item \verb+<dict>+List of blocks\verb+</dict>+: the opening and closing tags
   for the dictionary. Anything coming after the \verb+</dict>+ tag will be
   ignored by the parser.
-
-\item \verb+<block type="VALID_TYPE">+List of block
-  parameters\verb+</block>+: the opening and closing tags for a block.
-  \verb+VALID_TYPE+ should be one of \verb+dirac+, \verb+gabor+ or
-  \verb+harmonic+.
+  
+\item \verb+<block type="VALID_TYPE">+List of block parameters\verb+</block>+:
+  the opening and closing tags for a block.  \verb+VALID_TYPE+ should be one of
+  \verb+dirac+, \verb+gabor+, \verb+harmonic+, \verb+chirp+ or \verb+anywave+.
   
 \item \verb+<par type="VALID_TYPE">+Value\verb+</par>+: a block parameter. The
   \verb+VALID_TYPE+, corresponding values types and relevant block types
-  (G==gabor, H==harmonic) are given below:
+  (G==gabor, H==harmonic, C==Chirp, A==Anywave) are given below:
   \begin{itemize}
 
-  \item \verb+windowLen+ with an unsigned long int value (G,H): the atom length
+  \item (G,H,C) \verb+windowLen+ with an unsigned long int value: the atom length
     (i.e., the window length in the STFT).
 
-  \item \verb+windowShift+ with an unsigned long int value (G,H): the atom
+  \item (G,H,C) \verb+windowShift+ with an unsigned long int value: the atom
     shift (i.e., the window shift in the STFT).
     
-  \item \verb+windowRate+ with a double value between 0.0 and 1.0 (G,H): an
+  \item (G,H,C) \verb+windowRate+ with a double value between 0.0 and 1.0: an
     alternate way to specify the window shift, as a proportion of the
     windowLen.  If both are present, \verb+windowShift+ has precedence over
     \verb+windowRate+.
     
-  \item \verb+fftSize+ with an unsigned long value (G,H): the frequency
+  \item (G,H,C) \verb+fftSize+ with an unsigned long value: the frequency
     resolution in terms of FFT size. It has to be greater or equal to
     \verb+windowLen+ if \verb+windowLen+ is even, or $\geq$\verb2(windowLen+1)2
     if \verb+windowLen+ is odd. If absent, defaults to \verb+windowLen+ (or
     \verb2windowLen+12).
     
-  \item \verb+f0Min+ with a double value (H): minimum frequency (in Hz) from
+  \item (H) \verb+f0Min+ with a double value: minimum frequency (in Hz) from
     which the fundamental frequency of the harmonic atoms is searched. Defaults
     to the first non-null FFT frequency.
     
-  \item \verb+f0Max+ with a double value (H): maximum frequency (in Hz) at
+  \item (H) \verb+f0Max+ with a double value: maximum frequency (in Hz) at
     which the fundamental frequency of the harmonic atoms is searched.
     Defaults to the Nyquist frequency of the considered signal.
     
-  \item \verb+numPartials+ with an unsigned int value (H): number of partials
+  \item (H) \verb+numPartials+ with an unsigned int value: number of partials
     considered when tracking the harmonic atoms.
+    
+  \item (C) \verb+numFitPoints+ (EXPERIMENTAL) with an unsigned int value:
+    number of polynomial fitting points considered for the chirp optimization
+    algorithm. Defaults to 1.
+    
+  \item (C) \verb+numIter+ (EXPERIMENTAL) with an unsigned int value: number of
+    iterations considered for the chirp optimization algorithm. Defaults to 1.
+
+  \item (A) [TODO SLESAGE: anywave parameters]
 
   \end{itemize}
   Note that the \verb+dirac+ blocks don't need any parameter (they just match
@@ -388,6 +437,15 @@ precedence over the global values.
                 <par type="f0Max">1000</par>
                 <par type="numPartials">15</par>
         </block>
+       <block type="chirp">                               <= A chirp block
+                <par type="windowLen">1024</par>
+                <par type="windowShift">128</par>
+                <par type="fftSize">1024</par>
+                <window type="gauss" opt="0"></window>
+                <par type="numFitPoints">2</par>
+                <par type="numIter">1</par>
+       </block>
+       [TODO SLESAGE: add an anywave block]
 </dict>
 This is that great dictionary I used for obtaining        <= This text is ignored
 these wonderful experimental results thanks to the           by the parser.
@@ -447,7 +505,10 @@ bookNo.bin.
   e.g. ^[min:max].
 
   The atom's type can be tested with:
-  --type=gabor|harmonic|dirac / -t gabor|harmonic|dirac
+
+  --type=gabor|harmonic|dirac|anywave / -t gabor|harmonic|dirac|anywave
+  (The chirp type is not provided: a chirp atom is a gabor atom with
+   a non-null chirp rate.)
 
  Other optional arguments are:
 
@@ -466,8 +527,8 @@ all the others in bookNo.bin:
 \end{verbatim}
 
 \subsubsection*{Note:}
-Only one instance of each property is allowed. If you want to elaborate more
-complicated domains, use a pipe.
+Only one instance of each property is allowed. More complicated domains can be
+elaborated using pipes.
 
 
 %%%%%%%%%
@@ -605,13 +666,36 @@ AND/OR -s<SNR>, --snr=<SNR>                Stop when the SNR value SNR
 
 %%%%%%%%%
 \clearpage
-\subsection{mpview: UNDER DEVELOPMENT, generation of a time-frequency map from
+\subsection{mpview: generation of a time-frequency map from
   a book}
 
 \subsubsection*{Usage:}
 \begin{verbatim}
-  mpview (IN|-) numCols numRows OUT.flt
+  mpview [options] (bookFILE.bin|-) tfmapFILE.flt
 \end{verbatim}
+
+\subsubsection*{Synopsis:}
+Makes a time-frequency pixmap fill it with the time-frequency representation of
+the atoms contained in the book file bookFile.bin and write it to the file
+tfmapFILE.flt as a raw sequence of floats. The pixmap size is 640x480 pixels
+unless option --size is used.
+
+\subsubsection*{Mandatory arguments:}
+\begin{verbatim}
+ Mandatory arguments:
+     (bookFILE.bin|-)     A book of atoms, or stdin.
+     tfmapFILE.flt        The file where to write the pixmap in float.
+\end{verbatim}
+
+\subsubsection*{Optional arguments:}
+\begin{verbatim}
+     -s, --size=<numCols>x<numRows> : change the size of the pixmap.
+     -q, --quiet          No text output.
+     -v, --verbose        Verbose.
+     -V, --version        Output the version and exit.
+     -h, --help           This help.
+\end{verbatim}
+
 
 \subsubsection*{Synopsis:}
 Displays a book in a pixmap of numCols x numRows pixels Returns nonzero in case
@@ -620,6 +704,24 @@ of failure, zero otherwise
 
 %%%%%%%%%
 \clearpage
+\section{The GUI \label{gui}}
+%%%%%%%%%
+A wxWidget-based Graphical User Interface is delivered as the \verb+MptkGuiApp+
+binary, in the \verb+./src/gui/+ directory. It is not compiled/installed by
+default: use \verb+--enable-gui+ with the \verb+configure+ script if you want
+to use it. The initial version of this GUI has been developed in the framework
+of an IFSIC/DIIC3 student project by: Nicolas Bonnet, Benjamin Boutier, Vincent
+Chapon and Sylvestre Cozic. (Thanks!)
+
+This GUI takes up the functionality of \verb+mpd+ and \verb+mpr+ (no atom
+filtering implemented), and adds visualization/audio playback capabilities for
+the books and signals. Globally, it offers a friendlier control of the
+decomposition process. In its current state, it remains bug-prone and poorly
+documented, but it can help vizualizing and understanding the Matching Pursuit
+decomposition process in a nice way.
+
+
+%%%%%%%%%
 \section{Extra utilities: visualization of MP books under Matlab \label{matlab}}
 %%%%%%%%%
 
@@ -647,44 +749,6 @@ under Matlab.
 %%%%%%%%%
 \appendix
 %%%%%%%%%
-
-%%%%%%%%%
-\clearpage
-\section{Development tricks}
-%%%%%%%%%
-
-%%%%%%%%%
-\subsection{Interfacing and code factorization}
-%%
-To allow the dictionary to manage every class of blocks (i.e., every different
-time-frequency transform) in the same way, every specific block class
-inherits from a generic block class which implements some mandatory methods.
-(Refer to the reference manual for details.)
-
-Similarly, all the atoms inherit from a generic atom class, so that they can
-perform a certain number of standard operations and so that they can be stored
-in books.
-
-
-%%%%%%%%%
-\subsection{Speed tricks}
-%%
-Our general philosophy is to avoid as much as possible to compute the same
-operation twice.
-
-For example, in the blocks, the update of the time-frequency transforms is
-executed only along the part of the signal that were modified by subtracting an
-atom at the previous step.
-
-Similarly, the outcome of the time-frequency transforms is stored as a single
-dimension vector. After each update of the time-frequency transforms, the
-location of the maximum correlation can be anywhere along the vector. To avoid
-browsing the whole length of it each time we perform a max correlation search,
-we use a tree structure which keeps track of local maxima.
-
-Finally, the signal processing windows are tabulated in a window server (called
-by the blocks and the atoms) which has global scope over the whole code.
-
 
 %%%%%%%%%
 \clearpage
@@ -733,11 +797,11 @@ files.
 
 A notable exception is the lexical scanner for the dictionary, which is written
 in flex. A dict\_scanner.cpp source is automatically generated from the
-dict\_scanner.lpp flex template. It has no corresponding .h header file.
+dict\_scanner.lpp flex template. It has no corresponding .h header file. (See
+section~\ref{dict_scanner}.)
 
 
 %%%%%%%%%
-\pagebreak
 \subsection{Building and portability}
 
 \paragraph{Building system --} We use the automake/autoconf system
@@ -747,9 +811,144 @@ header file located at the top of the source tree.
 
 \paragraph{Binary format and byte order --} The byte-order of any binary output
 is forced to be the LITTLE\_ENDIAN order, native on Intel ($\Rightarrow$ most
-PCs) and VAX\footnote{Dude, if you have a VAX alive, we would sure like to know
-  if MPTK runs on it.}, swapped on PowerPC ($\Rightarrow$ Macintosh), SPARC
-($\Rightarrow$ SUN workstations) and Motorola.
+PCs and the new Macs) and VAX\footnote{Dude, if you have a VAX alive, we would
+  sure like to know if MPTK runs on it.}, swapped on PowerPC ($\Rightarrow$
+Macintosh PPC), SPARC ($\Rightarrow$ SUN workstations) and Motorola.
+
+
+%%%%%%%%%
+\subsection{Installed files}
+\begin{itemize}
+\item Libraries: \verb+libmptk.a+ and \verb+libdsp_windows.a+ get installed in
+  \verb+EPREFIX/lib+.
+\item Headers: \verb+mpth.h+ gets installed in \verb+PREFIX/include+.
+\item Binaries: \verb+mpd+, \verb+mpd_demix+, \verb+mpf+, \verb+mpr+,
+  \verb+mpview+ and optionally \verb+MptkGuiApp+ get installed in
+  \verb+PREFIX/bin+. The binaries from \verb+./src/test/+ do not get installed.
+\item Documentation: the documentation is delivered in \verb+./doc+, both in
+  built form and source form, but does not get installed. Copy it manually to
+  your favorite location.
+\item Extras: matlab interface files are delivered in \verb+./extras/matlab+,
+  but do not get installed. Copy them manually to a location accessible from
+  your MATLABPATH.
+\end{itemize}
+
+
+%%%%%%%%%
+\clearpage
+\section{Development tricks and notes}
+%%%%%%%%%
+
+%%%%%%%%%
+\subsection{Class interfacing and code factorization}
+%%
+To allow the dictionary to manage every class of blocks (i.e., every different
+time-frequency transform) in the same way, every specific block class inherits
+from a generic block class which implements some mandatory methods.  Similarly,
+all the atoms inherit from a generic atom class, so that they can perform a
+certain number of standard operations and so that they can be stored in books.
+Please refer to the reference manual and code headers for more details.
+
+
+%%%%%%%%%
+\subsection{Speed tricks}
+%%
+Our general philosophy is to avoid as much as possible to compute the same
+operation twice.  For example, in the blocks, the update of the time-frequency
+transforms is executed only along the part of the signal that were modified by
+subtracting an atom at the previous step.
+
+\paragraph{Tree for the max search} -- The outcome of the time-frequency
+transforms is stored as a single dimension vector. After each update of the
+time-frequency transforms, the location of the maximum correlation can be
+anywhere along the vector. To avoid browsing the whole length of it each time
+we perform a max correlation search, we use a tree structure which keeps track
+of local maxima (figure~\ref{tree}).
+%
+\begin{figure}[hbp]
+\centerline{\psfig{figure=tree.eps, height=10cm}}
+\caption{\label{tree} Use of a tree to speed up the max search: at each
+  iteration, only the grey-shaded parts, modified by the previous atom
+  subtraction, are browsed.}
+\end{figure}
+
+\paragraph{Tabulations} -- The signal processing windows are tabulated
+in a window server (called by the blocks and the atoms) which has global scope
+over the whole code. The atom cross-correlations are computed and tabulated at
+block creation time.
+
+
+%%%%%%%%%
+\subsection{The parser for XML dictionaries \label{dict_scanner}}
+%%
+The parsing of the XML dictionary is implemented by hand, using regular
+expressions coded in Flex\footnote{The use of a full fledged XML parsing
+  library is under discussion. Such libraries generally appear too heavy for
+  the considered usage.} to allow for flexibility in the dictionary syntax
+(arbitrary blank spaces, independance in the order of the parameters etc.). The
+scanning mechanism is divided into two sources: \verb+dict_scanner.lpp+ and
+\verb+block_io_interface.{h,cpp}+.
+
+The \verb+dict_scanner.lpp+ flex source defines the \verb+dict_scanner()+
+function via a series of Flex regular expressions and associated C++ code
+pieces (see the very clear Flex documentation from
+\verb+http://www.gnu.org/software/flex/+). The \verb+dict_scanner()+ function
+is able to detect the various XML tags and associated values, and to copy these
+values into the corresponding fields of the \verb+MP_Scan_Info_c+ class
+(defined in \verb+block_io_interface.h+).
+
+Then, the \verb+MP_Scan_Info_c+ class uses its \verb+pop_block()+ method (from
+\verb+block_io_interface.cpp+) to ensure that all the fields necessary to
+instantiate a particular block have been scanned, and then pops the block.
+\verb+pop_block()+ only checks for the {\em presence}, not for the {\em values}
+of the block parameters: it is the responsibility of the block's factory
+functions to check for the validity of the scanned values.  Nevertheless, in
+case of the absence of a required parameter, \verb+pop_block()+ implements some
+relevant defaulting strategies.
+
+The whole process is embedded in the \verb+MP_Dict_c::add_blocks( FILE *fid )+
+function, in \verb+dict.cpp+.
+
+
+%%%%%%%%%
+\subsection{Experimental hacks and limitations -- !!READ THIS!!}
+%%
+
+\paragraph{Harmonic block} -- {\sc In its current implementation, the harmonic block
+  allows for an increase of the signal energy for certain ``ill choosen''
+  values of f0Min (the lower authorized base frequency).}
+
+As a matter of fact, for low f0 values, the various Gabor atoms making the
+harmonic components are not strictly orthogonal, although they are treated as
+such when removing the whole harmonic atom from the analyzed signal. Various
+solutions are possible, such as subtracting the harmonic atom in a truly
+orthogonal way (implying the computation of the Gram-Schmidt matrix of the
+Gabor components), removing the Gabor components individually in an iterative,
+stepwise orthogonal way, or limiting f0Min on the basis of tabulated values
+(related to the window types and dimensions). None of these solutions has been
+implemented yet.
+
+\paragraph{Chirp block} -- The chirp optimization method is well understood
+at the theoretical level, but its practical behaviour needs to be studied in
+more detail. It has been observed that high chirp rates may lead to wrong
+correlations and an increase of the signal energy. To avoid pathological cases,
+three noteworthy tricks have been used:
+\begin{itemize}
+\item after each iteration of chirp rate estimation, it is verified that the
+  inner product (IP) with the signal is augmented. If not, the last valid ``IP
+  increasing'' chirp value is returned;
+\item at the relocation step in the chirp estimation process, the atom can not
+  jump further than 10 FFT bins from its current location (lines using
+  \verb+MP_FREQ_RELOC_RANGE+);
+\item the chirp rate estimate is arbitrarily bounded by a value of
+$0.5\cdot10^{-5}$ (code labelled \verb+/* BORK */+ in \verb+chirp_block.cpp+).
+This value should be made a block parameter and correlation behaviour at high
+chirp rates should be better explored.
+\end{itemize}
+In addition, the effect of the number of iterations and number of fit points
+deserves a deeper study. So far, 1 iteration with numFitPoints=1 seems to give
+acceptable results, so the usefulness of an iterative process is questionable.
+
 
 
 %%%%%%%%%
@@ -762,13 +961,17 @@ aspects of the Matching Pursuit algorithm, see: \newline \cite{Zhang93},
 \cite{BM96}, \cite{HRP}, \cite{HRMP1}, \cite{HRMP2}, \cite{DMA97},
 \cite{goodwin99:_match}, \cite{MaThese}, \cite{Grib2001}, \linebreak
 \cite{Grib2002a}, \cite{gribonval03:_harmon_decom_audio_signal_match_pursuit},
-\cite{SPIE03:GribA}.
+\cite{SPIE03:GribA}, \cite{IC06MPTK}.
 
 \paragraph{Theoretic aspects} For more information about the theoretic aspects
 of the Matching Pursuit algorithm, see: \newline
 \cite{Grib2001b}, \cite{GN2001}, \cite{Grib2001c}, \cite{ICIP03:GN},
 \cite{gribonval03:_spars}, \cite{IRISA03:GV}, \cite{gribonval03:_highl},
 \cite{GribFig}.
+
+\paragraph{Experimental results and applications} Examples of experimental and
+applicative results obtained with MPTK can be found in: \newline
+\cite{WASPAA05}, \cite{LESAGE_ICA06}.
 
 
 %%%%%%%%%
