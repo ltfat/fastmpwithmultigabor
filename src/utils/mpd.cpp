@@ -93,7 +93,7 @@ void usage( void ) {
   fprintf( stdout, "     mpd [options] -D dictFILE.xml (-n N|-s SNR) (sndFILE.wav|-) (bookFILE.bin|-) [residualFILE.wav]\n" );
   fprintf( stdout, " \n" );
   fprintf( stdout, " Synopsis:\n" );
-  fprintf( stdout, "     Iterates Matching Pursuit on signal sndFILE.wav with dictionary dictFile.xml\n" );
+  fprintf( stdout, "     Iterates Matching Pursuit on signal sndFILE.wav with dictionary dictFILE.xml\n" );
   fprintf( stdout, "     and gives the resulting book bookFILE.bin (and an optional residual signal)\n" );
   fprintf( stdout, "     after N iterations or after reaching the signal-to-residual ratio SNR.\n" );
   fprintf( stdout, " \n" );
