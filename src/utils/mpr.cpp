@@ -92,7 +92,7 @@ void usage( void ) {
   fprintf( stdout, " Optional arguments:\n" );
   fprintf( stdout, "     residualFILE.wav     A residual signal that was obtained from a Matching Pursuit decomposition.\n" );
   fprintf( stdout, " \n" );
-  fprintf( stdout, "     -d, --deemp          De-emphasize the signal.\n" );
+  fprintf( stdout, "     -d<double>, --deemp=<double>  De-emphasize the signal with coefficient <double>.\n" );
   fprintf( stdout, " \n" );
   fprintf( stdout, "     -q, --quiet          No text output.\n" );
   fprintf( stdout, "     -v, --verbose        Verbose.\n" );
