@@ -140,6 +140,7 @@ void usage( void ) {
   fprintf( stderr, "     The intervals can be negated with prepending the '^' character, e.g. ^[min:max].\n" );
   fprintf( stdout, " \n" );
   fprintf( stdout, "     --type=gabor|harmonic|dirac|anywave / -t gabor|harmonic|dirac|anywave : test the atom type.\n" );
+  fprintf( stdout, "     (The chirp type is not provided: a chirp atom is a gabor atom with a non-null chirp rate.)\n" );
   fprintf( stdout, " \n" );
   fprintf( stdout, " Other optional arguments are:\n" );
   fprintf( stdout, " \n" );
