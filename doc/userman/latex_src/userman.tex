@@ -49,7 +49,11 @@ of a signal.
 For instance, the inner products can stem from a time-frequency transform, such
 as the Fourier Transform or a wavelet transform, provided the transform can be
 interpreted as a set of correlations between the signal and a set of atoms
-which cover the time-frequency plane.  Several blocks corresponding to various
+which cover the time-frequency plane.
+
+Each block object can search for the location of the maximum correlation
+between the atoms and the signal, and can thus deduce which atom contributes
+the most energy to the analyzed signal. Several blocks corresponding to various
 scales or various transforms can be concurrently applied to the same signal,
 thus providing for multi-scale or multiple-basis analysis.
 
@@ -65,15 +69,20 @@ For the moment, the following blocks are implemented:
   optimizing the chirp rate;
 \item AnyWave blocks, based on a fast convolution algorithm to compute some
   correlations with arbitrary waveforms.
+\item Dirac blocks,which provide no particular time-frequency
+  transform, but just find the signal samples which have a high
+  energy
+\item Constant blocks, which are an extension of the Dirac blocks.
+  Constant atoms are rectangular windows, defined by a length and a
+  shift between atoms. A constant atom catches the mean of a signal on
+  the specified frame.
+\item Nyquist blocks. They are defined by a length and a shift between
+  atoms, and the waveform is a normalized succession of 1 and -1. A
+  Nyquist atom catches the greatest frequency that can be
+  distinguished (called the Nyquist frequency if the support is even)
+  of the specified frame.
 \end{itemize}
-In addition, a Dirac block is also available, which provides no particular
-time-frequency transform, but just finds the signal samples which have a high
-energy. In the future, blocks based on fast wavelet transforms could also be
-designed.
-
-Each block object can search for the location of the maximum correlation
-between the atoms and the signal, and can thus deduce which atom contributes
-the most energy to the analyzed signal.
+In the future, blocks based on fast wavelet transforms should also be designed.
 
 \paragraph{Dictionary --} A dictionary contains a collection of blocks plus
 the signal on which they operate. It can search across all the blocks (i.e.,
@@ -269,6 +278,7 @@ pieces will therefore show up in stderr.
 \subsubsection*{Valid tags}
 \begin{itemize}
 
+
 \item \verb+<?xml version="1.0" encoding="ISO-8859-1"?>+ [optional]: the XML
   declaration line. It is ignored by the parser.
   
@@ -285,15 +295,16 @@ pieces will therefore show up in stderr.
   the opening and closing tags for a block.  \verb+VALID_TYPE+ should be one of
   \verb+dirac+, \verb+gabor+, \verb+harmonic+, \verb+chirp+ or \verb+anywave+.
   
-\item \verb+<par type="VALID_TYPE">+Value\verb+</par>+: a block parameter. The
-  \verb+VALID_TYPE+, corresponding values types and relevant block types
-  (G==gabor, H==harmonic, C==Chirp, A==Anywave) are given below:
+\item \verb+<par type="VALID_TYPE">+Value\verb+</par>+: a block
+  parameter. The \verb+VALID_TYPE+, corresponding values types and
+  relevant block types (G==gabor, H==harmonic, C==Chirp, A==Anywave,
+  CT==constant, N==nyquist) are given below:
   \begin{itemize}
 
-  \item (G,H,C) \verb+windowLen+ with an unsigned long int value: the atom length
+  \item (G,H,C,CT,N) \verb+windowLen+ with an unsigned long int value: the atom length
     (i.e., the window length in the STFT).
 
-  \item (G,H,C) \verb+windowShift+ with an unsigned long int value: the atom
+  \item (G,H,C,A,CT,N) \verb+windowShift+ with an unsigned long int value: the atom
     shift (i.e., the window shift in the STFT).
     
   \item (G,H,C) \verb+windowRate+ with a double value between 0.0 and 1.0: an
@@ -324,8 +335,10 @@ pieces will therefore show up in stderr.
     
   \item (C) \verb+numIter+ (EXPERIMENTAL) with an unsigned int value: number of
     iterations considered for the chirp optimization algorithm. Defaults to 1.
-
-  \item (A) [TODO SLESAGE: anywave parameters]
+    
+  \item (A) \verb+tableFileName+ with a string: filename of the table
+    containing the waveforms (ex: ---/udd/toto/table.bin--- ). Note that there
+    is no {"} around the string.
 
   \end{itemize}
   Note that the \verb+dirac+ blocks don't need any parameter (they just match
@@ -437,20 +450,100 @@ precedence over the global values.
                 <par type="f0Max">1000</par>
                 <par type="numPartials">15</par>
         </block>
-       <block type="chirp">                               <= A chirp block
+        <block type="chirp">                               <= A chirp block
                 <par type="windowLen">1024</par>
                 <par type="windowShift">128</par>
                 <par type="fftSize">1024</par>
                 <window type="gauss" opt="0"></window>
                 <par type="numFitPoints">2</par>
                 <par type="numIter">1</par>
-       </block>
-       [TODO SLESAGE: add an anywave block]
+        </block>
+        <block type="anywave">                             <= An anywave block
+                <par type="windowShift">128</par>
+                <par type="tableFileName">/udd/toto/table.bin</par>
+        </block>
+
+        <block type="dirac">                               <= A dirac block
+        </block>
+        <block type="constant">                            <= A constant block
+                <par type="windowLen">512</par>              
+                <par type="windowShift">32</par>             
+        </block>
+        <block type="nyquist">                             <= A nyquist block
+                <par type="windowLen">512</par>              
+                <par type="windowShift">32</par>             
+        </block>
 </dict>
 This is that great dictionary I used for obtaining        <= This text is ignored
 these wonderful experimental results thanks to the           by the parser.
 Matching Pursuit Library ...
 \end{verbatim}
+
+\subsubsection*{Anywave table}
+
+Waveforms need have been loaded before using anywave atoms. That's the
+difference between parametric atoms, such as Dirac, Gabor, ... and anywave
+atoms. Therefore, a different syntax has to be employed. In the dictionary
+file, the anywave block points to a ``anywave table definition file''
+(/udd/toto/table.bin in the example). This file has a XML syntax, to give all
+the parameters of the waveforms, and points to a binary ``anywave table data
+file'', that gives the data (/udd/toto/table\_data.bin in the example).
+
+Note that one table corresponds to one atom length, and one number of channels.
+To use several atom lengths, one must create several anywave tables, and define
+several ``anywave'' blocks.
+
+The ``anywave table definition file'' is structured as follows:
+
+\begin{itemize}
+  
+\item \verb+<?xml version="1.0" encoding="ISO-8859-1"?>+ [optional]: the XML
+  declaration line. It is ignored by the parser.
+  
+\item \verb+<libVersion>+blah\verb+</libVersion>+ [optional]: the library
+  version declaration. This is provided for backward compatibility if we ever
+  change the dictionary syntax. When absent, the library version is taken to be
+  the current one.
+  
+\item \verb+<table>+List of table parameters\verb+</table>+: the opening and
+  closing tags for the table. Anything coming after the \verb+</table>+ tag
+  will be ignored by the parser.
+  
+\item \verb+<par type="VALID_TYPE">+Value\verb+</par>+: a table parameter. The
+  \verb+VALID_TYPE+ and corresponding values types are given below:
+  \begin{itemize}
+    
+  \item \verb+numChans+ with an unsigned short int value: the number of
+    channels of the atoms.
+  \item \verb+filterLen+ with an unsigned long int value: the length of the
+    anywave waveforms in the table.
+  \item \verb+numFilters+ with an unsigned long int value: the number of
+    anywave waveforms in the table.
+  \item \verb+data+ with a string: name of the file containing the waveforms
+    data (ex: ---/udd/toto/table\_data.bin--- ). Note that there is no {"}
+    around the string.
+
+  \end{itemize}
+\end{itemize}
+
+The ``anywave table data file'' is binary, and built as follows: all the
+waveforms are written in double type, one after the other, and for each, one
+channel after the other. The following scheme is for two channels and four
+waveforms: {\center |w1c1|w1c2|w2c1|w2c2|w3c1|w3c2|w4c1|w4c2| }
+
+\subsubsection*{Example of an anywave table}
+\begin{verbatim}
+<?xml version="1.0" encoding="ISO-8859-1"?>        <= The optional XML
+                                                      declaration line.
+<libVersion>0.2</libVersion>                       <= The optional library version.
+<table>                                             <= The table opening tag
+       <par type="numChans">2</par>                    (only one table per file)
+       <par type="filterLen">512</par>
+       <par type="numFilters">512</par>
+       <par type="data">/udd/toto/table_data.bin</par>
+<table>                                             <= The table closing tag.
+\end{verbatim}
+
 
 
 %%%%%%%%%
