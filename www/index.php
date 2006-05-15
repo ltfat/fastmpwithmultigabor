@@ -128,15 +128,67 @@ echo $contents; } ?>
 <HR>
 
 <P>
-<H3>Introduction:</H3> You can have a preliminary taste of what the software is all about by looking
+<H3>Introduction:</H3>
+
+<B>MPTK is a complete toolkit for the demonstration and exploration of the Matching Pursuit algorithm</B>.
+It is:
+<UL>
+<LI> <B>FAST:</B> e.g., extract 1.5 million atoms from a 1 hour long, 16kHz audio signal (15dB extracted)
+  in <B>0.25x real time</B> on a Pentium IV@2.4GHz, out of a dictionary of 178M Gabor atoms. Such incredible
+	  speed makes it possible to process "real world" signals;
+<LI> <B>FLEXIBLE:</B> multi-channel, various signal input formats, flexible syntax to describe the dictionaries =>
+	  reproducible results, cleaner experiments;
+<LI> <B>OPEN:</B> modular architecture => add your own atoms ! Free distribution under the GPL.
+</UL>
+You can have a more detailed taste of what the software is all about by looking
 at the <B><A HREF="http://gforge.inria.fr/docman/?group_id=36">documentation</A></B> available on the
 <B><A HREF="http://gforge.inria.fr/docman/?group_id=36">Doc Manager</A></B> page.
 
+
 <P>
-<H3>Download:</H3> To download the latest release, go to the
-<B><A HREF="http://gforge.inria.fr/project/showfiles.php?group_id=36">Released Files</A></B>
-section in the <B><A HREF="http://gforge.inria.fr/projects/mptk/">Project Summary</A></B>
-menu, on the right of this page.
+<H3>Warning:</H3>
+
+Most of the MPTK package is fairly stable now. However, we haven't reached version 1.0 yet.
+In particular, the data format of the "books" (the
+collections of atoms resulting from the MPTK processing) and of the XML
+dictionaries is bound to change in the upcoming versions. We are working on a
+system of backwards compatibility, but it is not ready yet: in the meantime,
+the formats may change with each new version (we will warn the users about
+it). We are conscious that this is a nuisance, and we are working on it.
+
+
+<P>
+<H3>Download and install:</H3>
+
+Relevant packages are available from the <B><A
+HREF="http://gforge.inria.fr/project/showfiles.php?group_id=36">Released
+Files</A></B> section in the <B><A
+HREF="http://gforge.inria.fr/projects/mptk/">Project Summary</A></B> menu, on
+the right of this page.
+
+<P>The MPTK software corresponds to the most recent version of the packages
+available in the <B>MPTK</B> section of the <B><A
+HREF="http://gforge.inria.fr/project/showfiles.php?group_id=36">Released
+Files</A></B> page.  A limited number of older versions are kept there as
+history.
+
+<P>The mptk package depends on a few external libraries:  FFTW3, libsndfile and
+(if you want to compile the GUI) wxWidgets. It is mandatory to have these
+libraries installed on your system before you can compile MPTK. The versions
+which worked for us when compiling the latest release of the MPTK package are
+mirrored in the <B>MPTK_externals</B> section of the <A
+HREF="http://gforge.inria.fr/project/showfiles.php?group_id=36">Released
+Files</A></B> page.
+
+<P>As an option, contributions from other labs than the original authors are
+distributed in the <B>MPTK_contributions</B> section of the <A
+HREF="http://gforge.inria.fr/project/showfiles.php?group_id=36">Released
+Files</A></B> page, but it is not mandatory to install them in order to compile
+and use the original MPTK package. Some reference articles are also available,
+from the <B>MPTK_related_articles</B> section of the <A
+HREF="http://gforge.inria.fr/project/showfiles.php?group_id=36">Released
+Files</A></B> page.
+
 
 <P>
 <H3>Help and forums:</H3> If you need help with the software:
