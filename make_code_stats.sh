@@ -1,6 +1,8 @@
 #!/bin/sh
 
-echo "CODE STATISTICS FOR THE MATCHING PURSUIT SOFTWARE" > code_stats.txt
+echo >> code_stats.txt
+echo >> code_stats.txt
+echo "CODE STATISTICS FOR THE MATCHING PURSUIT SOFTWARE" >> code_stats.txt
 date >> code_stats.txt
 
 echo >> code_stats.txt
