@@ -9,7 +9,7 @@ function [book] = bookread( fileName )
 
 %%
 %% Authors:
-%% Sacha Krstulovic & Rémi Gribonval
+%% Sacha Krstulovic & Rï¿½mi Gribonval
 %% Copyright (C) 2005 IRISA                                              
 %%
 %% This script is part of the Matching Pursuit Library package,
@@ -68,7 +68,7 @@ for ( i = 1:book.numAtoms );
   end;
   book.atom{i}.pos = pos;
   book.atom{i}.len = len;
-  book.atom{i}.amp   = fread( fid, numChans, 'double' );
+  book.atom{i}.amp   = fread( fid, numChans, 'double' );  
 
   switch atomType,
 
@@ -114,6 +114,25 @@ for ( i = 1:book.numAtoms );
     hilbertPart = fread( fid, numChans, 'double' );
     book.atom{i}.phase = atan2(hilbertPart,realPart);
 
+   case 'mdct',
+    l = fgets( fid );
+    book.atom{i}.windowType = sscanf( l, '%[a-z]\n' );
+    book.atom{i}.windowOpt = fread( fid, 1, 'double' );
+    book.atom{i}.freq  = fread( fid, 1, 'double' );
+    
+   case 'mdst',
+    l = fgets( fid );
+    book.atom{i}.windowType = sscanf( l, '%[a-z]\n' );
+    book.atom{i}.windowOpt = fread( fid, 1, 'double' );
+    book.atom{i}.freq  = fread( fid, 1, 'double' );
+    
+   case 'mclt',
+    l = fgets( fid );
+    book.atom{i}.windowType = sscanf( l, '%[a-z]\n' );
+    book.atom{i}.windowOpt = fread( fid, 1, 'double' );
+    book.atom{i}.freq  = fread( fid, 1, 'double' );
+    book.atom{i}.phase = fread( fid, numChans, 'double' ); 
+    
     % Unknown atom type
    otherwise,
     error( [ '[' atomType '] is an unknown atom type.'] );

@@ -157,6 +157,12 @@
  **/
 #define DSP_FOF_WIN         11
 
+/** \brief The type of Kaiser Bessel Derived windows. 
+ * It is \b symetric, and the \a optional parameter should be positive.
+ *
+ **/
+#define DSP_KBD_WIN	    12
+
 /** \brief A special type of windows.
  * It is \b reserved for future use with windows that do not necessarily
  * have an analytic expression.
@@ -229,6 +235,10 @@ extern "C" {
    * \return The string "unknown" if the type is unknown, the desired name otherwise
    **/
   char*             window_name(const unsigned char type);
+
+  /** \brief Compute the zeroth order modified Bessel function of the first kind
+  */
+  double BesselI0(double x);
 
 #ifdef __cplusplus
 }

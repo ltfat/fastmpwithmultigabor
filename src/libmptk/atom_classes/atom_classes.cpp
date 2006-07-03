@@ -100,6 +100,12 @@ MP_Atom_c* read_atom( FILE *fid, const char mode ) {
   else if ( !strcmp(str,"constant") ) atom = (MP_Atom_c*) MP_Constant_Atom_c::init( fid, mode );
   /* - Nyquist atom: */
   else if ( !strcmp(str,"nyquist") ) atom = (MP_Atom_c*) MP_Nyquist_Atom_c::init( fid, mode );
+  /* - Mclt atom: */
+  else if ( !strcmp(str,"mclt") ) atom = (MP_Mclt_Atom_c*) MP_Mclt_Atom_c::init( fid, mode );
+  /* - Mdct atom: */
+  else if ( !strcmp(str,"mdct") ) atom = (MP_Mdct_Atom_c*) MP_Mdct_Atom_c::init( fid, mode );
+  /* - Mdst atom: */
+  else if ( !strcmp(str,"mdst") ) atom = (MP_Mdst_Atom_c*) MP_Mdst_Atom_c::init( fid, mode );
   /* - ADD YOUR ATOMS HERE: */
   //  else if ( !strcmp(str,"TEMPLATE") ) atom = new MP_TEMPLATE_Atom_c( fid, mode );
   /* - Unknown atom type: */

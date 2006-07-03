@@ -544,7 +544,100 @@ waveforms: {\center |w1c1|w1c2|w2c1|w2c2|w3c1|w3c2|w4c1|w4c2| }
 <table>                                             <= The table closing tag.
 \end{verbatim}
 
+\subsubsection*{MDCT/MDST/MCLT}
 
+\textbf{Definition} The Modified Discrete Cosine Transform (MDCT) and the Modified Discrete Sine Transform (MDST) are two orthogonal transforms based on local cosine functions. The Modulated Complex Lapped Transform (MCLT) is the complex extension such as $MCLT=MDCT+i*MDST$. The atoms corresponding to the MCLT of a signal of length $N=PL$ and a window length of $2L$, are defined as:
+\begin{equation}
+x_{p,k}(n) = w(n-pL) exp \left[ i \frac{\pi}{L} \left( (n-pL) + \frac{1}{2} + \frac{L}{2} \right) \left( k + \frac{1}{2} \right) \right]
+\end{equation} 
+with $n=0,..,N-1$, $k=0,..,L-1$ and $p=0,..,P-1$. $w$ is a window which is complementary in energy i.e. it verifies $w^2 (n) + w^2 (n+L) = 1, n=0,..,L-1$.
+
+The atoms corresponding to the MDCT are defined as the real part of the previous formula and the atoms corresponding to the MDST the imaginary part of the previous formula.
+
+We also define a generalized MDCT/MDST/MCLT where the window shift, the window shape and the fft size are not constraint by the orthogonality property. The corresponding atoms for a signal of length $N=PS$, a window length of $2L$, a window shift of $S$, a fft size of $Nfft$ and a window $w$, are defined as:
+\begin{eqnarray}
+x_{p,k}(n) = w(n-pS) exp \left[ i \frac{2\pi}{Nfft} \left( (n-pS) + \frac{1}{2} + \frac{L}{2} \right) \left( k + \frac{1}{2} \right) \right] \mbox{ if } Nfft=2L \\
+x_{p,k}(n) = w(n-pS) exp \left[ i \frac{2\pi}{Nfft} \left( (n-pS) + \frac{1}{2} + \frac{L}{2} \right) \left( k  \right) \right] \mbox{ if }Nfft=2mL
+\end{eqnarray}
+with $n=0,..,N-1$, $k=0,..,Nfft/2-1$, $p=0,..,P-1$ and m is even with $m>=2$.
+
+\textbf{Valid tags}
+\begin{itemize}
+
+\item \verb+<?xml version="1.0" encoding="ISO-8859-1"?>+ [optional]: the XML
+  declaration line. It is ignored by the parser.
+  
+\item \verb+<libVersion>+blah\verb+</libVersion>+ [optional]: the library
+  version declaration. This is provided for backward compatibility if we ever
+  change the dictionary syntax. When absent, the library version is taken to be
+  the current one.
+
+\item \verb+<dict>+List of blocks\verb+</dict>+: the opening and closing tags
+  for the dictionary. Anything coming after the \verb+</dict>+ tag will be
+  ignored by the parser.
+  
+\item \verb+<block type="VALID_TYPE">+List of block parameters\verb+</block>+:
+  the opening and closing tags for a block.  \verb+VALID_TYPE+ should be one of
+  \verb+mdct+, \verb+mdst+, \verb+mclt+.
+  
+\item \verb+<par type="VALID_TYPE">+Value\verb+</par>+: a block
+  parameter. The \verb+VALID_TYPE+, corresponding values types and
+  relevant block types are given below:
+  \begin{itemize}
+
+  \item \verb+windowLen+ with an unsigned long int value: the atom length
+    (i.e., the window length). It has to be even.
+
+  \item \verb+windowShift+ with an unsigned long int value: the atom
+    shift (i.e., the window shift).
+    
+  \item \verb+windowRate+ with a double value between 0.0 and 1.0: an
+    alternate way to specify the window shift, as a proportion of the
+    windowLen.  If both are present, \verb+windowShift+ has precedence over
+    \verb+windowRate+.
+    
+  \item \verb+fftSize+ with an unsigned long value: the frequency
+    resolution in terms of FFT size. It has to be equal to \verb+windowLen+ or a multiple of 2*\verb+windowLen+.
+
+  \end{itemize}
+  
+\item \verb+<window type="VALID_WINDOW_TYPE" opt="OPTIONAL_VALUE"></window>+: a
+  window specification to be included among the block parameters.
+  
+  The following \verb+VALID_WINDOW_TYPE+s do not require the \verb+opt=""+
+  attribute: \\ \verb+rectangle+, \verb+triangle+, \verb+cosine+, \verb+hanning+,
+  \verb+hamming+, \verb+blackman+, \verb+flattop+, \verb+fof+.
+  
+  The following \verb+VALID_WINDOW_TYPE+s do require the \verb+opt=""+
+  attribute: \\ \verb+hamgen+, \verb+gauss+, \verb+exponential+, \verb+kbd+. \\
+  The meaning of the optional parameter varies according to the window type.
+  See the reference manual for more info.
+
+\end{itemize}
+A default MDCT/MDST/MCLT block is defined using 2 parameters, the window length and the window type. The window type must be \verb+rectangle+, \verb+cosine+ or \verb+kbd+. An example of a MDCT dictionnary is:
+\begin{verbatim}
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<libVersion>0.2</libVersion>
+<dict>
+     <block type="mdct">
+          <par type="windowLen">2048</par>
+          <window type="kbd" opt="5"></window>
+     </block>
+</dict>                 
+\end{verbatim}
+An example of a generalized MCLT dictionnary is:
+\begin{verbatim}
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<libVersion>0.2</libVersion>
+<dict>
+     <block type="mclt">
+          <par type="windowShift">512</par>
+          <window type="cosine" opt="0"></window>
+          <par type="fftSize">4096</par>
+          <par type="windowLen">2048</par>
+     </block>
+</dict>
+\end{verbatim}
 
 %%%%%%%%%
 \clearpage

@@ -373,6 +373,7 @@ MP_Block_c* MP_Scan_Info_c::pop_block( MP_Signal_c *signal ) {
       }
     }
   }
+
   /****************************/
   /* - anywave hilbert blocks: */
   else if ( !strcmp(type,"anywavehilbert") ){
@@ -454,6 +455,80 @@ MP_Block_c* MP_Scan_Info_c::pop_block( MP_Signal_c *signal ) {
 	return( NULL );
       }
     }
+  }
+
+  /***************************/
+  /* - MDCT/MDST/MCLT: */
+  else if ( (!strcmp(type,"mdct")) || (!strcmp(type,"mdst")) || (!strcmp(type,"mclt"))) {
+    
+    /* - windowLen: */
+    if (!windowLenIsSet) {
+      if (globWindowLenIsSet) {
+	windowLen = globWindowLen;
+	windowLenIsSet = true;
+      }
+      else {
+	mp_error_msg( func, "Mdct/Mdst/Mclt block (%u-th block) must have a windowLen."
+		      " Returning a NULL block.\n" , blockCount );
+	reset();
+	return( NULL );
+      }
+    }
+    /* - windowShift: */
+    if (!windowShiftIsSet) {
+      if (windowRateIsSet) {
+	windowShift = (unsigned long int)( (double)(windowLen)*windowRate + 0.5 );
+	/* == round(windowLen*windowRate) */
+	windowShift = ( windowShift > 1 ? windowShift : 1 ); /* windowShift has to be 1 or more */
+	windowShiftIsSet = true;
+      }
+      else if (globWindowShiftIsSet) {
+	windowShift = globWindowShift;
+	windowShiftIsSet = true;
+      }
+      else if (globWindowRateIsSet) {
+	windowShift = (unsigned long int)( (double)(windowLen)*globWindowRate + 0.5 );
+	/* == round(windowLen*globWindowRate) */
+	windowShift = ( windowShift > 1 ? windowShift : 1 ); /* windowShift has to be 1 or more */
+	windowShiftIsSet = true;
+      }
+    }
+    /* - fftSize: */
+    if (!fftSizeIsSet) {
+      if (globFftSizeIsSet) {
+	fftSize = globFftSize;
+	fftSizeIsSet = true;
+      }
+      else if (windowLenIsSet) {
+	if ( is_odd(windowLen) ) fftSize = windowLen + 1;
+	else                     fftSize = windowLen;
+	fftSizeIsSet = true;
+      }
+    }
+
+    /* - windowType & windowOption: */
+    if (!windowTypeIsSet) {
+
+      if (globWindowTypeIsSet) {
+
+	windowType = globWindowType;
+	windowTypeIsSet = true;
+	windowOption = globWindowOption;
+	windowOptionIsSet = globWindowOptionIsSet;
+
+      }
+    }
+
+    if ( window_needs_option(windowType) && (!windowOptionIsSet) ) {
+      mp_error_msg( func, "Mdct block (%u-th block)"
+		    " requires a window option (the opt=\"\" attribute is probably missing"
+		    " in the relevant <window> tag). Returning a NULL block.\n" , blockCount );
+      reset();
+      return( NULL );
+    }
+
+
+
   }
   /***************************/
   /* - ADD YOUR BLOCKS HERE: */
@@ -541,6 +616,54 @@ MP_Block_c* MP_Scan_Info_c::pop_block( MP_Signal_c *signal ) {
     }
     else {
       mp_error_msg( func, "Missing parameters in chirp block instanciation (%u-th block)."
+		    " Returning a NULL block.\n" , blockCount );
+      reset();
+      return( NULL );
+    }
+  }
+  /* - Mclt block: */
+  else if ( !strcmp(type,"mclt") ) {
+    if ( windowLenIsSet && windowShiftIsSet && fftSizeIsSet && windowTypeIsSet ) {
+      block = MP_Mclt_Block_c::init( signal, windowLen, windowShift,
+				      fftSize, windowType, windowOption );
+    }
+    else if ( windowLenIsSet && windowTypeIsSet ) {
+      block = MP_Mclt_Block_c::init( signal, windowLen, windowType, windowOption );
+    }
+    else {
+      mp_error_msg( func, "Missing parameters in Mclt block instanciation (%u-th block)."
+		    " Returning a NULL block.\n" , blockCount );
+      reset();
+      return( NULL );
+    }
+  }
+  /* - Mdct block: */
+  else if ( !strcmp(type,"mdct") ) {
+    if ( windowLenIsSet && windowShiftIsSet && fftSizeIsSet && windowTypeIsSet ) {
+      block = MP_Mdct_Block_c::init( signal, windowLen, windowShift,
+				      fftSize, windowType, windowOption );
+    }
+    else if ( windowLenIsSet && windowTypeIsSet) {
+      block = MP_Mdct_Block_c::init( signal, windowLen, windowType, windowOption );
+    }
+    else {
+      mp_error_msg( func, "Missing parameters in Mdct block instanciation (%u-th block)."
+		    " Returning a NULL block.\n" , blockCount );
+      reset();
+      return( NULL );
+    }
+  }
+  /* - Mdst block: */
+  else if ( !strcmp(type,"mdst") ) {
+    if ( windowLenIsSet && windowShiftIsSet && fftSizeIsSet && windowTypeIsSet ) {
+      block = MP_Mdst_Block_c::init( signal, windowLen, windowShift,
+				      fftSize, windowType, windowOption );
+    }
+    else if ( windowLenIsSet && windowTypeIsSet) {
+      block = MP_Mdst_Block_c::init( signal, windowLen, windowType, windowOption );
+    }
+    else {
+      mp_error_msg( func, "Missing parameters in Mdst block instanciation (%u-th block)."
 		    " Returning a NULL block.\n" , blockCount );
       reset();
       return( NULL );
@@ -701,6 +824,57 @@ int write_block( FILE *fid, MP_Block_c *block ) {
     nChar += fprintf( fid, "\t\t<window type=\"%s\" opt=\"%lg\"></window>\n",
 		      window_name(cblock->fft->windowType), cblock->fft->windowOption );
     nChar += fprintf( fid, "\t\t<par type=\"numFitPoints\">%u</par>\n", cblock->numFitPoints );
+    /* Close the block */
+    nChar += fprintf( fid, "\t</block>\n" );
+  }
+
+  /**** - Mclt block: ****/
+  else if ( !strcmp( name, "mclt" ) ) {
+    /* Cast the block */
+    MP_Mclt_Block_c *mblock;
+    mblock = (MP_Mclt_Block_c*)block;
+    /* Open the block */
+    nChar += fprintf( fid, "\t<block type=\"%s\">\n", name );
+    /* Add the parameters */
+    nChar += fprintf( fid, "\t\t<par type=\"windowLen\">%lu</par>\n", mblock->filterLen );
+    nChar += fprintf( fid, "\t\t<par type=\"windowShift\">%lu</par>\n", mblock->filterShift );
+    nChar += fprintf( fid, "\t\t<par type=\"fftSize\">%lu</par>\n", ((mblock->numFilters-1)<<1) );
+    nChar += fprintf( fid, "\t\t<window type=\"%s\" opt=\"%lg\"></window>\n",
+		      window_name(mblock->fft->windowType), mblock->fft->windowOption );
+    /* Close the block */
+    nChar += fprintf( fid, "\t</block>\n" );
+  }
+
+  /**** - Mdct block: ****/
+  else if ( !strcmp( name, "mdct" ) ) {
+    /* Cast the block */
+    MP_Mdct_Block_c *mblock;
+    mblock = (MP_Mdct_Block_c*)block;
+    /* Open the block */
+    nChar += fprintf( fid, "\t<block type=\"%s\">\n", name );
+    /* Add the parameters */
+    nChar += fprintf( fid, "\t\t<par type=\"windowLen\">%lu</par>\n", mblock->filterLen );
+    nChar += fprintf( fid, "\t\t<par type=\"windowShift\">%lu</par>\n", mblock->filterShift );
+    nChar += fprintf( fid, "\t\t<par type=\"fftSize\">%lu</par>\n", ((mblock->numFilters-1)<<1) );
+    nChar += fprintf( fid, "\t\t<window type=\"%s\" opt=\"%lg\"></window>\n",
+		      window_name(mblock->fft->windowType), mblock->fft->windowOption );
+    /* Close the block */
+    nChar += fprintf( fid, "\t</block>\n" );
+  }
+
+  /**** - Mdst block: ****/
+  else if ( !strcmp( name, "mdst" ) ) {
+    /* Cast the block */
+    MP_Mdst_Block_c *mblock;
+    mblock = (MP_Mdst_Block_c*)block;
+    /* Open the block */
+    nChar += fprintf( fid, "\t<block type=\"%s\">\n", name );
+    /* Add the parameters */
+    nChar += fprintf( fid, "\t\t<par type=\"windowLen\">%lu</par>\n", mblock->filterLen );
+    nChar += fprintf( fid, "\t\t<par type=\"windowShift\">%lu</par>\n", mblock->filterShift );
+    nChar += fprintf( fid, "\t\t<par type=\"fftSize\">%lu</par>\n", ((mblock->numFilters-1)<<1) );
+    nChar += fprintf( fid, "\t\t<window type=\"%s\" opt=\"%lg\"></window>\n",
+		      window_name(mblock->fft->windowType), mblock->fft->windowOption );
     /* Close the block */
     nChar += fprintf( fid, "\t</block>\n" );
   }

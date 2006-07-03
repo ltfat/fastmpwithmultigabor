@@ -42,7 +42,7 @@ for ( i = 1:book.numAtoms );
     fwrite( fid, book.atom{i}.pos(c),'ulong');   
     fwrite( fid, book.atom{i}.len(c),'ulong');  
   end;
-  fwrite( fid, book.atom{i},'double');
+  fwrite( fid, book.atom{i}.amp,'double');
 
   switch book.atom{i}.type,
 
@@ -79,7 +79,23 @@ for ( i = 1:book.numAtoms );
     fwrite( fid, book.atom{i}.nyquistPart, 'double');
     fwrite( fid, book.atom{i}.realPart, 'double');
     fwrite( fid, book.atom{i}.hilbertPart, 'double');
+    
+   case 'mdct',
+    fprintf( fid, '%s\n', book.atom{i}.windowType);
+    fwrite( fid, book.atom{i}.windowOpt, 'double' );
+    fwrite( fid, book.atom{i}.freq, 'double' );
+    
+   case 'mdst',
+    fprintf( fid, '%s\n', book.atom{i}.windowType);
+    fwrite( fid, book.atom{i}.windowOpt, 'double' );
+    fwrite( fid, book.atom{i}.freq, 'double' ); 
   
+   case 'mclt',
+    fprintf( fid, '%s\n', book.atom{i}.windowType);
+    fwrite( fid, book.atom{i}.windowOpt, 'double' );
+    fwrite( fid, book.atom{i}.freq, 'double' );
+    fwrite( fid, book.atom{i}.phase, 'double' );
+    
   end
 end
 

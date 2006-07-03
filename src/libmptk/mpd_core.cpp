@@ -441,7 +441,7 @@ unsigned short int MP_Mpd_Core_c::step() {
     book->atom[book->numAtoms-1]->info( stderr );
     //state = ( state | MPD_INCREASING_ENERGY );
   }
-  if ( (residualEnergyBefore - residualEnergy) < 5e-4 ) {
+  /*if ( (residualEnergyBefore - residualEnergy) < 5e-4 ) {
     mp_warning_msg( func, "At iteration [%lu]: the energy decreases very slowly !"
 		    " Before: [%g] Now: [%g] Diff: [%g]\n",
 		    numIter, residualEnergyBefore, residualEnergy, residualEnergyBefore - residualEnergy );
@@ -473,7 +473,7 @@ unsigned short int MP_Mpd_Core_c::step() {
     fflush( stderr );
     exit( 0 );*/
     /* \BORK BORK BORK */
-  }
+  /*}*/
 
   mp_debug_msg( MP_DEBUG_MPD_LOOP, func, "EXITING iteration [%lu]/[%lu].\n", numIter, stopAfterIter );
   mp_debug_msg( MP_DEBUG_MPD_LOOP, func, "Next report hit is [%lu].\n", nextReportHit );

@@ -55,6 +55,13 @@ export_headers = mp_types.h \
 	atom_classes/dirac_atom.h atom_classes/dirac_block.h         \
 	atom_classes/gabor_atom.h atom_classes/gabor_block.h         \
 	atom_classes/harmonic_atom.h atom_classes/harmonic_block.h   \
+	atom_classes/mclt_abstract_block.h \
+	atom_classes/mdct_block.h \
+	atom_classes/mdct_atom.h \
+	atom_classes/mclt_block.h \
+	atom_classes/mclt_atom.h \
+	atom_classes/mdst_block.h \
+	atom_classes/mdst_atom.h \
 	atom_classes/chirp_block.h         \
 	atom_classes/anywave_atom.h atom_classes/anywave_block.h \
 	atom_classes/anywave_hilbert_atom.h atom_classes/anywave_hilbert_block.h\
@@ -89,12 +96,19 @@ libmptk_a_SOURCES = mptk.h header.h $(export_headers) regression_constants.h\
 	convolution.cpp \
         atom_classes/dirac_atom.cpp atom_classes/dirac_block.cpp         \
         atom_classes/gabor_atom.cpp atom_classes/gabor_block.cpp         \
-        atom_classes/harmonic_atom.cpp atom_classes/harmonic_block.cpp         \
+        atom_classes/harmonic_atom.cpp atom_classes/harmonic_block.cpp   \
         atom_classes/chirp_block.cpp         \
 	atom_classes/anywave_atom.cpp atom_classes/anywave_block.cpp \
-	atom_classes/anywave_hilbert_atom.cpp atom_classes/anywave_hilbert_block.cpp\
-	atom_classes/constant_atom.cpp atom_classes/constant_block.cpp\
-	atom_classes/nyquist_atom.cpp atom_classes/nyquist_block.cpp\
+	atom_classes/anywave_hilbert_atom.cpp atom_classes/anywave_hilbert_block.cpp \
+	atom_classes/mclt_abstract_block.cpp \
+	atom_classes/mdct_block.cpp \
+	atom_classes/mdct_atom.cpp  \
+	atom_classes/mclt_block.cpp \
+	atom_classes/mclt_atom.cpp  \
+	atom_classes/mdst_block.cpp \
+	atom_classes/mdst_atom.cpp  \
+	atom_classes/constant_atom.cpp atom_classes/constant_block.cpp \
+	atom_classes/nyquist_atom.cpp atom_classes/nyquist_block.cpp   \
 	atom_classes/dict_scanner.lpp        \
 	atom_classes/block_io_interface.cpp  \
 	dict.cpp mask.cpp book.cpp tfmap.cpp \

@@ -284,6 +284,32 @@ unsigned long int make_window( Dsp_Win_t *out,
     centerPoint = (length-1) >> 1;
     break;
 
+    /* Kaiser Bessel Derived window */
+  case DSP_KBD_WIN:
+    if (optional < 0) {
+      fprintf( stderr, "The parameter of KBD window should be positive  in make_window.\n" );
+      return(0);
+      break;
+    }
+    double sumvalue = 0.0;
+    for ( i = 0;            /* -> The window is symmetric, */
+	  i < (length>>1);  /*    compute only half of it. */
+	  i++, p1++, p2-- ) {
+      sumvalue += BesselI0(DSP_WIN_PI * optional * sqrt(1.0 - pow(4.0*i/length - 1.0, 2)));
+      newPoint = sqrt(sumvalue);
+      *p2 = *p1 = (Dsp_Win_t)newPoint;
+      energy += ( 2 * newPoint * newPoint );
+    }
+    /* If the length is odd, add the missing center point */
+    if ( (length%2) == 1 ) {
+      newPoint = BesselI0(DSP_WIN_PI * optional * sqrt(1.0 - pow(4.0*i/length - 1.0, 2)));
+      *p1 = (Dsp_Win_t)newPoint;
+      energy += ( newPoint * newPoint );
+    }
+    /* Locate the center point (= the first maximum of the window) */
+    centerPoint = (length-1) >> 1;
+    break;
+
     /************************/
     /* Asymmetrical windows */
     /************************/
@@ -374,6 +400,7 @@ unsigned char window_type_is_ok(const unsigned char type) {
   case DSP_GAUSS_WIN :
   case DSP_EXPONENTIAL_WIN :
   case DSP_FOF_WIN :
+  case DSP_KBD_WIN :
     return(type);
     break;
   default :
@@ -399,6 +426,7 @@ unsigned char window_needs_option(const unsigned char type) {
   case DSP_HAMGEN_WIN :
   case DSP_GAUSS_WIN :
   case DSP_EXPONENTIAL_WIN :
+  case DSP_KBD_WIN :
     return(0==0);
     break;
     /* An unknown window doesn't need anything: */
@@ -431,6 +459,8 @@ unsigned char window_type(const char * name) {
     return DSP_EXPONENTIAL_WIN;
   else if (!strcmp(name,"fof"))
     return DSP_FOF_WIN;
+  else if (!strcmp(name,"kbd"))
+    return DSP_KBD_WIN;
   else 
     return DSP_UNKNOWN_WIN;
 }
@@ -471,9 +501,37 @@ char * window_name(const unsigned char type) {
   case DSP_FOF_WIN :
     return("fof");
     break;
+  case DSP_KBD_WIN :
+    return("kbd");
+    break;
   default :
     return(NULL);
     break;
   }
 }
 
+double BesselI0(double x) {
+   double denominator;
+   double numerator;
+   double z;
+
+   if (x == 0.0) {
+      return 1.0;
+   } else {
+      z = x * x;
+      numerator = (z* (z* (z* (z* (z* (z* (z* (z* (z* (z* (z* (z* (z* 
+                     (z* 0.210580722890567e-22  + 0.380715242345326e-19 ) +
+                         0.479440257548300e-16) + 0.435125971262668e-13 ) +
+                         0.300931127112960e-10) + 0.160224679395361e-7  ) +
+                         0.654858370096785e-5)  + 0.202591084143397e-2  ) +
+                         0.463076284721000e0)   + 0.754337328948189e2   ) +
+                         0.830792541809429e4)   + 0.571661130563785e6   ) +
+                         0.216415572361227e8)   + 0.356644482244025e9   ) +
+                         0.144048298227235e10);
+
+      denominator = (z*(z*(z-0.307646912682801e4)+
+                       0.347626332405882e7)-0.144048298227235e10);
+   }
+
+   return -numerator/denominator;
+}
