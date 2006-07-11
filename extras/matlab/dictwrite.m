@@ -37,6 +37,8 @@ fprintf(fidDict, '<dict>\n');
 
 numTables = 0;
 
+dict.numBlocks = length(dict.block);
+
 for blockIdx = 1:dict.numBlocks
 
   b = dict.block{blockIdx};

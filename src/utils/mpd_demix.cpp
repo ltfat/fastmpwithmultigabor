@@ -1048,6 +1048,14 @@ int main( int argc, char **argv ) {
     /* Store the max atom (with its original amplitude) */
     book[maxSrc]->append( maxAtom );
 
+    /*-----------------------------------------------------------------*/
+    /* -- Keep track of the support where the signal has been modified */
+    /*-----------------------------------------------------------------*/
+    for ( j = 0; j < numSources; j++ ) {
+      dict[j]->touch[0].pos = maxAtom->support[0].pos;
+      dict[j]->touch[0].len = maxAtom->support[0].len;
+    }
+
     /*----------------------------*/
     /* ---- Save the decay/compute the snr if needed */
     if ( decay ) {
