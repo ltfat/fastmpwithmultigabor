@@ -362,7 +362,7 @@ MP_Block_c* MP_Scan_Info_c::pop_block( MP_Signal_c *signal ) {
     /* - filename: */
     if (!tableFileNameIsSet) {
       if (globTableFileNameIsSet) {
-	strcmp(tableFileName, globTableFileName);
+	strcpy(tableFileName, globTableFileName);
 	tableFileNameIsSet = true;
       }
       else {
@@ -403,7 +403,7 @@ MP_Block_c* MP_Scan_Info_c::pop_block( MP_Signal_c *signal ) {
     /* - filename: */
     if (!tableFileNameIsSet) {
       if (globTableFileNameIsSet) {
-	strcmp(tableFileName, globTableFileName);
+	strcpy(tableFileName, globTableFileName);
 	tableFileNameIsSet = true;
       }
       else {

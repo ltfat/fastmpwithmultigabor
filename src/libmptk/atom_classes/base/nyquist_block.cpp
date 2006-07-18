@@ -206,7 +206,7 @@ void MP_Nyquist_Block_c::update_frame(unsigned long int frameIdx,
   /* Fill the mag array: */
   for ( chanIdx = 0; chanIdx < numChans; chanIdx++ ) {
     
-    assert( s->channel[chanIdx] + inShift + filterLen <= s->numSamples );
+    assert( s->channel[chanIdx] + inShift + filterLen <= s->channel[0] + s->numSamples );
 
     ip = 0.0;
     for (t = 0, pAmp = s->channel[chanIdx] + inShift;

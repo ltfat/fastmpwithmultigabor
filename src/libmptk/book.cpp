@@ -250,16 +250,18 @@ unsigned long int MP_Book_c::load( FILE *fid ) {
   }
 
   /* Check the global data fields */
+
   if ( numChans != fidNumChans ) {
     mp_warning_msg( func, "The book object contains a number of channels [%i] different from"
-		    " the one read in the stream [%i] (probably more, from a previous initialization).\n",
+		    " the one read in the stream [%i].\n",
 		    numChans, fidNumChans );
   }
   if ( numSamples != fidNumSamples ) {
     mp_warning_msg( func, "The book object contains a number of samples [%lu] different from"
-		    " the one read in the stream [%lu] (probably more, from a previous initialization).\n",
+		    " the one read in the stream [%lu].\n",
 		    numSamples, fidNumSamples );
   }
+
   if ( (sampleRate != 0) && (sampleRate != fidSampleRate) ) {
     mp_warning_msg( func, "The book object contains a sample rate [%i] different from"
 		    " the one read in the stream [%i]. Keeping the new sample rate [%i].\n",

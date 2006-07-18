@@ -1246,7 +1246,6 @@ int main( int argc, char **argv ) {
   /* Clean the house */
   free( srcSequence ); free( mixer ); free( Ah ); delete(inSignal); delete[](sigArray); delete[](book);
   free_mem( dict, numSources, decay );
-  free( srcSequence );
 
   if ( !MPD_QUIET ) fprintf( stderr, "mpd_demix msg -- Have a nice day !\n" );
   fflush( stderr );
