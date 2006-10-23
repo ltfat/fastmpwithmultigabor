@@ -61,7 +61,7 @@
  *
  * \sa build_waveform()
  */
-class MP_Harmonic_Atom_c: public MP_Gabor_Atom_c {
+class MP_Harmonic_Atom_c:public MP_Gabor_Atom_c {
 
   /********/
   /* DATA */
