@@ -149,7 +149,7 @@ public:
    *
    * For each channel \a chanIdx, the waveform is given by the expression
    * \f[
-   * \mbox{window}(t) \cdot \mbox{amp} \cdot cos \left[  \frac{\pi}{L} \left( t + \frac{1}{2} + \frac{L}{2} \right + \mbox{phase}\right ) \left( f + \frac{1}{2} \right) \right]
+   * \mbox{window}(t) \cdot \mbox{amp} \cdot cos \left[  \frac{\pi}{L} \left( t + \frac{1}{2} + \frac{L}{2} + \mbox{phase} \right) \left( f + \frac{1}{2} \right) \right]
    * \f]
    */
   virtual void build_waveform( MP_Sample_t *outBuffer );

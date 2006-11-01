@@ -185,7 +185,7 @@ public:
    * \f]
    * and for MCLT atoms :
    * \f[
-   * \mbox{window}(t) \cdot \mbox{amp} \cdot cos \left[  \frac{\pi}{L} \left( t + \frac{1}{2} + \frac{L}{2} \right + \mbox{phase}\right ) \left( f + \frac{1}{2} \right) \right]
+   * \mbox{window}(t) \cdot \mbox{amp} \cdot cos \left[  \frac{\pi}{L} \left( t + \frac{1}{2} + \frac{L}{2}  + \mbox{phase} \right) \left( f + \frac{1}{2} \right) \right]
    * \f]
    */
   unsigned int create_atom( MP_Atom_c **atom,
