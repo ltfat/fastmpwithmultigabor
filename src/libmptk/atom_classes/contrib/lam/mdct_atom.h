@@ -29,8 +29,8 @@
 
 /**********************************************************/
 /*                                                	  */
-/* DEFINITION OF THE mdct ATOM CLASS,            	  */
-/* RELEVANT TO THE mdct TIME-FREQUENCY TRANSFORM 	  */
+/* DEFINITION OF THE MDCT ATOM CLASS,            	  */
+/* RELEVANT TO THE MDCT TIME-FREQUENCY TRANSFORM 	  */
 /*                                                	  */
 /**********************************************************/
 
@@ -40,10 +40,23 @@
 
 
 /*******************************/
-/* mdct ATOM CLASS    	       */
+/* MDCT ATOM CLASS    	       */
 /*******************************/
 
-
+/**
+ * \brief A class that adds the specification of MDCT atoms to the base Atom class.
+ *
+ * The Modified Discrete Cosine Transform (MDCT) also called Time Domain Alias Cancellation (TDAC) or 
+ * Modulated Lapped Transform (MLT) is commonly used to implement block transform coding in audio
+ * compression.
+ * - A reference is: H. S. Malvar, Signal Processing with Lapped Transforms. Boston, MA:
+ * Artech House, 1992.
+ * - A reference for the coding application is: S. Shlien, "The modulated lapped transform, its 
+ * time-varying forms, and applications to audio coding," IEEE Trans. Speech Audio Processing,
+ * vol. 5, pp. 359-366, July 1997.
+ *
+ * \sa build_waveform()
+ */
 class MP_Mdct_Atom_c: public MP_Atom_c {
 
   /********/
@@ -133,6 +146,10 @@ public:
    * \param outBuffer the array of size \b totalChanLen which is filled with the  concatenated 
    * waveforms of all channels.
    *
+   * For each channel \a chanIdx, the waveform is given by the expression
+   * \f[
+   * \mbox{window}(t) \cdot \mbox{amp} \cdot cos \left[  \frac{\pi}{L} \left( t + \frac{1}{2} + \frac{L}{2} \right) \left( f + \frac{1}{2} \right) \right]
+   * \f]
    */
   virtual void build_waveform( MP_Sample_t *outBuffer );
 

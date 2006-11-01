@@ -29,8 +29,8 @@
 
 /****************************************************************/
 /*                                                		*/
-/* DEFINITION OF THE mdst BLOCK CLASS           	 	*/
-/* RELEVANT TO THE mdst TIME-FREQUENCY TRANSFORM 		*/
+/* DEFINITION OF THE MDST BLOCK CLASS           	 	*/
+/* RELEVANT TO THE MDST TIME-FREQUENCY TRANSFORM 		*/
 /*                                                		*/
 /****************************************************************/
 
@@ -40,9 +40,12 @@
 
 
 /********************************/
-/* mdst BLOCK CLASS    		*/
+/* MDST BLOCK CLASS    		*/
 /********************************/
 
+/** \brief Blocks corresponding to MDST frames 
+ *
+ */
 class MP_Mdst_Block_c:public MP_Mclt_Abstract_Block_c {
 
   /********/
@@ -68,6 +71,8 @@ public:
    * \param filterLen the length of the signal window, in number of samples
    * \param windowType the window type (see the doc of libdsp_windows.h)
    * \param windowOption the optional window parameter.
+   *
+   * Warning: In this case, the window type must be rectangle, cosine or kbd. 
    */
   static MP_Mdst_Block_c* init( MP_Signal_c *s,
 				 const unsigned long int filterLen,
@@ -137,13 +142,22 @@ public:
    * \param maxFilterIdx an unsigned long int* pointer to return the index of
    * the maximum inner product
    *
+   * On each frame, this method computes the square of the correlation values
+   * normalized by the atom's energy
+   *
+   * \sa MP_Block_c::update_frame()
+   * \sa MP_Block_c::update_ip()
    */
   virtual void update_frame( unsigned long int frameIdx, 
 			     MP_Real_t *maxCorr, 
 			     unsigned long int *maxFilterIdx ); 
 
-  /** \brief Creates a new MDCT atom corresponding to (frameIdx,filterIdx)
+  /** \brief Creates a new MDST atom corresponding to (frameIdx,filterIdx)
    * 
+   * The waveform of a MDST atom is
+   * \f[
+   * \mbox{window}(t) \cdot \mbox{amp} \cdot sin \left[  \frac{\pi}{L} \left( t + \frac{1}{2} + \frac{L}{2} \right) \left( f + \frac{1}{2} \right) \right]
+   * \f]
    */
   unsigned int create_atom( MP_Atom_c **atom,
 			    const unsigned long int frameIdx,

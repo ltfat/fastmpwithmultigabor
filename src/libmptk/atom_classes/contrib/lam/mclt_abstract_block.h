@@ -27,12 +27,12 @@
 /*                                                                            */
 /******************************************************************************/
 
-/****************************************************************/
-/*                                                		*/
-/* DEFINITION OF THE mclt_abstract BLOCK CLASS            	*/
-/* RELEVANT TO THE mclt_abstract TIME-FREQUENCY TRANSFORM 	*/
-/*                                                		*/
-/****************************************************************/
+/*******************************************************************/
+/*                                                		   */
+/* DEFINITION OF THE MCLT_ABSTRACT BLOCK CLASS            	   */
+/* ABSTRACT CLASS FOR THE MCLT/MDCT/MDST TIME-FREQUENCY TRANSFORMS */
+/*                                                		   */
+/*******************************************************************/
 
 
 #ifndef __mclt_abstract_block_h_
@@ -40,9 +40,12 @@
 
 
 /********************************/
-/* mclt_abstract BLOCK CLASS    */
+/* MCLT_ABSTRACT BLOCK CLASS    */
 /********************************/
 
+/** \brief Abstract class for the MCLT/MDCT/MDST blocks class
+ *
+ */
 class MP_Mclt_Abstract_Block_c:public MP_Block_c {
 
   /********/
@@ -119,10 +122,13 @@ public:
 
 public:
 
+  /** \brief Check the validity of the parameters: window size and fft size */
   int check_fftsize( const unsigned long int setFilterLen, const unsigned long int setFftSize );
 
+  /** \brief Initialize the MCLT transform: allocate and fill the buffers to perform pre- and post-modulation */
   virtual void init_transform( void );
 
+  /** \brief Compute the MCLT transform */
   virtual void compute_transform(MP_Real_t *in);
 };
  

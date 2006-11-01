@@ -43,7 +43,16 @@
 /* mclt ATOM CLASS    	       */
 /*******************************/
 
-
+/**
+ * \brief A class that adds the specification of MCLT atoms to the base Atom class.
+ *
+ * The Modulated Complex Lapped Transform (MDCT) is the complex extension of the Modulated
+ * Lapped Transform (or MDCT). 
+ * - The reference is: H. Malvar, "A modulated complex lapped transform and its applications to
+ * audio processing", ICASSP'99, 1999.
+ *
+ * \sa build_waveform()
+ */
 class MP_Mclt_Atom_c: public MP_Atom_c {
 
   /********/
@@ -140,8 +149,7 @@ public:
    *
    * For each channel \a chanIdx, the waveform is given by the expression
    * \f[
-   * \mbox{amp} \cdot \mbox{window}(t) \cdot \cos\left(2\pi \left(\mbox{chirp} \cdot
-   * \frac{t^2}{2} + \mbox{freq} \cdot t\right)+ \mbox{phase}\right)
+   * \mbox{window}(t) \cdot \mbox{amp} \cdot cos \left[  \frac{\pi}{L} \left( t + \frac{1}{2} + \frac{L}{2} \right + \mbox{phase}\right ) \left( f + \frac{1}{2} \right) \right]
    * \f]
    */
   virtual void build_waveform( MP_Sample_t *outBuffer );

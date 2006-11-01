@@ -29,8 +29,8 @@
 
 /**********************************************************/
 /*                                                	  */
-/* DEFINITION OF THE mdst ATOM CLASS,            	  */
-/* RELEVANT TO THE mdst TIME-FREQUENCY TRANSFORM 	  */
+/* DEFINITION OF THE MDST ATOM CLASS,            	  */
+/* RELEVANT TO THE MDST TIME-FREQUENCY TRANSFORM 	  */
 /*                                                	  */
 /**********************************************************/
 
@@ -40,10 +40,19 @@
 
 
 /*******************************/
-/* mdst ATOM CLASS    	       */
+/* MDST ATOM CLASS    	       */
 /*******************************/
 
-
+/**
+ * \brief A class that adds the specification of MDST atoms to the base Atom class.
+ *
+ * The Modified Discrete Sine Transform (MDST) is related to the MDCT and MCLT transforms.
+ * Whereas the MDCT is the real part of the MCLT, the MDST is the imaginary part of the MCLT.
+ * - A reference is: H. S. Malvar, Signal Processing with Lapped Transforms. Boston, MA:
+ * Artech House, 1992.
+ *
+ * \sa build_waveform()
+ */
 class MP_Mdst_Atom_c: public MP_Atom_c {
 
   /********/
@@ -131,6 +140,10 @@ public:
    * \param outBuffer the array of size \b totalChanLen which is filled with the  concatenated 
    * waveforms of all channels.
    *
+   * For each channel \a chanIdx, the waveform is given by the expression
+   * \f[
+   * \mbox{window}(t) \cdot \mbox{amp} \cdot sin \left[  \frac{\pi}{L} \left( t + \frac{1}{2} + \frac{L}{2} \right) \left( f + \frac{1}{2} \right) \right]
+   * \f]
    */
   virtual void build_waveform( MP_Sample_t *outBuffer );
 

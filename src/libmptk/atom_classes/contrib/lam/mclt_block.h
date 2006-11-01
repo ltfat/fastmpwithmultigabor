@@ -29,8 +29,8 @@
 
 /****************************************************************/
 /*                                                		*/
-/* DEFINITION OF THE mclt BLOCK CLASS           	 	*/
-/* RELEVANT TO THE mclt TIME-FREQUENCY TRANSFORM 		*/
+/* DEFINITION OF THE MCLT BLOCK CLASS           	 	*/
+/* RELEVANT TO THE MCLT TIME-FREQUENCY TRANSFORM 		*/
 /*                                                		*/
 /****************************************************************/
 
@@ -40,9 +40,12 @@
 
 
 /********************************/
-/* mclt BLOCK CLASS    		*/
+/* MCLT BLOCK CLASS    		*/
 /********************************/
 
+/** \brief Blocks corresponding to MCLT frames 
+ *
+ */
 class MP_Mclt_Block_c:public MP_Mclt_Abstract_Block_c {
   /********/
   /* DATA */
@@ -86,7 +89,8 @@ public:
   /***************************/
 
 public:
-  /** \brief Factory function for a MCLT block
+
+  /** \brief Factory function for a generalized mclt block
    *
    * \param filterLen the length of the signal window, in number of samples
    * \param filterShift the window shift, in number of samples
@@ -94,7 +98,6 @@ public:
    * \param windowType the window type (see the doc of libdsp_windows.h)
    * \param windowOption the optional window parameter.
    * 
-   * \sa MP_FFT_Interface_c::numFreqs MP_FFT_Interface_c::exec_complex()
    */
   static MP_Mclt_Block_c* init( MP_Signal_c *s,
 				 const unsigned long int filterLen,
@@ -103,6 +106,14 @@ public:
 				 const unsigned char windowType,
 				 const double windowOption );
 
+  /** \brief Factory function for a strict mclt block
+   *
+   * \param filterLen the length of the signal window, in number of samples
+   * \param windowType the window type (see the doc of libdsp_windows.h)
+   * \param windowOption the optional window parameter.
+   *
+   * Warning: In this case, the window type must be rectangle, cosine or kbd. 
+   */
   static MP_Mclt_Block_c* init( MP_Signal_c *s,
 				 const unsigned long int filterLen,
 				 const unsigned char windowType,
@@ -163,11 +174,19 @@ public:
 			     MP_Real_t *maxCorr, 
 			     unsigned long int *maxFilterIdx ); 
 
-  /** \brief Creates a new Mclt atom corresponding to (frameIdx,filterIdx)
+  /** \brief Creates a new MCLT atom corresponding to (frameIdx,filterIdx)
    * 
    * The real valued atomic waveform stored in atomBuffer is the projection
    * of the signal on the subspace spanned by the complex atom and its
-   * conjugate 
+   * conjugate as given generally by
+   * \f[
+   * \frac{\mbox{amp}}{2} \cdot 
+   * \left( e^{i\mbox{phase}} \mbox{atom} + e^{-i\mbox{phase}} \overline{\mbox{atom}}\right)
+   * \f]
+   * and for MCLT atoms :
+   * \f[
+   * \mbox{window}(t) \cdot \mbox{amp} \cdot cos \left[  \frac{\pi}{L} \left( t + \frac{1}{2} + \frac{L}{2} \right + \mbox{phase}\right ) \left( f + \frac{1}{2} \right) \right]
+   * \f]
    */
   unsigned int create_atom( MP_Atom_c **atom,
 			    const unsigned long int frameIdx,
@@ -198,6 +217,39 @@ protected:
    * \param cstCorr pre-computed useful constant related to the atom's autocorrelation.
    * \param outMag output FFT magnitude buffer, only the first numFreqs values are filled.
    *
+   * As explained in Section 3.2.3 (Eq. 3.30) of the Ph.D. thesis of Remi 
+   * Gribonval, for a normalized atom \f$g\f$ with
+   * \f$|\langle g,\overline{g}\rangle|<1\f$ we have
+   * \f[
+   * \mbox{energy} = 
+   * \frac{2}{1-|\langle g,\overline{g}\rangle|^2}
+   *  \cdot \mbox{Real} \left(
+   * |\langle \mbox{sig},g \rangle|^2 -
+   * \langle g,\overline{g}\rangle 
+   * \langle \mbox{sig},g \rangle^2\right)
+   * \f]
+   * so with \f$(\mbox{re},\mbox{im}) = \langle \mbox{sig},g \rangle\f$ 
+   * and \f$(\mbox{reCorrel},\mbox{imCorrel}) = \langle g,\overline{g}\rangle\f$  
+   * and the definition of \a sqCorrel and \a cstCorrel we have
+   *
+   * \f[
+   * \mbox{energy} = 
+   * \mbox{cstCorre} \times
+   * \left(\mbox{re}^2+\mbox{im}^2-
+   * \mbox{reCorrel} *
+   * \left(\mbox{re}^2-\mbox{im}^2\right) +
+   * 2 * \mbox{imCorrel} * \mbox{re} * \mbox{im}
+   * \right)
+   * \f]
+   *
+   * In the case of a real valued atom (\f$\langle g,\overline{g}\rangle = 1\f$)
+   * or when \f$\langle g,\overline{g}\rangle\f$ is very small
+   * we simply have
+   * \f[
+   * \mbox{energy} = \mbox{re}^2+\mbox{im}^2.
+   * \f]
+   * \sa The documentation of exec_complex() gives the expression of \f$(\mbox{re}[k],\mbox{im}[k])\f$
+   * and details about zero padding and the use of numFreqs.
    */  
   void compute_energy( MP_Real_t *in,
 		       MP_Real_t *reCorr, MP_Real_t *imCorr,
