@@ -1,4 +1,4 @@
-function [gaborP,harmP,diracL] = bookplot( book, channel, bwfactor );
+function [gaborP,mdctP, harmP,diracL] = bookplot( book, channel, bwfactor )
 
 % BOOKPLOT  Plot a Matching Pursuit book in the current axes
 %
@@ -29,7 +29,9 @@ function [gaborP,harmP,diracL] = bookplot( book, channel, bwfactor );
 
 %%
 %% Authors:
-%% Sacha Krstulovic & Rémi Gribonval
+%% Sacha Krstulovic & Remi Gribonval
+%% Contributors:
+%% Kamil Adiloglu 
 %% Copyright (C) 2005 IRISA                                              
 %%
 %% This script is part of the Matching Pursuit Library package,
@@ -41,7 +43,7 @@ function [gaborP,harmP,diracL] = bookplot( book, channel, bwfactor );
 %%   $Revision$
 %%
 
-if isstr(book),
+if ischar(book),
    disp('Loading the book...');
    book = bookread( book );
    disp('Done.');
@@ -67,6 +69,10 @@ gaborX = [];
 gaborY = [];
 gaborZ = [];
 gaborC = [];
+mdctX = [];
+mdctY = [];
+mdctZ = [];
+mdctC = [];
 harmX = [];
 harmY = [];
 harmZ = [];
@@ -96,8 +102,28 @@ for i = 1:book.numAtoms,
 		gaborX = [gaborX,pv];
 		gaborY = [gaborY,fv];
 		gaborZ = [gaborZ,av];
-		gaborC = [gaborC,A];
+		gaborC = [gaborC,A];      
 
+	   case 'mdct',
+		pos = atom.pos(channel) / fs;
+		len = atom.len(channel) / fs;
+		bw2 = ( fs / (atom.len(channel)/2) ) / bwfactor;
+		
+        amp = atom.amp(channel);
+        amp = 20*log10(abs(amp));
+        
+		freq = fs * atom.freq;
+		c = 0;
+
+		pos_v = [pos; pos; pos + len; pos + len];
+		freq_v = [freq - bw2; freq + bw2; freq + bw2 + c * len; freq - bw2 + c * len];
+		amp_v = [amp; amp; amp; amp];
+
+		mdctX = [mdctX, pos_v];
+		mdctY = [mdctY, freq_v];
+		mdctZ = [mdctZ, amp_v];
+		mdctC = [mdctC, amp];
+        
 	   case 'harmonic',
 		p = atom.pos(channel)/fs;
 		l = atom.len(channel)/fs;
@@ -139,5 +165,6 @@ for i = 1:book.numAtoms,
 end;
 
 gaborP = patch( gaborX, gaborY, gaborZ, gaborC, 'edgecol', 'none' );
+mdctP = patch( mdctX, mdctY, mdctZ, mdctC, 'edgecol', 'none' );
 harmP  = patch( harmX,  harmY,  harmZ,  harmC,  'edgecol', 'none' );
 diracL = line( diracX, diracY, diracZ, 'color', 'k' );
