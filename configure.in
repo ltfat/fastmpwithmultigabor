@@ -35,8 +35,8 @@
 ##
 
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(mptk,0.5.2)
-AM_INIT_AUTOMAKE(mptk,0.5.2)
+AC_INIT(mptk,0.5.3)
+AM_INIT_AUTOMAKE(mptk,0.5.3)
 
 dnl Check for architecture
 AC_CANONICAL_TARGET
@@ -327,4 +327,3 @@ AC_CONFIG_FILES( Makefile                        \
 
 dnl -- Perform the final AC_OUTPUT
 AC_OUTPUT
-
