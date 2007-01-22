@@ -29,9 +29,9 @@
 /*
  * SVN log:
  *
- * $Author: sacha $
- * $Date: 2005-07-25 21:40:37 +0200 (Mon, 25 Jul 2005) $
- * $Revision: 23 $
+ * $Author$
+ * $Date$
+ * $Revision$
  *
  */
 

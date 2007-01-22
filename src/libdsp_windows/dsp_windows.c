@@ -36,7 +36,8 @@
  */
 
 #include <dsp_windows.h>
-
+#include <math.h>
+#include <string.h>
 #include "mp_system.h"
 
 
@@ -61,6 +62,7 @@ unsigned long int make_window( Dsp_Win_t *out,
   double energy = 0;
   unsigned long int FoFLimit;
   double factor;
+  double sumvalue = 0.0;
   Dsp_Win_t *p1, *p2; /** The address of two points of the window,
 			  symmetrically located around its center,
 			  used to build only half of it when it is symmetric */
@@ -291,7 +293,7 @@ unsigned long int make_window( Dsp_Win_t *out,
       return(0);
       break;
     }
-    double sumvalue = 0.0;
+    
     for ( i = 0;            /* -> The window is symmetric, */
 	  i < (length>>1);  /*    compute only half of it. */
 	  i++, p1++, p2-- ) {
@@ -341,7 +343,7 @@ unsigned long int make_window( Dsp_Win_t *out,
 #define DSP_FOF_DECAY 1e5
     FoFLimit = (unsigned long int)(((double)length+1)/4);
     optional = log( DSP_FOF_DECAY )  / (double)(length+1);
-    factor = M_PI*4/((double)length+1);
+    factor = DSP_WIN_PI*4/((double)length+1);
     for (i = 0; i < FoFLimit; i++ ) {
       newPoint = 0.5 * 
 	( 1.0 - cos( factor * (double)(i+1) ) ) * 

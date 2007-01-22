@@ -41,6 +41,8 @@
  *
  */
 
+#include "mp_pthreads_barrier.h"
+
 
 #ifndef __dict_h_
 #define __dict_h_
@@ -52,7 +54,10 @@
 /** \brief Dictionaries are unions of several blocks used to perform Matching Pursuit.
  */
 class MP_Dict_c {
-
+	
+/** \Self pointer on Mp_dict_c class to pass it as an object in the parallel construct. 
+ */
+ typedef MP_Dict_c Self;
   /********/
   /* DATA */
   /********/
@@ -74,12 +79,45 @@ public:
   MP_Block_c** block;    
   /** \brief Index in the storage space of the block which holds the max inner product */
   unsigned int blockWithMaxIP; 
-
+  /** \brief Tab of MP_Real_t to stock the result of the threads computation */
+  volatile MP_Real_t* val;
   /** \brief Multi-channel support that identifies which part of the signal is different from
    * what it was when the blocks were last updated 
    */
-  MP_Support_t *touch;         
+  MP_Support_t* touch;    
+  
+  /** \brief Struct use to pass the data and the function to the threads for parallel computation */
 
+typedef struct ParallelConstruct
+  {
+  	// Block number (same than thread number)
+    int blocknumber;
+    // Local adress of the MP_Real_t to write for each threads
+    volatile MP_Real_t* val; 
+    // Self pointer to pass object context to the threads
+    Self* parent;
+    // Should the thread exit 
+   bool exit ; 
+
+    // Static function to run the threads and pass the object context via the self pointer
+    static void* c_run(void* a)
+    {
+      ParallelConstruct* f = static_cast<ParallelConstruct*>(a);
+      // Call the the function to compute in parallel
+      f->parent->calcul_max_per_block(f);
+   //  pthread_exit(NULL);
+      return 0;
+    }
+  };   
+   int b;
+/** \tab of thread*/
+   pthread_t *threads;
+/** \tab of task to pass to the threads   */
+  ParallelConstruct *tasks;
+/** \tab of pointer on  barrier for synchronize thread*/
+   barrier **bar;
+   
+   
 
   /***********/
   /* METHODS */
@@ -119,6 +157,7 @@ public:
 protected:
   /* NULL constructor */
   MP_Dict_c();
+
 
 public:
   /* Destructor */
@@ -219,7 +258,9 @@ public:
 private:
   /** \brief Allocate the touch array according to the signal size */
   int alloc_touch( void );
+  /** \private threaded function for update */  
 
+//void mm(int  num, Ptrblock block, Ptrval val, Ptrtouch touch);
 public:
   /** \brief Add a block to a dictionary
    *
@@ -230,8 +271,12 @@ public:
    * if newBlock was initially NULL.
    */
   int add_block( MP_Block_c *newBlock ); 
-
-
+/** \parallel function with ParallelConstruct (tasks) argument */ 
+void calcul_max_per_block(ParallelConstruct* f);
+/** \parallel function with void argument */  
+void calcul_max_per_block(void);
+/** \start a parrallel computing */  
+void parallel_computing(volatile MP_Real_t* tab);
   /** \brief Delete all the blocks from a dictionary
    *
    * \return The number of deleted blocks

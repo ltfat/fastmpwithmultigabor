@@ -55,31 +55,33 @@
 /* FACTORY METHOD          */
 /***************************/
 MP_FFT_Interface_c* MP_FFT_Interface_c::init( const unsigned long int setWindowSize,
-					      const unsigned char setWindowType,
-					      const double setWindowOption,
-					      const unsigned long int setFftSize ) {
+    const unsigned char setWindowType,
+    const double setWindowOption,
+    const unsigned long int setFftSize )
+{
   MP_FFT_Interface_c* fft = NULL;
 
-  if( setFftSize < setWindowSize ) {
-    mp_error_msg( "MP_FFT_Interface_c::init()",
-		  "Can't create a FFT of size %lu smaller than the window size %lu."
-		  " Returning a NULL fft object.\n", setFftSize, setWindowSize);
-    return( NULL );
-  }
+  if ( setFftSize < setWindowSize )
+    {
+      mp_error_msg( "MP_FFT_Interface_c::init()",
+                    "Can't create a FFT of size %lu smaller than the window size %lu."
+                    " Returning a NULL fft object.\n", setFftSize, setWindowSize);
+      return( NULL );
+    }
 
   /* Create the adequate FFT and check the returned address */
 #ifdef USE_FFTW3
   fft = (MP_FFT_Interface_c*) new MP_FFTW_Interface_c( setWindowSize, setWindowType, setWindowOption,
-						       setFftSize );
+        setFftSize );
   if ( fft == NULL ) mp_error_msg( "MP_FFT_Interface_c::init()",
-				   "Instanciation of FFTW_Interface failed."
-				   " Returning a NULL fft object.\n" );
+                                     "Instanciation of FFTW_Interface failed."
+                                     " Returning a NULL fft object.\n" );
 #elif defined(USE_MAC_FFT)
   fft = (MP_FFT_Interface_c*) new MP_MacFFT_Interface_c( setWindowSize, setWindowType, setWindowOption,
-							 setFftSize );
+        setFftSize );
   if ( fft == NULL ) mp_error_msg( "MP_FFT_Interface_c::init()",
-				   "Instanciation of MacFFT_Interface failed."
-				   " Returning a NULL fft object.\n" );
+                                     "Instanciation of MacFFT_Interface failed."
+                                     " Returning a NULL fft object.\n" );
 #else
 #  error "No FFT implementation was found !"
 #endif
@@ -88,21 +90,23 @@ MP_FFT_Interface_c* MP_FFT_Interface_c::init( const unsigned long int setWindowS
 
   /* Check the internal buffers: */
   /* - window: */
-  if ( fft->window == NULL ) {
-    mp_error_msg( "MP_FFT_Interface_c::init()",
-		  "FFT window is NULL. Returning a NULL fft object.\n");
-    delete( fft );
-    return( NULL );
-  }
+  if ( fft->window == NULL )
+    {
+      mp_error_msg( "MP_FFT_Interface_c::init()",
+                    "FFT window is NULL. Returning a NULL fft object.\n");
+      delete( fft );
+      return( NULL );
+    }
   /* - other buffers: */
   if ( ( fft->bufferRe  == NULL ) || ( fft->bufferIm  == NULL ) ||
        ( fft->buffer2Re == NULL ) || ( fft->buffer2Im == NULL ) ||
-       ( fft->inDemodulated == NULL ) ) {
-    mp_error_msg( "MP_FFT_Interface_c::init()",
-		  "One or several of the internal FFT buffers are NULL. Returning a NULL fft object.\n");
-    delete( fft );
-    return( NULL );
-  }
+       ( fft->inDemodulated == NULL ) )
+    {
+      mp_error_msg( "MP_FFT_Interface_c::init()",
+                    "One or several of the internal FFT buffers are NULL. Returning a NULL fft object.\n");
+      delete( fft );
+      return( NULL );
+    }
 
   /* If everything went OK, just pop it ! */
   return( fft );
@@ -115,9 +119,10 @@ MP_FFT_Interface_c* MP_FFT_Interface_c::init( const unsigned long int setWindowS
 /***********************************/
 /* Constructor with a typed window */
 MP_FFT_Interface_c::MP_FFT_Interface_c( const unsigned long int setWindowSize,
-					const unsigned char setWindowType,
-					const double setWindowOption,
-					const unsigned long int setFftSize ) {
+                                        const unsigned char setWindowType,
+                                        const double setWindowOption,
+                                        const unsigned long int setFftSize )
+{
   extern MP_Win_Server_c MP_GLOBAL_WIN_SERVER;
 
   /* Set values */
@@ -133,10 +138,10 @@ MP_FFT_Interface_c::MP_FFT_Interface_c( const unsigned long int setWindowSize,
   windowCenter = MP_GLOBAL_WIN_SERVER.get_window( &window, windowSize, windowType, windowOption );
 
   /* Allocate some other buffers */
-  bufferRe = (MP_Real_t*) malloc(sizeof(MP_Real_t)*numFreqs);  
+  bufferRe = (MP_Real_t*) malloc(sizeof(MP_Real_t)*numFreqs);
   bufferIm = (MP_Real_t*) malloc(sizeof(MP_Real_t)*numFreqs);
 
-  buffer2Re = (MP_Real_t*) malloc(sizeof(MP_Real_t)*numFreqs);  
+  buffer2Re = (MP_Real_t*) malloc(sizeof(MP_Real_t)*numFreqs);
   buffer2Im = (MP_Real_t*) malloc(sizeof(MP_Real_t)*numFreqs);
 
   inDemodulated = (MP_Sample_t*) malloc(sizeof(MP_Sample_t)*windowSize);
@@ -145,7 +150,8 @@ MP_FFT_Interface_c::MP_FFT_Interface_c( const unsigned long int setWindowSize,
 
 /**************/
 /* Destructor */
-MP_FFT_Interface_c::~MP_FFT_Interface_c( ) {
+MP_FFT_Interface_c::~MP_FFT_Interface_c( )
+{
 
   if ( bufferRe )      free( bufferRe );
   if ( bufferIm )      free( bufferIm );
@@ -167,7 +173,8 @@ MP_FFT_Interface_c::~MP_FFT_Interface_c( ) {
 
 /**************************/
 /* Get the magnitude only */
-void MP_FFT_Interface_c::exec_mag( MP_Sample_t *in, MP_Real_t *mag ) {
+void MP_FFT_Interface_c::exec_mag( MP_Sample_t *in, MP_Real_t *mag )
+{
 
   unsigned long int i;
   double re, im;
@@ -180,16 +187,17 @@ void MP_FFT_Interface_c::exec_mag( MP_Sample_t *in, MP_Real_t *mag ) {
   exec_complex( in, bufferRe, bufferIm );
 
   /* Get the resulting magnitudes */
-  for ( i=0; i<numFreqs; i++ ) {
-    re = bufferRe[i];
-    im = bufferIm[i];
+  for ( i=0; i<numFreqs; i++ )
+    {
+      re = bufferRe[i];
+      im = bufferIm[i];
 
 #ifdef MP_MAGNITUDE_IS_SQUARED
-    *(mag+i) = (MP_Real_t)( re*re+im*im );
+      *(mag+i) = (MP_Real_t)( re*re+im*im );
 #else
-    *(mag+i) = (MP_Real_t)( sqrt( re*re+im*im ) );
+      *(mag+i) = (MP_Real_t)( sqrt( re*re+im*im ) );
 #endif
-  }
+    }
 
 }
 
@@ -197,8 +205,9 @@ void MP_FFT_Interface_c::exec_mag( MP_Sample_t *in, MP_Real_t *mag ) {
 /****************************************************/
 /* Get the complex result with a demodulated signal */
 void MP_FFT_Interface_c::exec_complex_demod( MP_Sample_t *in,
-					     MP_Sample_t *demodFuncRe, MP_Sample_t *demodFuncIm,
-					     MP_Real_t *re, MP_Real_t *im ) {
+    MP_Sample_t *demodFuncRe, MP_Sample_t *demodFuncIm,
+    MP_Real_t *re, MP_Real_t *im )
+{
 
   unsigned long int i;
 
@@ -211,26 +220,29 @@ void MP_FFT_Interface_c::exec_complex_demod( MP_Sample_t *in,
 
   /* RE */
   /* Demodulate the input signal with the real part of the demodulation function */
-  for ( i=0; i<windowSize; i++ ) {
-    *(inDemodulated+i) = (double)(*(demodFuncRe+i)) * (double)(*(in+i));
-  }
+  for ( i=0; i<windowSize; i++ )
+    {
+      *(inDemodulated+i) = (double)(*(demodFuncRe+i)) * (double)(*(in+i));
+    }
   /* Execute the FFT */
   exec_complex( inDemodulated, bufferRe, bufferIm );
 
   /* IM */
   /* Demodulate the input signal with the imaginary part of the demodulation function */
-  for ( i=0; i<windowSize; i++ ) {
-    *(inDemodulated+i) = (double)(*(demodFuncIm+i)) * (double)(*(in+i));
-  }
+  for ( i=0; i<windowSize; i++ )
+    {
+      *(inDemodulated+i) = (double)(*(demodFuncIm+i)) * (double)(*(in+i));
+    }
   /* Execute the FFT */
   exec_complex( inDemodulated, buffer2Re, buffer2Im );
 
   /* COMBINATION */
   /* Combine both parts to get the final result */
-  for ( i=0; i<numFreqs; i++ ) {
-    *(re+i) = bufferRe[i] - buffer2Im[i];
-    *(im+i) = bufferIm[i] + buffer2Re[i];
-  }
+  for ( i=0; i<numFreqs; i++ )
+    {
+      *(re+i) = bufferRe[i] - buffer2Im[i];
+      *(im+i) = bufferIm[i] + buffer2Re[i];
+    }
 
 }
 
@@ -240,10 +252,11 @@ void MP_FFT_Interface_c::exec_complex_demod( MP_Sample_t *in,
 /*             GENERIC TEST      */
 /*                               */
 /*********************************/
-int MP_FFT_Interface_c::test( const unsigned long int setWindowSize , 
-			      const unsigned char windowType,
-			      const double windowOption,
-			      MP_Sample_t *samples) {
+int MP_FFT_Interface_c::test( const unsigned long int setWindowSize ,
+                              const unsigned char windowType,
+                              const double windowOption,
+                              MP_Sample_t *samples)
+{
 
   MP_FFT_Interface_c* fft = MP_FFT_Interface_c::init( setWindowSize, windowType, windowOption, setWindowSize );
   unsigned long int i;
@@ -251,35 +264,39 @@ int MP_FFT_Interface_c::test( const unsigned long int setWindowSize ,
 
   /* -1- Compute the energy of the analyzed signal multiplied by the analysis window */
   energy1 = 0.0;
-  for (i=0; i < setWindowSize; i++) {
-    amp = samples[i]*(fft->window[i]);
-    energy1 += amp*amp;
-  }
+  for (i=0; i < setWindowSize; i++)
+    {
+      amp = samples[i]*(fft->window[i]);
+      energy1 += amp*amp;
+    }
   /* -2- The resulting complex FFT should be of the same energy multiplied by windowSize */
   energy2 = 0.0;
   fft->exec_complex(samples,fft->bufferRe,fft->bufferIm);
   amp = fft->bufferRe[0];
   energy2 += amp*amp;
-  for (i=1; i< (fft->numFreqs-1); i++) {
-    amp = fft->bufferRe[i];
-    energy2 += 2*amp*amp;
-    amp = fft->bufferIm[i];
-    energy2 += 2*amp*amp;
-  }
+  for (i=1; i< (fft->numFreqs-1); i++)
+    {
+      amp = fft->bufferRe[i];
+      energy2 += 2*amp*amp;
+      amp = fft->bufferIm[i];
+      energy2 += 2*amp*amp;
+    }
   amp = fft->bufferRe[fft->numFreqs-1];
   energy2 += amp*amp;
 
   tmp = fabsf((energy2/(setWindowSize*energy1))-1);
-  if ( tmp < MP_FFT_TEST_PRECISION ) {
-    printf("FFT size [%ld] energy in/out = 1+/-%g OK\n",
-	   setWindowSize,tmp);  
-    return(0);
-  }
-  else {
-    printf("FFT size [%ld] energy |in/out-1|= %g > %g!!!\n",
-	   setWindowSize, tmp, MP_FFT_TEST_PRECISION);  
-    return(1);
-  }
+  if ( tmp < MP_FFT_TEST_PRECISION )
+    {
+      printf("FFT size [%ld] energy in/out = 1+/-%g OK\n",
+             setWindowSize,tmp);
+      return(0);
+    }
+  else
+    {
+      printf("FFT size [%ld] energy |in/out-1|= %g > %g!!!\n",
+             setWindowSize, tmp, MP_FFT_TEST_PRECISION);
+      return(1);
+    }
 
 }
 
@@ -297,27 +314,29 @@ int MP_FFT_Interface_c::test( const unsigned long int setWindowSize ,
 /****/
 /* Constructor where the window is actually generated */
 MP_FFTW_Interface_c::MP_FFTW_Interface_c( const unsigned long int setWindowSize,
-					  const unsigned char setWindowType,
-					  const double setWindowOption,
-					  const unsigned long int setFftSize )
-  :MP_FFT_Interface_c( setWindowSize, setWindowType, setWindowOption, setFftSize ) {
+    const unsigned char setWindowType,
+    const double setWindowOption,
+    const unsigned long int setFftSize )
+    :MP_FFT_Interface_c( setWindowSize, setWindowType, setWindowOption, setFftSize )
+{
 
   /* FFTW takes integer FFT sizes => check if the cast (int)(fftCplxSize) will overflow. */
   assert( fftSize <= INT_MAX );
-
   /* Allocate the necessary buffers */
   inPrepared =       (double*) fftw_malloc( sizeof(double)       * fftSize );
   out        = (fftw_complex*) fftw_malloc( sizeof(fftw_complex) * numFreqs );
-  /* Call the FFTW planning utility */
+
+  /* Create plans */
   p = fftw_plan_dft_r2c_1d( (int)(fftSize), inPrepared, out, FFTW_MEASURE );
   iP = fftw_plan_dft_c2r_1d( (int)(fftSize), out, inPrepared, FFTW_MEASURE );
-  
+
 }
 
 
 /**************/
 /* Destructor */
-MP_FFTW_Interface_c::~MP_FFTW_Interface_c() {
+MP_FFTW_Interface_c::~MP_FFTW_Interface_c()
+{
 
   fftw_free( inPrepared );
   fftw_free( out );
@@ -332,7 +351,10 @@ MP_FFTW_Interface_c::~MP_FFTW_Interface_c() {
 
 /**************************/
 /* Get the complex result */
-void MP_FFTW_Interface_c::exec_complex( MP_Sample_t *in, MP_Real_t *re, MP_Real_t *im ) {
+
+
+void MP_FFTW_Interface_c::exec_complex( MP_Sample_t *in, MP_Real_t *re, MP_Real_t *im )
+{
 
   unsigned long int i;
   double re_out, im_out;
@@ -347,13 +369,15 @@ void MP_FFTW_Interface_c::exec_complex( MP_Sample_t *in, MP_Real_t *re, MP_Real_
   assert( window  != NULL );
 
   /* Copy and window the input signal */
-  for ( i=0; i<windowSize; i++ ) {
-    *(inPrepared+i) = (double)(*(window+i)) * (double)(*(in+i));
-  }
+  for ( i=0; i<windowSize; i++ )
+    {
+      *(inPrepared+i) = (double)(*(window+i)) * (double)(*(in+i));
+    }
   /* Perform the zero padding */
-  for ( i=windowSize; i<fftSize; i++ ) {
-    *(inPrepared+i) = 0.0;
-  }
+  for ( i=windowSize; i<fftSize; i++ )
+    {
+      *(inPrepared+i) = 0.0;
+    }
 
   /* Execute the FFT described by plan "p"
      (which itself points to the right input/ouput buffers,
@@ -361,12 +385,13 @@ void MP_FFTW_Interface_c::exec_complex( MP_Sample_t *in, MP_Real_t *re, MP_Real_
   fftw_execute( p );
 
   /* Cast and copy the result */
-  for ( i=0; i<numFreqs; i++ ) {
-    re_out = out[i][0];
-    im_out = out[i][1];
-    *(re+i) = (MP_Real_t)( re_out );
-    *(im+i) = (MP_Real_t)( im_out );
-  }
+  for ( i=0; i<numFreqs; i++ )
+    {
+      re_out = out[i][0];
+      im_out = out[i][1];
+      *(re+i) = (MP_Real_t)( re_out );
+      *(im+i) = (MP_Real_t)( im_out );
+    }
   /* Ensure that the imaginary part of the DC and Nyquist frequency components are zero */
   *(im) = (MP_Real_t)0.0;
   *(im+numFreqs-1) = (MP_Real_t)0.0;
@@ -376,7 +401,8 @@ void MP_FFTW_Interface_c::exec_complex( MP_Sample_t *in, MP_Real_t *re, MP_Real_
 
 /***********************/
 /* Get the real result */
-void MP_FFTW_Interface_c::exec_complex_inverse( MP_Real_t *re, MP_Real_t *im, MP_Sample_t *output ) {
+void MP_FFTW_Interface_c::exec_complex_inverse( MP_Real_t *re, MP_Real_t *im, MP_Sample_t *output )
+{
 
   unsigned long int i;
 //  double re_out, im_out;
@@ -387,10 +413,11 @@ void MP_FFTW_Interface_c::exec_complex_inverse( MP_Real_t *re, MP_Real_t *im, MP
   assert( im != NULL );
 
   /* Copy and window the input frequency components */
-  for ( i=0; i<numFreqs; i++ ) {
-    out[i][0] = (double)(*(window+i)) * (double)(*(re+i));
-    out[i][1] = (double)(*(window+i)) * (double)(*(im+i));
-  }
+  for ( i=0; i<numFreqs; i++ )
+    {
+      out[i][0] = (double)(*(window+i)) * (double)(*(re+i));
+      out[i][1] = (double)(*(window+i)) * (double)(*(im+i));
+    }
 
   /* Execute the inverse FFT described by plan "iP"
      (which itself points to the right input/ouput buffers,
@@ -398,8 +425,83 @@ void MP_FFTW_Interface_c::exec_complex_inverse( MP_Real_t *re, MP_Real_t *im, MP
   fftw_execute( iP );
 
   /* Cast and copy the result */
-  for ( i=0; i<fftSize; i++ ) {
-    *(output+i) = (MP_Sample_t)( *(inPrepared+i) );
-  }
+  for ( i=0; i<fftSize; i++ )
+    {
+      *(output+i) = (MP_Sample_t)( *(inPrepared+i) );
+    }
+
+}
+
+/* Init FFT library config */
+
+bool MP_FFT_Interface_c::init_fft_library_config()
+{
+#ifdef USE_FFTW3
+
+  int wisdom_status;
+  FILE * wisdomFile = NULL;
+
+  /* Check if file path is defined in env variable */
+  if (MPTK_Env_c::getEnv()->get_FFTW_Wisdom_File()!= NULL)
+    wisdomFile= fopen(MPTK_Env_c::getEnv()->get_FFTW_Wisdom_File(),"r");
+  /* Check if file exists */
+  if (wisdomFile!=NULL)
+    {
+      /* Try to load the wisdom file for creating fftw plan */
+      wisdom_status = fftw_import_wisdom_from_file(wisdomFile);
+      MPTK_Env_c::getEnv()->set_FFTW_Wisdom_loaded();
+      /* Check if winsdom file is well formed */
+      if (wisdom_status==0)
+        {
+          mp_error_msg( "MP_FFT_Interface_c::init_fft_library_config()",
+                        "wisdom file is ill formed\n");
+          /* Close the file anyway */
+          fclose(wisdomFile);
+          return false;
+        }
+      else
+        {
+          /* Close the file  */
+          fclose(wisdomFile);
+          return true;
+        }
+
+    }
+  else return false;
+#else
+  return false;
+#endif
+
+
+}
+
+/* Save FFT library config */
+
+bool MP_FFT_Interface_c::save_fft_library_config()
+{
+#ifdef USE_FFTW3
+
+  FILE * wisdomFile = NULL;
+  /* Check if fftw wisdom file has to be saved
+   * and if the load of this files  succeed when init the fft library config */
+  if (MPTK_Env_c::getEnv()->get_FFTW_Wisdom_File()!= NULL && ! MPTK_Env_c::getEnv()->get_FFTW_Wisdom_loaded() )
+    wisdomFile = fopen(MPTK_Env_c::getEnv()->get_FFTW_Wisdom_File(),"w");
+  /* Check if file exists or if the files could be created */
+  if (wisdomFile!=NULL)
+    {
+      /* Export the actual wisdom to the file */
+      fftw_export_wisdom_to_file(wisdomFile);
+      /* Close the file */
+      fclose(wisdomFile);
+      return true;
+    }
+  else
+    {
+
+      return false;
+    }
+#else
+  return false;
+#endif
 
 }

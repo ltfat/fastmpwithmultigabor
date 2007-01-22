@@ -67,194 +67,208 @@
 /*-------------------*/
 /** \brief A generic interface between MPLib and many possible FFT
  *  implementations.
- * 
+ *
  * Example code on how to use this class can be found in the file test_fft.cpp
  */
 /*-------------------*/
 
-class MP_FFT_Interface_c {
+class MP_FFT_Interface_c
+  {
 
-  /********/
-  /* DATA */
-  /********/
+    /********/
+    /* DATA */
+    /********/
 
-public:
-  /** \brief type of window used before performing the FFT 
-   * (Hamming, Gauss etc.).
-   * 
-   * \sa make_window() */
-  unsigned char windowType;   
-  /** \brief optional window parameter
-   * (applies to Gauss, generalized Hamming and exponential windows).
-   * 
-   * \sa make_window() */
-  double windowOption;   
-  /** \brief size of the window used before performing the FFT.
-   * Combined with numFreqs it determines how much zero padding is performed.
-   *
-   * It is also often called the frame size
-   * \sa make_window() 
-   */
-  unsigned long int windowSize;
-  /** \brief offset between the sample considered as the 'center' 
-   * of the window and its first sample. 
-   *
-   * For most symmetric windows wich are bump functions, the 'center' is the first sample
-   * at which the absolute maximum of the window is reached.
-   * \sa make_window()
-   */
-  unsigned long int windowCenter; 
+  public:
+    /** \brief type of window used before performing the FFT
+     * (Hamming, Gauss etc.).
+     * 
+     * \sa make_window() */
+    unsigned char windowType;
+    /** \brief optional window parameter
+     * (applies to Gauss, generalized Hamming and exponential windows).
+     * 
+     * \sa make_window() */
+    double windowOption;
+    /** \brief size of the window used before performing the FFT.
+     * Combined with numFreqs it determines how much zero padding is performed.
+     *
+     * It is also often called the frame size
+     * \sa make_window() 
+     */
+    unsigned long int windowSize;
+    /** \brief offset between the sample considered as the 'center'
+     * of the window and its first sample. 
+     *
+     * For most symmetric windows wich are bump functions, the 'center' is the first sample
+     * at which the absolute maximum of the window is reached.
+     * \sa make_window()
+     */
+    unsigned long int windowCenter;
 
-  /** \brief size of the signal on which the FFT is performed (including zero padding).
-   */
-  unsigned long int fftSize;
+    /** \brief size of the signal on which the FFT is performed (including zero padding).
+     */
+    unsigned long int fftSize;
 
-  /** \brief size of the output buffers filled by exec_complex() and exec_mag().
-   * It is deduced from fftSize as numFreqs = ( fftSize/2 + 1 )
-   *
-   * \sa exec_complex() 
-   */
-  unsigned long int numFreqs; 
+    /** \brief size of the output buffers filled by exec_complex() and exec_mag().
+     * It is deduced from fftSize as numFreqs = ( fftSize/2 + 1 )
+     *
+     * \sa exec_complex() 
+     */
+    unsigned long int numFreqs;
 
-  /** \brief Pointer on a tabulated window.(DO NOT MALLOC OR FREE IT.)
-   */
-  MP_Real_t *window;    
-  
- protected:
-  /** \brief Four buffers of size numFreqs to store the output of exec_complex() when generic methods
-   * such as fill_correl() or exec_mag() need it */
-  MP_Real_t *bufferRe;    
-  MP_Real_t *bufferIm;
+    /** \brief Pointer on a tabulated window.(DO NOT MALLOC OR FREE IT.)
+     */
+    MP_Real_t *window;
 
-  MP_Real_t *buffer2Re;    
-  MP_Real_t *buffer2Im;
+  protected:
+    /** \brief Four buffers of size numFreqs to store the output of exec_complex() when generic methods
+     * such as fill_correl() or exec_mag() need it */
+    MP_Real_t *bufferRe;
+    MP_Real_t *bufferIm;
 
-  /** \brief A buffer of size windowSize to multiply the input signal by a demodulation function */
-  MP_Real_t *inDemodulated;
+    MP_Real_t *buffer2Re;
+    MP_Real_t *buffer2Im;
 
-
-  /***********/
-  /* METHODS */
-  /***********/
-
-  /***************************/
-  /* FACTORY METHOD          */
-  /***************************/
- public:
-  /** \brief The method which should be called to instantiate an FFT_Interface object
-   * for a given window (specified by its type and size) and FFT resolution.
-   *
-   * \param windowSize size of the window
-   * \param windowType type of the window
-   * \param windowOption optional shaping parameter of the window
-   * \param fftSize size of the performed FFT. For speed reasons it might be
-   * preferable to set fftSize = \f$2^n\f$ for some integer n.
-   *
-   * \sa make_window(), exec_complex().
-   */
-  static MP_FFT_Interface_c* init( const unsigned long int windowSize,
-				   const unsigned char windowType,
-				   const double windowOption,
-				   const unsigned long int fftSize );
-
-  /** \brief A generic method to test if the default instantiation of the FFT class for a given
-   * window scales correctly the energy of a signal, which is a clue whether it is correctly implemented */
-  static int test(const unsigned long int windowSize, 
-		  const unsigned char windowType,
-		  const double windowOption,
-		  MP_Sample_t *samples);
+    /** \brief A buffer of size windowSize to multiply the input signal by a demodulation function */
+    MP_Real_t *inDemodulated;
 
 
-  /***************************/
-  /* CONSTRUCTORS/DESTRUCTOR */
-  /***************************/
+    
+    /***********/
+    /* METHODS */
+    /***********/
 
- protected:
+    /***************************/
+    /* FACTORY METHOD          */
+    /***************************/
+  public:
+    /** \brief The method which should be called to instantiate an FFT_Interface object
+     * for a given window (specified by its type and size) and FFT resolution.
+     *
+     * \param windowSize size of the window
+     * \param windowType type of the window
+     * \param windowOption optional shaping parameter of the window
+     * \param fftSize size of the performed FFT. For speed reasons it might be
+     * preferable to set fftSize = \f$2^n\f$ for some integer n.
+     *
+     * \sa make_window(), exec_complex().
+     */
+    static MP_FFT_Interface_c* init( const unsigned long int windowSize,
+                                     const unsigned char windowType,
+                                     const double windowOption,
+                                     const unsigned long int fftSize );
 
-  /** \brief A generic constructor used only by non-virtual children classes */
-  MP_FFT_Interface_c( const unsigned long int windowSize,
-		      const unsigned char windowType,
-		      const double windowOption,
-		      const unsigned long int fftSize );
-
- public:
-  virtual ~MP_FFT_Interface_c();
+    /** \brief A generic method to test if the default instantiation of the FFT class for a given
+     * window scales correctly the energy of a signal, which is a clue whether it is correctly implemented */
+    static int test(const unsigned long int windowSize,
+                    const unsigned char windowType,
+                    const double windowOption,
+                    MP_Sample_t *samples);
 
 
-  /***************************/
-  /* OTHER METHODS           */
-  /***************************/
+    /***************************/
+    /* CONSTRUCTORS/DESTRUCTOR */
+    /***************************/
 
-public:
+  protected:
 
-  /** \brief Performs the complex FFT of an input signal buffer and puts the result in two output buffers.
-   *
-   * \param in  input signal buffer, only the first windowSize values are used.
-   * \param re  output FFT real part buffer, only the first numFreqs values are filled.
-   * \param im  output FFT imaginary part buffer, only the first numFreqs values are filled.
-   *
-   * The output buffers are filled with the values
-   * \f[
-   * (\mbox{re}[k],\mbox{im}[k]) = \sum_{n=0}^{\mbox{fftCplxSize}-1} \mbox{window}[n]
-   * \cdot \mbox{in}[n] \cdot \exp\left(-\frac{2i\pi\ k \cdot n}{\mbox{fftCplxSize}}\right).
-   * \f]
-   * for \f$0 \leq k < \mbox{numFreqs} = \mbox{fftCplxSize}/2+1\f$, 
-   * where the signal is zero padded beyond the window size if necessary.
-   *
-   * These output values correspond to the frequency components between the DC
-   * component and the Nyquist frequency, inclusive.
-   *
-   */  
-  virtual void exec_complex( MP_Sample_t *in, MP_Real_t *re, MP_Real_t *im ) = 0;
+    /** \brief A generic constructor used only by non-virtual children classes */
+    MP_FFT_Interface_c( const unsigned long int windowSize,
+                        const unsigned char windowType,
+                        const double windowOption,
+                        const unsigned long int fftSize );
 
-  /** \brief Performs the complex inverse FFT of two input buffers and puts the result in an output signal buffer.
-   *
-   * \param re  input FFT real part buffer, only the first numFreqs values are filled.
-   * \param im  input FFT imaginary part buffer, only the first numFreqs values are filled.
-   * \param out output signal buffer, only the first windowSize values are used.
-   *
-   * These input values correspond to the frequency components between the DC
-   * component and the Nyquist frequency, inclusive.
-   *
-   * The output buffer is filled with the values
-   * \f[
-   * \mbox{out}[n] = \frac{1}{fftCplxSize}\sum_{k=0}^{\mbox{fftCplxSize}-1} \mbox{window}[k]
-   * \cdot (\mbox{re}[k] + i \mbox{im}[k])  \cdot \exp\left(\frac{2i\pi\ k \cdot n}{\mbox{fftCplxSize}}\right).
-   * \f]
-   * for \f$0 \leq n < \mbox{fftCplxSize}\f$, 
-   * where the frequency components upon the Nyquist frequency of re
-   * and im are completed, symmetrically, with the conjugate
-   * components of the frequency components below the Nyquist
-   * frequency.
-   *
-   */  
-  virtual void exec_complex_inverse( MP_Real_t *re, MP_Real_t *im, MP_Sample_t *output ) = 0;
+  public:
+    virtual ~MP_FFT_Interface_c();
 
-  /** \brief Performs the complex FFT of an input signal buffer multiplied by a
-      demodulation function, and puts the result in two output buffers.
-   */
-  virtual void exec_complex_demod( MP_Sample_t *in,
-				   MP_Sample_t *demodFuncRe, MP_Sample_t *demodFuncIm,
-				   MP_Real_t *re, MP_Real_t *im );
 
-  /** \brief Computes the power spectrum of an input signal buffer and puts it
-   * in an output magnitude buffer.
-   *
-   * \param in  input signal buffer, only the first windowSize values are used.
-   * \param mag output FFT magnitude buffer, only the first numFreqs values are filled.
-   *
-   * The output buffer is filled with
-   * \f$\mbox{re}[k]^2+\mbox{im}[k]^2\f$ for \f$0 \leq k < \mbox{numFreqs}\f$
-   * unless the macro \a MP_MAGNITUDE_IS_SQUARED is undefined, in which case
-   * the square root is computed.
-   *
-   * \sa The documentation of exec_complex() gives the expression of
-   * \f$(\mbox{re}[k],\mbox{im}[k])\f$ and details about zero padding
-   * and the use of numFreqs.
-   */  
-  virtual void exec_mag( MP_Sample_t *in, MP_Real_t *mag );
+    /***************************/
+    /* OTHER METHODS           */
+    /***************************/
 
-};
+  public:
+
+    /** \brief Performs the complex FFT of an input signal buffer and puts the result in two output buffers.
+     *
+     * \param in  input signal buffer, only the first windowSize values are used.
+     * \param re  output FFT real part buffer, only the first numFreqs values are filled.
+     * \param im  output FFT imaginary part buffer, only the first numFreqs values are filled.
+     *
+     * The output buffers are filled with the values
+     * \f[
+     * (\mbox{re}[k],\mbox{im}[k]) = \sum_{n=0}^{\mbox{fftCplxSize}-1} \mbox{window}[n]
+     * \cdot \mbox{in}[n] \cdot \exp\left(-\frac{2i\pi\ k \cdot n}{\mbox{fftCplxSize}}\right).
+     * \f]
+     * for \f$0 \leq k < \mbox{numFreqs} = \mbox{fftCplxSize}/2+1\f$, 
+     * where the signal is zero padded beyond the window size if necessary.
+     *
+     * These output values correspond to the frequency components between the DC
+     * component and the Nyquist frequency, inclusive.
+     *
+     */
+    virtual void exec_complex( MP_Sample_t *in, MP_Real_t *re, MP_Real_t *im ) = 0;
+
+    /** \brief Performs the complex inverse FFT of two input buffers and puts the result in an output signal buffer.
+     *
+     * \param re  input FFT real part buffer, only the first numFreqs values are filled.
+     * \param im  input FFT imaginary part buffer, only the first numFreqs values are filled.
+     * \param out output signal buffer, only the first windowSize values are used.
+     *
+     * These input values correspond to the frequency components between the DC
+     * component and the Nyquist frequency, inclusive.
+     *
+     * The output buffer is filled with the values
+     * \f[
+     * \mbox{out}[n] = \frac{1}{fftCplxSize}\sum_{k=0}^{\mbox{fftCplxSize}-1} \mbox{window}[k]
+     * \cdot (\mbox{re}[k] + i \mbox{im}[k])  \cdot \exp\left(\frac{2i\pi\ k \cdot n}{\mbox{fftCplxSize}}\right).
+     * \f]
+     * for \f$0 \leq n < \mbox{fftCplxSize}\f$, 
+     * where the frequency components upon the Nyquist frequency of re
+     * and im are completed, symmetrically, with the conjugate
+     * components of the frequency components below the Nyquist
+     * frequency.
+     *
+     */
+    virtual void exec_complex_inverse( MP_Real_t *re, MP_Real_t *im, MP_Sample_t *output ) = 0;
+
+    /** \brief Performs the complex FFT of an input signal buffer multiplied by a
+        demodulation function, and puts the result in two output buffers.
+     */
+    virtual void exec_complex_demod( MP_Sample_t *in,
+                                     MP_Sample_t *demodFuncRe, MP_Sample_t *demodFuncIm,
+                                     MP_Real_t *re, MP_Real_t *im );
+
+    /** \brief Computes the power spectrum of an input signal buffer and puts it
+     * in an output magnitude buffer.
+     *
+     * \param in  input signal buffer, only the first windowSize values are used.
+     * \param mag output FFT magnitude buffer, only the first numFreqs values are filled.
+     *
+     * The output buffer is filled with
+     * \f$\mbox{re}[k]^2+\mbox{im}[k]^2\f$ for \f$0 \leq k < \mbox{numFreqs}\f$
+     * unless the macro \a MP_MAGNITUDE_IS_SQUARED is undefined, in which case
+     * the square root is computed.
+     *
+     * \sa The documentation of exec_complex() gives the expression of
+     * \f$(\mbox{re}[k],\mbox{im}[k])\f$ and details about zero padding
+     * and the use of numFreqs.
+     */
+    virtual void exec_mag( MP_Sample_t *in, MP_Real_t *mag );
+
+    /** \brief Initialise the fft library configuration
+     * If FFTW3 is used, a wisdom file is loaded in order to fix the plan used for
+     *  the FFT computation. This configuration allows the reproducibility of the computation 
+     */
+    static bool init_fft_library_config();
+
+    /** \brief Save the fft library configuration
+     * If FFTW3 is used, a wisdom file can be saved if it's necessary, this files will be used
+     * to set the FFTW wisdom to fix FFTW plan for another computation
+     */
+    static bool save_fft_library_config();
+
+  };
 
 
 
@@ -281,61 +295,62 @@ public:
  * the Fastest Fourier Transform in the West (FFTW)
  * library. See <A HREF="http://www.fftw.org">http://www.fftw.org</A>
  */
-class MP_FFTW_Interface_c:public MP_FFT_Interface_c {
+class MP_FFTW_Interface_c:public MP_FFT_Interface_c
+  {
 
-  /********/
-  /* DATA */
-  /********/
+    /********/
+    /* DATA */
+    /********/
 
-private:
+  private:
 
-  /* FFTW parameters */
-  /** \brief object that performs the FFT computations as fast as it can */
-  fftw_plan p;
-  /** \brief object that performs the FFT computations as fast as it can */
-  fftw_plan iP;
+    /* FFTW parameters */
+    /** \brief object that performs the FFT computations as fast as it can */
+    fftw_plan p;
+    /** \brief object that performs the FFT computations as fast as it can */
+    fftw_plan iP;
 
-  /** \brief input signal multiplied by the window and zero padded,
-   * used as input by the plan  */
-  double *inPrepared;
-  /** \brief output of the plan */
-  fftw_complex *out;
+    /** \brief input signal multiplied by the window and zero padded,
+     * used as input by the plan  */
+    double *inPrepared;
+    /** \brief output of the plan */
+    fftw_complex *out;
 
-  /***********/
-  /* METHODS */
-  /***********/
+    /***********/
+    /* METHODS */
+    /***********/
 
-  /***************************/
-  /* CONSTRUCTORS/DESTRUCTOR */
-  /***************************/
-public:
-  /** \brief A constructor which takes as input a window specified 
-   * by its type and size.
-   *
-   * \param windowSize size of the window
-   * \param windowType type of the window
-   * \param windowOption optional shaping parameter of the window
-   * \param fftSize size of the performed, including zero padding.
-   * For speed reasons it might be preferable to set fftSize = \f$2^n\f$ for some integer n.
-   *
-   * \sa make_window(), exec_complex().
-   */
-  MP_FFTW_Interface_c( const unsigned long int windowSize,
-		       const unsigned char windowType,
-		       const double windowOption,
-		       const unsigned long int fftSize );
+    /***************************/
+    /* CONSTRUCTORS/DESTRUCTOR */
+    /***************************/
+  public:
+    /** \brief A constructor which takes as input a window specified
+     * by its type and size.
+     *
+     * \param windowSize size of the window
+     * \param windowType type of the window
+     * \param windowOption optional shaping parameter of the window
+     * \param fftSize size of the performed, including zero padding.
+     * For speed reasons it might be preferable to set fftSize = \f$2^n\f$ for some integer n.
+     *
+     * \sa make_window(), exec_complex().
+     */
+    MP_FFTW_Interface_c( const unsigned long int windowSize,
+                         const unsigned char windowType,
+                         const double windowOption,
+                         const unsigned long int fftSize );
 
-  ~MP_FFTW_Interface_c();
+    ~MP_FFTW_Interface_c();
 
-  /***************************/
-  /* OTHER METHODS           */
-  /***************************/
-public:
-  void exec_complex( MP_Sample_t *in, MP_Real_t *re, MP_Real_t *im );
+    /***************************/
+    /* OTHER METHODS           */
+    /***************************/
+  public:
+    void exec_complex( MP_Sample_t *in, MP_Real_t *re, MP_Real_t *im );
 
-  void exec_complex_inverse( MP_Real_t *re, MP_Real_t *im, MP_Sample_t *output );
+    void exec_complex_inverse( MP_Real_t *re, MP_Real_t *im, MP_Sample_t *output );
 
-};
+  };
 
 #endif /* USE_FFTW3 */
 

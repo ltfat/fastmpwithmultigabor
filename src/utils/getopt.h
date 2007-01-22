@@ -105,7 +105,11 @@ struct option
    errors, only prototype getopt for the GNU C library.  */
 extern int getopt (int argc, char *const *argv, const char *shortopts);
 #else /* not __GNU_LIBRARY__ */
+#ifdef __APPLE__
+extern int getopt (int argc, char *const *argv, const char *shortopts);
+#else /* not __APPLE__ */
 extern int getopt ();
+#endif /* __APPLE__ */
 #endif /* __GNU_LIBRARY__ */
 extern int getopt_long (int argc, char *const *argv, const char *shortopts,
 		        const struct option *longopts, int *longind);

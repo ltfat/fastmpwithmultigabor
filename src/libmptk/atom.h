@@ -47,7 +47,8 @@
 
 
 #include <stdio.h>
-
+#include <utility>
+#include "mp_pthreads_barrier.h"
 
 /***********************/
 /* CONSTANTS           */
@@ -187,6 +188,7 @@ public :
    */
   void substract_add( MP_Signal_c *sigSub, MP_Signal_c *sigAdd );
 
+
   /** \brief Substract/add the atom's monochannel waveform from / to a multichannel signal
    *  with various amplitudes
    *
@@ -260,6 +262,77 @@ public :
    * \param chanIdx the desired channel
    * \return the desired field value, zero if the atom has no such field */
   virtual MP_Real_t get_field( int field , MP_Chan_t chanIdx );
+  
+  protected :
+ /**  \brief do the add part of subsctract_add 
+  * \param sigAdd signal to which the atom waveform is to be added
+  * \param pos : the position in the signal to add to
+  * \param len :  the lenght to add to
+  * \param chanIdx : channel to work on
+  * \param atomIn : waveform to add
+  */
+  std::pair<double,double> add ( MP_Signal_c *sigAdd, 
+  								 unsigned long int pos, 
+  								 unsigned long int len,
+							     MP_Chan_t chanIdx,
+							     MP_Sample_t * atomIn);
+   
+  class ParallelAdd
+  {
+  public:	
+ 	MP_Signal_c *sigAdd ;
+  	unsigned long int pos ; 
+  	unsigned long int len ;
+    MP_Chan_t chanIdx ;
+    MP_Sample_t * atomIn ;	
+    // Self pointer to pass object context to the threads
+    MP_Atom_c* myAtom;
+    // Should the thread exit 
+    bool exit ; 
+  };   
+  
+  class AddWorker {
+  	public:
+  		//create the structure that will add atoms to a signal
+  		AddWorker() ;
+  		
+  		/* \brief request that an addition be performed between 
+  		 * an atom (\param self) 
+  		 * and a signal (\param sigAdd)
+  		 */
+  		void runAdd(MP_Atom_c * self,
+  				    MP_Signal_c *sigAdd, 
+  				    unsigned long int pos, 
+  				    unsigned long int len,
+				    MP_Chan_t chanIdx,
+				    MP_Sample_t * atomIn) ;
+		
+		/* \brief wait for the addition to be completed and get the resulting energies
+		 */					     
+ 		std::pair<double,double> wait() ;
+
+	protected:
+        /* \brief the function to pass to pthread_create 
+         */
+    	static void* run(void* a) ;
+
+		/* \brief the function, in object context a thread will be executing
+		 * Exiting this function will end the thread
+		 */
+	   void runAddParallel () ;
+
+        //Synchonize the add workers
+    	barrier **bar ;
+    	//Store results
+		std::pair<double,double> result ;
+		//Description of the task the ParrallelAdd must perform
+		ParallelAdd * task ;				     	
+  };
+  
+protected:
+  static AddWorker * myAddWorker ;
+public:
+  static AddWorker * getAddWorker() ;
 };
 
 
