@@ -66,7 +66,8 @@ export_headers = mp_types.h \
 	atom_classes/contrib/lam/mdst_block.h  atom_classes/contrib/lam/mdst_atom.h \
 	atom_classes/block_io_interface.h  \
 	atom_classes/atom_classes.h        \
-	mpd_core.h
+	mpd_core.h \
+	mptk_env.h
 ## NOTE: in the above list, the order of the headers is important.
 
 
@@ -79,7 +80,7 @@ lib_LIBRARIES = libmptk.a
 include_HEADERS = mptk.h
 noinst_HEADERS = header.h $(export_headers) regression_constants.h
 
-libmptk_a_SOURCES = mptk.h header.h $(export_headers) regression_constants.h \
+libmptk_a_SOURCES = mptk.h header.h $(export_headers) regression_constants.h mp_pthreads_barrier.h \
 	mp_messaging.cpp  \
 	general.cpp       \
 	mtrand.c          \
@@ -106,7 +107,10 @@ libmptk_a_SOURCES = mptk.h header.h $(export_headers) regression_constants.h \
 	atom_classes/dict_scanner.lpp        \
 	atom_classes/block_io_interface.cpp  \
 	dict.cpp mask.cpp book.cpp tfmap.cpp \
-	mpd_core.cpp
+	mpd_core.cpp \
+	mptk_env.cpp
+	
+	
 
 
 mptk.h: Makefile.am $(srcdir)/header.h $(srcdir)/../../AUTHORS $(export_headers)
