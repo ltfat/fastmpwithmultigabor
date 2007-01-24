@@ -24,8 +24,34 @@ SET_TARGET_PROPERTIES(mpd PROPERTIES COMPILE_FLAGS "${SHARED_FLAGS}")
 TARGET_LINK_LIBRARIES(mpd mptk dsp_windows ${PTHREAD_LIBRARY_FILE} ${SNDFILE_LIBRARY_FILE} ${FFTW3_LIBRARY_FILE})
 ADD_DEPENDENCIES(mpd mpd-executable)
 ENDIF(BUILD_MULTITHREAD)
-#SET_TARGET_PROPERTIES(mpd PROPERTIES COMPILE_FLAGS "${SHARED_FLAGS} -pthread")
-#TARGET_LINK_LIBRARIES(mpd mptk dsp_windows fftw3.a sndfile.a libpthread.so)
+#For win32 and plateform and MINGW build command, copy the dll files in the build dir
+IF (MINGW)
+#=== Copy the dll in the bin folder===
+                ADD_CUSTOM_COMMAND (
+                        TARGET mpd
+                        POST_BUILD
+                        COMMAND ${CMAKE_COMMAND}
+                        ARGS -E copy "${PTHREAD_LIBRARY_FILE}" 
+"${MPTK_BINARY_DIR}/bin/pthreadVC2.dll"
+        )
+                ADD_CUSTOM_COMMAND (
+                        TARGET mpd
+                        POST_BUILD
+                        COMMAND ${CMAKE_COMMAND}
+                        ARGS -E copy "${FFTW3_LIBRARY_FILE}" 
+"${MPTK_BINARY_DIR}/bin/libfftw3-3.dll"
+        ) 
+                ADD_CUSTOM_COMMAND (
+                        TARGET mpd
+                        POST_BUILD
+                        COMMAND ${CMAKE_COMMAND}
+                        ARGS -E copy "${SNDFILE_LIBRARY_FILE}" 
+"${MPTK_BINARY_DIR}/bin/libsndfile-1.dll"
+        )              
+        
+
+ ENDIF (MINGW)
+
 #ADD_DEPENDENCIES(mpd mpd-executable)
 #------------------------------------------------
 # Build mdp_demix executable
@@ -186,41 +212,6 @@ SET(MPTK_GUI_SOURCES
 	${GUI_SOURCE_DIR}/MptkGuiLicenseDialog.cpp 
 )
 
-
-
-
-
-
-#SET(CPACK_CMAKE_GENERATOR "Unix Makefiles")
-#SET(CPACK_GENERATOR "TGZ")
-#SET(CPACK_INSTALLED_DIRECTORIES "/udd/broy/workspace/MPTKtrunk/bin;/bin")
-#SET(CPACK_INSTALLED_DIRECTORIES "/udd/broy/workspace/MPTKtrunk/lib;/lib")
-#SET(CPACK_INSTALL_CMAKE_PROJECTS "/udd/broy/workspace/MPTKtrunk/bin;MPTK;ALL;/")
-#SET(CPACK_NSIS_DISPLAY_NAME "MPTK")
-#SET(CPACK_OUTPUT_CONFIG_FILE "/udd/broy/workspace/MPTKtrunk/CPackConfig.cmake")
-#SET(CPACK_PACKAGE_DESCRIPTION_FILE "/udd/broy/local/share/CMake/Templates/CPack.GenericDescription.txt")
-#SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "MPTK")
-#SET(CPACK_PACKAGE_EXECUTABLES "mpd;mpd")
-#SET(CPACK_PACKAGE_FILE_NAME "MPTK-0.5.0-Linux")
-#SET(CPACK_PACKAGE_INSTALL_DIRECTORY "MPTK")
-#SET(CPACK_PACKAGE_INSTALL_REGISTRY_KEY "MPTK 0.5.0")
-#SET(CPACK_PACKAGE_NAME "MPTK")
-#SET(CPACK_PACKAGE_VENDOR "METISS Project IRISA")
-#SET(CPACK_PACKAGE_VERSION "0.5.0")
-#SET(CPACK_PACKAGE_VERSION_MAJOR "0")
-#SET(CPACK_PACKAGE_VERSION_MINOR "5")
-#SET(CPACK_PACKAGE_VERSION_PATCH "0")
-#SET(CPACK_RESOURCE_FILE_LICENSE "/udd/broy/local/share/CMake/Templates/CPack.GenericLicense.txt")
-#SET(CPACK_RESOURCE_FILE_README "/udd/broy/local/share/CMake/Templates/CPack.GenericDescription.txt")
-#SET(CPACK_RESOURCE_FILE_WELCOME "/udd/broy/local/share/CMake/Templates/CPack.GenericWelcome.txt")
-#SET(CPACK_SOURCE_OUTPUT_CONFIG_FILE "/udd/broy/workspace/MPTKtrunk/CPackSourceConfig.cmake")
-#SET(CPACK_SOURCE_STRIP_FILES "/udd/broy/workspace/MPTKtrunk/src")
-#SET(CPACK_STRIP_FILES "bin/mpd")
-#SET(CPACK_SYSTEM_NAME "Linux")
-#SET(CPACK_TOPLEVEL_TAG "Linux")
-
-
-
 IF(BUILD_GUI)
 IF(NOT WIN32)
 IF(NOT UNIX)
@@ -283,14 +274,12 @@ INSTALL(TARGETS
   mpview
  RUNTIME DESTINATION ${BIN_HOME}
 )
-IF(WIN32)
-#SET(DLL_FILES )
-#  INSTALL(FILES DESTINATION <dir>
-#          [PERMISSIONS permissions...]
-#          [CONFIGURATIONS [Debug|Release|...]]
-#          [COMPONENT <component>]
-#          [RENAME <name>] [OPTIONAL])
-ENDIF(WIN32)
+#Install dll in the destination folder for Win32 plateform
+IF(MINGW)
+INSTALL(FILES "${MPTK_BINARY_DIR}/bin/pthreadVC2.dll" DESTINATION "${BIN_HOME}")
+INSTALL(FILES "${MPTK_BINARY_DIR}/bin/libfftw3-3.dll" DESTINATION "${BIN_HOME}")
+INSTALL(FILES "${MPTK_BINARY_DIR}/bin/libsndfile-1.dll" DESTINATION "${BIN_HOME}")
+ENDIF(MINGW)
 ELSE(BUILD_MULTITHREAD)
 INSTALL(TARGETS
   mpd
@@ -301,8 +290,62 @@ INSTALL(TARGETS
   mpview
  RUNTIME DESTINATION ${BIN_HOME}
 )
+#Install dll in the destination folder for Win32 plateform
+IF(MINGW)
+INSTALL(FILES "${MPTK_BINARY_DIR}/bin/pthreadVC2.dll" DESTINATION "${BIN_HOME}")
+INSTALL(FILES "${MPTK_BINARY_DIR}/bin/libfftw3-3.dll" DESTINATION "${BIN_HOME}")
+INSTALL(FILES "${MPTK_BINARY_DIR}/bin/libsndfile-1.dll" DESTINATION "${BIN_HOME}")
+ENDIF(MINGW)
 ENDIF(BUILD_MULTITHREAD)
 
+## Cpack RULES
+# Define the rules for packing files
+INCLUDE(InstallRequiredSystemLibraries)
+#SET(CPACK_CMAKE_GENERATOR "Unix Makefiles")
+#SET(CPACK_GENERATOR "TGZ")
+#SET(CPACK_PACKAGE_NAME "${PACKAGENAME}")
+#SET(CPACK_PACKAGE_VENDOR "METISS Project IRISA")
+#SET(CPACK_INSTALL_CMAKE_PROJECTS "${MPTK_BINARY_DIR};MPTK;ALL;/")
+#SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Matching Pursuit Tool Kit")
+#SET(CPACK_PACKAGE_FILE_NAME "${PACKAGENAMEFULL}")
+#SET(CPACK_PACKAGE_INSTALL_DIRECTORY "${MPTK_SOURCE_DIR} .")
+#SET(CPACK_PACKAGE_VENDOR "METISS Project IRISA")
+#SET(CPACK_PACKAGE_VERSION ${BUILDVERSION})
+#SET(CPACK_RESOURCE_FILE_LICENSE "/udd/broy/workspace/MPTK-trunk/COPYING")
+#SET(CPACK_RESOURCE_FILE_README "/udd/broy/local/share/CMake/Templates/CPack.GenericDescription.txt")
+#SET(CPACK_RESOURCE_FILE_WELCOME "/udd/broy/local/share/CMake/Templates/CPack.GenericWelcome.txt")
+#SET(CPACK_SOURCE_PACKAGE_FILE_NAME "${PACKAGENAMEFULL}-Source")
+#SET(CPACK_SOURCE_OUTPUT_CONFIG_FILE "${MPTK_BINARY_DIR}/CPackSourceConfig1.cmake")
+#SET(CPACK_SOURCE_TOPLEVEL_TAG "Linux-Source")
+#SET(CPACK_SYSTEM_NAME "Linux")
+#SET(CPACK_TOPLEVEL_TAG "Linux")
+#SET(CPACK_PACKAGE_DESCRIPTION_FILE "${MPTK_SOURCE_DIR}/README")
+#SET(CPACK_RESOURCE_FILE_LICENSE "${MPTK_SOURCE_DIR}/COPYING")
+#IF(WIN32 AND NOT UNIX)
+  # There is a bug in NSI that does not handle full unix paths properly. Make
+  # sure there is at least one set of four (4) backlasshes.
+#  SET(CPACK_PACKAGE_ICON "${CMake_SOURCE_DIR}/Utilities/Release\\\\InstallIcon.bmp")
+#  SET(CPACK_NSIS_INSTALLED_ICON_NAME "bin\\\\mpd.exe;bin\\\\mpcat.exe; ")
+#  SET(CPACK_NSIS_DISPLAY_NAME "${CPACK_PACKAGE_INSTALL_DIRECTORY} MPTK")
+#  SET(CPACK_NSIS_HELP_LINK "http:\\\\\\\\www.my-project-home-page.org")
+#  SET(CPACK_NSIS_URL_INFO_ABOUT "http:\\\\\\\\www.my-personal-home-page.com")
+#  SET(CPACK_NSIS_CONTACT "me@my-personal-home-page.com")
+#SET(CPACK_NSIS_MODIFY_PATH ON)
+#ELSE(WIN32 AND NOT UNIX)
+#  SET(CPACK_STRIP_FILES "bin/mpd;bin/mpcat")
+#  SET(CPACK_SOURCE_STRIP_FILES "")
+#  SET(CPACK_IGNORE_FILES "/CMake/;/CMakeFiles/;/_CPack_Packages/;/src/;/doc/;/bin/make_regression_constants;/install_manifest_/;/www/;/CVS//;/.svn/;.cdtprojects;.project;/.settings/")
+#ENDIF(WIN32 AND NOT UNIX)
+#SET(CPACK_PACKAGE_EXECUTABLES "mpd;mpd" )
+
+
+#;\\.#;/#;.*~;cscope.*;\\.swp$
+#SET(CPACK_INSTALLED_DIRECTORIES "/udd/broy/workspace/MPTKtrunk;/")
+#SET(CPACK_INSTALL_CMAKE_PROJECTS "")
+#SET(CPACK_NSIS_DISPLAY_NAME "MPTK .")
+#SET(CPACK_OUTPUT_CONFIG_FILE "${MPTK_BINARY_DIR}/CPackConfig.cmake")
+#SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "MPTK")
+#INCLUDE(CPack)
 
 
 
