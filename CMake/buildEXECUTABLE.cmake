@@ -211,53 +211,77 @@ SET(MPTK_GUI_SOURCES
 	${GUI_SOURCE_DIR}/MptkGuiSettingUpdateEvent.cpp	
 	${GUI_SOURCE_DIR}/MptkGuiLicenseDialog.cpp 
 )
-
+# If we need to build the GUI
 IF(BUILD_GUI)
-IF(NOT WIN32)
-IF(NOT UNIX)
-ELSE(NOT UNIX)
-MACRO(GET_MP_GUI_CPP_SOURCES out)
-  SET(${out}
-${MPTK_GUI_HEADER}
-${MPTK_GUI_SOURCES}
-${GUI_SOURCE_DIR}/portaudio_v18_1/pa_common/pa_lib.c        
-${GUI_SOURCE_DIR}/portaudio_v18_1/pa_unix_oss/pa_unix.c     
-${GUI_SOURCE_DIR}/portaudio_v18_1/pa_unix_oss/pa_unix_oss.c
-      )
-ENDMACRO(GET_MP_GUI_CPP_SOURCES)
-GET_MP_GUI_CPP_SOURCES(MP_GUI_CPP_SOURCES)
-ADD_CUSTOM_TARGET(mpgui-executable DEPENDS ${MP_GUI_CPP_SOURCES})
-INCLUDE(${MPTK_SOURCE_DIR}/CMake/UsewxWidgets.cmake)
-ADD_EXECUTABLE(MptkGuiApp ${MP_GUI_CPP_SOURCES})
-SET_TARGET_PROPERTIES(MptkGuiApp PROPERTIES COMPILE_FLAGS "${SHARED_FLAGS}")
-TARGET_LINK_LIBRARIES(MptkGuiApp mptk dsp_windows ${SNDFILE_LIBRARY_FILE} ${FFTW3_LIBRARY_FILE} ${wxWidgets_LIBRARIES})
-#------------------------------------------------
-# Define install target:
-#
-INSTALL(TARGETS
-  MptkGuiApp
- RUNTIME DESTINATION ${BIN_HOME}
-)
 
-ENDIF(NOT UNIX)
+IF(WIN32)
 
-ELSE(NOT WIN32)
-MACRO(GET_MP_GUI_CPP_SOURCES out)
-  SET(${out}
-${MPTK_GUI_HEADER}
-${MPTK_GUI_SOURCES}
-${GUI_SOURCE_DIR}/portaudio_v18_1/pa_common/pa_lib.c        
-${GUI_SOURCE_DIR}/portaudio_v18_1/pa_unix_oss/pa_unix.c     
-${GUI_SOURCE_DIR}/portaudio_v18_1/pa_unix_oss/pa_unix_oss.c
-      )
-ENDMACRO(GET_MP_GUI_CPP_SOURCES)
-GET_MP_GUI_CPP_SOURCES(MP_GUI_CPP_SOURCES)
-ADD_CUSTOM_TARGET(mpgui-executable DEPENDS ${MP_GUI_CPP_SOURCES})
-INCLUDE(${MPTK_SOURCE_DIR}/CMake/UsewxWidgets.cmake)
-ADD_EXECUTABLE(MptkGuiApp ${MP_GUI_CPP_SOURCES})
-SET_TARGET_PROPERTIES(MptkGuiApp PROPERTIES COMPILE_FLAGS "${SHARED_FLAGS}")
-TARGET_LINK_LIBRARIES(MptkGuiApp mptk dsp_windows ${SNDFILE_LIBRARY_FILE} ${FFTW3_LIBRARY_FILE} ${wxWidgets_LIBRARIES})
-ENDIF(NOT WIN32)
+	MACRO(GET_MP_GUI_CPP_SOURCES out)
+	SET(${out}
+	${MPTK_GUI_HEADER}
+	${MPTK_GUI_SOURCES}
+	${GUI_SOURCE_DIR}/portaudio_v18_1/pa_common/pa_lib.c        
+	${GUI_SOURCE_DIR}/portaudio_v18_1/pa_unix_oss/pa_unix.c     
+	${GUI_SOURCE_DIR}/portaudio_v18_1/pa_unix_oss/pa_unix_oss.c
+	)
+	ENDMACRO(GET_MP_GUI_CPP_SOURCES)
+
+	GET_MP_GUI_CPP_SOURCES(MP_GUI_CPP_SOURCES)
+	ADD_CUSTOM_TARGET(mpgui-executable DEPENDS ${MP_GUI_CPP_SOURCES})
+	INCLUDE(${MPTK_SOURCE_DIR}/CMake/UsewxWidgets.cmake)
+	ADD_EXECUTABLE(MptkGuiApp ${MP_GUI_CPP_SOURCES})
+	SET_TARGET_PROPERTIES(MptkGuiApp PROPERTIES COMPILE_FLAGS "${SHARED_FLAGS}")
+	TARGET_LINK_LIBRARIES(MptkGuiApp mptk dsp_windows ${SNDFILE_LIBRARY_FILE} ${FFTW3_LIBRARY_FILE} ${wxWidgets_LIBRARIES})
+
+ELSE(WIN32)
+IF(UNIX)
+	IF(APPLE)
+
+	MACRO(GET_MP_GUI_CPP_SOURCES out)
+	SET(${out}
+	${MPTK_GUI_HEADER}
+	${MPTK_GUI_SOURCES}
+	${GUI_SOURCE_DIR}/portaudio_v18_1/pa_mac_core/pa_mac_core.c 
+	${GUI_SOURCE_DIR}/portaudio_v18_1/pa_common/pa_lib.c        
+	${GUI_SOURCE_DIR}/portaudio_v18_1/pa_common/pa_convert.c
+	${GUI_SOURCE_DIR}/portaudio_v18_1/pa_common/pa_trace.c
+	${GUI_SOURCE_DIR}/portaudio_v18_1/pablio/ringbuffer.c
+	)
+	ENDMACRO(GET_MP_GUI_CPP_SOURCES)
+
+	ELSE(APPLE)
+
+	MACRO(GET_MP_GUI_CPP_SOURCES out)
+	SET(${out}
+	${MPTK_GUI_HEADER}
+	${MPTK_GUI_SOURCES}
+	${GUI_SOURCE_DIR}/portaudio_v18_1/pa_common/pa_lib.c        
+	${GUI_SOURCE_DIR}/portaudio_v18_1/pa_unix_oss/pa_unix.c     
+	${GUI_SOURCE_DIR}/portaudio_v18_1/pa_unix_oss/pa_unix_oss.c
+	)
+	ENDMACRO(GET_MP_GUI_CPP_SOURCES)
+
+	ENDIF(APPLE)
+
+	GET_MP_GUI_CPP_SOURCES(MP_GUI_CPP_SOURCES)
+	ADD_CUSTOM_TARGET(mpgui-executable DEPENDS ${MP_GUI_CPP_SOURCES})
+	INCLUDE(${MPTK_SOURCE_DIR}/CMake/UsewxWidgets.cmake)
+	ADD_EXECUTABLE(MptkGuiApp ${MP_GUI_CPP_SOURCES})
+	IF(APPLE)
+	SET_TARGET_PROPERTIES(MptkGuiApp PROPERTIES LINK_FLAGS "${SHARED_FLAGS} -framework CoreFoundation -framework CoreAudio -framework AudioUnit -framework AudioToolbox")
+	ENDIF(APPLE)
+	SET_TARGET_PROPERTIES(MptkGuiApp PROPERTIES COMPILE_FLAGS "${SHARED_FLAGS}")
+	TARGET_LINK_LIBRARIES(MptkGuiApp mptk dsp_windows ${SNDFILE_LIBRARY_FILE} ${FFTW3_LIBRARY_FILE} ${wxWidgets_LIBRARIES})
+
+	#------------------------------------------------
+	# Define install target:
+	#
+	INSTALL(TARGETS
+	  MptkGuiApp
+	   RUNTIME DESTINATION ${BIN_HOME}
+	   )
+ENDIF(UNIX)
+ENDIF(WIN32)
 
 ENDIF(BUILD_GUI)
 

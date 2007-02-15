@@ -25,7 +25,7 @@ class MptkGuiDeleteViewEvent : public wxCommandEvent {
   
   int getId(){return id;};
 
-  DECLARE_DYNAMIC_CLASS(MptkGuiDeleteEvent);
+  DECLARE_DYNAMIC_CLASS(MptkGuiDeleteViewEvent);
 
 private :
   int id;
