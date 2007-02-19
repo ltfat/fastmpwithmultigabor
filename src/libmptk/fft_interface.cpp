@@ -443,7 +443,7 @@ bool MP_FFT_Interface_c::init_fft_library_config()
 
   /* Check if file path is defined in env variable */
   if (MPTK_Env_c::getEnv()->get_FFTW_Wisdom_File()!= NULL)
-    wisdomFile= fopen(MPTK_Env_c::getEnv()->get_FFTW_Wisdom_File(),"r");
+    wisdomFile= fopen(MPTK_Env_c::getEnv()->get_FFTW_Wisdom_File(),"rt");
   /* Check if file exists */
   if (wisdomFile!=NULL)
     {
@@ -485,7 +485,7 @@ bool MP_FFT_Interface_c::save_fft_library_config()
   /* Check if fftw wisdom file has to be saved
    * and if the load of this files  succeed when init the fft library config */
   if (MPTK_Env_c::getEnv()->get_FFTW_Wisdom_File()!= NULL && ! MPTK_Env_c::getEnv()->get_FFTW_Wisdom_loaded() )
-    wisdomFile = fopen(MPTK_Env_c::getEnv()->get_FFTW_Wisdom_File(),"w");
+    wisdomFile = fopen(MPTK_Env_c::getEnv()->get_FFTW_Wisdom_File(),"wt");
   /* Check if file exists or if the files could be created */
   if (wisdomFile!=NULL)
     {
