@@ -514,7 +514,7 @@ unsigned long int MP_Anywave_Table_c::print( const char *fName ) {
   FILE *fid;
   unsigned long int nChar = 0;
 
-  fid = fopen(fName,"w");
+  fid = fopen(fName,"wb");
   if ( fid==NULL) {
     mp_error_msg( "MP_Anywave_Table_c::print", "Could not open file %s to write a table\n",fName);
     return(false);
