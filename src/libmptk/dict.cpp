@@ -284,7 +284,7 @@ int MP_Dict_c::add_blocks( const char *fName ) {
   FILE *fid;
   int nAddedBlocks = 0;
 
-  fid = fopen(fName,"r");
+  fid = fopen(fName,"rb");
   if ( fid == NULL ) {
     mp_error_msg( "MP_Dict_c::add_blocks(fileName)",
 		  "Could not open file %s to read a dictionary\n",
@@ -328,7 +328,7 @@ int MP_Dict_c::print( const char *fName ) {
   FILE *fid;
   int nChar = 0;
 
-  fid = fopen(fName,"w");
+  fid = fopen(fName,"wb");
   if ( fid == NULL ) {
     mp_error_msg( "MP_Dict_c::print(fileName)",
 		  "Could not open file %s to write a dictionary\n",
