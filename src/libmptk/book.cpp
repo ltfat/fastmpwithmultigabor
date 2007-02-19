@@ -175,7 +175,7 @@ unsigned long int MP_Book_c::print( const char *fName , const char mode, MP_Mask
   FILE *fid;
   unsigned long int nAtom = 0;
 
-  if ( ( fid = fopen( fName, "w" ) ) == NULL ) {
+  if ( ( fid = fopen( fName, "wb" ) ) == NULL ) {
     mp_error_msg( "MP_Book_c::print(fname,mask)",
 		  "Could not open file %s to print a book.\n", fName );
     return( 0 );
@@ -287,7 +287,7 @@ unsigned long int MP_Book_c::load( const char *fName ) {
   FILE *fid;
   unsigned long int nAtom = 0;
 
-  if ( ( fid = fopen(fName,"r") ) == NULL ) {
+  if ( ( fid = fopen(fName,"rb") ) == NULL ) {
     mp_error_msg( "MP_Book_c::load(fName)",
 		  "Could not open file %s to scan for a book.\n", fName );
     return( 0 );
