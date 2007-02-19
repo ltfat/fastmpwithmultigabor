@@ -108,7 +108,11 @@ extern int getopt (int argc, char *const *argv, const char *shortopts);
 #ifdef __APPLE__
 extern int getopt (int argc, char *const *argv, const char *shortopts);
 #else /* not __APPLE__ */
+#ifdef __CYGWIN__
+extern int getopt (int argc, char *const *argv, const char *shortopts);
+#else  /* not __CYGWIN__ */
 extern int getopt ();
+#endif /* __CYGWIN__ */
 #endif /* __APPLE__ */
 #endif /* __GNU_LIBRARY__ */
 extern int getopt_long (int argc, char *const *argv, const char *shortopts,
