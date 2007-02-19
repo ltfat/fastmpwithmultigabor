@@ -194,7 +194,7 @@ int parse_args(int argc, char **argv) {
 
   /* Prevent an accidental erasing of an input file */
   if ( strcmp( bookOutFileName, "-" ) && (!MPC_FORCE) ) {
-    if ( (fid = fopen( bookOutFileName, "r" )) != NULL ) {
+    if ( (fid = fopen( bookOutFileName, "rb" )) != NULL ) {
       fclose( fid );
       fprintf ( stderr, "mpcat error -- Output file [%s] exists. Delete it manually "
 		"or use -f/--force if you want to overwrite it.\n",
