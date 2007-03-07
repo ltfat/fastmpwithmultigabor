@@ -119,7 +119,11 @@ ${CMAKE_SOURCE_DIR}/src/libmptk/mp_types.h
 #------------------------------------------------
 #Find or generate the MPTK shared header (the one for end-user)
  FIND_FILE(MPTK_SHARED_HEADER mptk.h
-           ${MPTK_BINARY_DIR}/include/)
+             PATHS ${MPTK_BINARY_DIR}/include/
+             NO_CMAKE_ENVIRONMENT_PATH
+             NO_CMAKE_PATH
+             NO_SYSTEM_ENVIRONMENT_PATH
+             NO_CMAKE_SYSTEM_PATH)
 IF(BUILD_SHARED_LIBS)
 IF(NOT MPTK_SHARED_HEADER)
 FILE(READ ${MPTK_SOURCE_DIR}/src/libmptk/mptk.h.shared.cmake INIT)
