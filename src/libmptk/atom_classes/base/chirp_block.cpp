@@ -433,9 +433,7 @@ unsigned int MP_Chirp_Block_c::create_atom( MP_Atom_c **atom,
 
   /* Compute the new inner products with the complex chirp on each channel
      and update the energy over all channels at each frequency */
-  for ( k = 0; k < numFreqs; k++ ) {
-    fftEnergy[k] = 0.0;
-  }
+  for ( k = 0; k < numFreqs; k++ ) fftEnergy[k] = 0.0;
     
   for ( chanIdx = 0; chanIdx < numChans; chanIdx++ ) {
       
@@ -491,12 +489,18 @@ unsigned int MP_Chirp_Block_c::create_atom( MP_Atom_c **atom,
     /* TEST: if the correlation of the chirped atom is less than or equal to
        the correlation of the original unchirped one, it's a case where the chirp
        detection model is invalid => keep the unchirped one and exit. */
-    if (energy <= maxIPValue ) {
+    if (energy <= maxIPValue) {
       mp_debug_msg( MP_DEBUG_CREATE_ATOM, func,
 		    "At iteration 0 in the chirp estimation: the chirping model does not apply."
 		    " (Original IP: %g; Chirped IP: %g)"
 		    " Returning the original (un-chirped) Gabor atom.\n",
 		    maxIPValue, energy );
+      return( 1 );
+    }
+    else if (0==freqIdx || freqIdx==numFreqs-1) {
+      mp_debug_msg( MP_DEBUG_CREATE_ATOM, func,
+		    "At iteration 0 in the chirp estimation: the chirping model does selects a zero frequency."
+		    " Returning the original (un-chirped) Gabor atom.\n");
       return( 1 );
     }
 
