@@ -239,9 +239,11 @@ int parse_args(int argc, char **argv) {
 /**************************************************/
 int main( int argc, char **argv ) {
 
+
   MP_Book_c *book;
   MP_Signal_c *sig;
   int i;
+  FILE *fid;
 
   /* Parse the command line */
   if ( argc == 1 ) usage();
@@ -266,8 +268,10 @@ int main( int argc, char **argv ) {
     fflush( stderr );
   }
 
+
+
   /* Make the book */
-  book = MP_Book_c::init();
+  book = MP_Book_c::create();
   if ( book == NULL ) {
       fprintf( stderr, "mpr error -- Can't create a new book.\n" );
       fflush( stderr );
@@ -275,6 +279,7 @@ int main( int argc, char **argv ) {
   }
 
   /* Read the book */
+
   if ( !strcmp( bookFileName, "-" ) ) {
     if ( MPR_VERBOSE ) fprintf( stderr, "mpr msg -- Reading the book from stdin...\n" );
     if ( book->load(stdin) == 0 ) {
@@ -357,6 +362,7 @@ int main( int argc, char **argv ) {
   /* Clean the house */
   delete( sig );
   delete( book );
+
 
   return( 0 );
 }

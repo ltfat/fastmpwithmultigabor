@@ -85,6 +85,8 @@ public :
 private :
   MP_Mpd_Core_c * mpd_Core;
   MP_Signal_c *signal;
+  MP_Signal_c *baseSignal;
+  MP_Signal_c *approximant;
   MP_Book_c *book;
 
   wxString dicoName;
