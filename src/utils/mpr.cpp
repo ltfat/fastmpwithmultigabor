@@ -268,7 +268,9 @@ int main( int argc, char **argv ) {
     fflush( stderr );
   }
 
-
+ MPTK_Env_c::get_env()->load_environnement();
+  MP_Dll_Manager_c* dll = new MP_Dll_Manager_c();
+  dll->load_dll();
 
   /* Make the book */
   book = MP_Book_c::create();

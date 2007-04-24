@@ -35,8 +35,8 @@
  *
  */
 
-#include <mptk.h>
-
+#include "mptk.h"
+#include "book.h"
 #include "mp_system.h"
 #include "getopt.h"
 
@@ -235,6 +235,7 @@ int main( int argc, char **argv ) {
 
   /* Make the book */
   book = MP_Book_c::create();
+  
   if ( book == NULL ) {
       fprintf( stderr, "mpr error -- Can't create a new book.\n" );
       fflush( stderr );

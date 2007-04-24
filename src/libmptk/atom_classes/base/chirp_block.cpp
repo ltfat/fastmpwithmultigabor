@@ -43,6 +43,7 @@
 
 #include "mptk.h"
 #include "mp_system.h"
+#include "gabor_atom_plugin.h"
 
 
 /***************************/
@@ -318,7 +319,7 @@ unsigned int MP_Chirp_Block_c::create_atom( MP_Atom_c **atom,
     const unsigned long int filterIdx )
 {
   const char* func = "MP_Chirp_Block_c::create_atom(...)";
-  MP_Gabor_Atom_c *gatom = NULL;
+  MP_Gabor_Atom_Plugin_c *gatom = NULL;
   unsigned long int freqIdx, fIdxMin, fIdxMax, k;
   MP_Real_t chirprate, chirprateBefore = 0.0;
   unsigned int l;
@@ -355,7 +356,7 @@ unsigned int MP_Chirp_Block_c::create_atom( MP_Atom_c **atom,
                     " Returning NULL as the atom reference.\n" );
       return( 0 );
     }
-  gatom = (MP_Gabor_Atom_c*)(*atom);
+  gatom = (MP_Gabor_Atom_Plugin_c*)(*atom);
   chirprate = gatom->chirp;
 #ifndef NDEBUG
   gatom->info( stderr );
