@@ -239,11 +239,9 @@ int parse_args(int argc, char **argv) {
 /**************************************************/
 int main( int argc, char **argv ) {
 
-
   MP_Book_c *book;
   MP_Signal_c *sig;
   int i;
-  FILE *fid;
 
   /* Parse the command line */
   if ( argc == 1 ) usage();
@@ -268,12 +266,8 @@ int main( int argc, char **argv ) {
     fflush( stderr );
   }
 
- MPTK_Env_c::get_env()->load_environnement();
-  MP_Dll_Manager_c* dll = new MP_Dll_Manager_c();
-  dll->load_dll();
-
   /* Make the book */
-  book = MP_Book_c::create();
+  book = MP_Book_c::init();
   if ( book == NULL ) {
       fprintf( stderr, "mpr error -- Can't create a new book.\n" );
       fflush( stderr );
@@ -281,7 +275,6 @@ int main( int argc, char **argv ) {
   }
 
   /* Read the book */
-
   if ( !strcmp( bookFileName, "-" ) ) {
     if ( MPR_VERBOSE ) fprintf( stderr, "mpr msg -- Reading the book from stdin...\n" );
     if ( book->load(stdin) == 0 ) {
@@ -364,7 +357,6 @@ int main( int argc, char **argv ) {
   /* Clean the house */
   delete( sig );
   delete( book );
-
 
   return( 0 );
 }
