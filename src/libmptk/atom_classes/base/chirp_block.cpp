@@ -457,7 +457,6 @@ unsigned int MP_Chirp_Block_c::create_atom( MP_Atom_c **atom,
                 "iter  0 : delta = %g , new chirp = %g.\n",
                 deltaChirp, chirprate );
 
-
   /**********************************************/
   /* I.2) RE-LOCATE THE ATOM'S CENTER FREQUENCY */
 
