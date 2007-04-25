@@ -35,8 +35,8 @@
  *
  */
 
-#include "mptk.h"
-#include "book.h"
+#include <mptk.h>
+
 #include "mp_system.h"
 #include "getopt.h"
 
@@ -218,12 +218,9 @@ int parse_args(int argc, char **argv) {
 /**************************************************/
 int main( int argc, char **argv ) {
 
-
   MP_Book_c *book;
-
   int numBooks = 0;
   unsigned long int n; /* number of read atoms */
-  FILE *fid;
 
   /* Parse the command line */
   if ( argc == 1 ) usage();
@@ -234,26 +231,21 @@ int main( int argc, char **argv ) {
   }
 
   /* Make the book */
-  book = MP_Book_c::create();
-  
+  book = MP_Book_c::init();
   if ( book == NULL ) {
       fprintf( stderr, "mpr error -- Can't create a new book.\n" );
       fflush( stderr );
       return( ERR_BOOK );
   }
 
-
-
   /* Load all the books and appends them to the first one: */
   while ( optind < (argc-1) ) {
     bookInFileName = argv[optind++];
     numBooks++;
-
 #ifndef NDEBUG
   fprintf( stderr, "mpcat DEBUG -- Read book file name [%s] for book number [%d].\n",
 	   bookInFileName, numBooks );
 #endif
-
     if ( !strcmp( bookInFileName, "-" ) ) {
       if ( (n = book->load( stdin )) == 0 ) {
 	if ( !MPC_QUIET ) {
@@ -264,7 +256,6 @@ int main( int argc, char **argv ) {
       }
       if ( MPC_VERBOSE ) fprintf ( stderr, "mpcat msg -- Loaded [%lu] atoms for book number [%d] from stdin.\n",
 				   n, numBooks );
-
     }
     else {
       if ( (n = book->load( bookInFileName )) == 0 ) {
@@ -298,7 +289,6 @@ int main( int argc, char **argv ) {
   }
 
   /* Clean the house */
-
   delete( book );
 
   return(0);
