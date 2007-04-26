@@ -17,31 +17,24 @@ MptkGuiCallback::MptkGuiCallback(wxWindow * par)
 MptkGuiCallback::~MptkGuiCallback()
 {
 	if (mpd_Core != NULL) delete mpd_Core;
-	stopPortAudioStream();	 
-  if ( signal ) delete signal;
-  if ( baseSignal ) delete baseSignal;
-  if ( approximant ) delete approximant;
-  if ( book ) delete book;
-	
-	
+	stopPortAudioStream();
 }
 
 // Open a signal, returns true if success
 int MptkGuiCallback::openSignal(wxString fileName)
 {
   signal = MP_Signal_c::init( fileName );
-  baseSignal = new MP_Signal_c ( *signal );
   if (signal != NULL) return SIGNAL_OPENED;
   else return NOTHING_OPENED;
- 
+
 }
 
 // Open a book, returns true if success (default here)
 
 int MptkGuiCallback::openBook(wxString fileName)
-{ FILE* fid = fopen(fileName,"r");
-  book = MP_Book_c::create(fid);
-  fclose(fid);
+{ 
+  book = MP_Book_c::init();
+  book->load(fileName);
   return BOOK_OPENED;
 }
 
@@ -64,20 +57,17 @@ int MptkGuiCallback::initMpdCore(wxString signalName, wxString bookName){
   }
 
   if (opSig == SIGNAL_OPENED && opBook == NOTHING_OPENED){    
-
-    book = MP_Book_c::create(signal->numChans, signal->numSamples, signal->sampleRate );
-
+    book = MP_Book_c::init();
+    book->sampleRate=signal->sampleRate;
+    book->numSamples=signal->numSamples;
   }
   if (opSig == NOTHING_OPENED && opBook == BOOK_OPENED){
     signal = MP_Signal_c::init( book->numChans, book->numSamples, book->sampleRate);
-    baseSignal = new MP_Signal_c(*signal);
   }
 
   if (opSig == SIGNAL_OPENED || opBook == BOOK_OPENED) {
-    approximant = MP_Signal_c::init( book->numChans, book->numSamples, book->sampleRate);
-    mpd_Core = MP_Mpd_Core_c::create(signal,book,approximant);
+    mpd_Core = MP_Mpd_Core_c::init(signal,book,MPD_WITH_APPROXIMANT);
     
-
     if (opSig == SIGNAL_OPENED && opBook == BOOK_OPENED) return SIGNAL_AND_BOOK_OPENED;
     if (opSig == SIGNAL_OPENED && opBook == NOTHING_OPENED) return SIGNAL_OPENED;
     if (opSig == NOTHING_OPENED && opBook == BOOK_OPENED) return BOOK_OPENED;
@@ -89,54 +79,52 @@ int MptkGuiCallback::initMpdCore(wxString signalName, wxString bookName){
 // Save book
 void MptkGuiCallback::saveBook(wxString fileName)
 {
-    book->print(fileName, MP_TEXT);
+    mpd_Core->book->print(fileName, MP_TEXT);
 }
 
 // Save approximant
 void MptkGuiCallback::saveApproximant(wxString fileName)
 {
-    approximant->wavwrite(fileName);
+    mpd_Core->approximant->wavwrite(fileName);
 }
 
 // Save residual
 void MptkGuiCallback::saveResidual(wxString fileName)
 {
-  signal->wavwrite(fileName);
+  mpd_Core->residual->wavwrite(fileName);
 }
 
 // Returns the base signal
 MP_Signal_c * MptkGuiCallback::getSignal()
 {
-  return baseSignal;
+  return mpd_Core->signal;
 }
 
 // Returns the approximant signal
 MP_Signal_c * MptkGuiCallback::getApproximant()
-{ 
-  return approximant;
+{
+  return mpd_Core->approximant;
 }
 
 // Returns the residual signal
 MP_Signal_c * MptkGuiCallback::getResidual()
 {
-  return signal;
+  return mpd_Core->residual;
 }
 
 // Returns the current signal
 MP_Book_c * MptkGuiCallback::getBook()
 {
-  return book;
+  return mpd_Core->book;
 }
 
 int MptkGuiCallback::getNumChans()
 {
 	if (mpd_Core != NULL){
-		if(signal != NULL){
-			return 	signal->numChans;
+		if(mpd_Core->signal != NULL){
+			return 	mpd_Core->signal->numChans;
 		}
-
-		else return book->numChans;
-
+		else return mpd_Core->book->numChans;
 	}
 	else return 0;
 }
@@ -151,19 +139,19 @@ void MptkGuiCallback::stopPortAudioStream()
 // Play the signal
 void MptkGuiCallback::playBaseSignal(std::vector<bool> * v, float startTime, float endTime)
 {
-  play(baseSignal, v, startTime, endTime);
+  play(mpd_Core->signal, v, startTime, endTime);
 }
 
 // Play the rebuilt signal
 void MptkGuiCallback::playApproximantSignal(std::vector<bool> * v, float startTime, float endTime)
 {
-  play(approximant, v, startTime, endTime);
+  play(mpd_Core->approximant, v, startTime, endTime);
 }
 
 // Play the signal
 void MptkGuiCallback::playResidualSignal(std::vector<bool> * v, float startTime, float endTime)
 {
-  play(signal, v, startTime, endTime);
+  play(mpd_Core->residual, v, startTime, endTime);
 }
 
 // Play the given signal
@@ -197,13 +185,11 @@ void MptkGuiCallback::stopListen()
 
 // Set the dictonary
 void MptkGuiCallback::setDictionary(wxString fileName)
-{ FILE* dicFid;
+{
   if (dicoName!=fileName){
-
   	MP_Dict_c *oldDict;
-  	oldDict = mpd_Core->change_dict(MP_Dict_c::init(fileName));
+  	oldDict = mpd_Core->set_dict(MP_Dict_c::init(fileName));
   	if ( oldDict ) delete( oldDict );
-
   	dicoName=fileName;
   	}
 }
@@ -211,7 +197,7 @@ void MptkGuiCallback::setDictionary(wxString fileName)
 // Unset the number of max. iteration
 void MptkGuiCallback::unsetIterationNumber()
 {
-  mpd_Core->reset_iter_condition();
+  mpd_Core->useStopAfterIter=false;
 }
 
 // Set the number of max. iterations
@@ -223,7 +209,7 @@ void MptkGuiCallback::setIterationNumber(long int numberIt)
 // Unset the SNR
 void MptkGuiCallback::unsetSNR()
 {
-  mpd_Core->reset_snr_condition();
+  mpd_Core->useStopAfterSnr=false;
 }
 
 // Set the SNR
@@ -232,13 +218,13 @@ void MptkGuiCallback::setSNR(double snr)
 	mpd_Core->set_snr_condition(snr);
 }
 
-void MptkGuiCallback::setSave(const unsigned long int setSaveHit,const char* setBookFileName,const  char* setResFileName,const char* setDecayFileName )
+void MptkGuiCallback::setSave(const unsigned long int setSaveHit,const char* bookFileName,const  char* resFileName,const char* decayFileName )
 {
-  mpd_Core->set_save_hit(setSaveHit,setBookFileName,setResFileName,setDecayFileName );
+  mpd_Core->set_save_hit(setSaveHit,bookFileName,NULL,resFileName,decayFileName );
 }
 
 void MptkGuiCallback::unsetSave()
-{ 
+{
   mpd_Core->reset_save_hit();
 }
 
@@ -270,16 +256,16 @@ void MptkGuiCallback::stopIteration()
 
 void MptkGuiCallback::verbose()
 {
-  mpd_Core->set_verbose();
+  mpd_Core->verbose=true;
 }
 void MptkGuiCallback:: quiet()
 {
- mpd_Core->reset_verbose();
+ mpd_Core->verbose=false;
 }
 
 void  MptkGuiCallback::normal()
 {
- mpd_Core->reset_verbose();
+ mpd_Core->verbose=false;
 }
 
 void MptkGuiCallback::setAllHandler()
@@ -299,20 +285,20 @@ set_msg_handler(mp_gui_handler);
 
 int MptkGuiCallback::getIterationValue()
 {
-  return mpd_Core->get_current_stop_after_iter();
+  return mpd_Core->stopAfterIter;
 }
 
 bool MptkGuiCallback::getIterCheck()
 { 
-return mpd_Core->get_use_stop_after_iter_state();
+return mpd_Core->useStopAfterIter;
 }
 
 float MptkGuiCallback::getSNRValue()
 {
-  return mpd_Core->get_current_stop_after_snr();
+  return mpd_Core->stopAfterSnr;
 }
 
 bool MptkGuiCallback::getSNRCheck()
 { 
-return mpd_Core->get_use_stop_after_snr_state();
+return mpd_Core->useStopAfterSnr;
 }
