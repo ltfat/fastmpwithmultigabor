@@ -75,8 +75,6 @@ int MptkGuiCallback::initMpdCore(wxString signalName, wxString bookName){
 
   if (opSig == SIGNAL_OPENED || opBook == BOOK_OPENED) {
     approximant = MP_Signal_c::init( book->numChans, book->numSamples, book->sampleRate);
-      MP_Dll_Manager_c* dll = new MP_Dll_Manager_c();
-    dll->load_dll("/udd/broy/workspace/build-MPTK-plugin-linux/lib");
     mpd_Core = MP_Mpd_Core_c::create(signal,book,approximant);
     
 
