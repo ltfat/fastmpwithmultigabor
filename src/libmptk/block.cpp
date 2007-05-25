@@ -54,7 +54,8 @@
 /* Initialization of signal-independent block parameters */
 int MP_Block_c::init_parameters( const unsigned long int setFilterLen,
 				 const unsigned long int setFilterShift,
-				 const unsigned long int setNumFilters ) {
+				 const unsigned long int setNumFilters,
+                                 const unsigned long int setBlockOffset ) {
 
   const char* func = "MP_Block_c::init_parameters(...)";
 
@@ -79,6 +80,7 @@ int MP_Block_c::init_parameters( const unsigned long int setFilterLen,
   filterLen = setFilterLen;
   filterShift = setFilterShift;
   numFilters = setNumFilters;
+  blockOffset = setBlockOffset;
 
   return( 0 );
 }
@@ -103,7 +105,11 @@ int MP_Block_c::plug_signal( MP_Signal_c *setSignal ) {
     s = setSignal;
     
     /* Set frame count */
-    numFrames = len2numFrames( s->numSamples, filterLen, filterShift );
+    if ( blockOffset > s->numSamples ) {
+      mp_error_msg( func, "The block offset can't be superior to the signal length.\n");
+    } else {
+      numFrames = len2numFrames( s->numSamples - blockOffset, filterLen, filterShift );
+    }
     
     /* Parameters for the research of the max */
     maxIPValue = -1.0;
@@ -243,7 +249,7 @@ void MP_Block_c::nullify_signal( void ) {
 /* NULL constructor */
 MP_Block_c::MP_Block_c( void ) {
 
-  filterLen = filterShift = numFilters = numFrames = 0;
+  filterLen = filterShift = numFilters = numFrames = blockOffset = 0;
 
   maxIPValue = 0.0;
   maxIPFrameIdx = 0;
@@ -429,7 +435,7 @@ MP_Support_t MP_Block_c::update_ip( const MP_Support_t *touch ) {
 
      THIS IS CRITICAL CODE. MODIFY WITH CARE.
   */
-  
+
   /* -- If touch is NULL, we ask for a full update: */
   if ( touch == NULL ) {
     fromFrame = 0;
@@ -438,15 +444,23 @@ MP_Support_t MP_Block_c::update_ip( const MP_Support_t *touch ) {
   /* -- If touch is not NULL, we specify a touched support: */
   else {
     /* Initialize fromFrame and toFrame using the support on channel 0 */
-    fromSample = touch[0].pos;
+    if (blockOffset>touch[0].pos) {
+      fromSample = 0;
+    } else {
+      fromSample = touch[0].pos-blockOffset;
+    }
     fromFrame = len2numFrames( fromSample, filterLen, filterShift );
-    
+
     toSample = ( fromSample + touch[0].len - 1 );
     toFrame  = toSample / filterShift ;
     if ( toFrame >= numFrames )  toFrame = numFrames - 1;
     /* Adjust fromFrame and toFrame with respect to supports on the subsequent channels */
     for ( chanIdx = 1; chanIdx < s->numChans; chanIdx++ ) {
-      fromSample = touch[chanIdx].pos;
+      if (blockOffset>touch[chanIdx].pos) {
+        fromSample = 0;
+      } else {
+        fromSample = touch[chanIdx].pos-blockOffset;
+      }
       tmpFromFrame = len2numFrames( fromSample, filterLen, filterShift );
       if ( tmpFromFrame < fromFrame ) fromFrame = tmpFromFrame;
       

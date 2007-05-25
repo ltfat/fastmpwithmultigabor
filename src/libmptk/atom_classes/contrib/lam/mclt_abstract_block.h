@@ -102,7 +102,8 @@ protected:
 			       const unsigned long int setFilterShift,
 			       const unsigned long int setFftSize,
 			       const unsigned char setWindowType,
-			       const double setWindowOption );
+			       const double setWindowOption,
+                               const unsigned long int setBlockOffset );
 
   /** \brief nullification of the signal-related parameters */
   virtual void nullify_signal( void );

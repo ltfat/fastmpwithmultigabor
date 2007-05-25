@@ -246,6 +246,14 @@ bool *dict_scan_boolPtr2 = NULL;
 		     dict_scan_boolPtr = &(scanInfo->globFftSizeIsSet);
 		     yy_push_state(SCAN_ULONG); }
 
+<SCAN_PAR>blockOffset { dict_scan_ulongPtr = &(scanInfo->blockOffset);
+		       dict_scan_boolPtr = &(scanInfo->blockOffsetIsSet);
+		       yy_push_state(SCAN_ULONG); }
+
+<SCAN_GLOB>blockOffset { dict_scan_ulongPtr = &(scanInfo->globBlockOffset);
+			dict_scan_boolPtr = &(scanInfo->globBlockOffsetIsSet);
+			yy_push_state(SCAN_ULONG); }
+
 <SCAN_PAR>f0Min { dict_scan_doublePtr = &(scanInfo->f0Min);
 		  dict_scan_boolPtr = &(scanInfo->f0MinIsSet);
 		  yy_push_state(SCAN_DOUBLE); }

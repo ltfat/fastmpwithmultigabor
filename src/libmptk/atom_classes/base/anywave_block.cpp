@@ -4,7 +4,7 @@
 /*                                                                            */
 /*                        Matching Pursuit Library                            */
 /*                                                                            */
-/* Rémi Gribonval                                                             */
+/* Rï¿½mi Gribonval                                                             */
 /* Sacha Krstulovic                                                           */
 /* Sylvain Lesage                                             Fri Nov 04 2005 */
 /* -------------------------------------------------------------------------- */
@@ -54,7 +54,8 @@
 /* Factory function     */
 MP_Anywave_Block_c* MP_Anywave_Block_c::init( MP_Signal_c *setSignal,
 					      const unsigned long int setFilterShift,
-					      char* anywaveTableFilename ) {
+					      char* anywaveTableFilename,
+                                          const unsigned long int setBlockOffset ) {
 
   const char* func = "MP_Anywave_Block_c::init()";
   MP_Anywave_Block_c *newBlock = NULL;
@@ -67,7 +68,7 @@ MP_Anywave_Block_c* MP_Anywave_Block_c::init( MP_Signal_c *setSignal,
   }
 
   /* Set the block parameters (that are independent from the signal) */
-  if ( newBlock->init_parameters( setFilterShift, anywaveTableFilename ) ) {
+  if ( newBlock->init_parameters( setFilterShift, anywaveTableFilename, setBlockOffset ) ) {
     mp_error_msg( func, "Failed to initialize some block parameters in the new Anywave block.\n" );
     delete( newBlock );
     return( NULL );
@@ -87,7 +88,8 @@ MP_Anywave_Block_c* MP_Anywave_Block_c::init( MP_Signal_c *setSignal,
 /*********************************************************/
 /* Initialization of signal-independent block parameters */
 int MP_Anywave_Block_c::init_parameters( const unsigned long int setFilterShift,
-					 char* anywaveTableFilename ) {
+					 char* anywaveTableFilename,
+                                       const unsigned long int setBlockOffset ) {
 
   extern MP_Anywave_Server_c MP_GLOBAL_ANYWAVE_SERVER;  
 
@@ -105,7 +107,7 @@ int MP_Anywave_Block_c::init_parameters( const unsigned long int setFilterShift,
   }
 
   /* Go up the inheritance graph */
-  if ( MP_Block_c::init_parameters( anywaveTable->filterLen, setFilterShift, anywaveTable->numFilters ) ) {
+  if ( MP_Block_c::init_parameters( anywaveTable->filterLen, setFilterShift, anywaveTable->numFilters,setBlockOffset ) ) {
     mp_error_msg( func, "Failed to init the block-level parameters in the new Anywave block.\n" );
     return( 1 );
   }
@@ -216,7 +218,7 @@ bool MP_Anywave_Block_c::test( char* signalFileName, unsigned long int filterShi
   if (signal == NULL) {
     return(false);
   }
-  MP_Anywave_Block_c* block = MP_Anywave_Block_c::init( signal, filterShift, tableFileName );
+  MP_Anywave_Block_c* block = MP_Anywave_Block_c::init( signal, filterShift, tableFileName,0 );
   if (block == NULL) {
     return(false);
   }
@@ -284,6 +286,7 @@ MP_Support_t MP_Anywave_Block_c::update_ip( const MP_Support_t *touch ) {
   unsigned long int tmpFromFrame, tmpToFrame;
   unsigned long int fromSample;
   unsigned long int toSample;
+  unsigned long int tmp;
 
   unsigned long int signalLen;
   unsigned long int numTouchedFrames;
@@ -325,8 +328,12 @@ MP_Support_t MP_Anywave_Block_c::update_ip( const MP_Support_t *touch ) {
   /* -- If touch is not NULL, we specify a touched support: */
   else {
     /* Initialize fromFrame and toFrame using the support on channel 0 */
-
-    fromFrame = len2numFrames( touch[0].pos, filterLen, filterShift );
+    if (blockOffset>touch[0].pos) {
+      tmp = 0;
+    } else {
+      tmp = touch[0].pos-blockOffset;
+    }
+    fromFrame = len2numFrames( tmp, filterLen, filterShift );
 
     toFrame = ( touch[0].pos + touch[0].len - 1 ) / filterShift;
 
@@ -334,15 +341,20 @@ MP_Support_t MP_Anywave_Block_c::update_ip( const MP_Support_t *touch ) {
 
     /* Adjust fromFrame and toFrame with respect to supports on the subsequent channels */
     for ( chanIdx = 1; chanIdx < s->numChans; chanIdx++ ) {
-      tmpFromFrame = len2numFrames( touch[chanIdx].pos, filterLen, filterShift );
+      if (blockOffset>touch[chanIdx].pos) {
+        tmp = 0;
+      } else {
+        tmp = touch[chanIdx].pos-blockOffset;
+      }
+      tmpFromFrame = len2numFrames( tmp, filterLen, filterShift );
       if ( tmpFromFrame < fromFrame ) fromFrame = tmpFromFrame;
       
       tmpToFrame  = ( touch[chanIdx].pos + touch[chanIdx].len - 1 ) / filterShift ;
       if ( tmpToFrame >= numFrames )  tmpToFrame = numFrames - 1;
       if ( tmpToFrame > toFrame ) toFrame = tmpToFrame;
     }
-    fromSample = fromFrame * filterShift;    
-    toSample = toFrame * filterShift + filterLen - 1;
+    fromSample = fromFrame * filterShift + blockOffset;    
+    toSample = toFrame * filterShift + filterLen - 1 + blockOffset;
   }
   signalLen = toSample - fromSample + 1;
   numTouchedFrames = toFrame - fromFrame + 1;
@@ -373,7 +385,7 @@ unsigned int MP_Anywave_Block_c::create_atom( MP_Atom_c **atom,
 
   /* Misc: */
   unsigned short int chanIdx;
-  unsigned long int pos = frameIdx*filterShift;
+  unsigned long int pos = frameIdx*filterShift + blockOffset;
   
   /* Check the position */
   if ( (pos+filterLen) > s->numSamples ) {
@@ -485,7 +497,7 @@ int add_anywave_block( MP_Dict_c *dict,
 
   MP_Anywave_Block_c *newBlock;
 
-  newBlock = MP_Anywave_Block_c::init( dict->signal, filterShift, anywaveTableFileName );
+  newBlock = MP_Anywave_Block_c::init( dict->signal, filterShift, anywaveTableFileName,0 );
   if ( newBlock != NULL ) {
     dict->add_block( newBlock );
   }

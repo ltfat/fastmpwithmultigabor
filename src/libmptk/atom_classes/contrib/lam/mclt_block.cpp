@@ -46,7 +46,8 @@
 MP_Mclt_Block_c* MP_Mclt_Block_c::init( MP_Signal_c *setSignal,
 					  const unsigned long int setFilterLen,
 					  const unsigned char setWindowType,
-					  const double setWindowOption ) {
+					  const double setWindowOption,
+                                          const unsigned long int setBlockOffset ) {
   const char* func = "MP_Mclt_Block_c::init()";
 
   /* Parameters for a strict MCLT */
@@ -58,7 +59,7 @@ MP_Mclt_Block_c* MP_Mclt_Block_c::init( MP_Signal_c *setSignal,
   }
 
   /* Call the factory function of a generalized mclt */
-  MP_Mclt_Block_c *newBlock = init(setSignal,setFilterLen,setFilterShift,setFftSize,setWindowType,setWindowOption);
+  MP_Mclt_Block_c *newBlock = init(setSignal,setFilterLen,setFilterShift,setFftSize,setWindowType,setWindowOption,setBlockOffset);
 
   return( newBlock );
 }
@@ -70,7 +71,8 @@ MP_Mclt_Block_c* MP_Mclt_Block_c::init( MP_Signal_c *setSignal,
 					  const unsigned long int setFilterShift,
 					  const unsigned long int setFftSize,
 					  const unsigned char setWindowType,
-					  const double setWindowOption ) {
+					  const double setWindowOption,
+                                          const unsigned long int setBlockOffset ) {
 
   const char* func = "MP_Mclt_Block_c::init()";
   MP_Mclt_Block_c *newBlock = NULL;
@@ -84,7 +86,7 @@ MP_Mclt_Block_c* MP_Mclt_Block_c::init( MP_Signal_c *setSignal,
 
   /* Set the block parameters (that are independent from the signal) */
   if ( newBlock->init_parameters( setFilterLen, setFilterShift, setFftSize,
-				  setWindowType, setWindowOption ) ) {
+				  setWindowType, setWindowOption, setBlockOffset ) ) {
     mp_error_msg( func, "Failed to initialize some block parameters in the new Mclt block.\n" );
     delete( newBlock );
     return( NULL );
@@ -106,11 +108,12 @@ int MP_Mclt_Block_c::init_parameters( const unsigned long int setFilterLen,
 				       const unsigned long int setFilterShift,
 				       const unsigned long int setFftSize,
 				       const unsigned char setWindowType,
-				       const double setWindowOption ) {
+				       const double setWindowOption,
+                                       const unsigned long int setBlockOffset ) {
 
 const char* func = "MP_Mclt_Block_c::init_parameters()";
 
-  MP_Mclt_Abstract_Block_c::init_parameters( setFilterLen, setFilterShift,setFftSize, setWindowType,setWindowOption);
+  MP_Mclt_Abstract_Block_c::init_parameters( setFilterLen, setFilterShift,setFftSize, setWindowType,setWindowOption, setBlockOffset);
 
   /* Allocate the atom's autocorrelations */
   if ( alloc_correl( &reCorrel, &imCorrel, &sqCorrel, &cstCorrel ) ) {
@@ -367,7 +370,7 @@ void MP_Mclt_Block_c::update_frame(unsigned long int frameIdx,
   numChans = s->numChans;
   assert( mag != NULL );
 
-  inShift = frameIdx*filterShift;
+  inShift = frameIdx*filterShift + blockOffset;
 
   /*----*/
   /* Fill the mag array: */
@@ -421,7 +424,7 @@ unsigned int MP_Mclt_Block_c::create_atom( MP_Atom_c **atom,
   const char* func = "MP_Mclt_Block_c::create_atom(...)";
   MP_Mclt_Atom_c *matom = NULL;
   /* Time-frequency location: */
-  unsigned long int pos = frameIdx*filterShift;
+  unsigned long int pos = frameIdx*filterShift + blockOffset;
   /* Parameters for a new FFT run: */
   MP_Sample_t *in;
   /* Parameters for the atom waveform : */

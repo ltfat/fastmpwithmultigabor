@@ -57,6 +57,7 @@ MP_Chirp_Block_c* MP_Chirp_Block_c::init( MP_Signal_c *setSignal,
 					  const unsigned long int setFftSize,
 					  const unsigned char setWindowType,
 					  const double setWindowOption,
+                                          const unsigned long int setBlockOffset,
 					  const unsigned int setNumFitPoints,
 					  const unsigned int setNumIter ) {
 
@@ -72,7 +73,7 @@ MP_Chirp_Block_c* MP_Chirp_Block_c::init( MP_Signal_c *setSignal,
 
   /* Set the block parameters (that are independent from the signal) */
   if ( newBlock->init_parameters( setFilterLen, setFilterShift, setFftSize,
-				  setWindowType, setWindowOption,
+				  setWindowType, setWindowOption, setBlockOffset,
 				  setNumFitPoints, setNumIter ) ) {
     mp_error_msg( func, "Failed to initialize some block parameters in the new Chirp block.\n" );
     delete( newBlock );
@@ -99,6 +100,7 @@ int MP_Chirp_Block_c::init_parameters( const unsigned long int setFilterLen,
 				       const unsigned long int setFftSize,
 				       const unsigned char setWindowType,
 				       const double setWindowOption,
+                                       const unsigned long int setBlockOffset,
 				       const unsigned int setNumFitPoints,
 				       const unsigned int setNumIter ) {
 
@@ -106,7 +108,7 @@ int MP_Chirp_Block_c::init_parameters( const unsigned long int setFilterLen,
 
   /* Go up the inheritance graph */
   if ( MP_Gabor_Block_c::init_parameters( setFilterLen, setFilterShift, setFftSize,
-					  setWindowType, setWindowOption ) ) {
+					  setWindowType, setWindowOption, setBlockOffset ) ) {
     mp_error_msg( func, "Failed to init the parameters at the Gabor block level"
 		  " in the new Chirp block.\n" );
     return( 1 );
@@ -758,7 +760,7 @@ int add_chirp_block( MP_Dict_c *dict,
   MP_Chirp_Block_c *newBlock;
   
   newBlock = MP_Chirp_Block_c::init( dict->signal, filterLen, filterShift,
-				     fftSize, windowType, windowOption ,
+				     fftSize, windowType, windowOption , 0,
 				     numFitPoints, numIter );
   if ( newBlock != NULL ) {
     dict->add_block( newBlock );
@@ -801,7 +803,7 @@ int add_chirp_blocks( MP_Dict_c *dict,
     setFftSize = (unsigned long int)round((MP_Real_t)(setFilterLen)*freqDensity);
     nAddedBlocks += add_chirp_block( dict,
 				     setFilterLen, setFilterShift, setFftSize,
-				     setWindowType, setWindowOption ,
+				     setWindowType, setWindowOption,
 				     setNumFitPoints, setNumIter );
   }
 

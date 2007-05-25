@@ -131,6 +131,7 @@ public:
    * \param fftSize the size of the FFT, including zero padding
    * \param windowType the window type (see the doc of libdsp_windows.h)
    * \param windowOption the optional window parameter.
+   * \param blockOffset the block offset
    * 
    * \sa MP_FFT_Interface_c::numFreqs MP_FFT_Interface_c::exec_complex()
    */
@@ -139,7 +140,8 @@ public:
 				 const unsigned long int filterShift,
 				 const unsigned long int fftSize,
 				 const unsigned char windowType,
-				 const double windowOption );
+				 const double windowOption,
+                                 const unsigned long int blockOffset );
 
   /** \brief an initializer for the parameters which ARE related to the signal */
   virtual int plug_signal( MP_Signal_c *setSignal );
@@ -150,7 +152,8 @@ protected:
 			       const unsigned long int setFilterShift,
 			       const unsigned long int setFftSize,
 			       const unsigned char setWindowType,
-			       const double setWindowOption );
+			       const double setWindowOption,
+                               const unsigned long int setBlockOffset );
 
   /** \brief nullification of the signal-related parameters */
   virtual void nullify_signal( void );
@@ -309,7 +312,7 @@ int add_gabor_block( MP_Dict_c *dict,
 		     const unsigned long int filterShift,
 		     const unsigned long int fftSize,
 		     const unsigned char windowType,
-		     const double windowOption );
+		     const double windowOption);
 
 
 /** \brief Add a family of Gabor blocks to a dictionary.

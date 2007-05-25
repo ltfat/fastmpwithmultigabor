@@ -53,7 +53,8 @@
 /* Factory function     */
 MP_Nyquist_Block_c* MP_Nyquist_Block_c::init( MP_Signal_c *setSignal,
 						const unsigned long int setFilterLen,
-						const unsigned long int setFilterShift ) {
+						const unsigned long int setFilterShift,
+                                                const unsigned long int setblockOffset ) {
   
   const char* func = "MP_Nyquist_Block_c::init()";
   MP_Nyquist_Block_c *newBlock = NULL;
@@ -66,7 +67,7 @@ MP_Nyquist_Block_c* MP_Nyquist_Block_c::init( MP_Signal_c *setSignal,
   }
 
   /* Set the block parameters (that are independent from the signal) */
-  if ( newBlock->init_parameters( setFilterLen, setFilterShift ) ) {
+  if ( newBlock->init_parameters( setFilterLen, setFilterShift, setblockOffset) ) {
     mp_error_msg( func, "Failed to initialize some block parameters in the new Nyquist block.\n" );
     delete( newBlock );
     return( NULL );
@@ -86,12 +87,13 @@ MP_Nyquist_Block_c* MP_Nyquist_Block_c::init( MP_Signal_c *setSignal,
 /*********************************************************/
 /* Initialization of signal-independent block parameters */
 int MP_Nyquist_Block_c::init_parameters( const unsigned long int setFilterLen,
-					  const unsigned long int setFilterShift ) {
+					  const unsigned long int setFilterShift,
+                       const unsigned long int setblockOffset ) {
 
   const char* func = "MP_Nyquist_Block_c::init_parameters(...)";
 
   /* Go up the inheritance graph */
-  if ( MP_Block_c::init_parameters( setFilterLen, setFilterShift, 1 ) ) {
+  if ( MP_Block_c::init_parameters( setFilterLen, setFilterShift, 1,setblockOffset ) ) {
     mp_error_msg( func, "Failed to init the block-level parameters in the new Nyquist block.\n" );
     return( 1 );
   }
@@ -200,7 +202,7 @@ void MP_Nyquist_Block_c::update_frame(unsigned long int frameIdx,
   assert( maxCorr != NULL );
   assert( maxFilterIdx != NULL );
 
-  inShift = frameIdx*filterShift;
+  inShift = frameIdx*filterShift + blockOffset;
 
   /*----*/
   /* Fill the mag array: */
@@ -233,7 +235,7 @@ unsigned int MP_Nyquist_Block_c::create_atom( MP_Atom_c **atom,
   const char* func = "MP_Nyquist_Block_c::create_atom(...)";
   MP_Nyquist_Atom_c *datom;
   int chanIdx;
-  unsigned long int pos = frameIdx*filterShift;
+  unsigned long int pos = frameIdx*filterShift + blockOffset;
   unsigned long int t;
   MP_Sample_t* pAmp;
   MP_Sample_t ip;
@@ -295,7 +297,7 @@ int add_nyquist_block( MP_Dict_c *dict,
 
   MP_Nyquist_Block_c *newBlock;
 
-  newBlock = MP_Nyquist_Block_c::init( dict->signal, setFilterLen, setFilterShift );
+  newBlock = MP_Nyquist_Block_c::init( dict->signal, setFilterLen, setFilterShift, 0);
   if ( newBlock != NULL ) {
     dict->add_block( newBlock );
   }

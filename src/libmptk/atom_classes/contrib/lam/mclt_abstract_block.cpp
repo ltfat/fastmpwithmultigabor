@@ -47,7 +47,8 @@ int MP_Mclt_Abstract_Block_c::init_parameters( const unsigned long int setFilter
 				       const unsigned long int setFilterShift,
 				       const unsigned long int setFftSize,
 				       const unsigned char setWindowType,
-				       const double setWindowOption ) {
+				       const double setWindowOption,
+                                       const unsigned long int setBlockOffset ) {
 
   const char* func = "MP_mclt_abstract_Block_c::init_parameters(...)";
 
@@ -70,7 +71,7 @@ int MP_Mclt_Abstract_Block_c::init_parameters( const unsigned long int setFilter
   }
 
   /* Go up the inheritance graph */
-  if ( MP_Block_c::init_parameters( setFilterLen, setFilterShift, setFftSize/2 ) ) {
+  if ( MP_Block_c::init_parameters( setFilterLen, setFilterShift, setFftSize/2, setBlockOffset ) ) {
     mp_error_msg( func, "Failed to init the block-level parameters in the new Gabor block.\n" );
     return( 1 );
   }

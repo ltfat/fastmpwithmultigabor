@@ -56,7 +56,8 @@ MP_Gabor_Block_c* MP_Gabor_Block_c::init( MP_Signal_c *setSignal,
 					  const unsigned long int setFilterShift,
 					  const unsigned long int setFftSize,
 					  const unsigned char setWindowType,
-					  const double setWindowOption ) {
+					  const double setWindowOption,
+                                          const unsigned long int setBlockOffset ) {
 
   const char* func = "MP_Gabor_Block_c::init()";
   MP_Gabor_Block_c *newBlock = NULL;
@@ -70,7 +71,7 @@ MP_Gabor_Block_c* MP_Gabor_Block_c::init( MP_Signal_c *setSignal,
 
   /* Set the block parameters (that are independent from the signal) */
   if ( newBlock->init_parameters( setFilterLen, setFilterShift, setFftSize,
-				  setWindowType, setWindowOption ) ) {
+				  setWindowType, setWindowOption, setBlockOffset ) ) {
     mp_error_msg( func, "Failed to initialize some block parameters in the new Gabor block.\n" );
     delete( newBlock );
     return( NULL );
@@ -93,7 +94,8 @@ int MP_Gabor_Block_c::init_parameters( const unsigned long int setFilterLen,
 				       const unsigned long int setFilterShift,
 				       const unsigned long int setFftSize,
 				       const unsigned char setWindowType,
-				       const double setWindowOption ) {
+				       const double setWindowOption,
+                                       const unsigned long int setBlockOffset ) {
 
   const char* func = "MP_Gabor_Block_c::init_parameters(...)";
 
@@ -123,7 +125,7 @@ int MP_Gabor_Block_c::init_parameters( const unsigned long int setFilterLen,
   }
 
   /* Go up the inheritance graph */
-  if ( MP_Block_c::init_parameters( setFilterLen, setFilterShift, (setFftSize >> 1) + 1 ) ) {
+  if ( MP_Block_c::init_parameters( setFilterLen, setFilterShift, (setFftSize >> 1) + 1, setBlockOffset ) ) {
     mp_error_msg( func, "Failed to init the block-level parameters in the new Gabor block.\n" );
     return( 1 );
   }
@@ -518,7 +520,7 @@ void MP_Gabor_Block_c::update_frame(unsigned long int frameIdx,
   numChans = s->numChans;
   assert( mag != NULL );
 
-  inShift = frameIdx*filterShift;
+  inShift = frameIdx*filterShift + blockOffset;
 
   /*----*/
   /* Fill the mag array: */
@@ -573,7 +575,7 @@ unsigned int MP_Gabor_Block_c::create_atom( MP_Atom_c **atom,
   const char* func = "MP_Gabor_Block_c::create_atom(...)";
   MP_Gabor_Atom_c *gatom = NULL;
   /* Time-frequency location: */
-  unsigned long int pos = frameIdx*filterShift;
+  unsigned long int pos = frameIdx*filterShift + blockOffset;
   /* Parameters for a new FFT run: */
   MP_Sample_t *in;
   /* Parameters for the atom waveform : */
@@ -677,13 +679,13 @@ int add_gabor_block( MP_Dict_c *dict,
 		     const unsigned long int filterShift,
 		     const unsigned long int fftSize,
 		     const unsigned char windowType,
-		     const double windowOption ) {
+		     const double windowOption) {
 
   const char* func = "add_gabor_block(...)";
   MP_Gabor_Block_c *newBlock;
 
   newBlock = MP_Gabor_Block_c::init( dict->signal, filterLen, filterShift, fftSize,
-				     windowType, windowOption );
+				     windowType, windowOption, 0 );
   if ( newBlock != NULL ) {
     dict->add_block( newBlock );
   }
@@ -704,7 +706,7 @@ int add_gabor_blocks( MP_Dict_c *dict,
 		      const MP_Real_t timeDensity,
 		      const MP_Real_t freqDensity, 
 		      const unsigned char setWindowType,
-		      const double setWindowOption ) {
+		      const double setWindowOption) {
 
   unsigned long int setFilterLen;
   unsigned long int setFilterShift;

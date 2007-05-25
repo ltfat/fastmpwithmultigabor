@@ -80,7 +80,7 @@ int main( void ) {
   /*** Block 2: HARMONIC */
   add_harmonic_block( dict,
 		      1024, 512, FFTSIZE,
-		      WINDOW, 0.0,
+		      WINDOW, 0.0, 
 		      1, 4000, 0 );
 
   /*** Block 3: DIRAC */

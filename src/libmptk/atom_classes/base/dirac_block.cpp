@@ -87,7 +87,7 @@ int MP_Dirac_Block_c::init_parameters( void ) {
   const char* func = "MP_Dirac_Block_c::init_parameters(...)";
 
   /* Go up the inheritance graph */
-  if ( MP_Block_c::init_parameters( 1, 1, 1 ) ) {
+  if ( MP_Block_c::init_parameters( 1, 1, 1, 0 ) ) {
     mp_error_msg( func, "Failed to init the block-level parameters in the new Dirac block.\n" );
     return( 1 );
   }

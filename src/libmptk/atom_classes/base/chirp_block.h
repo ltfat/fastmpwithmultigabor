@@ -135,6 +135,7 @@ public:
 				 const unsigned long int fftSize,
 				 const unsigned char windowType,
 				 const double windowOption,
+                                 const unsigned long int blockOffset,
 				 const unsigned int setNumFitPoints,
 				 const unsigned int setNumIter );
 
@@ -148,6 +149,7 @@ protected:
 			       const unsigned long int setFftSize,
 			       const unsigned char setWindowType,
 			       const double setWindowOption,
+                               const unsigned long int setBlockOffset,
 			       const unsigned int setNumFitPoints,
 			       const unsigned int setNumIter );
 

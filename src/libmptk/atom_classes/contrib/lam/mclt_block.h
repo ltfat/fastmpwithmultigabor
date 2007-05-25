@@ -97,6 +97,7 @@ public:
    * \param fftSize the size of the FFT, including zero padding
    * \param windowType the window type (see the doc of libdsp_windows.h)
    * \param windowOption the optional window parameter.
+   * \param blockOffset the block offset
    * 
    */
   static MP_Mclt_Block_c* init( MP_Signal_c *s,
@@ -104,20 +105,23 @@ public:
 				 const unsigned long int filterShift,
 				 const unsigned long int fftSize,
 				 const unsigned char windowType,
-				 const double windowOption );
+				 const double windowOption,
+                                 const unsigned long int blockOffset );
 
   /** \brief Factory function for a strict mclt block
    *
    * \param filterLen the length of the signal window, in number of samples
    * \param windowType the window type (see the doc of libdsp_windows.h)
    * \param windowOption the optional window parameter.
+   * \param blockOffset the block offset
    *
    * Warning: In this case, the window type must be rectangle, cosine or kbd. 
    */
   static MP_Mclt_Block_c* init( MP_Signal_c *s,
 				 const unsigned long int filterLen,
 				 const unsigned char windowType,
-				 const double windowOption );
+				 const double windowOption,
+                                 const unsigned long int blockOffset );
 
 
   /** \brief an initializer for the parameters which ARE related to the signal */
@@ -129,7 +133,8 @@ protected:
 			       const unsigned long int setFilterShift,
 			       const unsigned long int setFftSize,
 			       const unsigned char setWindowType,
-			       const double setWindowOption );
+			       const double setWindowOption,
+                               const unsigned long int blockOffset );
 
   /** \brief nullification of the signal-related parameters */
   virtual void nullify_signal( void );

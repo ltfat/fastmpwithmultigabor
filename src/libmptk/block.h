@@ -69,8 +69,10 @@ public:
   unsigned long int filterShift;
   /** \brief number of atoms/filters per frame */
   unsigned long int numFilters;
+  /** \brief global block offset : position of the first frame */
+  unsigned long int blockOffset;
   /** \brief number of frames for each channel (determined by
-   * the size of the signal and the frame shift) */
+   * the size of the signal, the frame shift and the block offset) */
   unsigned long int numFrames;
   
   /* Max of inner products (in fact, max of the squared energy): */
@@ -113,7 +115,8 @@ protected:
   /** \brief an initializer for the parameters which ARE NOT related to the signal */
   virtual int init_parameters( const unsigned long int setFilterLen,
 			       const unsigned long int setFilterShift,
-			       const unsigned long int setNumFilters );
+			       const unsigned long int setNumFilters,
+                               const unsigned long int setBlockOffset );
 
   /** \brief nullification of the signal-related parameters */
   virtual void nullify_signal( void );

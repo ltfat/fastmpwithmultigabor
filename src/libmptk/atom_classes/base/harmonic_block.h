@@ -142,6 +142,7 @@ public:
    * \param s the signal on which the block will work
    * \param setWindowType type of the window  (ex: \b DSP_GAUSS_WIN, \b DSP_HAMMING_WIN, ...)
    * \param setWindowOption optional shaping parameter of the windows
+   * \param setBlockOffset the block offset
    * \param setMinFundFreqIdx minimum allowed fundamental frequency of the harmonic subspaces, 
    * expressed in frequency bins between 0 (DC) and \a numFreqs-1 (Nyquist)
    * \param setMaxFundFreqIdx maximum allowed fundamental frequency of the harmonic subspaces, 
@@ -163,6 +164,7 @@ public:
 				    const unsigned long int setFftSize,
 				    const unsigned char setWindowType,
 				    const double setWindowOption,
+                                    const unsigned long int setBlockOffset,
 				    const MP_Real_t setF0Min,
 				    const MP_Real_t setF0Max,
 				    const unsigned int  setMaxNumPartials );
@@ -177,6 +179,7 @@ protected:
 			       const unsigned long int setFftSize,
 			       const unsigned char setWindowType,
 			       const double setWindowOption,
+                               const unsigned long int setBlockOffset,
 			       const MP_Real_t setF0Min,
 			       const MP_Real_t setF0Max,
 			       const unsigned int  setMaxNumPartials );
@@ -289,7 +292,7 @@ int add_harmonic_block( MP_Dict_c *dict,
 			const double windowOption,
 			const MP_Real_t f0Min,
 			const MP_Real_t f0Max,
-			const unsigned int  maxNumPartials);
+			const unsigned int  maxNumPartials );
 
 /** \brief Add a family of harmonic blocks to a dictionary.
  *
@@ -335,7 +338,7 @@ int add_harmonic_blocks( MP_Dict_c *dict,
 			 const double setWindowOption,
 			 const MP_Real_t f0Min,
 			 const MP_Real_t f0Max,
-			 const unsigned int  maxNumPartials);
+			 const unsigned int  maxNumPartials );
 
 
 #endif /* __harmonic_block_h_ */

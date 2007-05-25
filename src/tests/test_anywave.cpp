@@ -95,7 +95,7 @@ int main( int argc, char **argv ) {
 
   atomOK = MP_Anywave_Atom_c::test( tableFileName );
 
-  blockOK = MP_Anywave_Block_c::test( signalFileName, 25, tableFileName);
+  blockOK = MP_Anywave_Block_c::test( signalFileName, 25,tableFileName);
 
   dictOK = MP_Dict_c::test( signalFileName, dictFileName);  
 

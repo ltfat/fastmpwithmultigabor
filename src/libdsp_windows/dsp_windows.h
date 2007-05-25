@@ -4,7 +4,7 @@
 /*                                                                            */
 /*                    Digital Signal Processing Windows                       */
 /*                                                                            */
-/* Rémi Gribonval                                                             */
+/* Rï¿½mi Gribonval                                                             */
 /* Sacha Krstulovic                                           Mon Feb 21 2005 */
 /* -------------------------------------------------------------------------- */
 /*                                                                            */
@@ -162,6 +162,14 @@
  *
  **/
 #define DSP_KBD_WIN	    12
+
+#define DSP_PBCOSINE_WIN      13
+/** \brief Cosine window which satisfy the Princen-Bradley condition
+ *
+ * \f[
+ * w[n] \propto 0.5 \left(1-\cos \left(2\pi \frac{n+0.5}{N}\right)\right)
+ * \f]
+ */
 
 /** \brief A special type of windows.
  * It is \b reserved for future use with windows that do not necessarily

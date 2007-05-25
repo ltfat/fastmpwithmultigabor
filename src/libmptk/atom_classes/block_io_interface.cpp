@@ -85,6 +85,9 @@ void MP_Scan_Info_c::reset( void ) {
 
   windowOption = 0.0;
   windowOptionIsSet = false;
+
+  blockOffset = 0;
+  blockOffsetIsSet = false;
   
   f0Min = 0;
   f0MinIsSet = false;
@@ -132,6 +135,9 @@ void MP_Scan_Info_c::reset_all( void ) {
 
   globWindowOption = 0.0;
   globWindowOptionIsSet = false;
+
+  globBlockOffset = 0;
+  globBlockOffsetIsSet = false;
   
   globF0Min = 0;
   globF0MinIsSet = false;
@@ -255,6 +261,17 @@ MP_Block_c* MP_Scan_Info_c::pop_block( MP_Signal_c *signal ) {
       return( NULL );
     }
 
+    /* Block offset */
+    if (!blockOffsetIsSet) {
+      if (globBlockOffsetIsSet) {
+        blockOffset = globBlockOffset;
+        blockOffsetIsSet = true;
+      } else {
+        blockOffset = 0;
+        blockOffsetIsSet = true;
+      }
+    }
+
     /****************************************************/
     /* - Additional parameters for the harmonic block: */
     if ( !strcmp(type,"harmonic") ) {
@@ -372,6 +389,16 @@ MP_Block_c* MP_Scan_Info_c::pop_block( MP_Signal_c *signal ) {
 	return( NULL );
       }
     }
+    /* Block offset */
+    if (!blockOffsetIsSet) {
+      if (globBlockOffsetIsSet) {
+        blockOffset = globBlockOffset;
+        blockOffsetIsSet = true;
+      } else {
+        blockOffset = 0;
+        blockOffsetIsSet = true;
+      }
+    }
   }
 
   /****************************/
@@ -411,6 +438,16 @@ MP_Block_c* MP_Scan_Info_c::pop_block( MP_Signal_c *signal ) {
 		 " Returning a NULL block.\n" , blockCount );
 	reset();
 	return( NULL );
+      }
+    }
+    /* Block offset */
+    if (!blockOffsetIsSet) {
+      if (globBlockOffsetIsSet) {
+        blockOffset = globBlockOffset;
+        blockOffsetIsSet = true;
+      } else {
+        blockOffset = 0;
+        blockOffsetIsSet = true;
       }
     }
   }
@@ -453,6 +490,16 @@ MP_Block_c* MP_Scan_Info_c::pop_block( MP_Signal_c *signal ) {
 		      " or a windowRate. Returning a NULL block.\n" , blockCount );
 	reset();
 	return( NULL );
+      }
+    }
+    /* Block offset */
+    if (!blockOffsetIsSet) {
+      if (globBlockOffsetIsSet) {
+        blockOffset = globBlockOffset;
+        blockOffsetIsSet = true;
+      } else {
+        blockOffset = 0;
+        blockOffsetIsSet = true;
       }
     }
   }
@@ -527,7 +574,16 @@ MP_Block_c* MP_Scan_Info_c::pop_block( MP_Signal_c *signal ) {
       return( NULL );
     }
 
-
+    /* Block offset */
+    if (!blockOffsetIsSet) {
+      if (globBlockOffsetIsSet) {
+        blockOffset = globBlockOffset;
+        blockOffsetIsSet = true;
+      } else {
+        blockOffset = 0;
+        blockOffsetIsSet = true;
+      }
+    }
 
   }
   /***************************/
@@ -556,9 +612,9 @@ MP_Block_c* MP_Scan_Info_c::pop_block( MP_Signal_c *signal ) {
   }
   /* - Gabor block: */
   else if ( !strcmp(type,"gabor") ) {
-    if ( windowLenIsSet && windowShiftIsSet && fftSizeIsSet && windowTypeIsSet ) {
+    if ( windowLenIsSet && windowShiftIsSet && fftSizeIsSet && windowTypeIsSet && blockOffsetIsSet) {
       block = MP_Gabor_Block_c::init( signal, windowLen, windowShift,
-				      fftSize, windowType, windowOption );
+				      fftSize, windowType, windowOption, blockOffset );
     }
     else {
       mp_error_msg( func, "Missing parameters in gabor block instanciation (%u-th block)."
@@ -570,9 +626,9 @@ MP_Block_c* MP_Scan_Info_c::pop_block( MP_Signal_c *signal ) {
   /* - Harmonic block: */
   else if ( !strcmp(type,"harmonic") ) {
     if ( windowLenIsSet && windowShiftIsSet && fftSizeIsSet && windowTypeIsSet
-	 && f0MinIsSet && f0MaxIsSet && numPartialsIsSet ) {
+	 && f0MinIsSet && f0MaxIsSet && numPartialsIsSet && blockOffsetIsSet) {
       block = MP_Harmonic_Block_c::init( signal, windowLen, windowShift,
-					 fftSize, windowType, windowOption,
+					 fftSize, windowType, windowOption, blockOffset,
 					 f0Min, f0Max, numPartials );
     }
     else {
@@ -584,8 +640,8 @@ MP_Block_c* MP_Scan_Info_c::pop_block( MP_Signal_c *signal ) {
   }
   /* - anywave block: */
   else if ( !strcmp(type,"anywave") ) {
-    if ( windowShiftIsSet && tableFileNameIsSet ) {
-      block = MP_Anywave_Block_c::init( signal, windowShift, tableFileName );
+    if ( windowShiftIsSet && tableFileNameIsSet && blockOffsetIsSet ) {
+      block = MP_Anywave_Block_c::init( signal, windowShift, tableFileName, blockOffset );
     }
     else {
       fprintf( stderr, "mplib warning -- pop_block() - Missing parameters in anywave block instanciation (%u-th block)."
@@ -596,8 +652,8 @@ MP_Block_c* MP_Scan_Info_c::pop_block( MP_Signal_c *signal ) {
   }
   /* - anywave hilbert blocks : */
   else if ( !strcmp(type,"anywavehilbert") ) {
-    if ( windowShiftIsSet && tableFileNameIsSet ) {
-      block = MP_Anywave_Hilbert_Block_c::init( signal, windowShift, tableFileName );
+    if ( windowShiftIsSet && tableFileNameIsSet && blockOffsetIsSet ) {
+      block = MP_Anywave_Hilbert_Block_c::init( signal, windowShift, tableFileName, blockOffset );
     }
     else {
       fprintf( stderr, "mplib warning -- pop_block() - Missing parameters in anywave block instanciation (%u-th block)."
@@ -609,9 +665,9 @@ MP_Block_c* MP_Scan_Info_c::pop_block( MP_Signal_c *signal ) {
   /* - Chirp block: */
   else if ( !strcmp(type,"chirp") ) {
     if ( windowLenIsSet && windowShiftIsSet && fftSizeIsSet && windowTypeIsSet
-	 && numFitPointsIsSet && numIterIsSet ) {
+	 && numFitPointsIsSet && numIterIsSet && blockOffsetIsSet) {
       block = MP_Chirp_Block_c::init( signal, windowLen, windowShift,
-				      fftSize, windowType, windowOption,
+				      fftSize, windowType, windowOption, blockOffset,
 				      numFitPoints, numIter );
     }
     else {
@@ -623,12 +679,12 @@ MP_Block_c* MP_Scan_Info_c::pop_block( MP_Signal_c *signal ) {
   }
   /* - Mclt block: */
   else if ( !strcmp(type,"mclt") ) {
-    if ( windowLenIsSet && windowShiftIsSet && fftSizeIsSet && windowTypeIsSet ) {
+    if ( windowLenIsSet && windowShiftIsSet && fftSizeIsSet && windowTypeIsSet && blockOffsetIsSet) {
       block = MP_Mclt_Block_c::init( signal, windowLen, windowShift,
-				      fftSize, windowType, windowOption );
+				      fftSize, windowType, windowOption, blockOffset );
     }
-    else if ( windowLenIsSet && windowTypeIsSet ) {
-      block = MP_Mclt_Block_c::init( signal, windowLen, windowType, windowOption );
+    else if ( windowLenIsSet && windowTypeIsSet && blockOffsetIsSet) {
+      block = MP_Mclt_Block_c::init( signal, windowLen, windowType, windowOption, blockOffset );
     }
     else {
       mp_error_msg( func, "Missing parameters in Mclt block instanciation (%u-th block)."
@@ -639,12 +695,12 @@ MP_Block_c* MP_Scan_Info_c::pop_block( MP_Signal_c *signal ) {
   }
   /* - Mdct block: */
   else if ( !strcmp(type,"mdct") ) {
-    if ( windowLenIsSet && windowShiftIsSet && fftSizeIsSet && windowTypeIsSet ) {
+    if ( windowLenIsSet && windowShiftIsSet && fftSizeIsSet && windowTypeIsSet && blockOffsetIsSet) {
       block = MP_Mdct_Block_c::init( signal, windowLen, windowShift,
-				      fftSize, windowType, windowOption );
+				      fftSize, windowType, windowOption, blockOffset );
     }
-    else if ( windowLenIsSet && windowTypeIsSet) {
-      block = MP_Mdct_Block_c::init( signal, windowLen, windowType, windowOption );
+    else if ( windowLenIsSet && windowTypeIsSet && blockOffsetIsSet) {
+      block = MP_Mdct_Block_c::init( signal, windowLen, windowType, windowOption, blockOffset );
     }
     else {
       mp_error_msg( func, "Missing parameters in Mdct block instanciation (%u-th block)."
@@ -655,12 +711,12 @@ MP_Block_c* MP_Scan_Info_c::pop_block( MP_Signal_c *signal ) {
   }
   /* - Mdst block: */
   else if ( !strcmp(type,"mdst") ) {
-    if ( windowLenIsSet && windowShiftIsSet && fftSizeIsSet && windowTypeIsSet ) {
+    if ( windowLenIsSet && windowShiftIsSet && fftSizeIsSet && windowTypeIsSet && blockOffsetIsSet) {
       block = MP_Mdst_Block_c::init( signal, windowLen, windowShift,
-				      fftSize, windowType, windowOption );
+				      fftSize, windowType, windowOption, blockOffset );
     }
     else if ( windowLenIsSet && windowTypeIsSet) {
-      block = MP_Mdst_Block_c::init( signal, windowLen, windowType, windowOption );
+      block = MP_Mdst_Block_c::init( signal, windowLen, windowType, windowOption, blockOffset );
     }
     else {
       mp_error_msg( func, "Missing parameters in Mdst block instanciation (%u-th block)."
@@ -671,8 +727,8 @@ MP_Block_c* MP_Scan_Info_c::pop_block( MP_Signal_c *signal ) {
   }
   /* - Constant block: */
   else if ( !strcmp(type,"constant") ) {
-    if ( windowLenIsSet && windowShiftIsSet ) {
-      block = MP_Constant_Block_c::init( signal, windowLen, windowShift );
+    if ( windowLenIsSet && windowShiftIsSet && blockOffsetIsSet) {
+      block = MP_Constant_Block_c::init( signal, windowLen, windowShift, blockOffset );
     }
     else {
       mp_error_msg( func, "Missing parameters in constant block instanciation (%u-th block)."
@@ -683,8 +739,8 @@ MP_Block_c* MP_Scan_Info_c::pop_block( MP_Signal_c *signal ) {
   }
   /* - Nyquist block: */
   else if ( !strcmp(type,"nyquist") ) {
-    if ( windowLenIsSet && windowShiftIsSet ) {
-      block = MP_Nyquist_Block_c::init( signal, windowLen, windowShift );
+    if ( windowLenIsSet && windowShiftIsSet && blockOffsetIsSet) {
+      block = MP_Nyquist_Block_c::init( signal, windowLen, windowShift, blockOffset );
     }
     else {
       mp_error_msg( func, "Missing parameters in nyquist block instanciation (%u-th block)."
@@ -750,6 +806,7 @@ int write_block( FILE *fid, MP_Block_c *block ) {
     nChar += fprintf( fid, "\t\t<par type=\"fftSize\">%lu</par>\n", ((gblock->numFilters-1)<<1) );
     nChar += fprintf( fid, "\t\t<window type=\"%s\" opt=\"%lg\"></window>\n",
 		      window_name(gblock->fft->windowType), gblock->fft->windowOption );
+    nChar += fprintf( fid, "\t\t<par type=\"blockOffset\">%lu</par>\n", gblock->blockOffset );
     /* Close the block */
     nChar += fprintf( fid, "\t</block>\n" );
   }
@@ -775,6 +832,7 @@ int write_block( FILE *fid, MP_Block_c *block ) {
     nChar += fprintf( fid, "\t\t<par type=\"fftSize\">%lu</par>\n", fftSize );
     nChar += fprintf( fid, "\t\t<window type=\"%s\" opt=\"%lg\"></window>\n",
 		      window_name(hblock->fft->windowType), hblock->fft->windowOption );
+    nChar += fprintf( fid, "\t\t<par type=\"blockOffset\">%lu</par>\n", hblock->blockOffset );
     nChar += fprintf( fid, "\t\t<par type=\"f0Min\">%.2f</par>\n", f0Min );
     nChar += fprintf( fid, "\t\t<par type=\"f0Max\">%.2f</par>\n", f0Max );
     nChar += fprintf( fid, "\t\t<par type=\"numPartials\">%u</par>\n", hblock->maxNumPartials );
@@ -823,6 +881,7 @@ int write_block( FILE *fid, MP_Block_c *block ) {
     nChar += fprintf( fid, "\t\t<par type=\"fftSize\">%lu</par>\n", ((cblock->numFilters-1)<<1) );
     nChar += fprintf( fid, "\t\t<window type=\"%s\" opt=\"%lg\"></window>\n",
 		      window_name(cblock->fft->windowType), cblock->fft->windowOption );
+    nChar += fprintf( fid, "\t\t<par type=\"blockOffset\">%lu</par>\n", cblock->blockOffset );
     nChar += fprintf( fid, "\t\t<par type=\"numFitPoints\">%u</par>\n", cblock->numFitPoints );
     /* Close the block */
     nChar += fprintf( fid, "\t</block>\n" );
@@ -841,6 +900,7 @@ int write_block( FILE *fid, MP_Block_c *block ) {
     nChar += fprintf( fid, "\t\t<par type=\"fftSize\">%lu</par>\n", ((mblock->numFilters-1)<<1) );
     nChar += fprintf( fid, "\t\t<window type=\"%s\" opt=\"%lg\"></window>\n",
 		      window_name(mblock->fft->windowType), mblock->fft->windowOption );
+    nChar += fprintf( fid, "\t\t<par type=\"blockOffset\">%lu</par>\n", mblock->blockOffset );
     /* Close the block */
     nChar += fprintf( fid, "\t</block>\n" );
   }
@@ -858,6 +918,7 @@ int write_block( FILE *fid, MP_Block_c *block ) {
     nChar += fprintf( fid, "\t\t<par type=\"fftSize\">%lu</par>\n", ((mblock->numFilters-1)<<1) );
     nChar += fprintf( fid, "\t\t<window type=\"%s\" opt=\"%lg\"></window>\n",
 		      window_name(mblock->fft->windowType), mblock->fft->windowOption );
+    nChar += fprintf( fid, "\t\t<par type=\"blockOffset\">%lu</par>\n", mblock->blockOffset );
     /* Close the block */
     nChar += fprintf( fid, "\t</block>\n" );
   }
@@ -875,6 +936,7 @@ int write_block( FILE *fid, MP_Block_c *block ) {
     nChar += fprintf( fid, "\t\t<par type=\"fftSize\">%lu</par>\n", ((mblock->numFilters-1)<<1) );
     nChar += fprintf( fid, "\t\t<window type=\"%s\" opt=\"%lg\"></window>\n",
 		      window_name(mblock->fft->windowType), mblock->fft->windowOption );
+    nChar += fprintf( fid, "\t\t<par type=\"blockOffset\">%lu</par>\n", mblock->blockOffset );
     /* Close the block */
     nChar += fprintf( fid, "\t</block>\n" );
   }
@@ -889,6 +951,7 @@ int write_block( FILE *fid, MP_Block_c *block ) {
     /* Add the parameters */
     nChar += fprintf( fid, "\t\t<par type=\"windowLen\">%lu</par>\n", cblock->filterLen );
     nChar += fprintf( fid, "\t\t<par type=\"windowShift\">%lu</par>\n", cblock->filterShift );
+    nChar += fprintf( fid, "\t\t<par type=\"blockOffset\">%lu</par>\n", cblock->blockOffset );
     /* Close the block */
     nChar += fprintf( fid, "\t</block>\n" );
   }
@@ -903,6 +966,7 @@ int write_block( FILE *fid, MP_Block_c *block ) {
     /* Add the parameters */
     nChar += fprintf( fid, "\t\t<par type=\"windowLen\">%lu</par>\n", nblock->filterLen );
     nChar += fprintf( fid, "\t\t<par type=\"windowShift\">%lu</par>\n", nblock->filterShift );
+    nChar += fprintf( fid, "\t\t<par type=\"blockOffset\">%lu</par>\n", nblock->blockOffset );
     /* Close the block */
     nChar += fprintf( fid, "\t</block>\n" );
   }

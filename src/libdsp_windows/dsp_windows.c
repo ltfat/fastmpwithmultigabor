@@ -4,7 +4,7 @@
 /*                                                                            */
 /*                    Digital Signal Processing Windows                       */
 /*                                                                            */
-/* Rémi Gribonval                                                             */
+/* Rï¿½mi Gribonval                                                             */
 /* Sacha Krstulovic                                           Mon Feb 21 2005 */
 /* -------------------------------------------------------------------------- */
 /*                                                                            */
@@ -138,6 +138,26 @@ unsigned long int make_window( Dsp_Win_t *out,
     /* If the length is odd, add the missing center point */
     if ( (length%2) == 1 ) {
       newPoint = sin( DSP_WIN_PI * (double)i / (double)(length-1) );
+      *p1 = (Dsp_Win_t)newPoint;
+      energy += ( newPoint * newPoint );
+    }
+    /* Locate the center point (= the first maximum of the window) */
+    centerPoint = (length-1) >> 1;
+    break;
+
+
+    /* Princen-bradley Cosine window */
+  case DSP_PBCOSINE_WIN:
+    for ( i = 0;            /* -> The window is symmetric, */
+	  i < (length>>1);  /*    compute only half of it. */
+	  i++, p1++, p2-- ) {
+      newPoint = sin( DSP_WIN_PI * ((double)i+0.5) / (double)(length) );
+      *p2 = *p1 = (Dsp_Win_t)newPoint;
+      energy += ( 2 * newPoint * newPoint );
+    }
+    /* If the length is odd, add the missing center point */
+    if ( (length%2) == 1 ) {
+      newPoint = sin( DSP_WIN_PI * ((double)i+0.5) / (double)(length) );
       *p1 = (Dsp_Win_t)newPoint;
       energy += ( newPoint * newPoint );
     }
@@ -394,6 +414,7 @@ unsigned char window_type_is_ok(const unsigned char type) {
   case DSP_RECTANGLE_WIN :
   case DSP_TRIANGLE_WIN :
   case DSP_COSINE_WIN :
+  case DSP_PBCOSINE_WIN :
   case DSP_HANNING_WIN :
   case DSP_HAMMING_WIN :
   case DSP_HAMGEN_WIN :
@@ -417,6 +438,7 @@ unsigned char window_needs_option(const unsigned char type) {
   case DSP_RECTANGLE_WIN :
   case DSP_TRIANGLE_WIN :
   case DSP_COSINE_WIN :
+  case DSP_PBCOSINE_WIN :
   case DSP_HANNING_WIN :
   case DSP_HAMMING_WIN :
   case DSP_BLACKMAN_WIN :
@@ -445,6 +467,8 @@ unsigned char window_type(const char * name) {
     return DSP_TRIANGLE_WIN;
   else if (!strcmp(name,"cosine"))
     return DSP_COSINE_WIN;
+  else if (!strcmp(name,"pbcosine"))
+    return DSP_PBCOSINE_WIN;
   else if (!strcmp(name,"hanning"))
     return DSP_HANNING_WIN;
   else if (!strcmp(name,"hamming"))
@@ -478,6 +502,9 @@ char * window_name(const unsigned char type) {
     break;
   case DSP_COSINE_WIN :
     return("cosine");
+    break;
+  case DSP_PBCOSINE_WIN :
+    return("pbcosine");
     break;
   case DSP_HANNING_WIN :
     return("hanning");

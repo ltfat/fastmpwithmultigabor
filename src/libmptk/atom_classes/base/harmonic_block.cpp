@@ -56,9 +56,10 @@ MP_Harmonic_Block_c* MP_Harmonic_Block_c::init( MP_Signal_c *setSignal,
 						const unsigned long int setFftSize,
 						const unsigned char setWindowType,
 						const double setWindowOption,
+                                                const unsigned long int setBlockOffset,
 						const MP_Real_t setF0Min,
 						const MP_Real_t setF0Max,
-						const unsigned int  setMaxNumPartials ) {
+						const unsigned int  setMaxNumPartials) {
 
   const char* func = "MP_Harmonic_Block_c::init()";
   MP_Harmonic_Block_c *newBlock = NULL;
@@ -72,7 +73,7 @@ MP_Harmonic_Block_c* MP_Harmonic_Block_c::init( MP_Signal_c *setSignal,
 
   /* Set the block parameters (that are independent from the signal) */
   if ( newBlock->init_parameters( setFilterLen, setFilterShift, setFftSize,
-				  setWindowType, setWindowOption,
+				  setWindowType, setWindowOption,setBlockOffset,
 				  setF0Min, setF0Max, setMaxNumPartials ) ) {
     mp_error_msg( func, "Failed to initialize some block parameters in"
 		  " the new Harmonic block.\n" );
@@ -98,15 +99,16 @@ int MP_Harmonic_Block_c::init_parameters( const unsigned long int setFilterLen,
 					  const unsigned long int setFftSize,
 					  const unsigned char setWindowType,
 					  const double setWindowOption,
+                                          const unsigned long int setBlockOffset,
 					  const MP_Real_t setF0Min,
 					  const MP_Real_t setF0Max,
-					  const unsigned int  setMaxNumPartials ) {
+					  const unsigned int  setMaxNumPartials) {
 
   const char* func = "MP_Harmonic_Block_c::init_parameters(...)";
 
   /* Go up the inheritance graph */
   if ( MP_Gabor_Block_c::init_parameters( setFilterLen, setFilterShift, setFftSize,
-					  setWindowType, setWindowOption ) ) {
+					  setWindowType, setWindowOption, setBlockOffset ) ) {
     mp_error_msg( func, "Failed to init the parameters at the Gabor block level"
 		  " in the new Harmonic block.\n" );
     return( 1 );
@@ -324,7 +326,7 @@ void MP_Harmonic_Block_c::update_frame( unsigned long int frameIdx,
   numChans = s->numChans;
   assert( mag != NULL );
 
-  inShift = frameIdx*filterShift;
+  inShift = frameIdx*filterShift + blockOffset;
   
   /*----*/
   /* Fill the mag array: */
@@ -415,7 +417,7 @@ unsigned int MP_Harmonic_Block_c::create_atom( MP_Atom_c **atom,
     double real, imag, energy;
     /* Misc: */
     int chanIdx;
-    unsigned long int pos = frameIdx*filterShift;
+    unsigned long int pos = frameIdx*filterShift + blockOffset;
 
 
     /* Check the position */
@@ -531,14 +533,14 @@ int add_harmonic_block( MP_Dict_c *dict,
 			const double windowOption,
 			const MP_Real_t f0Min,
 			const MP_Real_t f0Max,
-			const unsigned int maxNumPartials) {
+			const unsigned int maxNumPartials ) {
 
   const char* func = "add_harmonic_block(...)";
   MP_Harmonic_Block_c *newBlock;
 
   newBlock = MP_Harmonic_Block_c::init( dict->signal, windowSize, filterShift,
-					fftSize, windowType, windowOption,
-					f0Min, f0Max, maxNumPartials);
+					fftSize, windowType, windowOption, 0,
+					f0Min, f0Max, maxNumPartials );
   if ( newBlock != NULL ) {
     dict->add_block( newBlock );
   }
@@ -562,7 +564,7 @@ int add_harmonic_blocks( MP_Dict_c *dict,
 			 const double windowOption,
 			 const MP_Real_t f0Min,
 			 const MP_Real_t f0Max,
-			 const unsigned int  maxNumPartials) {
+			 const unsigned int  maxNumPartials ) {
 
   unsigned long int windowSize;
   unsigned long int filterShift;
@@ -579,7 +581,7 @@ int add_harmonic_blocks( MP_Dict_c *dict,
     nAddedBlocks += add_harmonic_block( dict,
 					windowSize, filterShift, fftSize, 
 					windowType, windowOption,
-					f0Min, f0Max, maxNumPartials );
+					f0Min, f0Max, maxNumPartials);
   }
 
   return( nAddedBlocks );

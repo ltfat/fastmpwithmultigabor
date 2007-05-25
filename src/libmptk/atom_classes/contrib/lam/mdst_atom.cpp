@@ -424,3 +424,35 @@ int MP_Mdst_Atom_c::add_to_tfmap( MP_TF_Map_c *tfmap, const char tfmapType ) {
 
   return( flag );
 }
+
+/***********************************************************************/
+/* Sorting function which characterizes various properties of the atom,
+   along one channel */
+int MP_Mdst_Atom_c::has_field( int field ) {
+
+  if ( MP_Atom_c::has_field( field ) ) return ( MP_TRUE );
+  else switch (field) {
+  case MP_FREQ_PROP :  return( MP_TRUE );
+  default : return( MP_FALSE );
+  }
+}
+
+MP_Real_t MP_Mdst_Atom_c::get_field( int field, MP_Chan_t chanIdx ) {
+  MP_Real_t x;
+  if ( MP_Atom_c::has_field( field ) ) return ( MP_Atom_c::get_field(field,chanIdx) );
+  else switch (field) {
+  case MP_POS_PROP :
+    x = (MP_Real_t)(support[chanIdx].pos);
+    break;
+  case MP_FREQ_PROP :
+    x = freq;
+    break;
+  default :
+    mp_warning_msg( "MP_Gabor_Atom_c::get_field()", "Unknown field. Returning ZERO.\n" );
+    x = 0.0;
+  }
+
+  return( x );
+
+}
+

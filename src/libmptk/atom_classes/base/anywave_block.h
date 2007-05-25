@@ -4,7 +4,7 @@
 /*                                                                            */
 /*                        Matching Pursuit Library                            */
 /*                                                                            */
-/* Rémi Gribonval                                                             */
+/* Rï¿½mi Gribonval                                                             */
 /* Sacha Krstulovic                                                           */
 /* Sylvain Lesage                                             Thu Nov 03 2005 */
 /* -------------------------------------------------------------------------- */
@@ -128,12 +128,14 @@ public:
    **/
   static MP_Anywave_Block_c* init( MP_Signal_c *setSignal,
 				   const unsigned long int setFilterShift,
-				   char* anywaveTableFileName );
+				   char* anywaveTableFileName,
+                                 const unsigned long int blockOffset );
 
 protected:
   /** \brief an initializer for the parameters which ARE NOT related to the signal */
   virtual int init_parameters( const unsigned long int setFilterShift,
-			       char* anywaveTableFileName );
+			       char* anywaveTableFileName,
+                               const unsigned long int setBlockOffset );
 
   /** \brief an initializer for the parameters which ARE related to the signal 
    *

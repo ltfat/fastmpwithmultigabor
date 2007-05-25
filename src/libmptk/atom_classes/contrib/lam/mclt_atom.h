@@ -4,7 +4,7 @@
 /*                                                                            */
 /*                        Matching Pursuit Library                            */
 /*                                                                            */
-/* Rémi Gribonval                                                             */
+/* Rï¿½mi Gribonval                                                             */
 /* Sacha Krstulovic                                           Mon Feb 21 2005 */
 /* -------------------------------------------------------------------------- */
 /*                                                                            */
@@ -153,6 +153,9 @@ public:
    * \f]
    */
   virtual void build_waveform( MP_Sample_t *outBuffer );
+
+  virtual int       has_field( int field );
+  virtual MP_Real_t get_field( int field , MP_Chan_t chanIdx);
 
   /** \brief Adds the representation of a Gabor atom to a time-frequency map */
   virtual int add_to_tfmap( MP_TF_Map_c *tfmap, const char tfmapType );

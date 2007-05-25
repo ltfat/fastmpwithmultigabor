@@ -94,6 +94,11 @@ public:
   bool fftSizeIsSet;
   unsigned long int globFftSize;
   bool globFftSizeIsSet;
+
+  unsigned long int blockOffset;
+  bool blockOffsetIsSet;
+  unsigned long int globBlockOffset;
+  bool globBlockOffsetIsSet;
   
   unsigned char windowType;
   bool windowTypeIsSet;

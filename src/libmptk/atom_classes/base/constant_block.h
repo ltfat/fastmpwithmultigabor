@@ -72,7 +72,8 @@ public:
    * \param s the signal on which the block will work */
   static MP_Constant_Block_c* init( MP_Signal_c *s,
 				    const unsigned long int filterLen,
-				    const unsigned long int filterShift );
+				    const unsigned long int filterShift,
+                                    const unsigned long int blockOffset );
 
   /** \brief an initializer for the parameters which ARE related to the signal */
   virtual int plug_signal( MP_Signal_c *setSignal );
@@ -80,7 +81,8 @@ public:
 protected:
   /** \brief an initializer for the parameters which ARE NOT related to the signal */
   virtual int init_parameters( const unsigned long int filterLen,
-			       const unsigned long int filterShift );
+			       const unsigned long int filterShift,
+                               const unsigned long int blockOffset );
 
   /** \brief nullification of the signal-related parameters */
   virtual void nullify_signal( void );
@@ -149,7 +151,7 @@ public:
  */
 int add_constant_block( MP_Dict_c *dict,
 			const unsigned long int setFilterLen,
-			const unsigned long int setFilterShift );
+			const unsigned long int setFilterShift);
 
 
 #endif /* __constant_block_h_ */
