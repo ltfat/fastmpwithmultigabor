@@ -31,6 +31,7 @@ OPTION(BUILD_VERBOSE "Enable verbose option when compile (-v)." ON)
 # Choose a default CMAKE_INSTALL_PREFIX on Windows.  CMake 2.2 and
 # above already choose a good default, so force a change only if the
 # current value looks like the CMake 2.0 default.
+SET(CMAKE_INSTALL_PREFIX /usr)
 IF(NOT UNIX)
   IF(CMAKE_INSTALL_PREFIX MATCHES "/usr/local")
     IF("$ENV{ProgramFiles}" MATCHES "^$")
@@ -85,8 +86,6 @@ FILE(READ ${MPTK_SOURCE_DIR}/version/packagenamefull.cmake PACKAGENAMEFULL)
 FILE(READ ${MPTK_SOURCE_DIR}/version/AUTHORS AUTHORS)
 
 #Define the target for install
- 
-#SET(CMAKE_INSTALL_PREFIX $ENV{HOME}/local)
 SET(BIN_HOME     ${CMAKE_INSTALL_PREFIX}/bin)
 SET(INCLUDE_HOME ${CMAKE_INSTALL_PREFIX}/include)
 SET(LIB_HOME     ${CMAKE_INSTALL_PREFIX}/lib)
