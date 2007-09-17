@@ -1,4 +1,0 @@
-mptkMEX
--------
-
-This toolbox is a MEX implementation of the matlab utilities included in MPTK. At this time, only the functions bookread and bookwrite are implemented. This toolbox has been tested with the version 0.5.2 of MPTK. The following blocks are supported: gabor, harmonic, mdct, mclt, dirac.
