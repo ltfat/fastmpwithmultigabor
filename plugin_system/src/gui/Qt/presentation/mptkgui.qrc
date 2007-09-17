@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/" >
+        <file>resouces/open.xpm</file>
+        <file>resouces/open_signal.xpm</file>
+    </qresource>
+</RCC>

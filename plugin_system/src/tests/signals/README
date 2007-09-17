@@ -1,0 +1,26 @@
+Test signals:
+- metiss.{wav,pcm,flt} : the metiss logo sound in various formats
+                         (.flt means float numbers)
+
+- 2_atoms.flt : the 2 following gabor atoms @ 8000Hz:
+                -> 256 samples of 100*cos( 2*pi*440*t ),
+                   hamming windowed,
+                   positioned from sample 257 to sample 512
+                -> 128 samples of 50*cos( 2*pi*1000*t )
+                   hamming windowed,
+                   positioned from sample 2049 to sample 2176
+                -> the rest is zeros, total length 8000 samples.
+
+- 2_shifting_cosines.flt : 4000 samples of a mix of 2 cosine waves, then
+                 4000 samples of another mix of 2 cosines. (The spectrogram
+                 should show 2 parallel lines, then a shift of those
+                 lines.)
+
+- 2_cosines.flt : 8000 samples of a mix of 2 cosines (spectrum should have
+                  2 noticeable peaks).
+
+- anywave_signal.wav : 1000 samples randomly generated @ 16000Hz
+
+- anywave_table.bin : an anywave table of 4 filters of length 128
+
+- anywave_table_data.bin : the data of the table anywave_table.bin

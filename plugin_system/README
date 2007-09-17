@@ -1,0 +1,16 @@
+The Matching Pursuit Tool Kit (MPTK) provides a fast implementation of the Matching Pursuit algorithm
+for the sparse decomposition of multichannel audio signals. It comprises a library, standalone utilities
+and some scripts to plot the results under Matlab.
+
+What is MPTK ?
+MPTK provides an implementation of Matching Pursuit which is:
+
+    * FAST: e.g., extract 1.5 million atoms from a 1 hour long, 16kHz audio signal (15dB extracted) in 0.25x real time on a Pentium IV@2.4GHz,
+           out of a dictionary of 178M Gabor atoms. Such incredible speed makes it possible to process "real world" signals.
+    * FLEXIBLE: multi-channel, various signal input formats, flexible syntax to describe the dictionaries => reproducible results, cleaner experiments.
+    * OPEN: modular architecture => add your own atoms ! Free distribution under the GPL.
+
+MPTK is mainly developed and maintained within the METISS Research Group (http://www.irisa.fr/metiss/home_html-fr) on audio signal processing,
+at the IRISA Research Institute (http://www.irisa.fr/home_html) in Rennes, France. 
+
+If you have some questions about Matching Pursuit and MPTK, please refer to http://mptk.irisa.fr/

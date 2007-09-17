@@ -1,0 +1,79 @@
+
+WARNING: this doc is obsolete.
+
+------------------------------------------------------
+HOW TO add a new class to the Matching Pursuit package
+------------------------------------------------------
+
+This file describes the "recipe" to add a new couple of block/atom classes
+corresponding to your particular time-frequency transform.
+
+Suppose you want to add a transform called "mytransform". Then:
+
+   --------------------------------
+I) Go to the atom_classes directory
+   --------------------------------
+
+   Think of it as the only directory where you are allowed to add
+   code related to your new class/time frequency transform.
+
+
+    ---------------------------
+II) Make the block and the atom:
+    ---------------------------
+
+   1) Copy the files TEMPLATE_atom.{cpp,h} and TEMPLATE_block.{cpp,h}
+      to mytransform_atom.{cpp,h} and mytransform_block.{cpp,h}.
+
+   2) In these files, replace all the TEMPLATE tags with mytransform.
+
+   3) Add your code/parameters where indicated.
+
+
+     ------------------------------------------------
+III) Interface your code with the rest of the library:
+     ------------------------------------------------
+
+     Open atom_classes.cpp, and add the code lines specific to your transform
+     to the functions read_block() and read_atom().
+
+
+    --------------------------------------
+IV) Modify libmp/Makefile.am appropriately
+    --------------------------------------
+
+    This Makefile.am is located one level up from the atom_classes directory.
+
+    1) Declare your .h header files in the export_headers listing (don't forget
+       the trailing "\").
+
+    2) Declare your .cpp source files in the libmp_a_SOURCES listing (don't forget
+       the trailing "\").
+
+
+    -------------------------------------
+ V) Compile, debug, smile, your're on air !
+    -------------------------------------
+
+----------------
+ADDITIONAL NOTES:
+----------------
+
+- There MUST BE a matched block/atom pair of classes.
+
+- The code is organized so as to preserve a certain inheritance structure. All
+  the blocks and atoms inherit from the base block (block.h) and the base atom
+  (atom.h). It is mandatory to implement the methods of these base objects at
+  the level of your transform, otherwise your classes won't interface properly
+  with the rest of the library.
+
+- Provided you respect this organization, you can also build blocks/atoms which
+  inherit from existing specific blocks/atoms. (E.g, harmonic blocks inheriting
+  from gabor blocks.)
+
+- Non-mandatory specific functions can be added (e.g., to add several blocks to
+  a dictionnary, or anything that makes your life easier), but they MUST STAY
+  in mytransform_block.* or mytransform_atom.* . You are welcome to add
+  features or remove bugs to/from the library, but please keep everything
+  specific to your transform in the atom_classes directory.
+

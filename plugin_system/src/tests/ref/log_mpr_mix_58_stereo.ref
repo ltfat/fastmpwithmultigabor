@@ -1,0 +1,17 @@
+mpr msg -- -------------------------------------
+mpr msg -- MPR - MATCHING PURSUIT RECONSTRUCTION
+mpr msg -- -------------------------------------
+mpr msg -- The command line was:
+../../src/utils/mpr --verbose /udd/sacha/src/project/mptk/trunk/src/tests/ref/book_mix_58_stereo.bin.ref /udd/sacha/src/project/mptk/trunk/src/tests/ref/recons_mix_58_stereo.wav.ref /udd/sacha/src/project/mptk/trunk/src/tests/ref/res_mix_58_stereo.wav.ref 
+mpr msg -- End command line.
+mpr msg -- Rebuilding signal [/udd/sacha/src/project/mptk/trunk/src/tests/ref/recons_mix_58_stereo.wav.ref] from book [/udd/sacha/src/project/mptk/trunk/src/tests/ref/book_mix_58_stereo.bin.ref] plus residual [/udd/sacha/src/project/mptk/trunk/src/tests/ref/res_mix_58_stereo.wav.ref].
+mpr msg -- Reading the book from file [/udd/sacha/src/project/mptk/trunk/src/tests/ref/book_mix_58_stereo.bin.ref]...
+Done.
+mpr msg -- Reading the residual from file [/udd/sacha/src/project/mptk/trunk/src/tests/ref/res_mix_58_stereo.wav.ref]...
+Done.
+mpr msg -- Rebuilding the signal...
+Done.
+mpr msg -- Writing the rebuilt signal to file [/udd/sacha/src/project/mptk/trunk/src/tests/ref/recons_mix_58_stereo.wav.ref]...
+Done.
+mpr msg -- The resulting signal has [19200] samples in [2] channels, with sample rate [8000]Hz.
+mpr msg -- Have a nice day !
