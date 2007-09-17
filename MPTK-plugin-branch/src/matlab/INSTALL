@@ -1,0 +1,3 @@
+- If you have never used the mex compiler before, first configure the mex compiler using: mex -setup
+- Compile bookread by running: mex bookread.c
+- Compile bookwrite by running: mex bookwrite.c
