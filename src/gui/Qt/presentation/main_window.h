@@ -7,6 +7,7 @@ using namespace std;
 #include "dialog.h"
 #include "../core/gui_callback.h"
 #include "../core/gui_callback_demix.h"
+#include "../core/gui_callback_demo.h"
 #include "gpl.h"
 
 
@@ -27,8 +28,10 @@ class MainWindow: public QMainWindow, private Ui::MainWindow {
 	private:
 	MP_Gui_Callback_c * guiCallBack;
 	MP_Gui_Callback_Demix_c * guiCallBackDemix;
+	MP_Gui_Callback_Demo_c *guiCallBackDemo;
 	Dialog * dialog;
 	bool dictOpen;
+	bool dictOpenDemo;
 
 	
 	public:
@@ -70,6 +73,12 @@ class MainWindow: public QMainWindow, private Ui::MainWindow {
 		void on_radioButtonVerbose_toggled();
 		void on_radioButtonVerboseDemix_toggled();
 		void on_pushButtonSaveSequenceDemix_clicked();
+		void on_btnOpenDefaultSig_clicked();
+		void on_btnValidateDefautlDict_clicked();
+		void on_btnLauchDemo_clicked();
+		void on_btnPlayDemo_clicked();
+		void on_btnStopDemo_clicked();
+		void on_btnStopDemix_clicked();
 		public:
 		void readFromStdout(QString message);
 };

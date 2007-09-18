@@ -81,10 +81,10 @@ public:
   int getBookOpen();
   
 private :
-  MP_Book_c *book;
   QString dicoName;
-
   
+protected :
+  MP_Book_c *book;
 
   void play(MP_Signal_c * sig, std::vector<bool> * v, float startTime, float endTime);
 

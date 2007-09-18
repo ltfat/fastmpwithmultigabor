@@ -7,6 +7,7 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent)
   guiCallBack = new MP_Gui_Callback_c();
   guiCallBack->setActivated();
   guiCallBackDemix = new MP_Gui_Callback_Demix_c();
+  guiCallBackDemo = new MP_Gui_Callback_Demo_c();
   dialog  = new Dialog();
   labelOriginalSignal->setText("No wave file selected for original signal");
   labelBook->setText("No book file selected");
@@ -16,6 +17,7 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent)
   textEditConsol->append(gplText);
   textEditConsolDemix->append(gplText);
   dictOpen = false;
+  dictOpenDemo = false;
 }
 
 
@@ -42,6 +44,7 @@ void MainWindow::on_tabWidget_currentChanged()
       if (guiCallBack->getActivated())
         {
           guiCallBack->setDesactivated();
+
         }
       guiCallBackDemix->setActivated();
     }
@@ -53,6 +56,14 @@ void MainWindow::on_tabWidget_currentChanged()
         }
       guiCallBack->setActivated();
     }
+  else if (tabWidget->currentIndex()== 2)
+    {
+      guiCallBackDemo->setActivated();
+      if (guiCallBackDemix->getActivated()) guiCallBackDemix->setDesactivated();
+      if (guiCallBack->getActivated()) guiCallBack->setDesactivated();
+
+    }
+
 }
 
 
@@ -76,9 +87,18 @@ void MainWindow::on_btnPlay_clicked()
 /* arrêt du lecteur */
 void MainWindow::on_btnStop_clicked()
 {
-  if(guiCallBack->getActivated()) guiCallBack->stopPortAudioStream();
-  if(guiCallBackDemix->getActivated())guiCallBackDemix->stopPortAudioStream();
-  return;
+  guiCallBack->stopPortAudioStream();
+}
+
+void MainWindow::on_btnStopDemix_clicked()
+{
+  guiCallBackDemix->stopPortAudioStream();
+}
+
+void MainWindow::on_btnStopDemo_clicked()
+{
+  guiCallBackDemo->stopPortAudioStream();
+
 }
 
 /* ouvrir une boîte de dialogue pour sélectionner un fichier */
@@ -446,6 +466,81 @@ void MainWindow::on_radioButtonVerboseDemix_toggled()
   else guiCallBackDemix->unSetVerbose();
 }
 
+void MainWindow::on_btnOpenDefaultSig_clicked()
+{
+
+#ifdef __WIN32__
+  char szAppPath[MAX_PATH] = "";
+  std::string strAppDirectory;
+
+  GetModuleFileName(NULL, szAppPath, MAX_PATH);
+
+// Extract directory
+  strAppDirectory = szAppPath;
+
+  strAppDirectory = strAppDirectory.substr(0, strAppDirectory.rfind("\\"));
+  strAppDirectory += "\\glockenspiel.wav";
+  labelOriginalSignalDemo->setText(QString(strAppDirectory.c_str()));
+  guiCallBackDemo->initMpdCore(QString(strAppDirectory.c_str()), "");
+#else  /* WIN32 */
+  guiCallBackDemo->initMpdCore("glockenspiel.wav", "");
+#endif /* WIN32 */
+}
+
+void MainWindow::on_btnValidateDefautlDict_clicked()
+{
+#ifdef __WIN32__
+  char szAppPath[MAX_PATH] = "";
+  std::string strAppDirectory;
+
+  GetModuleFileName(NULL, szAppPath, MAX_PATH);
+
+// Extract directory
+  strAppDirectory = szAppPath;
+
+  strAppDirectory = strAppDirectory.substr(0, strAppDirectory.rfind("\\"));
+  strAppDirectory += "\\dico_demo.xml";
+//labelOriginalSignalDemo->setText(QString(strAppDirectory.c_str()));
+  if (guiCallBackDemo->coreInit())labelDictDemixDemo->setText(QString(strAppDirectory.c_str()));
+  guiCallBackDemo->setDictionary(QString(strAppDirectory.c_str()));
+#else  /* WIN32 */
+  guiCallBackDemo->initMpdCore("dico_demo.xml", "");
+#endif /* WIN32 */
+  dictOpenDemo = true;
+}
+
+
+void MainWindow::on_btnLauchDemo_clicked()
+{
+  if (guiCallBackDemo->coreInit()&&dictOpenDemo)
+    {
+      guiCallBackDemo->setIterationNumber(comboBoxNumIterDemo->currentText().toULong());
+      guiCallBackDemo->iterateAll();
+      guiCallBackDemo->separate(200);
+
+    }
+
+
+}
+
+void MainWindow::on_btnPlayDemo_clicked()
+{
+
+  if (NULL!=guiCallBackDemo->signal)
+    {
+      std::vector<bool> * selectedChannel =  new std::vector<bool>(guiCallBackDemo->signal->numChans, false);
+      for (int i = 0 ; i<guiCallBackDemo->signal->numChans ; i++)
+        {
+          (*selectedChannel)[i] = true;
+        }
+
+      if (radioButtonOriDemo->isChecked())guiCallBackDemo->playBaseSignal(selectedChannel,0,0);
+      if (radioButtonTransiDemo->isChecked())guiCallBackDemo->playTransientSignal(selectedChannel,0,0);
+      if (radioButtonOtherDemo->isChecked())guiCallBackDemo->playOtherSignal(selectedChannel,0,0);
+      if (radioButtonResiDemo->isChecked())guiCallBackDemo->playResidualSignal(selectedChannel,0,0);
+    }
+
+}
 /*********** SLOTS ***********/
 
 

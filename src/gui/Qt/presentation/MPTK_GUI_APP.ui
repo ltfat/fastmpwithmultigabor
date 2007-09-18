@@ -1830,6 +1830,389 @@
          </widget>
         </widget>
        </widget>
+       <widget class="QWidget" name="tab_demo" >
+        <attribute name="title" >
+         <string>Demo</string>
+        </attribute>
+        <widget class="QWidget" name="verticalLayout_3" >
+         <property name="geometry" >
+          <rect>
+           <x>10</x>
+           <y>20</y>
+           <width>861</width>
+           <height>81</height>
+          </rect>
+         </property>
+         <layout class="QVBoxLayout" >
+          <item>
+           <widget class="QGroupBox" name="groupBox_15" >
+            <property name="title" >
+             <string>Original signal: Mandatory</string>
+            </property>
+            <widget class="QPushButton" name="btnOpenSig_2" >
+             <property name="geometry" >
+              <rect>
+               <x>10</x>
+               <y>30</y>
+               <width>141</width>
+               <height>26</height>
+              </rect>
+             </property>
+             <property name="toolTip" >
+              <string>open</string>
+             </property>
+             <property name="text" >
+              <string>Open original signal</string>
+             </property>
+             <property name="icon" >
+              <iconset resource="mptkgui.qrc" >:/resouces/open_signal.xpm</iconset>
+             </property>
+             <property name="checkable" >
+              <bool>false</bool>
+             </property>
+             <property name="flat" >
+              <bool>false</bool>
+             </property>
+            </widget>
+            <widget class="QWidget" native="1" name="widget_9" >
+             <property name="geometry" >
+              <rect>
+               <x>160</x>
+               <y>20</y>
+               <width>531</width>
+               <height>41</height>
+              </rect>
+             </property>
+             <property name="autoFillBackground" >
+              <bool>false</bool>
+             </property>
+             <widget class="QLabel" name="labelOriginalSignalDemo" >
+              <property name="geometry" >
+               <rect>
+                <x>10</x>
+                <y>20</y>
+                <width>521</width>
+                <height>16</height>
+               </rect>
+              </property>
+              <property name="text" >
+               <string>glockenspiel.wav</string>
+              </property>
+             </widget>
+            </widget>
+            <widget class="QPushButton" name="btnOpenDefaultSig" >
+             <property name="geometry" >
+              <rect>
+               <x>710</x>
+               <y>30</y>
+               <width>131</width>
+               <height>24</height>
+              </rect>
+             </property>
+             <property name="text" >
+              <string>Validate default signal</string>
+             </property>
+            </widget>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QGroupBox" name="groupBox_16" >
+         <property name="geometry" >
+          <rect>
+           <x>10</x>
+           <y>110</y>
+           <width>861</width>
+           <height>78</height>
+          </rect>
+         </property>
+         <property name="title" >
+          <string>Dictionnary: Mandatory</string>
+         </property>
+         <widget class="QPushButton" name="btnValidateDefautlDict" >
+          <property name="geometry" >
+           <rect>
+            <x>710</x>
+            <y>30</y>
+            <width>134</width>
+            <height>26</height>
+           </rect>
+          </property>
+          <property name="toolTip" >
+           <string>open</string>
+          </property>
+          <property name="text" >
+           <string>Validate default dictionary</string>
+          </property>
+          <property name="icon" >
+           <iconset/>
+          </property>
+          <property name="checkable" >
+           <bool>false</bool>
+          </property>
+          <property name="flat" >
+           <bool>false</bool>
+          </property>
+         </widget>
+         <widget class="QWidget" native="1" name="widget_10" >
+          <property name="geometry" >
+           <rect>
+            <x>160</x>
+            <y>20</y>
+            <width>371</width>
+            <height>41</height>
+           </rect>
+          </property>
+          <property name="autoFillBackground" >
+           <bool>false</bool>
+          </property>
+          <widget class="QLabel" name="labelDictDemixDemo" >
+           <property name="geometry" >
+            <rect>
+             <x>10</x>
+             <y>10</y>
+             <width>241</width>
+             <height>16</height>
+            </rect>
+           </property>
+           <property name="text" >
+            <string>dico_demo.xml</string>
+           </property>
+          </widget>
+         </widget>
+         <widget class="QPushButton" name="btnOpenDictDemix_2" >
+          <property name="geometry" >
+           <rect>
+            <x>10</x>
+            <y>30</y>
+            <width>121</width>
+            <height>26</height>
+           </rect>
+          </property>
+          <property name="toolTip" >
+           <string>open</string>
+          </property>
+          <property name="text" >
+           <string>Open dictionary</string>
+          </property>
+          <property name="icon" >
+           <iconset resource="mptkgui.qrc" >:/resouces/open.xpm</iconset>
+          </property>
+          <property name="checkable" >
+           <bool>false</bool>
+          </property>
+          <property name="flat" >
+           <bool>false</bool>
+          </property>
+         </widget>
+        </widget>
+        <widget class="QGroupBox" name="groupBox_17" >
+         <property name="geometry" >
+          <rect>
+           <x>10</x>
+           <y>350</y>
+           <width>861</width>
+           <height>78</height>
+          </rect>
+         </property>
+         <property name="title" >
+          <string>MPTK: Demo</string>
+         </property>
+         <widget class="QPushButton" name="btnLauchDemo" >
+          <property name="geometry" >
+           <rect>
+            <x>10</x>
+            <y>30</y>
+            <width>121</width>
+            <height>26</height>
+           </rect>
+          </property>
+          <property name="toolTip" >
+           <string>open</string>
+          </property>
+          <property name="text" >
+           <string>Lauch Demo</string>
+          </property>
+          <property name="icon" >
+           <iconset/>
+          </property>
+          <property name="checkable" >
+           <bool>false</bool>
+          </property>
+          <property name="flat" >
+           <bool>false</bool>
+          </property>
+         </widget>
+         <widget class="QWidget" name="layoutWidget" >
+          <property name="geometry" >
+           <rect>
+            <x>150</x>
+            <y>30</y>
+            <width>170</width>
+            <height>22</height>
+           </rect>
+          </property>
+          <layout class="QHBoxLayout" >
+           <item>
+            <widget class="QLabel" name="label_15" >
+             <property name="text" >
+              <string>Number of iteration</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="comboBoxNumIterDemo" >
+             <item>
+              <property name="text" >
+               <string>500</string>
+              </property>
+             </item>
+             <item>
+              <property name="text" >
+               <string>1000</string>
+              </property>
+             </item>
+             <item>
+              <property name="text" >
+               <string>5000</string>
+              </property>
+             </item>
+             <item>
+              <property name="text" >
+               <string>10000</string>
+              </property>
+             </item>
+             <item>
+              <property name="text" >
+               <string>50000</string>
+              </property>
+             </item>
+             <item>
+              <property name="text" >
+               <string>100000</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </widget>
+        <widget class="QGroupBox" name="groupBox_18" >
+         <property name="geometry" >
+          <rect>
+           <x>10</x>
+           <y>440</y>
+           <width>759</width>
+           <height>89</height>
+          </rect>
+         </property>
+         <property name="title" >
+          <string>Play Signal</string>
+         </property>
+         <widget class="QPushButton" name="btnPlayDemo" >
+          <property name="geometry" >
+           <rect>
+            <x>10</x>
+            <y>50</y>
+            <width>75</width>
+            <height>26</height>
+           </rect>
+          </property>
+          <property name="toolTip" >
+           <string>open</string>
+          </property>
+          <property name="text" >
+           <string>Play</string>
+          </property>
+          <property name="icon" >
+           <iconset>resouces/player_play.png</iconset>
+          </property>
+          <property name="checkable" >
+           <bool>false</bool>
+          </property>
+          <property name="flat" >
+           <bool>false</bool>
+          </property>
+         </widget>
+         <widget class="QRadioButton" name="radioButtonOriDemo" >
+          <property name="geometry" >
+           <rect>
+            <x>190</x>
+            <y>50</y>
+            <width>91</width>
+            <height>19</height>
+           </rect>
+          </property>
+          <property name="text" >
+           <string>Original Signal</string>
+          </property>
+         </widget>
+         <widget class="QRadioButton" name="radioButtonResiDemo" >
+          <property name="geometry" >
+           <rect>
+            <x>490</x>
+            <y>50</y>
+            <width>91</width>
+            <height>19</height>
+           </rect>
+          </property>
+          <property name="text" >
+           <string>residual signal</string>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="btnStopDemo" >
+          <property name="geometry" >
+           <rect>
+            <x>100</x>
+            <y>50</y>
+            <width>75</width>
+            <height>26</height>
+           </rect>
+          </property>
+          <property name="toolTip" >
+           <string>open</string>
+          </property>
+          <property name="text" >
+           <string>Stop</string>
+          </property>
+          <property name="icon" >
+           <iconset>resouces/player_stop.png</iconset>
+          </property>
+          <property name="checkable" >
+           <bool>false</bool>
+          </property>
+          <property name="flat" >
+           <bool>false</bool>
+          </property>
+         </widget>
+         <widget class="QRadioButton" name="radioButtonTransiDemo" >
+          <property name="geometry" >
+           <rect>
+            <x>280</x>
+            <y>50</y>
+            <width>91</width>
+            <height>19</height>
+           </rect>
+          </property>
+          <property name="text" >
+           <string>Transient signal</string>
+          </property>
+         </widget>
+         <widget class="QRadioButton" name="radioButtonOtherDemo" >
+          <property name="geometry" >
+           <rect>
+            <x>380</x>
+            <y>50</y>
+            <width>91</width>
+            <height>19</height>
+           </rect>
+          </property>
+          <property name="text" >
+           <string>Other signal</string>
+          </property>
+         </widget>
+        </widget>
+       </widget>
       </widget>
      </item>
     </layout>
