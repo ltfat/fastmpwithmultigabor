@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<dict>
+<libVersion>0.2</libVersion>
+		<blockproperties name="GAUSS-WINDOW">
+			<param name="windowtype" value="gauss"/>
+	        <param name="windowopt" value="0"/>
+	    </blockproperties>	
+		  <block uses="GAUSS-WINDOW">
+			<param name="type" value="gabor"/>	
+			<param name="windowLen" value="128"/>
+			<param name="windowShift" value="32"/>
+			<param name="fftSize" value="128"/>
+	    </block>
+		  <block uses="GAUSS-WINDOW">
+			<param name="type" value="gabor"/>	
+			<param name="windowLen" value="16384"/>
+			<param name="windowShift" value="256"/>
+			<param name="fftSize" value="16384"/>
+	    </block>
+</dict>
