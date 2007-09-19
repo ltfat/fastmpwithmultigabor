@@ -16,6 +16,11 @@ ELSE(MINGW_LIBRARY_FILE)
   MESSAGE(STATUS "mingw32.dll library not found !!")
 ENDIF(MINGW_LIBRARY_FILE)  
 ENDIF(MINGW)
+# copyfiles for demo:
+CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/dictionary/dic_gabor_two_scales.xml ${MPTK_BINARY_DIR}/bin/dic_gabor_two_scales.xml
+                 COPYONLY) 
+CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/signal/glockenspiel.wav ${MPTK_BINARY_DIR}/bin/glockenspiel.wav
+                 COPYONLY) 
 
 # the variable "qtproject_SRCS" contains all .cpp files of this project
 IF(WIN32)
@@ -113,10 +118,9 @@ target_link_libraries(MPTK-GUI ${QT_LIBRARIES} mptk)
 ENDIF(APPLE)
 ENDIF(WIN32)
 INSTALL(TARGETS
-MPTK-GUI
- RUNTIME DESTINATION bin
+MPTK-GUI RUNTIME DESTINATION bin
 )
-
-
-
+INSTALL(FILES
+${MPTK_BINARY_DIR}/bin/dic_gabor_two_scales.xml ${MPTK_BINARY_DIR}/bin/glockenspiel.wav DESTINATION bin
+)
 

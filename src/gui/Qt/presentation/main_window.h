@@ -9,6 +9,7 @@ using namespace std;
 #include "../core/gui_callback_demix.h"
 #include "../core/gui_callback_demo.h"
 #include "gpl.h"
+#include <unistd.h>
 
 
 
@@ -32,7 +33,7 @@ class MainWindow: public QMainWindow, private Ui::MainWindow {
 	Dialog * dialog;
 	bool dictOpen;
 	bool dictOpenDemo;
-
+    bool dictOpenDemoDefault;
 	
 	public:
 		MainWindow(QWidget *parent = 0);
@@ -79,6 +80,8 @@ class MainWindow: public QMainWindow, private Ui::MainWindow {
 		void on_btnPlayDemo_clicked();
 		void on_btnStopDemo_clicked();
 		void on_btnStopDemix_clicked();
+		void on_btnOpenSigDemo_clicked();
+		void on_btnOpenDictDemo_clicked();
 		public:
 		void readFromStdout(QString message);
 };

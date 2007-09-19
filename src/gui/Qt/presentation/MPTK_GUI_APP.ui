@@ -833,7 +833,7 @@
               <rect>
                <x>190</x>
                <y>50</y>
-               <width>91</width>
+               <width>121</width>
                <height>19</height>
               </rect>
              </property>
@@ -844,9 +844,9 @@
             <widget class="QRadioButton" name="radioButtonApprox" >
              <property name="geometry" >
               <rect>
-               <x>290</x>
+               <x>330</x>
                <y>50</y>
-               <width>141</width>
+               <width>171</width>
                <height>19</height>
               </rect>
              </property>
@@ -857,9 +857,9 @@
             <widget class="QRadioButton" name="radioButtonResi" >
              <property name="geometry" >
               <rect>
-               <x>440</x>
+               <x>530</x>
                <y>50</y>
-               <width>91</width>
+               <width>141</width>
                <height>19</height>
               </rect>
              </property>
@@ -1849,7 +1849,7 @@
             <property name="title" >
              <string>Original signal: Mandatory</string>
             </property>
-            <widget class="QPushButton" name="btnOpenSig_2" >
+            <widget class="QPushButton" name="btnOpenSigDemo" >
              <property name="geometry" >
               <rect>
                <x>10</x>
@@ -1959,7 +1959,7 @@
            <rect>
             <x>160</x>
             <y>20</y>
-            <width>371</width>
+            <width>541</width>
             <height>41</height>
            </rect>
           </property>
@@ -1971,7 +1971,7 @@
             <rect>
              <x>10</x>
              <y>10</y>
-             <width>241</width>
+             <width>521</width>
              <height>16</height>
             </rect>
            </property>
@@ -1980,7 +1980,7 @@
            </property>
           </widget>
          </widget>
-         <widget class="QPushButton" name="btnOpenDictDemix_2" >
+         <widget class="QPushButton" name="btnOpenDictDemo" >
           <property name="geometry" >
            <rect>
             <x>10</x>
@@ -2096,6 +2096,117 @@
            </item>
           </layout>
          </widget>
+         <widget class="QWidget" name="layoutWidget_2" >
+          <property name="geometry" >
+           <rect>
+            <x>330</x>
+            <y>30</y>
+            <width>97</width>
+            <height>22</height>
+           </rect>
+          </property>
+          <layout class="QHBoxLayout" >
+           <item>
+            <widget class="QLabel" name="label_16" >
+             <property name="text" >
+              <string>SNR</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="comboBoxSnr_2" >
+             <item>
+              <property name="text" >
+               <string>0</string>
+              </property>
+             </item>
+             <item>
+              <property name="text" >
+               <string>5</string>
+              </property>
+             </item>
+             <item>
+              <property name="text" >
+               <string>10</string>
+              </property>
+             </item>
+             <item>
+              <property name="text" >
+               <string>15</string>
+              </property>
+             </item>
+             <item>
+              <property name="text" >
+               <string>20</string>
+              </property>
+             </item>
+             <item>
+              <property name="text" >
+               <string>25</string>
+              </property>
+             </item>
+             <item>
+              <property name="text" >
+               <string>30</string>
+              </property>
+             </item>
+             <item>
+              <property name="text" >
+               <string>45</string>
+              </property>
+             </item>
+             <item>
+              <property name="text" >
+               <string>50</string>
+              </property>
+             </item>
+             <item>
+              <property name="text" >
+               <string>60</string>
+              </property>
+             </item>
+             <item>
+              <property name="text" >
+               <string>80</string>
+              </property>
+             </item>
+             <item>
+              <property name="text" >
+               <string>90</string>
+              </property>
+             </item>
+             <item>
+              <property name="text" >
+               <string>100</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QScrollBar" name="horizontalScrollBar" >
+          <property name="geometry" >
+           <rect>
+            <x>510</x>
+            <y>30</y>
+            <width>160</width>
+            <height>16</height>
+           </rect>
+          </property>
+          <property name="orientation" >
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+         <widget class="QLineEdit" name="lineEdit" >
+          <property name="geometry" >
+           <rect>
+            <x>690</x>
+            <y>30</y>
+            <width>113</width>
+            <height>20</height>
+           </rect>
+          </property>
+         </widget>
         </widget>
         <widget class="QGroupBox" name="groupBox_18" >
          <property name="geometry" >
@@ -2137,9 +2248,9 @@
          <widget class="QRadioButton" name="radioButtonOriDemo" >
           <property name="geometry" >
            <rect>
-            <x>190</x>
+            <x>220</x>
             <y>50</y>
-            <width>91</width>
+            <width>121</width>
             <height>19</height>
            </rect>
           </property>
@@ -2150,9 +2261,9 @@
          <widget class="QRadioButton" name="radioButtonResiDemo" >
           <property name="geometry" >
            <rect>
-            <x>490</x>
+            <x>630</x>
             <y>50</y>
-            <width>91</width>
+            <width>111</width>
             <height>19</height>
            </rect>
           </property>
@@ -2188,9 +2299,9 @@
          <widget class="QRadioButton" name="radioButtonTransiDemo" >
           <property name="geometry" >
            <rect>
-            <x>280</x>
+            <x>370</x>
             <y>50</y>
-            <width>91</width>
+            <width>111</width>
             <height>19</height>
            </rect>
           </property>
@@ -2201,9 +2312,9 @@
          <widget class="QRadioButton" name="radioButtonOtherDemo" >
           <property name="geometry" >
            <rect>
-            <x>380</x>
+            <x>510</x>
             <y>50</y>
-            <width>91</width>
+            <width>111</width>
             <height>19</height>
            </rect>
           </property>

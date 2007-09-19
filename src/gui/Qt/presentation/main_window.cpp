@@ -18,6 +18,7 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent)
   textEditConsolDemix->append(gplText);
   dictOpen = false;
   dictOpenDemo = false;
+  dictOpenDemoDefault = false;
 }
 
 
@@ -35,6 +36,12 @@ MainWindow::~MainWindow()
       delete guiCallBackDemix;
       guiCallBackDemix = NULL;
     }
+  if (guiCallBackDemo)
+    {
+      delete guiCallBackDemo;
+      guiCallBackDemo = NULL;
+    }
+
 }
 
 void MainWindow::on_tabWidget_currentChanged()
@@ -84,6 +91,24 @@ void MainWindow::on_btnPlay_clicked()
     }
 }
 
+void MainWindow::on_btnOpenSigDemo_clicked()
+{
+  QString panelName = "MPTK GUI: Open Waves files";
+  QString fileType ="Wave Files (*.wav);;All Files (*)";
+  QString s =dialog->setOpenFileName(panelName, fileType );
+  if (!s.isEmpty())
+    {
+      if (!guiCallBackDemo->coreInit())
+        {
+          if (guiCallBackDemo->initMpdCore(s, "")== NOTHING_OPENED) dialog->errorMessage("the file named " + s +" isn't a wave file" );
+          else labelOriginalSignalDemo->setText(s);
+        }
+    }
+
+  else dialog->errorMessage("Empty name file");
+
+
+}
 /* arrêt du lecteur */
 void MainWindow::on_btnStop_clicked()
 {
@@ -468,10 +493,10 @@ void MainWindow::on_radioButtonVerboseDemix_toggled()
 
 void MainWindow::on_btnOpenDefaultSig_clicked()
 {
-
+  std::string strAppDirectory;
+  if (!guiCallBackDemo->coreInit()){
 #ifdef __WIN32__
   char szAppPath[MAX_PATH] = "";
-  std::string strAppDirectory;
 
   GetModuleFileName(NULL, szAppPath, MAX_PATH);
 
@@ -482,43 +507,56 @@ void MainWindow::on_btnOpenDefaultSig_clicked()
   strAppDirectory += "\\glockenspiel.wav";
   labelOriginalSignalDemo->setText(QString(strAppDirectory.c_str()));
   guiCallBackDemo->initMpdCore(QString(strAppDirectory.c_str()), "");
-#else  /* WIN32 */
-  guiCallBackDemo->initMpdCore("glockenspiel.wav", "");
+#else
+  char path[2048];
+  getcwd(path, 2004);
+  strAppDirectory = path;
+  strAppDirectory += "/glockenspiel.wav";
+  labelOriginalSignalDemo->setText(QString(strAppDirectory.c_str()));
+  guiCallBackDemo->initMpdCore(QString(strAppDirectory.c_str()), "");
 #endif /* WIN32 */
+  }
 }
 
 void MainWindow::on_btnValidateDefautlDict_clicked()
 {
-#ifdef __WIN32__
-  char szAppPath[MAX_PATH] = "";
   std::string strAppDirectory;
+  if (guiCallBackDemo->coreInit() && !dictOpenDemo)
+    {
+#ifdef __WIN32__
+      char szAppPath[MAX_PATH] = "";
 
-  GetModuleFileName(NULL, szAppPath, MAX_PATH);
+      GetModuleFileName(NULL, szAppPath, MAX_PATH);
 
 // Extract directory
-  strAppDirectory = szAppPath;
+      strAppDirectory = szAppPath;
 
-  strAppDirectory = strAppDirectory.substr(0, strAppDirectory.rfind("\\"));
-  strAppDirectory += "\\dico_demo.xml";
-//labelOriginalSignalDemo->setText(QString(strAppDirectory.c_str()));
-  if (guiCallBackDemo->coreInit())labelDictDemixDemo->setText(QString(strAppDirectory.c_str()));
-  guiCallBackDemo->setDictionary(QString(strAppDirectory.c_str()));
-#else  /* WIN32 */
-  guiCallBackDemo->initMpdCore("dico_demo.xml", "");
+      strAppDirectory = strAppDirectory.substr(0, strAppDirectory.rfind("\\"));
+      strAppDirectory += "\\dic_gabor_two_scales.xml";
+      if (guiCallBackDemo->coreInit())labelDictDemixDemo->setText(QString(strAppDirectory.c_str()));
+      if (guiCallBackDemo->coreInit())guiCallBackDemo->setDictionary(QString(strAppDirectory.c_str()));
+#else
+      char path[2048];
+      getcwd(path, 2004);
+      strAppDirectory = path;
+      strAppDirectory += "/dic_gabor_two_scales.xml";
+      labelDictDemixDemo->setText(QString(strAppDirectory.c_str()));
+      if (guiCallBackDemo->coreInit())guiCallBackDemo->setDictionary(QString(strAppDirectory.c_str()));
 #endif /* WIN32 */
-  dictOpenDemo = true;
+      dictOpenDemoDefault = true;
+    }
 }
 
 
 void MainWindow::on_btnLauchDemo_clicked()
 {
-  if (guiCallBackDemo->coreInit()&&dictOpenDemo)
+  if (guiCallBackDemo->coreInit() && (dictOpenDemoDefault||dictOpenDemo))
     {
       guiCallBackDemo->setIterationNumber(comboBoxNumIterDemo->currentText().toULong());
       guiCallBackDemo->iterateAll();
       guiCallBackDemo->separate(200);
-
     }
+  else dialog->errorMessage("parameter not correctly set");
 
 
 }
@@ -540,6 +578,24 @@ void MainWindow::on_btnPlayDemo_clicked()
       if (radioButtonResiDemo->isChecked())guiCallBackDemo->playResidualSignal(selectedChannel,0,0);
     }
 
+}
+
+void MainWindow::on_btnOpenDictDemo_clicked()
+{
+  QString panelName = "MPTK GUI: Open dictionary";
+  QString fileType ="XML Files (*.xml);;All Files (*)";
+  QString s =dialog->setOpenFileName(panelName, fileType );
+  if (guiCallBackDemo->coreInit() && !dictOpenDemoDefault)
+    {
+      if (!s.isEmpty())
+        {
+          if (guiCallBackDemo->coreInit())guiCallBackDemo->setDictionary(s);
+          labelDictDemixDemo->setText(s);
+          dictOpenDemo = true;
+        }
+      else dialog->errorMessage("Empty name file");
+    }
+  else dialog->errorMessage("Open a signal first");
 }
 /*********** SLOTS ***********/
 
