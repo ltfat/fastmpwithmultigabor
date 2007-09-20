@@ -100,6 +100,12 @@ class MP_Gui_Callback_Abstract_c: public QThread
           if (audio->getStream() != NULL) audio->stop();
         }
     }
+//Unset Num Iter
+void unsetIter()
+   {
+      if (mpd_Core && getActivated())mpd_Core->reset_iter_condition();
+      if (mpd_Demix_Core && getActivated())mpd_Demix_Core->reset_iter_condition();
+    }
 
 // Unset the SNR
     void unsetSNR()
@@ -250,6 +256,10 @@ class MP_Gui_Callback_Abstract_c: public QThread
       else if (mpd_Demix_Core && getActivated()) return(mpd_Demix_Core->get_num_iter());
       else return 0;
     }
+    
+int getSignalSampleRate(void){
+	return baseSignal->sampleRate;
+}
 
 
   };

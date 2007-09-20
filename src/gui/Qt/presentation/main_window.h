@@ -55,6 +55,9 @@ class MainWindow: public QMainWindow, private Ui::MainWindow {
 		void on_comboBoxNumIter_activated();
 		void on_comboBoxNumIterDemix_activated();
 		void on_comboBoxSnr_activated();
+		void on_comboBoxSnrDemix_activated();
+		void on_comboBoxSnrDemo_activated();
+		void on_comboBoxNumIterDemo_activated();
 		void on_pushButtonSaveBook_clicked();
 		void on_pushButtonSaveBookDemix_clicked();
 		void on_pushButtonStopIterate_clicked();
@@ -82,6 +85,7 @@ class MainWindow: public QMainWindow, private Ui::MainWindow {
 		void on_btnStopDemix_clicked();
 		void on_btnOpenSigDemo_clicked();
 		void on_btnOpenDictDemo_clicked();
+		void on_horizontalScrollBarDemo_valueChanged();
 		public:
 		void readFromStdout(QString message);
 };

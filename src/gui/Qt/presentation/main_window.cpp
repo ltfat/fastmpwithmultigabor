@@ -14,6 +14,7 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent)
   labelDict->setText("No dictionary file selected");
   label_progress->setText("No decompostion");
   label_progressDemix->setText("No decompostion");
+  lineEditSeparateValueDemo->setText("0");
   textEditConsol->append(gplText);
   textEditConsolDemix->append(gplText);
   dictOpen = false;
@@ -192,10 +193,33 @@ void MainWindow::on_comboBoxNumIterDemix_activated()
   if (guiCallBackDemix->coreInit())guiCallBackDemix->unsetSNR();
 }
 
+void MainWindow::on_comboBoxNumIterDemo_activated()
+{
+  if (guiCallBackDemo->coreInit())guiCallBackDemo->setIterationNumber(comboBoxNumIterDemo->currentText().toULong());
+  if (guiCallBackDemo->coreInit())guiCallBackDemo->unsetSNR();
+}
+
 void MainWindow::on_comboBoxSnr_activated()
 {
   if (guiCallBack->coreInit())guiCallBack->setSNR(comboBoxSnr->currentText().toDouble());
+  if (guiCallBack->coreInit())guiCallBack->unsetIter();
 }
+
+void MainWindow::on_comboBoxSnrDemix_activated()
+{
+  if (guiCallBackDemix->coreInit())guiCallBackDemix->setSNR(comboBoxSnrDemix->currentText().toDouble());
+  if (guiCallBackDemix->coreInit())guiCallBackDemix->unsetIter();
+}
+
+void MainWindow::on_comboBoxSnrDemo_activated()
+{
+  if (guiCallBackDemo->coreInit())guiCallBackDemo->setSNR(comboBoxSnrDemo->currentText().toDouble());
+  if (guiCallBackDemo->coreInit())guiCallBackDemo->unsetIter();
+
+}
+
+
+
 void MainWindow::on_pushButtonIterateAll_clicked()
 {
   label_progress->setText("<font color=\"#FF0000\">Decompostion in progress</font>");
@@ -552,9 +576,10 @@ void MainWindow::on_btnLauchDemo_clicked()
 {
   if (guiCallBackDemo->coreInit() && (dictOpenDemoDefault||dictOpenDemo))
     {
-      guiCallBackDemo->setIterationNumber(comboBoxNumIterDemo->currentText().toULong());
+      //guiCallBackDemo->setIterationNumber(comboBoxNumIterDemo->currentText().toULong());
       guiCallBackDemo->iterateAll();
-      guiCallBackDemo->separate(200);
+      if(horizontalScrollBarDemo->value()>0)guiCallBackDemo->separate(horizontalScrollBarDemo->value());
+      else guiCallBackDemo->separate(200);
     }
   else dialog->errorMessage("parameter not correctly set");
 
@@ -577,6 +602,14 @@ void MainWindow::on_btnPlayDemo_clicked()
       if (radioButtonOtherDemo->isChecked())guiCallBackDemo->playOtherSignal(selectedChannel,0,0);
       if (radioButtonResiDemo->isChecked())guiCallBackDemo->playResidualSignal(selectedChannel,0,0);
     }
+
+}
+
+void MainWindow::on_horizontalScrollBarDemo_valueChanged(){
+if (guiCallBackDemo->coreInit()){
+char buf[32];
+sprintf(buf, "%f",1000.0*horizontalScrollBarDemo->value()/ guiCallBackDemo->getSignalSampleRate());
+lineEditSeparateValueDemo->setText(buf);}
 
 }
 
