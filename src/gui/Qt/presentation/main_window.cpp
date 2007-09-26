@@ -17,9 +17,12 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent)
   lineEditSeparateValueDemo->setText("0");
   textEditConsol->append(gplText);
   textEditConsolDemix->append(gplText);
+  textEditConsolDemo->append(gplText);
   dictOpen = false;
   dictOpenDemo = false;
   dictOpenDemoDefault = false;
+  stopContraintSet = false;
+  connect(pushButtonStopIterate, SIGNAL(clicked()), guiCallBack, SLOT(stopIteration()));
 }
 
 
@@ -104,7 +107,13 @@ void MainWindow::on_btnOpenSigDemo_clicked()
           if (guiCallBackDemo->initMpdCore(s, "")== NOTHING_OPENED) dialog->errorMessage("the file named " + s +" isn't a wave file" );
           else labelOriginalSignalDemo->setText(s);
         }
-    }
+      else {
+      if (guiCallBackDemo->initMpdCore(s, "")== NOTHING_OPENED) dialog->errorMessage("the file named " + s +" isn't a wave file" );
+          else labelOriginalSignalDemo->setText(s);
+          dictOpenDemoDefault = false;
+      
+      }
+      }
 
   else dialog->errorMessage("Empty name file");
 
@@ -197,6 +206,7 @@ void MainWindow::on_comboBoxNumIterDemo_activated()
 {
   if (guiCallBackDemo->coreInit())guiCallBackDemo->setIterationNumber(comboBoxNumIterDemo->currentText().toULong());
   if (guiCallBackDemo->coreInit())guiCallBackDemo->unsetSNR();
+  stopContraintSet = true;
 }
 
 void MainWindow::on_comboBoxSnr_activated()
@@ -215,6 +225,7 @@ void MainWindow::on_comboBoxSnrDemo_activated()
 {
   if (guiCallBackDemo->coreInit())guiCallBackDemo->setSNR(comboBoxSnrDemo->currentText().toDouble());
   if (guiCallBackDemo->coreInit())guiCallBackDemo->unsetIter();
+  stopContraintSet = true;
 
 }
 
@@ -223,8 +234,12 @@ void MainWindow::on_comboBoxSnrDemo_activated()
 void MainWindow::on_pushButtonIterateAll_clicked()
 {
   label_progress->setText("<font color=\"#FF0000\">Decompostion in progress</font>");
+  label_progress->update();
   if (guiCallBack->coreInit()&&dictOpen)guiCallBack->iterateAll();
+  textEditConsol->append("Decompostion ended");
   label_progress->setText("Decompostion ended");
+  label_progress->update();
+  textEditConsol->update();
 }
 
 void MainWindow::on_pushButtonSaveBook_clicked()
@@ -306,13 +321,13 @@ void MainWindow::on_pushButtonSaveApproxDemix_clicked()
     }
   else dialog->errorMessage("Empty name file");
 }
-
+/*
 void MainWindow::on_pushButtonStopIterate_clicked()
 {
-  if (guiCallBack->coreInit())guiCallBack->stopIteration();
+ // if (guiCallBack->coreInit())guiCallBack->stopIteration();
 
 }
-
+*/
 void MainWindow::on_btnOpenbook_clicked()
 {
   QString panelName = "MPTK GUI: Choose a book to open";
@@ -442,7 +457,10 @@ void MainWindow::on_pushButtonIterateAllDemix_clicked()
 {
   label_progress->setText("<font color=\"#FF0000\">Decompostion in progress</font>");
   if (guiCallBackDemix->coreInit()&& guiCallBackDemix->getBookOpen()==BOOK_OPENED)guiCallBackDemix->iterateAll();
+  textEditConsolDemix->append("Decompostion ended");
   label_progress->setText("Decompostion ended");
+  textEditConsolDemix->update();
+  label_progress->update();
 
 }
 
@@ -518,28 +536,29 @@ void MainWindow::on_radioButtonVerboseDemix_toggled()
 void MainWindow::on_btnOpenDefaultSig_clicked()
 {
   std::string strAppDirectory;
-  if (!guiCallBackDemo->coreInit()){
+  if (!guiCallBackDemo->coreInit())
+    {
 #ifdef __WIN32__
-  char szAppPath[MAX_PATH] = "";
+      char szAppPath[MAX_PATH] = "";
 
-  GetModuleFileName(NULL, szAppPath, MAX_PATH);
+      GetModuleFileName(NULL, szAppPath, MAX_PATH);
 
 // Extract directory
-  strAppDirectory = szAppPath;
+      strAppDirectory = szAppPath;
 
-  strAppDirectory = strAppDirectory.substr(0, strAppDirectory.rfind("\\"));
-  strAppDirectory += "\\glockenspiel.wav";
-  labelOriginalSignalDemo->setText(QString(strAppDirectory.c_str()));
-  guiCallBackDemo->initMpdCore(QString(strAppDirectory.c_str()), "");
+      strAppDirectory = strAppDirectory.substr(0, strAppDirectory.rfind("\\"));
+      strAppDirectory += "\\glockenspiel.wav";
+      labelOriginalSignalDemo->setText(QString(strAppDirectory.c_str()));
+      guiCallBackDemo->initMpdCore(QString(strAppDirectory.c_str()), "");
 #else
-  char path[2048];
-  getcwd(path, 2004);
-  strAppDirectory = path;
-  strAppDirectory += "/glockenspiel.wav";
-  labelOriginalSignalDemo->setText(QString(strAppDirectory.c_str()));
-  guiCallBackDemo->initMpdCore(QString(strAppDirectory.c_str()), "");
+      char path[2048];
+      getcwd(path, 2004);
+      strAppDirectory = path;
+      strAppDirectory += "/glockenspiel.wav";
+      labelOriginalSignalDemo->setText(QString(strAppDirectory.c_str()));
+      guiCallBackDemo->initMpdCore(QString(strAppDirectory.c_str()), "");
 #endif /* WIN32 */
-  }
+    }
 }
 
 void MainWindow::on_btnValidateDefautlDict_clicked()
@@ -576,10 +595,12 @@ void MainWindow::on_btnLauchDemo_clicked()
 {
   if (guiCallBackDemo->coreInit() && (dictOpenDemoDefault||dictOpenDemo))
     {
-      //guiCallBackDemo->setIterationNumber(comboBoxNumIterDemo->currentText().toULong());
+      if (!stopContraintSet)guiCallBackDemo->setIterationNumber(comboBoxNumIterDemo->currentText().toULong());
       guiCallBackDemo->iterateAll();
-      if(horizontalScrollBarDemo->value()>0)guiCallBackDemo->separate(horizontalScrollBarDemo->value());
+      if (lineEditSeparateValueDemo->text().toULong()>0)guiCallBackDemo->separate(lineEditSeparateValueDemo->text().toULong());
       else guiCallBackDemo->separate(200);
+      textEditConsolDemo->append("Decomposition for demo is finished");
+      textEditConsolDemo->update();
     }
   else dialog->errorMessage("parameter not correctly set");
 
@@ -605,11 +626,14 @@ void MainWindow::on_btnPlayDemo_clicked()
 
 }
 
-void MainWindow::on_horizontalScrollBarDemo_valueChanged(){
-if (guiCallBackDemo->coreInit()){
-char buf[32];
-sprintf(buf, "%f",1000.0*horizontalScrollBarDemo->value()/ guiCallBackDemo->getSignalSampleRate());
-lineEditSeparateValueDemo->setText(buf);}
+void MainWindow::on_horizontalScrollBarDemo_valueChanged()
+{
+  if (guiCallBackDemo->coreInit())
+    {
+      char buf[32];
+      sprintf(buf, "%f",1000.0*horizontalScrollBarDemo->value()/ guiCallBackDemo->getSignalSampleRate());
+      lineEditSeparateValueDemo->setText(buf);
+    }
 
 }
 

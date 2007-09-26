@@ -38,7 +38,7 @@ class MP_Gui_Callback_Abstract_c: public QThread
       baseSignal = NULL;
       audio = NULL;
       approximant = NULL;
-      QThread::start();
+      QThread::start(LowestPriority);
       QThread::wait ( ULONG_MAX );
       opSig = NOTHING_OPENED;
       activated = false;
@@ -183,14 +183,14 @@ void unsetIter()
 
     void iterateAll()
     {
-      if (mpd_Core && getActivated())
+      if (mpd_Core && getActivated() && mpd_Core->can_step())
         {
           mpd_Core->info_conditions();
           run();
           QThread::wait ( ULONG_MAX );
           mpd_Core->info_result();
         }
-      else if (mpd_Demix_Core && getActivated())
+      else if (mpd_Demix_Core && getActivated() && mpd_Demix_Core->can_step())
         {
           mpd_Demix_Core->info_conditions();
           run();
@@ -212,11 +212,7 @@ void unsetIter()
         }
     }
 
-    void stopIteration()
-    {
-      if (mpd_Core && getActivated())mpd_Core->force_stop();
-      if (mpd_Demix_Core && getActivated())mpd_Demix_Core->force_stop();
-    }
+
 
     void saveResidual(QString fileName)
     {
@@ -260,6 +256,14 @@ void unsetIter()
 int getSignalSampleRate(void){
 	return baseSignal->sampleRate;
 }
+
+private slots:
+    void stopIteration()
+    {
+      if (mpd_Core && getActivated())mpd_Core->force_stop();
+      if (mpd_Demix_Core && getActivated())mpd_Demix_Core->force_stop();
+    }
+
 
 
   };

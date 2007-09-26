@@ -19,7 +19,7 @@
      <rect>
       <x>0</x>
       <y>0</y>
-      <width>921</width>
+      <width>981</width>
       <height>701</height>
      </rect>
     </property>
@@ -242,7 +242,7 @@
           <rect>
            <x>580</x>
            <y>90</y>
-           <width>281</width>
+           <width>371</width>
            <height>191</height>
           </rect>
          </property>
@@ -255,9 +255,9 @@
             <widget class="QWidget" name="horizontalLayout_2" >
              <property name="geometry" >
               <rect>
-               <x>0</x>
-               <y>20</y>
-               <width>273</width>
+               <x>10</x>
+               <y>30</y>
+               <width>351</width>
                <height>119</height>
               </rect>
              </property>
@@ -952,7 +952,7 @@
           <rect>
            <x>560</x>
            <y>120</y>
-           <width>281</width>
+           <width>401</width>
            <height>161</height>
           </rect>
          </property>
@@ -967,7 +967,7 @@
               <rect>
                <x>0</x>
                <y>20</y>
-               <width>273</width>
+               <width>391</width>
                <height>117</height>
               </rect>
              </property>
@@ -1371,7 +1371,7 @@
           <rect>
            <x>10</x>
            <y>290</y>
-           <width>871</width>
+           <width>951</width>
            <height>159</height>
           </rect>
          </property>
@@ -1381,9 +1381,9 @@
          <widget class="QWidget" name="horizontalLayout_5" >
           <property name="geometry" >
            <rect>
-            <x>0</x>
-            <y>20</y>
-            <width>850</width>
+            <x>20</x>
+            <y>30</y>
+            <width>911</width>
             <height>111</height>
            </rect>
           </property>
@@ -1839,7 +1839,7 @@
           <rect>
            <x>10</x>
            <y>20</y>
-           <width>861</width>
+           <width>901</width>
            <height>81</height>
           </rect>
          </property>
@@ -1905,7 +1905,7 @@
               <rect>
                <x>710</x>
                <y>30</y>
-               <width>131</width>
+               <width>181</width>
                <height>24</height>
               </rect>
              </property>
@@ -1922,7 +1922,7 @@
           <rect>
            <x>10</x>
            <y>110</y>
-           <width>861</width>
+           <width>901</width>
            <height>231</height>
           </rect>
          </property>
@@ -1934,7 +1934,7 @@
            <rect>
             <x>710</x>
             <y>30</y>
-            <width>134</width>
+            <width>181</width>
             <height>26</height>
            </rect>
           </property>
@@ -2024,7 +2024,7 @@
           <rect>
            <x>10</x>
            <y>350</y>
-           <width>861</width>
+           <width>901</width>
            <height>78</height>
           </rect>
          </property>
@@ -2061,7 +2061,7 @@
            <rect>
             <x>140</x>
             <y>30</y>
-            <width>170</width>
+            <width>221</width>
             <height>22</height>
            </rect>
           </property>
@@ -2112,7 +2112,7 @@
          <widget class="QWidget" name="layoutWidget_2" >
           <property name="geometry" >
            <rect>
-            <x>320</x>
+            <x>370</x>
             <y>30</y>
             <width>97</width>
             <height>22</height>
@@ -2228,7 +2228,7 @@
            <rect>
             <x>520</x>
             <y>40</y>
-            <width>169</width>
+            <width>231</width>
             <height>20</height>
            </rect>
           </property>
@@ -2242,7 +2242,7 @@
           <rect>
            <x>10</x>
            <y>440</y>
-           <width>759</width>
+           <width>901</width>
            <height>89</height>
           </rect>
          </property>
@@ -2330,7 +2330,7 @@
            <rect>
             <x>370</x>
             <y>50</y>
-            <width>111</width>
+            <width>121</width>
             <height>19</height>
            </rect>
           </property>
@@ -2349,6 +2349,29 @@
           </property>
           <property name="text" >
            <string>Other signal</string>
+          </property>
+         </widget>
+        </widget>
+        <widget class="QGroupBox" name="groupBox_20" >
+         <property name="geometry" >
+          <rect>
+           <x>10</x>
+           <y>550</y>
+           <width>901</width>
+           <height>111</height>
+          </rect>
+         </property>
+         <property name="title" >
+          <string>Console</string>
+         </property>
+         <widget class="QTextEdit" name="textEditConsolDemo" >
+          <property name="geometry" >
+           <rect>
+            <x>10</x>
+            <y>26</y>
+            <width>841</width>
+            <height>71</height>
+           </rect>
           </property>
          </widget>
         </widget>

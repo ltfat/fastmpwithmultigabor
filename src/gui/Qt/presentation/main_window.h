@@ -34,6 +34,7 @@ class MainWindow: public QMainWindow, private Ui::MainWindow {
 	bool dictOpen;
 	bool dictOpenDemo;
     bool dictOpenDemoDefault;
+    bool stopContraintSet;
 	
 	public:
 		MainWindow(QWidget *parent = 0);
@@ -60,7 +61,7 @@ class MainWindow: public QMainWindow, private Ui::MainWindow {
 		void on_comboBoxNumIterDemo_activated();
 		void on_pushButtonSaveBook_clicked();
 		void on_pushButtonSaveBookDemix_clicked();
-		void on_pushButtonStopIterate_clicked();
+	//	void on_pushButtonStopIterate_clicked();
 		void on_pushButtonSaveResidual_clicked();
 		void on_pushButtonSaveResidualDemix_clicked();
 		void on_pushButtonSaveDecayDemix_clicked();
