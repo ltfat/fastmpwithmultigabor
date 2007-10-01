@@ -155,7 +155,7 @@ public:
   unsigned long int append_false( unsigned long int nElem );
 
   /** \brief A method appending any element to the sieve array.
-   * \param MP_Bool_t the element to add
+   * \param val MP_Bool_t the element to add
    * \return 0 if failed, otherwise the new total number of elements in the sieve array.
    * \remark A realloc may be performed, hence the pointer to the sieve array may change.
    */

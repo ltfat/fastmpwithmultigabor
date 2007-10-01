@@ -139,7 +139,7 @@ public:
 
 protected:
   /** \brief an initializer for the parameters which ARE NOT related to the signal
-   *  \param setWindowSize size of the window
+   *  \param setFilterLen size of the window
    *  \param setFilterShift shift, in samples, between two consecutive frames. 
    * Typically, use \a setFilterShift = \a setWindowSize / 2 to get 50 percent overlap between windows
    *  \param setFftSize The size of the executed FFT, including zero padding.
@@ -147,11 +147,11 @@ protected:
    * windowed FFTs without zero padding.
    *  \param setWindowType type of the window  (ex: \b DSP_GAUSS_WIN, \b DSP_HAMMING_WIN, ...)
    *  \param setWindowOption optional shaping parameter of the windows
-   *  \param setMinFundFreqIdx minimum allowed fundamental frequency of the harmonic subspaces, 
+   *  \param  setF0Min minimum allowed fundamental frequency of the harmonic subspaces, 
    * expressed in frequency bins between 0 (DC) and \a numFreqs-1 (Nyquist)
-   *  \param setMaxFundFreqIdx maximum allowed fundamental frequency of the harmonic subspaces, 
+   *  \param setF0Max maximum allowed fundamental frequency of the harmonic subspaces, 
    * expressed in frequency bins between 0 (DC) and \a numFreqs-1 (Nyquist)
-   *  \paramsetMaxNumPartials maximum number of partials to be considered in each harmonic subspace
+   *  \param setMaxNumPartials maximum number of partials to be considered in each harmonic subspace
    *  \param setBlockOffset the block offset
    * 
    * \warning the behaviour is undefined if the following conditions are not satisfied:
@@ -171,7 +171,7 @@ protected:
 			       const unsigned long int setBlockOffset );
 			       
   /** \brief an initializer for the parameters which ARE NOT related to the signal in a parameter map 
-   *  \param setWindowSize size of the window
+   *  \param setFilterLen size of the window
    *  \param setFilterShift shift, in samples, between two consecutive frames. 
    * Typically, use \a setFilterShift = \a setWindowSize / 2 to get 50 percent overlap between windows
    *  \param setFftSize The size of the executed FFT, including zero padding.
@@ -179,11 +179,11 @@ protected:
    * windowed FFTs without zero padding.
    *  \param setWindowType type of the window  (ex: \b DSP_GAUSS_WIN, \b DSP_HAMMING_WIN, ...)
    *  \param setWindowOption optional shaping parameter of the windows
-   *  \param setMinFundFreqIdx minimum allowed fundamental frequency of the harmonic subspaces, 
+   *  \param setF0Min minimum allowed fundamental frequency of the harmonic subspaces, 
    * expressed in frequency bins between 0 (DC) and \a numFreqs-1 (Nyquist)
-   *  \param setMaxFundFreqIdx maximum allowed fundamental frequency of the harmonic subspaces, 
+   *  \param setF0Max maximum allowed fundamental frequency of the harmonic subspaces, 
    * expressed in frequency bins between 0 (DC) and \a numFreqs-1 (Nyquist)
-   *  \paramsetMaxNumPartials maximum number of partials to be considered in each harmonic subspace
+   *  \param setMaxNumPartials maximum number of partials to be considered in each harmonic subspace
    *  \param setBlockOffset the block offset
    * 
    * \warning the behaviour is undefined if the following conditions are not satisfied:
@@ -255,7 +255,8 @@ public:
   /** \brief Creates a new Harmonic atom (or a plain Gabor atom) 
    * corresponding to (frameIdx,filterIdx).
    * \param atom a pointer to a reference to the returned atom object
-   * \param atomIdx the index of the desired atom
+   * \param frameIdx the index of the desired atom
+   * \param filterIdx the index of the desired atom
    * \return the number of created atoms (one upon success, zero otherwise)
    *
    * - if \a filterIdx < \b fft->numFreqs the result is a Gabor atom 

@@ -10,12 +10,19 @@
  2.Basic build
 Suppose you untar MPTK-0.5.3.tar.gz in directory ~/foo
 and you wantto build MPTK binary and library files in ~/bar.
-The Command list you should use will look like this:
+For windows, use the CMake executable to make the build system and set the « Where is the source code: »
+text box with the path of the directory where the source files are located (c:\foo) 
+and the « Where to build the binaries: » with the path of the directory 
+where you want to build the library and executable files (c:\bar).Use the Mingw make to build:
+C:~\bar\mingw32-make
+
+The Command list you should use under Linux like OS will look like this:
 bash-3.1$ mkdir ~/bar
 bash-3.1$ cd ~/bar
 bash-3.1$ cmake ~/foo
 bash-3.1$ make
 bash-3.1$ make install 
+
 
 When using the cmake command to generate the build system, Cmake performs a
 list of tests to determine the system configuration and manage the build system.
@@ -30,7 +37,7 @@ In this case the three last lines of the console log of cmake command should be:
 -- Build files have been written to: ~/bar
 
  3.Basic install 
-make install will install in default directory /usr/local
+make install will install in default directory /usr/local for unix like system or 
 
  4.Custom build and install 
 If you want to change build and/or install options (for example to install MPTK in a
@@ -38,7 +45,7 @@ different folder or to enable the parallel computing using multithread capacitie
 In order to build the MPTK library and executable files, you have to generate a build system with Cmake.
 This build system can be parametrized using the Cmake Graphical User Interface,
 which is also used to fix possible issues of the build system configuration.
-This will yield the following sequence of commands:
+This will yield the following sequence of commands for Unix like OS:
 
 bash-3.1$ mkdir ~/bar
 bash-3.1$ cd ~/bar
@@ -49,6 +56,8 @@ bash-3.1$ ccmake /.
 
 bash-3.1$ make
 bash-3.1$ make install
+
+For windows like OS, everything is manage from the CMake executable and its GUI.
 
 For further informations please refer to Build_MPTK_with_CMake--LINUX_OSX or Build_MPTK_with_CMake--WIN pdf doc.
 Or to MPTK web site: http://mptk.irisa.fr/

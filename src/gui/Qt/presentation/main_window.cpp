@@ -1,6 +1,40 @@
+/******************************************************************************/
+/*                                                                            */
+/*                            main_window.cpp                                 */
+/*                                                                            */
+/*                        Matching Pursuit Library                            */
+/*                                                                            */
+/*                                                                            */
+/* Roy Benjamin                                               Mon Feb 21 2007 */
+/* -------------------------------------------------------------------------- */
+/*                                                                            */
+/*  Copyright (C) 2005 IRISA                                                  */
+/*                                                                            */
+/*  This program is free software; you can redistribute it and/or             */
+/*  modify it under the terms of the GNU General Public License               */
+/*  as published by the Free Software Foundation; either version 2            */
+/*  of the License, or (at your option) any later version.                    */
+/*                                                                            */
+/*  This program is distributed in the hope that it will be useful,           */
+/*  but WITHOUT ANY WARRANTY; without even the implied warranty of            */
+/*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the             */
+/*  GNU General Public License for more details.                              */
+/*                                                                            */
+/*  You should have received a copy of the GNU General Public License         */
+/*  along with this program; if not, write to the Free Software               */
+/*  Foundation, Inc., 59 Temple Place - Suite 330,                            */
+/*  Boston, MA  02111-1307, USA.                                              */
+/*                                                                            */
+/******************************************************************************/
 
+/**********************************************************/
+/*                                                        */
+/* atom_factory.cpp : methods for class MainWindow        */
+/*                                                        */
+/**********************************************************/
 #include "main_window.h"
 
+// Constructor
 MainWindow::MainWindow(QWidget *parent): QMainWindow(parent)
 {
   setupUi(this);
@@ -27,7 +61,7 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent)
 
 
 
-/* attendre l'arrêt du thread avant de détruire player */
+// Destructor
 MainWindow::~MainWindow()
 {
   if (guiCallBack)
@@ -48,6 +82,7 @@ MainWindow::~MainWindow()
 
 }
 
+// When user change the current tab
 void MainWindow::on_tabWidget_currentChanged()
 {
   if (tabWidget->currentIndex()== 1)
@@ -78,7 +113,7 @@ void MainWindow::on_tabWidget_currentChanged()
 }
 
 
-/* lecture ou pause */
+// play in mpd tab
 void MainWindow::on_btnPlay_clicked()
 {
   if (NULL!=guiCallBack->signal)
@@ -95,6 +130,7 @@ void MainWindow::on_btnPlay_clicked()
     }
 }
 
+// Open sig in Demo tab
 void MainWindow::on_btnOpenSigDemo_clicked()
 {
   QString panelName = "MPTK GUI: Open Waves files";
@@ -107,19 +143,21 @@ void MainWindow::on_btnOpenSigDemo_clicked()
           if (guiCallBackDemo->initMpdCore(s, "")== NOTHING_OPENED) dialog->errorMessage("the file named " + s +" isn't a wave file" );
           else labelOriginalSignalDemo->setText(s);
         }
-      else {
-      if (guiCallBackDemo->initMpdCore(s, "")== NOTHING_OPENED) dialog->errorMessage("the file named " + s +" isn't a wave file" );
+      else
+        {
+          if (guiCallBackDemo->initMpdCore(s, "")== NOTHING_OPENED) dialog->errorMessage("the file named " + s +" isn't a wave file" );
           else labelOriginalSignalDemo->setText(s);
           dictOpenDemoDefault = false;
-      
-      }
-      }
+
+        }
+    }
 
   else dialog->errorMessage("Empty name file");
 
 
 }
-/* arrêt du lecteur */
+
+// Stop player 
 void MainWindow::on_btnStop_clicked()
 {
   guiCallBack->stopPortAudioStream();
@@ -321,13 +359,7 @@ void MainWindow::on_pushButtonSaveApproxDemix_clicked()
     }
   else dialog->errorMessage("Empty name file");
 }
-/*
-void MainWindow::on_pushButtonStopIterate_clicked()
-{
- // if (guiCallBack->coreInit())guiCallBack->stopIteration();
 
-}
-*/
 void MainWindow::on_btnOpenbook_clicked()
 {
   QString panelName = "MPTK GUI: Choose a book to open";

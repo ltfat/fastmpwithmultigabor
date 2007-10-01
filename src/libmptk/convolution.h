@@ -250,7 +250,7 @@ class MP_Convolution_Fastest_c:public MP_Convolution_c {
    *
    * calls the function initialize to perform the initializations
    *
-   * \param waveTable the wavetable containing the filters (of the same size)
+   * \param anywaveTable the wavetable containing the filters (of the same size)
    * \param filterShift length between two successive frames of signal
    */
   MP_Convolution_Fastest_c( MP_Anywave_Table_c* anywaveTable,
@@ -265,7 +265,7 @@ class MP_Convolution_Fastest_c:public MP_Convolution_c {
    *
    * calls the function initialize to perform the initializations
    *
-   * \param waveTable the wavetable containing the filters (of the same size)
+   * \param anywaveTable the wavetable containing the filters (of the same size)
    * \param filterShift length between two successive frames of signal
    * \param computationMethod index of the only method to use
    */
@@ -427,7 +427,7 @@ class MP_Convolution_Direct_c:public MP_Convolution_c {
  public:
   /** \brief The constructor
    *
-   * \param waveTable the wavetable containing the filters (of the same size)
+   * \param anywaveTable the wavetable containing the filters (of the same size)
    * \param filterShift length between two successive frames of signal
    */
   MP_Convolution_Direct_c( MP_Anywave_Table_c* anywaveTable,
@@ -652,7 +652,7 @@ class MP_Convolution_FFT_c:public MP_Convolution_c {
    *
    * Initialize the members to default value (calls release).
    *
-   * \param waveTable the wavetable containing the filters (of the same size)
+   * \param anywaveTable the wavetable containing the filters (of the same size)
    * \param filterShift length between two successive frames of signal
    */
   MP_Convolution_FFT_c( MP_Anywave_Table_c* anywaveTable,

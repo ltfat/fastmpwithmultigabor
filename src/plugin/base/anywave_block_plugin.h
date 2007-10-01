@@ -131,6 +131,7 @@ protected:
   /** \brief an initializer for the parameters which ARE NOT related to the signal
    * \param setFilterShift the filter shift between two successive atoms
    * \param anywaveTableFileName the name of the file containing the anywave table
+   * \param setBlockOffset the block offset
    */
   virtual int init_parameters( const unsigned long int setFilterShift,
 			       char* anywaveTableFileName,
@@ -139,6 +140,7 @@ protected:
    /** \brief an initializer for the parameters which ARE NOT related to the signal in a parameter map
    * \param setFilterShift the filter shift between two successive atoms
    * \param anywaveTableFileName the name of the file containing the anywave table
+   * \param setBlockOffset the block offset
    */			       
 	virtual int init_parameter_map( const unsigned long int setFilterShift,
 			       char* anywaveTableFileName,

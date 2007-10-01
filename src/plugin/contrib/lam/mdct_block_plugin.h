@@ -75,20 +75,19 @@ public:
    */
   static MP_Block_c* create( MP_Signal_c *setSignal, map<string, string, mp_ltstring> *paramMap );
  
-  /** \brief an initializer for the parameters which ARE related to the signal */
+  /** \brief an initializer for the parameters which ARE related to the signal 
+   * \param setSignal the signal to set
+   */
   virtual int plug_signal( MP_Signal_c *setSignal );
 
 protected:
   /** \brief an initializer for the parameters which ARE NOT related to the signal
-   *  \param filterLen the length of the signal window, in number of samples
-   *  \param filterShift the window shift, in number of samples
-   *  \param fftSize the size of the FFT, including zero padding
-   *  \param windowType the window type (see the doc of libdsp_windows.h)
-   *  \param windowOption the optional window parameter.
-   *  \param filterLen the length of the signal window, in number of samples
-   *  \param windowType the window type (see the doc of libdsp_windows.h)
-   *  \param windowOption the optional window parameter.
-   *  \param blockOffset the block offset
+   *  \param setFilterLen the length of the signal window, in number of samples
+   *  \param setFilterShift the window shift, in number of samples
+   *  \param setFftSize the size of the FFT, including zero padding
+   *  \param setWindowType the window type (see the doc of libdsp_windows.h)
+   *  \param setWindowOption the optional window parameter.
+   *  \param setBlockOffset the block offset
    * Warning: In this case, the window type must be rectangle, cosine or kbd. 
    * 
    *  */
@@ -99,13 +98,22 @@ protected:
 			       const double setWindowOption,
 			       const unsigned long int setBlockOffset );
 			    
-/** \brief an initializer for the parameters which ARE NOT related to the signal in a parameter map */
+/** \brief an initializer for the parameters which ARE NOT related to the signal in a parameter map
+   *  \param setFilterLen the length of the signal window, in number of samples
+   *  \param setFilterShift the window shift, in number of samples
+   *  \param setFftSize the size of the FFT, including zero padding
+   *  \param setWindowType the window type (see the doc of libdsp_windows.h)
+   *  \param setWindowOption the optional window parameter.
+   *  \param setBlockOffset the block offset
+   * Warning: In this case, the window type must be rectangle, cosine or kbd. 
+   */
+
   virtual int init_parameter_map( const unsigned long int setFilterLen,
 			       const unsigned long int setFilterShift,
 			       const unsigned long int setFftSize,
 			       const unsigned char setWindowType,
 			       const double setWindowOption,
-			       const unsigned long int blockOffset );
+			       const unsigned long int setBlockOffset );
 			       
   /** \brief nullification of the signal-related parameters */
   virtual void nullify_signal( void );

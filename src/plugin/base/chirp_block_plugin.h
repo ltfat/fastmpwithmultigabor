@@ -136,17 +136,17 @@ class MP_Chirp_Block_Plugin_c:public MP_Gabor_Block_Plugin_c
 
   protected:
     /** \brief an initializer for the parameters which ARE NOT related to the signal
-     * \param dict The dictionnary that will be modified
-     * \param filterLen size of the window
-     * \param filterShift shift, in samples, between two consecutive frames.
+     * \param setFilterLen size of the window
+     * \param setFilterShift shift, in samples, between two consecutive frames.
      * Typically, use \a filterShift = \a filterLen / 2 to get 50 percent overlap between windows
-     * \param fftRealSize number of atoms (frequency bins) per frame.
+     * \param setFftSize number of atoms (frequency bins) per frame.
      * Typically, use \a fftRealSize = \a filterLen / 2 + 1 to have the block compute
      * windowed FFTs without zero padding.
-     * \param windowType type of the window
-     * \param windowOption optional shaping parameter of the windows
-     * \param numFitPoints number of frequency points used on both sides of a local maximum to fit a chirp
-     * \param blockOffset the block offset
+     * \param setWindowType type of the window
+     * \param setWindowOption optional shaping parameter of the windows
+     * \param setNumFitPoints number of frequency points used on both sides of a local maximum to fit a chirp
+     * \param setNumIter the number of iterations
+     * \param setBlockOffset the block offset
      * \return one upon success, zero otherwise
      *
      * \remark If \a fftRealSize is smaller than \a filterLen / 2 + 1,
@@ -165,17 +165,17 @@ class MP_Chirp_Block_Plugin_c:public MP_Gabor_Block_Plugin_c
                                  const unsigned long int setBlockOffset );
 
     /** \brief an initializer for the parameters which ARE NOT related to the signal in a parameter map 
-     * \param dict The dictionnary that will be modified
-     * \param filterLen size of the window
-     * \param filterShift shift, in samples, between two consecutive frames.
+     * \param setFilterLen size of the window
+     * \param setFilterShift shift, in samples, between two consecutive frames.
      * Typically, use \a filterShift = \a filterLen / 2 to get 50 percent overlap between windows
-     * \param fftRealSize number of atoms (frequency bins) per frame.
+     * \param setFftSize number of atoms (frequency bins) per frame.
      * Typically, use \a fftRealSize = \a filterLen / 2 + 1 to have the block compute
      * windowed FFTs without zero padding.
-     * \param windowType type of the window
-     * \param windowOption optional shaping parameter of the windows
-     * \param numFitPoints number of frequency points used on both sides of a local maximum to fit a chirp
-     * \param blockOffset the block offset
+     * \param setWindowType type of the window
+     * \param setWindowOption optional shaping parameter of the windows
+     * \param setNumFitPoints number of frequency points used on both sides of a local maximum to fit a chirp
+     * \param setNumIter the number of iterations
+     * \param setBlockOffset the block offset
      * \return one upon success, zero otherwise
      *
      * \remark If \a fftRealSize is smaller than \a filterLen / 2 + 1,

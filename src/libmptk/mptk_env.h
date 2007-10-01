@@ -155,10 +155,12 @@ class MPTK_Env_c
     bool set_fftw_wisdom_loaded();
 
     /** \brief Method to change MPTK environnement if necessary
+     *  \param filename the name of environment file to change
      */
     bool set_env(string filename);
 
     /** \brief Method to load MPTK environnement
+     * \param name the name of xml file containing the environment informations
     */
     bool load_environment(const char * name);
 
@@ -171,7 +173,8 @@ class MPTK_Env_c
     bool get_environment_loaded();
 
     /** \brief Method to get the name of a configuration path 
-    *  \param : name of the path
+    *  \param name of the path
+    *  \return true if successful
     */
     const char * get_config_path(const char * name);
 

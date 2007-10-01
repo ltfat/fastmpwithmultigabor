@@ -94,22 +94,22 @@ public:
 
 public:
 
-  /** \brief an initializer for the parameters which ARE related to the signal
-   *  \param filterLen the length of the signal window, in number of samples
-   *  \param filterShift the window shift, in number of samples
-   *  \param fftSize the size of the FFT, including zero padding
-   *  \param windowType the window type (see the doc of libdsp_windows.h)
-   *  \param windowOption the optional window parameter.
-   *  \param filterLen the length of the signal window, in number of samples
-   *  \param windowType the window type (see the doc of libdsp_windows.h)
-   *  \param windowOption the optional window parameter.
-   *  \param blockOffset the block offset
-   * 
-   *  */
+  /** \brief plug the signal
+   *  \param setSignal the signal to plug 
+   * */
+
   virtual int plug_signal( MP_Signal_c *setSignal );
 
 protected:
-  /** \brief an initializer for the parameters which ARE NOT related to the signal */
+  /** \brief an initializer for the parameters which ARE NOT related to the signal
+   *  \param setFilterLen the length of the signal window, in number of samples
+   *  \param  setFilterShift the window shift, in number of samples
+   *  \param setFftSize the size of the FFT, including zero padding
+   *  \param setWindowType the window type (see the doc of libdsp_windows.h)
+   *  \param setWindowOption the optional window parameter.
+   *  \param setBlockOffset the block offset
+   * 
+   *  */
   virtual int init_parameters( const unsigned long int setFilterLen,
 			       const unsigned long int setFilterShift,
 			       const unsigned long int setFftSize,
@@ -135,7 +135,10 @@ public:
 
 public:
 
-  /** \brief Check the validity of the parameters: window size and fft size */
+  /** \brief Check the validity of the parameters: window size and fft size
+   *  \param setFilterLen the length of the signal window, in number of samples
+   *  \param setFftSize the size of the FFT, including zero padding
+   *  */
   int check_fftsize( const unsigned long int setFilterLen, const unsigned long int setFftSize );
 
   /** \brief Initialize the MCLT transform: allocate and fill the buffers to perform pre- and post-modulation */

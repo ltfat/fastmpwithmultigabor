@@ -1,6 +1,45 @@
+/******************************************************************************/
+/*                                                                            */
+/*                         gui_callback_demix.cpp                             */
+/*                                                                            */
+/*                        Matching Pursuit Library                            */
+/*                                                                            */
+/*                                                                            */
+/* Roy Benjamin                                               Mon Feb 21 2007 */
+/* -------------------------------------------------------------------------- */
+/*                                                                            */
+/*  Copyright (C) 2005 IRISA                                                  */
+/*                                                                            */
+/*  This program is free software; you can redistribute it and/or             */
+/*  modify it under the terms of the GNU General Public License               */
+/*  as published by the Free Software Foundation; either version 2            */
+/*  of the License, or (at your option) any later version.                    */
+/*                                                                            */
+/*  This program is distributed in the hope that it will be useful,           */
+/*  but WITHOUT ANY WARRANTY; without even the implied warranty of            */
+/*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the             */
+/*  GNU General Public License for more details.                              */
+/*                                                                            */
+/*  You should have received a copy of the GNU General Public License         */
+/*  along with this program; if not, write to the Free Software               */
+/*  Foundation, Inc., 59 Temple Place - Suite 330,                            */
+/*  Boston, MA  02111-1307, USA.                                              */
+/*                                                                            */
+/******************************************************************************/
+
+/**********************************************************/
+/*                                                        */
+/* gui_callback_demix.cpp : methods for class MainWindow  */
+/*                                                        */
+/**********************************************************/
+
 #include "gui_callback_demix.h"
 #include <sstream>
 #include <string>
+
+/***************************/
+/* CONSTRUCTORS/DESTRUCTOR */
+/***************************/
 
 MP_Gui_Callback_Demix_c::MP_Gui_Callback_Demix_c():
     MP_Gui_Callback_Abstract_c()
@@ -74,9 +113,9 @@ int MP_Gui_Callback_Demix_c::openSignal(QString fileName)
       for (unsigned int j =0; j <mixer->numSources; j++) approxArray->at(j) = MP_Signal_c::init( signal->numChans, signal->numSamples, signal->sampleRate);
 
       return SIGNAL_OPENED;
-        }
+    }
 
-      else return NOTHING_OPENED;
+  else return NOTHING_OPENED;
 
 }
 
@@ -112,14 +151,15 @@ void MP_Gui_Callback_Demix_c::saveApprox(QString fileName)
 {
   char line[1024];
   if ((approxArray && approxArray->size()==mixer->numSources))
-  for (unsigned int j = 0; j < mixer->numSources; j++ )
-    {
-      sprintf( line, "%s_%02u.wav", fileName.toStdString().c_str(), j );
-      approxArray->at(j)->wavwrite( line );
-      
-    }
+    for (unsigned int j = 0; j < mixer->numSources; j++ )
+      {
+        sprintf( line, "%s_%02u.wav", fileName.toStdString().c_str(), j );
+        approxArray->at(j)->wavwrite( line );
+
+      }
 }
 
-void MP_Gui_Callback_Demix_c::setSave(const unsigned long int setSaveHit,QString bookFileName, QString resFileName,QString decayFileName, QString sequenceFileName){
-mpd_Demix_Core->set_save_hit(setSaveHit,bookFileName.toStdString().c_str(),resFileName.toStdString().c_str(),decayFileName.toStdString().c_str(),sequenceFileName.toStdString().c_str());
+void MP_Gui_Callback_Demix_c::setSave(const unsigned long int setSaveHit,QString bookFileName, QString resFileName,QString decayFileName, QString sequenceFileName)
+{
+  mpd_Demix_Core->set_save_hit(setSaveHit,bookFileName.toStdString().c_str(),resFileName.toStdString().c_str(),decayFileName.toStdString().c_str(),sequenceFileName.toStdString().c_str());
 }

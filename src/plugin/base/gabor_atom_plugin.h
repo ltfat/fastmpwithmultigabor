@@ -98,11 +98,7 @@ public:
 
 public:
 
-  /** \brief Factory function that allocates storage space
-   * \param setNumChans the desired number of channels
-   * \param setWindowType the type of window (e.g. Gauss, Hamming, ... )
-   * \param setWindowOption an optional parameter for Gauss, generalized Hamming and exponential windows
-   * \sa make_window()
+  /** \brief a void Factory function that allocates storage space
    */
 
   static MP_Atom_c  * gabor_atom_create_empty(void);

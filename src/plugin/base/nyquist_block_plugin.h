@@ -91,7 +91,7 @@ protected:
    *  \param filterShift the window shift, in number of samples
    *  \param blockOffset the block offset
    */
-  virtual int init_parameter_map( const unsigned long int FilterLen,
+  virtual int init_parameter_map( const unsigned long int filterLen,
 			       const unsigned long int filterShift,
 			       const unsigned long int blockOffset );
 

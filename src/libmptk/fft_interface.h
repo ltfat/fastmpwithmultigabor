@@ -236,7 +236,7 @@ class MP_FFT_Interface_c
      *
      * \param re  input FFT real part buffer, only the first numFreqs values are filled.
      * \param im  input FFT imaginary part buffer, only the first numFreqs values are filled.
-     * \param out output signal buffer, only the first windowSize values are used.
+     * \param output output signal buffer, only the first windowSize values are used.
      *
      * These input values correspond to the frequency components between the DC
      * component and the Nyquist frequency, inclusive.
@@ -370,14 +370,88 @@ class MP_FFTW_Interface_c:public MP_FFT_Interface_c
     /* OTHER METHODS           */
     /***************************/
   public:
+     /** \brief Performs the complex FFT of an input signal buffer and puts the result in two output buffers.
+      * The input signal is inverted for processing, used by MP_Convolution_FFT_c
+     *
+     * \param in  input signal buffer, only the first windowSize values are used.
+     * \param re  output FFT real part buffer, only the first numFreqs values are filled.
+     * \param im  output FFT imaginary part buffer, only the first numFreqs values are filled.
+     *
+     * The output buffers are filled with the values
+     * \f[
+     * (\mbox{re}[k],\mbox{im}[k]) = \sum_{n=0}^{\mbox{fftCplxSize}-1} \mbox{window}[n]
+     * \cdot \mbox{in}[n] \cdot \exp\left(-\frac{2i\pi\ k \cdot n}{\mbox{fftCplxSize}}\right).
+     * \f]
+     * for \f$0 \leq k < \mbox{numFreqs} = \mbox{fftCplxSize}/2+1\f$, 
+     * where the signal is zero padded beyond the window size if necessary.
+     *
+     * These output values correspond to the frequency components between the DC
+     * component and the Nyquist frequency, inclusive.
+     *
+     */
     void exec_complex( MP_Real_t *in, MP_Real_t *re, MP_Real_t *im );
     void exec_complex_flip( MP_Real_t *in, MP_Real_t *re, MP_Real_t *im );
 
+     /** \brief Performs the complex FFT of an input signal buffer and puts the result in two output buffers.
+      * The input signal is inverted for processing, used by MP_Convolution_FFT_c
+     *
+     * \param in  input signal buffer, only the first windowSize values are used.
+     * \param re  output FFT real part buffer, only the first numFreqs values are filled.
+     * \param im  output FFT imaginary part buffer, only the first numFreqs values are filled.
+     *
+     * The output buffers are filled with the values
+     * \f[
+     * (\mbox{re}[k],\mbox{im}[k]) = \sum_{n=0}^{\mbox{fftCplxSize}-1} \mbox{window}[n]
+     * \cdot \mbox{in}[n] \cdot \exp\left(-\frac{2i\pi\ k \cdot n}{\mbox{fftCplxSize}}\right).
+     * \f]
+     * for \f$0 \leq k < \mbox{numFreqs} = \mbox{fftCplxSize}/2+1\f$, 
+     * where the signal is zero padded beyond the window size if necessary.
+     *
+     * These output values correspond to the frequency components between the DC
+     * component and the Nyquist frequency, inclusive.
+     *
+     */
     void exec_complex_inverse( MP_Real_t *re, MP_Real_t *im, MP_Real_t *output );
-
+     /** \brief Performs the complex FFT of an input signal buffer and puts the result in two output buffers.
+      * The input signal is inverted for processing, used by MP_Convolution_FFT_c
+     *
+     * \param in  input signal buffer, only the first windowSize values are used.
+     * \param re  output FFT real part buffer, only the first numFreqs values are filled.
+     * \param im  output FFT imaginary part buffer, only the first numFreqs values are filled.
+     *
+     * The output buffers are filled with the values
+     * \f[
+     * (\mbox{re}[k],\mbox{im}[k]) = \sum_{n=0}^{\mbox{fftCplxSize}-1} \mbox{window}[n]
+     * \cdot \mbox{in}[n] \cdot \exp\left(-\frac{2i\pi\ k \cdot n}{\mbox{fftCplxSize}}\right).
+     * \f]
+     * for \f$0 \leq k < \mbox{numFreqs} = \mbox{fftCplxSize}/2+1\f$, 
+     * where the signal is zero padded beyond the window size if necessary.
+     *
+     * These output values correspond to the frequency components between the DC
+     * component and the Nyquist frequency, inclusive.
+     *
+     */
     void exec_complex_without_window( MP_Real_t *in, MP_Real_t *re, MP_Real_t *im );
     void exec_complex_flip_without_window( MP_Real_t *in, MP_Real_t *re, MP_Real_t *im );
-
+     /** \brief Performs the complex FFT of an input signal buffer and puts the result in two output buffers.
+      * The input signal is inverted for processing, used by MP_Convolution_FFT_c
+     *
+     * \param in  input signal buffer, only the first windowSize values are used.
+     * \param re  output FFT real part buffer, only the first numFreqs values are filled.
+     * \param im  output FFT imaginary part buffer, only the first numFreqs values are filled.
+     *
+     * The output buffers are filled with the values
+     * \f[
+     * (\mbox{re}[k],\mbox{im}[k]) = \sum_{n=0}^{\mbox{fftCplxSize}-1} \mbox{window}[n]
+     * \cdot \mbox{in}[n] \cdot \exp\left(-\frac{2i\pi\ k \cdot n}{\mbox{fftCplxSize}}\right).
+     * \f]
+     * for \f$0 \leq k < \mbox{numFreqs} = \mbox{fftCplxSize}/2+1\f$, 
+     * where the signal is zero padded beyond the window size if necessary.
+     *
+     * These output values correspond to the frequency components between the DC
+     * component and the Nyquist frequency, inclusive.
+     *
+     */
     void exec_complex_inverse_without_window( MP_Real_t *re, MP_Real_t *im, MP_Real_t *output );
 
   };

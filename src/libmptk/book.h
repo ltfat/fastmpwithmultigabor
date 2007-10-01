@@ -174,8 +174,8 @@ public:
    
    int append( MP_Atom_c *newAtom );
    
-   /** \brief Add a new atom in the storage space, taking care of the necessary allocations 
-   * \param newAtom a reference to an atom
+   /** \brief append two books together 
+   * \param newBook a reference to a book
    * \return the number of appended atoms (1 upon success, zero otherwise)
    * \remark Use int append( MP_Atom_c *newAtom )
    */

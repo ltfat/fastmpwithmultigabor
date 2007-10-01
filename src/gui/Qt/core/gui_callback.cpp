@@ -1,4 +1,42 @@
+/******************************************************************************/
+/*                                                                            */
+/*                           gui_callback.cpp                                 */
+/*                                                                            */
+/*                        Matching Pursuit Library                            */
+/*                                                                            */
+/*                                                                            */
+/* Roy Benjamin                                               Mon Feb 21 2007 */
+/* -------------------------------------------------------------------------- */
+/*                                                                            */
+/*  Copyright (C) 2005 IRISA                                                  */
+/*                                                                            */
+/*  This program is free software; you can redistribute it and/or             */
+/*  modify it under the terms of the GNU General Public License               */
+/*  as published by the Free Software Foundation; either version 2            */
+/*  of the License, or (at your option) any later version.                    */
+/*                                                                            */
+/*  This program is distributed in the hope that it will be useful,           */
+/*  but WITHOUT ANY WARRANTY; without even the implied warranty of            */
+/*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the             */
+/*  GNU General Public License for more details.                              */
+/*                                                                            */
+/*  You should have received a copy of the GNU General Public License         */
+/*  along with this program; if not, write to the Free Software               */
+/*  Foundation, Inc., 59 Temple Place - Suite 330,                            */
+/*  Boston, MA  02111-1307, USA.                                              */
+/*                                                                            */
+/******************************************************************************/
+
+/**********************************************************/
+/*                                                        */
+/* gui_callback.cpp : methods for class MainWindow        */
+/*                                                        */
+/**********************************************************/
 #include "gui_callback.h"
+
+/***************************/
+/* CONSTRUCTORS/DESTRUCTOR */
+/***************************/
 
 MP_Gui_Callback_c::MP_Gui_Callback_c()
 :MP_Gui_Callback_Abstract_c()
@@ -37,6 +75,8 @@ int MP_Gui_Callback_c::initMpdCore(QString signalName, QString bookName)
     {
       delete mpd_Core;
       mpd_Core = NULL;
+      opBook = NOTHING_OPENED;
+      opSig = NOTHING_OPENED;
     }
 
   if (signalName.size()>0)
@@ -75,6 +115,7 @@ int MP_Gui_Callback_c::initMpdCore(QString signalName, QString bookName)
   return NOTHING_OPENED;
 }
 
+// Set a dictionnary to the core
 void MP_Gui_Callback_c::setDictionary(QString fileName)
 {
   if (dicoName!=fileName)

@@ -237,9 +237,8 @@ public:
    * The properties map stocks the history of all property blocks with a ID in order to
    * use this properties map if a block request it.
    *
-   * \param TiXmlNode * pParent The node to parse.
-   *
-   *
+   * \param pParent The TiXmlNode to parse.
+   * \param setPropertyMap a map<const char*, PropertiesMap, ltstr> contenaing all the properties map with their ID
    * \return true in case of success
    */
   bool parse_property(TiXmlNode * pParent, map<string, PropertiesMap, mp_ltstring> *setPropertyMap);
@@ -247,7 +246,7 @@ public:
      /** \brief Parse the xml block and create it using eventually a map of properties stocked in the properties map
    *
    *
-   * \param TiXmlNode * pParent The node to parse.
+   * \param pParent The TiXmlNode to parse.
    * \param setPropertyMap a map<const char*, PropertiesMap, ltstr> contenaing all the properties map with their ID
    *
    *
@@ -260,9 +259,8 @@ public:
    * 
    * This method is called recursively.
    *
-   * \param TiXmlNode * pParent The node to parse.
    * \param setPropertyMap a map<const char*, PropertiesMap, ltstr> contenaing all the properties map with their ID
-   *
+   * \param setVarParam a map map<string, list<string>, mp_ltstring> containing the var parameter with global parameter
    *
    * \return the number of created block
    */
@@ -330,13 +328,13 @@ private:
 
 public:
   
-/** \parallel function with ParallelConstruct (tasks) argument */ 
+/** \brief parallel method with ParallelConstruct (tasks) argument */ 
 void calcul_max_per_block(ParallelConstruct* f);
 
-/** \parallel function with void argument */  
+/** \brief parallel method with void argument */  
 void calcul_max_per_block(void);
 
-/** \start a parrallel computing */  
+/** \brief method start a parrallel computing */  
 void parallel_computing(volatile MP_Real_t* tab);
 
   /** \brief Delete all the blocks from a dictionary
