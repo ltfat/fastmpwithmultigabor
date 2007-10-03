@@ -185,27 +185,17 @@ MP_Dict_c::~MP_Dict_c()
 /***************************/
 /* I/O METHODS             */
 /***************************/
-
 /*************************************************************************/
-/* Load a dictionary file in xml format and parse the described blocks   */
-int MP_Dict_c::load_xml_file(const char* fName)
-{
-  const char* func = "MP_Dict_c::load_xml_file(const char* fName)";
-
+/* Parse the described blocks of a dictionary   */
+int MP_Dict_c::parse_xml_file(TiXmlDocument doc){
+	
+  const char* func = "MP_Dict_c::parse_xml_file(TiXmlDocument doc)";
   TiXmlNode * node = NULL;
   TiXmlElement * properties = NULL;
   map<string, PropertiesMap, mp_ltstring>* propertyMap = new map<string, PropertiesMap, mp_ltstring>();
   int count = 0;
   int finalcount = 0;
-  TiXmlDocument doc(fName);
-  if (!doc.LoadFile())
-    {
-      mp_error_msg( func, "Error while loading the dictionary file [%s].\n", fName );
-      mp_error_msg( func, "Error ID: %u .\n", doc.ErrorId() );
-      mp_error_msg( func, "Error description: %s .\n", doc.ErrorDesc());
-      return  0;
-    }
-
+  
   TiXmlHandle hdl(&doc);
   properties = hdl.FirstChildElement("dict").FirstChildElement("libVersion").Element();
   string libVersion = properties->GetText();
@@ -249,6 +239,23 @@ int MP_Dict_c::load_xml_file(const char* fName)
 
   delete(propertyMap);
   return finalcount;
+}
+
+/*************************************************************************/
+/* Load a dictionary file in xml format and parse the described blocks   */
+int MP_Dict_c::load_xml_file(const char* fName)
+{
+  const char* func = "MP_Dict_c::load_xml_file(const char* fName)";
+  TiXmlDocument doc(fName);
+  if (!doc.LoadFile())
+    {
+      mp_error_msg( func, "Error while loading the dictionary file [%s].\n", fName );
+      mp_error_msg( func, "Error ID: %u .\n", doc.ErrorId() );
+      mp_error_msg( func, "Error description: %s .\n", doc.ErrorDesc());
+      return  0;
+    }
+
+  else return parse_xml_file(doc);
 
 }
 
@@ -293,6 +300,12 @@ int MP_Dict_c::add_block( MP_Block_c *newBlock )
 int MP_Dict_c::add_blocks( const char *fName )
 {
   return(  load_xml_file(fName) );
+}
+/************************/
+/* Scanning from a tinyXML doc*/
+int MP_Dict_c::add_blocks( TiXmlDocument doc )
+{
+  return(MP_Dict_c::parse_xml_file(doc));
 }
 
 /**********************/
@@ -458,6 +471,53 @@ bool MP_Dict_c::parse_property(TiXmlNode * pParent, map<string, PropertiesMap, m
   return true;
 
 }
+/*Create a block*/
+int MP_Dict_c::create_block(MP_Signal_c * setSignal , map<string, string, mp_ltstring> * setPropertyMap){
+          
+           const char* func = "MP_Dict_c::create_block(MP_signal_c * setSignal , map<string, PropertiesMap, mp_ltstring> *setPropertyMap)";
+          MP_Block_c *newBlock = NULL;
+          /*call the block creator*/
+          MP_Block_c* (*blockCreator)( MP_Signal_c *setSignal, map<string, string, mp_ltstring> * paramMap ) = NULL;
+          blockCreator = MP_Block_Factory_c::get_block_factory()->get_block_creator((*setPropertyMap)["type"].c_str());
+
+          if (NULL == setPropertyMap)
+            {
+              mp_error_msg( func, "The %s block type is not registred in the atom factory.\n",(*setPropertyMap)["type"].c_str() );
+              delete(setPropertyMap);
+              return 0;
+            }
+            
+          /*Create a new block*/  
+          newBlock =  blockCreator(setSignal, setPropertyMap);
+
+          /*Test if new block is NULL*/ 
+          if (NULL != newBlock)
+            {
+              /*Test if new block has been added*/ 
+              if ( add_block( newBlock ) != 1 )
+                {
+                  mp_warning_msg( func, "Failed to add the block of type %s ."
+                                  " Proceeding with the remaining blocks.\n",
+                                  (*setPropertyMap)["type"].c_str()
+                                );
+              
+              delete(setPropertyMap);
+              return 0;
+                }               
+              delete(setPropertyMap);
+             
+              return 1;
+            }
+          else
+            {
+              mp_warning_msg( func, "Failed to add the block of type %s ."
+                              " Proceeding with the remaining blocks.\n",
+                              (*setPropertyMap)["type"].c_str()
+                            );
+              delete(setPropertyMap);              
+              return 0;
+            }
+}
 
 /*Parse the block properties and create the associate blocks*/
 int MP_Dict_c::parse_block(TiXmlNode * pParent, map<string, PropertiesMap, mp_ltstring> *setPropertyMap)
@@ -470,7 +530,6 @@ int MP_Dict_c::parse_block(TiXmlNode * pParent, map<string, PropertiesMap, mp_lt
   map<string, string, mp_ltstring> * blockMap;
   map<string, list<string>, mp_ltstring> varParamMap;
   map<string, list<string>, mp_ltstring>::iterator varParamListIterator;
-  MP_Block_c *newBlock = NULL;
   /*Test if Attribute "uses" exists to refer to the correct blockproperties map*/
   if (pParent->ToElement()->Attribute("uses")!=0)
     {
@@ -543,46 +602,7 @@ int MP_Dict_c::parse_block(TiXmlNode * pParent, map<string, PropertiesMap, mp_lt
       /* Create the block with parameter defines by uses tag */
       if ((*blockMap)["type"].c_str() != 0)
         {
-          /*call the block creator*/
-          MP_Block_c* (*blockCreator)( MP_Signal_c *setSignal, map<string, string, mp_ltstring> * paramMap ) = NULL;
-          blockCreator = MP_Block_Factory_c::get_block_factory()->get_block_creator((*blockMap)["type"].c_str());
-
-          if (NULL == blockCreator)
-            {
-              mp_error_msg( func, "The %s block type is not registred in the atom factory.\n",(*blockMap)["type"].c_str() );
-              delete(blockMap);
-              return 0;
-            }
-            
-          /*Create a new block*/  
-          newBlock =  blockCreator(signal, blockMap);
-
-          /*Test if new block is NULL*/ 
-          if (NULL != newBlock)
-            {
-              /*Test if new block has been added*/ 
-              if ( add_block( newBlock ) != 1 )
-                {
-                  mp_warning_msg( func, "Failed to add the block of type %s ."
-                                  " Proceeding with the remaining blocks.\n",
-                                  (*blockMap)["type"].c_str()
-                                );
-              delete(blockMap);
-              return 0;
-                }
-              delete(blockMap);
-              count++;
-              return count;
-            }
-          else
-            {
-              mp_warning_msg( func, "Failed to add the block of type %s ."
-                              " Proceeding with the remaining blocks.\n",
-                              (*blockMap)["type"].c_str()
-                            );
-              delete(blockMap);              
-              return 0;
-            }
+ count+=  create_block(signal , blockMap);
         }
       else
         {

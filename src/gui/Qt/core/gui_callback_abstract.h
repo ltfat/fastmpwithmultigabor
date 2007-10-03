@@ -313,7 +313,8 @@ class MP_Gui_Callback_Abstract_c: public QThread
 
     int getSignalSampleRate(void)
     {
-      return baseSignal->sampleRate;
+      if (baseSignal!=NULL) return baseSignal->sampleRate;
+      else return 0;
     }
 
   private slots:

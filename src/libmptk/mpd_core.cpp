@@ -159,9 +159,20 @@ MP_Dict_c* MP_Mpd_Core_c::change_dict( MP_Dict_c *setDict ) {
 
   /* Set the new dictionary: */
    dict = setDict;
+   
+  /* Plug dictionary to signal: */
+  plug_dict_to_signal();
   
+  return( oldDict );}
   
-  /* If the new dictionary is not NULL, replug the residual: */
+  else{ mp_error_msg( func, "Could not set a dictionary with a pluged signal.\n" );
+    return( NULL );}
+}
+
+void MP_Mpd_Core_c::plug_dict_to_signal(){
+	
+	const char* func = "MP_Mpd_Core_c::plug_dict_to_signal()";
+/* If the new dictionary is not NULL, replug the residual: */
   if ( dict ) { 
   	if (residual){ 
   		dict->plug_signal( residual );
@@ -175,12 +186,16 @@ MP_Dict_c* MP_Mpd_Core_c::change_dict( MP_Dict_c *setDict ) {
      the residual is copy-constructed from the signal at
      the mpdCore->init(signal,book) pahse. */
 
-  return( oldDict );}
-  
-  else{ mp_error_msg( func, "Could not set a dictionary with a pluged signal.\n" );
-    return( NULL );}
 }
 
+
+void MP_Mpd_Core_c::init_dict(){
+dict = MP_Dict_c::init();
+}
+int MP_Mpd_Core_c::add_default_block_to_dict( const char* blockName ){
+	if (NULL!= dict) return dict->add_default_block(blockName);
+	else return 0;
+}
 /********************/
 /* Plug approximant */
 
@@ -446,3 +461,12 @@ void MP_Mpd_Core_c::set_save_hit( const unsigned long int setSaveHit,
   strcpy(decayFileName, setDecayFileName); }
  
 }
+
+void MP_Mpd_Core_c::addCustomBlockToDictionary(map<string, string, mp_ltstring>* setPropertyMap){
+dict->create_block(dict->signal , setPropertyMap);
+}
+
+bool MP_Mpd_Core_c::save_dict( const char* dictName ){
+if (dict) dict->print(dictName);
+}
+

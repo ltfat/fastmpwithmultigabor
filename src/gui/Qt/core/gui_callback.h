@@ -36,6 +36,7 @@
 #define GUI_CALLBACK_H_
 
 #include "gui_callback_abstract.h"
+#include "tinyxml.h"
 
 /***********************/
 /* CONSTANTS           */
@@ -74,31 +75,17 @@ public:
   MP_Book_c * getBook();
 
   int getNumChans(); 
-  int opBook;
-  
-  /**
-   *
-   */
-  //void playBaseSignal(std::vector<bool> * v, float startTime = -1, float endTime = -1);
-  //void playApproximantSignal(std::vector<bool> * v, float startTime = -1, float endTime = -1);
-  //void playResidualSignal(std::vector<bool> * v, float startTime = -1, float endTime = -1);
+  int opBook; 
   void pauseListen();
   void restartListen();
   void stopListen();
-  
   void setDictionary(QString dicoName);
-  //void unsetIterationNumber();
-//  void setIterationNumber(long int numberIt);
-  //void unsetSNR();
-  //void setSNR(double snr);
+  void initDictionary();
+  int addDefaultBlockToDictionary(QString blockName);
   void setSave(const unsigned long int setSaveHit,QString bookFileName, QString resFileName,QString decayFileName);
   void unsetSave();
   void setReport(const unsigned long int setReportHit );
-  //void saveDecay(QString fileName);
   void unsetReport();
-  //void iterateOnce();
-  //void iterateAll();
-  //void stopIteration();
   void verbose();
   void quiet();
   void normal();
@@ -113,7 +100,8 @@ public:
   bool getSNRCheck();
   unsigned long int get_num_iter(void);
   int getBookOpen();
-  
+  void addCustomBlockToDictionary(map<string, string, mp_ltstring>* setPropertyMap);
+  bool saveDictionary(QString dictName);
 private :
   QString dicoName;
   

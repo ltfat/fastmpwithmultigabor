@@ -1921,111 +1921,372 @@
          <property name="geometry" >
           <rect>
            <x>10</x>
-           <y>110</y>
+           <y>100</y>
            <width>901</width>
-           <height>231</height>
+           <height>251</height>
           </rect>
          </property>
          <property name="title" >
           <string>Dictionnary: Mandatory</string>
          </property>
-         <widget class="QPushButton" name="btnValidateDefautlDict" >
-          <property name="geometry" >
-           <rect>
-            <x>710</x>
-            <y>30</y>
-            <width>181</width>
-            <height>26</height>
-           </rect>
-          </property>
-          <property name="toolTip" >
-           <string>open</string>
-          </property>
-          <property name="text" >
-           <string>Validate default dictionary</string>
-          </property>
-          <property name="icon" >
-           <iconset/>
-          </property>
-          <property name="checkable" >
-           <bool>false</bool>
-          </property>
-          <property name="flat" >
-           <bool>false</bool>
-          </property>
-         </widget>
-         <widget class="QWidget" native="1" name="widget_10" >
-          <property name="geometry" >
-           <rect>
-            <x>160</x>
-            <y>20</y>
-            <width>541</width>
-            <height>41</height>
-           </rect>
-          </property>
-          <property name="autoFillBackground" >
-           <bool>false</bool>
-          </property>
-          <widget class="QLabel" name="labelDictDemixDemo" >
-           <property name="geometry" >
-            <rect>
-             <x>10</x>
-             <y>10</y>
-             <width>521</width>
-             <height>16</height>
-            </rect>
-           </property>
-           <property name="text" >
-            <string>dico_demo.xml</string>
-           </property>
-          </widget>
-         </widget>
-         <widget class="QPushButton" name="btnOpenDictDemo" >
-          <property name="geometry" >
-           <rect>
-            <x>10</x>
-            <y>30</y>
-            <width>121</width>
-            <height>26</height>
-           </rect>
-          </property>
-          <property name="toolTip" >
-           <string>open</string>
-          </property>
-          <property name="text" >
-           <string>Open dictionary</string>
-          </property>
-          <property name="icon" >
-           <iconset resource="mptkgui.qrc" >:/resouces/open.xpm</iconset>
-          </property>
-          <property name="checkable" >
-           <bool>false</bool>
-          </property>
-          <property name="flat" >
-           <bool>false</bool>
-          </property>
-         </widget>
          <widget class="QGroupBox" name="groupBox_19" >
           <property name="geometry" >
            <rect>
             <x>10</x>
             <y>80</y>
-            <width>841</width>
-            <height>141</height>
+            <width>881</width>
+            <height>161</height>
            </rect>
           </property>
           <property name="title" >
            <string>Use Custom Block</string>
           </property>
+          <property name="checkable" >
+           <bool>true</bool>
+          </property>
+          <property name="checked" >
+           <bool>false</bool>
+          </property>
+          <widget class="QPushButton" name="btnValidateCustomDict" >
+           <property name="geometry" >
+            <rect>
+             <x>690</x>
+             <y>10</y>
+             <width>181</width>
+             <height>26</height>
+            </rect>
+           </property>
+           <property name="toolTip" >
+            <string>open</string>
+           </property>
+           <property name="text" >
+            <string>Validate custom dictionary</string>
+           </property>
+           <property name="icon" >
+            <iconset/>
+           </property>
+           <property name="checkable" >
+            <bool>false</bool>
+           </property>
+           <property name="flat" >
+            <bool>false</bool>
+           </property>
+          </widget>
+          <widget class="QGroupBox" name="groupBox_21" >
+           <property name="geometry" >
+            <rect>
+             <x>10</x>
+             <y>20</y>
+             <width>351</width>
+             <height>131</height>
+            </rect>
+           </property>
+           <property name="title" >
+            <string>Block 1</string>
+           </property>
+           <widget class="QWidget" name="layoutWidget_4" >
+            <property name="geometry" >
+             <rect>
+              <x>10</x>
+              <y>20</y>
+              <width>331</width>
+              <height>22</height>
+             </rect>
+            </property>
+            <layout class="QHBoxLayout" >
+             <item>
+              <widget class="QLabel" name="label_20" >
+               <property name="text" >
+                <string>Number of blocks</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QComboBox" name="comboBoxBlock1Type" >
+               <item>
+                <property name="text" >
+                 <string>gabor</string>
+                </property>
+               </item>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+           <widget class="QWidget" name="layoutWidget_5" >
+            <property name="geometry" >
+             <rect>
+              <x>10</x>
+              <y>50</y>
+              <width>331</width>
+              <height>22</height>
+             </rect>
+            </property>
+            <layout class="QHBoxLayout" >
+             <item>
+              <widget class="QLabel" name="label_21" >
+               <property name="text" >
+                <string>Window length in samples</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="lineEditCustomBlock1WindowLen" >
+               <property name="text" >
+                <string>0</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+           <widget class="QWidget" name="layoutWidget_6" >
+            <property name="geometry" >
+             <rect>
+              <x>10</x>
+              <y>80</y>
+              <width>331</width>
+              <height>22</height>
+             </rect>
+            </property>
+            <layout class="QHBoxLayout" >
+             <item>
+              <widget class="QLabel" name="label_22" >
+               <property name="text" >
+                <string>Window length in milliseconds</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="lineEditCustomBlock1WindowLenSec" >
+               <property name="text" >
+                <string>0</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </widget>
+          <widget class="QPushButton" name="btnSaveCustomDict" >
+           <property name="geometry" >
+            <rect>
+             <x>690</x>
+             <y>40</y>
+             <width>181</width>
+             <height>26</height>
+            </rect>
+           </property>
+           <property name="toolTip" >
+            <string>open</string>
+           </property>
+           <property name="text" >
+            <string>Save cutom Dict</string>
+           </property>
+           <property name="icon" >
+            <iconset/>
+           </property>
+           <property name="checkable" >
+            <bool>false</bool>
+           </property>
+           <property name="flat" >
+            <bool>false</bool>
+           </property>
+          </widget>
+          <widget class="QGroupBox" name="groupBox_23" >
+           <property name="geometry" >
+            <rect>
+             <x>370</x>
+             <y>20</y>
+             <width>311</width>
+             <height>131</height>
+            </rect>
+           </property>
+           <property name="title" >
+            <string>Block 2</string>
+           </property>
+           <widget class="QWidget" name="layoutWidget_13" >
+            <property name="geometry" >
+             <rect>
+              <x>10</x>
+              <y>20</y>
+              <width>291</width>
+              <height>22</height>
+             </rect>
+            </property>
+            <layout class="QHBoxLayout" >
+             <item>
+              <widget class="QLabel" name="label_29" >
+               <property name="text" >
+                <string>Number of blocks</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QComboBox" name="comboBoxBlock2Type" >
+               <item>
+                <property name="text" >
+                 <string>gabor</string>
+                </property>
+               </item>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+           <widget class="QWidget" name="layoutWidget_14" >
+            <property name="geometry" >
+             <rect>
+              <x>10</x>
+              <y>50</y>
+              <width>291</width>
+              <height>22</height>
+             </rect>
+            </property>
+            <layout class="QHBoxLayout" >
+             <item>
+              <widget class="QLabel" name="label_30" >
+               <property name="text" >
+                <string>Window length in samples</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="lineEditCustomBlock2WindowLen" >
+               <property name="text" >
+                <string>0</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+           <widget class="QWidget" name="layoutWidget_15" >
+            <property name="geometry" >
+             <rect>
+              <x>10</x>
+              <y>80</y>
+              <width>291</width>
+              <height>22</height>
+             </rect>
+            </property>
+            <layout class="QHBoxLayout" >
+             <item>
+              <widget class="QLabel" name="label_31" >
+               <property name="text" >
+                <string>Window length in milliseconds</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="lineEditCustomBlock2WindowLenSec" >
+               <property name="text" >
+                <string>0</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </widget>
+         </widget>
+         <widget class="QGroupBox" name="groupBox_22" >
+          <property name="geometry" >
+           <rect>
+            <x>10</x>
+            <y>20</y>
+            <width>881</width>
+            <height>51</height>
+           </rect>
+          </property>
+          <property name="title" >
+           <string>Use Demo Block</string>
+          </property>
+          <property name="checkable" >
+           <bool>true</bool>
+          </property>
+          <property name="checked" >
+           <bool>false</bool>
+          </property>
+          <widget class="QPushButton" name="btnValidateDefautlDict" >
+           <property name="geometry" >
+            <rect>
+             <x>690</x>
+             <y>20</y>
+             <width>181</width>
+             <height>26</height>
+            </rect>
+           </property>
+           <property name="toolTip" >
+            <string>open</string>
+           </property>
+           <property name="text" >
+            <string>Validate default dictionary</string>
+           </property>
+           <property name="icon" >
+            <iconset/>
+           </property>
+           <property name="checkable" >
+            <bool>false</bool>
+           </property>
+           <property name="flat" >
+            <bool>false</bool>
+           </property>
+          </widget>
+          <widget class="QWidget" native="1" name="widget_10" >
+           <property name="geometry" >
+            <rect>
+             <x>150</x>
+             <y>10</y>
+             <width>541</width>
+             <height>31</height>
+            </rect>
+           </property>
+           <property name="autoFillBackground" >
+            <bool>false</bool>
+           </property>
+           <widget class="QLabel" name="labelDictDemixDemo" >
+            <property name="geometry" >
+             <rect>
+              <x>10</x>
+              <y>10</y>
+              <width>521</width>
+              <height>16</height>
+             </rect>
+            </property>
+            <property name="text" >
+             <string>dico_demo.xml</string>
+            </property>
+           </widget>
+          </widget>
+          <widget class="QPushButton" name="btnOpenDictDemo" >
+           <property name="geometry" >
+            <rect>
+             <x>10</x>
+             <y>20</y>
+             <width>121</width>
+             <height>26</height>
+            </rect>
+           </property>
+           <property name="toolTip" >
+            <string>open</string>
+           </property>
+           <property name="text" >
+            <string>Open dictionary</string>
+           </property>
+           <property name="icon" >
+            <iconset resource="mptkgui.qrc" >:/resouces/open.xpm</iconset>
+           </property>
+           <property name="checkable" >
+            <bool>false</bool>
+           </property>
+           <property name="flat" >
+            <bool>false</bool>
+           </property>
+          </widget>
          </widget>
         </widget>
         <widget class="QGroupBox" name="groupBox_17" >
          <property name="geometry" >
           <rect>
            <x>10</x>
-           <y>350</y>
+           <y>357</y>
            <width>901</width>
-           <height>78</height>
+           <height>101</height>
           </rect>
          </property>
          <property name="title" >
@@ -2233,7 +2494,20 @@
            </rect>
           </property>
           <property name="text" >
-           <string>Duration of transient in milliseconds</string>
+           <string>Duration of transient in samples</string>
+          </property>
+         </widget>
+         <widget class="QCheckBox" name="checkBoxTransientUnit" >
+          <property name="geometry" >
+           <rect>
+            <x>530</x>
+            <y>70</y>
+            <width>241</width>
+            <height>19</height>
+           </rect>
+          </property>
+          <property name="text" >
+           <string>Use milliseconds for duration of transient</string>
           </property>
          </widget>
         </widget>
@@ -2241,7 +2515,7 @@
          <property name="geometry" >
           <rect>
            <x>10</x>
-           <y>440</y>
+           <y>460</y>
            <width>901</width>
            <height>89</height>
           </rect>

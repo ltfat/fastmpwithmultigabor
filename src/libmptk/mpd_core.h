@@ -106,7 +106,16 @@ public:
   
   /* Set the dictionary */
   MP_Dict_c* change_dict( MP_Dict_c* setDict );
-
+  /* Set a void dictionary */
+  void init_dict();
+  /* Plug dictionary to a signal */
+  void plug_dict_to_signal();
+  /* Plug dictionary to a signal */
+  void addCustomBlockToDictionary(map<string, string, mp_ltstring>* setPropertyMap);
+  
+  int add_default_block_to_dict( const char* blockName );
+  
+  bool save_dict( const char* dictName );
   /* Runtime settings */
   virtual void plug_approximant( MP_Signal_c *approximant );
 

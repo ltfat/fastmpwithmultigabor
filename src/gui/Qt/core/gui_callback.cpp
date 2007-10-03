@@ -129,13 +129,18 @@ void MP_Gui_Callback_c::setDictionary(QString fileName)
     }
 }
 
+void MP_Gui_Callback_c::initDictionary(){
+mpd_Core->init_dict();
+}
 
 void MP_Gui_Callback_c::setSave(const unsigned long int setSaveHit,QString setBookFileName,QString setResFileName,QString setDecayFileName )
 {
   mpd_Core->set_save_hit(setSaveHit,setBookFileName.toStdString().c_str(),setResFileName.toStdString().c_str(),setDecayFileName.toStdString().c_str());
 }
-
-
+// Save Custom dictionary
+bool MP_Gui_Callback_c::saveDictionary(QString dictName){
+if (mpd_Core) mpd_Core->save_dict(dictName.toStdString().c_str());
+}
 
 // Save book
 void MP_Gui_Callback_c::saveBook(QString fileName)
@@ -158,4 +163,17 @@ bool MP_Gui_Callback_c::coreInit()
 
 int MP_Gui_Callback_c::getBookOpen(){
 return opBook;
+}
+
+int MP_Gui_Callback_c::addDefaultBlockToDictionary(QString blockName){
+if (mpd_Core) { mpd_Core->add_default_block_to_dict(blockName.toStdString().c_str());
+ mpd_Core->plug_dict_to_signal();
+ return 1;
+}
+else return 0;
+}
+
+void MP_Gui_Callback_c::addCustomBlockToDictionary(map<string, string, mp_ltstring>* setPropertyMap){
+mpd_Core->addCustomBlockToDictionary(setPropertyMap);
+mpd_Core->plug_dict_to_signal();
 }

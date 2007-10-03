@@ -60,10 +60,12 @@ class MainWindow: public QMainWindow, private Ui::MainWindow {
 	MP_Gui_Callback_c * guiCallBack;
 	MP_Gui_Callback_Demix_c * guiCallBackDemix;
 	MP_Gui_Callback_Demo_c *guiCallBackDemo;
+	vector<map< string, string, mp_ltstring>*> * customBlockMapVector;
 	Dialog * dialog;
 	bool dictOpen;
 	bool dictOpenDemo;
     bool dictOpenDemoDefault;
+    bool dictOpenDemoCustom;
     bool stopContraintSet;
 	
 	public:
@@ -115,7 +117,12 @@ class MainWindow: public QMainWindow, private Ui::MainWindow {
 		void on_btnStopDemix_clicked();
 		void on_btnOpenSigDemo_clicked();
 		void on_btnOpenDictDemo_clicked();
+		void on_btnValidateCustomDict_clicked();
 		void on_horizontalScrollBarDemo_valueChanged();
+		void on_btnSaveCustomDict_clicked();
+		void on_checkBoxTransientUnit_pressed();
+		void on_lineEditCustomBlock1WindowLen_textEdited();
+		void on_lineEditCustomBlock2WindowLen_textEdited();
 		public:
 		void readFromStdout(QString message);
 };
