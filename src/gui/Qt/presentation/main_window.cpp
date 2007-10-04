@@ -780,37 +780,14 @@ void MainWindow::on_lineEditCustomBlock2WindowLen_textEdited(){
 	lineEditCustomBlock2WindowLenSec->setText(buf);
 
 }
-/*********** SLOTS ***********/
 
-
-/*
- slot appelé lors de la lecture du fichier
- ici on pourraît faire des mises à jour de l'interface
- ex: avoir un indicateur visuel de la position de la
- lecture en cours sur le fichier
-*/
-
-void MainWindow::reader_thread_update()
-{}
-
-/*
- * slot appelé lorsque le thread arrête la lecture suite à la fin
- * du fichier ou d'une demande d'arrêt de l'utilisateur.
- */
-
-void MainWindow::reader_thread_ok()
-{}
-
-/*
- * slot appelé lorsque le thread arrête suite à une
- * erreur: de lecture ou d'arrêt inopiné du thread
- */
-
-void MainWindow::reader_thread_exception()
-{
-  return;
+void MainWindow::on_lineEditCustomBlock1WindowLenSec_textEdited(){
+	char buf[32];
+	sprintf(buf, "%f",lineEditCustomBlock1WindowLenSec->text().toULong()*guiCallBackDemo->getSignalSampleRate()/1000.0);
+	lineEditCustomBlock1WindowLen->setText(buf);
 }
-
-
-
-/*********** END SLOTS ***********/
+void MainWindow::on_lineEditCustomBlock2WindowLenSec_textEdited(){
+	char buf[32];
+	sprintf(buf, "%f",lineEditCustomBlock2WindowLenSec->text().toULong()*guiCallBackDemo->getSignalSampleRate()/1000.0);
+	lineEditCustomBlock2WindowLen->setText(buf);
+}

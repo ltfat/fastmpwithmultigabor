@@ -56,6 +56,9 @@ using namespace std;
 class MainWindow: public QMainWindow, private Ui::MainWindow {
 	Q_OBJECT
 	
+	/********/
+    /* DATA */
+    /********/
 	private:
 	MP_Gui_Callback_c * guiCallBack;
 	MP_Gui_Callback_Demix_c * guiCallBackDemix;
@@ -68,13 +71,22 @@ class MainWindow: public QMainWindow, private Ui::MainWindow {
     bool dictOpenDemoCustom;
     bool stopContraintSet;
 	
+	/***********/
+    /* METHODS */
+    /***********/
+
+    /***************************/
+    /* CONSTRUCTORS/DESTRUCTOR */
+    /***************************/
+    
 	public:
+	/**  \brief Constructor */
 		MainWindow(QWidget *parent = 0);
+    /**  \brief Destructor */
 		~MainWindow();
-	public slots:
-		void reader_thread_update();
-		void reader_thread_ok();
-		void reader_thread_exception();
+    /***********/
+    /* SLOTS   */
+    /***********/
 	private:
 	private slots:
 		void on_btnPlay_clicked();
@@ -123,6 +135,8 @@ class MainWindow: public QMainWindow, private Ui::MainWindow {
 		void on_checkBoxTransientUnit_pressed();
 		void on_lineEditCustomBlock1WindowLen_textEdited();
 		void on_lineEditCustomBlock2WindowLen_textEdited();
+		void on_lineEditCustomBlock1WindowLenSec_textEdited();
+		void on_lineEditCustomBlock2WindowLenSec_textEdited();
 		public:
 		void readFromStdout(QString message);
 };
