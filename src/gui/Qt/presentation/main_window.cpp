@@ -57,7 +57,7 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent)
   dictOpenDemoDefault = false;
   dictOpenDemoCustom = false;
   stopContraintSet = false;
-  connect(pushButtonStopIterate, SIGNAL(clicked()), guiCallBack, SLOT(stopIteration()));
+  connect(pushButtonStopIterate, SIGNAL(clicked()), guiCallBack, SLOT(stopIteration()), Qt::DirectConnection);
 }
 
 
@@ -604,7 +604,7 @@ void MainWindow::on_btnValidateDefautlDict_clicked()
 
       GetModuleFileName(NULL, szAppPath, MAX_PATH);
 
-// Extract directory
+      /* Extract directory*/
       strAppDirectory = szAppPath;
 
       strAppDirectory = strAppDirectory.substr(0, strAppDirectory.rfind("\\"));
@@ -630,44 +630,29 @@ void MainWindow::on_btnValidateCustomDict_clicked()
   map<string, string, mp_ltstring>* parameterCustomBlock2 = new map<string, string, mp_ltstring>();
   if (guiCallBackDemo->coreInit() && !dictOpenDemo)
     {
-      if (comboBoxBlock1Type->currentText()== "gabor")
-        {
-          (*parameterCustomBlock1)["type"] = "gabor";
+   
+          MP_Block_Factory_c::get_block_factory()->get_block_default_map(comboBoxBlock1Type->currentText().toStdString().c_str())(parameterCustomBlock1);
+
           if (lineEditCustomBlock1WindowLen->text().toInt()> 0)
             {
               (*parameterCustomBlock1)["windowLen"] = lineEditCustomBlock1WindowLen->text().toStdString();
-              (*parameterCustomBlock1)["fftSize"] = lineEditCustomBlock1WindowLen->text().toStdString();
+              
             }
-          else
-            {
-              (*parameterCustomBlock1)["windowLen"] = "128";
-              (*parameterCustomBlock1)["fftSize"] = "128";
-            }
-          (*parameterCustomBlock1)["windowShift"] = "32";
-          (*parameterCustomBlock1)["windowtype"] = "gauss";
-          (*parameterCustomBlock1)["windowopt"] = "0.0";
-          (*parameterCustomBlock1)["blockOffset"] = "0";
-        }
-
-      if (comboBoxBlock2Type->currentText()== "gabor")
-        {
-          (*parameterCustomBlock2)["type"] = "gabor";
+          if (lineEditCustomBlock1FftSize->text().toInt()> 0 && lineEditCustomBlock1FftSize->text().toInt()%2 ==0)
+           {
+           (*parameterCustomBlock1)["fftSize"] = lineEditCustomBlock1FftSize->text().toStdString();
+           }
+  
+          MP_Block_Factory_c::get_block_factory()->get_block_default_map(comboBoxBlock2Type->currentText().toStdString().c_str())(parameterCustomBlock2);
           if (lineEditCustomBlock2WindowLen->text().toInt()> 0)
             {
               (*parameterCustomBlock2)["windowLen"] = lineEditCustomBlock2WindowLen->text().toStdString();
-              (*parameterCustomBlock2)["fftSize"] = lineEditCustomBlock2WindowLen->text().toStdString();
+              
             }
-          else
-            {
-              (*parameterCustomBlock2)["windowLen"] = "512";
-              (*parameterCustomBlock2)["fftSize"] = "512";
-            }
-          (*parameterCustomBlock2)["windowShift"] = "32";
-          (*parameterCustomBlock2)["windowtype"] = "gauss";
-          (*parameterCustomBlock2)["windowopt"] = "0.0";
-          (*parameterCustomBlock2)["blockOffset"] = "0";
-
-        }
+           if (lineEditCustomBlock2FftSize->text().toInt()> 0 && lineEditCustomBlock2FftSize->text().toInt()%2 ==0)
+           {
+           (*parameterCustomBlock2)["fftSize"] = lineEditCustomBlock2FftSize->text().toStdString();
+           }
 
       guiCallBackDemo->initDictionary();
       guiCallBackDemo->addCustomBlockToDictionary(parameterCustomBlock1);
@@ -684,10 +669,11 @@ void MainWindow::on_btnLauchDemo_clicked()
     {
       if (!stopContraintSet)guiCallBackDemo->setIterationNumber(comboBoxNumIterDemo->currentText().toULong());
       guiCallBackDemo->iterateAll();
-      if (lineEditSeparateValueDemo->text().toULong()>0){
-      	 if (checkBoxTransientUnit->isChecked())guiCallBackDemo->separate(lineEditSeparateValueDemo->text().toULong());
-      else guiCallBackDemo->separate((unsigned long int)(lineEditSeparateValueDemo->text().toULong()*guiCallBackDemo->getSignalSampleRate()/1000)); //
-      	}
+      if (lineEditSeparateValueDemo->text().toULong()>0)
+        {
+          if (checkBoxTransientUnit->isChecked())guiCallBackDemo->separate(lineEditSeparateValueDemo->text().toULong());
+          else guiCallBackDemo->separate((unsigned long int)(lineEditSeparateValueDemo->text().toULong()*guiCallBackDemo->getSignalSampleRate()/1000)); //
+        }
       else guiCallBackDemo->separate(200);
       textEditConsolDemo->append("Decomposition for demo is finished");
       textEditConsolDemo->update();
@@ -721,8 +707,14 @@ void MainWindow::on_horizontalScrollBarDemo_valueChanged()
   if (guiCallBackDemo->coreInit())
     {
       char buf[32];
-      if (checkBoxTransientUnit->isChecked()) {sprintf(buf, "%f",1.0*horizontalScrollBarDemo->value());}
-      else {sprintf(buf, "%f",1000.0*horizontalScrollBarDemo->value()/ guiCallBackDemo->getSignalSampleRate()); }//
+      if (checkBoxTransientUnit->isChecked())
+        {
+          sprintf(buf, "%f",1.0*horizontalScrollBarDemo->value());
+        }
+      else
+        {
+          sprintf(buf, "%f",1000.0*horizontalScrollBarDemo->value()/ guiCallBackDemo->getSignalSampleRate());
+        }//
       lineEditSeparateValueDemo->setText(buf);
     }
 
@@ -763,31 +755,56 @@ void MainWindow::on_btnSaveCustomDict_clicked()
   else dialog->errorMessage("Validate a custom dictionary first");
 }
 
-void MainWindow::on_checkBoxTransientUnit_pressed(){
-if (checkBoxTransientUnit->isChecked()){label_17->setText("Duration of transient in samples");}
-else {label_17->setText("Duration of transient in milliseconds");}
+void MainWindow::on_checkBoxTransientUnit_pressed()
+{
+  if (checkBoxTransientUnit->isChecked())
+    {
+      label_17->setText("Duration of transient in samples");
+    }
+  else
+    {
+      label_17->setText("Duration of transient in milliseconds");
+    }
 }
 
-void MainWindow::on_lineEditCustomBlock1WindowLen_textEdited(){
-	char buf[32];
-	sprintf(buf, "%f",1000.0*lineEditCustomBlock1WindowLen->text().toULong()/guiCallBackDemo->getSignalSampleRate());
-	lineEditCustomBlock1WindowLenSec->setText(buf);
+void MainWindow::on_lineEditCustomBlock1WindowLen_textEdited()
+{
+  char buf[32];
+  sprintf(buf, "%f",1000.0*lineEditCustomBlock1WindowLen->text().toULong()/guiCallBackDemo->getSignalSampleRate());
+  lineEditCustomBlock1WindowLenSec->setText(buf);
 
 }
-void MainWindow::on_lineEditCustomBlock2WindowLen_textEdited(){
-	char buf[32];
-	sprintf(buf, "%f",1000.0*lineEditCustomBlock2WindowLen->text().toULong()/guiCallBackDemo->getSignalSampleRate());
-	lineEditCustomBlock2WindowLenSec->setText(buf);
-
+void MainWindow::on_lineEditCustomBlock1FftSize_textEdited(){
+  char buf[32];
+  sprintf(buf, "%f",1000.0*lineEditCustomBlock1FftSize->text().toULong()/guiCallBackDemo->getSignalSampleRate());
+  lineEditCustomBlock1FftSizeSec->setText(buf);
+	
 }
 
-void MainWindow::on_lineEditCustomBlock1WindowLenSec_textEdited(){
-	char buf[32];
-	sprintf(buf, "%f",lineEditCustomBlock1WindowLenSec->text().toULong()*guiCallBackDemo->getSignalSampleRate()/1000.0);
-	lineEditCustomBlock1WindowLen->setText(buf);
+void MainWindow::on_lineEditCustomBlock2WindowLen_textEdited()
+{
+  char buf[32];
+  sprintf(buf, "%f",1000.0*lineEditCustomBlock2WindowLen->text().toULong()/guiCallBackDemo->getSignalSampleRate());
+  lineEditCustomBlock2WindowLenSec->setText(buf);
+
 }
-void MainWindow::on_lineEditCustomBlock2WindowLenSec_textEdited(){
-	char buf[32];
-	sprintf(buf, "%f",lineEditCustomBlock2WindowLenSec->text().toULong()*guiCallBackDemo->getSignalSampleRate()/1000.0);
-	lineEditCustomBlock2WindowLen->setText(buf);
+void MainWindow::on_lineEditCustomBlock2FftSize_textEdited(){
+	 char buf[32];
+  sprintf(buf, "%f",1000.0*lineEditCustomBlock2FftSize->text().toULong()/guiCallBackDemo->getSignalSampleRate());
+  lineEditCustomBlock2FftSizeSec->setText(buf);
+	
+}
+
+void MainWindow::on_lineEditCustomBlock1WindowLenSec_textEdited()
+{
+  char buf[32];
+  sprintf(buf, "%f",lineEditCustomBlock1WindowLenSec->text().toULong()*guiCallBackDemo->getSignalSampleRate()/1000.0);
+  lineEditCustomBlock1WindowLen->setText(buf);
+}
+
+void MainWindow::on_lineEditCustomBlock2WindowLenSec_textEdited()
+{
+  char buf[32];
+  sprintf(buf, "%f",lineEditCustomBlock2WindowLenSec->text().toULong()*guiCallBackDemo->getSignalSampleRate()/1000.0);
+  lineEditCustomBlock2WindowLen->setText(buf);
 }

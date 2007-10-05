@@ -101,7 +101,7 @@ class MP_Gui_Callback_Abstract_c: public QThread
       opSig = NOTHING_OPENED;
       activated = false;
     };
-    
+
     /** \brief Public destructor  */
     virtual ~MP_Gui_Callback_Abstract_c()
     {
@@ -116,25 +116,25 @@ class MP_Gui_Callback_Abstract_c: public QThread
     /***************************/
     /* MISC METHODS            */
     /***************************/
-    
+
     /** \brief Method to activate the core */
     void setActivated()
     {
       activated =  true;
     }
-    
+
     /** \brief Method to desactivate the core */
     void setDesactivated()
     {
       activated =  false;
     }
-    
+
     /** \brief Method to get if the core is activated */
     bool getActivated()
     {
       return activated;
     }
-    
+
     /** \brief Method to stop the audio stream */
     void stopPortAudioStream()
     {
@@ -143,58 +143,58 @@ class MP_Gui_Callback_Abstract_c: public QThread
           if (audio->getStream() != NULL) audio->stop();
         }
     }
-     /** \brief Method to unset Num Iter */
-     
+    /** \brief Method to unset Num Iter */
+
     void unsetIter()
     {
       if (mpd_Core && getActivated())mpd_Core->reset_iter_condition();
       if (mpd_Demix_Core && getActivated())mpd_Demix_Core->reset_iter_condition();
     }
-    
-  /** \brief Method to unset the SNR */
+
+    /** \brief Method to unset the SNR */
     void unsetSNR()
     {
       if (mpd_Core && getActivated())mpd_Core->reset_snr_condition();
       if (mpd_Demix_Core && getActivated())mpd_Demix_Core->reset_snr_condition();
     }
 
-  /** \brief Method to set the SNR */
+    /** \brief Method to set the SNR */
     void setSNR(double snr)
     {
       if (mpd_Core && getActivated())mpd_Core->set_snr_condition(snr);
       if (mpd_Demix_Core && getActivated())mpd_Demix_Core->set_snr_condition(snr);
     }
 
-  /** \brief Method to unset the Verbose mode */
+    /** \brief Method to unset the Verbose mode */
     void unSetVerbose()
     {
       if (mpd_Core && getActivated())mpd_Core->reset_verbose();
       if (mpd_Demix_Core && getActivated())mpd_Demix_Core->reset_verbose();
     }
 
-  /** \brief Method to set the Verbose mode */
+    /** \brief Method to set the Verbose mode */
     void setVerbose()
     {
       if (mpd_Core && getActivated())mpd_Core->set_verbose();
       if (mpd_Demix_Core && getActivated())mpd_Demix_Core->set_verbose();
     }
-    
-  /** \brief Method to play the base signal */
+
+    /** \brief Method to play the base signal */
     void playBaseSignal(std::vector<bool> * v, float startTime, float endTime)
     {
       play(baseSignal, v, startTime, endTime);
     }
-  /** \brief Method to play the approximant signal */
+    /** \brief Method to play the approximant signal */
     void playApproximantSignal(std::vector<bool> * v, float startTime, float endTime)
     {
       play(approximant, v, startTime, endTime);
     }
-  /** \brief Method to play the residual signal */
+    /** \brief Method to play the residual signal */
     void playResidualSignal(std::vector<bool> * v, float startTime, float endTime)
     {
       play(signal, v, startTime, endTime);
     }
-  /** \brief Method to play a signal */
+    /** \brief Method to play a signal */
     void play(MP_Signal_c * sig, std::vector<bool> * v, float startTime, float endTime)
     {
 
@@ -211,8 +211,8 @@ class MP_Gui_Callback_Abstract_c: public QThread
           else audio->playSelected(v);
         }
     }
-    
-  /** \brief Method to set the number of max. iterations */
+
+    /** \brief Method to set the number of max. iterations */
     void setIterationNumber(long int numberIt)
     {
       if (mpd_Core && getActivated())mpd_Core->set_iter_condition(numberIt);
@@ -224,8 +224,8 @@ class MP_Gui_Callback_Abstract_c: public QThread
       if (mpd_Core && getActivated() && mpd_Core->can_step()) mpd_Core->step();
       if (mpd_Demix_Core && getActivated() && mpd_Demix_Core->can_step())mpd_Demix_Core->step();
     }
-    
-   /** \brief Method to iterate */
+
+    /** \brief Method to iterate */
     void iterateAll()
     {
       if (mpd_Core && getActivated() && mpd_Core->can_step())
@@ -251,11 +251,11 @@ class MP_Gui_Callback_Abstract_c: public QThread
           mpd_Demix_Core->info_result();
         }
     }
-    
-   /** \brief Method run inherited from QThread */
+
+    /** \brief Method run inherited from QThread */
     void run()
     {
-      /* Test if can step and the run */	
+      /* Test if can step and the run */
       if (mpd_Core && getActivated() && mpd_Core->can_step())
         {
           mpd_Core->run();
@@ -267,13 +267,16 @@ class MP_Gui_Callback_Abstract_c: public QThread
         }
     }
 
-    /** \brief Method ti save the residual signal
-    *  \param fileName: name of the panel to display
+    /** \brief Method to save the residual signal
+    *  \param fileName: name of the file to save
     */
     void saveResidual(QString fileName)
     {
       if (signal) signal->wavwrite(fileName.toStdString().c_str());
     }
+    /** \brief Method to save the residual decay in a text file
+    *  \param fileName: name of the file to save
+    */
 
     void saveDecay(QString fileName)
     {
@@ -282,8 +285,8 @@ class MP_Gui_Callback_Abstract_c: public QThread
     }
 
     /** \brief Method to open a signal
-        *   \param fileName : name of the signal to open
-        * */
+     *  \param fileName : name of the signal to open
+     */
     virtual int openSignal(QString fileName)
     {
       if (signal != NULL) delete signal;
@@ -298,19 +301,26 @@ class MP_Gui_Callback_Abstract_c: public QThread
 
       else return NOTHING_OPENED;
     }
-
+    /** \brief Method to know if a signal is open 
+     *  \return an int that indicate the state of signal
+     */
     int getSignalOpen()
     {
       return opSig;
     }
-
+     /** \brief Method to return the number of iter set in the core
+     *  \return an unsigned long int that indicate the number of iteration
+     */
     unsigned long int get_num_iter(void)
     {
       if (mpd_Core && getActivated()) return(mpd_Core->get_num_iter());
       else if (mpd_Demix_Core && getActivated()) return(mpd_Demix_Core->get_num_iter());
       else return 0;
     }
-
+    
+   /** \brief Method to get the sample rate of the signal plugged in the core
+     *  \return an int that indicate the state of signal
+     */
     int getSignalSampleRate(void)
     {
       if (baseSignal!=NULL) return baseSignal->sampleRate;

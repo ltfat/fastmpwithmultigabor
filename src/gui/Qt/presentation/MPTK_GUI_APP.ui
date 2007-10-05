@@ -1923,7 +1923,7 @@
            <x>10</x>
            <y>100</y>
            <width>901</width>
-           <height>251</height>
+           <height>291</height>
           </rect>
          </property>
          <property name="title" >
@@ -1935,7 +1935,7 @@
             <x>10</x>
             <y>80</y>
             <width>881</width>
-            <height>161</height>
+            <height>201</height>
            </rect>
           </property>
           <property name="title" >
@@ -1978,7 +1978,7 @@
              <x>10</x>
              <y>20</y>
              <width>351</width>
-             <height>131</height>
+             <height>171</height>
             </rect>
            </property>
            <property name="title" >
@@ -2006,6 +2006,11 @@
                <item>
                 <property name="text" >
                  <string>gabor</string>
+                </property>
+               </item>
+               <item>
+                <property name="text" >
+                 <string>mdct</string>
                 </property>
                </item>
               </widget>
@@ -2064,6 +2069,58 @@
              </item>
             </layout>
            </widget>
+           <widget class="QWidget" name="layoutWidget_7" >
+            <property name="geometry" >
+             <rect>
+              <x>10</x>
+              <y>110</y>
+              <width>331</width>
+              <height>22</height>
+             </rect>
+            </property>
+            <layout class="QHBoxLayout" >
+             <item>
+              <widget class="QLabel" name="label_23" >
+               <property name="text" >
+                <string>Odd FFT size in samples</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="lineEditCustomBlock1FftSize" >
+               <property name="text" >
+                <string>0</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+           <widget class="QWidget" name="layoutWidget_8" >
+            <property name="geometry" >
+             <rect>
+              <x>10</x>
+              <y>140</y>
+              <width>331</width>
+              <height>22</height>
+             </rect>
+            </property>
+            <layout class="QHBoxLayout" >
+             <item>
+              <widget class="QLabel" name="label_24" >
+               <property name="text" >
+                <string>FFT size in milliseconds (info only)</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="lineEditCustomBlock1FftSizeSec" >
+               <property name="text" >
+                <string>0</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
           </widget>
           <widget class="QPushButton" name="btnSaveCustomDict" >
            <property name="geometry" >
@@ -2096,7 +2153,7 @@
              <x>370</x>
              <y>20</y>
              <width>311</width>
-             <height>131</height>
+             <height>171</height>
             </rect>
            </property>
            <property name="title" >
@@ -2124,6 +2181,11 @@
                <item>
                 <property name="text" >
                  <string>gabor</string>
+                </property>
+               </item>
+               <item>
+                <property name="text" >
+                 <string>mdct</string>
                 </property>
                </item>
               </widget>
@@ -2182,6 +2244,72 @@
              </item>
             </layout>
            </widget>
+           <widget class="QWidget" name="layoutWidget_9" >
+            <property name="geometry" >
+             <rect>
+              <x>10</x>
+              <y>110</y>
+              <width>291</width>
+              <height>22</height>
+             </rect>
+            </property>
+            <layout class="QHBoxLayout" >
+             <item>
+              <widget class="QLabel" name="label_25" >
+               <property name="text" >
+                <string>Odd FFT size in samples</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="lineEditCustomBlock2FftSize" >
+               <property name="text" >
+                <string>0</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+           <widget class="QWidget" name="layoutWidget_10" >
+            <property name="geometry" >
+             <rect>
+              <x>10</x>
+              <y>140</y>
+              <width>291</width>
+              <height>22</height>
+             </rect>
+            </property>
+            <layout class="QHBoxLayout" >
+             <item>
+              <widget class="QLabel" name="label_26" >
+               <property name="text" >
+                <string>FFT size in milliseconds (info only)</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="lineEditCustomBlock2FftSizeSec" >
+               <property name="text" >
+                <string>0</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </widget>
+          <widget class="QLabel" name="label_18" >
+           <property name="geometry" >
+            <rect>
+             <x>692</x>
+             <y>80</y>
+             <width>341</width>
+             <height>91</height>
+            </rect>
+           </property>
+           <property name="text" >
+            <string>Please note that default value will
+ be used in case of bad setting </string>
+           </property>
           </widget>
          </widget>
          <widget class="QGroupBox" name="groupBox_22" >
@@ -2284,7 +2412,7 @@
          <property name="geometry" >
           <rect>
            <x>10</x>
-           <y>357</y>
+           <y>390</y>
            <width>901</width>
            <height>101</height>
           </rect>
@@ -2515,9 +2643,9 @@
          <property name="geometry" >
           <rect>
            <x>10</x>
-           <y>460</y>
+           <y>498</y>
            <width>901</width>
-           <height>89</height>
+           <height>51</height>
           </rect>
          </property>
          <property name="title" >
@@ -2527,7 +2655,7 @@
           <property name="geometry" >
            <rect>
             <x>10</x>
-            <y>50</y>
+            <y>20</y>
             <width>75</width>
             <height>26</height>
            </rect>
@@ -2551,8 +2679,8 @@
          <widget class="QRadioButton" name="radioButtonOriDemo" >
           <property name="geometry" >
            <rect>
-            <x>220</x>
-            <y>50</y>
+            <x>210</x>
+            <y>20</y>
             <width>121</width>
             <height>19</height>
            </rect>
@@ -2564,8 +2692,8 @@
          <widget class="QRadioButton" name="radioButtonResiDemo" >
           <property name="geometry" >
            <rect>
-            <x>630</x>
-            <y>50</y>
+            <x>610</x>
+            <y>20</y>
             <width>111</width>
             <height>19</height>
            </rect>
@@ -2578,7 +2706,7 @@
           <property name="geometry" >
            <rect>
             <x>100</x>
-            <y>50</y>
+            <y>20</y>
             <width>75</width>
             <height>26</height>
            </rect>
@@ -2602,8 +2730,8 @@
          <widget class="QRadioButton" name="radioButtonTransiDemo" >
           <property name="geometry" >
            <rect>
-            <x>370</x>
-            <y>50</y>
+            <x>330</x>
+            <y>20</y>
             <width>121</width>
             <height>19</height>
            </rect>
@@ -2615,8 +2743,8 @@
          <widget class="QRadioButton" name="radioButtonOtherDemo" >
           <property name="geometry" >
            <rect>
-            <x>510</x>
-            <y>50</y>
+            <x>480</x>
+            <y>20</y>
             <width>111</width>
             <height>19</height>
            </rect>

@@ -48,9 +48,21 @@ class MP_Gui_Callback_Demix_c:public MP_Gui_Callback_Abstract_c
     /* DATA    */
     /***********/
   protected:
+  /**
+   * \brief a vector to stock the book for each sources
+   */
     std::vector<MP_Book_c*> *bookArray;
+   /**
+   * \brief a vector to stock the dictionary for each sources
+   */
     std::vector<MP_Dict_c*> *dictArray;
+   /**
+   * \brief a vector to stock the dictionary for each sources
+   */
     std::vector<MP_Signal_c*> *approxArray;
+      /**
+   * \brief a vector to stock the dictionary for each sources
+   */
     std::vector<const char *> bookFileNameArray;
     int opArrayBook;
   public:
