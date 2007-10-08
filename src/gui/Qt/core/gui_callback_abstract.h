@@ -41,6 +41,8 @@
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QThread>
+#include <QWaitCondition>
+#include <QMutex>
 
 /***********************/
 /* CONSTANTS           */
@@ -73,6 +75,10 @@ class MP_Gui_Callback_Abstract_c: public QThread
     MP_Gui_Audio* audio;
     int opSig;
     bool activated;
+    QWaitCondition iterateCond;
+    bool mpRunning;
+    /*protect access to mpRunning */
+    QMutex mutex;
 
   public:
     MP_Signal_c *signal;
@@ -96,10 +102,11 @@ class MP_Gui_Callback_Abstract_c: public QThread
       baseSignal = NULL;
       audio = NULL;
       approximant = NULL;
+      mpRunning = false;
       QThread::start(LowestPriority);
-      QThread::wait ( ULONG_MAX );
       opSig = NOTHING_OPENED;
       activated = false;
+
     };
 
     /** \brief Public destructor  */
@@ -233,37 +240,57 @@ class MP_Gui_Callback_Abstract_c: public QThread
           /* display conditions */
           mpd_Core->info_conditions();
           /* lauch the run method (inherited from QThread) */
-          run();
-          /* say the QThread to wait */
-          QThread::wait ( ULONG_MAX );
-          /* display results */
-          mpd_Core->info_result();
+          mutex.lock();
+          if (!mpRunning)iterateCond.wakeAll();
+          mutex.unlock();
+
         }
       else if (mpd_Demix_Core && getActivated() && mpd_Demix_Core->can_step())
         {
           /* display conditions */
           mpd_Demix_Core->info_conditions();
           /* lauch the run method (inherited from QThread) */
-          run();
-          /* say the QThread to wait */
-          QThread::wait ( ULONG_MAX );
-          /* display results */
-          mpd_Demix_Core->info_result();
+          mutex.lock();
+          if (!mpRunning)iterateCond.wakeAll();
+          mutex.unlock();
+
         }
     }
 
     /** \brief Method run inherited from QThread */
     void run()
     {
-      /* Test if can step and the run */
-      if (mpd_Core && getActivated() && mpd_Core->can_step())
+
+
+      while (true)
         {
-          mpd_Core->run();
-        }
-      /* Test if can step and the run */
-      if (mpd_Demix_Core && getActivated() && mpd_Demix_Core->can_step())
-        {
-          mpd_Demix_Core->run();
+          mutex.lock();
+          /*   if (!mpRunning) error à afficher*/
+          iterateCond.wait(&mutex);
+          mpRunning = true;
+          mutex.unlock();
+          /* Test if can step and the run */
+          if (mpd_Core && getActivated() && mpd_Core->can_step())
+            {
+
+              mpd_Core->run();
+              /* display results */
+              mpd_Core->info_result();
+              mutex.lock();
+              mpRunning = false;
+              mutex.unlock();
+            }
+          /* Test if can step and the run */
+          if (mpd_Demix_Core && getActivated() && mpd_Demix_Core->can_step())
+            {
+              mpd_Demix_Core->run();
+              /* display results */
+              mpd_Demix_Core->info_result();
+              mutex.lock();
+              mpRunning = false;
+              mutex.unlock();
+            }
+
         }
     }
 
@@ -301,26 +328,26 @@ class MP_Gui_Callback_Abstract_c: public QThread
 
       else return NOTHING_OPENED;
     }
-    /** \brief Method to know if a signal is open 
+    /** \brief Method to know if a signal is open
      *  \return an int that indicate the state of signal
      */
     int getSignalOpen()
     {
       return opSig;
     }
-     /** \brief Method to return the number of iter set in the core
-     *  \return an unsigned long int that indicate the number of iteration
-     */
+    /** \brief Method to return the number of iter set in the core
+    *  \return an unsigned long int that indicate the number of iteration
+    */
     unsigned long int get_num_iter(void)
     {
       if (mpd_Core && getActivated()) return(mpd_Core->get_num_iter());
       else if (mpd_Demix_Core && getActivated()) return(mpd_Demix_Core->get_num_iter());
       else return 0;
     }
-    
-   /** \brief Method to get the sample rate of the signal plugged in the core
-     *  \return an int that indicate the state of signal
-     */
+
+    /** \brief Method to get the sample rate of the signal plugged in the core
+      *  \return an int that indicate the state of signal
+      */
     int getSignalSampleRate(void)
     {
       if (baseSignal!=NULL) return baseSignal->sampleRate;

@@ -581,15 +581,38 @@ void MainWindow::on_btnOpenDefaultSig_clicked()
 
       strAppDirectory = strAppDirectory.substr(0, strAppDirectory.rfind("\\"));
       strAppDirectory += "\\glockenspiel.wav";
-      labelOriginalSignalDemo->setText(QString(strAppDirectory.c_str()));
+      FILE *fp = fopen (strAppDirectory.c_str(), "r");
+      if (fp == NULL)
+{
+   /* no files*/
+   dialog->errorMessage("Cannot open signal file\n Please open a signal file");
+}
+else
+{
+   /* files */
+   fclose(fp);
+   labelOriginalSignalDemo->setText(QString(strAppDirectory.c_str()));
       guiCallBackDemo->initMpdCore(QString(strAppDirectory.c_str()), "");
+}
+      
 #else
       char path[2048];
       getcwd(path, 2004);
       strAppDirectory = path;
       strAppDirectory += "/glockenspiel.wav";
-      labelOriginalSignalDemo->setText(QString(strAppDirectory.c_str()));
+      FILE *fp = fopen (strAppDirectory.c_str(), "r");
+      if (fp == NULL)
+{
+   /* no files*/
+   dialog->errorMessage("Cannot open signal file\n Please open a signal file");
+}
+else
+{
+   /* files */
+   fclose(fp);
+   labelOriginalSignalDemo->setText(QString(strAppDirectory.c_str()));
       guiCallBackDemo->initMpdCore(QString(strAppDirectory.c_str()), "");
+}
 #endif /* WIN32 */
     }
 }
@@ -609,18 +632,44 @@ void MainWindow::on_btnValidateDefautlDict_clicked()
 
       strAppDirectory = strAppDirectory.substr(0, strAppDirectory.rfind("\\"));
       strAppDirectory += "\\dic_gabor_two_scales.xml";
-      if (guiCallBackDemo->coreInit())labelDictDemixDemo->setText(QString(strAppDirectory.c_str()));
-      if (guiCallBackDemo->coreInit())guiCallBackDemo->setDictionary(QString(strAppDirectory.c_str()));
+      FILE *fp = fopen (strAppDirectory.c_str(), "r");
+      if (fp == NULL)
+{
+   /* no files*/
+   dialog->errorMessage("Cannot open dictionary file\n Please open a dictionary or use the custom dictionary");
+}
+else
+{
+   /* files */
+   fclose(fp);
+   if (guiCallBackDemo->coreInit())labelDictDemixDemo->setText(QString(strAppDirectory.c_str()));
+   if (guiCallBackDemo->coreInit())guiCallBackDemo->setDictionary(QString(strAppDirectory.c_str()));
+   dictOpenDemoDefault = true;
+   groupBox_19->hide();
+}
+      
 #else
       char path[2048];
       getcwd(path, 2004);
       strAppDirectory = path;
       strAppDirectory += "/dic_gabor_two_scales.xml";
-      labelDictDemixDemo->setText(QString(strAppDirectory.c_str()));
-      if (guiCallBackDemo->coreInit())guiCallBackDemo->setDictionary(QString(strAppDirectory.c_str()));
+      FILE *fp = fopen (strAppDirectory.c_str(), "r");
+      if (fp == NULL)
+{
+   /* no files*/
+   dialog->errorMessage("Cannot open dictionary file\n Please open a dictionary or use the custom dictionary");
+}
+else
+{
+   /* files */
+   fclose(fp);
+   if (guiCallBackDemo->coreInit())labelDictDemixDemo->setText(QString(strAppDirectory.c_str()));
+   if (guiCallBackDemo->coreInit())guiCallBackDemo->setDictionary(QString(strAppDirectory.c_str()));
+   dictOpenDemoDefault = true;
+   groupBox_19->hide();
+}
 #endif /* WIN32 */
-      dictOpenDemoDefault = true;
-      groupBox_19->hide();
+      
     }
 }
 
