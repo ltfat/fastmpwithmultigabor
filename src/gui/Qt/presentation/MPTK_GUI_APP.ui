@@ -2433,7 +2433,7 @@
            <string>open</string>
           </property>
           <property name="text" >
-           <string>Lauch Demo</string>
+           <string>Decompose</string>
           </property>
           <property name="icon" >
            <iconset/>
@@ -2636,6 +2636,31 @@
           </property>
           <property name="text" >
            <string>Use milliseconds for duration of transient</string>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="btnDecomposeDemo" >
+          <property name="geometry" >
+           <rect>
+            <x>10</x>
+            <y>60</y>
+            <width>121</width>
+            <height>26</height>
+           </rect>
+          </property>
+          <property name="toolTip" >
+           <string>open</string>
+          </property>
+          <property name="text" >
+           <string>Separate</string>
+          </property>
+          <property name="icon" >
+           <iconset/>
+          </property>
+          <property name="checkable" >
+           <bool>false</bool>
+          </property>
+          <property name="flat" >
+           <bool>false</bool>
           </property>
          </widget>
         </widget>

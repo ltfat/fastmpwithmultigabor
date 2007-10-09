@@ -45,72 +45,84 @@
 
 
 /**
- * \brief MptkGuiCallback provides the link between MptkGuiFrame (graphical side) 
+ * \brief MptkGuiCallback provides the link between MptkGuiFrame (graphical side)
  * and MP_Mpd_Core_c (toolkit side, libmptk)
  */
 
 class MP_Gui_Callback_c:public MP_Gui_Callback_Abstract_c
-{
-/***************************/
-  /* CONSTRUCTORS/DESTRUCTOR */
-  /***************************/
-public:
-  MP_Gui_Callback_c();
-  virtual ~MP_Gui_Callback_c();
+  {
+  	/***********/
+    /* DATA    */
+    /***********/
+    
+    /**  \brief A integer with the open status of the book */
+    int opBook;
+     /**  \brief A Qstring with the name of the dict to open */
+    private :
+    QString dicoName;
+    /**  \brief A pointer on a book to store the atoms */
+    protected :
+    MP_Book_c *book;
+    
+    
+    /***********/
+    /* METHODS */
+    /***********/
+    /***************************/
+    /* CONSTRUCTORS/DESTRUCTOR */
+    /***************************/
+    
+  public:
+    /** \brief Public constructor  */
+    MP_Gui_Callback_c();
+    /** \brief Public destructor  */
+    virtual ~MP_Gui_Callback_c();
 
-  /***********/
-  /* METHODS */
-  /***********/
+    /***************************/
+    /* MISC METHODS            */
+    /***************************/
 
-  //int openSignal(QString fileName);
-  int openBook(QString fileName);
-  int initMpdCore(QString signalName, QString bookName);
-  void saveBook(QString fileName);
-  void saveApproximant(QString fileName);
-  //void saveResidual(QString fileName);
-
-  MP_Signal_c * getSignal();
-  MP_Signal_c * getApproximant();
-  MP_Signal_c * getResidual();
-  MP_Book_c * getBook();
-
-  int getNumChans(); 
-  int opBook; 
-  void pauseListen();
-  void restartListen();
-  void stopListen();
-  void setDictionary(QString dicoName);
-  void initDictionary();
-  int addDefaultBlockToDictionary(QString blockName);
-  void setSave(const unsigned long int setSaveHit,QString bookFileName, QString resFileName,QString decayFileName);
-  void unsetSave();
-  void setReport(const unsigned long int setReportHit );
-  void unsetReport();
-  void verbose();
-  void quiet();
-  void normal();
-  void setAllHandler();
-  void setProgressHandler();
-  bool canIterate();
-  int getIterationValue();
-  int subAddBook();
-  bool getIterCheck();
-  bool coreInit();
-  float getSNRValue();
-  bool getSNRCheck();
-  unsigned long int get_num_iter(void);
-  int getBookOpen();
-  void addCustomBlockToDictionary(map<string, string, mp_ltstring>* setPropertyMap);
-  bool saveDictionary(QString dictName);
-private :
-  QString dicoName;
-  
-protected :
-  MP_Book_c *book;
-
-  void play(MP_Signal_c * sig, std::vector<bool> * v, float startTime, float endTime);
+    int openBook(QString fileName);
+    int initMpdCore(QString signalName, QString bookName);
+    void saveBook(QString fileName);
+    void saveApproximant(QString fileName);
 
 
-};
+    MP_Signal_c * getSignal();
+    MP_Signal_c * getApproximant();
+    MP_Signal_c * getResidual();
+    MP_Book_c * getBook();
+
+    int getNumChans();
+    void pauseListen();
+    void restartListen();
+    void stopListen();
+    void setDictionary(QString dicoName);
+    void initDictionary();
+    int addDefaultBlockToDictionary(QString blockName);
+    void setSave(const unsigned long int setSaveHit,QString bookFileName, QString resFileName,QString decayFileName);
+    void unsetSave();
+    void setReport(const unsigned long int setReportHit );
+    void unsetReport();
+    void verbose();
+    void quiet();
+    void normal();
+    void setAllHandler();
+    void setProgressHandler();
+    bool canIterate();
+    int getIterationValue();
+    int subAddBook();
+    bool getIterCheck();
+    bool coreInit();
+    float getSNRValue();
+    bool getSNRCheck();
+    unsigned long int get_num_iter(void);
+    int getBookOpen();
+    void addCustomBlockToDictionary(map<string, string, mp_ltstring>* setPropertyMap);
+    bool saveDictionary(QString dictName);
+    void play(MP_Signal_c * sig, std::vector<bool> * v, float startTime, float endTime);
+
+
+  };
 
 #endif /*GUI_CALLBACK_H_*/

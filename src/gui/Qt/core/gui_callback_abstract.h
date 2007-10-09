@@ -56,6 +56,7 @@
 /**
  * \brief MP_Gui_Callback_Abstract_c is an abstract class that provides the link between main_window (graphical side)
  * and MP_Mpd_Core_c (toolkit side, libmptk)
+ * \note inherit from QTrhread in order to have threading abilities for decomposition
  */
 
 class MP_Gui_Callback_Abstract_c: public QThread
@@ -67,21 +68,36 @@ class MP_Gui_Callback_Abstract_c: public QThread
     /* DATA    */
     /***********/
   protected :
+   /**  \brief A Pointer on MP_Mpd_Core_c */
     MP_Mpd_Core_c *mpd_Core;
+    /**  \brief A Pointer on MP_Mpd_demix_Core_c */
     MP_Mpd_demix_Core_c *mpd_Demix_Core;
+    /**  \brief A Pointer on MP_Signal_c base signal for playing original signal */
     MP_Signal_c *baseSignal;
+    /**  \brief A Pointer on MP_Signal_c base signal for approxime the decomposition */
     MP_Signal_c *approximant;
-    QString dicoName;
+    /**  \brief A Pointer on MP_Gui_Audio class for playing signals */
     MP_Gui_Audio* audio;
+    /**  \brief A integer with the open status of the signal */
     int opSig;
+    /**  \brief A boolean indicated if the callback is active (for the tab) */
     bool activated;
+    /**  \brief A QWaitCondition to manage teh threading in decomposition */
     QWaitCondition iterateCond;
+    /**  \brief A boolean indicated if the decomposition is running or not */
     bool mpRunning;
-    /*protect access to mpRunning */
+    /**  \brief A QMutex to protect access to mpRunning */
     QMutex mutex;
 
   public:
+  /**  \brief A Pointer on MP_Signal_c base signal for working decomposition */
     MP_Signal_c *signal;
+    
+  signals:
+  /**  \brief A Qt signal to
+   *   \param status A boolean (true if iteration is running, false else) 
+   *   */
+    void runningIteration(bool status);
 
 
     /***********/
@@ -92,7 +108,7 @@ class MP_Gui_Callback_Abstract_c: public QThread
     /* CONSTRUCTORS/DESTRUCTOR */
     /***************************/
   public:
-    /** \brief Public Constructor  */
+    /** \brief Public constructor  */
     MP_Gui_Callback_Abstract_c()
     {
       if (!MPTK_Env_c::get_env()->get_environment_loaded())MPTK_Env_c::get_env()->load_environment("");
@@ -103,7 +119,7 @@ class MP_Gui_Callback_Abstract_c: public QThread
       audio = NULL;
       approximant = NULL;
       mpRunning = false;
-      QThread::start(LowestPriority);
+      QThread::start();
       opSig = NOTHING_OPENED;
       activated = false;
 
@@ -225,7 +241,7 @@ class MP_Gui_Callback_Abstract_c: public QThread
       if (mpd_Core && getActivated())mpd_Core->set_iter_condition(numberIt);
       if (mpd_Demix_Core && getActivated())mpd_Demix_Core->set_iter_condition(numberIt);
     }
-
+   /** \brief Method to iterate one time */
     void iterateOnce()
     {
       if (mpd_Core && getActivated() && mpd_Core->can_step()) mpd_Core->step();
@@ -263,29 +279,37 @@ class MP_Gui_Callback_Abstract_c: public QThread
 
 
       while (true)
-        {
+        { /* take mutex and pass the boolean to true */
           mutex.lock();
           /*   if (!mpRunning) error à afficher*/
+          /* Wait condition */
           iterateCond.wait(&mutex);
           mpRunning = true;
           mutex.unlock();
           /* Test if can step and the run */
           if (mpd_Core && getActivated() && mpd_Core->can_step())
-            {
-
+            { /* emit a signal to indicate that decomposition is started */
+              emit runningIteration(true);
               mpd_Core->run();
               /* display results */
               mpd_Core->info_result();
+              /* emit a signal to indicate that decomposition is over */
+              emit runningIteration(false);
+              /* take mutex and pass the boolean to false */
               mutex.lock();
               mpRunning = false;
               mutex.unlock();
             }
           /* Test if can step and the run */
           if (mpd_Demix_Core && getActivated() && mpd_Demix_Core->can_step())
-            {
+            { /* emit a signal to indicate that decomposition is started */
+              emit runningIteration(true);	
               mpd_Demix_Core->run();
               /* display results */
               mpd_Demix_Core->info_result();
+              /* emit a signal to indicate that decomposition is over */
+              emit runningIteration(false);
+              /* take mutex and pass the boolean to false */
               mutex.lock();
               mpRunning = false;
               mutex.unlock();
@@ -355,12 +379,13 @@ class MP_Gui_Callback_Abstract_c: public QThread
     }
 
   private slots:
+    /** \brief Slot to stop iterationif requested
+      */
     void stopIteration()
     {
       if (mpd_Core && getActivated())mpd_Core->force_stop();
       if (mpd_Demix_Core && getActivated())mpd_Demix_Core->force_stop();
     }
-
   };
 
 #endif /*GUI_CALLBACK_ABSTRACT_H_*/

@@ -58,6 +58,9 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent)
   dictOpenDemoCustom = false;
   stopContraintSet = false;
   connect(pushButtonStopIterate, SIGNAL(clicked()), guiCallBack, SLOT(stopIteration()), Qt::DirectConnection);
+  connect(pushButtonStopIterateDemix, SIGNAL(clicked()), guiCallBackDemix, SLOT(stopIteration()), Qt::DirectConnection);
+  connect(guiCallBack, SIGNAL(runningIteration(bool)), this, SLOT(iteration_running(bool)));
+  connect(guiCallBackDemix, SIGNAL(runningIteration(bool)), this, SLOT(iteration_running_demix(bool)));
 }
 
 
@@ -68,6 +71,7 @@ MainWindow::~MainWindow()
   if (guiCallBack)
     {
       delete guiCallBack;
+      
       guiCallBack = NULL;
     }
   if (guiCallBackDemix)
@@ -272,13 +276,7 @@ void MainWindow::on_comboBoxSnrDemo_activated()
 
 void MainWindow::on_pushButtonIterateAll_clicked()
 {
-  label_progress->setText("<font color=\"#FF0000\">Decompostion in progress</font>");
-  label_progress->update();
   if (guiCallBack->coreInit()&&dictOpen)guiCallBack->iterateAll();
-  textEditConsol->append("Decompostion ended");
-  label_progress->setText("Decompostion ended");
-  label_progress->update();
-  textEditConsol->update();
 }
 
 void MainWindow::on_pushButtonSaveBook_clicked()
@@ -487,14 +485,8 @@ void MainWindow::on_btnOpenDictDemix_clicked()
 }
 
 void MainWindow::on_pushButtonIterateAllDemix_clicked()
-{
-  label_progress->setText("<font color=\"#FF0000\">Decompostion in progress</font>");
+{ 
   if (guiCallBackDemix->coreInit()&& guiCallBackDemix->getBookOpen()==BOOK_OPENED)guiCallBackDemix->iterateAll();
-  textEditConsolDemix->append("Decompostion ended");
-  label_progress->setText("Decompostion ended");
-  textEditConsolDemix->update();
-  label_progress->update();
-
 }
 
 void MainWindow::on_btnPlayDemix_clicked()
@@ -718,14 +710,6 @@ void MainWindow::on_btnLauchDemo_clicked()
     {
       if (!stopContraintSet)guiCallBackDemo->setIterationNumber(comboBoxNumIterDemo->currentText().toULong());
       guiCallBackDemo->iterateAll();
-      if (lineEditSeparateValueDemo->text().toULong()>0)
-        {
-          if (checkBoxTransientUnit->isChecked())guiCallBackDemo->separate(lineEditSeparateValueDemo->text().toULong());
-          else guiCallBackDemo->separate((unsigned long int)(lineEditSeparateValueDemo->text().toULong()*guiCallBackDemo->getSignalSampleRate()/1000)); //
-        }
-      else guiCallBackDemo->separate(200);
-      textEditConsolDemo->append("Decomposition for demo is finished");
-      textEditConsolDemo->update();
     }
   else dialog->errorMessage("parameter not correctly set");
 
@@ -857,3 +841,31 @@ void MainWindow::on_lineEditCustomBlock2WindowLenSec_textEdited()
   sprintf(buf, "%f",lineEditCustomBlock2WindowLenSec->text().toULong()*guiCallBackDemo->getSignalSampleRate()/1000.0);
   lineEditCustomBlock2WindowLen->setText(buf);
 }
+
+void MainWindow::iteration_running(bool status)
+{
+if (status)label_progress->setText("<font color=\"#FF0000\">Decomposition in progress</font>");
+else { label_progress->setText("<font color=green>Decomposition ended with success</font>");
+   textEditConsol->append("Decompostion ended");
+   textEditConsol->update();
+}
+
+}
+void MainWindow::iteration_running_demix(bool status){
+if (status)label_progressDemix->setText("<font color=\"#FF0000\">Decomposition in progress</font>");
+else { label_progressDemix->setText("<font color=green>Decomposition ended with success</font>");
+   textEditConsolDemix->append("Decompostion ended");
+   textEditConsolDemix->update();}
+}
+
+void MainWindow::on_btnDecomposeDemo_clicked(){
+	      if (lineEditSeparateValueDemo->text().toULong()>0)
+        {
+          if (checkBoxTransientUnit->isChecked())guiCallBackDemo->separate(lineEditSeparateValueDemo->text().toULong());
+          else guiCallBackDemo->separate((unsigned long int)(lineEditSeparateValueDemo->text().toULong()*guiCallBackDemo->getSignalSampleRate()/1000)); //
+        }
+      else guiCallBackDemo->separate(200);
+      textEditConsolDemo->append("Decomposition for demo is finished");
+      textEditConsolDemo->update();
+}
+
