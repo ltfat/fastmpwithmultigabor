@@ -45,8 +45,9 @@
 
 
 /**
- * \brief MptkGuiCallback provides the link between MptkGuiFrame (graphical side)
+ * \brief MP_Gui_Callback_c is a concrete class that provides the link between main_window (graphical side)
  * and MP_Mpd_Core_c (toolkit side, libmptk)
+ * \note inherit from QTrhread in order to have threading abilities for decomposition
  */
 
 class MP_Gui_Callback_c:public MP_Gui_Callback_Abstract_c

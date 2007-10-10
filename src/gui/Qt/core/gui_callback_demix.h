@@ -38,9 +38,9 @@
 #include "gui_callback_abstract.h"
 
 /**
- * \brief
- * MptkGuiAudio reads MP_Signal_c and gives function to listen this MP_Signal_c
- * MptkGuiAudio uses portaudio library that is include in portaudio_v18_1 directory
+ * \brief MP_Gui_Callback_Demix_c is a concrete class that provides the link between main_window (graphical side)
+ * and MP_Mpd_Core_Demix_c (toolkit side, libmptk)
+ * \note inherit from QTrhread in order to have threading abilities for decomposition
  */
 class MP_Gui_Callback_Demix_c:public MP_Gui_Callback_Abstract_c
   {
@@ -75,15 +75,30 @@ class MP_Gui_Callback_Demix_c:public MP_Gui_Callback_Abstract_c
     /* CONSTRUCTORS/DESTRUCTOR */
     /***************************/
   public:
+     /** \brief a public constructor */
     MP_Gui_Callback_Demix_c();
+    /** \brief a public destructor */
     virtual ~MP_Gui_Callback_Demix_c();
 
     /***************************/
     /* MISC METHODS            */
     /***************************/
   public:
+     /** \brief a method to open the Mixer file
+      *  \param fileName the name of the mixer
+      *  \return a bool to indicate success or not
+      *  */
+      
     bool openMixer(QString fileName);
+      /** \brief a method to add a dictionary to the array 
+      *  \param fileName the name of the dictionary
+      *  \param index an int to indicate the position of the dictionary
+      *  */
     void addDictToArray(QString fileName, int index);
+      /** \brief a method to add a dictionary to the array 
+      *  \param fileName the name of the dictionary
+      *  \param index an int to indicate the position of the dictionary
+      *  */
     bool coreInit();
     bool initMpdDemixCore();
     bool setDictArray();

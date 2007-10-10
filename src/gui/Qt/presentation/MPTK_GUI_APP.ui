@@ -2663,6 +2663,19 @@
            <bool>false</bool>
           </property>
          </widget>
+         <widget class="QLabel" name="label_progress_Demo" >
+          <property name="geometry" >
+           <rect>
+            <x>200</x>
+            <y>60</y>
+            <width>221</width>
+            <height>20</height>
+           </rect>
+          </property>
+          <property name="text" >
+           <string>TextLabel</string>
+          </property>
+         </widget>
         </widget>
         <widget class="QGroupBox" name="groupBox_18" >
          <property name="geometry" >

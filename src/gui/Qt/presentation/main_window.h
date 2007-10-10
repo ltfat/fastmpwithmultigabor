@@ -52,8 +52,10 @@ using namespace std;
 #include <QMessageBox>
 #include <QFileDialog>
 
-
-/* Class MainWindow inherit from the window defined in designer */
+/**
+ * \brief MainWindow is a class that provides the GUI for MPTK library
+ * \note inherit from the window defined in designer Ui::MainWindow and QMainWindow
+ */
 class MainWindow: public QMainWindow, private Ui::MainWindow
   {
     Q_OBJECT
@@ -214,6 +216,8 @@ class MainWindow: public QMainWindow, private Ui::MainWindow
     void iteration_running(bool status);
      /**  \brief A slot */
     void iteration_running_demix(bool status);
+     /**  \brief A slot */
+    void iteration_running_demo(bool status);
   public:
     /**  \brief Method to shox the message of the sdtout in the consol of the gui
      *   \note Work only on linux platform

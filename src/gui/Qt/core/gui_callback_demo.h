@@ -38,6 +38,12 @@
 #include "gui_callback.h"
 #include "../plugin/base/gabor_atom_plugin.h"
 
+/**
+ * \brief MP_Gui_Callback_Demo_c is a concrete class that provides the link between main_window (graphical side)
+ * and MP_Mpd_Core_c (toolkit side, libmptk)
+ * \note inherit from QTrhread in order to have threading abilities for decomposition
+ */
+
 class MP_Gui_Callback_Demo_c:public MP_Gui_Callback_c
 {
 public:

@@ -48,6 +48,7 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent)
   labelDict->setText("No dictionary file selected");
   label_progress->setText("No decompostion");
   label_progressDemix->setText("No decompostion");
+  label_progress_Demo->setText("No decompostion");
   lineEditSeparateValueDemo->setText("0");
   textEditConsol->append(gplText);
   textEditConsolDemix->append(gplText);
@@ -61,6 +62,7 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent)
   connect(pushButtonStopIterateDemix, SIGNAL(clicked()), guiCallBackDemix, SLOT(stopIteration()), Qt::DirectConnection);
   connect(guiCallBack, SIGNAL(runningIteration(bool)), this, SLOT(iteration_running(bool)));
   connect(guiCallBackDemix, SIGNAL(runningIteration(bool)), this, SLOT(iteration_running_demix(bool)));
+  connect(guiCallBackDemo, SIGNAL(runningIteration(bool)), this, SLOT(iteration_running_demo(bool)));
 }
 
 
@@ -71,7 +73,7 @@ MainWindow::~MainWindow()
   if (guiCallBack)
     {
       delete guiCallBack;
-      
+
       guiCallBack = NULL;
     }
   if (guiCallBackDemix)
@@ -485,7 +487,7 @@ void MainWindow::on_btnOpenDictDemix_clicked()
 }
 
 void MainWindow::on_pushButtonIterateAllDemix_clicked()
-{ 
+{
   if (guiCallBackDemix->coreInit()&& guiCallBackDemix->getBookOpen()==BOOK_OPENED)guiCallBackDemix->iterateAll();
 }
 
@@ -575,18 +577,18 @@ void MainWindow::on_btnOpenDefaultSig_clicked()
       strAppDirectory += "\\glockenspiel.wav";
       FILE *fp = fopen (strAppDirectory.c_str(), "r");
       if (fp == NULL)
-{
-   /* no files*/
-   dialog->errorMessage("Cannot open signal file\n Please open a signal file");
-}
-else
-{
-   /* files */
-   fclose(fp);
-   labelOriginalSignalDemo->setText(QString(strAppDirectory.c_str()));
-      guiCallBackDemo->initMpdCore(QString(strAppDirectory.c_str()), "");
-}
-      
+        {
+          /* no files*/
+          dialog->errorMessage("Cannot open signal file\n Please open a signal file");
+        }
+      else
+        {
+          /* files */
+          fclose(fp);
+          labelOriginalSignalDemo->setText(QString(strAppDirectory.c_str()));
+          guiCallBackDemo->initMpdCore(QString(strAppDirectory.c_str()), "");
+        }
+
 #else
       char path[2048];
       getcwd(path, 2004);
@@ -594,17 +596,17 @@ else
       strAppDirectory += "/glockenspiel.wav";
       FILE *fp = fopen (strAppDirectory.c_str(), "r");
       if (fp == NULL)
-{
-   /* no files*/
-   dialog->errorMessage("Cannot open signal file\n Please open a signal file");
-}
-else
-{
-   /* files */
-   fclose(fp);
-   labelOriginalSignalDemo->setText(QString(strAppDirectory.c_str()));
-      guiCallBackDemo->initMpdCore(QString(strAppDirectory.c_str()), "");
-}
+        {
+          /* no files*/
+          dialog->errorMessage("Cannot open signal file\n Please open a signal file");
+        }
+      else
+        {
+          /* files */
+          fclose(fp);
+          labelOriginalSignalDemo->setText(QString(strAppDirectory.c_str()));
+          guiCallBackDemo->initMpdCore(QString(strAppDirectory.c_str()), "");
+        }
 #endif /* WIN32 */
     }
 }
@@ -626,20 +628,20 @@ void MainWindow::on_btnValidateDefautlDict_clicked()
       strAppDirectory += "\\dic_gabor_two_scales.xml";
       FILE *fp = fopen (strAppDirectory.c_str(), "r");
       if (fp == NULL)
-{
-   /* no files*/
-   dialog->errorMessage("Cannot open dictionary file\n Please open a dictionary or use the custom dictionary");
-}
-else
-{
-   /* files */
-   fclose(fp);
-   if (guiCallBackDemo->coreInit())labelDictDemixDemo->setText(QString(strAppDirectory.c_str()));
-   if (guiCallBackDemo->coreInit())guiCallBackDemo->setDictionary(QString(strAppDirectory.c_str()));
-   dictOpenDemoDefault = true;
-   groupBox_19->hide();
-}
-      
+        {
+          /* no files*/
+          dialog->errorMessage("Cannot open dictionary file\n Please open a dictionary or use the custom dictionary");
+        }
+      else
+        {
+          /* files */
+          fclose(fp);
+          if (guiCallBackDemo->coreInit())labelDictDemixDemo->setText(QString(strAppDirectory.c_str()));
+          if (guiCallBackDemo->coreInit())guiCallBackDemo->setDictionary(QString(strAppDirectory.c_str()));
+          dictOpenDemoDefault = true;
+          groupBox_19->hide();
+        }
+
 #else
       char path[2048];
       getcwd(path, 2004);
@@ -647,21 +649,21 @@ else
       strAppDirectory += "/dic_gabor_two_scales.xml";
       FILE *fp = fopen (strAppDirectory.c_str(), "r");
       if (fp == NULL)
-{
-   /* no files*/
-   dialog->errorMessage("Cannot open dictionary file\n Please open a dictionary or use the custom dictionary");
-}
-else
-{
-   /* files */
-   fclose(fp);
-   if (guiCallBackDemo->coreInit())labelDictDemixDemo->setText(QString(strAppDirectory.c_str()));
-   if (guiCallBackDemo->coreInit())guiCallBackDemo->setDictionary(QString(strAppDirectory.c_str()));
-   dictOpenDemoDefault = true;
-   groupBox_19->hide();
-}
+        {
+          /* no files*/
+          dialog->errorMessage("Cannot open dictionary file\n Please open a dictionary or use the custom dictionary");
+        }
+      else
+        {
+          /* files */
+          fclose(fp);
+          if (guiCallBackDemo->coreInit())labelDictDemixDemo->setText(QString(strAppDirectory.c_str()));
+          if (guiCallBackDemo->coreInit())guiCallBackDemo->setDictionary(QString(strAppDirectory.c_str()));
+          dictOpenDemoDefault = true;
+          groupBox_19->hide();
+        }
 #endif /* WIN32 */
-      
+
     }
 }
 
@@ -671,29 +673,29 @@ void MainWindow::on_btnValidateCustomDict_clicked()
   map<string, string, mp_ltstring>* parameterCustomBlock2 = new map<string, string, mp_ltstring>();
   if (guiCallBackDemo->coreInit() && !dictOpenDemo)
     {
-   
-          MP_Block_Factory_c::get_block_factory()->get_block_default_map(comboBoxBlock1Type->currentText().toStdString().c_str())(parameterCustomBlock1);
 
-          if (lineEditCustomBlock1WindowLen->text().toInt()> 0)
-            {
-              (*parameterCustomBlock1)["windowLen"] = lineEditCustomBlock1WindowLen->text().toStdString();
-              
-            }
-          if (lineEditCustomBlock1FftSize->text().toInt()> 0 && lineEditCustomBlock1FftSize->text().toInt()%2 ==0)
-           {
-           (*parameterCustomBlock1)["fftSize"] = lineEditCustomBlock1FftSize->text().toStdString();
-           }
-  
-          MP_Block_Factory_c::get_block_factory()->get_block_default_map(comboBoxBlock2Type->currentText().toStdString().c_str())(parameterCustomBlock2);
-          if (lineEditCustomBlock2WindowLen->text().toInt()> 0)
-            {
-              (*parameterCustomBlock2)["windowLen"] = lineEditCustomBlock2WindowLen->text().toStdString();
-              
-            }
-           if (lineEditCustomBlock2FftSize->text().toInt()> 0 && lineEditCustomBlock2FftSize->text().toInt()%2 ==0)
-           {
-           (*parameterCustomBlock2)["fftSize"] = lineEditCustomBlock2FftSize->text().toStdString();
-           }
+      MP_Block_Factory_c::get_block_factory()->get_block_default_map(comboBoxBlock1Type->currentText().toStdString().c_str())(parameterCustomBlock1);
+
+      if (lineEditCustomBlock1WindowLen->text().toInt()> 0)
+        {
+          (*parameterCustomBlock1)["windowLen"] = lineEditCustomBlock1WindowLen->text().toStdString();
+
+        }
+      if (lineEditCustomBlock1FftSize->text().toInt()> 0 && lineEditCustomBlock1FftSize->text().toInt()%2 ==0)
+        {
+          (*parameterCustomBlock1)["fftSize"] = lineEditCustomBlock1FftSize->text().toStdString();
+        }
+
+      MP_Block_Factory_c::get_block_factory()->get_block_default_map(comboBoxBlock2Type->currentText().toStdString().c_str())(parameterCustomBlock2);
+      if (lineEditCustomBlock2WindowLen->text().toInt()> 0)
+        {
+          (*parameterCustomBlock2)["windowLen"] = lineEditCustomBlock2WindowLen->text().toStdString();
+
+        }
+      if (lineEditCustomBlock2FftSize->text().toInt()> 0 && lineEditCustomBlock2FftSize->text().toInt()%2 ==0)
+        {
+          (*parameterCustomBlock2)["fftSize"] = lineEditCustomBlock2FftSize->text().toStdString();
+        }
 
       guiCallBackDemo->initDictionary();
       guiCallBackDemo->addCustomBlockToDictionary(parameterCustomBlock1);
@@ -807,11 +809,12 @@ void MainWindow::on_lineEditCustomBlock1WindowLen_textEdited()
   lineEditCustomBlock1WindowLenSec->setText(buf);
 
 }
-void MainWindow::on_lineEditCustomBlock1FftSize_textEdited(){
+void MainWindow::on_lineEditCustomBlock1FftSize_textEdited()
+{
   char buf[32];
   sprintf(buf, "%f",1000.0*lineEditCustomBlock1FftSize->text().toULong()/guiCallBackDemo->getSignalSampleRate());
   lineEditCustomBlock1FftSizeSec->setText(buf);
-	
+
 }
 
 void MainWindow::on_lineEditCustomBlock2WindowLen_textEdited()
@@ -821,11 +824,12 @@ void MainWindow::on_lineEditCustomBlock2WindowLen_textEdited()
   lineEditCustomBlock2WindowLenSec->setText(buf);
 
 }
-void MainWindow::on_lineEditCustomBlock2FftSize_textEdited(){
-	 char buf[32];
+void MainWindow::on_lineEditCustomBlock2FftSize_textEdited()
+{
+  char buf[32];
   sprintf(buf, "%f",1000.0*lineEditCustomBlock2FftSize->text().toULong()/guiCallBackDemo->getSignalSampleRate());
   lineEditCustomBlock2FftSizeSec->setText(buf);
-	
+
 }
 
 void MainWindow::on_lineEditCustomBlock1WindowLenSec_textEdited()
@@ -844,28 +848,51 @@ void MainWindow::on_lineEditCustomBlock2WindowLenSec_textEdited()
 
 void MainWindow::iteration_running(bool status)
 {
-if (status)label_progress->setText("<font color=\"#FF0000\">Decomposition in progress</font>");
-else { label_progress->setText("<font color=green>Decomposition ended with success</font>");
-   textEditConsol->append("Decompostion ended");
-   textEditConsol->update();
-}
+  if (status) label_progress->setText("<font color=\"#FF0000\">Decomposition in progress</font>");
+  else
+    {
+      label_progress->setText("<font color=green>Decomposition ended with success</font>");
+      textEditConsol->append("Decompostion ended");
+      textEditConsol->update();
+    }
+}    
+  void MainWindow::iteration_running_demo(bool status)
+  {
+    if (status)
+      {
+        label_progress_Demo->setText("<font color=\"#FF0000\">Decomposition in progress</font>");
+        btnDecomposeDemo->hide();
+      }
+    else
+      {
+        label_progress_Demo->setText("<font color=green>Decomposition ended with success</font>");
+        textEditConsolDemo->append("Decompostion ended");
+        textEditConsolDemo->update();
+        btnDecomposeDemo->show();
 
-}
-void MainWindow::iteration_running_demix(bool status){
-if (status)label_progressDemix->setText("<font color=\"#FF0000\">Decomposition in progress</font>");
-else { label_progressDemix->setText("<font color=green>Decomposition ended with success</font>");
-   textEditConsolDemix->append("Decompostion ended");
-   textEditConsolDemix->update();}
-}
+      }
 
-void MainWindow::on_btnDecomposeDemo_clicked(){
-	      if (lineEditSeparateValueDemo->text().toULong()>0)
-        {
-          if (checkBoxTransientUnit->isChecked())guiCallBackDemo->separate(lineEditSeparateValueDemo->text().toULong());
-          else guiCallBackDemo->separate((unsigned long int)(lineEditSeparateValueDemo->text().toULong()*guiCallBackDemo->getSignalSampleRate()/1000)); //
-        }
-      else guiCallBackDemo->separate(200);
-      textEditConsolDemo->append("Decomposition for demo is finished");
-      textEditConsolDemo->update();
-}
+  }
+  void MainWindow::iteration_running_demix(bool status)
+  {
+    if (status)label_progressDemix->setText("<font color=\"#FF0000\">Decomposition in progress</font>");
+    else
+      {
+        label_progressDemix->setText("<font color=green>Decomposition ended with success</font>");
+        textEditConsolDemix->append("Decompostion ended");
+        textEditConsolDemix->update();
+      }
+  }
+
+  void MainWindow::on_btnDecomposeDemo_clicked()
+  {
+    if (lineEditSeparateValueDemo->text().toULong()>0)
+      {
+        if (checkBoxTransientUnit->isChecked())guiCallBackDemo->separate(lineEditSeparateValueDemo->text().toULong());
+        else guiCallBackDemo->separate((unsigned long int)(lineEditSeparateValueDemo->text().toULong()*guiCallBackDemo->getSignalSampleRate()/1000)); //
+      }
+    else guiCallBackDemo->separate(200);
+    textEditConsolDemo->append("Separation for demo is finished");
+    textEditConsolDemo->update();
+  }
 

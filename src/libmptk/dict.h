@@ -199,7 +199,7 @@ class MP_Dict_c
     /** \brief Parse dictionary in xml format using
     * tiny XML library.
     *
-    *  \param fName A string containing the file name
+    *  \param doc A TiXmlDocument
     *  \return an error number
     */
     int parse_xml_file(TiXmlDocument doc);
@@ -262,7 +262,7 @@ class MP_Dict_c
     /** \brief Create a block using the factory method
     *
     *
-    * \param pParent The TiXmlNode to parse.
+    * \param setPropertyMap a map containning the parameter of the block to create
     * \param setSignal a a signal to plug the block
     *
     *
