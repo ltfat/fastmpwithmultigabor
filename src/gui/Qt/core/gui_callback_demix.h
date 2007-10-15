@@ -95,19 +95,46 @@ class MP_Gui_Callback_Demix_c:public MP_Gui_Callback_Abstract_c
       *  \param index an int to indicate the position of the dictionary
       *  */
     void addDictToArray(QString fileName, int index);
-      /** \brief a method to add a dictionary to the array 
-      *  \param fileName the name of the dictionary
-      *  \param index an int to indicate the position of the dictionary
-      *  */
+      /** \brief a method to know the state  of the mpd core
+       *  \return a bool to indicate the state of the core
+       */
     bool coreInit();
+       /** \brief a method to initialize
+       *  \return a bool to indicate success
+       */
     bool initMpdDemixCore();
+       /** \brief a method to set the dict array
+       *  \return a bool to indicate success
+       */
     bool setDictArray();
+       /** \brief a method to plug the approximant
+       *  \return a bool to indicate success
+       */
     bool plugApprox();
+       /** \brief a method to plug the approximant
+       *  \return a bool to indicate success
+       */
     int setBookArray();
+       /** \brief a method to plug the approximant
+       *  \return a bool to indicate success
+       */
     int getBookOpen();
+       /** \brief a method to plug the approximant
+       *  \return a bool to indicate success
+       */
     void saveBook(QString fileName);
+       /** \brief a method to plug the approximant
+       *  \return a bool to indicate success
+       */
     void saveApprox(QString fileName);
+       /** \brief a method to plug the approximant
+        *  \param setSaveHit  unsigned long int indicate the frequency of saving data
+       *  \return a bool to indicate success
+       */
     void setSave(const unsigned long int setSaveHit,QString bookFileName, QString resFileName,QString decayFileName, QString sequenceFileName);
+       /** \brief a method to plug the approximant
+       *  \return a bool to indicate success
+       */
     virtual int openSignal(QString fileName);
   };
 

@@ -283,6 +283,8 @@ MPTK_Server_c::MPTK_Server_c()
 MPTK_Server_c::~MPTK_Server_c()
 {}
 
+
+
 /*Get MPTK_Server_c instance */
 MPTK_Server_c* MPTK_Server_c::get_server()
 {
@@ -296,14 +298,8 @@ MPTK_Server_c* MPTK_Server_c::get_server()
 /*Get MP_Msg_Server_c instance */
 MP_Msg_Server_c* MPTK_Server_c::get_msg_server()
 {
-  if (!myServer)
-    {
-      myServer = new MPTK_Server_c();
-    }
-  if (!myServer->myMsgServer)
-    {
-      myMsgServer = new MP_Msg_Server_c();
-    }
+  myMsgServer= MP_Msg_Server_c::get_msg_server();
+ // MP_Msg_Server_c::get_msg_server()->register_display_function("default_error_message_display",&MPTK_Env_c::default_display_error_function);
   return  myMsgServer;
 }
 
@@ -316,7 +312,7 @@ MP_Win_Server_c* MPTK_Server_c::get_win_server()
     }
   if (!myServer->myMsgServer)
     {
-      myMsgServer = new MP_Msg_Server_c;
+      myMsgServer = MP_Msg_Server_c::get_msg_server();
     }
   if (!myServer->myWinServer)
     {
@@ -334,7 +330,7 @@ MP_Anywave_Server_c* MPTK_Server_c::get_anywave_server()
     }
   if (!myServer->myMsgServer)
     {
-      myMsgServer = new MP_Msg_Server_c;
+      myMsgServer = MP_Msg_Server_c::get_msg_server();
     }
   if (!myServer->myWinServer)
     {

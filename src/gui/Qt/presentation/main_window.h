@@ -85,6 +85,8 @@ class MainWindow: public QMainWindow, private Ui::MainWindow
     /**  \brief Boolean to indicate if the stop contrait has been set   */
     bool stopContraintSet;
 
+
+   static  MainWindow * myMainWindow;
     /***********/
     /* METHODS */
     /***********/
@@ -211,6 +213,8 @@ class MainWindow: public QMainWindow, private Ui::MainWindow
     void on_lineEditCustomBlock1WindowLenSec_textEdited();
      /**  \brief A slot */
     void on_lineEditCustomBlock2WindowLenSec_textEdited();
+    
+    void on_btnOpenDefaultMixerDemix_clicked();
   public slots:
    /**  \brief A slot */
     void iteration_running(bool status);
@@ -219,11 +223,15 @@ class MainWindow: public QMainWindow, private Ui::MainWindow
      /**  \brief A slot */
     void iteration_running_demo(bool status);
   public:
-    /**  \brief Method to shox the message of the sdtout in the consol of the gui
-     *   \note Work only on linux platform
+    /**  \brief Method to show the message of the sdtout in the consol of the gui for the tab mpd
      */
-    void readFromStdout(QString message);
-
+    
+    static void displayOnConsol(char* message);
+    static void displayOnConsolDemix(char* message);
+    static void displayOnConsolDemo(char* message);
+    static void displayOnWarning(char* message);
+    static void displayOnError(char* message);
+    static MainWindow * get_main_window();
   };
 
 #endif /*MAIN_WINDOW_H_*/

@@ -34,6 +34,8 @@
 /**********************************************************/
 #include "main_window.h"
 
+
+MainWindow * MainWindow::myMainWindow = NULL;
 // Constructor
 MainWindow::MainWindow(QWidget *parent): QMainWindow(parent)
 {
@@ -63,6 +65,9 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent)
   connect(guiCallBack, SIGNAL(runningIteration(bool)), this, SLOT(iteration_running(bool)));
   connect(guiCallBackDemix, SIGNAL(runningIteration(bool)), this, SLOT(iteration_running_demix(bool)));
   connect(guiCallBackDemo, SIGNAL(runningIteration(bool)), this, SLOT(iteration_running_demo(bool)));
+  MP_Msg_Server_c::get_msg_server()->register_display_function("info_message_display",&MainWindow::displayOnConsol);
+  MP_Msg_Server_c::get_msg_server()->register_display_function("error_message_display",&MainWindow::displayOnError);
+  MP_Msg_Server_c::get_msg_server()->register_display_function("warning_message_display",&MainWindow::displayOnWarning);
 }
 
 
@@ -89,37 +94,65 @@ MainWindow::~MainWindow()
 
 }
 
+MainWindow * MainWindow::get_main_window(){
+	
+	  if (!myMainWindow)
+    {
+      myMainWindow = new MainWindow();
+    }
+return myMainWindow;
+
+}
+void MainWindow::displayOnConsol(char* message){
+MainWindow::get_main_window()->textEditConsol->append( QString(message));
+MainWindow::get_main_window()->textEditConsol->update(); 
+}
+
+void MainWindow::displayOnConsolDemix(char* message){
+MainWindow::get_main_window()->textEditConsolDemix->append( QString(message));
+MainWindow::get_main_window()->textEditConsolDemix->update(); 
+}
+
+void MainWindow::displayOnConsolDemo(char* message){
+MainWindow::get_main_window()->textEditConsolDemo->append( QString(message));
+MainWindow::get_main_window()->textEditConsolDemo->update(); 
+}
+
+void MainWindow::displayOnWarning(char* message){
+MainWindow::get_main_window()->dialog->warningMessage(QString(message));
+}
+void MainWindow::displayOnError(char* message){
+MainWindow::get_main_window()->dialog->errorMessage(QString(message));
+}
 // When user change the current tab
 void MainWindow::on_tabWidget_currentChanged()
 {
   if (tabWidget->currentIndex()== 1)
     {
-      if (guiCallBack->getActivated())
-        {
-          guiCallBack->setDesactivated();
-
-        }
+      if (guiCallBack->getActivated()) guiCallBack->setDesactivated();
+      if (guiCallBackDemo->getActivated())guiCallBackDemo->setDesactivated();
+        
       guiCallBackDemix->setActivated();
+      MP_Msg_Server_c::get_msg_server()->register_display_function("info_message_display",&MainWindow::displayOnConsolDemix);
     }
   else if (tabWidget->currentIndex()== 0)
     {
-      if (guiCallBackDemix->getActivated())
-        {
-          guiCallBackDemix->setDesactivated();
-        }
+      if (guiCallBackDemix->getActivated())guiCallBackDemix->setDesactivated();
+      if (guiCallBackDemo->getActivated())guiCallBackDemo->setDesactivated();
+        
       guiCallBack->setActivated();
+      MP_Msg_Server_c::get_msg_server()->register_display_function("info_message_display",&MainWindow::displayOnConsol);
     }
   else if (tabWidget->currentIndex()== 2)
     {
       guiCallBackDemo->setActivated();
+      MP_Msg_Server_c::get_msg_server()->register_display_function("info_message_display",&MainWindow::displayOnConsolDemo);
       if (guiCallBackDemix->getActivated()) guiCallBackDemix->setDesactivated();
       if (guiCallBack->getActivated()) guiCallBack->setDesactivated();
 
     }
 
 }
-
-
 // play in mpd tab
 void MainWindow::on_btnPlay_clicked()
 {
@@ -279,6 +312,8 @@ void MainWindow::on_comboBoxSnrDemo_activated()
 void MainWindow::on_pushButtonIterateAll_clicked()
 {
   if (guiCallBack->coreInit()&&dictOpen)guiCallBack->iterateAll();
+  else dialog->errorMessage("parameter not correctly set");
+  
 }
 
 void MainWindow::on_pushButtonSaveBook_clicked()
@@ -446,13 +481,6 @@ void MainWindow::on_btnOpenMixer_clicked()
     }
   else dialog->errorMessage("Empty name file");
 
-}
-
-void MainWindow::readFromStdout(QString message)
-{
-  // Read and process the data.
-  // Bear in mind that the data might be output in chunks.
-  textEditConsol->append( message );
 }
 
 void MainWindow::on_btnOpenDictDemix_clicked()
@@ -667,6 +695,69 @@ void MainWindow::on_btnValidateDefautlDict_clicked()
     }
 }
 
+void MainWindow::on_btnOpenDefaultMixerDemix_clicked(){
+  std::string strAppDirectory;
+
+#ifdef __WIN32__
+      char szAppPath[MAX_PATH] = "";
+
+      GetModuleFileName(NULL, szAppPath, MAX_PATH);
+
+      /* Extract directory*/
+      strAppDirectory = szAppPath;
+
+      strAppDirectory = strAppDirectory.substr(0, strAppDirectory.rfind("\\"));
+      strAppDirectory += "\\mix_58_mixer.txt";
+      FILE *fp = fopen (strAppDirectory.c_str(), "r");
+      if (fp == NULL)
+        {
+          /* no files*/
+          dialog->errorMessage("Cannot open dictionary file\n Please open a dictionary or use the custom dictionary");
+        }
+      else
+        {
+          /* files */
+          fclose(fp);
+      if (guiCallBackDemix->openMixer(QString(strAppDirectory.c_str())))
+        {
+          //labelBookMixer->setText(strAppDirectory);
+          char buf[3];
+          sprintf(buf, "%d", guiCallBackDemix->mixer->numSources);
+          labelBookMixeeNbrSources->setText(buf);
+        }
+      else dialog->errorMessage("Cannot open mixer file");
+        }
+
+#else
+      char path[2048];
+      getcwd(path, 2004);
+      strAppDirectory = path;
+      strAppDirectory += "/mix_58_mixer.txt";
+      FILE *fp = fopen (strAppDirectory.c_str(), "r");
+      if (fp == NULL)
+        {
+          /* no files*/
+          dialog->errorMessage("Cannot open dictionary file\n Please open a dictionary or use the custom dictionary");
+        }
+      else
+        {
+          /* files */
+          fclose(fp);
+           if (guiCallBackDemix->openMixer(QString(strAppDirectory.c_str())))
+        {
+          //labelBookMixer->setText(strAppDirectory);
+          char buf[3];
+          sprintf(buf, "%d", guiCallBackDemix->mixer->numSources);
+          labelBookMixeeNbrSources->setText(buf);
+        }
+      else dialog->errorMessage("Cannot open mixer file");
+        }
+#endif /* WIN32 */
+
+    
+
+}
+
 void MainWindow::on_btnValidateCustomDict_clicked()
 {
   map<string, string, mp_ltstring>* parameterCustomBlock1 = new map<string, string, mp_ltstring>();
@@ -852,7 +943,6 @@ void MainWindow::iteration_running(bool status)
   else
     {
       label_progress->setText("<font color=green>Decomposition ended with success</font>");
-      textEditConsol->append("Decompostion ended");
       textEditConsol->update();
     }
 }    
@@ -866,7 +956,6 @@ void MainWindow::iteration_running(bool status)
     else
       {
         label_progress_Demo->setText("<font color=green>Decomposition ended with success</font>");
-        textEditConsolDemo->append("Decompostion ended");
         textEditConsolDemo->update();
         btnDecomposeDemo->show();
 
@@ -879,7 +968,6 @@ void MainWindow::iteration_running(bool status)
     else
       {
         label_progressDemix->setText("<font color=green>Decomposition ended with success</font>");
-        textEditConsolDemix->append("Decompostion ended");
         textEditConsolDemix->update();
       }
   }
@@ -892,7 +980,6 @@ void MainWindow::iteration_running(bool status)
         else guiCallBackDemo->separate((unsigned long int)(lineEditSeparateValueDemo->text().toULong()*guiCallBackDemo->getSignalSampleRate()/1000)); //
       }
     else guiCallBackDemo->separate(200);
-    textEditConsolDemo->append("Separation for demo is finished");
     textEditConsolDemo->update();
   }
 

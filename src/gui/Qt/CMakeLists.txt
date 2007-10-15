@@ -21,6 +21,10 @@ CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/dictionary/dic_gabor_two_scales.xml 
                  COPYONLY) 
 CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/signal/glockenspiel.wav ${MPTK_BINARY_DIR}/bin/glockenspiel.wav
                  COPYONLY) 
+CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/signal/mix_58_stereo.wav ${MPTK_BINARY_DIR}/bin/mix_58_stereo.wav
+                 COPYONLY)
+CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/mixer/mix_58_mixer.txt ${MPTK_BINARY_DIR}/bin/mix_58_mixer.txt
+                 COPYONLY) 
 
 # the variable "qtproject_SRCS" contains all .cpp files of this project
 IF(WIN32)
@@ -121,6 +125,6 @@ INSTALL(TARGETS
 MPTK-GUI RUNTIME DESTINATION bin
 )
 INSTALL(FILES
-${MPTK_BINARY_DIR}/bin/dic_gabor_two_scales.xml ${MPTK_BINARY_DIR}/bin/glockenspiel.wav DESTINATION bin
+${MPTK_BINARY_DIR}/bin/dic_gabor_two_scales.xml ${MPTK_BINARY_DIR}/bin/glockenspiel.wav ${MPTK_BINARY_DIR}/bin/mix_58_stereo.wav  ${MPTK_BINARY_DIR}/bin/mix_58_mixer.txt DESTINATION bin
 )
 

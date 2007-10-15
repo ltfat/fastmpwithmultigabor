@@ -128,16 +128,19 @@ MP_Mpd_Core_c::MP_Mpd_Core_c() {
 	
 	/* File names */
     bookFileName  =  NULL;
+    approxFileName   = NULL;
   
 	/* Manipulated objects */
 	dict = NULL;
     book = NULL;
+    approximant = NULL;
 }
 
 /**************/
 /* Destructor */
 MP_Mpd_Core_c::~MP_Mpd_Core_c() {
 	if (bookFileName) free(bookFileName);
+	if (approxFileName) free(approxFileName);
 }
 
 
@@ -373,12 +376,15 @@ unsigned short int MP_Mpd_Core_c::step() {
 /**********************************/
 /* Check if some objects are null */
 MP_Bool_t MP_Mpd_Core_c::can_step( void ) {
+	 const char* func = "can_step";
   /* Check that all of dict, book and signal are not NULL */
   if (dict  &&  book) {
   if (dict->signal) return true;
-  else return false;
+  else { mp_error_msg( func,"book or dict are not set .\n"); 
+  	return false;}
   }
-  else return false;
+  else { mp_error_msg( func,"dict has no signal plugged .\n"); 
+  	return false;}
 }
 
 

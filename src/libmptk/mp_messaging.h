@@ -47,6 +47,7 @@
 #include "mp_system.h"
 
 #include <iostream>
+#include <hash_map.h>
 
 using namespace std;
 
@@ -105,30 +106,6 @@ using namespace std;
 #define MP_DEBUG_ALL  ULONG_MAX
 #define MP_DEBUG_NONE 0
 
-
-/*******************/
-/* DEFAULT STREAMS */
-/*******************/
-
-/** \brief The default global output stream. */
-#define MP_DEFAULT_MSG_STREAM  cerr
-
-/** \brief The default error stream. */
-#define MP_DEFAULT_ERROR_STREAM MP_DEFAULT_MSG_STREAM
-
-/** \brief The default warning stream. */
-#define MP_DEFAULT_WARNING_STREAM MP_DEFAULT_MSG_STREAM
-
-/** \brief The default info stream. */
-#define MP_DEFAULT_INFO_STREAM MP_DEFAULT_MSG_STREAM
-
-/** \brief The default progress stream. */
-#define MP_DEFAULT_PROGRESS_STREAM MP_DEFAULT_MSG_STREAM
-
-/** \brief The default debug stream. */
-#define MP_DEFAULT_DEBUG_STREAM MP_DEFAULT_MSG_STREAM
-
-
 /*******************/
 /* OTHER CONSTANTS */
 /*******************/
@@ -151,7 +128,20 @@ class MP_Msg_Server_c {
   /********/
 
 public:
+    /** \brief Public struct to compare the value in hash map */
+    struct function_name_eqstr
+      {
+        bool operator()(const char* s1, const char* s2) const
+          { 	
+            return strcmp(s1, s2) == 0;
+          }
+      };
+protected:
+/** \brief Protected pointer on MP_Atom_Factory_c*/
+static MP_Msg_Server_c * myMsgServer;
 
+public:
+hash_map<const char*, void(*)(char * message), hash<const char*>, function_name_eqstr> displayFunction;
   /** \brief A default buffer, to store the current message string. */  
   char *stdBuff;
 #define MP_DEFAULT_STDBUFF_SIZE 2048
@@ -193,7 +183,7 @@ public:
   /** \brief Granularity before a realloc of the msg stack occurs */
 #define MP_MSG_STACK_GRANULARITY 128
 
-
+ 
     
   /***********/
   /* METHODS */
@@ -202,15 +192,23 @@ public:
   /***************************/
   /* CONSTRUCTORS/DESTRUCTOR */
   /***************************/
-private:
- 
+
 
 public:
-
+  static void default_display_error_function(char* message);
+  /** \brief Method to get the MP_Atom_Factory_c */
+  static MP_Msg_Server_c * get_msg_server();
  /** \brief A plain constructor **/
-  MP_Msg_Server_c( void );
+  
   /** \brief A plain destructor **/
   virtual ~MP_Msg_Server_c( void );
+  void register_display_function(const char* functionType, void(*displayFunctionPointer)(char * message));
+  void (*get_display_function( const char* functionType))(char * message);
+
+
+private:
+MP_Msg_Server_c( void );
+
 };
 
 /***************************************/

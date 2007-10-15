@@ -43,6 +43,7 @@
 
 #include "mptk.h"
 #include "mp_system.h"
+#include "mp_messaging.h"
 #include <iostream>
 
 using namespace std;
@@ -52,6 +53,8 @@ using namespace std;
 /* WITH GLOBAL SCOPE                 */
 /*************************************/
 
+/*Initialise pointer to MsgServer instance */
+MP_Msg_Server_c * MP_Msg_Server_c::myMsgServer = NULL;
 
 /***************************/
 /* CONSTRUCTORS/DESTRUCTOR */
@@ -76,13 +79,6 @@ MP_Msg_Server_c::MP_Msg_Server_c( void ) {
   /* Set the default handler */
   errorHandler = warningHandler = infoHandler = progressHandler = debugHandler = MP_FLUSH;
 
-  /* Set the default output file values */
-  errorStream = MP_DEFAULT_ERROR_STREAM;
-  warningStream = MP_DEFAULT_WARNING_STREAM;
-  infoStream = MP_DEFAULT_INFO_STREAM;
-  progressStream = MP_DEFAULT_PROGRESS_STREAM;
-  debugStream = MP_DEFAULT_DEBUG_STREAM;
-
   /* Initialize the debug mask to "all messages" */
   debugMask = MP_DEBUG_ALL;
 
@@ -91,6 +87,13 @@ MP_Msg_Server_c::MP_Msg_Server_c( void ) {
   msgTypeStack = NULL;
   stackSize = 0;
   maxStackSize = 0;
+  
+  displayFunction = hash_map<const char*, void(*)(char * message), hash<const char*>, function_name_eqstr>(1);
+  register_display_function("info_message_display",&MP_Msg_Server_c::default_display_error_function);
+  register_display_function("error_message_display",&MP_Msg_Server_c::default_display_error_function);
+  register_display_function("warning_message_display",&MP_Msg_Server_c::default_display_error_function);
+  register_display_function("progress_message_display",&MP_Msg_Server_c::default_display_error_function);
+  register_display_function("debug_message_display",&MP_Msg_Server_c::default_display_error_function);
 
 #ifndef NDEBUG
 cerr << MP_LIB_STR_PREFIX << " DEBUG -- MP_Msg_Server_c -- Exiting the messaging server constructor.\n" << flush;
@@ -130,6 +133,25 @@ cerr << MP_LIB_STR_PREFIX << " DEBUG -- ~MP_Msg_Server_c -- Exiting the messagin
 
 /* TODO: push/pop messages to/from the stack. */
 
+void MP_Msg_Server_c::register_display_function(const char* functionType, void(*displayFunctionPointer)(char * message)){
+MP_Msg_Server_c::displayFunction[functionType]=displayFunctionPointer;
+}
+
+void (*MP_Msg_Server_c::get_display_function( const char* functionType )) (char * message) 
+{
+	
+return MP_Msg_Server_c::get_msg_server()->displayFunction[functionType];
+
+}
+
+MP_Msg_Server_c * MP_Msg_Server_c::get_msg_server()
+{
+  if (!MP_Msg_Server_c::myMsgServer)
+    {
+      MP_Msg_Server_c::myMsgServer = new MP_Msg_Server_c();
+    }
+  return  MP_Msg_Server_c::myMsgServer;
+}
 
 /***********************/
 /* MESSAGE HANDLERS    */
@@ -138,7 +160,11 @@ cerr << MP_LIB_STR_PREFIX << " DEBUG -- ~MP_Msg_Server_c -- Exiting the messagin
 /***********************************************************/
 /* Handler which flushes the output to the relevant stream */
 void mp_msg_handler_flush( void ) {
-
+ void (*errorDisplay)( char * message) = NULL;
+ void (*infoDisplay)( char * message) = NULL;
+ void (*warningDisplay)( char * message) = NULL;
+ void (*progressDisplay)( char * message) = NULL;
+ void (*debugDisplay)( char * message) = NULL;
   switch ( MPTK_Server_c::get_msg_server()->currentMsgType ) {
 
   case MP_MSG_NULL:
@@ -150,38 +176,24 @@ void mp_msg_handler_flush( void ) {
     break;
 
   case MP_ERROR:
-    if ( MPTK_Server_c::get_msg_server()->errorStream == NULL ) return;
-    if ( MPTK_Server_c::get_msg_server()->errorStream == stderr ){
-    fprintf( (FILE*)MPTK_Server_c::get_msg_server()->errorStream, "%s", MPTK_Server_c::get_msg_server()->stdBuff );
-    fflush( (FILE*)MPTK_Server_c::get_msg_server()->errorStream );}
-    if ( MPTK_Server_c::get_msg_server()->errorStream == cerr )
-    cerr << MPTK_Server_c::get_msg_server()->stdBuff << flush; 
+      errorDisplay = MP_Msg_Server_c::get_msg_server()->get_display_function("error_message_display");
+      if (errorDisplay)errorDisplay(MPTK_Server_c::get_msg_server()->stdBuff);
     break;
 
   case MP_WARNING:
-    if ( MPTK_Server_c::get_msg_server()->warningStream == NULL ) return;
-    if ( MPTK_Server_c::get_msg_server()->warningStream == stderr ){
-    fprintf( (FILE*)MPTK_Server_c::get_msg_server()->warningStream, "%s", MPTK_Server_c::get_msg_server()->stdBuff );
-    fflush( (FILE*)MPTK_Server_c::get_msg_server()->warningStream );}
-    if ( MPTK_Server_c::get_msg_server()->warningStream == cerr )
-    cerr << MPTK_Server_c::get_msg_server()->stdBuff << flush; 
+    warningDisplay = MP_Msg_Server_c::get_msg_server()->get_display_function("warning_message_display");
+    if (warningDisplay)(MPTK_Server_c::get_msg_server()->stdBuff); 
     
     break;
 
   case MP_INFO:
-    if ( MPTK_Server_c::get_msg_server()->infoStream == NULL ) return;
-    if ( MPTK_Server_c::get_msg_server()->infoStream == stderr ){
-    fprintf( (FILE*)MPTK_Server_c::get_msg_server()->infoStream, "%s", MPTK_Server_c::get_msg_server()->stdBuff );
-    fflush( (FILE*)MPTK_Server_c::get_msg_server()->infoStream );}
-    if ( MPTK_Server_c::get_msg_server()->infoStream == cerr )
-     cerr << MPTK_Server_c::get_msg_server()->stdBuff << flush; 
-     
-    break;
+      infoDisplay = MP_Msg_Server_c::get_msg_server()->get_display_function("info_message_display");
+      if (infoDisplay)(MPTK_Server_c::get_msg_server()->stdBuff);
+      break;
 
   case MP_PROGRESS:
-    if ( MPTK_Server_c::get_msg_server()->progressStream == NULL ) return;
-    fprintf( (FILE*)MPTK_Server_c::get_msg_server()->progressStream, "%s", MPTK_Server_c::get_msg_server()->stdBuff );
-    fflush( (FILE*)MPTK_Server_c::get_msg_server()->progressStream );
+    progressDisplay = MP_Msg_Server_c::get_msg_server()->get_display_function("progress_message_display");
+    if (progressDisplay)(MPTK_Server_c::get_msg_server()->stdBuff);
     break;
 
   default:
@@ -195,9 +207,8 @@ void mp_msg_handler_flush( void ) {
       if ( !(MPTK_Server_c::get_msg_server()->currentMsgType & MPTK_Server_c::get_msg_server()->debugMask) )
 	return; /* If the message type does not fit the mask,
 		   stop here and do nothing. */
-      if ( MPTK_Server_c::get_msg_server()->debugStream == NULL ) return;
-      fprintf( (FILE*)MPTK_Server_c::get_msg_server()->debugStream, "%s", MPTK_Server_c::get_msg_server()->stdBuff );
-      fflush( (FILE*)MPTK_Server_c::get_msg_server()->debugStream );
+      debugDisplay = MP_Msg_Server_c::get_msg_server()->get_display_function("debug_message_display");
+      if (debugDisplay)(MPTK_Server_c::get_msg_server()->stdBuff);
     }
     break;
 
@@ -205,7 +216,6 @@ void mp_msg_handler_flush( void ) {
 
   return;
 }
-
 /*********************************************/
 /* Handler which ignores the current message */
 void mp_msg_handler_ignore( void ) {
@@ -542,4 +552,9 @@ size_t mp_debug_msg_forced( FILE *fid, const unsigned long int /* msgType */,
   fflush( fid );
 
   return( done );
+}
+
+void MP_Msg_Server_c::default_display_error_function(char* message){
+fprintf( stderr, "%s", message );
+fflush( stderr );
 }

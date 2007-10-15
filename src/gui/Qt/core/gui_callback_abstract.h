@@ -251,7 +251,7 @@ class MP_Gui_Callback_Abstract_c: public QThread
     /** \brief Method to iterate */
     void iterateAll()
     {
-      if (mpd_Core && getActivated() && mpd_Core->can_step())
+      if (mpd_Core && getActivated()&& mpd_Core->can_step() ) //
         {
           /* display conditions */
           mpd_Core->info_conditions();

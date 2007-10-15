@@ -181,7 +181,7 @@ class MPTK_Env_c
     /** \brief Method to release environnement, desallocate all variables.
     */
     static void release_environment();
-
+    
   };
 
 /***********************/
@@ -203,13 +203,9 @@ class MPTK_Server_c
     /** \brief ptr on myServer's
      * Can only be accessed by get_server()
      */
-    static MPTK_Server_c * myServer;
-
-    /** \brief ptr on myMsgServer's
-    * Can only be accessed by get_msg_server()
-    */
     static MP_Msg_Server_c * myMsgServer;
-
+     
+    static MPTK_Server_c * myServer;
     /** \brief ptr on myWinServer's
     * Can only be accessed by get_win_server()
     */

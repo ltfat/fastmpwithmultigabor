@@ -131,6 +131,7 @@ MP_Mpd_demix_Core_c::MP_Mpd_demix_Core_c()
   maxSrc = 0;
   srcSeqFileName = NULL;
   bookFileName = NULL;
+  approxFileNames = NULL;
 }
 
 /**************/
@@ -204,23 +205,6 @@ std::vector<MP_Dict_c*>* MP_Mpd_demix_Core_c::change_dict( std::vector<MP_Dict_c
     }
 }
 
-/* Runtime settings */
-void MP_Mpd_demix_Core_c::plug_approximant( MP_Signal_c *setApproximant  )
-{
-
-  const char* func = "plug_approximant( MP_Signal_c *setApproximant )";
-  /*
-  	if (bookArray && bookArray->size()>0){
-    approximant = setApproximant = MP_Signal_c::init( (*bookArray)[0]->numChans, (*bookArray)[0]->numSamples, (*bookArray)[0]->sampleRate );
-    if ( approximant == NULL ) {
-      mp_error_msg( func, "Failed to create an approximant in the mpd core."
-      " Returning NULL.\n" );
-     } else 
-  // Rebuild from the book 
-    (*bookArray)[0]->substract_add( NULL, approximant, NULL );
-  	}
-  */
-}
 
 void MP_Mpd_demix_Core_c::plug_approximant( std::vector<MP_Signal_c*> *setApproxArray )
 {
@@ -296,11 +280,11 @@ void MP_Mpd_demix_Core_c::save_result()
 
             if ( verbose )
               {
-                if (numIter >0 ) mp_info_msg( func, "At iteration [%lu] : saved the approximant for source [%u] to file [%s].\n", numIter , j , approxFileName );
+                if (numIter >0 ) mp_info_msg( func, "At iteration [%lu] : saved the approximant for source [%u] to file [%s].\n", numIter , j , approxFileNames->at(j) );
 
                 else
                   {
-                    mp_info_msg( func, "Saved the approximant signal for source [%u] to file [%s]...\n", j , approxFileName );
+                    mp_info_msg( func, "Saved the approximant signal for source [%u] to file [%s]...\n", j , approxFileNames->at(j) );
                     mp_info_msg( func, "The resulting signal has [%lu] samples in [%d] channels, with sample rate [%d]Hz.\n",
                                  approxArray->at(j)->numSamples, approxArray->at(j)->numChans, approxArray->at(j)->sampleRate );
 

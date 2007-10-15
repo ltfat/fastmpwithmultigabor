@@ -78,17 +78,18 @@ class MP_Gui_Callback_c:public MP_Gui_Callback_Abstract_c
     MP_Gui_Callback_c();
     /** \brief Public destructor  */
     virtual ~MP_Gui_Callback_c();
-
+    
+    /** \brief Method to init the mpd core  */
+    int initMpdCore(QString signalName, QString bookName);
     /***************************/
     /* MISC METHODS            */
     /***************************/
-
+    
+    /** \brief Method to init the mpd core  */ 
     int openBook(QString fileName);
-    int initMpdCore(QString signalName, QString bookName);
     void saveBook(QString fileName);
     void saveApproximant(QString fileName);
-
-
+    bool saveDictionary(QString dictName);
     MP_Signal_c * getSignal();
     MP_Signal_c * getApproximant();
     MP_Signal_c * getResidual();
@@ -120,10 +121,7 @@ class MP_Gui_Callback_c:public MP_Gui_Callback_Abstract_c
     unsigned long int get_num_iter(void);
     int getBookOpen();
     void addCustomBlockToDictionary(map<string, string, mp_ltstring>* setPropertyMap);
-    bool saveDictionary(QString dictName);
     void play(MP_Signal_c * sig, std::vector<bool> * v, float startTime, float endTime);
-
-
   };
 
 #endif /*GUI_CALLBACK_H_*/
