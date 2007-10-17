@@ -92,7 +92,7 @@ class MP_Dll_Manager_c
     char *err;
     
     /** \brief vector to stock all the name of the found DLL  */
-    vector <string> dllVectorName;
+    vector <string>* dllVectorName;
 
     /***********/
     /* METHODS */

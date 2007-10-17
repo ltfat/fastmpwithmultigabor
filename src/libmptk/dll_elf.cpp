@@ -36,12 +36,15 @@
 /* NULL constructor */
 MP_Dll_Manager_c::MP_Dll_Manager_c()
 {
+	dllVectorName = new vector <string>();
 }
 
 /**************/
 /* Destructor */
 MP_Dll_Manager_c::~MP_Dll_Manager_c()
 {
+	if (dllVectorName) delete dllVectorName;
+	dllVectorName = NULL;
   /* close the library if it isn't null */
   if ( h!=0 ) dlclose(h);
 }
@@ -51,12 +54,12 @@ MP_Dll_Manager_c::~MP_Dll_Manager_c()
 bool MP_Dll_Manager_c::load_dll()
 {
 	if ( MPTK_Env_c::get_env()->get_config_path("dll_directory")!= NULL){
-  if (MP_Dll_Manager_c::search_library(&dllVectorName, MPTK_Env_c::get_env()->get_config_path("dll_directory")))
+  if (MP_Dll_Manager_c::search_library(dllVectorName, MPTK_Env_c::get_env()->get_config_path("dll_directory")))
     {
       /* for all the shared lib */
-      for (int k = 0; k < dllVectorName.size(); k++)
+      for (int k = 0; k < dllVectorName->size(); k++)
         {
-          MP_Dll_Manager_c::get_dll(dllVectorName.at(k).c_str());
+          MP_Dll_Manager_c::get_dll((*dllVectorName)[k].c_str());
 
           if ( last_error()==0 )
             {
@@ -69,9 +72,9 @@ bool MP_Dll_Manager_c::load_dll()
                       /* Register the plugin in the concerned factory */
                       c();
                     }
-                  else  mp_warning_msg( "MP_Dll_Manager::load_dll","No registry function in '%s' shared library; \n",dllVectorName.at(k).c_str());
+                  else  mp_warning_msg( "MP_Dll_Manager::load_dll","No registry function in '%s' shared library; \n",(*dllVectorName)[k].c_str());
                 }
-              else  mp_warning_msg( "MP_Dll_Manager::load_dll","No registry symbol in '%s' shared library.\n",dllVectorName.at(k).c_str());
+              else  mp_warning_msg( "MP_Dll_Manager::load_dll","No registry symbol in '%s' shared library.\n",(*dllVectorName)[k].c_str());
             }
           else  mp_error_msg( "MP_Dll_Manager::load_dll","Error when loading the dll: '%s' .\n ",last_error());
         }

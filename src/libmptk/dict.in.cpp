@@ -420,6 +420,7 @@ bool MP_Dict_c::parse_property(TiXmlNode * pParent, map<string, PropertiesMap, m
   if ( !pParent )
     {
       return false;
+      mp_error_msg( func, "pParent pointer is NULL" );
     }
   TiXmlNode * parray;
   map<string, string, mp_ltstring> localParameterMap;
@@ -593,6 +594,7 @@ int MP_Dict_c::parse_block(TiXmlNode * pParent, map<string, PropertiesMap, mp_lt
       /* Parse recursivly the list of parameters to create all the block */
 
       count = parse_param_list(varParamMap, blockMap );
+      if (count ==0) mp_error_msg( func, "No bloc added.\n");
       delete(blockMap);
       return count;
 
