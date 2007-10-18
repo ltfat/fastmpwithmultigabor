@@ -222,7 +222,7 @@ int MP_Dict_c::parse_xml_file(TiXmlDocument doc){
         finalcount += count;
          if (0 == count )
             {
-              mp_error_msg( func, "Error while processing block.\n");
+              mp_error_msg( func, "Error while processing block .\n");
               delete(propertyMap);
               return  0;
             } 
@@ -418,9 +418,9 @@ bool MP_Dict_c::parse_property(TiXmlNode * pParent, map<string, PropertiesMap, m
 {
   const char* func = "MP_Dict_c::parse_property(TiXmlNode * pParent, map<const char*, PropertiesMap, mp_ltstring> *setPropertyMap)";
   if ( !pParent )
-    {
+    {mp_error_msg( func, "pParent pointer is NULL" );
       return false;
-      mp_error_msg( func, "pParent pointer is NULL" );
+      
     }
   TiXmlNode * parray;
   map<string, string, mp_ltstring> localParameterMap;
@@ -532,6 +532,11 @@ int MP_Dict_c::parse_block(TiXmlNode * pParent, map<string, PropertiesMap, mp_lt
   map<string, list<string>, mp_ltstring> varParamMap;
   map<string, list<string>, mp_ltstring>::iterator varParamListIterator;
   /*Test if Attribute "uses" exists to refer to the correct blockproperties map*/
+    if ( !pParent )
+    {mp_error_msg( func, "pParent pointer is NULL" );
+      return 0;
+      
+    }
   if (pParent->ToElement()->Attribute("uses")!=0)
     {
 
@@ -605,6 +610,7 @@ int MP_Dict_c::parse_block(TiXmlNode * pParent, map<string, PropertiesMap, mp_lt
       if ((*blockMap)["type"].c_str() != 0)
         {
  count+=  create_block(signal , blockMap);
+ if (count == 0)  mp_error_msg( func, "Cannot create block.\n");
         }
       else
         {
@@ -640,7 +646,8 @@ int MP_Dict_c::parse_param_list(map<string, list<string>, mp_ltstring> setVarPar
       for (paramListIterator = listKeyValue.begin(); paramListIterator != listKeyValue.end(); ++paramListIterator)
         {
           (*blockMapLocal)[key] = (*paramListIterator);
-          count+=parse_param_list(setVarParam, blockMapLocal);      
+          count+=parse_param_list(setVarParam, blockMapLocal);     
+          if (count == 0) mp_error_msg( func, "Error when parsing parameter list\n");
         }
     }
   else
@@ -685,6 +692,8 @@ int MP_Dict_c::parse_param_list(map<string, list<string>, mp_ltstring> setVarPar
    
     }
      delete(blockMapLocal);
+     if (count == 0) mp_warning_msg( func, "Current block has no type."
+                          " Proceeding with the remaining blocks.\n");
      return count;
 }
 

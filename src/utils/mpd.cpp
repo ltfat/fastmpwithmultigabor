@@ -666,9 +666,11 @@ int main( int argc, char **argv )
 
   /*******************/
   /* Clean the house */
-  free_mem( dict, book, sig, mpdCore );  
+   
   if ( !MPD_QUIET ) mp_info_msg( func, "Have a nice day !\n" );
   /* Release MPTK environnement */
+  free_mem( dict, book, sig, mpdCore ); 
   MPTK_Env_c::get_env()->release_environment();
+  
   return( 0 );
 }
