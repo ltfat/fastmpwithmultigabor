@@ -269,7 +269,9 @@ void MainWindow::on_pushButtonIterateOnce_clicked()
 }
 
 void MainWindow::on_comboBoxNumIter_activated()
-{
+{ char buf[32];
+  sprintf(buf, "%lu",comboBoxNumIter->currentText().toULong());
+  lineEditNumIter->setText(buf);
   if (guiCallBack->coreInit())guiCallBack->setIterationNumber(comboBoxNumIter->currentText().toULong());
   if (guiCallBack->coreInit())guiCallBack->unsetSNR();
 }
@@ -289,6 +291,9 @@ void MainWindow::on_comboBoxNumIterDemo_activated()
 
 void MainWindow::on_comboBoxSnr_activated()
 {
+  char buf[32];
+  sprintf(buf, "%f",comboBoxNumIter->currentText().toULong());
+  lineEditSNR->setText(buf);
   if (guiCallBack->coreInit())guiCallBack->setSNR(comboBoxSnr->currentText().toDouble());
   if (guiCallBack->coreInit())guiCallBack->unsetIter();
 }
@@ -310,7 +315,7 @@ void MainWindow::on_comboBoxSnrDemo_activated()
 
 
 void MainWindow::on_pushButtonIterateAll_clicked()
-{
+{ pushButtonIterateAll->setText("Iterate all");
   if (guiCallBack->coreInit()&&dictOpen)guiCallBack->iterateAll();
   else dialog->errorMessage("parameter not correctly set");
   
@@ -907,6 +912,16 @@ void MainWindow::on_lineEditCustomBlock1FftSize_textEdited()
   lineEditCustomBlock1FftSizeSec->setText(buf);
 
 }
+void MainWindow::on_lineEditNumIter_textEdited(){
+	if (guiCallBack->coreInit())guiCallBack->setIterationNumber(lineEditNumIter->text().toULong());
+    if (guiCallBack->coreInit())guiCallBack->unsetSNR();
+
+}
+void MainWindow::on_lineEditSNR_textEdited(){
+	if (guiCallBack->coreInit())guiCallBack->setSNR(lineEditSNR->text().toDouble());
+    if (guiCallBack->coreInit())guiCallBack->unsetIter();
+
+}
 
 void MainWindow::on_lineEditCustomBlock2WindowLen_textEdited()
 {
@@ -944,6 +959,9 @@ void MainWindow::iteration_running(bool status)
     {
       label_progress->setText("<font color=green>Decomposition ended with success</font>");
       textEditConsol->update();
+      char buf[32];
+      sprintf(buf, "%lu",guiCallBack->getNumIter());
+      labelNumIter->setText(buf);
     }
 }    
   void MainWindow::iteration_running_demo(bool status)
@@ -983,3 +1001,11 @@ void MainWindow::iteration_running(bool status)
     textEditConsolDemo->update();
   }
 
+  void MainWindow::on_pushButtonStopIterate_clicked(){
+  	char buf[32];
+    sprintf(buf, "%lu",guiCallBack->getNumIter());
+    labelNumIter->setText(buf);
+    pushButtonIterateAll->setText("Resume");
+
+  
+  }

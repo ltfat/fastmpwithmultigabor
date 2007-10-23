@@ -328,6 +328,11 @@ class MP_Gui_Callback_Abstract_c: public QThread
     /** \brief Method to save the residual decay in a text file
     *  \param fileName: name of the file to save
     */
+    unsigned long int getNumIter(void)
+    {
+      if (mpd_Core && getActivated()) return mpd_Core->get_num_iter();
+      if (mpd_Demix_Core && getActivated())return mpd_Demix_Core->get_num_iter();
+    }
 
     void saveDecay(QString fileName)
     {

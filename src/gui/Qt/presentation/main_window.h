@@ -37,6 +37,7 @@
 using namespace std;
 
 #include "ui_MPTK_GUI_APP.h"
+#include <QMetaType>
 #include "dialog.h"
 #include "../core/gui_callback.h"
 #include "../core/gui_callback_demix.h"
@@ -51,7 +52,6 @@ using namespace std;
 #include <QMainWindow>
 #include <QMessageBox>
 #include <QFileDialog>
-
 /**
  * \brief MainWindow is a class that provides the GUI for MPTK library
  * \note inherit from the window defined in designer Ui::MainWindow and QMainWindow
@@ -59,7 +59,7 @@ using namespace std;
 class MainWindow: public QMainWindow, private Ui::MainWindow
   {
     Q_OBJECT
-
+   // Q_DECLARE_METATYPE(QMetaType::QTextCursor)
     /********/
     /* DATA */
     /********/
@@ -213,8 +213,10 @@ class MainWindow: public QMainWindow, private Ui::MainWindow
     void on_lineEditCustomBlock1WindowLenSec_textEdited();
      /**  \brief A slot */
     void on_lineEditCustomBlock2WindowLenSec_textEdited();
-    
+     void on_pushButtonStopIterate_clicked();
     void on_btnOpenDefaultMixerDemix_clicked();
+    void on_lineEditNumIter_textEdited();
+    void on_lineEditSNR_textEdited();
   public slots:
    /**  \brief A slot */
     void iteration_running(bool status);

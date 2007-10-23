@@ -164,7 +164,7 @@ MP_Dict_c::~MP_Dict_c()
     }
 
   delete [] threads;
-  if (bar){  for (i = 0; i < numBlocks; ++i)
+  if (bar){  for (i = 0; i < 2; ++i)
     {
         delete  bar[i];
     }
@@ -611,10 +611,11 @@ int MP_Dict_c::parse_block(TiXmlNode * pParent, map<string, PropertiesMap, mp_lt
         {
  count+=  create_block(signal , blockMap);
  if (count == 0)  mp_error_msg( func, "Cannot create block.\n");
+ return count;
         }
       else
         {
-          mp_error_msg( func, "Bloc type not define in ditionary structure file.\n");
+          mp_error_msg( func, "Bloc type not define in dictionary structure file.\n");
           delete(blockMap);
           return 0;
 
