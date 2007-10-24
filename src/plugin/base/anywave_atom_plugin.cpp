@@ -106,8 +106,6 @@ int MP_Anywave_Atom_Plugin_c::read( FILE *fid, const char mode )
   char line[MP_MAX_STR_LEN];
   char str[MP_MAX_STR_LEN];
 
-  extern MP_Anywave_Server_c MP_GLOBAL_ANYWAVE_SERVER;
-
   /* Go up one level */
   if ( MP_Atom_c::read( fid, mode ) )
     {

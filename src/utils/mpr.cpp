@@ -261,8 +261,7 @@ int main( int argc, char **argv ) {
   MP_Book_c *book;
   MP_Signal_c *sig;
   int i;
-  FILE *fid;
-  
+ 
   /* Load Mptk environnement */
   MPTK_Env_c::get_env()->load_environment(configFileName);
   

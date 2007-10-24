@@ -52,11 +52,11 @@
 /************************/
 /* Factory function     */
 MP_Atom_c* MP_Mdct_Atom_Plugin_c::mdct_atom_create_empty(void)
-    {
+{
 
-      return new MP_Mdct_Atom_Plugin_c;
+  return new MP_Mdct_Atom_Plugin_c;
 
-    }
+}
 
 /*************************/
 /* File factory function */
@@ -204,8 +204,6 @@ MP_Mdct_Atom_Plugin_c::~MP_Mdct_Atom_Plugin_c()
 
 int MP_Mdct_Atom_Plugin_c::write( FILE *fid, const char mode )
 {
-
-  unsigned int i;
   int nItem = 0;
 
   /* Call the parent's write function */
@@ -371,7 +369,7 @@ MP_Real_t wigner_ville(MP_Real_t t, MP_Real_t f, unsigned char windowType)
 
 int MP_Mdct_Atom_Plugin_c::add_to_tfmap( MP_TF_Map_c *tfmap, const char tfmapType )
 {
-const char* func = "MP_Mclt_Atom_Plugin_c:add_to_tfmap(tfmap,type)";
+  const char* func = "MP_Mclt_Atom_Plugin_c:add_to_tfmap(tfmap,type)";
   unsigned char chanIdx;
   unsigned long int tMin,tMax;
   MP_Real_t fMin,fMax,df;
@@ -398,11 +396,11 @@ const char* func = "MP_Mclt_Atom_Plugin_c:add_to_tfmap(tfmap,type)";
       /* Freq interval [fMin fMax] that (nearly) contains the freq support : */
       df   = 40 / ( (MP_Real_t)(support[chanIdx].len) ); /* freq bandwidth */
       /** \todo: determine the right constant factor to replace '40' in the computation of the freq width of a Gabor atom*/
-        
-          fMin = freq - df/2;
-          fMax = freq + df/2;
-        
-   
+
+      fMin = freq - df/2;
+      fMax = freq + df/2;
+
+
       if ( (fMin > tfmap->fMax) || (fMax < tfmap->fMin) ) return( 0 );
 
       mp_debug_msg( MP_DEBUG_ATOM, func, "Atom support in tf  coordinates: [%lu %lu]x[%g %g]\n",
@@ -494,29 +492,35 @@ const char* func = "MP_Mclt_Atom_Plugin_c:add_to_tfmap(tfmap,type)";
 /***********************************************************************/
 /* Sorting function which characterizes various properties of the atom,
    along one channel */
-int MP_Mdct_Atom_Plugin_c::has_field( int field ) {
+int MP_Mdct_Atom_Plugin_c::has_field( int field )
+{
 
   if ( MP_Atom_c::has_field( field ) ) return ( MP_TRUE );
-  else switch (field) {
-  case MP_FREQ_PROP :  return( MP_TRUE );
-  default : return( MP_FALSE );
-  }
+  else switch (field)
+      {
+      case MP_FREQ_PROP :
+        return( MP_TRUE );
+      default :
+        return( MP_FALSE );
+      }
 }
 
-MP_Real_t MP_Mdct_Atom_Plugin_c::get_field( int field, MP_Chan_t chanIdx ) {
+MP_Real_t MP_Mdct_Atom_Plugin_c::get_field( int field, MP_Chan_t chanIdx )
+{
   MP_Real_t x;
   if ( MP_Atom_c::has_field( field ) ) return ( MP_Atom_c::get_field(field,chanIdx) );
-  else switch (field) {
-  case MP_POS_PROP :
-    x = (MP_Real_t)(support[chanIdx].pos);
-    break;
-  case MP_FREQ_PROP :
-    x = freq;
-    break;
-  default :
-    mp_warning_msg( "MP_Gabor_Atom_c::get_field()", "Unknown field. Returning ZERO.\n" );
-    x = 0.0;
-  }
+  else switch (field)
+      {
+      case MP_POS_PROP :
+        x = (MP_Real_t)(support[chanIdx].pos);
+        break;
+      case MP_FREQ_PROP :
+        x = freq;
+        break;
+      default :
+        mp_warning_msg( "MP_Gabor_Atom_c::get_field()", "Unknown field. Returning ZERO.\n" );
+        x = 0.0;
+      }
 
   return( x );
 
@@ -529,5 +533,5 @@ DLL_EXPORT void registry(void)
 {
   MP_Atom_Factory_c::get_atom_factory()->register_new_atom_empty("MdctAtom",&MP_Mdct_Atom_Plugin_c::mdct_atom_create_empty);
   MP_Atom_Factory_c::get_atom_factory()->register_new_atom("mdct",&MP_Mdct_Atom_Plugin_c::create);
-  
+
 }

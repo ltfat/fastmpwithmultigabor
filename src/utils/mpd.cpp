@@ -468,7 +468,6 @@ int main( int argc, char **argv )
   MP_Signal_c *sig = NULL;
   MP_Book_c *book = NULL;
   MP_Mpd_Core_c *mpdCore = NULL;
-  timeval tim;
   unsigned long int i = 0;
 
   /**************************************************/

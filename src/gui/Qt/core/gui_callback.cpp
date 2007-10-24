@@ -63,9 +63,9 @@ int MP_Gui_Callback_c::openBook(QString fileName)
   return BOOK_OPENED;
 }
 
-int MP_Gui_Callback_c::subAddBook(){
+void MP_Gui_Callback_c::subAddBook(){
 	
-book->substract_add( signal, approximant, NULL );
+if (book) book->substract_add( signal, approximant, NULL );
 
 }
 // Initialize mpd_Core with given signal name and book name
@@ -138,7 +138,7 @@ void MP_Gui_Callback_c::setSave(const unsigned long int setSaveHit,QString setBo
   mpd_Core->set_save_hit(setSaveHit,setBookFileName.toStdString().c_str(),setResFileName.toStdString().c_str(),setDecayFileName.toStdString().c_str());
 }
 // Save Custom dictionary
-bool MP_Gui_Callback_c::saveDictionary(QString dictName){
+void MP_Gui_Callback_c::saveDictionary(QString dictName){
 if (mpd_Core) mpd_Core->save_dict(dictName.toStdString().c_str());
 }
 

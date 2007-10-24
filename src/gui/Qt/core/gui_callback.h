@@ -89,7 +89,7 @@ class MP_Gui_Callback_c:public MP_Gui_Callback_Abstract_c
     int openBook(QString fileName);
     void saveBook(QString fileName);
     void saveApproximant(QString fileName);
-    bool saveDictionary(QString dictName);
+    void saveDictionary(QString dictName);
     MP_Signal_c * getSignal();
     MP_Signal_c * getApproximant();
     MP_Signal_c * getResidual();
@@ -113,7 +113,7 @@ class MP_Gui_Callback_c:public MP_Gui_Callback_Abstract_c
     void setProgressHandler();
     bool canIterate();
     int getIterationValue();
-    int subAddBook();
+    void subAddBook();
     bool getIterCheck();
     bool coreInit();
     float getSNRValue();

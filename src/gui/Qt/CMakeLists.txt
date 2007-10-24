@@ -101,6 +101,7 @@ ADD_DEFINITIONS(-DQT_NO_DEBUG)
 IF(WIN32)
 # create an executable file named "MPTK-GUI" from the source files in the variable "qtproject_SRCS".
 add_executable(MPTK-GUI ${qtproject_SRCS} ${qtproject_MOC} ${qtproject_RCC_SRCS})
+SET_TARGET_PROPERTIES(MPTK-GUI PROPERTIES LINK_FLAGS "${SHARED_FLAGS} -Wno-deprecated")
 # link the "MPTK-GUI" target against the Qt libraries. which libraries exactly, is defined by the "include(${QT_USE_FILE})" line above, which sets up this variable.
 target_link_libraries(MPTK-GUI ${QT_LIBRARIES} ${QT_QT3SUPPORT_LIBRARY} ${QT_QTMAIN_LIBRARY}  ${QT_QTCORE_LIBRARY} mptk -lgdi32 -lcomdlg32 -loleaut32 -limm32 -lwinmm -lwinspool -lws2_32 -lole32 -luuid -luser32 -ladvapi32)
 ADD_CUSTOM_COMMAND (
@@ -114,7 +115,7 @@ INSTALL(FILES "${MPTK_BINARY_DIR}/bin/mingwm10.dll" DESTINATION bin)
 ELSE(WIN32)
 IF(APPLE)
 ADD_EXECUTABLE(MPTK-GUI MACOSX_BUNDLE  ${qtproject_SRCS} ${qtproject_MOC} ${qtproject_RCC_SRCS})
-SET_TARGET_PROPERTIES(MptkGuiApp PROPERTIES LINK_FLAGS "${SHARED_FLAGS} -framework CoreFoundation -framework CoreAudio -framework AudioUnit -framework AudioToolbox")
+SET_TARGET_PROPERTIES(MPTK-GUI PROPERTIES LINK_FLAGS "${SHARED_FLAGS} -framework CoreFoundation -framework CoreAudio -framework AudioUnit -framework AudioToolbox -Wno-deprecated")
 target_link_libraries(MPTK-GUI ${QT_LIBRARIES} mptk)
 ELSE(APPLE)
 add_executable(MPTK-GUI ${qtproject_SRCS} ${qtproject_MOC} ${qtproject_RCC_SRCS})

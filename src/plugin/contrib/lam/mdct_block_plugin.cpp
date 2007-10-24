@@ -129,7 +129,7 @@ MP_Block_c* MP_Mdct_Block_Plugin_c::create( MP_Signal_c *setSignal, map<string, 
           return( NULL );
         }
     }
-    
+
   if ((*paramMap)["windowShift"].size()>0)
     {
       /*Convert windowShift*/
@@ -155,19 +155,24 @@ MP_Block_c* MP_Mdct_Block_Plugin_c::create( MP_Signal_c *setSignal, map<string, 
 
         }
       else
-        { if ((*paramMap)["windowLen"].size()>0) {
-        	if ( (!strcmp(((*paramMap)["windowtype"]).c_str(),"rectangle")) || (!strcmp(((*paramMap)["windowtype"]).c_str(),"cosine")) || (!strcmp(((*paramMap)["windowtype"]).c_str(),"kbd")) ) filterShift = filterLen / 2;
-        	 else
         {
-          mp_error_msg( func, "Wrong window type. It has to be: rectangle, cosine or kbd.\n" );
-        }
-        } else {
-          mp_error_msg( func, "No parameter windowShift or windowRate in the parameter map.\n" );
-          return( NULL );}
+          if ((*paramMap)["windowLen"].size()>0)
+            {
+              if ( (!strcmp(((*paramMap)["windowtype"]).c_str(),"rectangle")) || (!strcmp(((*paramMap)["windowtype"]).c_str(),"cosine")) || (!strcmp(((*paramMap)["windowtype"]).c_str(),"kbd")) ) filterShift = filterLen / 2;
+              else
+                {
+                  mp_error_msg( func, "Wrong window type. It has to be: rectangle, cosine or kbd.\n" );
+                }
+            }
+          else
+            {
+              mp_error_msg( func, "No parameter windowShift or windowRate in the parameter map.\n" );
+              return( NULL );
+            }
         }
     }
-    
-       if ((*paramMap)["blockOffset"].size()>0)
+
+  if ((*paramMap)["blockOffset"].size()>0)
     {
       /*Convert blockOffset*/
       blockOffset=strtol((*paramMap)["blockOffset"].c_str(), &convertEnd, 10);
@@ -185,15 +190,15 @@ MP_Block_c* MP_Mdct_Block_Plugin_c::create( MP_Signal_c *setSignal, map<string, 
       delete( newBlock );
       return( NULL );
     }
-    
-   /* Set the block parameter map (that are independent from the signal) */
+
+  /* Set the block parameter map (that are independent from the signal) */
   if ( newBlock->init_parameter_map( filterLen, filterShift, fftSize,
-                                   windowType, windowOption, blockOffset ) )
-                                   {
+                                     windowType, windowOption, blockOffset ) )
+    {
       mp_error_msg( func, "Failed to initialize parameters map in the new Gabor block.\n" );
       delete( newBlock );
       return( NULL );
-    } 
+    }
   /* Set the signal-related parameters */
   if ( newBlock->plug_signal( setSignal ) )
     {
@@ -208,11 +213,11 @@ MP_Block_c* MP_Mdct_Block_Plugin_c::create( MP_Signal_c *setSignal, map<string, 
 /*********************************************************/
 /* Initialization of signal-independent block parameters */
 int MP_Mdct_Block_Plugin_c::init_parameters( const unsigned long int setFilterLen,
-                                      const unsigned long int setFilterShift,
-                                      const unsigned long int setFftSize,
-                                      const unsigned char setWindowType,
-                                      const double setWindowOption,
-                                      const unsigned long int setBlockOffset )
+    const unsigned long int setFilterShift,
+    const unsigned long int setFftSize,
+    const unsigned char setWindowType,
+    const double setWindowOption,
+    const unsigned long int setBlockOffset )
 {
 
   const char* func = "MP_Mdct_Block_Plugin_c::init_parameters()";
@@ -252,52 +257,61 @@ int MP_Mdct_Block_Plugin_c::init_parameter_map( const unsigned long int setFilte
     const double setWindowOption,
     const unsigned long int setBlockOffset )
 {
-const char* func = "MP_Gabor_Block_c::init_parameter_map(...)";
+  const char* func = "MP_Gabor_Block_c::init_parameter_map(...)";
 
-parameterMap = new map< string, string, mp_ltstring>();
-   
-/*Create a stream for convert number into string */
-std::ostringstream oss;
+  parameterMap = new map< string, string, mp_ltstring>();
 
-(*parameterMap)["type"] = type_name();
+  /*Create a stream for convert number into string */
+  std::ostringstream oss;
 
-/* put value in the stream */
-if (!(oss << setFilterLen)) { 
-	  mp_error_msg( func, "Cannot convert windowLen in string for parameterMap.\n" );
-      return( 1 );
-      }
-/* put stream in string */
-(*parameterMap)["windowLen"] = oss.str();
-/* clear stream */
-oss.str("");
-if (!(oss << setFilterShift)) { mp_error_msg( func, "Cannot convert windowShift in string for parameterMap.\n" 
-                     );
-      return( 1 );
-      }
-(*parameterMap)["windowShift"] = oss.str();
-oss.str("");
-if (!(oss << setFftSize)) { mp_error_msg( func, "Cannot convert fftSize in string for parameterMap.\n" 
-                     );
-      return( 1 );
-      }
-(*parameterMap)["fftSize"] = oss.str();
-oss.str("");
-(*parameterMap)["windowtype"] = window_name(setWindowType);
+  (*parameterMap)["type"] = type_name();
 
-if (!(oss << setWindowOption)) { mp_error_msg( func, "Cannot convert windowopt in string for parameterMap.\n" 
-                     );
+  /* put value in the stream */
+  if (!(oss << setFilterLen))
+    {
+      mp_error_msg( func, "Cannot convert windowLen in string for parameterMap.\n" );
       return( 1 );
-      }
-(*parameterMap)["windowopt"] = oss.str();
-oss.str("");
-if (!(oss << setBlockOffset)) { mp_error_msg( func, "Cannot convert blockOffset in string for parameterMap.\n" 
-                     );
+    }
+  /* put stream in string */
+  (*parameterMap)["windowLen"] = oss.str();
+  /* clear stream */
+  oss.str("");
+  if (!(oss << setFilterShift))
+    {
+      mp_error_msg( func, "Cannot convert windowShift in string for parameterMap.\n"
+                  );
       return( 1 );
-      }
-(*parameterMap)["blockOffset"] = oss.str();
-oss.str("");
+    }
+  (*parameterMap)["windowShift"] = oss.str();
+  oss.str("");
+  if (!(oss << setFftSize))
+    {
+      mp_error_msg( func, "Cannot convert fftSize in string for parameterMap.\n"
+                  );
+      return( 1 );
+    }
+  (*parameterMap)["fftSize"] = oss.str();
+  oss.str("");
+  (*parameterMap)["windowtype"] = window_name(setWindowType);
 
-return (0);
+  if (!(oss << setWindowOption))
+    {
+      mp_error_msg( func, "Cannot convert windowopt in string for parameterMap.\n"
+                  );
+      return( 1 );
+    }
+  (*parameterMap)["windowopt"] = oss.str();
+  oss.str("");
+  if (!(oss << setBlockOffset))
+    {
+      mp_error_msg( func, "Cannot convert blockOffset in string for parameterMap.\n"
+                  );
+      return( 1 );
+    }
+  (*parameterMap)["blockOffset"] = oss.str();
+  oss.str("");
+
+  return (0);
 }
 
 /*******************************************************/
@@ -375,8 +389,8 @@ int MP_Mdct_Block_Plugin_c::info( FILE *fid )
 /********************************************/
 /* Frame-based update of the inner products */
 void MP_Mdct_Block_Plugin_c::update_frame(unsigned long int frameIdx,
-                                   MP_Real_t *maxCorr,
-                                   unsigned long int *maxFilterIdx)
+    MP_Real_t *maxCorr,
+    unsigned long int *maxFilterIdx)
 {
   unsigned long int inShift;
   unsigned long int i;
@@ -478,10 +492,10 @@ unsigned int MP_Mdct_Block_Plugin_c::create_atom( MP_Atom_c **atom,
     {
       mp_error_msg( func, "Trying to create an atom out of the support of the current signal."
                     " Returning a NULL atom.\n" );
-       *atom = NULL;
+      *atom = NULL;
       return( 0 );
     }
- /* Allocate the atom */
+  /* Allocate the atom */
   *atom = NULL;
   MP_Atom_c* (*emptyAtomCreator)( void ) = MP_Atom_Factory_c::get_atom_factory()->get_empty_atom_creator("MdctAtom");
   if (NULL == emptyAtomCreator)
@@ -496,13 +510,13 @@ unsigned int MP_Mdct_Block_Plugin_c::create_atom( MP_Atom_c **atom,
                     " Returning NULL as the atom reference.\n" );
       return( 0 );
     }
-if ( matom->alloc_atom_param( s->numChans) )
+  if ( matom->alloc_atom_param( s->numChans) )
     {
       mp_error_msg( func, "Failed to allocate some vectors in the new Gabor atom. Returning a NULL atom.\n" );
       return( 0 );
 
     }
-    if ( window_type_is_ok( fft->windowType) )
+  if ( window_type_is_ok( fft->windowType) )
     {
       matom->windowType   = fft->windowType;
       matom->windowOption = fft->windowOption;
@@ -512,8 +526,8 @@ if ( matom->alloc_atom_param( s->numChans) )
       mp_error_msg( func, "The window type is unknown. Returning a NULL atom.\n" );
       return( 0 );
     }
-    
-     /* Set the default freq */
+
+  /* Set the default freq */
   matom->freq  = 0.0;
 
   /* 1) set the frequency of the atom */
@@ -612,20 +626,23 @@ int MP_Mdct_Block_Plugin_c::fill_energy( MP_Real_t *atomEnergy )
 
 /*********************************************/
 /* get Paramater type map defining the block */
-void  MP_Mdct_Block_Plugin_c::get_parameters_type_map(map< string, string, mp_ltstring> * parameterMapType){
+void  MP_Mdct_Block_Plugin_c::get_parameters_type_map(map< string, string, mp_ltstring> * parameterMapType)
+{
 
-const char * func = "void MP_Gabor_Block_Plugin_c::get_parameters_type_map( map< string, string, mp_ltstring>* parameterMapType )";
+  const char * func = "void MP_Gabor_Block_Plugin_c::get_parameters_type_map( map< string, string, mp_ltstring>* parameterMapType )";
 
-if ((*parameterMapType).empty()) {
-(*parameterMapType)["type"] = "string";
-(*parameterMapType)["windowLen"] = "ulong";
-(*parameterMapType)["windowShift"] = "ulong";
-(*parameterMapType)["fftSize"] = "ulong";
-(*parameterMapType)["windowtype"] = "string";
-(*parameterMapType)["windowopt"] = "real";
-(*parameterMapType)["blockOffset"] = "ulong";
+  if ((*parameterMapType).empty())
+    {
+      (*parameterMapType)["type"] = "string";
+      (*parameterMapType)["windowLen"] = "ulong";
+      (*parameterMapType)["windowShift"] = "ulong";
+      (*parameterMapType)["fftSize"] = "ulong";
+      (*parameterMapType)["windowtype"] = "string";
+      (*parameterMapType)["windowopt"] = "real";
+      (*parameterMapType)["blockOffset"] = "ulong";
 
-} else  mp_error_msg( func, "Map for parameters type wasn't empty.\n" );
+    }
+  else  mp_error_msg( func, "Map for parameters type wasn't empty.\n" );
 
 
 
@@ -633,39 +650,45 @@ if ((*parameterMapType).empty()) {
 
 /***********************************/
 /* get Info map defining the block */
-void  MP_Mdct_Block_Plugin_c::get_parameters_info_map(map< string, string, mp_ltstring> * parameterMapInfo ){
+void  MP_Mdct_Block_Plugin_c::get_parameters_info_map(map< string, string, mp_ltstring> * parameterMapInfo )
+{
 
-const char * func = "void MP_Gabor_Block_Plugin_c::get_parameters_info_map( map< string, string, mp_ltstring>* parameterMapInfo )";
+  const char * func = "void MP_Gabor_Block_Plugin_c::get_parameters_info_map( map< string, string, mp_ltstring>* parameterMapInfo )";
 
-if ((*parameterMapInfo).empty()) {
-(*parameterMapInfo)["type"] = "type: the type of blocks";
-(*parameterMapInfo)["windowLen"] = "windowLen: the length of the signal window, in number of sample";
-(*parameterMapInfo)["windowShift"] = "windowShift: the window shift, in number of samples";
-(*parameterMapInfo)["fftSize"] = "fftSize: the size of the FFT, including zero padding";
-(*parameterMapInfo)["windowtype"] = "windowType: the window type (see the doc of libdsp_windows.h)";
-(*parameterMapInfo)["windowopt"] = "windowOption: the optional window parameter";
-(*parameterMapInfo)["blockOffset"] = "blockOffset: the block offset";
+  if ((*parameterMapInfo).empty())
+    {
+      (*parameterMapInfo)["type"] = "type: the type of blocks";
+      (*parameterMapInfo)["windowLen"] = "windowLen: the length of the signal window, in number of sample";
+      (*parameterMapInfo)["windowShift"] = "windowShift: the window shift, in number of samples";
+      (*parameterMapInfo)["fftSize"] = "fftSize: the size of the FFT, including zero padding";
+      (*parameterMapInfo)["windowtype"] = "windowType: the window type (see the doc of libdsp_windows.h)";
+      (*parameterMapInfo)["windowopt"] = "windowOption: the optional window parameter";
+      (*parameterMapInfo)["blockOffset"] = "blockOffset: the block offset";
 
-} else  mp_error_msg( func, "Map for parameters info wasn't empty.\n" );
+    }
+  else  mp_error_msg( func, "Map for parameters info wasn't empty.\n" );
 
 }
 
 /***********************************/
 /* get default map defining the block */
-void  MP_Mdct_Block_Plugin_c::get_parameters_default_map( map< string, string, mp_ltstring>* parameterMapDefault ){
+void  MP_Mdct_Block_Plugin_c::get_parameters_default_map( map< string, string, mp_ltstring>* parameterMapDefault )
+{
 
-const char * func = "void MP_Gabor_Block_Plugin_c::get_parameters_default_map( map< string, string, mp_ltstring>* parameterMapDefault )";
+  const char * func = "void MP_Gabor_Block_Plugin_c::get_parameters_default_map( map< string, string, mp_ltstring>* parameterMapDefault )";
 
-if ((*parameterMapDefault).empty()) {
-(*parameterMapDefault)["type"] = "mdct";
-(*parameterMapDefault)["windowLen"] = "1024";
-(*parameterMapDefault)["windowShift"] = "512";
-(*parameterMapDefault)["fftSize"] = "1024";
-(*parameterMapDefault)["windowtype"] = "rectangle";
-(*parameterMapDefault)["windowopt"] = "0";
-(*parameterMapDefault)["blockOffset"] = "0"; }
+  if ((*parameterMapDefault).empty())
+    {
+      (*parameterMapDefault)["type"] = "mdct";
+      (*parameterMapDefault)["windowLen"] = "1024";
+      (*parameterMapDefault)["windowShift"] = "512";
+      (*parameterMapDefault)["fftSize"] = "1024";
+      (*parameterMapDefault)["windowtype"] = "rectangle";
+      (*parameterMapDefault)["windowopt"] = "0";
+      (*parameterMapDefault)["blockOffset"] = "0";
+    }
 
- else  mp_error_msg( func, "Map for parameter default wasn't empty.\n" );
+  else  mp_error_msg( func, "Map for parameter default wasn't empty.\n" );
 
 }
 /******************************************************/

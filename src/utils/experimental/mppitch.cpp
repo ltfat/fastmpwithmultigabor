@@ -333,7 +333,7 @@ int main( int argc, char **argv )
   MP_Book_c *bookpitched = NULL;
   MP_Gabor_Atom_Plugin_c* newAtom = NULL;
   MP_Harmonic_Atom_Plugin_c* newAtomHarmonic = NULL;
-  unsigned long int i = 0;
+  long int i = 0;
 
   /**************************************************/
   /* PRELIMINARIES                                  */

@@ -211,6 +211,13 @@ int MP_Dict_c::parse_xml_file(TiXmlDocument doc){
             return  0;
           }
     }
+      else
+    {
+
+      mp_error_msg( func, "No block node in the dictionnary structure file.\n");
+      delete(propertyMap);
+      return 0;
+    }
 
   node = hdl.FirstChild("dict").FirstChild("block").ToNode();
 
@@ -222,7 +229,7 @@ int MP_Dict_c::parse_xml_file(TiXmlDocument doc){
         finalcount += count;
          if (0 == count )
             {
-              mp_error_msg( func, "Error while processing block .\n");
+              mp_error_msg( func, "Error while processing block.\n");
               delete(propertyMap);
               return  0;
             } 
@@ -422,7 +429,6 @@ bool MP_Dict_c::parse_property(TiXmlNode * pParent, map<string, PropertiesMap, m
       return false;
       
     }
-  TiXmlNode * parray;
   map<string, string, mp_ltstring> localParameterMap;
   if (pParent->ToElement()->Attribute("refines"))
     {
@@ -1024,7 +1030,6 @@ int MP_Dict_c::delete_all_blocks( void )
 
   unsigned int i;
   unsigned int oldNumBlocks = numBlocks;
-  const char* func = "MP_Dict_c::delete_all_blocks(void)";
   for ( i=0; i<numBlocks; i++)
     {
       if ( block[i] ) delete( block[i] );

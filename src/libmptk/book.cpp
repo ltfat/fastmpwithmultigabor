@@ -819,8 +819,7 @@ MP_Bool_t MP_Book_c::can_append( FILE * fid ){
   const char* func = "MP_Book_c::can_append(fid)";
   unsigned int fidNumChans;
   int fidSampleRate;
-  unsigned long int i, fidNumAtoms, fidNumSamples;
-  unsigned long int nRead = 0;
+  unsigned long int fidNumAtoms, fidNumSamples;
   char mode;
   char line[MP_MAX_STR_LEN];
   char str[MP_MAX_STR_LEN];
@@ -850,7 +849,7 @@ MP_Bool_t MP_Book_c::can_append( FILE * fid ){
     mp_error_msg( func, "Cannot scan the book header. This book will remain un-changed.\n" );
     fseek ( fid , 0L , SEEK_SET );
     return( false );
-  }
+  } else
   /* test compatibility */
   if ( ((sampleRate != 0) && (sampleRate == fidSampleRate)) && (( numChans != 0 ) && ( numChans == fidNumChans )) && ((numSamples != 0) && (numSamples == fidNumSamples)) ) {
   fseek ( fid , 0L , SEEK_SET );

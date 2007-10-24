@@ -243,7 +243,6 @@ int main( int argc, char **argv ) {
 
   int numBooks = 0;
   unsigned long int n; /* number of read atoms */
-  FILE *fid;
   /* Load Mptk environnement */
   MPTK_Env_c::get_env()->load_environment(configFileName);
   

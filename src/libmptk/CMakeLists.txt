@@ -134,18 +134,18 @@ SET_SOURCE_FILES_PROPERTIES(
 #------------------------------------------------
 #Create the library in dynamic format:
 IF(WIN32)
-SET(CMAKE_SHARED_LINKER_FLAGS " -Wl,--export-all-symbols,--enable-auto-import,--enable-runtime-pseudo-reloc")
+SET(CMAKE_SHARED_LINKER_FLAGS " -Wl,--export-all-symbols,--enable-auto-import,--enable-runtime-pseudo-reloc -Wno-deprecated")
 ELSE(WIN32)
 IF(APPLE)
-SET(CMAKE_SHARED_LINKER_FLAGS "-single_module") 
+SET(CMAKE_SHARED_LINKER_FLAGS "-single_module -Wno-deprecated") 
 ELSE(APPLE)
-SET(CMAKE_SHARED_LINKER_FLAGS "-Wl,--export-dynamic")
+SET(CMAKE_SHARED_LINKER_FLAGS "-Wl,--export-dynamic -Wno-deprecated")
 ENDIF(APPLE)
 ENDIF(WIN32)
 
 ADD_LIBRARY(mptk SHARED ${MPTK_LIB_CPPSOURCE})
   SET_TARGET_PROPERTIES(mptk PROPERTIES
-   COMPILE_FLAGS "-DC_BUILDING_MPTK ${SHARED_FLAGS}"
+   COMPILE_FLAGS "-DC_BUILDING_MPTK ${SHARED_FLAGS} -Wno-deprecated"
     OUTPUT_NAME "mptk"
     )
   ADD_DEPENDENCIES(mptk mptk-lib-source)

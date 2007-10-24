@@ -334,7 +334,7 @@ unsigned short int MP_Mpd_Core_c::step() {
 		    " Before: [%g] Now: [%g] Diff: [%g]\n",
 		    numIter, residualEnergyBefore, residualEnergy, residualEnergyBefore - residualEnergy );
     mp_warning_msg( func, "Last atom found is sent to stderr.\n" );
-    book->atom[book->numAtoms-1]->info( stderr );
+    book->atom[book->numAtoms-1]->info( stderr );*/
     /* BORK BORK BORK */
     /* Export the considered signal portion */
     /* RES */
@@ -473,6 +473,8 @@ dict->create_block(dict->signal , setPropertyMap);
 }
 
 bool MP_Mpd_Core_c::save_dict( const char* dictName ){
-if (dict) dict->print(dictName);
+if (dict) { dict->print(dictName);
+            return true;
+} else return false;
 }
 
