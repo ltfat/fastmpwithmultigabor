@@ -17,10 +17,10 @@
    <widget class="QWidget" name="verticalLayout" >
     <property name="geometry" >
      <rect>
-      <x>-10</x>
+      <x>0</x>
       <y>0</y>
       <width>981</width>
-      <height>701</height>
+      <height>721</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" >
@@ -1428,7 +1428,7 @@
           <property name="autoFillBackground" >
            <bool>false</bool>
           </property>
-          <widget class="QLabel" name="labelBookMixer" >
+          <widget class="QLabel" name="labelMixer" >
            <property name="geometry" >
             <rect>
              <x>10</x>
@@ -1974,7 +1974,7 @@
        </widget>
        <widget class="QWidget" name="tab_demo" >
         <attribute name="title" >
-         <string>Demo</string>
+         <string>Demo: transients/tonals separation</string>
         </attribute>
         <widget class="QWidget" name="verticalLayout_3" >
          <property name="geometry" >
@@ -2556,274 +2556,352 @@
            <x>10</x>
            <y>400</y>
            <width>901</width>
-           <height>101</height>
+           <height>121</height>
           </rect>
          </property>
          <property name="title" >
           <string>MPTK: Demo</string>
          </property>
-         <widget class="QPushButton" name="btnLauchDemo" >
+         <widget class="QGroupBox" name="groupBox_26" >
           <property name="geometry" >
            <rect>
-            <x>10</x>
-            <y>30</y>
-            <width>121</width>
-            <height>26</height>
+            <x>9</x>
+            <y>20</y>
+            <width>881</width>
+            <height>51</height>
            </rect>
           </property>
-          <property name="toolTip" >
-           <string>open</string>
-          </property>
-          <property name="text" >
+          <property name="title" >
            <string>Decompose</string>
           </property>
-          <property name="icon" >
-           <iconset/>
-          </property>
-          <property name="checkable" >
-           <bool>false</bool>
-          </property>
-          <property name="flat" >
-           <bool>false</bool>
-          </property>
+          <widget class="QLabel" name="label_progress_Demo" >
+           <property name="geometry" >
+            <rect>
+             <x>650</x>
+             <y>20</y>
+             <width>221</width>
+             <height>20</height>
+            </rect>
+           </property>
+           <property name="text" >
+            <string>0</string>
+           </property>
+          </widget>
+          <widget class="QWidget" name="layoutWidget_2" >
+           <property name="geometry" >
+            <rect>
+             <x>550</x>
+             <y>20</y>
+             <width>97</width>
+             <height>22</height>
+            </rect>
+           </property>
+           <layout class="QHBoxLayout" >
+            <item>
+             <widget class="QLabel" name="label_16" >
+              <property name="text" >
+               <string>SNR</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QComboBox" name="comboBoxSnrDemo" >
+              <item>
+               <property name="text" >
+                <string>0</string>
+               </property>
+              </item>
+              <item>
+               <property name="text" >
+                <string>5</string>
+               </property>
+              </item>
+              <item>
+               <property name="text" >
+                <string>10</string>
+               </property>
+              </item>
+              <item>
+               <property name="text" >
+                <string>15</string>
+               </property>
+              </item>
+              <item>
+               <property name="text" >
+                <string>20</string>
+               </property>
+              </item>
+              <item>
+               <property name="text" >
+                <string>25</string>
+               </property>
+              </item>
+              <item>
+               <property name="text" >
+                <string>30</string>
+               </property>
+              </item>
+              <item>
+               <property name="text" >
+                <string>45</string>
+               </property>
+              </item>
+              <item>
+               <property name="text" >
+                <string>50</string>
+               </property>
+              </item>
+              <item>
+               <property name="text" >
+                <string>60</string>
+               </property>
+              </item>
+              <item>
+               <property name="text" >
+                <string>80</string>
+               </property>
+              </item>
+              <item>
+               <property name="text" >
+                <string>90</string>
+               </property>
+              </item>
+              <item>
+               <property name="text" >
+                <string>100</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="layoutWidget" >
+           <property name="geometry" >
+            <rect>
+             <x>280</x>
+             <y>20</y>
+             <width>261</width>
+             <height>22</height>
+            </rect>
+           </property>
+           <layout class="QHBoxLayout" >
+            <item>
+             <widget class="QLabel" name="label_15" >
+              <property name="text" >
+               <string>Number of iteration</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QComboBox" name="comboBoxNumIterDemo" >
+              <item>
+               <property name="text" >
+                <string>500</string>
+               </property>
+              </item>
+              <item>
+               <property name="text" >
+                <string>1000</string>
+               </property>
+              </item>
+              <item>
+               <property name="text" >
+                <string>5000</string>
+               </property>
+              </item>
+              <item>
+               <property name="text" >
+                <string>10000</string>
+               </property>
+              </item>
+              <item>
+               <property name="text" >
+                <string>50000</string>
+               </property>
+              </item>
+              <item>
+               <property name="text" >
+                <string>100000</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QPushButton" name="btnLauchDemo" >
+           <property name="geometry" >
+            <rect>
+             <x>20</x>
+             <y>20</y>
+             <width>121</width>
+             <height>26</height>
+            </rect>
+           </property>
+           <property name="toolTip" >
+            <string>open</string>
+           </property>
+           <property name="text" >
+            <string>Decompose</string>
+           </property>
+           <property name="icon" >
+            <iconset/>
+           </property>
+           <property name="checkable" >
+            <bool>false</bool>
+           </property>
+           <property name="flat" >
+            <bool>false</bool>
+           </property>
+          </widget>
          </widget>
-         <widget class="QWidget" name="layoutWidget" >
-          <property name="geometry" >
-           <rect>
-            <x>140</x>
-            <y>30</y>
-            <width>261</width>
-            <height>22</height>
-           </rect>
-          </property>
-          <layout class="QHBoxLayout" >
-           <item>
-            <widget class="QLabel" name="label_15" >
-             <property name="text" >
-              <string>Number of iteration</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QComboBox" name="comboBoxNumIterDemo" >
-             <item>
-              <property name="text" >
-               <string>500</string>
-              </property>
-             </item>
-             <item>
-              <property name="text" >
-               <string>1000</string>
-              </property>
-             </item>
-             <item>
-              <property name="text" >
-               <string>5000</string>
-              </property>
-             </item>
-             <item>
-              <property name="text" >
-               <string>10000</string>
-              </property>
-             </item>
-             <item>
-              <property name="text" >
-               <string>50000</string>
-              </property>
-             </item>
-             <item>
-              <property name="text" >
-               <string>100000</string>
-              </property>
-             </item>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-         <widget class="QWidget" name="layoutWidget_2" >
-          <property name="geometry" >
-           <rect>
-            <x>410</x>
-            <y>30</y>
-            <width>97</width>
-            <height>22</height>
-           </rect>
-          </property>
-          <layout class="QHBoxLayout" >
-           <item>
-            <widget class="QLabel" name="label_16" >
-             <property name="text" >
-              <string>SNR</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QComboBox" name="comboBoxSnrDemo" >
-             <item>
-              <property name="text" >
-               <string>0</string>
-              </property>
-             </item>
-             <item>
-              <property name="text" >
-               <string>5</string>
-              </property>
-             </item>
-             <item>
-              <property name="text" >
-               <string>10</string>
-              </property>
-             </item>
-             <item>
-              <property name="text" >
-               <string>15</string>
-              </property>
-             </item>
-             <item>
-              <property name="text" >
-               <string>20</string>
-              </property>
-             </item>
-             <item>
-              <property name="text" >
-               <string>25</string>
-              </property>
-             </item>
-             <item>
-              <property name="text" >
-               <string>30</string>
-              </property>
-             </item>
-             <item>
-              <property name="text" >
-               <string>45</string>
-              </property>
-             </item>
-             <item>
-              <property name="text" >
-               <string>50</string>
-              </property>
-             </item>
-             <item>
-              <property name="text" >
-               <string>60</string>
-              </property>
-             </item>
-             <item>
-              <property name="text" >
-               <string>80</string>
-              </property>
-             </item>
-             <item>
-              <property name="text" >
-               <string>90</string>
-              </property>
-             </item>
-             <item>
-              <property name="text" >
-               <string>100</string>
-              </property>
-             </item>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-         <widget class="QScrollBar" name="horizontalScrollBarDemo" >
-          <property name="geometry" >
-           <rect>
-            <x>150</x>
-            <y>60</y>
-            <width>160</width>
-            <height>16</height>
-           </rect>
-          </property>
-          <property name="maximum" >
-           <number>100000</number>
-          </property>
-          <property name="orientation" >
-           <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
-         <widget class="QLineEdit" name="lineEditSeparateValueDemo" >
-          <property name="geometry" >
-           <rect>
-            <x>330</x>
-            <y>70</y>
-            <width>113</width>
-            <height>20</height>
-           </rect>
-          </property>
-         </widget>
-         <widget class="QLabel" name="label_17" >
-          <property name="geometry" >
-           <rect>
-            <x>150</x>
-            <y>80</y>
-            <width>241</width>
-            <height>20</height>
-           </rect>
-          </property>
-          <property name="text" >
-           <string>Duration of transient in samples</string>
-          </property>
-         </widget>
-         <widget class="QCheckBox" name="checkBoxTransientUnit" >
-          <property name="geometry" >
-           <rect>
-            <x>470</x>
-            <y>70</y>
-            <width>301</width>
-            <height>19</height>
-           </rect>
-          </property>
-          <property name="text" >
-           <string>Use milliseconds for duration of transient</string>
-          </property>
-         </widget>
-         <widget class="QPushButton" name="btnDecomposeDemo" >
+         <widget class="QGroupBox" name="groupBox_27" >
           <property name="geometry" >
            <rect>
             <x>10</x>
-            <y>60</y>
-            <width>121</width>
-            <height>26</height>
+            <y>70</y>
+            <width>881</width>
+            <height>51</height>
            </rect>
           </property>
-          <property name="toolTip" >
-           <string>open</string>
+          <property name="title" >
+           <string>Separate tansients and tonals</string>
           </property>
-          <property name="text" >
-           <string>Separate</string>
-          </property>
-          <property name="icon" >
-           <iconset/>
-          </property>
-          <property name="checkable" >
-           <bool>false</bool>
-          </property>
-          <property name="flat" >
-           <bool>false</bool>
-          </property>
-         </widget>
-         <widget class="QLabel" name="label_progress_Demo" >
-          <property name="geometry" >
-           <rect>
-            <x>510</x>
-            <y>30</y>
-            <width>221</width>
-            <height>20</height>
-           </rect>
-          </property>
-          <property name="text" >
-           <string>TextLabel</string>
-          </property>
+          <widget class="QPushButton" name="btnDecomposeDemo" >
+           <property name="geometry" >
+            <rect>
+             <x>20</x>
+             <y>20</y>
+             <width>121</width>
+             <height>26</height>
+            </rect>
+           </property>
+           <property name="toolTip" >
+            <string>open</string>
+           </property>
+           <property name="text" >
+            <string>Separate</string>
+           </property>
+           <property name="icon" >
+            <iconset/>
+           </property>
+           <property name="checkable" >
+            <bool>false</bool>
+           </property>
+           <property name="flat" >
+            <bool>false</bool>
+           </property>
+          </widget>
+          <widget class="QLabel" name="labeltransientsize" >
+           <property name="geometry" >
+            <rect>
+             <x>390</x>
+             <y>10</y>
+             <width>91</width>
+             <height>16</height>
+            </rect>
+           </property>
+           <property name="text" >
+            <string>0</string>
+           </property>
+          </widget>
+          <widget class="QLabel" name="labeltonalsize" >
+           <property name="geometry" >
+            <rect>
+             <x>710</x>
+             <y>10</y>
+             <width>161</width>
+             <height>16</height>
+            </rect>
+           </property>
+           <property name="text" >
+            <string>0</string>
+           </property>
+          </widget>
+          <widget class="QLabel" name="labeltransientsizemilliseconds" >
+           <property name="geometry" >
+            <rect>
+             <x>390</x>
+             <y>30</y>
+             <width>101</width>
+             <height>16</height>
+            </rect>
+           </property>
+           <property name="text" >
+            <string>0</string>
+           </property>
+          </widget>
+          <widget class="QLabel" name="labeltonalsizemilliseconds" >
+           <property name="geometry" >
+            <rect>
+             <x>710</x>
+             <y>30</y>
+             <width>161</width>
+             <height>16</height>
+            </rect>
+           </property>
+           <property name="text" >
+            <string>0</string>
+           </property>
+          </widget>
+          <widget class="QLabel" name="label_17" >
+           <property name="geometry" >
+            <rect>
+             <x>170</x>
+             <y>10</y>
+             <width>211</width>
+             <height>16</height>
+            </rect>
+           </property>
+           <property name="text" >
+            <string>Transients size in samples</string>
+           </property>
+          </widget>
+          <widget class="QLabel" name="label_33" >
+           <property name="geometry" >
+            <rect>
+             <x>170</x>
+             <y>30</y>
+             <width>211</width>
+             <height>16</height>
+            </rect>
+           </property>
+           <property name="text" >
+            <string>Transients size in milliseconds</string>
+           </property>
+          </widget>
+          <widget class="QLabel" name="label_34" >
+           <property name="geometry" >
+            <rect>
+             <x>540</x>
+             <y>10</y>
+             <width>161</width>
+             <height>16</height>
+            </rect>
+           </property>
+           <property name="text" >
+            <string>Tonals size in samples</string>
+           </property>
+          </widget>
+          <widget class="QLabel" name="label_35" >
+           <property name="geometry" >
+            <rect>
+             <x>540</x>
+             <y>30</y>
+             <width>161</width>
+             <height>16</height>
+            </rect>
+           </property>
+           <property name="text" >
+            <string>Tonals size in milliseconds</string>
+           </property>
+          </widget>
          </widget>
         </widget>
         <widget class="QGroupBox" name="groupBox_18" >
          <property name="geometry" >
           <rect>
            <x>10</x>
-           <y>498</y>
+           <y>520</y>
            <width>901</width>
            <height>51</height>
           </rect>
@@ -2879,7 +2957,7 @@
            </rect>
           </property>
           <property name="text" >
-           <string>residual signal</string>
+           <string>Residual signal</string>
           </property>
          </widget>
          <widget class="QPushButton" name="btnStopDemo" >
@@ -2930,7 +3008,7 @@
            </rect>
           </property>
           <property name="text" >
-           <string>Other signal</string>
+           <string>Tonal signal</string>
           </property>
          </widget>
         </widget>
@@ -2938,7 +3016,7 @@
          <property name="geometry" >
           <rect>
            <x>10</x>
-           <y>550</y>
+           <y>570</y>
            <width>901</width>
            <height>111</height>
           </rect>

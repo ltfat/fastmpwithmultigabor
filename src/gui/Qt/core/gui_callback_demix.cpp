@@ -40,6 +40,7 @@
 /***************************/
 /* CONSTRUCTORS/DESTRUCTOR */
 /***************************/
+MP_Gui_Callback_Demix_c * MP_Gui_Callback_Demix_c::guiCallbackDemix = NULL;
 
 MP_Gui_Callback_Demix_c::MP_Gui_Callback_Demix_c():
     MP_Gui_Callback_Abstract_c()
@@ -50,6 +51,13 @@ MP_Gui_Callback_Demix_c::MP_Gui_Callback_Demix_c():
 MP_Gui_Callback_Demix_c::~MP_Gui_Callback_Demix_c()
 {}
 
+MP_Gui_Callback_Demix_c * MP_Gui_Callback_Demix_c::get_gui_call_back(){
+ 	  if (!guiCallbackDemix)
+    {
+      guiCallbackDemix = new MP_Gui_Callback_Demix_c();
+    }
+return guiCallbackDemix;
+}
 bool MP_Gui_Callback_Demix_c::openMixer(QString fileName)
 {
   string suffix;
@@ -75,14 +83,14 @@ bool MP_Gui_Callback_Demix_c::openMixer(QString fileName)
 void MP_Gui_Callback_Demix_c::addDictToArray(QString fileName, int index)
 {
   MP_Dict_c* dict = MP_Dict_c::init( fileName.toStdString().c_str());
-  dictArray->at(index) = dict;
+  if (NULL!= dict) dictArray->at(index) = dict;
 }
 
 bool MP_Gui_Callback_Demix_c::setDictArray()
 {
   if (mpd_Demix_Core)
     {
-      mpd_Demix_Core->change_dict( dictArray );
+      if (dictArray->at(0)!= NULL ) mpd_Demix_Core->change_dict( dictArray );
       return true;
     }
   else return false;
@@ -93,7 +101,7 @@ int MP_Gui_Callback_Demix_c::setBookArray()
   if (signal && mixer)
     {
       bookArray = new  std::vector<MP_Book_c*>(mixer->numSources);
-      for (unsigned int j =0; j <mixer->numSources; j++) bookArray->at(j) = MP_Book_c::create(1, signal->numSamples, signal->sampleRate );
+      for (unsigned int j =0; j <mixer->numSources; j++) bookArray->at(j) = MP_Book_c::create(signal->numChans, signal->numSamples, signal->sampleRate );
       opArrayBook = BOOK_OPENED;
       return BOOK_OPENED;
     }
@@ -110,7 +118,7 @@ int MP_Gui_Callback_Demix_c::openSignal(QString fileName)
   if (MP_Gui_Callback_Abstract_c::openSignal(fileName)== SIGNAL_OPENED)
     {
       approxArray = new std::vector<MP_Signal_c*>(mixer->numSources);
-      for (unsigned int j =0; j <mixer->numSources; j++) approxArray->at(j) = MP_Signal_c::init( signal->numChans, signal->numSamples, signal->sampleRate);
+      for (unsigned int j =0; j <mixer->numSources; j++) approxArray->at(j) = MP_Signal_c::init( 1, signal->numSamples, signal->sampleRate);
 
       return SIGNAL_OPENED;
     }
@@ -162,4 +170,16 @@ void MP_Gui_Callback_Demix_c::saveApprox(QString fileName)
 void MP_Gui_Callback_Demix_c::setSave(const unsigned long int setSaveHit,QString bookFileName, QString resFileName,QString decayFileName, QString sequenceFileName)
 {
   mpd_Demix_Core->set_save_hit(setSaveHit,bookFileName.toStdString().c_str(),resFileName.toStdString().c_str(),decayFileName.toStdString().c_str(),sequenceFileName.toStdString().c_str());
+}
+
+void MP_Gui_Callback_Demix_c::emitInfoMessage(char* message){
+emit MP_Gui_Callback_Demix_c::get_gui_call_back()->infoMessage(message);
+}
+
+void MP_Gui_Callback_Demix_c::emitErrorMessage(char* message){
+emit MP_Gui_Callback_Demix_c::get_gui_call_back()->errorMessage(message);
+}
+
+void MP_Gui_Callback_Demix_c::emitWarningMessage(char* message){
+emit MP_Gui_Callback_Demix_c::get_gui_call_back()->warningMessage(message);
 }

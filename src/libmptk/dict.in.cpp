@@ -81,7 +81,7 @@ MP_Dict_c* MP_Dict_c::init(  const char *dictFileName )
     {
       mp_error_msg( func, "The dictionary scanned from file [%s] contains no recognized blocks.\n",
                     dictFileName );
-      delete( newDict );
+      if ( newDict ) delete( newDict );
       return( NULL );
     }
 
@@ -149,12 +149,12 @@ MP_Dict_c::~MP_Dict_c()
     }
 #ifdef MULTITHREAD
   //Cancel all Threads
-  for (i = 0; i < numBlocks; ++i)
+  if (bar && numBlocks > 0) for (i = 0; i < numBlocks; ++i)
     {
       tasks[i].exit = true ;
     }
-  bar[0]->wait();
-  for (i = 0; i < numBlocks; ++i)
+   if (bar && numBlocks > 0) bar[0]->wait();
+  if (numBlocks > 0) for (i = 0; i < numBlocks; ++i)
     {
       if (pthread_join(threads[i], NULL))
         {
@@ -163,15 +163,15 @@ MP_Dict_c::~MP_Dict_c()
         }
     }
 
-  delete [] threads;
-  if (bar){  for (i = 0; i < 2; ++i)
+   if (numBlocks > 0) delete [] threads;
+  if (bar && numBlocks > 0){  for (i = 0; i < numBlocks; ++i)
     {
-        delete  bar[i];
+        if (bar[i]) delete  bar[i];
     }
     delete [] bar;
     }
-  delete [] val;
-  delete [] tasks ;
+   if (numBlocks > 0) delete [] val;
+   if (numBlocks > 0) delete [] tasks ;
 
 #else
 #endif

@@ -492,7 +492,7 @@ MP_Bool_t MP_Mpd_demix_Core_c::can_step( void )
 
   for (unsigned int j = 0; j < mixer->numSources; j++ )
     {
-      if ( dictArray->at(0)->signal == NULL ) return MP_FALSE;
+      if ( dictArray->at(j)->signal == NULL ) return MP_FALSE;
     }
 
   /* Check that all of dict, book and signal are not NULL */

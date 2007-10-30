@@ -1,3 +1,4 @@
+CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/utils/readme.txt ${MPTK_BINARY_DIR}/bin/readme.txt COPYONLY)
 #------------------------------------------------
 # Build mdp executable
 # 
@@ -171,6 +172,7 @@ INSTALL(TARGETS
   mpview
  RUNTIME DESTINATION bin
 )
+INSTALL(FILES "${MPTK_BINARY_DIR}/bin/readme.txt" DESTINATION bin)
 #Install dll in the destination folder for Win32 plateform
 IF(MINGW)
 INSTALL(FILES "${MPTK_BINARY_DIR}/bin/pthreadVC2.dll" DESTINATION bin)

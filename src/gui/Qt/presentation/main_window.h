@@ -59,7 +59,7 @@ using namespace std;
 class MainWindow: public QMainWindow, private Ui::MainWindow
   {
     Q_OBJECT
-   // Q_DECLARE_METATYPE(QMetaType::QTextCursor)
+    // Q_DECLARE_METATYPE(QMetaType::QTextCursor)
     /********/
     /* DATA */
     /********/
@@ -86,7 +86,6 @@ class MainWindow: public QMainWindow, private Ui::MainWindow
     bool stopContraintSet;
 
 
-   static  MainWindow * myMainWindow;
     /***********/
     /* METHODS */
     /***********/
@@ -111,129 +110,138 @@ class MainWindow: public QMainWindow, private Ui::MainWindow
      * A slot's arguments cannot have default values, and, like signals,
      *  it is rarely wise to use your own custom types for slot arguments.   */
   private slots:
-     /**  \brief A slot */
+    /**  \brief A slot */
     void on_btnPlay_clicked();
-     /**  \brief A slot */
+    /**  \brief A slot */
     void on_btnPlayDemix_clicked();
-     /**  \brief A slot */
+    /**  \brief A slot */
     void on_btnStop_clicked();
-     /**  \brief A slot */
+    /**  \brief A slot */
     void on_btnOpenSig_clicked();
-     /**  \brief A slot */
+    /**  \brief A slot */
     void on_btnOpenDict_clicked();
-     /**  \brief A slot */
+    /**  \brief A slot */
     void on_btnOpenbook_clicked();
-     /**  \brief A slot */
+    /**  \brief A slot */
     void on_pushButtonIterateOnce_clicked();
-     /**  \brief A slot */
+    /**  \brief A slot */
     void on_pushButtonIterateAll_clicked();
-     /**  \brief A slot */
+    /**  \brief A slot */
     void on_comboBoxNumIter_activated();
-     /**  \brief A slot */
+    /**  \brief A slot */
     void on_comboBoxNumIterDemix_activated();
-     /**  \brief A slot */
+    /**  \brief A slot */
     void on_comboBoxSnr_activated();
-     /**  \brief A slot */
+    /**  \brief A slot */
     void on_comboBoxSnrDemix_activated();
-     /**  \brief A slot */
+    /**  \brief A slot */
     void on_comboBoxSnrDemo_activated();
-     /**  \brief A slot */
+    /**  \brief A slot */
     void on_comboBoxNumIterDemo_activated();
-     /**  \brief A slot */
+    /**  \brief A slot */
     void on_pushButtonSaveBook_clicked();
-     /**  \brief A slot */
+    /**  \brief A slot */
     void on_pushButtonSaveBookDemix_clicked();
-     /**  \brief A slot */
+    /**  \brief A slot */
     void on_pushButtonSaveResidual_clicked();
-     /**  \brief A slot */
+    /**  \brief A slot */
     void on_pushButtonSaveResidualDemix_clicked();
-     /**  \brief A slot */
+    /**  \brief A slot */
     void on_pushButtonSaveDecayDemix_clicked();
-     /**  \brief A slot */
+    /**  \brief A slot */
     void on_pushButtonSaveDecay_clicked();
-     /**  \brief A slot */
+    /**  \brief A slot */
     void on_comboBoxNumIterSavehit_activated();
-     /**  \brief A slot */
+    /**  \brief A slot */
     void on_comboBoxNumIterSavehitDemix_activated();
-     /**  \brief A slot */
+    /**  \brief A slot */
     void on_pushButtonSaveApprox_clicked();
-     /**  \brief A slot */
+    /**  \brief A slot */
     void on_pushButtonSaveApproxDemix_clicked();
-     /**  \brief A slot */
+    /**  \brief A slot */
     void on_tabWidget_currentChanged();
-     /**  \brief A slot */
+    /**  \brief A slot */
     void on_btnOpenMixer_clicked();
-     /**  \brief A slot */
+    /**  \brief A slot */
     void on_btnOpenSigDemix_clicked();
-     /**  \brief A slot */
+    /**  \brief A slot */
     void on_btnOpenDictDemix_clicked();
-     /**  \brief A slot */
+    /**  \brief A slot */
     void on_pushButtonIterateAllDemix_clicked();
-     /**  \brief A slot */
+    /**  \brief A slot */
     void on_radioButtonVerbose_toggled();
-     /**  \brief A slot */
+    /**  \brief A slot */
     void on_radioButtonVerboseDemix_toggled();
-     /**  \brief A slot */
+    /**  \brief A slot */
     void on_pushButtonSaveSequenceDemix_clicked();
-     /**  \brief A slot */
+    /**  \brief A slot */
     void on_btnOpenDefaultSig_clicked();
-     /**  \brief A slot */
+    /**  \brief A slot */
     void on_btnValidateDefautlDict_clicked();
-     /**  \brief A slot */
+    /**  \brief A slot */
     void on_btnLauchDemo_clicked();
-     /**  \brief A slot */
+    /**  \brief A slot */
     void on_btnPlayDemo_clicked();
-     /**  \brief A slot */
+    /**  \brief A slot */
     void on_btnStopDemo_clicked();
-     /**  \brief A slot */
+    /**  \brief A slot */
     void on_btnStopDemix_clicked();
-     /**  \brief A slot */
+    /**  \brief A slot */
     void on_btnOpenSigDemo_clicked();
-     /**  \brief A slot */
+    /**  \brief A slot */
     void on_btnOpenDictDemo_clicked();
-     /**  \brief A slot */
+    /**  \brief A slot */
     void on_btnDecomposeDemo_clicked();
-     /**  \brief A slot */
+    /**  \brief A slot */
     void on_btnValidateCustomDict_clicked();
-     /**  \brief A slot */
-    void on_horizontalScrollBarDemo_valueChanged(); 
     /**  \brief A slot */
     void on_btnSaveCustomDict_clicked();
-     /**  \brief A slot */
-    void on_checkBoxTransientUnit_pressed();
-     /**  \brief A slot */
+    /**  \brief A slot */
     void on_lineEditCustomBlock1WindowLen_textEdited();
-     /**  \brief A slot */
+    /**  \brief A slot */
     void on_lineEditCustomBlock1FftSize_textEdited();
-     /**  \brief A slot */
+    /**  \brief A slot */
     void on_lineEditCustomBlock2WindowLen_textEdited();
-     /**  \brief A slot */
+    /**  \brief A slot */
     void on_lineEditCustomBlock2FftSize_textEdited();
-     /**  \brief A slot */
+    /**  \brief A slot */
     void on_lineEditCustomBlock1WindowLenSec_textEdited();
-     /**  \brief A slot */
+    /**  \brief A slot */
     void on_lineEditCustomBlock2WindowLenSec_textEdited();
-     void on_pushButtonStopIterate_clicked();
+    void on_pushButtonStopIterate_clicked();
     void on_btnOpenDefaultMixerDemix_clicked();
     void on_lineEditNumIter_textEdited();
     void on_lineEditSNR_textEdited();
   public slots:
-   /**  \brief A slot */
+    /**  \brief A slot */
     void iteration_running(bool status);
-     /**  \brief A slot */
+    /**  \brief A slot */
     void iteration_running_demix(bool status);
-     /**  \brief A slot */
+    /**  \brief A slot */
     void iteration_running_demo(bool status);
+
+    void displayOnConsol(char* message);
+    void displayOnWarning(char* message);
+    void displayOnError(char* message);
+    void displayOnConsolDemix(char* message);
+    void displayOnConsolDemo(char* message);
+    void displayOnWarningDemo(char* message);
+    void displayOnWarningDemix(char* message);
+    void displayOnErrorDemix(char* message);
+    void displayOnErrorDemo(char* message);
   public:
     /**  \brief Method to show the message of the sdtout in the consol of the gui for the tab mpd
      */
-    
-    static void displayOnConsol(char* message);
-    static void displayOnConsolDemix(char* message);
-    static void displayOnConsolDemo(char* message);
-    static void displayOnWarning(char* message);
-    static void displayOnError(char* message);
-    static MainWindow * get_main_window();
+
+
+
+
+  signals:
+    /**  \brief A Qt signal to
+     *   \param status A boolean (true if iteration is running, false else) 
+     *   */
+
+
   };
 
 #endif /*MAIN_WINDOW_H_*/

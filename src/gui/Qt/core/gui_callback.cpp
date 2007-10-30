@@ -34,6 +34,8 @@
 /**********************************************************/
 #include "gui_callback.h"
 
+
+MP_Gui_Callback_c * MP_Gui_Callback_c::guiCallback = NULL;
 /***************************/
 /* CONSTRUCTORS/DESTRUCTOR */
 /***************************/
@@ -44,11 +46,20 @@ MP_Gui_Callback_c::MP_Gui_Callback_c()
   approximant = NULL;
   book = NULL;
   opBook = NOTHING_OPENED;
+  dictFilterLengthsVector = NULL;
 }
 
 MP_Gui_Callback_c::~MP_Gui_Callback_c()
 {
 
+}
+
+MP_Gui_Callback_c * MP_Gui_Callback_c::get_gui_call_back(){
+ 	  if (!guiCallback)
+    {
+      guiCallback = new MP_Gui_Callback_c();
+    }
+return guiCallback;
 }
 
 // Open a book, returns true if success (default here)
@@ -128,6 +139,11 @@ void MP_Gui_Callback_c::setDictionary(QString fileName)
       dicoName=fileName;
     }
 }
+void MP_Gui_Callback_c::getDictFilterlengths(int blocksNumber){
+	dictFilterLengthsVector = new  std::vector<unsigned long int>(blocksNumber);
+    mpd_Core->get_filter_lengths(dictFilterLengthsVector);
+    
+}
 
 void MP_Gui_Callback_c::initDictionary(){
 mpd_Core->init_dict();
@@ -177,3 +193,18 @@ void MP_Gui_Callback_c::addCustomBlockToDictionary(map<string, string, mp_ltstri
 mpd_Core->addCustomBlockToDictionary(setPropertyMap);
 mpd_Core->plug_dict_to_signal();
 }
+
+void MP_Gui_Callback_c::emitInfoMessage(char* message){
+emit MP_Gui_Callback_c::get_gui_call_back()->infoMessage(message);
+}
+
+void MP_Gui_Callback_c::emitErrorMessage(char* message){
+emit MP_Gui_Callback_c::get_gui_call_back()->errorMessage(message);
+}
+
+void MP_Gui_Callback_c::emitWarningMessage(char* message){
+emit MP_Gui_Callback_c::get_gui_call_back()->warningMessage(message);
+}
+    
+    
+    

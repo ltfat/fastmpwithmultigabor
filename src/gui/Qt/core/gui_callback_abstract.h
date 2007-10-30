@@ -98,7 +98,7 @@ class MP_Gui_Callback_Abstract_c: public QThread
    *   \param status A boolean (true if iteration is running, false else) 
    *   */
     void runningIteration(bool status);
-
+ //   static void infoMessage(char * message);
 
     /***********/
     /* METHODS */
@@ -122,6 +122,7 @@ class MP_Gui_Callback_Abstract_c: public QThread
       QThread::start();
       opSig = NOTHING_OPENED;
       activated = false;
+      // MP_Msg_Server_c::get_msg_server()->register_display_function("info_message_display",&displayOnConsol);
 
     };
 
@@ -135,7 +136,6 @@ class MP_Gui_Callback_Abstract_c: public QThread
       if ( approximant) delete approximant;
       if ( audio) delete audio;
     };
-
     /***************************/
     /* MISC METHODS            */
     /***************************/
@@ -382,6 +382,10 @@ class MP_Gui_Callback_Abstract_c: public QThread
       if (baseSignal!=NULL) return baseSignal->sampleRate;
       else return 0;
     }
+    
+   // static void displayOnConsol(char* message){
+//emit infoMessage(message);
+//}
 
   private slots:
     /** \brief Slot to stop iterationif requested

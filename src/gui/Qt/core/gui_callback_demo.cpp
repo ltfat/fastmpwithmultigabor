@@ -38,6 +38,7 @@
 /***************************/
 /* CONSTRUCTORS/DESTRUCTOR */
 /***************************/
+MP_Gui_Callback_Demo_c * MP_Gui_Callback_Demo_c::guiCallbackDemo = NULL;
 
 MP_Gui_Callback_Demo_c::MP_Gui_Callback_Demo_c():
     MP_Gui_Callback_c()
@@ -48,6 +49,14 @@ MP_Gui_Callback_Demo_c::MP_Gui_Callback_Demo_c():
 
 MP_Gui_Callback_Demo_c::~MP_Gui_Callback_Demo_c()
 {}
+
+MP_Gui_Callback_Demo_c * MP_Gui_Callback_Demo_c::get_gui_call_back(){
+ 	  if (!guiCallbackDemo)
+    {
+      guiCallbackDemo = new MP_Gui_Callback_Demo_c();
+    }
+return guiCallbackDemo;
+}
 
 void MP_Gui_Callback_Demo_c::separate(unsigned long int length)
 {
@@ -81,4 +90,16 @@ void MP_Gui_Callback_Demo_c::playTransientSignal(std::vector<bool> * v, float st
 void MP_Gui_Callback_Demo_c::playOtherSignal(std::vector<bool> * v, float startTime, float endTime)
 {
   MP_Gui_Callback_Abstract_c::play(otherSignal, v, startTime, endTime);
+}
+
+void MP_Gui_Callback_Demo_c::emitInfoMessage(char* message){
+emit MP_Gui_Callback_Demo_c::get_gui_call_back()->infoMessage(message);
+}
+
+void MP_Gui_Callback_Demo_c::emitErrorMessage(char* message){
+emit MP_Gui_Callback_Demo_c::get_gui_call_back()->errorMessage(message);
+}
+
+void MP_Gui_Callback_Demo_c::emitWarningMessage(char* message){
+emit MP_Gui_Callback_Demo_c::get_gui_call_back()->warningMessage(message);
 }

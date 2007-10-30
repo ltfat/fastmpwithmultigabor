@@ -52,15 +52,20 @@
 
 class MP_Gui_Callback_c:public MP_Gui_Callback_Abstract_c
   {
+  	Q_OBJECT
   	/***********/
     /* DATA    */
     /***********/
+    public:
+    vector<unsigned long int> * dictFilterLengthsVector;
+    
     
     /**  \brief A integer with the open status of the book */
     int opBook;
      /**  \brief A Qstring with the name of the dict to open */
     private :
     QString dicoName;
+    static  MP_Gui_Callback_c * guiCallback;
     /**  \brief A pointer on a book to store the atoms */
     protected :
     MP_Book_c *book;
@@ -81,6 +86,7 @@ class MP_Gui_Callback_c:public MP_Gui_Callback_Abstract_c
     
     /** \brief Method to init the mpd core  */
     int initMpdCore(QString signalName, QString bookName);
+    static MP_Gui_Callback_c * get_gui_call_back();
     /***************************/
     /* MISC METHODS            */
     /***************************/
@@ -120,8 +126,19 @@ class MP_Gui_Callback_c:public MP_Gui_Callback_Abstract_c
     bool getSNRCheck();
     unsigned long int get_num_iter(void);
     int getBookOpen();
+    void getDictFilterlengths(int blocksNumber);
     void addCustomBlockToDictionary(map<string, string, mp_ltstring>* setPropertyMap);
     void play(MP_Signal_c * sig, std::vector<bool> * v, float startTime, float endTime);
+    static void emitInfoMessage(char* message);
+    static void emitErrorMessage(char* message);
+    static void emitWarningMessage(char* message);
+    signals:
+  /**  \brief A Qt signal to
+   *   \param status A boolean (true if iteration is running, false else) 
+   *   */
+    void infoMessage(char* message);
+    void errorMessage(char* message);
+    void warningMessage(char* message);
   };
 
 #endif /*GUI_CALLBACK_H_*/

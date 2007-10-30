@@ -478,3 +478,11 @@ if (dict) { dict->print(dictName);
 } else return false;
 }
 
+void MP_Mpd_Core_c::get_filter_lengths(vector<unsigned long int> * filterLengthsVector){
+if (dict && filterLengthsVector->size() == dict->numBlocks) { 
+	
+for ( unsigned int i= 0; i < dict->numBlocks; i++) {
+filterLengthsVector->at(i)= dict->block[i]->filterLen;
+}     
+} 
+}

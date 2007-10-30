@@ -189,6 +189,7 @@ class MP_Mpd_Core_c:public MP_Abstract_Core_c
                        const char* setBookFileName,
                        const char* setResFileName,
                        const char* setDecayFileName );
+    void get_filter_lengths(vector<unsigned long int> * filterLengthsVector);
   };
 
 #endif /* __mpd_core_h_ */

@@ -38,7 +38,7 @@
 int main(int argc, char *argv[])
 {
     QApplication application(argc, argv); 
-    MainWindow* mainWin = MainWindow::get_main_window();
+    MainWindow* mainWin = new MainWindow();
     mainWin->show();
     return application.exec();
 }

@@ -46,17 +46,35 @@
 
 class MP_Gui_Callback_Demo_c:public MP_Gui_Callback_c
 {
+	Q_OBJECT
+    /***********/
+    /* DATA    */
+    /***********/
+  protected:
+  static  MP_Gui_Callback_Demo_c * guiCallbackDemo;
 public:
     void playTransientSignal(std::vector<bool> * v, float startTime, float endTime);
     void playOtherSignal(std::vector<bool> * v, float startTime, float endTime);
 	MP_Gui_Callback_Demo_c();
 	virtual ~MP_Gui_Callback_Demo_c();
+	static MP_Gui_Callback_Demo_c * get_gui_call_back();
 	void separate(unsigned long int length);
 	MP_Gabor_Atom_Plugin_c* newAtom;
 	MP_Book_c * booktransient;
 	MP_Book_c * bookother;
 	MP_Signal_c *transientSignal;
 	MP_Signal_c *otherSignal;
+	
+	static void emitInfoMessage(char* message);
+    static void emitErrorMessage(char* message);
+    static void emitWarningMessage(char* message);
+    signals:
+  /**  \brief A Qt signal to
+   *   \param status A boolean (true if iteration is running, false else) 
+   *   */
+    void infoMessage(char* message);
+    void errorMessage(char* message);
+    void warningMessage(char* message);
 	
 };
 

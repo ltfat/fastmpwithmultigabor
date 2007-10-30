@@ -44,10 +44,12 @@
  */
 class MP_Gui_Callback_Demix_c:public MP_Gui_Callback_Abstract_c
   {
+  	Q_OBJECT
     /***********/
     /* DATA    */
     /***********/
   protected:
+  static  MP_Gui_Callback_Demix_c * guiCallbackDemix;
   /**
    * \brief a vector to stock the book for each sources
    */
@@ -80,6 +82,7 @@ class MP_Gui_Callback_Demix_c:public MP_Gui_Callback_Abstract_c
     /** \brief a public destructor */
     virtual ~MP_Gui_Callback_Demix_c();
 
+    static MP_Gui_Callback_Demix_c * get_gui_call_back();
     /***************************/
     /* MISC METHODS            */
     /***************************/
@@ -136,6 +139,17 @@ class MP_Gui_Callback_Demix_c:public MP_Gui_Callback_Abstract_c
        *  \return a bool to indicate success
        */
     virtual int openSignal(QString fileName);
+    
+    static void emitInfoMessage(char* message);
+    static void emitErrorMessage(char* message);
+    static void emitWarningMessage(char* message);
+    signals:
+  /**  \brief A Qt signal to
+   *   \param status A boolean (true if iteration is running, false else) 
+   *   */
+    void infoMessage(char* message);
+    void errorMessage(char* message);
+    void warningMessage(char* message);
   };
 
 

@@ -35,15 +35,14 @@
 #include "main_window.h"
 
 
-MainWindow * MainWindow::myMainWindow = NULL;
 // Constructor
 MainWindow::MainWindow(QWidget *parent): QMainWindow(parent)
 {
   setupUi(this);
-  guiCallBack = new MP_Gui_Callback_c();
+  guiCallBack = MP_Gui_Callback_c::get_gui_call_back();
   guiCallBack->setActivated();
-  guiCallBackDemix = new MP_Gui_Callback_Demix_c();
-  guiCallBackDemo = new MP_Gui_Callback_Demo_c();
+  guiCallBackDemix = MP_Gui_Callback_Demix_c::get_gui_call_back();
+  guiCallBackDemo = MP_Gui_Callback_Demo_c::get_gui_call_back();
   dialog  = new Dialog();
   labelOriginalSignal->setText("No wave file selected for original signal");
   labelBook->setText("No book file selected");
@@ -51,7 +50,6 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent)
   label_progress->setText("No decompostion");
   label_progressDemix->setText("No decompostion");
   label_progress_Demo->setText("No decompostion");
-  lineEditSeparateValueDemo->setText("0");
   textEditConsol->append(gplText);
   textEditConsolDemix->append(gplText);
   textEditConsolDemo->append(gplText);
@@ -64,10 +62,20 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent)
   connect(pushButtonStopIterateDemix, SIGNAL(clicked()), guiCallBackDemix, SLOT(stopIteration()), Qt::DirectConnection);
   connect(guiCallBack, SIGNAL(runningIteration(bool)), this, SLOT(iteration_running(bool)));
   connect(guiCallBackDemix, SIGNAL(runningIteration(bool)), this, SLOT(iteration_running_demix(bool)));
-  connect(guiCallBackDemo, SIGNAL(runningIteration(bool)), this, SLOT(iteration_running_demo(bool)));
-  MP_Msg_Server_c::get_msg_server()->register_display_function("info_message_display",&MainWindow::displayOnConsol);
-  MP_Msg_Server_c::get_msg_server()->register_display_function("error_message_display",&MainWindow::displayOnError);
-  MP_Msg_Server_c::get_msg_server()->register_display_function("warning_message_display",&MainWindow::displayOnWarning);
+  connect(MP_Gui_Callback_Demo_c::get_gui_call_back(), SIGNAL(runningIteration(bool)), this, SLOT(iteration_running_demo(bool)));
+  connect(guiCallBack, SIGNAL(infoMessage(char*)), this, SLOT(displayOnConsol(char*)));
+  connect(guiCallBack, SIGNAL(errorMessage(char*)), this, SLOT(displayOnError(char*)));
+  connect(guiCallBack, SIGNAL(warningMessage(char*)), this, SLOT(displayOnWarning(char*)));
+  connect(guiCallBackDemix, SIGNAL(infoMessage(char*)), this, SLOT(displayOnConsolDemix(char*)));
+  connect(guiCallBackDemix, SIGNAL(errorMessage(char*)), this, SLOT(displayOnErrorDemix(char*)));
+  connect(guiCallBackDemix, SIGNAL(warningMessage(char*)), this, SLOT(displayOnWarningDemix(char*)));
+  connect(guiCallBackDemo, SIGNAL(infoMessage(char*)), this, SLOT(displayOnConsolDemo(char*)));
+  connect(guiCallBackDemo, SIGNAL(errorMessage(char*)), this, SLOT(displayOnErrorDemo(char*)));
+  connect(guiCallBackDemo, SIGNAL(warningMessage(char*)), this, SLOT(displayOnWarningDemo(char*)));
+  MP_Msg_Server_c::get_msg_server()->register_display_function("info_message_display",&MP_Gui_Callback_c::emitInfoMessage);
+  MP_Msg_Server_c::get_msg_server()->register_display_function("error_message_display",&MP_Gui_Callback_c::emitErrorMessage);
+  MP_Msg_Server_c::get_msg_server()->register_display_function("warning_message_display",&MP_Gui_Callback_c::emitWarningMessage);
+  groupBox_27->hide();
 }
 
 
@@ -94,35 +102,39 @@ MainWindow::~MainWindow()
 
 }
 
-MainWindow * MainWindow::get_main_window(){
-	
-	  if (!myMainWindow)
-    {
-      myMainWindow = new MainWindow();
-    }
-return myMainWindow;
-
-}
 void MainWindow::displayOnConsol(char* message){
-MainWindow::get_main_window()->textEditConsol->append( QString(message));
-MainWindow::get_main_window()->textEditConsol->update(); 
+textEditConsol->append( QString(message));
+textEditConsol->update(); 
 }
 
 void MainWindow::displayOnConsolDemix(char* message){
-MainWindow::get_main_window()->textEditConsolDemix->append( QString(message));
-MainWindow::get_main_window()->textEditConsolDemix->update(); 
+textEditConsolDemix->append( QString(message));
+textEditConsolDemix->update(); 
 }
 
 void MainWindow::displayOnConsolDemo(char* message){
-MainWindow::get_main_window()->textEditConsolDemo->append( QString(message));
-MainWindow::get_main_window()->textEditConsolDemo->update(); 
+textEditConsolDemo->append( QString(message));
+textEditConsolDemo->update(); 
 }
 
 void MainWindow::displayOnWarning(char* message){
-MainWindow::get_main_window()->dialog->warningMessage(QString(message));
+dialog->warningMessage(QString(message));
+}
+
+void MainWindow::displayOnWarningDemix(char* message){
+dialog->warningMessage(QString(message));
+}
+void MainWindow::displayOnWarningDemo(char* message){
+dialog->warningMessage(QString(message));
 }
 void MainWindow::displayOnError(char* message){
-MainWindow::get_main_window()->dialog->errorMessage(QString(message));
+dialog->errorMessage(QString(message));
+}
+void MainWindow::displayOnErrorDemix(char* message){
+dialog->errorMessage(QString(message));
+}
+void MainWindow::displayOnErrorDemo(char* message){
+dialog->errorMessage(QString(message));
 }
 // When user change the current tab
 void MainWindow::on_tabWidget_currentChanged()
@@ -133,20 +145,29 @@ void MainWindow::on_tabWidget_currentChanged()
       if (guiCallBackDemo->getActivated())guiCallBackDemo->setDesactivated();
         
       guiCallBackDemix->setActivated();
-      MP_Msg_Server_c::get_msg_server()->register_display_function("info_message_display",&MainWindow::displayOnConsolDemix);
+      MP_Msg_Server_c::get_msg_server()->register_display_function("info_message_display",&MP_Gui_Callback_Demix_c::emitInfoMessage);
+     MP_Msg_Server_c::get_msg_server()->register_display_function("error_message_display",&MP_Gui_Callback_Demix_c::emitErrorMessage);
+     MP_Msg_Server_c::get_msg_server()->register_display_function("warning_message_display",&MP_Gui_Callback_Demix_c::emitWarningMessage);
+
+      
+
     }
   else if (tabWidget->currentIndex()== 0)
     {
       if (guiCallBackDemix->getActivated())guiCallBackDemix->setDesactivated();
       if (guiCallBackDemo->getActivated())guiCallBackDemo->setDesactivated();
-        
       guiCallBack->setActivated();
-      MP_Msg_Server_c::get_msg_server()->register_display_function("info_message_display",&MainWindow::displayOnConsol);
+           MP_Msg_Server_c::get_msg_server()->register_display_function("info_message_display",&MP_Gui_Callback_c::emitInfoMessage);
+     MP_Msg_Server_c::get_msg_server()->register_display_function("error_message_display",&MP_Gui_Callback_c::emitErrorMessage);
+     MP_Msg_Server_c::get_msg_server()->register_display_function("warning_message_display",&MP_Gui_Callback_c::emitWarningMessage);
+     
     }
   else if (tabWidget->currentIndex()== 2)
     {
       guiCallBackDemo->setActivated();
-      MP_Msg_Server_c::get_msg_server()->register_display_function("info_message_display",&MainWindow::displayOnConsolDemo);
+    MP_Msg_Server_c::get_msg_server()->register_display_function("info_message_display",&MP_Gui_Callback_Demo_c::emitInfoMessage);
+     MP_Msg_Server_c::get_msg_server()->register_display_function("error_message_display",&MP_Gui_Callback_Demo_c::emitErrorMessage);
+     MP_Msg_Server_c::get_msg_server()->register_display_function("warning_message_display",&MP_Gui_Callback_Demo_c::emitWarningMessage);
       if (guiCallBackDemix->getActivated()) guiCallBackDemix->setDesactivated();
       if (guiCallBack->getActivated()) guiCallBack->setDesactivated();
 
@@ -470,13 +491,11 @@ void MainWindow::on_btnOpenMixer_clicked()
   QString panelName = "MPTK GUI: Choose a mixer file to open";
   QString fileType ="Text Files (*.txt);;XML Files (*.xml);;All Files (*)";
   QString s =dialog->setOpenFileName(panelName, fileType );
-  labelBookMixer->setText(s);
   if (!s.isEmpty())
     {
-      labelBookMixer->setText(s);
       if (guiCallBackDemix->openMixer(s))
         {
-          labelBookMixer->setText(s);
+          labelMixer->setText(s);
           char buf[3];
           sprintf(buf, "%d", guiCallBackDemix->mixer->numSources);
           labelBookMixeeNbrSources->setText(buf);
@@ -647,6 +666,10 @@ void MainWindow::on_btnOpenDefaultSig_clicked()
 void MainWindow::on_btnValidateDefautlDict_clicked()
 {
   std::string strAppDirectory;
+  char buf[32];
+  char buf1[32];
+  char buf2[32];
+  char buf3[32];
   if (guiCallBackDemo->coreInit() && !dictOpenDemo)
     {
 #ifdef __WIN32__
@@ -671,6 +694,15 @@ void MainWindow::on_btnValidateDefautlDict_clicked()
           fclose(fp);
           if (guiCallBackDemo->coreInit())labelDictDemixDemo->setText(QString(strAppDirectory.c_str()));
           if (guiCallBackDemo->coreInit())guiCallBackDemo->setDictionary(QString(strAppDirectory.c_str()));
+          guiCallBackDemo->getDictFilterlengths(2);
+          sprintf(buf, "%lu",guiCallBackDemo->dictFilterLengthsVector->at(0));
+          labeltransientsize->setText(buf);
+          sprintf(buf2, "%f",1000.0*guiCallBackDemo->dictFilterLengthsVector->at(0)/guiCallBackDemo->getSignalSampleRate());
+          labeltransientsizemilliseconds->setText(buf2);
+          sprintf(buf1, "%lu",guiCallBackDemo->dictFilterLengthsVector->at(1));
+          labeltonalsize->setText(buf1);
+          sprintf(buf3, "%f",1000.0*guiCallBackDemo->dictFilterLengthsVector->at(1)/guiCallBackDemo->getSignalSampleRate());
+          labeltonalsizemilliseconds->setText(buf3);
           dictOpenDemoDefault = true;
           groupBox_19->hide();
         }
@@ -692,6 +724,15 @@ void MainWindow::on_btnValidateDefautlDict_clicked()
           fclose(fp);
           if (guiCallBackDemo->coreInit())labelDictDemixDemo->setText(QString(strAppDirectory.c_str()));
           if (guiCallBackDemo->coreInit())guiCallBackDemo->setDictionary(QString(strAppDirectory.c_str()));
+          guiCallBackDemo->getDictFilterlengths(2);
+          sprintf(buf, "%lu",guiCallBackDemo->dictFilterLengthsVector->at(0));
+          labeltransientsize->setText(buf);
+          sprintf(buf2, "%f",1000.0*guiCallBackDemo->dictFilterLengthsVector->at(0)/guiCallBackDemo->getSignalSampleRate());
+          labeltransientsizemilliseconds->setText(buf2);
+          sprintf(buf1, "%lu",guiCallBackDemo->dictFilterLengthsVector->at(1));
+          labeltonalsize->setText(buf1);
+          sprintf(buf3, "%f",1000.0*guiCallBackDemo->dictFilterLengthsVector->at(1)/guiCallBackDemo->getSignalSampleRate());
+          labeltonalsizemilliseconds->setText(buf3);
           dictOpenDemoDefault = true;
           groupBox_19->hide();
         }
@@ -725,7 +766,7 @@ void MainWindow::on_btnOpenDefaultMixerDemix_clicked(){
           fclose(fp);
       if (guiCallBackDemix->openMixer(QString(strAppDirectory.c_str())))
         {
-          //labelBookMixer->setText(strAppDirectory);
+          labelMixer->setText(strAppDirectory.c_str());
           char buf[3];
           sprintf(buf, "%d", guiCallBackDemix->mixer->numSources);
           labelBookMixeeNbrSources->setText(buf);
@@ -750,7 +791,7 @@ void MainWindow::on_btnOpenDefaultMixerDemix_clicked(){
           fclose(fp);
            if (guiCallBackDemix->openMixer(QString(strAppDirectory.c_str())))
         {
-          //labelBookMixer->setText(strAppDirectory);
+          labelMixer->setText(strAppDirectory.c_str());
           char buf[3];
           sprintf(buf, "%d", guiCallBackDemix->mixer->numSources);
           labelBookMixeeNbrSources->setText(buf);
@@ -767,6 +808,10 @@ void MainWindow::on_btnValidateCustomDict_clicked()
 {
   map<string, string, mp_ltstring>* parameterCustomBlock1 = new map<string, string, mp_ltstring>();
   map<string, string, mp_ltstring>* parameterCustomBlock2 = new map<string, string, mp_ltstring>();
+  char buf[32];
+  char buf1[32];
+  char buf2[32];
+  char buf3[32];
   if (guiCallBackDemo->coreInit() && !dictOpenDemo)
     {
 
@@ -796,7 +841,15 @@ void MainWindow::on_btnValidateCustomDict_clicked()
       guiCallBackDemo->initDictionary();
       guiCallBackDemo->addCustomBlockToDictionary(parameterCustomBlock1);
       guiCallBackDemo->addCustomBlockToDictionary(parameterCustomBlock2);
-
+       guiCallBackDemo->getDictFilterlengths(2);
+          sprintf(buf, "%lu",guiCallBackDemo->dictFilterLengthsVector->at(0));
+          labeltransientsize->setText(buf);
+          sprintf(buf2, "%f",1000.0*guiCallBackDemo->dictFilterLengthsVector->at(0)/guiCallBackDemo->getSignalSampleRate());
+          labeltransientsizemilliseconds->setText(buf2);
+          sprintf(buf1, "%lu",guiCallBackDemo->dictFilterLengthsVector->at(1));
+          labeltonalsize->setText(buf1);
+          sprintf(buf3, "%f",1000.0*guiCallBackDemo->dictFilterLengthsVector->at(1)/guiCallBackDemo->getSignalSampleRate());
+          labeltonalsizemilliseconds->setText(buf3);
       dictOpenDemoCustom = true;
       groupBox_22->hide();
     }
@@ -833,35 +886,32 @@ void MainWindow::on_btnPlayDemo_clicked()
 
 }
 
-void MainWindow::on_horizontalScrollBarDemo_valueChanged()
-{
-  if (guiCallBackDemo->coreInit())
-    {
-      char buf[32];
-      if (checkBoxTransientUnit->isChecked())
-        {
-          sprintf(buf, "%f",1.0*horizontalScrollBarDemo->value());
-        }
-      else
-        {
-          sprintf(buf, "%f",1000.0*horizontalScrollBarDemo->value()/ guiCallBackDemo->getSignalSampleRate());
-        }//
-      lineEditSeparateValueDemo->setText(buf);
-    }
 
-}
 
 void MainWindow::on_btnOpenDictDemo_clicked()
 {
   QString panelName = "MPTK GUI: Open dictionary";
   QString fileType ="XML Files (*.xml);;All Files (*)";
   QString s =dialog->setOpenFileName(panelName, fileType );
+  char buf[32];
+  char buf1[32];
+  char buf2[32];
+  char buf3[32];
   if (guiCallBackDemo->coreInit() && !dictOpenDemoDefault)
     {
       if (!s.isEmpty())
         {
           if (guiCallBackDemo->coreInit())guiCallBackDemo->setDictionary(s);
           labelDictDemixDemo->setText(s);
+          guiCallBackDemo->getDictFilterlengths(2);
+          sprintf(buf, "%lu",guiCallBackDemo->dictFilterLengthsVector->at(0));
+          labeltransientsize->setText(buf);
+          sprintf(buf2, "%f",1000.0*guiCallBackDemo->dictFilterLengthsVector->at(0)/guiCallBackDemo->getSignalSampleRate());
+          labeltransientsizemilliseconds->setText(buf2);
+          sprintf(buf1, "%lu",guiCallBackDemo->dictFilterLengthsVector->at(1));
+          labeltonalsize->setText(buf1);
+          sprintf(buf3, "%f",1000.0*guiCallBackDemo->dictFilterLengthsVector->at(1)/guiCallBackDemo->getSignalSampleRate());
+          labeltonalsizemilliseconds->setText(buf3);
           dictOpenDemo = true;
         }
       else dialog->errorMessage("Empty name file");
@@ -884,18 +934,6 @@ void MainWindow::on_btnSaveCustomDict_clicked()
       else dialog->errorMessage("Empty name file");
     }
   else dialog->errorMessage("Validate a custom dictionary first");
-}
-
-void MainWindow::on_checkBoxTransientUnit_pressed()
-{
-  if (checkBoxTransientUnit->isChecked())
-    {
-      label_17->setText("Duration of transient in samples");
-    }
-  else
-    {
-      label_17->setText("Duration of transient in milliseconds");
-    }
 }
 
 void MainWindow::on_lineEditCustomBlock1WindowLen_textEdited()
@@ -969,14 +1007,12 @@ void MainWindow::iteration_running(bool status)
     if (status)
       {
         label_progress_Demo->setText("<font color=\"#FF0000\">Decomposition in progress</font>");
-        btnDecomposeDemo->hide();
       }
     else
       {
         label_progress_Demo->setText("<font color=green>Decomposition ended with success</font>");
         textEditConsolDemo->update();
-        btnDecomposeDemo->show();
-
+        groupBox_27->show();
       }
 
   }
@@ -989,14 +1025,12 @@ void MainWindow::iteration_running(bool status)
         textEditConsolDemix->update();
       }
   }
-
   void MainWindow::on_btnDecomposeDemo_clicked()
   {
-    if (lineEditSeparateValueDemo->text().toULong()>0)
-      {
-        if (checkBoxTransientUnit->isChecked())guiCallBackDemo->separate(lineEditSeparateValueDemo->text().toULong());
-        else guiCallBackDemo->separate((unsigned long int)(lineEditSeparateValueDemo->text().toULong()*guiCallBackDemo->getSignalSampleRate()/1000)); //
-      }
+    
+   if (guiCallBackDemo->dictFilterLengthsVector->at(1) - guiCallBackDemo->dictFilterLengthsVector->at(0)> 0){   
+       guiCallBackDemo->separate((guiCallBackDemo->dictFilterLengthsVector->at(1) - guiCallBackDemo->dictFilterLengthsVector->at(0))/2);       
+  }
     else guiCallBackDemo->separate(200);
     textEditConsolDemo->update();
   }
