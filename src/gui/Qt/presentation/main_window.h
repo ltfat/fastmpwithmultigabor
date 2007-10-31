@@ -43,6 +43,7 @@ using namespace std;
 #include "../core/gui_callback_demix.h"
 #include "../core/gui_callback_demo.h"
 #include "../core/gui_callback_abstract.h"
+#include "../core/gui_callback_reconstruction.h"
 #include "gpl.h"
 #include <unistd.h>
 
@@ -70,6 +71,8 @@ class MainWindow: public QMainWindow, private Ui::MainWindow
     MP_Gui_Callback_Demix_c * guiCallBackDemix;
     /**  \brief Pointer on a gui callback for mpd demo  */
     MP_Gui_Callback_Demo_c *guiCallBackDemo;
+    /**  \brief Pointer on a gui callback for mpr */
+    MP_Gui_Callback_Reconstruct_c *guiCallBackReconstruct;
     /**  \brief Pointer on map vector to create the customs blocks   */
     vector<map< string, string, mp_ltstring>*> * customBlockMapVector;
     /**  \brief Pointer on a dialog class to show message ti the user   */
@@ -119,6 +122,8 @@ class MainWindow: public QMainWindow, private Ui::MainWindow
     /**  \brief A slot */
     void on_btnOpenSig_clicked();
     /**  \brief A slot */
+    void on_btnOpenSigRecons_clicked();
+    /**  \brief A slot */
     void on_btnOpenDict_clicked();
     /**  \brief A slot */
     void on_btnOpenbook_clicked();
@@ -126,6 +131,8 @@ class MainWindow: public QMainWindow, private Ui::MainWindow
     void on_pushButtonIterateOnce_clicked();
     /**  \brief A slot */
     void on_pushButtonIterateAll_clicked();
+    /**  \brief A slot */
+    void on_pushButtonreconSignal_clicked();
     /**  \brief A slot */
     void on_comboBoxNumIter_activated();
     /**  \brief A slot */
@@ -159,6 +166,10 @@ class MainWindow: public QMainWindow, private Ui::MainWindow
     /**  \brief A slot */
     void on_pushButtonSaveApproxDemix_clicked();
     /**  \brief A slot */
+    void on_pushButtonSaveReconstruc_clicked();
+    /**  \brief A slot */
+    void on_pushButtonSaveApproxRecons_clicked();
+    /**  \brief A slot */
     void on_tabWidget_currentChanged();
     /**  \brief A slot */
     void on_btnOpenMixer_clicked();
@@ -185,7 +196,11 @@ class MainWindow: public QMainWindow, private Ui::MainWindow
     /**  \brief A slot */
     void on_btnStopDemo_clicked();
     /**  \brief A slot */
+    void on_btnStopRecons_clicked();
+    /**  \brief A slot */
     void on_btnStopDemix_clicked();
+    /**  \brief A slot */
+    void on_btnPlayRecons_clicked();
     /**  \brief A slot */
     void on_btnOpenSigDemo_clicked();
     /**  \brief A slot */
@@ -219,7 +234,7 @@ class MainWindow: public QMainWindow, private Ui::MainWindow
     void iteration_running_demix(bool status);
     /**  \brief A slot */
     void iteration_running_demo(bool status);
-
+    void reconstruction_running(bool status);
     void displayOnConsol(char* message);
     void displayOnWarning(char* message);
     void displayOnError(char* message);
@@ -229,6 +244,9 @@ class MainWindow: public QMainWindow, private Ui::MainWindow
     void displayOnWarningDemix(char* message);
     void displayOnErrorDemix(char* message);
     void displayOnErrorDemo(char* message);
+    void displayOnConsolRecons(char* message);
+    void displayOnWarningRecons(char* message);
+    void displayOnErrorRecons(char* message);
   public:
     /**  \brief Method to show the message of the sdtout in the consol of the gui for the tab mpd
      */

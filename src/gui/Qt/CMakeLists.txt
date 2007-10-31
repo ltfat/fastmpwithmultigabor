@@ -62,6 +62,7 @@ presentation/dialog.cpp
 core/gui_callback.cpp
 core/gui_callback_demix.cpp
 core/gui_callback_demo.cpp
+core/gui_callback_reconstruction.cpp
 core/gui_audio.cpp  
 )
 
@@ -73,6 +74,7 @@ SET(qtproject_HDRS
 presentation/main_window.h
 presentation/dialog.h
 core/gui_callback_abstract.h
+core/gui_callback_reconstruction.h
 core/gui_callback.h
 core/gui_callback_demix.h
 core/gui_callback_demo.h

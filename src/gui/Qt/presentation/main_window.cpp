@@ -43,6 +43,7 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent)
   guiCallBack->setActivated();
   guiCallBackDemix = MP_Gui_Callback_Demix_c::get_gui_call_back();
   guiCallBackDemo = MP_Gui_Callback_Demo_c::get_gui_call_back();
+  guiCallBackReconstruct = MP_Gui_Callback_Reconstruct_c::get_gui_call_back();
   dialog  = new Dialog();
   labelOriginalSignal->setText("No wave file selected for original signal");
   labelBook->setText("No book file selected");
@@ -62,6 +63,7 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent)
   connect(pushButtonStopIterateDemix, SIGNAL(clicked()), guiCallBackDemix, SLOT(stopIteration()), Qt::DirectConnection);
   connect(guiCallBack, SIGNAL(runningIteration(bool)), this, SLOT(iteration_running(bool)));
   connect(guiCallBackDemix, SIGNAL(runningIteration(bool)), this, SLOT(iteration_running_demix(bool)));
+  connect(guiCallBackReconstruct, SIGNAL(runningReconstruction(bool)), this, SLOT(reconstruction_running(bool)));
   connect(MP_Gui_Callback_Demo_c::get_gui_call_back(), SIGNAL(runningIteration(bool)), this, SLOT(iteration_running_demo(bool)));
   connect(guiCallBack, SIGNAL(infoMessage(char*)), this, SLOT(displayOnConsol(char*)));
   connect(guiCallBack, SIGNAL(errorMessage(char*)), this, SLOT(displayOnError(char*)));
@@ -107,6 +109,11 @@ textEditConsol->append( QString(message));
 textEditConsol->update(); 
 }
 
+void MainWindow::displayOnConsolRecons(char* message){
+textEditConsolRecons->append( QString(message));
+textEditConsolRecons->update(); 
+}
+
 void MainWindow::displayOnConsolDemix(char* message){
 textEditConsolDemix->append( QString(message));
 textEditConsolDemix->update(); 
@@ -127,6 +134,10 @@ dialog->warningMessage(QString(message));
 void MainWindow::displayOnWarningDemo(char* message){
 dialog->warningMessage(QString(message));
 }
+void MainWindow::displayOnWarningRecons(char* message){
+dialog->warningMessage(QString(message));
+}
+
 void MainWindow::displayOnError(char* message){
 dialog->errorMessage(QString(message));
 }
@@ -136,6 +147,9 @@ dialog->errorMessage(QString(message));
 void MainWindow::displayOnErrorDemo(char* message){
 dialog->errorMessage(QString(message));
 }
+void MainWindow::displayOnErrorRecons(char* message){
+dialog->errorMessage(QString(message));
+}
 // When user change the current tab
 void MainWindow::on_tabWidget_currentChanged()
 {
@@ -143,6 +157,7 @@ void MainWindow::on_tabWidget_currentChanged()
     {
       if (guiCallBack->getActivated()) guiCallBack->setDesactivated();
       if (guiCallBackDemo->getActivated())guiCallBackDemo->setDesactivated();
+       if (guiCallBackReconstruct->getActivated())guiCallBackReconstruct->setDesactivated();
         
       guiCallBackDemix->setActivated();
       MP_Msg_Server_c::get_msg_server()->register_display_function("info_message_display",&MP_Gui_Callback_Demix_c::emitInfoMessage);
@@ -156,6 +171,7 @@ void MainWindow::on_tabWidget_currentChanged()
     {
       if (guiCallBackDemix->getActivated())guiCallBackDemix->setDesactivated();
       if (guiCallBackDemo->getActivated())guiCallBackDemo->setDesactivated();
+       if (guiCallBackReconstruct->getActivated())guiCallBackReconstruct->setDesactivated();
       guiCallBack->setActivated();
            MP_Msg_Server_c::get_msg_server()->register_display_function("info_message_display",&MP_Gui_Callback_c::emitInfoMessage);
      MP_Msg_Server_c::get_msg_server()->register_display_function("error_message_display",&MP_Gui_Callback_c::emitErrorMessage);
@@ -168,6 +184,17 @@ void MainWindow::on_tabWidget_currentChanged()
     MP_Msg_Server_c::get_msg_server()->register_display_function("info_message_display",&MP_Gui_Callback_Demo_c::emitInfoMessage);
      MP_Msg_Server_c::get_msg_server()->register_display_function("error_message_display",&MP_Gui_Callback_Demo_c::emitErrorMessage);
      MP_Msg_Server_c::get_msg_server()->register_display_function("warning_message_display",&MP_Gui_Callback_Demo_c::emitWarningMessage);
+      if (guiCallBackDemix->getActivated()) guiCallBackDemix->setDesactivated();
+      if (guiCallBack->getActivated()) guiCallBack->setDesactivated();
+       if (guiCallBackReconstruct->getActivated())guiCallBackReconstruct->setDesactivated();
+
+    }
+      else if (tabWidget->currentIndex()== 3)
+    {
+      guiCallBackReconstruct->setActivated();
+    MP_Msg_Server_c::get_msg_server()->register_display_function("info_message_display",&MP_Gui_Callback_Reconstruct_c::emitInfoMessage);
+     MP_Msg_Server_c::get_msg_server()->register_display_function("error_message_display",&MP_Gui_Callback_Reconstruct_c::emitErrorMessage);
+     MP_Msg_Server_c::get_msg_server()->register_display_function("warning_message_display",&MP_Gui_Callback_Reconstruct_c::emitWarningMessage);
       if (guiCallBackDemix->getActivated()) guiCallBackDemix->setDesactivated();
       if (guiCallBack->getActivated()) guiCallBack->setDesactivated();
 
@@ -188,6 +215,22 @@ void MainWindow::on_btnPlay_clicked()
       if (radioButtonOri->isChecked())guiCallBack->playBaseSignal(selectedChannel,0,0);
       if (radioButtonApprox->isChecked())guiCallBack->playApproximantSignal(selectedChannel,0,0);
       if (radioButtonResi->isChecked())guiCallBack->playResidualSignal(selectedChannel,0,0);
+    }
+}
+
+// play in mpd tab
+void MainWindow::on_btnPlayRecons_clicked()
+{
+  if (NULL!=guiCallBackReconstruct->reconstruct)
+    {
+      std::vector<bool> * selectedChannel =  new std::vector<bool>(guiCallBackReconstruct->reconstruct->numChans, false);
+      for (int i = 0 ; i<guiCallBackReconstruct->reconstruct->numChans ; i++)
+        {
+          (*selectedChannel)[i] = true;
+        }
+
+      if (radioButtonRecons->isChecked())guiCallBackReconstruct->playReconstructSignal(selectedChannel,0,0);
+      if (radioButtonApproxRecons->isChecked())guiCallBackReconstruct->playApproximantSignal(selectedChannel,0,0);
     }
 }
 
@@ -224,6 +267,9 @@ void MainWindow::on_btnStop_clicked()
   guiCallBack->stopPortAudioStream();
 }
 
+void MainWindow::on_btnStopRecons_clicked(){
+guiCallBackReconstruct->stopPortAudioStream();
+}
 void MainWindow::on_btnStopDemix_clicked()
 {
   guiCallBackDemix->stopPortAudioStream();
@@ -261,6 +307,22 @@ void MainWindow::on_btnOpenSig_clicked()
   return;
 }
 
+void MainWindow::on_btnOpenSigRecons_clicked(){
+  QString panelName = "MPTK GUI: Open Waves files";
+  QString fileType ="Wave Files (*.wav);;All Files (*)";
+  QString s =dialog->setOpenFileName(panelName, fileType );
+  if (!s.isEmpty())
+    {
+    	if (guiCallBackReconstruct->openSignal(s) ==NOTHING_OPENED) dialog->errorMessage("the file named " + s +" isn't a wave file" );
+          else labelOriginalSignal->setText(s);
+        }
+    
+  else dialog->errorMessage("Empty name file");
+
+
+  return;
+
+}
 /* ouvrir une boîte de dialogue pour sélectionner un fichier */
 
 void MainWindow::on_btnOpenDict_clicked()
@@ -365,11 +427,39 @@ void MainWindow::on_pushButtonSaveResidual_clicked()
   if (!s.isEmpty())
     {
       if (guiCallBack->coreInit())guiCallBack->saveResidual(s);
+
     }
   else dialog->errorMessage("Empty name file");
 
 }
 
+void MainWindow::on_pushButtonSaveReconstruc_clicked(){
+  QString panelName = "MPTK GUI: type a name for saving the residual file";
+  QString fileType ="Wave Files (*.wav);;All Files (*)";
+  QString s =dialog->setSaveFileName(panelName, fileType );
+  
+  if (!s.isEmpty())
+    {
+      if (guiCallBackReconstruct->coreInit())guiCallBackReconstruct->saveReconstruct(s);
+      lineEditSaveRecons->setText(s);
+    }
+  else dialog->errorMessage("Empty name file");
+
+}
+
+void MainWindow::on_pushButtonSaveApproxRecons_clicked(){
+  QString panelName = "MPTK GUI: type a name for saving the residual file";
+  QString fileType ="Wave Files (*.wav);;All Files (*)";
+  QString s =dialog->setSaveFileName(panelName, fileType );
+  
+  if (!s.isEmpty())
+    {
+      if (guiCallBackReconstruct->coreInit())guiCallBackReconstruct->saveApproximant(s);
+      lineEditSaveApproximantRecons->setText(s);
+    }
+  else dialog->errorMessage("Empty name file");
+
+}
 
 void MainWindow::on_pushButtonSaveDecay_clicked()
 {
@@ -427,24 +517,10 @@ void MainWindow::on_btnOpenbook_clicked()
   QString panelName = "MPTK GUI: Choose a book to open";
   QString fileType ="BIN Files (*.bin);;All Files (*)";
   QString s =dialog->setOpenFileName(panelName, fileType );
-  int answer =0;
   if (!s.isEmpty())
-    {
-      if (guiCallBack->getSignalOpen()==0) answer = dialog->questionMessage("Do you want to rebuild the book and substract atom from original signal?");
-
-      if (answer == 2) dialog->errorMessage("Operation canceled");
-      else if (answer == 0) guiCallBack->openBook(s);
-      else
-        {
-          if ( answer == 1)
-            {
-              guiCallBack->openBook(s);
-              guiCallBack->subAddBook();
-            }
-
-        }
-
-      labelBook->setText(s);
+    {guiCallBackReconstruct->openBook(s);
+     labelBook->setText(s);
+     if (!guiCallBackReconstruct->initSignals()== SIGNAL_OPENED) dialog->errorMessage("Failed to create reconstruct signal file");
     }
   else dialog->errorMessage("Empty name file");
 
@@ -1025,6 +1101,16 @@ void MainWindow::iteration_running(bool status)
         textEditConsolDemix->update();
       }
   }
+    void MainWindow::reconstruction_running(bool status)
+  {
+    if (status)label_progressrecons->setText("<font color=\"#FF0000\">Reconstruction in progress</font>");
+    else
+      {
+        label_progressrecons->setText("<font color=green>Reconstruction ended with success</font>");
+       // textEditConsolDemix->update();
+      }
+  }
+
   void MainWindow::on_btnDecomposeDemo_clicked()
   {
     
@@ -1032,6 +1118,7 @@ void MainWindow::iteration_running(bool status)
        guiCallBackDemo->separate((guiCallBackDemo->dictFilterLengthsVector->at(1) - guiCallBackDemo->dictFilterLengthsVector->at(0))/2);       
   }
     else guiCallBackDemo->separate(200);
+    textEditConsolDemo->append("Separate transients and tonals successfully");
     textEditConsolDemo->update();
   }
 
@@ -1040,6 +1127,10 @@ void MainWindow::iteration_running(bool status)
     sprintf(buf, "%lu",guiCallBack->getNumIter());
     labelNumIter->setText(buf);
     pushButtonIterateAll->setText("Resume");
-
+  }
+  
+  void MainWindow::on_pushButtonreconSignal_clicked(){
+  if (guiCallBackReconstruct->coreInit())guiCallBackReconstruct->reconstructSignals();
+  else dialog->errorMessage("parameter not correctly set");
   
   }
