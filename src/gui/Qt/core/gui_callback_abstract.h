@@ -68,7 +68,7 @@ class MP_Gui_Callback_Abstract_c: public QThread
     /* DATA    */
     /***********/
   protected :
-   /**  \brief A Pointer on MP_Mpd_Core_c */
+    /**  \brief A Pointer on MP_Mpd_Core_c */
     MP_Mpd_Core_c *mpd_Core;
     /**  \brief A Pointer on MP_Mpd_demix_Core_c */
     MP_Mpd_demix_Core_c *mpd_Demix_Core;
@@ -90,16 +90,14 @@ class MP_Gui_Callback_Abstract_c: public QThread
     QMutex mutex;
 
   public:
-  /**  \brief A Pointer on MP_Signal_c base signal for working decomposition */
+    /**  \brief A Pointer on MP_Signal_c base signal for working decomposition */
     MP_Signal_c *signal;
-    
-  signals:
-  /**  \brief A Qt signal to
-   *   \param status A boolean (true if iteration is running, false else) 
-   *   */
-    void runningIteration(bool status);
- //   static void infoMessage(char * message);
 
+  signals:
+    /**  \brief A Qt signal to indicate the status of iteration: running or not
+     *   \param status A boolean (true if iteration is running, false else) 
+     *   */
+    void runningIteration(bool status);
     /***********/
     /* METHODS */
     /***********/
@@ -122,8 +120,6 @@ class MP_Gui_Callback_Abstract_c: public QThread
       QThread::start();
       opSig = NOTHING_OPENED;
       activated = false;
-      // MP_Msg_Server_c::get_msg_server()->register_display_function("info_message_display",&displayOnConsol);
-
     };
 
     /** \brief Public destructor  */
@@ -241,7 +237,7 @@ class MP_Gui_Callback_Abstract_c: public QThread
       if (mpd_Core && getActivated())mpd_Core->set_iter_condition(numberIt);
       if (mpd_Demix_Core && getActivated())mpd_Demix_Core->set_iter_condition(numberIt);
     }
-   /** \brief Method to iterate one time */
+    /** \brief Method to iterate one time */
     void iterateOnce()
     {
       if (mpd_Core && getActivated() && mpd_Core->can_step()) mpd_Core->step();
@@ -303,7 +299,7 @@ class MP_Gui_Callback_Abstract_c: public QThread
           /* Test if can step and the run */
           if (mpd_Demix_Core && getActivated() && mpd_Demix_Core->can_step())
             { /* emit a signal to indicate that decomposition is started */
-              emit runningIteration(true);	
+              emit runningIteration(true);
               mpd_Demix_Core->run();
               /* display results */
               mpd_Demix_Core->info_result();
@@ -325,15 +321,15 @@ class MP_Gui_Callback_Abstract_c: public QThread
     {
       if (signal) signal->wavwrite(fileName.toStdString().c_str());
     }
-    /** \brief Method to save the residual decay in a text file
-    *  \param fileName: name of the file to save
-    */
+    /** \brief Method to get the number of iteration done */
     unsigned long int getNumIter(void)
     {
       if (mpd_Core && getActivated()) return mpd_Core->get_num_iter();
       if (mpd_Demix_Core && getActivated())return mpd_Demix_Core->get_num_iter();
     }
-
+    /** \brief Method to save the residual decay data in a text file
+    *  \param fileName: name of the text file to save
+    */
     void saveDecay(QString fileName)
     {
       if (mpd_Core && getActivated()) mpd_Core->save_decay( fileName.toStdString().c_str());
@@ -382,13 +378,9 @@ class MP_Gui_Callback_Abstract_c: public QThread
       if (baseSignal!=NULL) return baseSignal->sampleRate;
       else return 0;
     }
-    
-   // static void displayOnConsol(char* message){
-//emit infoMessage(message);
-//}
 
   private slots:
-    /** \brief Slot to stop iterationif requested
+    /** \brief Slot to stop iteration if requested
       */
     void stopIteration()
     {

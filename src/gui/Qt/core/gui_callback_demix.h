@@ -49,6 +49,9 @@ class MP_Gui_Callback_Demix_c:public MP_Gui_Callback_Abstract_c
     /* DATA    */
     /***********/
   protected:
+    /**
+   * \brief a pointer on MP_Gui_Callback_Demix_c for singleton design pattern
+   */
   static  MP_Gui_Callback_Demix_c * guiCallbackDemix;
   /**
    * \brief a vector to stock the book for each sources
@@ -66,8 +69,14 @@ class MP_Gui_Callback_Demix_c:public MP_Gui_Callback_Abstract_c
    * \brief a vector to stock the dictionary for each sources
    */
     std::vector<const char *> bookFileNameArray;
+    /**
+     * \brief a integer giving the status of book array
+   */
     int opArrayBook;
   public:
+      /**
+     * \brief a pointer on a mixer instance to demix signal
+   */
     MP_Mixer_c* mixer;
 
     /***********/
@@ -76,12 +85,13 @@ class MP_Gui_Callback_Demix_c:public MP_Gui_Callback_Abstract_c
     /***************************/
     /* CONSTRUCTORS/DESTRUCTOR */
     /***************************/
-  public:
-     /** \brief a public constructor */
+  protected:
+    /** \brief a private constructor */
     MP_Gui_Callback_Demix_c();
+  public:
     /** \brief a public destructor */
     virtual ~MP_Gui_Callback_Demix_c();
-
+    /** \brief a getter on MP_Gui_Callback_Demix_c instance */
     static MP_Gui_Callback_Demix_c * get_gui_call_back();
     /***************************/
     /* MISC METHODS            */
@@ -135,20 +145,34 @@ class MP_Gui_Callback_Demix_c:public MP_Gui_Callback_Abstract_c
        *  \return a bool to indicate success
        */
     void setSave(const unsigned long int setSaveHit,QString bookFileName, QString resFileName,QString decayFileName, QString sequenceFileName);
-       /** \brief a method to plug the approximant
-       *  \return a bool to indicate success
-       */
+       /** \brief a method to open signal
+       *   \param fileName the name of the file to open
+       *       */
     virtual int openSignal(QString fileName);
-    
+       /** \brief a method to emit an info message by signal
+       *   \param message : the text of message in char*
+       */
     static void emitInfoMessage(char* message);
+       /** \brief a method to emit a error message by signal
+       *   \param message : the text of message in char*
+       */
     static void emitErrorMessage(char* message);
+           /** \brief a method to emit a warning message by signal
+       *   \param message : the text of message in char*
+       */
     static void emitWarningMessage(char* message);
     signals:
-  /**  \brief A Qt signal to
-   *   \param status A boolean (true if iteration is running, false else) 
+  /**  \brief A Qt signal to pass message from core to GUI
+   *   \param message the text
    *   */
     void infoMessage(char* message);
+      /**  \brief A Qt signal to pass message from core to GUI
+   *   \param message the text
+   *   */
     void errorMessage(char* message);
+      /**  \brief A Qt signal to pass message from core to GUI
+   *   \param message the text
+   *   */
     void warningMessage(char* message);
   };
 

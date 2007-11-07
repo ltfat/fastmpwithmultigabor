@@ -375,7 +375,7 @@ void MainWindow::on_comboBoxNumIterDemo_activated()
 void MainWindow::on_comboBoxSnr_activated()
 {
   char buf[32];
-  sprintf(buf, "%f",comboBoxNumIter->currentText().toULong());
+  sprintf(buf, "%f",comboBoxNumIter->currentText().toDouble());
   lineEditSNR->setText(buf);
   if (guiCallBack->coreInit())guiCallBack->setSNR(comboBoxSnr->currentText().toDouble());
   if (guiCallBack->coreInit())guiCallBack->unsetIter();
@@ -702,7 +702,7 @@ void MainWindow::on_btnOpenDefaultSig_clicked()
       strAppDirectory = szAppPath;
 
       strAppDirectory = strAppDirectory.substr(0, strAppDirectory.rfind("\\"));
-      strAppDirectory += "\\glockenspiel.wav";
+      strAppDirectory += "\\reference\\signal\\glockenspiel.wav";
       FILE *fp = fopen (strAppDirectory.c_str(), "r");
       if (fp == NULL)
         {
@@ -721,7 +721,7 @@ void MainWindow::on_btnOpenDefaultSig_clicked()
       char path[2048];
       getcwd(path, 2004);
       strAppDirectory = path;
-      strAppDirectory += "/glockenspiel.wav";
+      strAppDirectory += "/reference/signal/glockenspiel.wav";
       FILE *fp = fopen (strAppDirectory.c_str(), "r");
       if (fp == NULL)
         {
@@ -757,7 +757,7 @@ void MainWindow::on_btnValidateDefautlDict_clicked()
       strAppDirectory = szAppPath;
 
       strAppDirectory = strAppDirectory.substr(0, strAppDirectory.rfind("\\"));
-      strAppDirectory += "\\dic_gabor_two_scales.xml";
+      strAppDirectory += "\\reference\\dictionary\\dic_gabor_two_scales.xml";
       FILE *fp = fopen (strAppDirectory.c_str(), "r");
       if (fp == NULL)
         {
@@ -787,7 +787,7 @@ void MainWindow::on_btnValidateDefautlDict_clicked()
       char path[2048];
       getcwd(path, 2004);
       strAppDirectory = path;
-      strAppDirectory += "/dic_gabor_two_scales.xml";
+      strAppDirectory += "/reference/dictionary/dic_gabor_two_scales.xml";
       FILE *fp = fopen (strAppDirectory.c_str(), "r");
       if (fp == NULL)
         {
@@ -819,7 +819,6 @@ void MainWindow::on_btnValidateDefautlDict_clicked()
 
 void MainWindow::on_btnOpenDefaultMixerDemix_clicked(){
   std::string strAppDirectory;
-
 #ifdef __WIN32__
       char szAppPath[MAX_PATH] = "";
 
@@ -829,7 +828,7 @@ void MainWindow::on_btnOpenDefaultMixerDemix_clicked(){
       strAppDirectory = szAppPath;
 
       strAppDirectory = strAppDirectory.substr(0, strAppDirectory.rfind("\\"));
-      strAppDirectory += "\\mix_58_mixer.txt";
+      strAppDirectory += "\\reference\\mixer\\mix_58_mixer.txt";
       FILE *fp = fopen (strAppDirectory.c_str(), "r");
       if (fp == NULL)
         {
@@ -847,14 +846,12 @@ void MainWindow::on_btnOpenDefaultMixerDemix_clicked(){
           sprintf(buf, "%d", guiCallBackDemix->mixer->numSources);
           labelBookMixeeNbrSources->setText(buf);
         }
-      else dialog->errorMessage("Cannot open mixer file");
         }
-
 #else
       char path[2048];
       getcwd(path, 2004);
       strAppDirectory = path;
-      strAppDirectory += "/mix_58_mixer.txt";
+      strAppDirectory += "/reference/mixer/mix_58_mixer.txt";
       FILE *fp = fopen (strAppDirectory.c_str(), "r");
       if (fp == NULL)
         {
@@ -872,14 +869,68 @@ void MainWindow::on_btnOpenDefaultMixerDemix_clicked(){
           sprintf(buf, "%d", guiCallBackDemix->mixer->numSources);
           labelBookMixeeNbrSources->setText(buf);
         }
-      else dialog->errorMessage("Cannot open mixer file");
         }
 #endif /* WIN32 */
-
-    
-
 }
 
+void MainWindow::on_btnOpenDefaultSigDemix_clicked(){
+  std::string strAppDirectory;
+    if (guiCallBackDemix->mixer != NULL)
+    {
+#ifdef __WIN32__
+      char szAppPath[MAX_PATH] = "";
+
+      GetModuleFileName(NULL, szAppPath, MAX_PATH);
+
+// Extract directory
+      strAppDirectory = szAppPath;
+
+      strAppDirectory = strAppDirectory.substr(0, strAppDirectory.rfind("\\"));
+      strAppDirectory += "\\reference\\signal\\mix_58_stereo.wav";
+      FILE *fp = fopen (strAppDirectory.c_str(), "r");
+      if (fp == NULL)
+        {
+          /* no files*/
+          dialog->errorMessage("Cannot open signal file\n Please open a signal file");
+       }
+      else
+        {
+          /* files */
+          fclose(fp);
+
+          if (! guiCallBackDemix->openSignal(QString(strAppDirectory.c_str())) == SIGNAL_OPENED) dialog->errorMessage("Failed to open original signal file");
+          guiCallBackDemix->setBookArray();
+          guiCallBackDemix->initMpdDemixCore();
+          guiCallBackDemix->plugApprox();
+          labelOriginalSignalDemix->setText(strAppDirectory.c_str());
+        }
+
+#else
+      char path[2048];
+      getcwd(path, 2004);
+      strAppDirectory = path;
+      strAppDirectory += "/reference/signal/mix_58_stereo.wav";
+      FILE *fp = fopen (strAppDirectory.c_str(), "r");
+      if (fp == NULL)
+        {
+          /* no files*/
+          dialog->errorMessage("Cannot open signal file\n Please open a signal file");
+       }
+      else
+        {
+          /* files */
+          fclose(fp);
+          if (! guiCallBackDemix->openSignal(QString(strAppDirectory.c_str())) == SIGNAL_OPENED) dialog->errorMessage("Failed to open original signal file");      
+          guiCallBackDemix->setBookArray();
+          guiCallBackDemix->initMpdDemixCore();
+          guiCallBackDemix->plugApprox();
+          labelOriginalSignalDemix->setText(strAppDirectory.c_str());
+        }
+#endif /* WIN32 */
+        } else dialog->errorMessage("Open a mixer file");
+
+
+}
 void MainWindow::on_btnValidateCustomDict_clicked()
 {
   map<string, string, mp_ltstring>* parameterCustomBlock1 = new map<string, string, mp_ltstring>();
@@ -1107,7 +1158,6 @@ void MainWindow::iteration_running(bool status)
     else
       {
         label_progressrecons->setText("<font color=green>Reconstruction ended with success</font>");
-       // textEditConsolDemix->update();
       }
   }
 

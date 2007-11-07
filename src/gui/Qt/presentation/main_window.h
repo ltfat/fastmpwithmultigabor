@@ -223,10 +223,17 @@ class MainWindow: public QMainWindow, private Ui::MainWindow
     void on_lineEditCustomBlock1WindowLenSec_textEdited();
     /**  \brief A slot */
     void on_lineEditCustomBlock2WindowLenSec_textEdited();
+    /**  \brief A slot */
     void on_pushButtonStopIterate_clicked();
+    /**  \brief A slot */
     void on_btnOpenDefaultMixerDemix_clicked();
+    /**  \brief A slot */
     void on_lineEditNumIter_textEdited();
+    /**  \brief A slot */
     void on_lineEditSNR_textEdited();
+    /**  \brief A slot */
+    void on_btnOpenDefaultSigDemix_clicked();
+    
   public slots:
     /**  \brief A slot */
     void iteration_running(bool status);
@@ -234,31 +241,32 @@ class MainWindow: public QMainWindow, private Ui::MainWindow
     void iteration_running_demix(bool status);
     /**  \brief A slot */
     void iteration_running_demo(bool status);
+     /**  \brief A slot */
     void reconstruction_running(bool status);
+    /**  \brief A slot */
     void displayOnConsol(char* message);
+    /**  \brief A slot */
     void displayOnWarning(char* message);
+    /**  \brief A slot */
     void displayOnError(char* message);
+    /**  \brief A slot */
     void displayOnConsolDemix(char* message);
+    /**  \brief A slot */
     void displayOnConsolDemo(char* message);
+    /**  \brief A slot */
     void displayOnWarningDemo(char* message);
+    /**  \brief A slot */
     void displayOnWarningDemix(char* message);
+    /**  \brief A slot */
     void displayOnErrorDemix(char* message);
+    /**  \brief A slot */
     void displayOnErrorDemo(char* message);
+    /**  \brief A slot */
     void displayOnConsolRecons(char* message);
+    /**  \brief A slot */
     void displayOnWarningRecons(char* message);
+    /**  \brief A slot */
     void displayOnErrorRecons(char* message);
-  public:
-    /**  \brief Method to show the message of the sdtout in the consol of the gui for the tab mpd
-     */
-
-
-
-
-  signals:
-    /**  \brief A Qt signal to
-     *   \param status A boolean (true if iteration is running, false else) 
-     *   */
-
 
   };
 

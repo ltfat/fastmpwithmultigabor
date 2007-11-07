@@ -17,13 +17,13 @@ ELSE(MINGW_LIBRARY_FILE)
 ENDIF(MINGW_LIBRARY_FILE)  
 ENDIF(MINGW)
 # copyfiles for demo:
-CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/dictionary/dic_gabor_two_scales.xml ${MPTK_BINARY_DIR}/bin/dic_gabor_two_scales.xml
+CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/dictionary/dic_gabor_two_scales.xml ${MPTK_BINARY_DIR}/bin/reference/dictionary/dic_gabor_two_scales.xml
                  COPYONLY) 
-CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/signal/glockenspiel.wav ${MPTK_BINARY_DIR}/bin/glockenspiel.wav
+CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/signal/glockenspiel.wav ${MPTK_BINARY_DIR}/bin/reference/signal/glockenspiel.wav
                  COPYONLY) 
-CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/signal/mix_58_stereo.wav ${MPTK_BINARY_DIR}/bin/mix_58_stereo.wav
+CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/signal/mix_58_stereo.wav ${MPTK_BINARY_DIR}/bin/reference/signal/mix_58_stereo.wav
                  COPYONLY)
-CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/mixer/mix_58_mixer.txt ${MPTK_BINARY_DIR}/bin/mix_58_mixer.txt
+CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/mixer/mix_58_mixer.txt ${MPTK_BINARY_DIR}/bin/reference/mixer/mix_58_mixer.txt
                  COPYONLY) 
 
 # the variable "qtproject_SRCS" contains all .cpp files of this project

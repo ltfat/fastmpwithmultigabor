@@ -63,13 +63,12 @@ class MP_Gui_Callback_Reconstruct_c: public QThread
   {
     Q_OBJECT
 
-
     /***********/
     /* DATA    */
     /***********/
   protected :
+    /**  \brief A pointer on the MP_Gui_Callback_Reconstruct_c instance  */
     static MP_Gui_Callback_Reconstruct_c * guiCallbackRecons;
-    
     /**  \brief A Pointer on MP_Signal_c base signal for approxime the decomposition */
     MP_Signal_c *approximant;
     /**  \brief A Pointer on MP_Gui_Audio class for playing signals */
@@ -78,8 +77,9 @@ class MP_Gui_Callback_Reconstruct_c: public QThread
     int opSig;
     /**  \brief A boolean indicated if the callback is active (for the tab) */
     bool activated;
+    /**  \brief A integer with the open status of the book */
     int opBook;
-    /**  \brief A QWaitCondition to manage teh threading in decomposition */
+    /**  \brief A QWaitCondition to manage the threading in decomposition */
     QWaitCondition iterateCond;
     /**  \brief A boolean indicated if the decomposition is running or not */
     bool mpRunning;
@@ -93,17 +93,10 @@ class MP_Gui_Callback_Reconstruct_c: public QThread
     /**  \brief A Pointer on MP_Signal_c base signal for playing original signal */
     MP_Signal_c *reconstruct;
   signals:
-  /**  \brief A Qt signal to
-   *   \param status A boolean (true if iteration is running, false else) 
-   *   */
+    /**  \brief A Qt signal to indicate the status of reconstruction: running or not
+     *   \param status A boolean (true if iteration is running, false else) 
+     *   */
     void runningReconstruction(bool status);
-      /**  \brief A Qt signal to
-   *   \param status A boolean (true if iteration is running, false else) 
-   *   */
-    void infoMessage(char* message);
-    void errorMessage(char* message);
-    void warningMessage(char* message);
-
 
     /***********/
     /* METHODS */
@@ -112,17 +105,21 @@ class MP_Gui_Callback_Reconstruct_c: public QThread
     /***************************/
     /* CONSTRUCTORS/DESTRUCTOR */
     /***************************/
-  public:
-    /** \brief Public constructor  */
+  private:
+    /** \brief Private constructor  */
     MP_Gui_Callback_Reconstruct_c();
+
+  public:
+
     /** \brief Public destructor  */
     virtual ~MP_Gui_Callback_Reconstruct_c();
-    
+    /** \brief A getter on singleton instance  */
     static MP_Gui_Callback_Reconstruct_c* get_gui_call_back();
 
     /***************************/
     /* MISC METHODS            */
     /***************************/
+  public:
     int openBook(QString fileName);
     /** \brief Method to activate the core */
     void setActivated();
@@ -130,53 +127,64 @@ class MP_Gui_Callback_Reconstruct_c: public QThread
     void setDesactivated();
     /** \brief Method to get if the core is activated */
     bool getActivated();
-
     /** \brief Method to stop the audio stream */
     void stopPortAudioStream();
-
     /** \brief Method to play the base signal */
     void playReconstructSignal(std::vector<bool> * v, float startTime, float endTime);
     /** \brief Method to play the approximant signal */
     void playApproximantSignal(std::vector<bool> * v, float startTime, float endTime);
     /** \brief Method to play a signal */
     void play(MP_Signal_c * sig, std::vector<bool> * v, float startTime, float endTime);
-
-    static void emitInfoMessage(char* message);
-    static void emitErrorMessage(char* message);
-    static void emitWarningMessage(char* message);
-
     /** \brief Method to reconstruct */
     void reconstructSignals();
-
+    /** \brief Method to initialise the signal with book parameters */
     int initSignals();
     /** \brief Method run inherited from QThread */
     void run();
-
-    /** \brief Method to save the residual signal
+    /** \brief Method to save the reconstruct signal
     *  \param fileName: name of the file to save
     */
     void saveReconstruct(QString fileName);
-    
-    void saveApproximant(QString fileName);
-    
-    /** \brief Method to save the residual decay in a text file
+    /** \brief Method to save the approximant signal
     *  \param fileName: name of the file to save
     */
-     bool coreInit();
-
-    /** \brief Method to open a signal
-     *  \param fileName : name of the signal to open
-     */
-
+    void saveApproximant(QString fileName);
+    /** \brief Method to get the status of the callback
+    */
+    bool coreInit();
     /** \brief Method to know if a signal is open
      *  \return an int that indicate the state of signal
      */
     int getSignalOpen();
-    /** \brief Method to return the number of iter set in the core
-    *  \return an unsigned long int that indicate the number of iteration
+    /** \brief Method to open a signal
+     *  \param fileName : name of the signal to open
+     */
+    int openSignal(QString fileName);
+    /** \brief a method to emit an info message by signal
+    *   \param message : the text of message in char*
     */
-   int openSignal(QString fileName);
-
+    static void emitInfoMessage(char* message);
+    /** \brief a method to emit a error message by signal
+    *   \param message : the text of message in char*
+    */
+    static void emitErrorMessage(char* message);
+    /** \brief a method to emit a warning message by signal
+    *   \param message : the text of message in char*
+    */
+    static void emitWarningMessage(char* message);
+  signals:
+    /**  \brief A Qt signal to pass message from core to GUI
+     *   \param message the text
+     *   */
+    void infoMessage(char* message);
+    /**  \brief A Qt signal to pass message from core to GUI
+    *   \param message the text
+    *   */
+    void errorMessage(char* message);
+    /**  \brief A Qt signal to pass message from core to GUI
+    *   \param message the text
+    *   */
+    void warningMessage(char* message);
 
   };
 
