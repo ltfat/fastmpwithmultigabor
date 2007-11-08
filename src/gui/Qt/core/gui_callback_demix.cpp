@@ -104,7 +104,7 @@ int MP_Gui_Callback_Demix_c::setBookArray()
   if (signal && mixer)
     {
       bookArray = new  std::vector<MP_Book_c*>(mixer->numSources);
-      for (unsigned int j =0; j <mixer->numSources; j++) bookArray->at(j) = MP_Book_c::create(signal->numChans, signal->numSamples, signal->sampleRate );
+      for (unsigned int j =0; j <mixer->numSources; j++) bookArray->at(j) = MP_Book_c::create(1, signal->numSamples, signal->sampleRate );
       opArrayBook = BOOK_OPENED;
       return BOOK_OPENED;
     }
