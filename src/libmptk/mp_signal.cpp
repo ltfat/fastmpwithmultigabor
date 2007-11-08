@@ -435,6 +435,8 @@ MP_Signal_c::MP_Signal_c( const MP_Signal_c &from )
   numSamples = 0;
   storage = NULL;
   channel = NULL;
+  clipping = false;
+  maxclipping = 0.0;
   energy = 0;
 
   /* If the input signal is empty, we have nothing to do */
@@ -473,6 +475,8 @@ MP_Signal_c::MP_Signal_c( void )
   numSamples = 0;
   storage = NULL;
   channel = NULL;
+  clipping = false;
+  maxclipping = 0.0;
   energy = 0;
 
 }
@@ -687,13 +691,17 @@ unsigned long int MP_Signal_c::wavwrite( const char *fName )
           {     /* interleave the channels in one frame */
             frame[chan] = channel[chan][sample];
              /* test if clipping may occur */
-            if (frame[chan]*frame[chan]>1) mp_warning_msg( "MP_Signal_c::wavwrite(file)", "value of frame %f for sample %i and channel %i is major to 1, clipping may occur on the reconstruct wave file \n", frame[chan], sample, chan);
+            if (frame[chan]*frame[chan]>1) {clipping = true;
+            	if (frame[chan] < 0) { if(-frame[chan]>maxclipping)maxclipping= -frame[chan]; }
+            	else { if(frame[chan]>maxclipping)maxclipping= frame[chan]; }
+            }     
           }
         numFrames += sf_writef_double (file, frame, 1 );
       }
   }
   /* close the file */
   sf_close(file);
+  if (clipping) mp_warning_msg( "MP_Signal_c::matwrite(file)", "value of frames are major to 1 with max value %f, clipping may occur on the reconstruct wave file.\nYou may apply a gain of %f on the imput signal\n", maxclipping, 0.99/maxclipping);
   return(numFrames);
 }
 
@@ -755,13 +763,18 @@ unsigned long int MP_Signal_c::matwrite( const char *fName )
           {     /* interleave the channels in one frame */
             frame[chan] = channel[chan][sample];
              /* test if clipping may occur */
-            if (frame[chan]*frame[chan]>1) mp_warning_msg( "MP_Signal_c::matwrite(file)", "value of frame %f for sample %i and channel %i is major to 1, clipping may occur on the reconstruct wave file \n", frame[chan], sample, chan);
+            if (frame[chan]*frame[chan]>1) {clipping = true;
+            	if (frame[chan] < 0) { if(-frame[chan]>maxclipping)maxclipping= -frame[chan]; }
+            	else { if(frame[chan]>maxclipping)maxclipping= frame[chan]; }
+            }
+            
           }
         numFrames += sf_writef_double (file, frame, 1 );
       }
   }
   /* close the file */
   sf_close(file);
+  if (clipping) mp_warning_msg( "MP_Signal_c::matwrite(file)", "value of frames are major to 1 with max value %f, clipping may occur on the reconstruct wave file.\nYou may apply a gain of %f on the imput signal\n", maxclipping, 0.99/maxclipping);
   return(numFrames);
 }
 

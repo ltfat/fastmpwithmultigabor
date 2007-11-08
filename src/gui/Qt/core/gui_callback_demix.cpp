@@ -49,14 +49,17 @@ MP_Gui_Callback_Demix_c::MP_Gui_Callback_Demix_c():
 }
 
 MP_Gui_Callback_Demix_c::~MP_Gui_Callback_Demix_c()
-{}
+{
+  if (mixer) delete mixer;
+}
 
-MP_Gui_Callback_Demix_c * MP_Gui_Callback_Demix_c::get_gui_call_back(){
- 	  if (!guiCallbackDemix)
+MP_Gui_Callback_Demix_c * MP_Gui_Callback_Demix_c::get_gui_call_back()
+{
+  if (!guiCallbackDemix)
     {
       guiCallbackDemix = new MP_Gui_Callback_Demix_c();
     }
-return guiCallbackDemix;
+  return guiCallbackDemix;
 }
 bool MP_Gui_Callback_Demix_c::openMixer(QString fileName)
 {
@@ -129,8 +132,7 @@ int MP_Gui_Callback_Demix_c::openSignal(QString fileName)
 
 bool MP_Gui_Callback_Demix_c::plugApprox()
 {
-  mpd_Demix_Core->plug_approximant( approxArray );
-
+  return mpd_Demix_Core->plug_approximant( approxArray );
 }
 
 bool MP_Gui_Callback_Demix_c::initMpdDemixCore()
@@ -172,14 +174,17 @@ void MP_Gui_Callback_Demix_c::setSave(const unsigned long int setSaveHit,QString
   mpd_Demix_Core->set_save_hit(setSaveHit,bookFileName.toStdString().c_str(),resFileName.toStdString().c_str(),decayFileName.toStdString().c_str(),sequenceFileName.toStdString().c_str());
 }
 
-void MP_Gui_Callback_Demix_c::emitInfoMessage(char* message){
-emit MP_Gui_Callback_Demix_c::get_gui_call_back()->infoMessage(message);
+void MP_Gui_Callback_Demix_c::emitInfoMessage(char* message)
+{
+  emit MP_Gui_Callback_Demix_c::get_gui_call_back()->infoMessage(message);
 }
 
-void MP_Gui_Callback_Demix_c::emitErrorMessage(char* message){
-emit MP_Gui_Callback_Demix_c::get_gui_call_back()->errorMessage(message);
+void MP_Gui_Callback_Demix_c::emitErrorMessage(char* message)
+{
+  emit MP_Gui_Callback_Demix_c::get_gui_call_back()->errorMessage(message);
 }
 
-void MP_Gui_Callback_Demix_c::emitWarningMessage(char* message){
-emit MP_Gui_Callback_Demix_c::get_gui_call_back()->warningMessage(message);
+void MP_Gui_Callback_Demix_c::emitWarningMessage(char* message)
+{
+  emit MP_Gui_Callback_Demix_c::get_gui_call_back()->warningMessage(message);
 }

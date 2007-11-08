@@ -88,6 +88,10 @@ public:
 
   /** \brief The signal's energy */
   MP_Real_t energy;
+  /** \brief a boolean to indicate that signal is clipped */
+  bool clipping;
+  /** \brief a double value with max clipping value when signal is clipped */
+  double maxclipping;
 
   /***********/
   /* METHODS */

@@ -44,11 +44,12 @@ MP_Gui_Callback_Demo_c::MP_Gui_Callback_Demo_c():
     MP_Gui_Callback_c()
 {
   newAtom = NULL;
-
 }
 
 MP_Gui_Callback_Demo_c::~MP_Gui_Callback_Demo_c()
-{}
+{
+if (newAtom) delete newAtom;
+}
 
 MP_Gui_Callback_Demo_c * MP_Gui_Callback_Demo_c::get_gui_call_back(){
  	  if (!guiCallbackDemo)

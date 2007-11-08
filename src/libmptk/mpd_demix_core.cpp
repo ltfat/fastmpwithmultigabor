@@ -206,17 +206,20 @@ std::vector<MP_Dict_c*>* MP_Mpd_demix_Core_c::change_dict( std::vector<MP_Dict_c
 }
 
 
-void MP_Mpd_demix_Core_c::plug_approximant( std::vector<MP_Signal_c*> *setApproxArray )
+bool MP_Mpd_demix_Core_c::plug_approximant( std::vector<MP_Signal_c*> *setApproxArray )
 {
 
   const char* func = "plug_approximant( std::vector<MP_Signal_c*> *approxArray )";
 
-  if (setApproxArray && setApproxArray->size() == mixer->numSources) approxArray = setApproxArray;
+  if (setApproxArray && setApproxArray->size() == mixer->numSources){ approxArray = setApproxArray;
 
   for ( unsigned int j = 0; j < mixer->numSources; j++ )
     {
       bookArray->at(j)->substract_add( NULL, approxArray->at(j), NULL );
     }
+    return true;
+    }
+    else return false;
 }
 
 /***************************/

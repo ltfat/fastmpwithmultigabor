@@ -143,7 +143,7 @@ class MP_Mpd_demix_Core_c:public MP_Abstract_Core_c
     std::vector<MP_Dict_c*>* change_dict( std::vector<MP_Dict_c*> *setDictArray );
 
     /* Runtime settings */
-    void plug_approximant( std::vector<MP_Signal_c*> *setApproxArray );
+    bool plug_approximant( std::vector<MP_Signal_c*> *setApproxArray );
     /* Runtime */
     /** \brief make one step iterate
      *  */

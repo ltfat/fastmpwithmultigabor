@@ -101,7 +101,7 @@ class MainWindow: public QMainWindow, private Ui::MainWindow
     /**  \brief Constructor */
     MainWindow(QWidget *parent = 0);
     /**  \brief Destructor */
-    ~MainWindow();
+    virtual ~MainWindow();
     /***********/
     /* SLOTS   */
     /***********/

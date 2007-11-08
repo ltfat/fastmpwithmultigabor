@@ -81,12 +81,13 @@ class MP_Abstract_Core_c
 
     /* Output file names */
     
-
+    /*\brief The name for residual wave file */
     char *resFileName;
+    /*\brief The name for file to store decay info */
     char *decayFileName;
 
     /* Convenient global variables */
-/*\brief The number of iter */
+    /*\brief The number of iter */
     unsigned long int numIter;
     /*\brief The residual energy */
     double residualEnergy;

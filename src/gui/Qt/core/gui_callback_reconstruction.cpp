@@ -58,6 +58,7 @@ MP_Gui_Callback_Reconstruct_c::~MP_Gui_Callback_Reconstruct_c()
 {
   if (reconstruct) delete reconstruct;
   if ( approximant) delete approximant;
+  if (book) delete book;
   if ( audio) delete audio;
 }
 

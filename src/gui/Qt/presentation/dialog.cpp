@@ -216,12 +216,12 @@ void Dialog::warningMessage(QString message)
 {
   QMessageBox msgBox(QMessageBox::Warning, tr("MPTK GUI"),
                      message, 0, this);
-  msgBox.addButton(tr("Save &Again"), QMessageBox::AcceptRole);
-  msgBox.addButton(tr("&Continue"), QMessageBox::RejectRole);
+  msgBox.addButton(tr("&Continue"), QMessageBox::AcceptRole);
+  msgBox.addButton(tr("&Stop"), QMessageBox::RejectRole);
   if (msgBox.exec() == QMessageBox::AcceptRole)
-    warningLabel->setText(tr("Save Again"));
-  else
     warningLabel->setText(tr("Continue"));
+  else
+    warningLabel->setText(tr("Stop"));
 
 }
 
