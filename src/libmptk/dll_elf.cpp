@@ -57,7 +57,7 @@ bool MP_Dll_Manager_c::load_dll()
   if (MP_Dll_Manager_c::search_library(dllVectorName, MPTK_Env_c::get_env()->get_config_path("dll_directory")))
     {
       /* for all the shared lib */
-      for (int k = 0; k < dllVectorName->size(); k++)
+      for (unsigned int k = 0; k < dllVectorName->size(); k++)
         {
           MP_Dll_Manager_c::get_dll((*dllVectorName)[k].c_str());
 
@@ -128,7 +128,7 @@ bool MP_Dll_Manager_c::search_library(vector<string> * libraryNames, const char 
   if (dp != NULL)
     {
       while (ep = readdir(dp))
-        { if (strcmp( ep->d_name ,"libmptk.so")&&strcmp( ep->d_name ,"libmptk.dylib")){
+        { if ( (strcmp( ep->d_name ,"libmptk.so")) && (strcmp( ep->d_name ,"libmptk.dylib"))){
           istringstream iss( ep->d_name );
           string mot;
           const char * c_str;

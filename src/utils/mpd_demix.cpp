@@ -613,13 +613,13 @@ int main( int argc, char **argv )
         fflush( stderr );
       mp_info_msg( func, "End command line.\n" );
     }
-	string suffix;
-	const char * suffixeConstChar;
-	istringstream iss( mixerFileName );
-	std::getline( iss , suffix , '.' );
-	std::getline( iss , suffix , '.' );
-suffixeConstChar = suffix.c_str();
-if ( !strcmp( suffixeConstChar ,"txt" ) ) mixer = MP_Mixer_c::creator_from_txt_file( mixerFileName );
+  int posDot;
+  char * pch;
+  pch=strrchr(mixerFileName,'.');
+  posDot = pch-mixerFileName+1;
+  char last[10] = "not";
+  strncpy( last, mixerFileName + posDot, 3 );
+if ( !strcmp( last ,"txt" ) ) mixer = MP_Mixer_c::creator_from_txt_file( mixerFileName );
 else { 
 	mp_error_msg( func, "mixer type file not recognised [%s] .\n", mixerFileName );
 	free_mem(dictArray, bookArray,  mixer, inSignal, mpdDemixCore, dictFileNameList  );

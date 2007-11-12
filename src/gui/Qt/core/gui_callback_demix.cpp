@@ -63,19 +63,26 @@ MP_Gui_Callback_Demix_c * MP_Gui_Callback_Demix_c::get_gui_call_back()
 }
 bool MP_Gui_Callback_Demix_c::openMixer(QString fileName)
 {
-  string suffix;
-  const char* suffixeConstChar;
   FILE * mixerFile = fopen (fileName.toStdString().c_str(),"rt");
-  istringstream iss( fileName.toStdString().c_str() );
-  std::getline( iss , suffix , '.' );
-  std::getline( iss , suffix , '.' );
-  suffixeConstChar = suffix.c_str();
-  if ( !strcmp( suffixeConstChar ,"txt" ) )
+  int posDot;
+  char * pch;
+  pch=strrchr(fileName.toStdString().c_str(),'.');
+  posDot = pch-fileName.toStdString().c_str()+1;
+  char last[10] = "not";
+  strncpy( last, fileName.toStdString().c_str() + posDot, 3 );
+  if ( !strcmp( last ,"not" ) )
+    {
+      emit MP_Gui_Callback_Demix_c::get_gui_call_back()->errorMessage("Problem with miwer file name");
+    } else 
+  if ( !strcmp( last ,"txt" ) )
     {
       if (mixerFile)
         mixer = MP_Mixer_c::creator_from_txt_file(mixerFile);
     }
-  if (mixer == NULL) return false;
+  else emit MP_Gui_Callback_Demix_c::get_gui_call_back()->errorMessage("Unknow mixer format");
+  if (mixer == NULL){ 
+  	emit MP_Gui_Callback_Demix_c::get_gui_call_back()->errorMessage("Cannot load the mixer file");
+  	return false;}
   else
     {
       dictArray = new  std::vector<MP_Dict_c*>(mixer->numSources);

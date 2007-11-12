@@ -497,9 +497,7 @@ void MP_Harmonic_Atom_Plugin_c::build_waveform( MP_Real_t *outBuffer )
   unsigned int j;
   double dHalfChirp, dAmp, dFreq, dPhase, dT, dGlobPhase, dGlobAmp;
   double argument;
-
-  extern MP_Win_Server_c MP_GLOBAL_WIN_SERVER;
-
+  
   assert( outBuffer != NULL );
 
   /* Dereference the arguments once and for all */
