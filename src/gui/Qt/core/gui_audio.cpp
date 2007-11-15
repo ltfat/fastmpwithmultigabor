@@ -214,8 +214,8 @@ void MP_Gui_Audio::listenIsFinished()
 double MP_Gui_Audio::valSampleMax(int begin, int end){
 double max =0;
 for (int i=0; i<this->signal->numChans; i++) {
-	for (int j=begin; j<=end; j++) {
-		double tmp = std::abs(this->signal->channel[i][j]);
+	for (int j=begin; j<end; j++) {
+		double tmp = std::abs((float)this->signal->channel[i][j]);
 		if (tmp > max) {max=tmp;}
 	} 
 }
@@ -305,7 +305,7 @@ static int portAudioCallbackSelectedChannel (   void *inputBuffer, void *outputB
 		else {*out++=0;}
 		}
 		sig->incSample();
-		if (sig->getSample()>sig->getEnd())
+		if (sig->getSample()>=sig->getEnd())
 		{
 			fini=1;
 			break;
