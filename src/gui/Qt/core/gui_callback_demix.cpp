@@ -64,22 +64,23 @@ MP_Gui_Callback_Demix_c * MP_Gui_Callback_Demix_c::get_gui_call_back()
 bool MP_Gui_Callback_Demix_c::openMixer(QString fileName)
 {
   FILE * mixerFile = fopen (fileName.toStdString().c_str(),"rt");
-  int posDot;
-  char * pch;
-  pch=strrchr(fileName.toStdString().c_str(),'.');
-  posDot = pch-fileName.toStdString().c_str()+1;
-  char last[10] = "not";
-  strncpy( last, fileName.toStdString().c_str() + posDot, 3 );
-  if ( !strcmp( last ,"not" ) )
+  string test = fileName.toStdString();
+  int p = test.find_last_of('.',test.size());
+  string nom = test.substr(0, p);
+  string extension = test.substr(p+1, test.size()-p-1);
+
+  if ( !strcmp( extension.c_str() ,"not" ) )
     {
       emit MP_Gui_Callback_Demix_c::get_gui_call_back()->errorMessage("Problem with miwer file name");
     } else 
-  if ( !strcmp( last ,"txt" ) )
+  if ( !strcmp( extension.c_str() ,"txt" ) )
     {
       if (mixerFile)
         mixer = MP_Mixer_c::creator_from_txt_file(mixerFile);
     }
-  else emit MP_Gui_Callback_Demix_c::get_gui_call_back()->errorMessage("Unknow mixer format");
+  else  emit MP_Gui_Callback_Demix_c::get_gui_call_back()->errorMessage("Unknow mixer format");
+
+  
   if (mixer == NULL){ 
   	emit MP_Gui_Callback_Demix_c::get_gui_call_back()->errorMessage("Cannot load the mixer file");
   	return false;}
