@@ -185,9 +185,7 @@ std::vector<MP_Dict_c*>* MP_Mpd_demix_Core_c::change_dict( std::vector<MP_Dict_c
       dictArray = setDictArray ;
       /* If the new dictionary is not NULL, replug the residual: */
       for (unsigned int i=0; i< setDictArray->size() ; i++)
-        { char line[1024]; 
-          sprintf( line, "%s_%02u.xml", "Z:\\workspace\\build-MPTK-plugin\\bin\\dict", i );
-            dictArray->at(i)->print( line );
+        {
           dictArray->at(i)->plug_signal( sigArray->at(i) );
         }
       /* Note:
