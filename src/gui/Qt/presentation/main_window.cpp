@@ -669,7 +669,10 @@ void MainWindow::on_pushButtonSaveSequenceDemix_clicked()
   QString panelName = "MPTK GUI: type a name for saving the decay file";
   QString fileType ="text Files (*.txt);;All Files (*)";
   QString s =dialog->setSaveFileName(panelName, fileType );
-  if (!s.isEmpty())lineEditSaveSequenceDemix->setText(s);
+  
+  if (!s.isEmpty()){lineEditSaveSequenceDemix->setText(s);
+                    if (guiCallBackDemix->saveSourceSequence(s)!=comboBoxNumIterDemix->currentText().toULong())dialog->errorMessage("fdfzref"); ;
+  }
 
 }
 void MainWindow::on_radioButtonVerbose_toggled()
@@ -677,7 +680,6 @@ void MainWindow::on_radioButtonVerbose_toggled()
   if (radioButtonVerbose->isChecked ())
     {
       guiCallBack->setVerbose();
-      dialog->errorMessage("set verbose");
     }
   else guiCallBack->unSetVerbose();
 }

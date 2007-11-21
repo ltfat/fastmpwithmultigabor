@@ -74,8 +74,6 @@ class MP_Gui_Callback_Abstract_c: public QThread
     MP_Mpd_demix_Core_c *mpd_Demix_Core;
     /**  \brief A Pointer on MP_Signal_c base signal for playing original signal */
     MP_Signal_c *baseSignal;
-    /**  \brief A Pointer on MP_Signal_c base signal for approxime the decomposition */
-    MP_Signal_c *approximant;
     /**  \brief A Pointer on MP_Gui_Audio class for playing signals */
     MP_Gui_Audio* audio;
     /**  \brief A integer with the open status of the signal */
@@ -115,7 +113,6 @@ class MP_Gui_Callback_Abstract_c: public QThread
       signal = NULL;
       baseSignal = NULL;
       audio = NULL;
-      approximant = NULL;
       mpRunning = false;
       QThread::start();
       opSig = NOTHING_OPENED;
@@ -129,7 +126,6 @@ class MP_Gui_Callback_Abstract_c: public QThread
       if (mpd_Demix_Core) delete mpd_Demix_Core;
       if (signal) delete signal;
       if (baseSignal) delete baseSignal;
-      if ( approximant) delete approximant;
       if ( audio) delete audio;
     };
     /***************************/
@@ -202,11 +198,6 @@ class MP_Gui_Callback_Abstract_c: public QThread
     void playBaseSignal(std::vector<bool> * v, float startTime, float endTime)
     {
       play(baseSignal, v, startTime, endTime);
-    }
-    /** \brief Method to play the approximant signal */
-    void playApproximantSignal(std::vector<bool> * v, float startTime, float endTime)
-    {
-      play(approximant, v, startTime, endTime);
     }
     /** \brief Method to play the residual signal */
     void playResidualSignal(std::vector<bool> * v, float startTime, float endTime)

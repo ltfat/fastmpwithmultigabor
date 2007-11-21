@@ -223,7 +223,7 @@ int parse_args(int argc, char **argv)
               fprintf( stderr, "mpd_demix error -- (Did you use --dictionary without the '=' character ?).\n" );
               return( ERR_ARG );
             }
-
+        else dictFileName = optarg;
          mp_debug_msg( MP_DEBUG_PARSE_ARGS, func, "Read dictionary file name [%s].\n", dictFileName );
 
           break;
@@ -725,12 +725,14 @@ for (unsigned int j =0; j <mixer->numSources; j++) bookArray->at(j) = MP_Book_c:
               for ( j = 0; j < mixer->numSources; j++ )
                 {
                   strcpy(dictFileNameList[j],dictFileName);
+                  
                 }
             }
           fclose( fid );
         }
       else
         {
+          mp_info_msg( func, "dictFileName is NULL, mpd_demix will use the default gabor block.\n" );
           for ( j = 0; j < mixer->numSources; j++ )
             {
               dictFileNameList[j] = NULL;
@@ -754,7 +756,7 @@ for (unsigned int j =0; j <mixer->numSources; j++) bookArray->at(j) = MP_Book_c:
             }
           /* If no file name is given, use the following default dictionnary: */
           else { 
-
+              mp_info_msg( func, "Use the default gabor block.\n" );
               dictArray->at(j)->add_default_block("gabor");
           }
                   

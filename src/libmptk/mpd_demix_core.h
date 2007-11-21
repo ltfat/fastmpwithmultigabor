@@ -176,7 +176,8 @@ class MP_Mpd_demix_Core_c:public MP_Abstract_Core_c
                        const char* setResFileName,
                        const char* setDecayFileName,
                        const char* setSrcSeqFileName );
-
+    unsigned long int save_source_sequence(const char * filename);
+                       
   };
 
 

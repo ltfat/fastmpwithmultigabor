@@ -41,7 +41,6 @@
  *
  */
 
-
 #ifndef __general_h_
 #define __general_h_
 
@@ -118,6 +117,7 @@ void support2frame( MP_Support_t support,
  * with \f$\mbox{amp} = \sqrt{\mbox{re}^2+\mbox{imag}^2}\f$. 
  *
  */
+ 
 void complex2amp_and_phase( double re, double im,
 			    double re_correl, double im_correl,
 			    double *amp, double *phase );
@@ -151,9 +151,10 @@ public:
   MP_Var_Array_c( unsigned long int setBlockSize ) { elem = NULL; nElem = maxNElem = 0; blockSize = setBlockSize; }
   ~MP_Var_Array_c() { if ( elem ) free( elem ); }
   int append( TYPE newElem );
-  unsigned long int save( const char* fName );
+  unsigned long int save_ui_to_text ( const char* fName );
+  unsigned long int save ( const char* fName );
   void clear() { if (elem != NULL) memset( elem, 0, maxNElem*sizeof( TYPE ) ); nElem = 0; }
 };
 
-
+//#include "general.cpp" // <-- tips here for link editing !!!
 #endif /* __general_h_ */

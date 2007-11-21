@@ -177,7 +177,7 @@ std::vector<MP_Dict_c*>* MP_Mpd_demix_Core_c::change_dict( std::vector<MP_Dict_c
 
       if ( oldDict && ( oldDict->size()>0 ) )
         for (unsigned int i=0; i< setDictArray->size() ; i++)
-          {
+          { 
             sigArray->at(i) = oldDict->at(i)->detach_signal();
           }
 
@@ -185,9 +185,10 @@ std::vector<MP_Dict_c*>* MP_Mpd_demix_Core_c::change_dict( std::vector<MP_Dict_c
       dictArray = setDictArray ;
       /* If the new dictionary is not NULL, replug the residual: */
       for (unsigned int i=0; i< setDictArray->size() ; i++)
-        {
+        { char line[1024]; 
+          sprintf( line, "%s_%02u.xml", "Z:\\workspace\\build-MPTK-plugin\\bin\\dict", i );
+            dictArray->at(i)->print( line );
           dictArray->at(i)->plug_signal( sigArray->at(i) );
-
         }
       /* Note:
          - if a NULL dictionary is given, the residual is kept alive
@@ -329,7 +330,7 @@ void MP_Mpd_demix_Core_c::save_result()
   if ( srcSeqFileName )
     {
       unsigned long int nWritesrcseq;
-      nWritesrcseq = srcSequences.save( srcSeqFileName );
+      nWritesrcseq = srcSequences.save_ui_to_text( srcSeqFileName );
       if ( nWritesrcseq  != (numIter) )
         {
           mp_warning_msg( func, "Wrote less than the expected number of unsigned int to src sequence file.\n" );
@@ -339,6 +340,17 @@ void MP_Mpd_demix_Core_c::save_result()
     }
 
 
+}
+unsigned long int MP_Mpd_demix_Core_c::save_source_sequence(const char* fileName){
+	const char* func = "MP_Mpd_demix_Core_c::save_source_sequence()";
+	      unsigned long int nWritesrcseq;
+      nWritesrcseq = srcSequences.save_ui_to_text( fileName );
+      if ( nWritesrcseq  != (numIter) )
+        {
+          mp_warning_msg( func, "Wrote less than the expected number of unsigned int to src sequence file.\n" );
+          mp_warning_msg( func, "([%lu] expected, [%lu] written.)\n", numIter, nWritesrcseq  );
+        }
+return nWritesrcseq;
 }
 
 /*************************/
@@ -384,7 +396,7 @@ unsigned short int MP_Mpd_demix_Core_c::step()
         }
     }
 
-  if ( srcSeqFileName ) srcSequences.append(maxSrc);
+  srcSequences.append(maxSrc);
 
   /*----------------------------*/
   /* -- Create the best atom:   */

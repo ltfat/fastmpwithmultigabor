@@ -235,7 +235,7 @@ template <class TYPE>
 unsigned long int MP_Var_Array_c<TYPE>::save( const char* fName ) {
 
   FILE *fid;
-  unsigned long int nWrite;
+  unsigned long int nWrite = 0;
 
   if ( (fid = fopen( fName, "w" )) == NULL ) {
     mp_error_msg( "MP_Var_Array_c::save(fName)",
@@ -247,7 +247,42 @@ unsigned long int MP_Var_Array_c<TYPE>::save( const char* fName ) {
   fclose( fid );
   return( nWrite );
 }
+/*
+template <class TYPE>
+unsigned long int MP_Var_Array_c<TYPE>::save_to_text( const char* fName ) {
 
+  FILE *fid;
+  unsigned long int nWrite = 0;
+
+  if ( (fid = fopen( fName, "w" )) == NULL ) {
+    mp_error_msg( "MP_Var_Array_c::save(fName)",
+		  "Failed to open the file [%s] for writing.\n",
+		  fName );
+    return( 0 );
+  }
+  mp_fwrite( elem, sizeof(TYPE), nElem, fid );
+  fclose( fid );
+  return( nWrite );
+}*/
+
+
+
+
+template <class TYPE>
+unsigned long int MP_Var_Array_c<TYPE>::save_ui_to_text( const char* fName ) {
+
+  FILE *fid;
+  unsigned long int i = 0;
+  if ( (fid = fopen( fName, "w" )) == NULL ) {
+    mp_error_msg( "MP_Var_Array_c::save(fName)",
+		  "Failed to open the file [%s] for writing.\n",
+		  fName );
+    return( 0 );
+  }
+  for ( i; i< nElem; i++) fprintf (fid, "Iteration %u Source [%u]\n",i, elem[i]);
+  fclose( fid );
+  return( i );
+}
 /* Specify the MP_Var_Array template for double */
 template class MP_Var_Array_c<double>;
 
@@ -255,12 +290,11 @@ template class MP_Var_Array_c<double>;
 template
 #endif
 int append ( MP_Var_Array_c<double> );
-
 #if defined __GNUC__ && __GNUC__ < 3
 template
 #endif
 unsigned long int save ( MP_Var_Array_c<double> );
-
+unsigned long int save_ui_to_text ( MP_Var_Array_c<double> );
 /* Specify the MP_Var_Array template for unsigned short int */
 template class MP_Var_Array_c<unsigned short int>;
 
@@ -268,8 +302,8 @@ template class MP_Var_Array_c<unsigned short int>;
 template
 #endif
 int append ( MP_Var_Array_c<unsigned short int> );
-
 #if defined __GNUC__ && __GNUC__ < 3
 template
 #endif
 unsigned long int save ( MP_Var_Array_c<unsigned short int> );
+unsigned long int save_ui_to_text ( MP_Var_Array_c<unsigned short int> );

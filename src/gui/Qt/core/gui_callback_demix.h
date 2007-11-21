@@ -137,7 +137,11 @@ class MP_Gui_Callback_Demix_c:public MP_Gui_Callback_Abstract_c
        */
     void saveBook(QString fileName);
        /** \brief a method to plug the approximant
-       *  \return a bool to indicate success
+     * \param fileName name of the file 
+       */
+    unsigned long int saveSourceSequence(QString fileName);
+       /** \brief a method to save the approximant
+        * \param fileName name of the file 
        */
     void saveApprox(QString fileName);
        /** \brief a method to plug the approximant

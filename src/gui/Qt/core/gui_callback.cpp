@@ -51,6 +51,7 @@ MP_Gui_Callback_c::MP_Gui_Callback_c()
 
 MP_Gui_Callback_c::~MP_Gui_Callback_c()
 {
+  if ( approximant) delete approximant;
 
 }
 
@@ -206,5 +207,9 @@ void MP_Gui_Callback_c::emitWarningMessage(char* message){
 emit MP_Gui_Callback_c::get_gui_call_back()->warningMessage(message);
 }
     
-    
+        /** Method to play the approximant signal */
+    void MP_Gui_Callback_c::playApproximantSignal(std::vector<bool> * v, float startTime, float endTime)
+    {
+      play(approximant, v, startTime, endTime);
+    }
     

@@ -71,6 +71,8 @@ class MP_Gui_Callback_c:public MP_Gui_Callback_Abstract_c
   protected :
     /**  \brief A pointer on a book to store the atoms */
     MP_Book_c *book;
+    /**  \brief A Pointer on MP_Signal_c base signal for approxime the decomposition */
+    MP_Signal_c *approximant;
 
     /***********/
     /* METHODS */
@@ -172,6 +174,9 @@ class MP_Gui_Callback_c:public MP_Gui_Callback_Abstract_c
     *   \param message : the text of message in char*
     */
     static void emitWarningMessage(char* message);
+    
+     /** \brief Method to play the approximant signal */
+    void playApproximantSignal(std::vector<bool> * v, float startTime, float endTime);
   signals:
     /**  \brief A Qt signal to pass message from core to GUI
      *   \param message the text

@@ -92,8 +92,9 @@ bool MP_Gui_Callback_Demix_c::openMixer(QString fileName)
 
 void MP_Gui_Callback_Demix_c::addDictToArray(QString fileName, int index)
 {
-  MP_Dict_c* dict = MP_Dict_c::init( fileName.toStdString().c_str());
-  if (NULL!= dict) dictArray->at(index) = dict;
+  MP_Dict_c* dict = MP_Dict_c::init();
+  if (NULL!= dict) {dict->add_blocks( fileName.toStdString().c_str() );
+   dictArray->at(index) = dict;}
 }
 
 bool MP_Gui_Callback_Demix_c::setDictArray()
@@ -123,6 +124,10 @@ bool MP_Gui_Callback_Demix_c::coreInit()
   else return false;
 }
 
+ unsigned long int MP_Gui_Callback_Demix_c::saveSourceSequence(QString fileName){
+ return mpd_Demix_Core->save_source_sequence(fileName.toStdString().c_str());
+ }
+ 
 int MP_Gui_Callback_Demix_c::openSignal(QString fileName)
 {
   if (MP_Gui_Callback_Abstract_c::openSignal(fileName)== SIGNAL_OPENED)
