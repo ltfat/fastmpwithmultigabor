@@ -13,4 +13,14 @@ MPTK provides an implementation of Matching Pursuit which is:
 MPTK is mainly developed and maintained within the METISS Research Group (http://www.irisa.fr/metiss/home_html-fr) on audio signal processing,
 at the IRISA Research Institute (http://www.irisa.fr/home_html) in Rennes, France. 
 
+To build MPTK yo will need some packages:
+-Libsndfile: at least version 1.0.11 
+-fftw: at least version 3.0.1 
+-Qt(OpenSource): at least version 4.3.1
+
+For further informations see Build MPTK for Linux and OSX or Build MPTK for Windows (Win 32) in pdf.
+Available on the INRIA GFORGE MPTK project (https://gforge.inria.fr/projects/mptk/) under Docs/Misc
+
+For using MPTK utilities, please read the readme.txt located in the bin directory.
+
 If you have some questions about Matching Pursuit and MPTK, please refer to http://mptk.irisa.fr/
