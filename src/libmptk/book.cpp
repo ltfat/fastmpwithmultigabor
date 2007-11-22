@@ -854,7 +854,7 @@ MP_Bool_t MP_Book_c::can_append( FILE * fid ){
   if ( ((sampleRate != 0) && (sampleRate == fidSampleRate)) && (( numChans != 0 ) && ( numChans == fidNumChans )) && ((numSamples != 0) && (numSamples == fidNumSamples)) ) {
   fseek ( fid , 0L , SEEK_SET );
   return( true );
-  }
+  } else return false;
 }
 /***********************************/
 /* Check compatibility with a mask */

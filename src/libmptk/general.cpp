@@ -272,14 +272,14 @@ template <class TYPE>
 unsigned long int MP_Var_Array_c<TYPE>::save_ui_to_text( const char* fName ) {
 
   FILE *fid;
-  unsigned long int i = 0;
+  unsigned long int i;
   if ( (fid = fopen( fName, "w" )) == NULL ) {
     mp_error_msg( "MP_Var_Array_c::save(fName)",
 		  "Failed to open the file [%s] for writing.\n",
 		  fName );
     return( 0 );
   }
-  for ( i; i< nElem; i++) fprintf (fid, "Iteration %u Source [%u]\n",i, elem[i]);
+  for ( i = 0 ; i< nElem; i++) fprintf (fid, "Iteration %lu Source [%lu]\n",i, elem[i]);
   fclose( fid );
   return( i );
 }
