@@ -5,10 +5,10 @@
  1.2.Required packages
 	Libsndfile: at least version 1.0.11 
 	fftw: at least version 3.0.1 
-	mptk: at least version 0.5.3
+	mptk: at least version 0.5.4
 	
  2.Basic build
-Suppose you untar MPTK-0.5.3.tar.gz in directory ~/foo
+Suppose you untar MPTK-0.5.4.tar.gz in directory ~/foo
 and you wantto build MPTK binary and library files in ~/bar.
 For windows, use the CMake executable to make the build system and set the « Where is the source code: »
 text box with the path of the directory where the source files are located (c:\foo) 
@@ -22,6 +22,8 @@ bash-3.1$ cd ~/bar
 bash-3.1$ cmake ~/foo
 bash-3.1$ make
 bash-3.1$ make install 
+Note: make install will install in the default location 
+(commonly /usr/bin, depending on your Linux distribution) 
 
 
 When using the cmake command to generate the build system, Cmake performs a
@@ -50,9 +52,11 @@ This will yield the following sequence of commands for Unix like OS:
 bash-3.1$ mkdir ~/bar
 bash-3.1$ cd ~/bar
 bash-3.1$ cmake ~/foo
-bash-3.1$ ccmake /.
+bash-3.1$ ccmake ./
 
 [Using the Cmake GUI to configure build system options]
+Note: if you want change the default install path,
+you may change the CMAKE_INSTALL_PREFIX cache value in Cmake GUI
 
 bash-3.1$ make
 bash-3.1$ make install
