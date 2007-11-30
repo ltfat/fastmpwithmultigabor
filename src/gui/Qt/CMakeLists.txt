@@ -130,7 +130,7 @@ MPTK-GUI RUNTIME DESTINATION bin
 INSTALL(FILES
 ${MPTK_BINARY_DIR}/bin/reference/dictionary/dic_gabor_two_scales.xml DESTINATION bin/reference/dictionary)
 INSTALL(FILES
-${MPTK_BINARY_DIR}/bin/reference/signal/glockenspiel.wav ${MPTK_BINARY_DIR}/bin/mix_58_stereo.wav DESTINATION bin/reference/signal)
+${MPTK_BINARY_DIR}/bin/reference/signal/glockenspiel.wav ${MPTK_BINARY_DIR}/bin/reference/signal/glockenspiel.wav DESTINATION bin/reference/signal)
 INSTALL(FILES
 ${MPTK_BINARY_DIR}/bin/reference/mixer/mix_58_mixer.txt DESTINATION bin/reference/mixer)
 
