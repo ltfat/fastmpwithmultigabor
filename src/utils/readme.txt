@@ -19,7 +19,7 @@ for example SET MPTK_CONFIG_FILENAME=C:/Program Files/MPTK-0.5.4/bin/path.xml
 To check if the environment variable is correctly set you can use the ECHO command:
 ECHO %MPTK_CONFIG_FILENAME%
 
-Windows OS like system may comply with a missing dll: MSVCR71D.DLL
+Windows OS like system may complain with a missing dll: MSVCR71D.DLL
 You may install the files by using the Microsoft (TM) c runtime library SDK installer 
 Or download it with this adress for example: http://www.dll-files.com/dllindex/dll-files.shtml?msvcr71d
 
