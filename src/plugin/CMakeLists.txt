@@ -1,3 +1,6 @@
+IF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
+ SET_TARGET_PROPERTIES(bar PROPERTIES COMPILE_FLAGS "-fPIC")
+ENDIF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" ) 
 #########################################
 #Create the Gabor Atom plugin in DLL
 #Including Harmonic Atom
