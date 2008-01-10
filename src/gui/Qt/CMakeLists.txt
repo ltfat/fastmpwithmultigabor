@@ -102,8 +102,15 @@ ADD_DEFINITIONS(-DQT_NO_DEBUG)
 
 IF(WIN32)
 # create an executable file named "MPTK-GUI" from the source files in the variable "qtproject_SRCS".
-add_executable(MPTK-GUI ${qtproject_SRCS} ${qtproject_MOC} ${qtproject_RCC_SRCS})
+ADD_EXECUTABLE(MPTK-GUI ${qtproject_SRCS} ${qtproject_MOC} ${qtproject_RCC_SRCS})
+#In case of 64 bits plateform we have to compil with -fPIC flag
+#
+IF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
+SET_TARGET_PROPERTIES(MPTK-GUI PROPERTIES LINK_FLAGS "${SHARED_FLAGS} -Wno-deprecated -fPIC")
+ELSE( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" ) 
 SET_TARGET_PROPERTIES(MPTK-GUI PROPERTIES LINK_FLAGS "${SHARED_FLAGS} -Wno-deprecated")
+ENDIF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" ) 
+
 # link the "MPTK-GUI" target against the Qt libraries. which libraries exactly, is defined by the "include(${QT_USE_FILE})" line above, which sets up this variable.
 target_link_libraries(MPTK-GUI ${QT_LIBRARIES} ${QT_QT3SUPPORT_LIBRARY} ${QT_QTMAIN_LIBRARY}  ${QT_QTCORE_LIBRARY} mptk -lgdi32 -lcomdlg32 -loleaut32 -limm32 -lwinmm -lwinspool -lws2_32 -lole32 -luuid -luser32 -ladvapi32)
 ADD_CUSTOM_COMMAND (

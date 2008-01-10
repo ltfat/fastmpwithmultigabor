@@ -1,7 +1,8 @@
 # Build Matlab MEX files
+# Test if we are in in X86_64 and then set the -fPIC compil tag
 IF(BUILD_MATLAB_MEX_FILES)
 IF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
- SET_TARGET_PROPERTIES(bar PROPERTIES COMPILE_FLAGS "-fPIC")
+ ADD_DEFINITIONS(-fPIC)
 ENDIF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" ) 
 # MATLAB_INCLUDE_DIR: include path for mex.h, engine.h
 #  MATLAB_LIBRARIES:   required libraries: libmex, etc
