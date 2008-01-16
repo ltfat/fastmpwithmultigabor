@@ -134,12 +134,25 @@ SET_SOURCE_FILES_PROPERTIES(
 #------------------------------------------------
 #Create the library in dynamic format:
 IF(WIN32)
-SET(CMAKE_SHARED_LINKER_FLAGS " -Wl,--export-all-symbols,--enable-auto-import,--enable-runtime-pseudo-reloc -Wno-deprecated")
+IF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
+SET(CMAKE_SHARED_LINKER_FLAGS "-fPIC -Wl,--export-all-symbols,--enable-auto-import,--enable-runtime-pseudo-reloc -Wno-deprecated")
+ELSE( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
+SET(CMAKE_SHARED_LINKER_FLAGS "-Wl,--export-all-symbols,--enable-auto-import,--enable-runtime-pseudo-reloc -Wno-deprecated")
+ENDIF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
 ELSE(WIN32)
 IF(APPLE)
+IF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
+SET(CMAKE_SHARED_LINKER_FLAGS "-fPIC -single_module -Wno-deprecated") 
+ELSE( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
 SET(CMAKE_SHARED_LINKER_FLAGS "-single_module -Wno-deprecated") 
+ENDIF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
 ELSE(APPLE)
-SET(CMAKE_SHARED_LINKER_FLAGS "-Wl,--export-dynamic -Wno-deprecated")
+IF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
+SET(CMAKE_SHARED_LINKER_FLAGS "-fPIC -Wl,--export-dynamic -Wno-deprecated")
+ELSE( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
+SET(CMAKE_SHARED_LINKER_FLAGS " -Wl,--export-dynamic -Wno-deprecated")
+ENDIF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
+
 ENDIF(APPLE)
 ENDIF(WIN32)
 

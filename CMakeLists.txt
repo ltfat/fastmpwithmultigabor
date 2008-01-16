@@ -211,7 +211,7 @@ INCLUDE(${MPTK_SOURCE_DIR}/CMake/CMakeGenerateMPTKHeader.cmake)
   # profile flag options
 #  SET(CMAKE_CXX_FLAGS "-fprofile-arcs -ftest-coverage  ${CMAKE_CXX_FLAGS}") 
  # ENABLE_TESTING()
-  #INCLUDE(${VISAGES_SOURCE_DIR}/DartConfig.cmake)
+  #INCLUDE(${MPTK_SOURCE_DIR}/DartConfig.cmake)
  # INCLUDE(Dart)
 #ENDIF(BUILD_TESTING)
 

@@ -1,5 +1,8 @@
 #------------------------------------------------
 # Build lib_dsp_windows library
+IF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
+ ADD_DEFINITIONS(-fPIC)
+ENDIF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" ) 
 MACRO(GET_DSP_WINDOWS_CSOURCE out)
   SET(${out}
   ${CMAKE_SOURCE_DIR}/src/libdsp_windows/dsp_windows.h
@@ -14,7 +17,6 @@ SET_SOURCE_FILES_PROPERTIES(
 )
 ADD_LIBRARY(dsp_windows STATIC ${DSP_WINDOWS_CSOURCE})
 #In case of 64 bits plateform we have to compil with -fPIC flag
-#
 IF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
   SET_TARGET_PROPERTIES(dsp_windows PROPERTIES
     COMPILE_FLAGS "-DC_BUILDING_LIBDSP_WINDOWS ${STATIC_FLAGS} -fPIC"
