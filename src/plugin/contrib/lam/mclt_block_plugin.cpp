@@ -61,7 +61,7 @@ MP_Block_c* MP_Mclt_Block_Plugin_c::create( MP_Signal_c *setSignal, map<string, 
   newBlock = new MP_Mclt_Block_Plugin_c();
   if ( newBlock == NULL )
     {
-      mp_error_msg( func, "Failed to create a new Gabor block.\n" );
+      mp_error_msg( func, "Failed to create a new Mclt block.\n" );
       return( NULL );
     }
   /* Analyse the parameter map */

@@ -73,13 +73,13 @@ MP_Block_c* MP_Chirp_Block_Plugin_c::create( MP_Signal_c *setSignal, map<string,
   newBlock = new MP_Chirp_Block_Plugin_c();
   if ( newBlock == NULL )
     {
-      mp_error_msg( func, "Failed to create a new Gabor block.\n" );
+      mp_error_msg( func, "Failed to create a new Chirp block.\n" );
       return( NULL );
     }
   /* Analyse the parameter map */
   if (strcmp((*paramMap)["type"].c_str(),"chirp"))
     {
-      mp_error_msg( func, "Parameter map does not define a Gabor block.\n" );
+      mp_error_msg( func, "Parameter map does not define a Chirp block.\n" );
       return( NULL );
     }
 
@@ -1070,7 +1070,7 @@ void MP_Chirp_Block_Plugin_c::get_parameters_default_map( map< string, string, m
 const char * func = "void MP_Gabor_Block_Plugin_c::get_parameters_default_map( map< string, string, mp_ltstring>* parameterMapDefault )";
 
 if ((*parameterMapDefault).empty()) {
-(*parameterMapDefault)["type"] = "gabor";
+(*parameterMapDefault)["type"] = "chirp";
 (*parameterMapDefault)["windowLen"] = "1024";
 (*parameterMapDefault)["windowShift"] = "512";
 (*parameterMapDefault)["fftSize"] = "1024";

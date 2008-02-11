@@ -911,8 +911,8 @@ if ((*parameterMapDefault).empty()) {
 (*parameterMapDefault)["fftSize"] = "1024";
 (*parameterMapDefault)["windowtype"] = "gauss";
 (*parameterMapDefault)["windowopt"] = "0";
-(*parameterMapDefault)["f0Min"] = "0.0";
-(*parameterMapDefault)["f0Max"] = "0.0";
+(*parameterMapDefault)["f0Min"] = "50.0";
+(*parameterMapDefault)["f0Max"] = "51.0";
 (*parameterMapDefault)["numPartials"] = "0";
 (*parameterMapDefault)["blockOffset"] = "0"; }
 

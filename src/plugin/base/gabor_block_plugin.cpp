@@ -80,7 +80,7 @@ MP_Block_c* MP_Gabor_Block_Plugin_c::create( MP_Signal_c *setSignal, map<string,
     }
       
   /* Analyse the parameter map */
-  if (strcmp((*paramMap)["type"].c_str(),"gabor"))
+  if (strcmp((*paramMap)["type"].c_str(),"gabor") ==1 or strcmp((*paramMap)["type"].c_str(),"harmonic") ==1)
     {
       mp_error_msg( func, "Parameter map does not define a Gabor block.\n" );
       return( NULL );
