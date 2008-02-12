@@ -212,12 +212,12 @@ int MP_Dict_c::parse_xml_file(TiXmlDocument doc){
           }
     }
       else
-    {
-
-      mp_error_msg( func, "No block node in the dictionnary structure file.\n");
-      delete(propertyMap);
-      return 0;
-    }
+  {
+  delete(propertyMap);
+  propertyMap = NULL;
+  mp_debug_msg( MP_DEBUG_CONSTRUCTION, func,
+                "No properties tag for block.\n" );
+   }
 
   node = hdl.FirstChild("dict").FirstChild("block").ToNode();
 
@@ -229,9 +229,7 @@ int MP_Dict_c::parse_xml_file(TiXmlDocument doc){
         finalcount += count;
          if (0 == count )
             {
-              mp_error_msg( func, "Error while processing block.\n");
-              delete(propertyMap);
-              return  0;
+              mp_error_msg( func, "Error while processing block.processing the remaining block\n");
             } 
        
         }
@@ -240,11 +238,11 @@ int MP_Dict_c::parse_xml_file(TiXmlDocument doc){
     {
 
       mp_error_msg( func, "No block node in the dictionnary structure file.\n");
-      delete(propertyMap);
+      if (propertyMap) delete(propertyMap);
       return 0;
     }
 
-  delete(propertyMap);
+  if (propertyMap) delete(propertyMap);
   return finalcount;
 }
 
@@ -543,7 +541,7 @@ int MP_Dict_c::parse_block(TiXmlNode * pParent, map<string, PropertiesMap, mp_lt
       return 0;
       
     }
-  if (pParent->ToElement()->Attribute("uses")!=0)
+  if (pParent->ToElement()->Attribute("uses")!=0 and setPropertyMap != NULL )
     {
 
       if ( (*setPropertyMap)[pParent->ToElement()->Attribute("uses")].size()>0 )
