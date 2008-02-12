@@ -19,7 +19,7 @@ C:~\bar\mingw32-make
 The Command list you should use under Linux like OS will look like this:
 bash-3.1$ mkdir ~/bar
 bash-3.1$ cd ~/bar
-bash-3.1$ cmake ~/foo
+bash-3.1$ cmake ~/foo  (!! use 'ccmake ~/foo' if you want to customize installation settings)
 bash-3.1$ make
 bash-3.1$ make install 
 Note: make install will install in the default location 
