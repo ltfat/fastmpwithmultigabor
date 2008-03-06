@@ -54,6 +54,8 @@ ADD_CUSTOM_COMMAND(
                  COPYONLY) 
   CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/matlab/experimental/bookedit_exp.m ${MPTK_BINARY_DIR}/src/matlab/experimental/bookedit_exp.m
                  COPYONLY) 
+  CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/matlab/experimental/MPtoolbaricons.mat ${MPTK_BINARY_DIR}/src/matlab/experimental/MPtoolbaricons.mat
+                 COPYONLY) 
 
 
 ELSE(MEX_COMPILER) 
@@ -86,12 +88,14 @@ IF(UNIX)
               ${MPTK_BINARY_DIR}/src/matlab/experimental/bookwrite_exp.${MEX_EXTENSION}
               ${MPTK_BINARY_DIR}/src/matlab/experimental/bookwrite_exp.m
               ${MPTK_BINARY_DIR}/src/matlab/experimental/bookedit_exp.m
+              ${MPTK_BINARY_DIR}/src/matlab/experimental/MPtoolbaricons.mat
   DESTINATION matlab/experimental)
 
 ELSE(UNIX)
   INSTALL(FILES ${MPTK_BINARY_DIR}/src/matlab/experimental/bookread_exp.m
                 ${MPTK_BINARY_DIR}/src/matlab/experimental/bookwrite_exp.m
                 ${MPTK_BINARY_DIR}/src/matlab/experimental/bookedit_exp.m
+                ${MPTK_BINARY_DIR}/src/matlab/experimental/MPtoolbaricons.mat
   DESTINATION matlab/experimental)
 
 ENDIF(UNIX)
