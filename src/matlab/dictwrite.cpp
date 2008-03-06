@@ -63,7 +63,7 @@ void mexFunction(int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[])
 
           tmp = mxGetFieldByNumber(mxBlock, 0 , j);
 
-          /*Test the type of parameter and fill it in the parameter map*/
+          /* Test the type of parameter and fill it in the parameter map */
           if (!strcmp(((*paramMapType)[field_name]).c_str(),"string"))
             {
               tmpcharlen = mxGetN(tmp)+1;
@@ -153,7 +153,4 @@ void mexFunction(int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[])
   delete(paramMapType);
   delete(paramMap);
   
-
-
-
 }

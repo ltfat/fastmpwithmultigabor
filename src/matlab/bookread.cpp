@@ -161,4 +161,6 @@ int nrhs, const mxArray *prhs[]) {
 	mxSetField(atom, 0, "phase", phase);
 	mxSetField(atom, 0, "chirp", chirp);
 	mxSetField(plhs[0], 0, "atom", atom);
+    
+    book->info();
 }
