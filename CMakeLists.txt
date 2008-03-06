@@ -27,6 +27,8 @@ OPTION(BUILD_MATLAB_MEX_FILES "Enable building Matlab MEX files." OFF)
 OPTION(BUILD_PYTHON_FILES "Enable building python files." OFF)
 # Allows build experimental feature :
 OPTION(BUILD_EXPERIMENTAL "Enable building experimental files." OFF)
+# Allows build experimental feature :
+OPTION(BUILD_MATLAB_MEX_FILES_EXPERIMENTAL "Enable building Matlab experimental MEX files." OFF)
 # Allows build RPM experimental feature :
 SET(BUILD_RPM OFF)
 #OPTION(BUILD_RPM "Allows build RPM experimental feature." OFF)

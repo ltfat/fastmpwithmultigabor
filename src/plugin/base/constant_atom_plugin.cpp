@@ -83,17 +83,16 @@ MP_Atom_c* MP_Constant_Atom_Plugin_c::create( FILE *fid, const char mode )
 }
 
 MP_Atom_c* MP_Constant_Atom_Plugin_c::constant_atom_create_empty(void)
-    {
-mp_error_msg( "MP_Constant_Atom_Plugin_c::constant_atom_create_empty", "create a new Constant atom.\n" );
-      return new MP_Constant_Atom_Plugin_c;
-
-    }
+{
+  // mp_error_msg( "MP_Constant_Atom_Plugin_c::constant_atom_create_empty", "create a new Constant atom.\n" );
+  return new MP_Constant_Atom_Plugin_c;  
+}
 /********************/
 /* Void constructor */
 MP_Constant_Atom_Plugin_c::MP_Constant_Atom_Plugin_c( void )
-    :MP_Atom_c(){
-  mp_error_msg( "MP_Constant_Atom_Plugin_c::MP_Constant_Atom_Plugin_c", "create a new Constant atom.\n" );  
-    }
+  :MP_Atom_c(){
+  // mp_error_msg( "MP_Constant_Atom_Plugin_c::MP_Constant_Atom_Plugin_c", "create a new Constant atom.\n" );  
+}
 
 /********************/
 /* File reader      */

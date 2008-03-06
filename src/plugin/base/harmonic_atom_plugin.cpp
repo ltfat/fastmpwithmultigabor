@@ -1,6 +1,6 @@
 /******************************************************************************/
 /*                                                                            */
-/*                              gabor_atom.cpp                                */
+/*                              harmonic_atom.cpp                             */
 /*                                                                            */
 /*                        Matching Pursuit Library                            */
 /*                                                                            */
@@ -691,6 +691,66 @@ int MP_Harmonic_Atom_Plugin_c::add_to_tfmap( MP_TF_Map_c *tfmap, const char tfma
     }
   return( flag );
 }
+
+/***********************************************************************/
+/* Sorting function which characterizes various properties of the atom,
+   along one channel */
+int MP_Harmonic_Atom_Plugin_c::has_field( int field )
+{
+
+  if (MP_Gabor_Atom_Plugin_c::has_field( field ) ) return ( MP_TRUE );
+  else switch (field)
+      {
+      case MP_NUMPARTIALS_PROP :
+        return( MP_TRUE );
+      case MP_HARMONICITY_PROP :
+        return( MP_TRUE );
+      case MP_PARTIAL_AMP_PROP :
+        return( MP_TRUE );
+      case MP_PARTIAL_PHASE_PROP :
+        return( MP_TRUE );
+      default :
+        return( MP_FALSE );
+      }
+}
+
+MP_Real_t MP_Harmonic_Atom_Plugin_c::get_field( int field, MP_Chan_t chanIdx )
+{
+  MP_Real_t x;
+  unsigned int c,h; /* chan, partials */
+
+  if (MP_Gabor_Atom_Plugin_c::has_field( field ) ) return ( MP_Gabor_Atom_Plugin_c::get_field(field,chanIdx) ); 
+  else switch (field)
+    {
+    case MP_NUMPARTIALS_PROP :
+      x = (MP_Real_t) numPartials;
+      printf("numPartials = %d",(unsigned int) x);
+
+      break;
+    case MP_HARMONICITY_PROP :
+      x = (MP_Real_t)(harmonicity[chanIdx]); //! chanIdx refers to index of partial
+      break;
+    case MP_PARTIAL_AMP_PROP :
+      //! chanIdx conversion -> [chanIdx][partialIdx] (to be checked ...)
+      h = chanIdx / numChans;
+      c = chanIdx % numChans;
+      x = (MP_Real_t)(partialAmp[c][h]); 
+      break;
+    case MP_PARTIAL_PHASE_PROP :
+      //! chanIdx conversion -> [chanIdx][partialIdx] (to be checked ...)
+      h = chanIdx / numChans;
+      c = chanIdx % numChans;
+      x = (MP_Real_t)(partialPhase[c][h]);
+      break;
+    default :
+      mp_warning_msg( "MP_Harmonic_Atom_Plugin_c::get_field()", "Unknown field. Returning ZERO.\n" );
+      x = 0.0;
+    }
+  
+  return( x );
+  
+}
+
 
 
 //

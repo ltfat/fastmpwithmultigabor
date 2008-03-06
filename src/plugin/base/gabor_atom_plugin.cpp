@@ -681,6 +681,10 @@ int MP_Gabor_Atom_Plugin_c::has_field( int field )
         return( MP_TRUE );
       case MP_CHIRP_PROP :
         return( MP_TRUE );
+      case MP_WINDOW_TYPE_PROP :
+        return( MP_TRUE );
+      case MP_WINDOW_OPTION_PROP :
+        return( MP_TRUE );
       default :
         return( MP_FALSE );
       }
@@ -704,8 +708,14 @@ MP_Real_t MP_Gabor_Atom_Plugin_c::get_field( int field, MP_Chan_t chanIdx )
       case MP_CHIRP_PROP :
         x = chirp;
         break;
+      case MP_WINDOW_TYPE_PROP :
+	x = (MP_Real_t) windowType;
+	break;
+      case MP_WINDOW_OPTION_PROP :
+	x = windowOption;
+	break;
       default :
-        mp_warning_msg( "MP_Gabor_Atom_c::get_field()", "Unknown field. Returning ZERO.\n" );
+        mp_warning_msg( "MP_Gabor_Atom_Plugin_c::get_field()", "Unknown field: %d. Returning ZERO.\n",field );
         x = 0.0;
       }
 

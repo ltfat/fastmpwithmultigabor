@@ -578,25 +578,35 @@ int MP_Mclt_Atom_Plugin_c::has_field( int field ) {
   else switch (field) {
   case MP_FREQ_PROP :  return( MP_TRUE );
   case MP_PHASE_PROP : return( MP_TRUE );
+  case MP_CHIRP_PROP : return( MP_TRUE );
+  case MP_WINDOW_TYPE_PROP : return( MP_TRUE );
+  case MP_WINDOW_OPTION_PROP : return( MP_TRUE );
   default : return( MP_FALSE );
   }
 }
 
 MP_Real_t MP_Mclt_Atom_Plugin_c::get_field( int field, MP_Chan_t chanIdx ) {
   MP_Real_t x;
+  
   if ( MP_Atom_c::has_field( field ) ) return ( MP_Atom_c::get_field(field,chanIdx) );
   else switch (field) {
-  case MP_POS_PROP :
-    x = (MP_Real_t)(support[chanIdx].pos);
+  case MP_WINDOW_TYPE_PROP :
+    x = ( MP_Real_t) windowType;
+    break;
+  case MP_WINDOW_OPTION_PROP :
+    x = windowOption;
     break;
   case MP_FREQ_PROP :
     x = freq;
+    break;
+  case MP_CHIRP_PROP :
+    x = chirp;
     break;
   case MP_PHASE_PROP :
     x = phase[chanIdx];
     break;
   default :
-    mp_warning_msg( "MP_Gabor_Atom_c::get_field()", "Unknown field. Returning ZERO.\n" );
+    mp_warning_msg( "MP_Mclt_Atom_Plugin_c::get_field()", "Unknown field %d. Returning ZERO.\n",field );
     x = 0.0;
   }
 

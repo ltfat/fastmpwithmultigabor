@@ -70,8 +70,14 @@
 #define MP_ANYWAVE_REAL_TABLE_PROP    12 /** Pointer to the waveTable containing the waveform \sa MP_Anywave_Hilbert_Atom_c::satisfies() */
 #define MP_HILBERT_TABLE_IDX_PROP     13 /** Index of the wave table in the wave server \sa MP_Anywave_Hilbert_Atom_c::satisfies()*/
 #define MP_ANYWAVE_HILBERT_TABLE_PROP 14 /** Pointer to the waveTable containing the waveform \sa MP_Anywave_Hilbert_Atom_c::satisfies() */
+#define MP_WINDOW_TYPE_PROP           15 /** Window type index \sa MP_Atom_c::satisfies() */
+#define MP_WINDOW_OPTION_PROP         16 /** Window option for specific types \sa MP_Atom_c::satisfies() */
+#define MP_NUMPARTIALS_PROP           17 /** Number of partials for Harmonic atoms \sa MP_Atom_c::satisfies() */
+#define MP_HARMONICITY_PROP           18 /** Harmonicity for Harmonic atoms \sa MP_Atom_c::satisfies() */
+#define MP_PARTIAL_AMP_PROP           19 /** Partial amplitude for harmonic atoms \sa MP_Atom_c::satisfies() */
+#define MP_PARTIAL_PHASE_PROP         20 /** Partial amplitude for harmonic atoms \sa MP_Atom_c::satisfies() */
 
-#define MP_NUM_PROPS                  15
+#define MP_NUM_PROPS                  21
 
 /* some test types for atom->satisfies() */
 #define MP_SUPER 1 /** x >  val \todo document this \sa MP_Atom_c::satisfies() */

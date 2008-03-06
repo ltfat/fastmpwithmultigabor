@@ -121,7 +121,8 @@ ENDIF(MINGW)
 ENDIF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
 TARGET_LINK_LIBRARIES(mpd_demix mptk dsp_windows ${PTHREAD_LIBRARY_FILE} ${SNDFILE_LIBRARY_FILE} ${FFTW3_LIBRARY_FILE})
 ADD_DEPENDENCIES(mpd_demix mpd_demix-executable)
-ENDIF(BUILD_MULTITHREAD)#------------------------------------------------
+ENDIF(BUILD_MULTITHREAD)
+#------------------------------------------------
 # Build mdr executable
 #
 MACRO(GET_MPR_CPP_SOURCES out)
@@ -247,8 +248,8 @@ ENDIF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
 TARGET_LINK_LIBRARIES(mppitch mptk dsp_windows ${PTHREAD_LIBRARY_FILE} ${SNDFILE_LIBRARY_FILE} ${FFTW3_LIBRARY_FILE})
 ADD_DEPENDENCIES(mppitch mppitch-executable)
 
-ADD_EXECUTABLE(createDefaultDict ${UTILS_SOURCE_DIR}/experimental/createdefaultdict.cpp)
 
+ADD_EXECUTABLE(createDefaultDict ${UTILS_SOURCE_DIR}/experimental/createdefaultdict.cpp)
 #In case of 64 bits plateform we have to compil with -fPIC flag
 #
 IF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
