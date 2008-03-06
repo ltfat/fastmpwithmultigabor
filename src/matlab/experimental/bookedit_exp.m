@@ -488,9 +488,9 @@ set(figH,'UserData',data)
         
         % In case there is only one scale       
         if (isempty(str2num(len)))
-           idx = getTypeIndex(data.book,type)
+           idx = getTypeIndex(data.book,type);
         else
-           idx = getTypeIndex(data.book,type,str2num(len))
+           idx = getTypeIndex(data.book,type,str2num(len));
         end
         
         for i = 1:length(idx) % type found at idx
