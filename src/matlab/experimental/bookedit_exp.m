@@ -1,27 +1,19 @@
-function bookedit( book, channel, bwfactor )
-%function [gaborP,mdctP, harmP,diracL] = bookedit( book, channel, bwfactor )
+function bookedit_exp( book, channel, bwfactor )
+%function BOOKEDIT_EXP Plot and edit a Matching Pursuit book in the current axes
 %
-% BOOKEDIT Plot and edit a Matching Pursuit book in the current axes
-%
-%    BOOKEDIT( book, chan ) plots the channel number chan
+%    BOOKEDIT_EXP( book, chan ) plots the channel number chan
 %    of a MPTK book structure in the current axes.
 %    If book is a string, it is understood as a filename and
 %    the book is read from the corresponding file. Books
 %    can be read separately using the BOOKREAD utility.
 %
-%    BOOKEDIT( book ) defaults to the first channel.
+%    BOOKEDIT_EXP( book ) defaults to the first channel.
 %
 %    The patches delimit the support of the atoms. Their
 %    color is proportional to the atom's amplitudes,
 %    mapped to the current colormap and the current caxis.
 %
-%    BOOKPLOT( book, chan, bwfactor ) allows to specify
-%    the bandwidths of the atoms, calculated as:
-%      bw = ( fs / (atom.length(channel)/2) ) / bwfactor;
-%    where fs is the signal sample frequency. When omitted,
-%    bwfactor defaults to 2.
-%
-%    See also BOOKREADGIL, BOOKPLOT, BOOKREAD, BOOKOVER, COLORMAP, CAXIS and
+%    See also BOOKREAD_EXP, BOOKWRITE_EXP and
 %    the patch handle graphics properties.
 
 %% Authors:
@@ -38,7 +30,8 @@ function bookedit( book, channel, bwfactor )
 %
 
 if nargin<1
-    disp('BOOKEDIT needs at least 1 input argument, see help')
+    disp([ upper(mfilename) ' needs at least 1 input argument, see help'])
+    return;
 end
 
 
@@ -74,7 +67,6 @@ for ty = 1:length(book.atom)
     book.atom(ty).selected = zeros(nA,nC);
     book.atom(ty).visible = ones(nA,nC);
 end
-
 
 %----------------------------
 % General UI variables
@@ -157,8 +149,14 @@ if exist('MPtoolbaricons.mat','file')==2
     icons = load('MPtoolbaricons.mat');
 else
     icons.playsound = rand(16,16,3);
-    icons.mousezoom = rand(16,16,3);
-    icons.fullview  = rand(16,16,3);
+    icons.zoomx = rand(16,16,3);
+    icons.zoomy = rand(16,16,3);
+    icons.zoomplus = rand(16,16,3);
+    icons.fullview = rand(16,16,3);
+    icons.playselected = rand(16,16,3);
+    icons.selectadd = rand(16,16,3);
+    icons.selectremove = rand(16,16,3);
+    icons.open_hand = rand(16,16,3);
 end
 
 toolH(1) = uitoolbar(figH);
@@ -251,6 +249,7 @@ data.toolH = toolH;         % Vector of toolbar icons handles
 data.book = book;           % Vector of toolbar icons handles
 data.axH = axH;           % Vector of toolbar icons handles
 data.loadBookDir = pwd;
+data.saveBookDir = pwd;
 set(figH,'UserData',data)
 
 %% ------------------
@@ -291,12 +290,34 @@ set(figH,'UserData',data)
 
     %% SAVE VISIBLE ATOMS AS A NEW BOOK
     function saveVisibleBook(varargin)
-         disp('saveVisibleBook() - Not implemented')
+        data = get(gcf,'UserData');       
+        data.book.index(4,:) = 0;
+        % Copy visible info into index
+        for t = 1:length(data.book.atom)
+            data.book.index(4,data.book.index(2,:)==t) = data.book.atom(t).visible;
+        end
+        % Write book
+        newSaveDir = writeBook(data.book,data.saveBookDir);
+        if (~isempty(newSaveDir))
+           data.saveBookDir = newSaveDir;
+           set(gcf,'UserData',data)
+        end
     end
 
     %% SAVE SELECTED ATOMS AS A NEW BOOK
     function saveSelectedBook(varargin)
-         disp('saveSelectedBook() - Not implemented')
+        data = get(gcf,'UserData');       
+        data.book.index(4,:) = 0;
+        % Copy visible info into index
+        for t = 1:length(data.book.atom)
+            data.book.index(4,data.book.index(2,:)==t) = data.book.atom(t).selected;
+        end
+        % Write book
+        newSaveDir = writeBook(data.book,data.saveBookDir);
+        if (~isempty(newSaveDir))
+           data.saveBookDir = newSaveDir;
+           set(gcf,'UserData',data)
+        end
     end
 
     %% 
@@ -361,8 +382,7 @@ set(figH,'UserData',data)
             data.book.index(4,data.book.index(2,:)==t) = data.book.atom(t).visible;
         end
 
-        playBook(data.book);
-        
+        playBook(data.book);    
     end
 
     function playselectedsound(varargin)
@@ -428,25 +448,34 @@ set(figH,'UserData',data)
         zoom out;
     end
 
+    %% Checkbox callback for show/hide all atom types
+    function toggleViewAllAtom(varargin)
+       data = get(gcf,'UserData');
+       val = get(data.typeHandles(1),'Value'); % Get checkbox 'hide/show all' value
+       
+       for th=2:length(data.typeHandles)
+           set(data.typeHandles(th),'Value',val);
+           toggleViewAtomLength(data.typeHandles(th));
+       end
+    end
+
     %% Checkbox callback for show/hide an atom type
     function toggleViewAtomType(varargin)
         cbH = gcbo; % Chekbx handles       
         data = get(gcf,'UserData');
-        type = get(varargin{1},'String');
+        type = get(varargin{1},'Tag');
         val  = get(varargin{1},'Value');
         idx = getTypeIndex(data.book,type);
         
         indCbH = find(data.typeHandles==cbH); % Index of current handle in vector of handles
-        
-        for i=1:length(idx) % type found at idx
-            %[nA nC] = size(data.book.atom(idx(i)).params.amp);
-            if (val) % Show atom with type
-                set(data.typeHandles(indCbH+i),'Value',1);
-            else     % Hide atom with type
-                set(data.typeHandles(indCbH+i),'Value',0);
+        if (length(idx)==1)
+           set(data.typeHandles(indCbH),'Value',val);                       
+           toggleViewAtomLength(data.typeHandles(indCbH)); 
+        else
+            for i=1:length(idx) % type found at idx
+                set(data.typeHandles(indCbH+i),'Value',val);                       
+                toggleViewAtomLength(data.typeHandles(indCbH+i));
             end
-                       
-            toggleViewAtomLength(data.typeHandles(indCbH+i));
         end
     end
     
@@ -456,13 +485,12 @@ set(figH,'UserData',data)
         type = get(varargin{1},'Tag');
         len  = get(varargin{1},'String');
         val  = get(varargin{1},'Value');
-        % In case there is only one scale
         
+        % In case there is only one scale       
         if (isempty(str2num(len)))
-           type = len;
-           idx = getTypeIndex(data.book,type);
+           idx = getTypeIndex(data.book,type)
         else
-           idx = getTypeIndex(data.book,type,str2num(len));
+           idx = getTypeIndex(data.book,type,str2num(len))
         end
         
         for i = 1:length(idx) % type found at idx
@@ -510,6 +538,25 @@ set(figH,'UserData',data)
 %% SUB FUNCTIONS
 %  -------------
 
+%% Write a MPTK binary book file - user is asked for the book name
+    function newsavedir = writeBook(book,defaultDir)
+        newsavedir = [];
+        nAtom = sum(book.index(4,:));
+        if (nAtom) % Check that there is non zero atom in book
+            curDir = cd; % save current directory
+            cd(defaultDir);
+            [filename, pathname] = uiputfile( {'*.bin;*.txt','MPTK book-files (*.bin)'}, ...
+                'Save Atoms in book', [ 'book_' num2str(nAtom) 'atoms.bin']);
+            if (filename)
+                newsavedir = pathname;
+                bookwrite_exp(book,fullfile(pathname,filename));
+            end
+            cd(curDir); % return in current directory
+        else
+           warndlg('No Atom is selected, nothing to save in book', 'Book save info', 'modal');
+        end  
+    end
+
 %% Reconstruct and Play Book as a sound
     function playBook(book)
          if (book.index(4,:)== 0)
@@ -519,7 +566,7 @@ set(figH,'UserData',data)
             tmpwav = 'tempmpr.wav';
             % Save book
             wb = waitbar(0,'Exporting visible part of book','Name','Play visible atoms');
-            bookwriteGil(data.book,tmpbook);
+            bookwrite_exp(data.book,tmpbook);
 
             % Reconstruct book with mpr
             waitbar(0.3,wb,'Reconstructing book');
@@ -727,6 +774,7 @@ set(figH,'UserData',data)
         % Get Last Rectangle of selection coordinates
         %rpos = data.atomSelection(end,:); % xmin xmax ymin ymax
         
+        nAS = 0; % Counter for the number of atoms selected
         for k = 1:nT,
 
              data.book.atom(k).params;
@@ -765,13 +813,16 @@ set(figH,'UserData',data)
 
                  % An atom is selected if its support is fully included in
                  % rectangle selection
+                 
                  if ( (xmin>=rpos(1)) && (xmax<=rpos(2)) && (ymin>=rpos(3)) && ymax<=(rpos(4)) )
                        data.book.atom(k).selected(a,chan) = 1;
-                       disp(['[' data.book.atom(k).type '] - atom ' num2str(a) ' selected'])
+                       nAS = nAS + 1;
+                       % disp(['[' data.book.atom(k).type '] - atom ' num2str(a) ' selected'])
                  end
              end
              
         end
+        disp([ '[' num2str(nAS) '] - atoms in new selection'])
         set(gcf,'UserData',data)
     end
 
@@ -808,7 +859,21 @@ set(figH,'UserData',data)
             figure(figHandle);
             tl=0; % Counter of type and len (number of checkboxes)
             
-            for t=1:length(fields), 
+            % First CHECKBOX IS FOR VIEW/HIDE ALL ATOMS
+            tl = tl + 1;
+            typeH(tl) = uicontrol( ...
+                'Style','checkbox', ...
+                'Units','normalized', ...
+                'BackgroundColor',fgColor,...
+                'Position',[ 0.02 0.92-tl*(bHeight+vSpace) 0.17 bHeight ], ...
+                'String','Show/Hide All', ...
+                'Value',1, ...
+                'Enable','on',...
+                'Visible','on',...
+                'Callback',@toggleViewAllAtom);
+            
+            % NEXT CHECKBOXES ARE FOR DIFFERENT ATOM TYPES AND LENGTHS
+            for t=1:length(fields),
                 % Atom length sub-checkbox - ATOM TYPE IS STORED IN 'Tag' property
                 len = types.(fields{t});
                 if (length(len) == 1)
@@ -819,8 +884,9 @@ set(figH,'UserData',data)
                             'Style','checkbox', ...
                             'Units','normalized', ...
                             'BackgroundColor',fgColor,...
-                            'Position',[ 0.02 0.9-tl*(bHeight+vSpace) 0.17 bHeight ], ...
-                            'String',fields{t}, ...
+                            'Position',[ 0.02 0.92-tl*(bHeight+vSpace) 0.17 bHeight ], ...
+                            'String',[ fields{t} ' length: ' num2str(len)], ...
+                            'Tag',fields{t}, ...
                             'Value',1, ...
                             'Enable','on',...
                             'Visible','on',...
@@ -833,8 +899,9 @@ set(figH,'UserData',data)
                         'Style','checkbox', ...
                         'Units','normalized', ...
                         'BackgroundColor',fgColor,...
-                        'Position',[ 0.02 0.9-tl*(bHeight+vSpace) 0.17 bHeight ], ...
-                        'String',fields{t}, ...
+                        'Position',[ 0.02 0.92-tl*(bHeight+vSpace) 0.17 bHeight ], ...
+                        'String',[ fields{t} ' length: ' ], ...
+                        'Tag',fields{t}, ...
                         'Value',1, ...
                         'Enable','on',...
                         'Visible','on',...
@@ -845,7 +912,7 @@ set(figH,'UserData',data)
                             'Style','checkbox', ...
                             'Units','normalized', ...
                             'BackgroundColor',fgColor,...
-                            'Position',[ 0.03 0.9-tl*(bHeight+vSpace) 0.15 bHeight ], ...
+                            'Position',[ 0.03 0.92-tl*(bHeight+vSpace) 0.15 bHeight ], ...
                             'String',num2str(len(l)), ...
                             'Tag',fields{t}, ...
                             'Value',1, ...

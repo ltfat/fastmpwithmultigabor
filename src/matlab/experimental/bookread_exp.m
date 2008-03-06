@@ -1,16 +1,16 @@
-% BOOKREAD Imports a binary Matching Pursuit book in Matlab
+% BOOKREAD_EXP Imports a binary Matching Pursuit book in Matlab
 %
-%    book = BOOKREADGIL( 'fileName' ) reads the binary format book
+%    book = BOOKREAD_EXP( 'fileName' ) reads the binary format book
 %    file 'fileName' and returns it as a structure.
 %
-%    The following blocks are supported: gabor, harmonic, mdct,
-%    mclt, dirac.
+%    The following blocks are supported: 
+%    gabor, harmonic, mdct, mdst, mclt, dirac, constant, nyquist
 %
-%    See also BOOKWRITE.
+%    See also BOOKWRITE_EXP, BOOKEDIT_EXP.
 
 %
 % Author:
-% Emmanuel Ravelli
+% Gilles Gonon
 % 
 % Distributed under the General Public License.
 %                                       
