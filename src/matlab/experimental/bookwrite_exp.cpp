@@ -4,7 +4,7 @@
 /*                                                                            */
 /*				mptkMEX toolbox			      	      */
 /*                                                                            */
-/* Emmanuel Ravelli                                            	   Jan 1 2007 */
+/* Gilles Gonon                                                	  Feb 21 2008 */
 /* -------------------------------------------------------------------------- */
 /*                                                                            */
 /*  This program is free software; you can redistribute it and/or             */
@@ -24,8 +24,8 @@
 /*                                                                            */
 /******************************************************************************/
 /*
- * $Version 0.5.2$
- * $Date 01/01/2007$
+ * $Version 0.5.4$
+ * $Date 21/02/2008$
  */
 
 #include "mex.h"

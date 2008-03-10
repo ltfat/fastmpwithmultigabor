@@ -1,4 +1,4 @@
-function bookedit_exp( book, channel, bwfactor )
+function varargout = bookedit_exp( book, channel, bwfactor )
 %function BOOKEDIT_EXP Plot and edit a Matching Pursuit book in the current axes
 %
 %    BOOKEDIT_EXP( book, chan ) plots the channel number chan
@@ -38,7 +38,12 @@ end
 %% Test input args
 if ischar(book),
     disp('Loading the book...');
-    book = bookreadGil( book );
+    [p,n] = fileparts(book);
+    book = bookread_exp( book );
+    % Add Fields in structure for graphical / selection information to atoms
+    book = addMatlabBookFields(book);
+    % Record path of the book for open book
+    data.loadBookDir = p;
     disp('Done.');
 end;
 
@@ -57,16 +62,6 @@ end;
 
 nS = book.numSamples;
 fs = book.sampleRate;
-
-%% Add graphical / selection information to atoms
-% add 2 fields in atom structure :
-%   - 'selected' for selection information 
-%   - 'visible' for plotting information
-for ty = 1:length(book.atom)
-    [nA, nC] = size(book.atom(ty).params.amp);
-    book.atom(ty).selected = zeros(nA,nC);
-    book.atom(ty).visible = ones(nA,nC);
-end
 
 %----------------------------
 % General UI variables
@@ -88,6 +83,9 @@ figH = figure( ...
     'MenuBar','none',...
     'Visible','on');
 
+if (nargout == 1)
+    varargout(1) = { figH };
+end
 %% ---------------------
 %  Figure menus
 %  ------------
@@ -205,7 +203,7 @@ axHeight = (1-(book.numChans+1)*vspace ) / book.numChans; % axes Height
 for ac = 1:book.numChans
     axH(ac) = axes( ...
         'Units','normalized', ...
-        'Position',[0.2675 vspace+axHeight*(ac-1) 0.7 axHeight ], ...
+        'Position',[0.2675 ( vspace*ac +axHeight*(ac-1) ) 0.7 axHeight ], ...
         'Drawmode','fast', ...
         'Layer','top', ...
         'Visible','on');
@@ -248,8 +246,10 @@ data.rectUnSelH = [];         % Vector of Selection handles
 data.toolH = toolH;         % Vector of toolbar icons handles
 data.book = book;           % Vector of toolbar icons handles
 data.axH = axH;           % Vector of toolbar icons handles
-data.loadBookDir = pwd;
-data.saveBookDir = pwd;
+if (~isfield(data,'loadBookDir'))
+    data.loadBookDir = pwd;
+end
+data.saveBookDir = data.loadBookDir;
 set(figH,'UserData',data)
 
 %% ------------------
@@ -261,6 +261,7 @@ set(figH,'UserData',data)
     
     %% OPEN AND LOAD A BOOK
     function loadBook(varargin)
+        curFig = gcf;
         data = get(gcf,'UserData');
         cd(data.loadBookDir);
         [filename, pathname] = uigetfile({'*.bin';'*.txt';'*.xml'},'Open a book file');
@@ -269,20 +270,12 @@ set(figH,'UserData',data)
             bookname = fullfile(pathname,filename);          
             if (exist(bookname,'file')==2)
                 disp('Loading the book...');
-                book = bookreadGil( bookname );
-                disp('Done.');
-                data.book = book;
-                %Redraw book
-                delete(data.atomHandles(ishandle( data.atomHandles ))); % Delete atoms
-                data.atomHandles = plotBook(book,data.axH);
-                set(gcf,'UserData',data);
-                % Redraw show/hide Atom type checkboxes
-                delete(data.typeHandles(ishandle( data.typeHandles ))); % Delete checkbox atom type
-                data.typeHandles = addCheckBoxTypes(book,gcf);
-                % Clear selection
-                selectNone();
-
-            else % Bookname does not exists, save book directory path
+                newFig = bookedit_exp( bookname );
+                data = get(newFig,'UserData');
+                data.loadBookDir = pathname;
+                set(newFig,'UserData',data);
+                close(curFig);
+            else % Bookname does not exists, save book directory path (the rest is unchanged)
                 set(gcf,'UserData',data);
             end
         end
@@ -780,8 +773,8 @@ set(figH,'UserData',data)
              data.book.atom(k).params;
              % Process any visible atom
              ind = find( data.book.atom(k).visible(:,chan) == 1 );
-             for n = 1:length(ind), %#ok<FNDSB>
-                 a = ind(n);
+             for nv = 1:length(ind),
+                 a = ind(nv);
                  
                  % Get atom bounds 
                  % Temporal position
@@ -801,7 +794,7 @@ set(figH,'UserData',data)
                          f0 = 0;
                          df0 = 0.5 / dt0; 
                      case {'harmonic','gabor','mdct','mdst','mclt'}
-                         f0  = fs*data.book.atom(k).params.freq(a,chan);
+                         f0  = fs*data.book.atom(k).params.freq(a);
                          df0 = 0.5 / dt0;
                      otherwise 
                          f0 = 0.25 *fs;
@@ -825,6 +818,20 @@ set(figH,'UserData',data)
         disp([ '[' num2str(nAS) '] - atoms in new selection'])
         set(gcf,'UserData',data)
     end
+
+%% PATCH THE BOOK STRUCTURE WITH TWO FIELDS FOR MATLAB graphical / selection information to atoms
+% add 2 fields in atom structure :
+%   - 'selected' for selection information 
+%   - 'visible' for plotting information
+    function newbook = addMatlabBookFields(b)
+        for t = 1:length(b.atom)
+            [nA, nC] = size(b.atom(t).params.amp);
+            b.atom(t).selected = zeros(nA,nC);
+            b.atom(t).visible = ones(nA,nC);
+        end
+        newbook = b;
+    end
+
 
 %% RETURNS A VECTOR OF UIHANDLES TO CHECKBOX FOR SHOWING/HIDING ATOM PER TYPE
     function typeH = addCheckBoxTypes(book,figHandle)
@@ -975,13 +982,13 @@ set(figH,'UserData',data)
                         for chan = 1:nC
                             pos = params.pos(a,chan)/fs;   % Position in seconds
                             len = params.len(a,chan)/fs;   % Length in seconds
-                            freq = fs*params.freq(a,chan); % Atom central frequency
+                            freq = fs*params.freq(a); % Atom central frequency
                             bw2 = 0.5 / len;               % Atom bandwidth
                             amp = params.amp(a,chan);      % Amplitude
                             amp = max(-80,20*log10(abs(amp)));  % Set a minimum amp value : -80dB
 
                             if (strcmp(type,'gabor') ) % Chirped atoms
-                                ch = fs*fs*params.chirp(a,chan);
+                                ch = fs*fs*params.chirp(a);
                             else                                               % No chirp
                                 ch = 0;
                             end
@@ -1004,11 +1011,11 @@ set(figH,'UserData',data)
                             l = params.len(a,chan)/fs;
                             bw2 = ( fs / (params.len(a,chan)/2 + 1) ) / bwfactor;
                             A = params.amp(a,chan);
-                            f = params.freq(a,chan)*fs;
-                            pv = repmat([p;p;p+l;p+l],1,params.numPartials(a,chan));
+                            f = params.freq(a)*fs;
+                            pv = repmat([p;p;p+l;p+l],1,params.numPartials(a));
 
-                            fv = f*params.harmonicity(a,:,chan);
-                            ch = fs*fs*params.chirp(a,chan);
+                            fv = f*params.harmonicity(a,:);
+                            ch = fs*fs*params.chirp(a);
                             dfv = ch*l;
                             fvup = fv+bw2;
                             fvdown = fv-bw2;

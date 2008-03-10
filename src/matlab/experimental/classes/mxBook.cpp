@@ -815,7 +815,7 @@ MP_Book_c * mxBook::Book_MEX_2_MPTK() {
   MP_Book_c * mpBook;
   mxArray *tmp,*atoms,*mxIndex;
   MP_Chan_t numChans;
-  unsigned int sampleRate;
+  int sampleRate;
   unsigned long int nAtom,numSamples,a,nAtomAdded;
   unsigned int indexSize;
     
@@ -827,7 +827,7 @@ MP_Book_c * mxBook::Book_MEX_2_MPTK() {
   tmp = mxGetField(mexbook,0,"numSamples");
   numSamples = (unsigned long int)mxGetScalar(tmp);
   tmp = mxGetField(mexbook,0,"sampleRate");
-  sampleRate = (unsigned int)mxGetScalar(tmp);
+  sampleRate = (int)mxGetScalar(tmp);
 
   /** Get book index */
   mxIndex = mxGetField(mexbook,0,"index");
@@ -866,6 +866,65 @@ void mxBook::MP_BookWrite(string fileName, const char mode) {
     
   /** Save it to file with mode (MP_TEXT or MP_BINARY) */
   mpBook->print(fileName.c_str(),mode);
-    
+  return;
 }
 
+/** Reconstruct Signal from book and return a pointer to a mxArray containing the MP_Signal samples 
+ *  (A simplified version of mpr)
+ */
+
+mxArray * mxBook::Book_Reconstruct() {
+  MP_Book_c   * mpBook;
+  MP_Signal_c * mpSignal;
+  mxArray     * mxSignal = NULL;
+    
+  /* Load the MPTK environment if not loaded */
+  if (!MPTK_Env_c::get_env()->get_environment_loaded()) {
+    MPTK_Env_c::get_env()->load_environment("");
+  }
+  
+  /** Export mexbook to a MP_Book_c */
+  mpBook = this->Book_MEX_2_MPTK();
+
+  if ( mpBook == NULL ) {
+    mexPrintf( "mxBook::Book_Reconstruct() info -- MP_Book_c is ill formed.\n" );
+    mxSignal = mxCreateDoubleMatrix(0,0, mxREAL);
+    return mxSignal;
+  }
+
+  
+  // Reconstruct book to signal
+  mpBook->info();
+  //if (MP_FALSE == mpBook->recheck_num_channels()) {  mexPrintf( "mxBook::Book_Reconstruct() WARNING -- BOOK NUMCHANS NOT UP TO DATE\n" ); }
+  
+  //if (MP_FALSE == mpBook->recheck_num_samples()) {  mexPrintf( "mxBook::Book_Reconstruct() WARNING -- BOOK NUMSAMPLES NOT UP TO DATE\n" ); }
+  
+  // Init MP_Signal with book params
+  mpSignal = MP_Signal_c::init( mpBook->numChans, mpBook->numSamples, mpBook->sampleRate );
+  if ( mpSignal == NULL ) {
+    mexPrintf( "mxBook::Book_Reconstruct() error -- Can't make a new signal.\n" );
+    return mxSignal;
+  }
+  
+
+  /** THIS LINE MAKES A SEG FAULT -- GDB GIVES NO TRACE -- MAYBE IT IS A PROBLEM OF MATLAB !!! */
+  mpBook->substract_add( NULL,mpSignal, NULL);
+  mexPrintf( "mxBook::Book_Reconstruct() info -- MP_Signal_c reconstructed from MP_Book_c\n" );
+  
+  
+  // Convert MP_Signal to mxArray
+  mxSignal = mxCreateDoubleMatrix(mpSignal->numSamples, mpSignal->numChans, mxREAL);
+  unsigned long int nS;
+  unsigned int nC;
+  
+  
+  mexPrintf( "mxBook::Book_Reconstruct() info -- filling signal vector\n" );
+  for (nS=0; nS<mpSignal->numSamples * mpSignal->numChans; nS++) {
+    *( mxGetPr(mxSignal) + nS ) = (double) ( mpSignal->storage[nS]);
+  }
+  
+  //  delete(mpBook);
+  // delete(mpSignal);
+    
+  return mxSignal;
+}

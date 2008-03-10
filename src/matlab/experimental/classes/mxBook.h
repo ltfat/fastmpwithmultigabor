@@ -30,6 +30,7 @@
 
 #include "mex.h"
 #include "mptk.h"
+#include "time.h"
 #include "matrix.h"
 #include "anywave_atom_plugin.h"
 #include "anywave_hilbert_atom_plugin.h"
@@ -153,6 +154,9 @@ class mxBook {
   
   /** Export matlab book structure to MP_Book_c class */
   MP_Book_c * Book_MEX_2_MPTK();
+ 
+  /** Reconstruct Signal from book and return a pointer to a mxArray containing the MP_Signal samples */
+  mxArray * Book_Reconstruct();
   
   /** Export matlab book structure to MP_Book_c class */
   void MP_BookWrite(string fileName, const char mode);

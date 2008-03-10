@@ -33,6 +33,9 @@ IF(MEX_COMPILER)
  ADD_CUSTOM_TARGET(bookwrite_exp_matlab ALL echo
       DEPENDS    ${MPTK_BINARY_DIR}/src/matlab/experimental/bookwrite_exp.${MEX_EXTENSION}
   )
+ ADD_CUSTOM_TARGET(bookmpr_exp_matlab ALL echo
+      DEPENDS    ${MPTK_BINARY_DIR}/src/matlab/experimental/bookmpr_exp.${MEX_EXTENSION}
+  )
  
  ADD_CUSTOM_COMMAND(
    TARGET bookread_exp_matlab
@@ -48,11 +51,20 @@ ADD_CUSTOM_COMMAND(
     COMMENT   "MEX"
   )
 
+ADD_CUSTOM_COMMAND(
+    TARGET bookmpr_exp_matlab
+    COMMAND   ${MEX_COMPILER}
+    ARGS      -g -DHAVE_FFTW3 -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${MPTK_SOURCE_DIR}/src/tinyxml/ -I/usr/include/ -I${MPTK_SOURCE_DIR} -I${MPTK_SOURCE_DIR}/src/libdsp_windows/ -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${MPTK_SOURCE_DIR}/src/matlab/experimental/classes/ -I${MPTK_SOURCE_DIR}/src/plugin/base/ -I${MPTK_SOURCE_DIR}/src/plugin/contrib/lam/ -I${FFTW3_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/ ${MPTK_SOURCE_DIR}/src/matlab/experimental/bookmpr_exp.cpp ${MPTK_SOURCE_DIR}/src/matlab/experimental/classes/mxBook.cpp -L${MPTK_BINARY_DIR}/lib -lmptk
+    COMMENT   "MEX"
+  )
+
   CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/matlab/experimental/bookread_exp.m ${MPTK_BINARY_DIR}/src/matlab/experimental/bookread_exp.m
                  COPYONLY) 
   CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/matlab/experimental/bookwrite_exp.m ${MPTK_BINARY_DIR}/src/matlab/experimental/bookwrite_exp.m
                  COPYONLY) 
   CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/matlab/experimental/bookedit_exp.m ${MPTK_BINARY_DIR}/src/matlab/experimental/bookedit_exp.m
+                 COPYONLY) 
+  CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/matlab/experimental/bookedit_exp.m ${MPTK_BINARY_DIR}/src/matlab/experimental/bookmpr_exp.m
                  COPYONLY) 
   CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/matlab/experimental/MPtoolbaricons.mat ${MPTK_BINARY_DIR}/src/matlab/experimental/MPtoolbaricons.mat
                  COPYONLY) 
@@ -87,6 +99,8 @@ IF(UNIX)
               ${MPTK_BINARY_DIR}/src/matlab/experimental/bookread_exp.m
               ${MPTK_BINARY_DIR}/src/matlab/experimental/bookwrite_exp.${MEX_EXTENSION}
               ${MPTK_BINARY_DIR}/src/matlab/experimental/bookwrite_exp.m
+              ${MPTK_BINARY_DIR}/src/matlab/experimental/bookmpr_exp.${MEX_EXTENSION}
+              ${MPTK_BINARY_DIR}/src/matlab/experimental/bookmpr_exp.m
               ${MPTK_BINARY_DIR}/src/matlab/experimental/bookedit_exp.m
               ${MPTK_BINARY_DIR}/src/matlab/experimental/MPtoolbaricons.mat
   DESTINATION matlab/experimental)
@@ -94,6 +108,7 @@ IF(UNIX)
 ELSE(UNIX)
   INSTALL(FILES ${MPTK_BINARY_DIR}/src/matlab/experimental/bookread_exp.m
                 ${MPTK_BINARY_DIR}/src/matlab/experimental/bookwrite_exp.m
+                ${MPTK_BINARY_DIR}/src/matlab/experimental/bookmpr_exp.m
                 ${MPTK_BINARY_DIR}/src/matlab/experimental/bookedit_exp.m
                 ${MPTK_BINARY_DIR}/src/matlab/experimental/MPtoolbaricons.mat
   DESTINATION matlab/experimental)
