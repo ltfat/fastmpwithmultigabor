@@ -17,7 +17,7 @@ function varargout = bookedit_exp( book, channel, bwfactor )
 %    the patch handle graphics properties.
 
 %% Authors:
-% Gilles Gonon 
+% Gilles Gonon
 % Copyright (C) 2008 IRISA
 %
 % This script is part of the Matching Pursuit Library package,
@@ -29,8 +29,16 @@ function varargout = bookedit_exp( book, channel, bwfactor )
 %   $Revision: 783 $
 %
 
+% Check if a bookDir has already been provided bu user
+bdf = 'MPTKbookdir.mat'; % book dir file
+if (exist(bdf,'file')==2)
+    bd = load(bdf);
+else
+    bd.bookdir = pwd;
+end
+
 if nargin<1
-    disp([ upper(mfilename) ' needs at least 1 input argument, see help'])
+    loadBook(bd.bookdir);
     return;
 end
 
@@ -39,11 +47,11 @@ end
 if ischar(book),
     disp('Loading the book...');
     [p,n] = fileparts(book);
+    data.loadBookDir = p;
     book = bookread_exp( book );
     % Add Fields in structure for graphical / selection information to atoms
     book = addMatlabBookFields(book);
     % Record path of the book for open book
-    data.loadBookDir = p;
     disp('Done.');
 end;
 
@@ -256,34 +264,62 @@ set(figH,'UserData',data)
 %  CALLBACK FUNCTIONS
 %  ------------------
 
-    %% FIGURE MENUS CALLBACKS
-    % -------------------------
-    
-    %% OPEN AND LOAD A BOOK
+%% FIGURE MENUS CALLBACKS
+% -------------------------
+
+%% OPEN AND LOAD A BOOK
+% This load function can be called at different times:
+% - At Initialisation with a directory (possibly saved in MPTKbookdir.mat)
+% - from uimenu 'Open Book ...'
+% - From a subfunction (typically after an operation on atoms)
+
     function loadBook(varargin)
         curFig = gcf;
         data = get(gcf,'UserData');
-        cd(data.loadBookDir);
-        [filename, pathname] = uigetfile({'*.bin';'*.txt';'*.xml'},'Open a book file');
+        % Just check if interface is already created or start program
+        if (isempty(data))
+            close(curFig);
+            cd(varargin{1})
+            [filename, pathname] = uigetfile({'*.bin';'*.txt';'*.xml'},'Open a book file');
+        else
+            if (nargin==2) % Call from uimenu 'open book'
+                % Ask the user a book name
+                if (exist(data.loadBookDir,'dir') == 7) % sometimes this variable is lost ...
+                    cd(data.loadBookDir);
+                end
+                [filename, pathname] = uigetfile({'*.bin';'*.txt';'*.xml'},'Open a book file');
+            else   % Call from a subfunction
+                [pathname,fn,e] = fileparts(varargin{1});
+                filename = [ fn e ];
+            end
+        end
+
         if (filename)
-            data.loadBookDir = pathname;
-            bookname = fullfile(pathname,filename);          
+            if (~isempty(pathname))
+                data.loadBookDir = pwd;
+            else
+                data.loadBookDir = pathname;
+            end
+            bookname = fullfile(pathname,filename);
             if (exist(bookname,'file')==2)
+
                 disp('Loading the book...');
                 newFig = bookedit_exp( bookname );
                 data = get(newFig,'UserData');
                 data.loadBookDir = pathname;
                 set(newFig,'UserData',data);
-                close(curFig);
+                if (curFig ~= newFig)
+                    close(curFig);
+                end
             else % Bookname does not exists, save book directory path (the rest is unchanged)
                 set(gcf,'UserData',data);
             end
         end
     end
 
-    %% SAVE VISIBLE ATOMS AS A NEW BOOK
+%% SAVE VISIBLE ATOMS AS A NEW BOOK
     function saveVisibleBook(varargin)
-        data = get(gcf,'UserData');       
+        data = get(gcf,'UserData');
         data.book.index(4,:) = 0;
         % Copy visible info into index
         for t = 1:length(data.book.atom)
@@ -292,31 +328,31 @@ set(figH,'UserData',data)
         % Write book
         newSaveDir = writeBook(data.book,data.saveBookDir);
         if (~isempty(newSaveDir))
-           data.saveBookDir = newSaveDir;
-           set(gcf,'UserData',data)
+            data.saveBookDir = newSaveDir;
+            set(gcf,'UserData',data)
         end
     end
 
-    %% SAVE SELECTED ATOMS AS A NEW BOOK
+%% SAVE SELECTED ATOMS AS A NEW BOOK
     function saveSelectedBook(varargin)
-        data = get(gcf,'UserData');       
+        data = get(gcf,'UserData');
         data.book.index(4,:) = 0;
-        % Copy visible info into index
+        % Copy selected info into index
         for t = 1:length(data.book.atom)
             data.book.index(4,data.book.index(2,:)==t) = data.book.atom(t).selected;
         end
         % Write book
         newSaveDir = writeBook(data.book,data.saveBookDir);
         if (~isempty(newSaveDir))
-           data.saveBookDir = newSaveDir;
-           set(gcf,'UserData',data)
+            data.saveBookDir = newSaveDir;
+            set(gcf,'UserData',data)
         end
     end
 
-    %% 
+%%
     function selectAll(varargin)
-        data = get(gcf,'UserData');       
-        % Copy visible info into index
+        data = get(gcf,'UserData');
+        % Set atom.selected field to one
         for t = 1:length(data.book.atom)
             [n,m] = size(data.book.atom(t).selected);
             data.book.atom(t).selected = ones(n,m);
@@ -325,61 +361,84 @@ set(figH,'UserData',data)
     end
 
     function selectNone(varargin)
-       data = get(gcf,'UserData');
-       % Clear selection rectangles
-       delete(data.rectSelH(ishandle(data.rectSelH)));
-       % Erase data info      
-       data.selectAtoms = 0;       % Bool for start drag selection of atoms
-       data.begSelectAtoms = [];   % Begining of rectangle selection
-       data.endSelectAtoms = [];   % End of rectangle selection
-       data.atomSelection = [];    % Stack of rectangle selections (for undo)
-       data.atomUnSelection = [];    % Stack of rectangle selections (for undo)
-       data.indAtomsSelected = []; % Indexes of selected atoms in book
-       data.curRectH = -1;         % Current rectangle handle
-       data.rectSelH = [];         % Vector of Selection handles
-       data.rectUnSelH = [];         % Vector of Selection handles
-        
-       % Set book selected to 0
+        data = get(gcf,'UserData');
+        % Clear selection rectangles
+        delete(data.rectSelH(ishandle(data.rectSelH)));
+        % Erase data info
+        data.selectAtoms = 0;       % Bool for start drag selection of atoms
+        data.begSelectAtoms = [];   % Begining of rectangle selection
+        data.endSelectAtoms = [];   % End of rectangle selection
+        data.atomSelection = [];    % Stack of rectangle selections (for undo)
+        data.atomUnSelection = [];    % Stack of rectangle selections (for undo)
+        data.indAtomsSelected = []; % Indexes of selected atoms in book
+        data.curRectH = -1;         % Current rectangle handle
+        data.rectSelH = [];         % Vector of Selection handles
+        data.rectUnSelH = [];         % Vector of Selection handles
+
+        % Set book selected to 0
         % Copy visible info into index
         for t = 1:length(data.book.atom)
             [n,m] = size(data.book.atom(t).selected);
             data.book.atom(t).selected = zeros(n,m);
         end
-        
-       set(gcf,'UserData',data)
+
+        set(gcf,'UserData',data)
     end
 
     function cutSelection(varargin)
-         disp('cutSelection() - Not implemented')
+        % disp('cutSelection() - Not implemented')
+        data = get(gcf,'UserData');
+        % Copy selected info into index
+        for t = 1:length(data.book.atom)
+            data.book.index(4,data.book.index(2,:)==t) = data.book.atom(t).selected;
+        end
+        % Inverse selected atom in index
+        data.book.index(4,:) = ~data.book.index(4,:);
+
+        % Write temp book
+        bookname = 'tempbook.bin';
+        bookwrite_exp(data.book,bookname);
+        loadBook(bookname);
+        delete(bookname);
     end
 
     function keepSelection(varargin)
-         disp('keepSelection() - Not implemented')
+        % disp('keepSelection() - Not implemented')
+        data = get(gcf,'UserData');
+        % Copy selected info into index
+        for t = 1:length(data.book.atom)
+            data.book.index(4,data.book.index(2,:)==t) = data.book.atom(t).selected;
+        end
+        % Write temp book
+        bookname = 'tempbook.bin';
+        bookwrite_exp(data.book,bookname);
+        loadBook(bookname);
+        delete(bookname);
     end
 
     function exportAnywave(varargin)
-         disp('exportAnywave() - Not implemented')
+        disp('exportAnywave() - Not implemented')
     end
 
     function aboutBookedit(varargin)
-         disp('aboutBookedit() - Not implemented')
+        disp('aboutBookedit() - Not implemented')
     end
 
-    %% TOOLBAR ICONS CALLBACKS
-    % -------------------------
+%% TOOLBAR ICONS CALLBACKS
+% -------------------------
     function playvisiblesound(varargin)
-        data = get(gcf,'UserData');       
+        data = get(gcf,'UserData');
         data.book.index(4,:) = 0;
         % Copy visible info into index
         for t = 1:length(data.book.atom)
             data.book.index(4,data.book.index(2,:)==t) = data.book.atom(t).visible;
         end
 
-        playBook(data.book);    
+        playBook(data.book);
     end
 
     function playselectedsound(varargin)
-        data = get(gcf,'UserData');       
+        data = get(gcf,'UserData');
         data.book.index(4,:) = 0;
         % Copy selected info into index
         for t = 1:length(data.book.atom)
@@ -397,7 +456,7 @@ set(figH,'UserData',data)
         set(gcf,'WindowButtonMotionFcn',@dragSelectRect);
     end
 
-    %% Remove action affected to mouse events
+%% Remove action affected to mouse events
     function clearMouseFcn(varargin)
         set(gcf,'WindowButtonDownFcn',[]);
         set(gcf,'WindowButtonUpFcn',[]);
@@ -412,80 +471,80 @@ set(figH,'UserData',data)
 %        set(gcf,'WindowButtonMotionFcn',@dragSelectRect);
 %    end
 
-    %% Toolbar callback horizontal zoom In
+%% Toolbar callback horizontal zoom In
     function zoomHorizontal(varargin)
         toggleToolbar();
         zoom xon;
     end
 
-    %% Toolbar callback vertical zoom In
+%% Toolbar callback vertical zoom In
     function zoomVertical(varargin)
         toggleToolbar();
         zoom yon;
     end
 
-    %% Toolbar callback grab plot
+%% Toolbar callback grab plot
     function panPlot(varargin)
         toggleToolbar();
         pan on;
     end
 
-    %% Toolbar callback zoom in
+%% Toolbar callback zoom in
     function zoomIn(varargin)
         toggleToolbar();
         zoom on;
     end
-    %% Toolbar callback zoom out full
+%% Toolbar callback zoom out full
     function zoomOutFull(varargin)
         toggleToolbar();
         zoom out;
     end
 
-    %% Checkbox callback for show/hide all atom types
+%% Checkbox callback for show/hide all atom types
     function toggleViewAllAtom(varargin)
-       data = get(gcf,'UserData');
-       val = get(data.typeHandles(1),'Value'); % Get checkbox 'hide/show all' value
-       
-       for th=2:length(data.typeHandles)
-           set(data.typeHandles(th),'Value',val);
-           toggleViewAtomLength(data.typeHandles(th));
-       end
+        data = get(gcf,'UserData');
+        val = get(data.typeHandles(1),'Value'); % Get checkbox 'hide/show all' value
+
+        for th=2:length(data.typeHandles)
+            set(data.typeHandles(th),'Value',val);
+            toggleViewAtomLength(data.typeHandles(th));
+        end
     end
 
-    %% Checkbox callback for show/hide an atom type
+%% Checkbox callback for show/hide an atom type
     function toggleViewAtomType(varargin)
-        cbH = gcbo; % Chekbx handles       
+        cbH = gcbo; % Chekbx handles
         data = get(gcf,'UserData');
         type = get(varargin{1},'Tag');
         val  = get(varargin{1},'Value');
         idx = getTypeIndex(data.book,type);
-        
+
         indCbH = find(data.typeHandles==cbH); % Index of current handle in vector of handles
         if (length(idx)==1)
-           set(data.typeHandles(indCbH),'Value',val);                       
-           toggleViewAtomLength(data.typeHandles(indCbH)); 
+            set(data.typeHandles(indCbH),'Value',val);
+            toggleViewAtomLength(data.typeHandles(indCbH));
         else
             for i=1:length(idx) % type found at idx
-                set(data.typeHandles(indCbH+i),'Value',val);                       
+                set(data.typeHandles(indCbH+i),'Value',val);
                 toggleViewAtomLength(data.typeHandles(indCbH+i));
             end
         end
     end
-    
-    %% Checkbox callback for show/hide an atom type
+
+%% Checkbox callback for show/hide an atom type
     function toggleViewAtomLength(varargin)
         data = get(gcf,'UserData');
         type = get(varargin{1},'Tag');
         len  = get(varargin{1},'String');
         val  = get(varargin{1},'Value');
-        
-        % In case there is only one scale       
+
+        % In case there is only one scale
         if (isempty(str2num(len)))
-           idx = getTypeIndex(data.book,type);
+            idx = getTypeIndex(data.book,type);
         else
-           idx = getTypeIndex(data.book,type,str2num(len));
+            idx = getTypeIndex(data.book,type,str2num(len));
         end
-        
+
         for i = 1:length(idx) % type found at idx
             [nA nC] = size(data.book.atom(idx(i)).params.amp);
             if (val) % Show atom with type
@@ -495,25 +554,27 @@ set(figH,'UserData',data)
                 state = 'off';
                 data.book.atom(idx(i)).visible = zeros(nA,nC);
             end
-            
+
             % If the atom was rendered, set is visible status
             if (ishandle(data.atomHandles(idx(i))) )
                 set(data.atomHandles(idx(i)),'Visible',state);
             end
-            
+
             set(gcf,'UserData',data);
         end
     end
 
-    %% Transform Menu callbacks (TODO)
-    % -----------------------------
-    %% Apply a Gain to selection
+%% Transform Menu callbacks (TODO)
+% -----------------------------
+%% Apply a Gain to selection
     function applyGain(varargin)
         disp('applyGain() - not implemented')
     end
 
     function pitchShift(varargin)
         disp('pitchShift() - not implemented')
+        % Ask the user for pitch shift parameters
+        getUserPitchShift();
     end
 
     function timeStretch(varargin)
@@ -546,53 +607,24 @@ set(figH,'UserData',data)
             end
             cd(curDir); % return in current directory
         else
-           warndlg('No Atom is selected, nothing to save in book', 'Book save info', 'modal');
-        end  
+            warndlg('No Atom is selected, nothing to save in book', 'Book save info', 'modal');
+        end
     end
 
 %% Reconstruct and Play Book as a sound
     function playBook(book)
-         if (book.index(4,:)== 0)
+        if (book.index(4,:)== 0)
             disp('There are no selected atoms for reconstruction')
         else
-            tmpbook = 'booktemp.bin';
-            tmpwav = 'tempmpr.wav';
-            % Save book
-            wb = waitbar(0,'Exporting visible part of book','Name','Play visible atoms');
-            bookwrite_exp(data.book,tmpbook);
 
-            % Reconstruct book with mpr
-            waitbar(0.3,wb,'Reconstructing book');
-            execname = 'mpr';
-            c = computer;
-            if (strcmp(computer,'PCWIN'))
-                execname = ['"' execname '.exe' '"'];
+            signal = mpReconstruct(book);
+            if (~isempty(signal))
+                soundsc(signal,book.sampleRate);
+                PlotSoundJava(signal,book.sampleRate);
             end
-            command = [ execname ' ' tmpbook ' ' tmpwav ];
-            [s,w] = system(command);
-
-            % Playsound
-            waitbar(0.6,wb,'Load and play sound');
-            if (s==0)
-                [Y,Fs] = wavread(tmpwav);
-                %figure;
-                %plot(Y)
-                soundsc(Y,Fs);
-                waitbar(0.9,wb,'Erase temp files');
-                PlotSoundJava(Y,Fs);
-            else
-                waitbar(0.9,wb,'Problem using mpr');
-                disp('Problem using mpr')
-            end
-
-            % Delete tmpfiles
-            delete(tmpbook)
-            delete(tmpwav)
-            close(wb)
-            %uiresume(fig);
         end
-       
-    end 
+
+    end
 
 %% Convert Current point coordinates in Figure to axis cartesian position
     function [x,y] = figToAxe(curpoint)
@@ -707,7 +739,7 @@ set(figH,'UserData',data)
 %                 data.rectUnSelH(end+1) = data.curRectH;
 %                 data.curRectH = -1;
 %             end
-% 
+%
 %             % Get and check current mouse coordinates in axis
 %             xy = get(varargin{1},'CurrentPoint');
 %             [x,y] = figToAxe(xy);
@@ -715,43 +747,43 @@ set(figH,'UserData',data)
 %             data.atomUnSelection(end+1,:) = [ min(data.begSelectAtoms(1),x) max(data.begSelectAtoms(1),x) ...
 %                 min(data.begSelectAtoms(2),y) max(data.begSelectAtoms(2),y)];
 %             set(gcf,'UserData',data)
-%             % 
+%             %
 %         end
 %     end
 
 %% Toggle toolbar icons to 'off' state when a icon is pressed
     function toggleToolbar(varargin)
-       co = gcbo; % Remember current object (should be an icons)
-       data = get(gcf,'UserData');
-       % Untoggle all icons excpet current object
-       for k=2:length(data.toolH)
-           if ( strcmp(get(data.toolH(k),'Type'),'uitoggletool') && data.toolH(k)~=co )
-               set(data.toolH(k),'State','off')
-           end
-       end
+        co = gcbo; % Remember current object (should be an icons)
+        data = get(gcf,'UserData');
+        % Untoggle all icons excpet current object
+        for k=2:length(data.toolH)
+            if ( strcmp(get(data.toolH(k),'Type'),'uitoggletool') && data.toolH(k)~=co )
+                set(data.toolH(k),'State','off')
+            end
+        end
     end
 
 
-%% RETURN THE INDEXES TO THE CORREPONDING ATOM TYPE and optional LENGTH in the book, 
+%% RETURN THE INDEXES TO THE CORREPONDING ATOM TYPE and optional LENGTH in the book,
 %  return empty matrix[] if type is not found
 
     function idx = getTypeIndex(book,type,varargin)
-      
-      idx = [];
-       
-      nt = length(book.atom);
-      for t=1:nt,
-          if( strcmp(book.atom(t).type,type) )
-              if (nargin==3)
-                  if( book.atom(t).params.len(1,1) == varargin{1})
-                      idx = [idx t];
-                  end
-              else
-                  idx = [idx t];
-              end
-          end
-      end
-      
+
+        idx = [];
+
+        nt = length(book.atom);
+        for t=1:nt,
+            if( strcmp(book.atom(t).type,type) )
+                if (nargin==3)
+                    if( book.atom(t).params.len(1,1) == varargin{1})
+                        idx = [idx t];
+                    end
+                else
+                    idx = [idx t];
+                end
+            end
+        end
+
     end
 
 %% Update Atom selection when a new rectangle has been added
@@ -766,62 +798,117 @@ set(figH,'UserData',data)
         chan = 1; %find(data.axH == gca);
         % Get Last Rectangle of selection coordinates
         %rpos = data.atomSelection(end,:); % xmin xmax ymin ymax
-        
+
         nAS = 0; % Counter for the number of atoms selected
         for k = 1:nT,
 
-             data.book.atom(k).params;
-             % Process any visible atom
-             ind = find( data.book.atom(k).visible(:,chan) == 1 );
-             for nv = 1:length(ind),
-                 a = ind(nv);
-                 
-                 % Get atom bounds 
-                 % Temporal position
-                 t0  = data.book.atom(k).params.pos(a,chan)/fs;   % Position in seconds
-                 dt0 = data.book.atom(k).params.len(a,chan)/fs;   % Length in seconds
-                            
-                 xmin = max(0,t0); % limit xmin to 0
-                 xmax = min(data.book.numSamples, xmin + dt0); % limit xmax to numSaples
-                 
-                 % Frequential position (type dependent)
-                 % Get Atom central freq and bandwidth for each type 
-                 switch (data.book.atom(k).type)
-                     case 'dirac'
-                         f0 = 0;
-                         df0 = 0.5*fs;
-                     case 'constant'
-                         f0 = 0;
-                         df0 = 0.5 / dt0; 
-                     case {'harmonic','gabor','mdct','mdst','mclt'}
-                         f0  = fs*data.book.atom(k).params.freq(a);
-                         df0 = 0.5 / dt0;
-                     otherwise 
-                         f0 = 0.25 *fs;
-                         df0 = 0.25*fs;
-                 end
+            data.book.atom(k).params;
+            % Process any visible atom
+            ind = find( data.book.atom(k).visible(:,chan) == 1 );
+            for nv = 1:length(ind),
+                a = ind(nv);
 
-                 ymin = max(0, f0 - df0);   % limit ymin to 0
-                 ymax = min(fs/2,f0 + df0); % limit ymax to fs/2
+                % Get atom bounds
+                % Temporal position
+                t0  = data.book.atom(k).params.pos(a,chan)/fs;   % Position in seconds
+                dt0 = data.book.atom(k).params.len(a,chan)/fs;   % Length in seconds
 
-                 % An atom is selected if its support is fully included in
-                 % rectangle selection
-                 
-                 if ( (xmin>=rpos(1)) && (xmax<=rpos(2)) && (ymin>=rpos(3)) && ymax<=(rpos(4)) )
-                       data.book.atom(k).selected(a,chan) = 1;
-                       nAS = nAS + 1;
-                       % disp(['[' data.book.atom(k).type '] - atom ' num2str(a) ' selected'])
-                 end
-             end
-             
+                xmin = max(0,t0); % limit xmin to 0
+                xmax = min(data.book.numSamples, xmin + dt0); % limit xmax to numSaples
+
+                % Frequential position (type dependent)
+                % Get Atom central freq and bandwidth for each type
+                switch (data.book.atom(k).type)
+                    case 'dirac'
+                        f0 = 0;
+                        df0 = 0.5*fs;
+                    case 'constant'
+                        f0 = 0;
+                        df0 = 0.5 / dt0;
+                    case {'harmonic','gabor','mdct','mdst','mclt'}
+                        f0  = fs*data.book.atom(k).params.freq(a);
+                        df0 = 0.5 / dt0;
+                    otherwise
+                        f0 = 0.25 *fs;
+                        df0 = 0.25*fs;
+                end
+
+                ymin = max(0, f0 - df0);   % limit ymin to 0
+                ymax = min(fs/2,f0 + df0); % limit ymax to fs/2
+
+                % An atom is selected if its support is fully included in
+                % rectangle selection
+
+                if ( (xmin>=rpos(1)) && (xmax<=rpos(2)) && (ymin>=rpos(3)) && ymax<=(rpos(4)) )
+                    data.book.atom(k).selected(a,chan) = 1;
+                    nAS = nAS + 1;
+                    % disp(['[' data.book.atom(k).type '] - atom ' num2str(a) ' selected'])
+                end
+            end
+
         end
         disp([ '[' num2str(nAS) '] - atoms in new selection'])
         set(gcf,'UserData',data)
     end
 
+%% Reconstruct Signal from book using external system command mpr (needs
+% MPTK_CONFIG_FILENAME) to be set
+% IMPORTANT NOTE: THIS FUNCTION SHOULD BE REPLACED BY MEX INTERFACE "BOOKMPR_EXP()"
+%                 WHEN IT IS WORKING (CURRENTLY GIVES A CURIOUS SEG FAULT PROBABLY BECAUSE OF THREADS)
+    function sig = mpReconstruct(book)
+
+        % GET MPTK BINARY DIRECTORY
+        [mptkPath,mptkConfig] = fileparts(getenv('MPTK_CONFIG_FILENAME'));
+        if (isempty(mptkPath))
+            f = warndlg([ 'Environment variable MPTK_CONFIG_FILENAME is not set' ...
+                10 'Hope ''mpr'' binary will be found' ], 'MPTK BINARY WARNING', 'modal');
+        end
+
+        tmpbook = 'booktemp.bin';
+        tmpwav = 'tempmpr.wav';
+        % Save temp book
+        wb = waitbar(0,'Exporting visible part of book','Name','Play visible atoms');
+        bookwrite_exp(book,tmpbook);
+
+        % Reconstruct book with mpr in tempmpr.wav
+        waitbar(0.3,wb,'Reconstructing book');
+        exec = 'mpr';
+        c = computer;
+        switch c
+            case 'PCWIN',
+                execname = ['"' fullfile(mptkPath,[exec '.exe']) '"'];
+            case {'MAC','MACI','GLNX86'},
+                execname = ['"' fullfile(mptkPath,exec) '"'];
+            otherwise
+                disp('Exotic platform ... it may work anyhow')
+                execname = ['"' fullfile(mptkPath,exec) '"'];
+        end
+
+        command = [ execname ' ' tmpbook ' ' tmpwav ];
+        [s,w] = system(command);
+
+        % Loadsound into matlab variable
+        waitbar(0.6,wb,'Load and play sound');
+        if (s==0)
+            [sig,Fs] = wavread(tmpwav);
+        else
+            sig = [];
+            waitbar(0.9,wb,'Problem using mpr');
+            disp('Problem using mpr')
+        end
+
+        % Delete tmpfiles
+        waitbar(0.9,wb,'Deleting temp files');
+        delete(tmpbook)
+        delete(tmpwav)
+        close(wb)
+    end
+
+
+
 %% PATCH THE BOOK STRUCTURE WITH TWO FIELDS FOR MATLAB graphical / selection information to atoms
 % add 2 fields in atom structure :
-%   - 'selected' for selection information 
+%   - 'selected' for selection information
 %   - 'visible' for plotting information
     function newbook = addMatlabBookFields(b)
         for t = 1:length(b.atom)
@@ -832,6 +919,138 @@ set(figH,'UserData',data)
         newbook = b;
     end
 
+%% CREATE A LITTLE GUI TO ASK THE USER FOR PITCH SHIFT INPUT ARGUMENTS
+    function getUserPitchShift(varargin)
+        data = get(gcf,'UserData');
+        % Init Pitch Shift algo arguments
+        data.args = [];
+        data.args.compensatePhase = 0;
+        data.args.useLowLimit = 0;
+        data.args.lowLimitVal = 0;
+        data.args.scaleVal = 0;
+        data.args.scaleType = '';
+        
+        psArgH = figure('Name','Bookedit - Pitch Shift arguments', ...
+            'NumberTitle','off', ...
+            'Backingstore','off', ...
+            'Units','normalized', ...
+            'Position',[ 0.3 .3 .3 .3 ], ...
+            'MenuBar','none',...
+            'Visible','on');
+        
+        % Create the button group.
+        h = uibuttongroup('visible','off','Position',[0.1 0.7 .85 .25]);
+        % Create 2 radio buttons in the button group.
+        u0 = uicontrol('Style','Radio','String','Use Semitone scale',...
+            'Units','normalized','Tag','semitone', ...
+            'pos',[0.05 0.05 0.5 0.4],'parent',h,'HandleVisibility','off');
+        u1 = uicontrol('Style','Radio','String','Use Hertz scale',...
+            'Units','normalized','Tag','hertz', ...
+            'pos',[0.05 0.5 0.5 0.4],'parent',h,'HandleVisibility','off');
+        % Popup Menu with number of semitones for pitch
+        for k=1:25
+            semiStr{k} = k-13;
+        end
+        % Popup for shifting semitones (int)
+        data.args.semiH = uicontrol( ...
+            'Style','popupmenu', ...
+            'Units','normalized', ...
+            'Position',[0.55 0.05 0.4 0.4], ...
+            'String',semiStr,...
+            'parent',h, ...
+            'Tag','semitone',...
+            'Value',1,...
+            'Callback', [ 'data = get(gcf,''UserData''); vals = get(data.args.semiH,''String''); val=str2double(vals{get(data.args.semiH,''Value'')}); ' ...
+            'data.args.scaleVal = val; set(gcf,''UserData'',data);']);
+
+        % Text edit for shifting by hertz (double)
+        data.args.hertzH = uicontrol('Style','edit', ...
+            'Units','normalized', ...
+            'Position',[0.55 0.5 0.4 0.4], ...
+            'String','', ...
+            'Value',1, ...
+            'parent',h,'HandleVisibility','off',...
+            'Callback', [ 'data = get(gcf,''UserData''); val=str2double(get(data.args.hertzH,''String'')); ' ...
+            'if isnan(val), errordlg(''You must enter a numeric value'',''Bad Input'',''modal'');return; end; ' ...
+            'data.args.scaleVal = val; set(gcf,''UserData'',data);']);
+
+        % Initialize some button group properties.
+        set(h,'SelectionChangeFcn','data = get(gcf,''UserData''); set(data.args.Ok,''Enable'',''on''); data.args.scaleType = get(gcbo,''Tag''); set(gcf,''UserData'',data);');
+        set(h,'SelectedObject',[]);  % No selection
+        set(h,'Visible','on')
+
+        % Checkbox for limiting atoms length (don't shift atoms below a given length)
+        u4 = uicontrol( ...
+            'Style','checkbox', ...
+            'Units','normalized', ...
+            'Position',[ 0.1 0.25 0.5 0.075], ...
+            'String','Don''t shift atoms with length <=', ...
+            'Value',0, ...
+            'Enable','on',...
+            'Visible','on',...
+            'Callback',[ 'data = get(gcf,''UserData'');  '...
+            'data.args.useLowLimit=get(gcbo,''Value''); ' ...
+            'set(gcf,''UserData'',data);' ]);
+
+        % Checkbox for compensating phase of atoms length
+        for k=1:15
+            lowStr{k} = 2^k;
+        end
+        data.args.lowLimitVal = lowStr{1};
+        data.args.lowH = uicontrol( ...
+            'Style','popupmenu', ...
+            'Units','normalized', ...
+            'Position',[ 0.65 0.25 0.25 0.075], ...
+            'String',lowStr,...
+            'Tag','semitone',...
+            'Value',1,...
+            'Callback', [ 'data = get(gcf,''UserData''); vals = get(data.args.lowH,''String''); val=str2double(vals{get(data.args.lowH,''Value'')}); ' ...
+            'data.args.lowLimitVal = val; set(gcf,''UserData'',data);']);
+
+        u5 = uicontrol( ...
+            'Style','checkbox', ...
+            'Units','normalized', ...
+            'Position',[ 0.1 0.15 0.3 0.075], ...
+            'String','Compensate phase', ...
+            'Value',0, ...
+            'Enable','on',...
+            'Visible','on',...
+            'Callback',[ 'data = get(gcf,''UserData''); '...
+            'data.args.compensatePhase=get(gcbo,''Value''); ' ...
+            'set(gcf,''UserData'',data);' ]);
+
+        % OK Button, becomes valid when a popup is chosen
+        % Launch function
+        data.args.Ok = uicontrol('Style','pushbutton', ...
+            'Units','normalized', ...
+            'Position',[ 0.6 0.05 0.3 0.075 ], ...
+            'String','OK', ...
+            'Value',1, ...
+            'Enable','off',...
+            'Visible','on',...
+            'Callback',@applyPitchShift);
+
+        % Cancel action - just close argument gui
+        uCancel = uicontrol('Style','pushbutton', ...
+            'Units','normalized', ...
+            'Position',[ 0.1 0.05 0.3 0.075 ], ...
+            'String','Cancel', ...
+            'Value',1, ...
+            'Enable','on',...
+            'Visible','on',...
+            'Callback','close(gcf);');
+
+        set(psArgH,'UserData',data);
+    end
+
+    function applyPitchShift(varargin)
+        % Get arguments and close little gui
+        data = get(gcf,'UserData');
+        data.args
+        close(gcf);
+
+        % Get
+    end
 
 %% RETURNS A VECTOR OF UIHANDLES TO CHECKBOX FOR SHOWING/HIDING ATOM PER TYPE
     function typeH = addCheckBoxTypes(book,figHandle)
@@ -839,7 +1058,7 @@ set(figH,'UserData',data)
         % Order type and length
         if (nTypes)
             types = struct(book.atom(1).type,book.atom(1).params.len(1,1));
-            
+
             for t=2:nTypes
                 typestr = book.atom(t).type;
                 if (isfield(types,typestr))
@@ -865,7 +1084,7 @@ set(figH,'UserData',data)
             bHeight = min(0.05,(0.83/l-vSpace));
             figure(figHandle);
             tl=0; % Counter of type and len (number of checkboxes)
-            
+
             % First CHECKBOX IS FOR VIEW/HIDE ALL ATOMS
             tl = tl + 1;
             typeH(tl) = uicontrol( ...
@@ -878,7 +1097,7 @@ set(figH,'UserData',data)
                 'Enable','on',...
                 'Visible','on',...
                 'Callback',@toggleViewAllAtom);
-            
+
             % NEXT CHECKBOXES ARE FOR DIFFERENT ATOM TYPES AND LENGTHS
             for t=1:length(fields),
                 % Atom length sub-checkbox - ATOM TYPE IS STORED IN 'Tag' property
@@ -888,17 +1107,17 @@ set(figH,'UserData',data)
                     % sub-checkboxes
                     tl = tl + 1;
                     typeH(tl) = uicontrol( ...
-                            'Style','checkbox', ...
-                            'Units','normalized', ...
-                            'BackgroundColor',fgColor,...
-                            'Position',[ 0.02 0.92-tl*(bHeight+vSpace) 0.17 bHeight ], ...
-                            'String',[ fields{t} ' length: ' num2str(len)], ...
-                            'Tag',fields{t}, ...
-                            'Value',1, ...
-                            'Enable','on',...
-                            'Visible','on',...
-                            'Callback',@toggleViewAtomLength);
-                % Display Atom type and sub-items for each scale
+                        'Style','checkbox', ...
+                        'Units','normalized', ...
+                        'BackgroundColor',fgColor,...
+                        'Position',[ 0.02 0.92-tl*(bHeight+vSpace) 0.17 bHeight ], ...
+                        'String',[ fields{t} ' length: ' num2str(len)], ...
+                        'Tag',fields{t}, ...
+                        'Value',1, ...
+                        'Enable','on',...
+                        'Visible','on',...
+                        'Callback',@toggleViewAtomLength);
+                    % Display Atom type and sub-items for each scale
                 else
                     % Atom type checkbox
                     tl = tl + 1;
@@ -952,29 +1171,37 @@ set(figH,'UserData',data)
         else
             axH = varargin{1};
             for c = 1:nC
-             axes(axH(c));
-             hold on;
+                axes(axH(c));
+                hold on;
             end
         end
-        
+
         % Init the vector of handle, one per type of atoms
-        atomH = zeros(length(book.atom),book.numChans); % 
-        
+        atomH = zeros(length(book.atom),book.numChans); %
+
         h = 1; % handle index in vector
         %wb = waitbar(0,'Plotting atom per types','Name','plotBook info');
         for k = 1:nT
             type = book.atom(k).type;
             params = book.atom(k).params;
- 
-            % Patch Coordinates 
-            pX = [];
-            pY = [];
-            pZ = [];
-            pC = [];
- 
+
+            % Init Patch Cell (1xnChans)
+            pX = cell(1,nC);
+            pY = cell(1,nC);
+            pZ = cell(1,nC);
+            pC = cell(1,nC);
+
+            % Patch Coordinates
+            for chan = 1:nC
+                pX{chan} = [];
+                pY{chan} = [];
+                pZ{chan} = [];
+                pC{chan} = [];
+            end
+
             % DEBUG DISPLAY
             %  disp(['plotBook: [' type '] atoms']);
-            
+
             switch type
                 case {'gabor','mclt','mdct','mdst'},
                     % Read all the atoms corresponding to this type
@@ -992,18 +1219,18 @@ set(figH,'UserData',data)
                             else                                               % No chirp
                                 ch = 0;
                             end
-                            
+
                             pv = [pos; pos; pos+len; pos+len];    % Patch coordinates in X plane (time position)
                             fv = [freq-bw2; freq+bw2; freq+bw2+ch*len; freq-bw2+ch*len]; % Patch coordinates in Y plane (freq position)
                             av = [amp; amp; amp; amp];            % Patch coordinates in Z plane (Amplitude position)
-     
-                            pX = [pX, pv];
-                            pY = [pY, fv];
-                            pZ = [pZ, av];
-                            pC = [pC, amp];
-                       end
+
+                            pX{chan} = [pX{chan}, pv];
+                            pY{chan} = [pY{chan}, fv];
+                            pZ{chan} = [pZ{chan}, av];
+                            pC{chan} = [pC{chan}, amp];
+                        end
                     end
-     
+
                 case 'harmonic',
                     for a = 1:length(params.amp)
                         for chan = 1:nC
@@ -1026,13 +1253,13 @@ set(figH,'UserData',data)
 
                             av = [A ; A; A; A];
 
-                            pX = [pX, pv];
-                            pY = [pY, fv];
-                            pZ = [pZ, av];
-                            pC = [pC, A];
+                            pX{chan} = [pX{chan}, pv];
+                            pY{chan} = [pY{chan}, fv];
+                            pZ{chan} = [pZ{chan}, av];
+                            pC{chan} = [pC{chan}, A];
                         end
                     end
-                    
+
                 case 'dirac',
                     for a = 1:length(params.amp)
                         for chan = 1:nC
@@ -1044,11 +1271,11 @@ set(figH,'UserData',data)
                             pv = [pos; pos+len; pos+len; pos];
                             fv = [0; 0; fs/2; fs/2];
                             av = [amp; amp; amp; amp];
-                           
-                            pX = [pX, pv];
-                            pY = [pY, fv];
-                            pZ = [pZ, av];
-                            pC = [pC, amp];
+
+                            pX{chan} = [pX{chan}, pv];
+                            pY{chan} = [pY{chan}, fv];
+                            pZ{chan} = [pZ{chan}, av];
+                            pC{chan} = [pC{chan}, amp];
 
                         end
                     end
@@ -1056,26 +1283,31 @@ set(figH,'UserData',data)
                     % Atom types not processed
                 otherwise,
                     disp( [ '[' type '] cannot be displayed yet.'] );
-             end
+            end
             % Add patch to handle vector
-            % DEBUG DISPLAY 
+            % DEBUG DISPLAY
             %   disp( sprintf('min pX=%f, min pY=%f, min pZ=%f, min pC=%f',min(min(min(pX))),min(min(min(pY))),min(min(min(pZ))),min(min(min(pC))) ) )
             %   disp( sprintf('max pX=%f, max pY=%f, max pZ=%f, max pC=%f',max(max(max(pX))),max(max(max(pY))),max(max(max(pZ))),max(max(max(pC))) ) )
-            % END OF DEBUG DISPLAY 
-        
+            % END OF DEBUG DISPLAY
+
             for chan = 1:nC
+                % Scale patch Color between 0 and 1
+                cmin = min(min(pC{chan}));
+                cmax = max(max(pC{chan}));
+                pC{chan} = (pC{chan} - cmin) / (cmax-cmin);
+                % Plot patch in channel axeHandle
                 axes(axH(chan));
-                if (~isempty(pX))
+                if (~isempty(pX{chan}))
                     if (strcmp(type,'dirac'))
-                        atomH(h,chan) = patch(pX,pY,100+pZ,pC,'FaceAlpha',1,'EdgeAlpha',1);
+                        atomH(h,chan) = patch(pX{chan},pY{chan},100+pZ{chan},pC{chan},'FaceAlpha',1,'EdgeAlpha',1);
                     else
-                        atomH(h,chan) = patch(pX,pY,100+pZ,pC,'FaceAlpha',1,'EdgeAlpha',1);
+                        atomH(h,chan) = patch(pX{chan},pY{chan},100+pZ{chan},pC{chan},'FaceAlpha',1,'EdgeAlpha',1);
                     end
                 else
                     atomH(h,chan) = -1;
                 end
             end
-           % waitbar(h/nT,wb);
+            % waitbar(h/nT,wb);
             h = h+1;
         end
         %close(wb);
