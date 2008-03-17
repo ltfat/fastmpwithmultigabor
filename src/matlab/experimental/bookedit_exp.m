@@ -1,13 +1,22 @@
 function varargout = bookedit_exp( book, channel, bwfactor )
-%function BOOKEDIT_EXP Plot and edit a Matching Pursuit book in the current axes
+%function BOOKEDIT_EXP Interface for plotting and editing a Matching Pursuit book
 %
-%    BOOKEDIT_EXP( book, chan ) plots the channel number chan
+%    BOOKEDIT_EXP 
+%    with no arguments asks the user for a MPTK binary book file and plot
+%    You can set a '.mat' variable called 'MPTKdir.mat' containing 
+%    the full path to your book directory:
+%       bookdir = '/my/path/to/mptk/book/';
+%       save 'MPTKdir.mat' bookdir
+%
+%    BOOKEDIT_EXP('mptkBook.bin')
+%    with a string to a book load the book 
+%
+%    BOOKEDIT_EXP( book, chan ) Read bookplots the channel number chan
 %    of a MPTK book structure in the current axes.
 %    If book is a string, it is understood as a filename and
 %    the book is read from the corresponding file. Books
 %    can be read separately using the BOOKREAD utility.
 %
-%    BOOKEDIT_EXP( book ) defaults to the first channel.
 %
 %    The patches delimit the support of the atoms. Their
 %    color is proportional to the atom's amplitudes,
@@ -30,10 +39,15 @@ function varargout = bookedit_exp( book, channel, bwfactor )
 %
 
 % Check if a bookDir has already been provided bu user
-bdf = 'MPTKbookdir.mat'; % book dir file
+bdf = 'MPTKdir.mat'; % book dir file
 if (exist(bdf,'file')==2)
     bd = load(bdf);
 else
+    disp([ 'You can set a default directory for opening books in a variable called ' ...
+        '''MPTKdir.mat'' containing' 10 ...
+        'the full path to your book directory: ' 10 'bookdir = ''/my/path/to/mptk/book/'';' 10 ...
+        'save ''MPTKdir.mat'' bookdir' ]);
+
     bd.bookdir = pwd;
 end
 
@@ -115,9 +129,9 @@ menuItem(item) = uimenu(menuItem(1),'Label','&Open book','Callback',@loadBook,'S
 item = item + 1;
 menuItem(item) = uimenu(menuItem(1),'Label','&Save selection to book','Callback',@saveSelectedBook,'Separator','off','Accelerator','S');
 item = item + 1;
-menuItem(item) = uimenu(menuItem(1),'Label','&Save visible to book','Callback',@saveVisibleBook,'Separator','off','Accelerator','S');
+menuItem(item) = uimenu(menuItem(1),'Label','&Save visible to book','Callback',@saveVisibleBook,'Separator','off','Accelerator','V');
 item = item + 1;
-menuItem(item) = uimenu(menuItem(1),'Label','&Close window','Callback','close(gcf)','Separator','on','Accelerator','Q');
+menuItem(item) = uimenu(menuItem(1),'Label','&Close window','Callback','close(gcf)','Separator','on','Accelerator','W');
 item = item + 1;
 % 'Edit' subitems
 menuItem(item) = uimenu(menuItem(2),'Label','Select &All','Callback',@selectAll,'Separator','off','Accelerator','A');
@@ -130,6 +144,8 @@ menuItem(item) = uimenu(menuItem(2),'Label','&Keep only selected atoms','Callbac
 item = item + 1;
 menuItem(item) = uimenu(menuItem(2),'Label','&Export selection to Anywave','Callback',@exportAnywave,'Separator','on','Accelerator','E');
 item = item + 1;
+menuItem(item) = uimenu(menuItem(2),'Label','&Refresh figure','Callback',@refreshFigure,'Separator','on','Accelerator','R');
+item = item + 1;
 % 'Transform' subitems
 menuItem(item) = uimenu(menuItem(3),'Label','&Pitch Shift ...','Callback',@pitchShift,'Separator','off','Accelerator','P');
 item = item + 1;
@@ -137,9 +153,9 @@ menuItem(item) = uimenu(menuItem(3),'Label','&Time Stretch ...','Callback',@time
 item = item + 1;
 menuItem(item) = uimenu(menuItem(3),'Label','&Gain ...','Callback',@applyGain,'Separator','off','Accelerator','G');
 item = item + 1;
-menuItem(item) = uimenu(menuItem(3),'Label','&Time Reverse selection ...','Callback',@timeReverse,'Separator','off','Accelerator','G');
+menuItem(item) = uimenu(menuItem(3),'Label','&Time Reverse selection ...','Callback',@timeReverse,'Separator','off','Accelerator','I');
 item = item + 1;
-menuItem(item) = uimenu(menuItem(3),'Label','&Freq reverse selection ...','Callback',@freqReverse,'Separator','off','Accelerator','G');
+menuItem(item) = uimenu(menuItem(3),'Label','&Freq reverse selection ...','Callback',@freqReverse,'Separator','off','Accelerator','F');
 item = item + 1;
 % 'Help subitems'
 menuItem(item) = uimenu(menuItem(4),'Label','How to use this editor','Callback','doc bookedit','Separator','off');
@@ -250,7 +266,6 @@ data.atomUnSelection = [];    % Stack of rectangle selections (for undo)
 data.indAtomsSelected = []; % Indexes of selected atoms in book
 data.curRectH = -1;         % Current rectangle handle
 data.rectSelH = [];         % Vector of Selection handles
-data.rectUnSelH = [];         % Vector of Selection handles
 data.toolH = toolH;         % Vector of toolbar icons handles
 data.book = book;           % Vector of toolbar icons handles
 data.axH = axH;           % Vector of toolbar icons handles
@@ -385,21 +400,23 @@ set(figH,'UserData',data)
         set(gcf,'UserData',data)
     end
 
-    function cutSelection(varargin)
-        % disp('cutSelection() - Not implemented')
+    function cutSelection(varargin)       
         data = get(gcf,'UserData');
         % Copy selected info into index
         for t = 1:length(data.book.atom)
             data.book.index(4,data.book.index(2,:)==t) = data.book.atom(t).selected;
         end
-        % Inverse selected atom in index
-        data.book.index(4,:) = ~data.book.index(4,:);
-
-        % Write temp book
-        bookname = 'tempbook.bin';
-        bookwrite_exp(data.book,bookname);
-        loadBook(bookname);
-        delete(bookname);
+        % Get selected atom entries in index (atoms to remove)
+        selectIndex = find(data.book.index(4,:)==1);
+        
+        % Remove atoms given index
+        data.book = removeBookAtom(data.book,selectIndex);
+        set(gcf,'UserData',data);
+        refreshFigure();
+        
+        % Clear selection
+        selectNone();
+        
     end
 
     function keepSelection(varargin)
@@ -409,11 +426,16 @@ set(figH,'UserData',data)
         for t = 1:length(data.book.atom)
             data.book.index(4,data.book.index(2,:)==t) = data.book.atom(t).selected;
         end
-        % Write temp book
-        bookname = 'tempbook.bin';
-        bookwrite_exp(data.book,bookname);
-        loadBook(bookname);
-        delete(bookname);
+         % Get non selected atom entries in index
+        selectIndex = find(data.book.index(4,:)~=1);
+        
+        % Remove atoms given index
+        data.book = removeBookAtom(data.book,selectIndex);
+        set(gcf,'UserData',data);
+        refreshFigure();
+
+        % Clear selection
+        selectNone();
     end
 
     function exportAnywave(varargin)
@@ -462,14 +484,6 @@ set(figH,'UserData',data)
         set(gcf,'WindowButtonUpFcn',[]);
         set(gcf,'WindowButtonMotionFcn',[]);
     end
-
-%    function toggleOnUnSelectAtoms(varargin)
-%        toggleToolbar();
-%        zoom off;
-%        set(gcf,'WindowButtonDownFcn',@startUnSelectRect);
-%        set(gcf,'WindowButtonUpFcn',@stopUnSelectRect);
-%        set(gcf,'WindowButtonMotionFcn',@dragSelectRect);
-%    end
 
 %% Toolbar callback horizontal zoom In
     function zoomHorizontal(varargin)
@@ -572,9 +586,10 @@ set(figH,'UserData',data)
     end
 
     function pitchShift(varargin)
-        disp('pitchShift() - not implemented')
         % Ask the user for pitch shift parameters
-        getUserPitchShift();
+        getUserPitchShift(); 
+        % When validating user parameters 'ok' button 
+        % launches @applyPitchShift()
     end
 
     function timeStretch(varargin)
@@ -707,49 +722,6 @@ set(figH,'UserData',data)
         end
     end
 
-%% START TO UNSELECT ATOMS RECTANGLE (MOUSE CLICK)
-%     function startUnSelectRect(varargin)
-%         data = get(gcf,'UserData');
-%         if (gco==gca) % Click on axis or one of its children
-%             data.selectAtoms = 1;
-%             % Get and check current mouse coordinates in axis
-%             xy = get(varargin{1},'CurrentPoint');
-%             [x,y] = figToAxe(xy);
-%             data.begSelectAtoms = [x y];
-%             axl = axis(gca);
-%             rpos = [ x y 1e-6 1e-6 ];
-%             data.curRectH = rectangle('Position', rpos,'faceColor',[1 1 1]);
-%             % Swap Depth of plot (set rectangle==axChild(1) at the end of the
-%             % gcf children handles)
-%             axChild = get(gca,'Children');
-%             set(gca,'Children',[axChild(axChild~=data.curRectH); axChild(axChild==data.curRectH)] );
-%         end
-%         set(gcf,'UserData',data)
-%     end
-
-%% STOP TO UNSELECT ATOMS RECTANGLE (MOUSE RELEASE)
-%     function stopUnSelectRect(varargin)
-%         axChild = get(gca,'Children');
-%         if ( (gco==gca) || sum(gco==axChild) )
-%             data = get(gcf,'UserData');
-%             % Update userdata
-%             data.selectAtoms = 0; % realeased
-%             % Copy rectangle handle to vector of selection handles
-%             if (ishandle(data.curRectH))
-%                 data.rectUnSelH(end+1) = data.curRectH;
-%                 data.curRectH = -1;
-%             end
-%
-%             % Get and check current mouse coordinates in axis
-%             xy = get(varargin{1},'CurrentPoint');
-%             [x,y] = figToAxe(xy);
-%             % Update data information
-%             data.atomUnSelection(end+1,:) = [ min(data.begSelectAtoms(1),x) max(data.begSelectAtoms(1),x) ...
-%                 min(data.begSelectAtoms(2),y) max(data.begSelectAtoms(2),y)];
-%             set(gcf,'UserData',data)
-%             %
-%         end
-%     end
 
 %% Toggle toolbar icons to 'off' state when a icon is pressed
     function toggleToolbar(varargin)
@@ -924,11 +896,12 @@ set(figH,'UserData',data)
         data = get(gcf,'UserData');
         % Init Pitch Shift algo arguments
         data.args = [];
-        data.args.compensatePhase = 0;
-        data.args.useLowLimit = 0;
-        data.args.lowLimitVal = 0;
-        data.args.scaleVal = 0;
-        data.args.scaleType = '';
+        data.args.compensatePhase = 0; % Bool for phase optimization
+        data.args.useLowLimit = 0;     % Bool for lower limit on atom length for freq shifting
+        data.args.lowLimitVal = 0;     % value (int) lower limit on atom length for freq shifting
+        data.args.scaleVal = -12;        % value (int or float) for shifting atom length
+        data.args.scaleType = 'semitone'; % String 'hertz' or 'semitone' for shifting atoms
+        data.args.applyTo = 'all';     % String 'all' or 'selected' or 'visible', to what apply pitch shift
         
         psArgH = figure('Name','Bookedit - Pitch Shift arguments', ...
             'NumberTitle','off', ...
@@ -938,15 +911,39 @@ set(figH,'UserData',data)
             'MenuBar','none',...
             'Visible','on');
         
-        % Create the button group.
+        % RADIO button group for Semitone or Hertz
         h = uibuttongroup('visible','off','Position',[0.1 0.7 .85 .25]);
         % Create 2 radio buttons in the button group.
-        u0 = uicontrol('Style','Radio','String','Use Semitone scale',...
+        u0 = uicontrol('Style','Radio','String','Pitch shift in Semitones',...
             'Units','normalized','Tag','semitone', ...
-            'pos',[0.05 0.05 0.5 0.4],'parent',h,'HandleVisibility','off');
-        u1 = uicontrol('Style','Radio','String','Use Hertz scale',...
+            'pos',[0.05 0.075 0.5 0.35],'parent',h,'HandleVisibility','off');
+        uicontrol('Style','Radio','String','Pitch Shift factor in Hertz',...
             'Units','normalized','Tag','hertz', ...
-            'pos',[0.05 0.5 0.5 0.4],'parent',h,'HandleVisibility','off');
+            'pos',[0.05 0.525 0.5 0.35],'parent',h,'HandleVisibility','off');
+
+        % Initialize some button group properties.
+        set(h,'SelectionChangeFcn','data = get(gcf,''UserData''); data.args.scaleType = get(gcbo,''Tag''); set(gcf,''UserData'',data);');
+        set(h,'SelectedObject',u0);  % Default semitones
+        set(h,'Visible','on')
+
+        % RADIO button group for specifying to which atoms apply the pich shift
+        h1 = uibuttongroup('visible','off','Position',[0.1 0.4 .85 .25]);
+        % Create 2 radio buttons in the button group.
+        u1 = uicontrol('Style','Radio','String','Apply to all atoms',...
+            'Units','normalized','Tag','all', ...
+            'pos',[0.05 0.03 0.8 0.3],'parent',h1,'HandleVisibility','off');
+        uicontrol('Style','Radio','String','Apply to selected atoms',...
+            'Units','normalized','Tag','selected', ...
+            'pos',[0.05 0.33 0.8 0.3],'parent',h1,'HandleVisibility','off');
+        uicontrol('Style','Radio','String','Apply to visible atoms',...
+            'Units','normalized','Tag','visible', ...
+            'pos',[0.05 0.66 0.8 0.3],'parent',h1,'HandleVisibility','off');
+        
+        % Initialize some button group properties.
+        set(h1,'SelectionChangeFcn','data = get(gcf,''UserData''); data.args.applyTo = get(gcbo,''Tag''); set(gcf,''UserData'',data);');
+        set(h1,'SelectedObject',u1);  % 'all' selected
+        set(h1,'Visible','on')
+   
         % Popup Menu with number of semitones for pitch
         for k=1:25
             semiStr{k} = k-13;
@@ -955,9 +952,9 @@ set(figH,'UserData',data)
         data.args.semiH = uicontrol( ...
             'Style','popupmenu', ...
             'Units','normalized', ...
-            'Position',[0.55 0.05 0.4 0.4], ...
+            'Position',[0.55 0.0525 0.4 0.25], ...
             'String',semiStr,...
-            'parent',h, ...
+            'parent',h,'HandleVisibility','off', ...
             'Tag','semitone',...
             'Value',1,...
             'Callback', [ 'data = get(gcf,''UserData''); vals = get(data.args.semiH,''String''); val=str2double(vals{get(data.args.semiH,''Value'')}); ' ...
@@ -966,18 +963,14 @@ set(figH,'UserData',data)
         % Text edit for shifting by hertz (double)
         data.args.hertzH = uicontrol('Style','edit', ...
             'Units','normalized', ...
-            'Position',[0.55 0.5 0.4 0.4], ...
-            'String','', ...
+            'Position',[0.55 0.475 0.4 0.4], ...
+            'String','0', ...
             'Value',1, ...
             'parent',h,'HandleVisibility','off',...
             'Callback', [ 'data = get(gcf,''UserData''); val=str2double(get(data.args.hertzH,''String'')); ' ...
             'if isnan(val), errordlg(''You must enter a numeric value'',''Bad Input'',''modal'');return; end; ' ...
             'data.args.scaleVal = val; set(gcf,''UserData'',data);']);
 
-        % Initialize some button group properties.
-        set(h,'SelectionChangeFcn','data = get(gcf,''UserData''); set(data.args.Ok,''Enable'',''on''); data.args.scaleType = get(gcbo,''Tag''); set(gcf,''UserData'',data);');
-        set(h,'SelectedObject',[]);  % No selection
-        set(h,'Visible','on')
 
         % Checkbox for limiting atoms length (don't shift atoms below a given length)
         u4 = uicontrol( ...
@@ -1021,12 +1014,11 @@ set(figH,'UserData',data)
 
         % OK Button, becomes valid when a popup is chosen
         % Launch function
-        data.args.Ok = uicontrol('Style','pushbutton', ...
+        uicontrol('Style','pushbutton', ...
             'Units','normalized', ...
             'Position',[ 0.6 0.05 0.3 0.075 ], ...
             'String','OK', ...
             'Value',1, ...
-            'Enable','off',...
             'Visible','on',...
             'Callback',@applyPitchShift);
 
@@ -1043,13 +1035,90 @@ set(figH,'UserData',data)
         set(psArgH,'UserData',data);
     end
 
+%% Apply pitch Shift algorithm to 
     function applyPitchShift(varargin)
         % Get arguments and close little gui
         data = get(gcf,'UserData');
-        data.args
         close(gcf);
+        % data.args structure has field : 
+        %    - compensatePhase: Recompute phase problems (0 or 1)
+        %    - useLowLimit: Don't scale atoms with small length (0 or 1)
+        %    - lowLimitVal: Lower scale value for scaling atoms (int)
+        %    - applyTo: 'all' or 'seleted' or 'visible'
+        %    scaleType: 'hertz' or 'semitone'
+        %    scaleVal: (int of float) shift value according to shift type
+        
+        data.args % debug display
+        
+        nTypes = length(data.book.atom);
+        % Get the index of atoms to apply the pitch shift
+        switch (data.args.applyTo) 
+            case 'selected'
+               indApply = find(data.book.index(:,2)==1); 
+            case 'visible' 
+               indApply = find(data.book.index(:,2)==1); 
+            otherwise % case 'all'
+               indApply = (1:size(data.book.index,2));
+        end
+        
+        % Restrict according to atoms length is useLowLimit==1
+        if (data.args.useLowLimit==1)
+            indinf = [];
+            for inda = 1:length(indApply)
+                aType = data.book.index(2,indApply(inda));
+                aNum  = data.book.index(3,indApply(inda));
+                if (data.book.atom(aType).params.len(aNum) <= data.args.lowLimitVal)
+                    indinf = [ indinf inda ];
+                end
+            end
+            indApply(indinf) = []; % Remove these atoms from atoms to shift
+        end
+        
+        % Calculate Pitch shift factor
+        switch(data.args.scaleType)
+            case 'semitone',
+                pitchScale = exp(data.args.scaleVal/12 * log(2));
+            case 'hertz',
+                pitchScale = data.args.scaleVal;
+            otherwise
+                pitchScale = 1;
+                disp(['Unknown scale type ' data.args.scaleType])
+        end
+        
+        disp(['Pitch shift factor : ' num2str(pitchScale) ])
 
-        % Get
+        % Loop on index
+        nApply = length(indApply);
+        wb = waitbar(0,'Pitch shift atoms','Name','Pitch shift ...');
+        removeAtomIndex = [];
+        for inda = 1:nApply
+            waitbar(inda/nApply,wb); % update waitbar
+            % Get shortcuts for atom index
+            aType = data.book.index(2,indApply(inda));
+            aNum  = data.book.index(3,indApply(inda));
+            % Different shift rule according to atom type
+            switch(data.book.atom(aType).type)
+                case {'gabor','mclt','mdct','mdst','harmonic'},
+                    newfreq = data.book.atom(aType).params.freq(aNum) * pitchScale;
+                    % Check that shifted atom is not over Fs
+                    if (newfreq < data.book.sampleRate/2)
+                        data.book.atom(aType).params.freq(aNum) = newfreq;
+                    else % Mark atom to be removed
+                        removeAtomIndex = [removeAtomIndex indApply(inda)];
+                    end
+                otherwise,
+                    disp(['No rule for pitch shifting atom type:' data.book.atom(aType).type])
+            end
+        end
+        % Remove aliased atoms 
+        if (~isempty(removeAtomIndex))
+            disp('Removing aliased atoms')
+            data.book = removeBookAtom(data.book,removeAtomIndex);
+        end
+        close(wb);
+        set(gcf,'UserData',data);
+        % Redraw book
+        refreshFigure();
     end
 
 %% RETURNS A VECTOR OF UIHANDLES TO CHECKBOX FOR SHOWING/HIDING ATOM PER TYPE
@@ -1149,6 +1218,29 @@ set(figH,'UserData',data)
                 end
             end
         end
+    end
+
+%% Refresh book plot - Used after a transformation on the book
+    function refreshFigure(varargin)
+        data = get(gcf,'UserData');
+        
+        % Clear Patches and Checkbox handles
+        delete(data.typeHandles(ishandle(data.typeHandles)));
+        delete(data.atomHandles(ishandle(data.atomHandles)));
+        data.typeHandles = [];
+        data.atomHandles = [];
+        set(gcf,'UserData',data);
+        
+        % Redraw patches and checkboxes
+        data.typeHandles = addCheckBoxTypes(data.book,gcf);        
+        data.atomHandles = plotBook(data.book,axH);
+        
+        % Redraw selection
+        % Todo if necessary (should be yet applied to book structure)
+        
+        % Store data structure
+        set(gcf,'UserData',data)
+        
     end
 
 %% RETURNS A VECTOR OF HANDLES TO ATOMS - ONE HANDLE PER TYPE
@@ -1311,6 +1403,60 @@ set(figH,'UserData',data)
             h = h+1;
         end
         %close(wb);
+    end
+
+%% Remove Atoms with given index vector from book 
+    function newbook = removeBookAtom(oldbook,index)
+        % Copy book
+        newbook = oldbook;
+        aType = newbook.index(2,index);
+        aNum  = newbook.index(3,index);
+        [uType,i,j] = unique(aType); % Get types without doublons
+        % Remove corresponding params in atom struct
+        for t = 1:length(uType)
+            % Get index of atom to remove in each atom struct
+            ind = find(aType==uType(t));
+
+            % Clear visible and selected fields
+            if isfield(newbook.atom(uType(t)),'visible')
+                newbook.atom(uType(t)).visible(aNum(ind),:) = [];
+            end
+            if isfield(newbook.atom(uType(t)),'selected')
+                newbook.atom(uType(t)).selected(aNum(ind),:) = [];
+            end
+            % Clear all params fields
+            f = fieldnames(newbook.atom(uType(t)).params);
+            for g = 1:length(f)
+                newbook.atom(uType(t)).params.(f{g})(aNum(ind)) = []; %#ok<FNDSB>
+            end
+        end
+        
+        % Remove atoms entries in index
+        newbook.index(:,index) = [];
+        % Regenerate atoms number in index for the remaining atoms
+        removeType = []; % Remove type if it is empty
+        for t = 1:length(uType)
+            ind = find(newbook.index(2,:)==uType(t)); % Seek atoms with correct index           
+            if (isempty(ind))
+                removeType = [removeType uType(t)]; % Collect empty atom indexes
+            else
+                newbook.index(3,ind) = 1:length(ind);     % Make their number 1 to new length                
+            end
+        end
+        % Remove empty atom types
+        if (~isempty(removeType))
+            % Clear empty atom 
+            newbook.atom(removeType) = [];
+            % reassign atom type number in index
+            [uType,i,j] = unique(newbook.index(2,:));
+            newType = 1:length(uType);
+            newbook.index(2,:) = newType(j);
+        end
+            
+        % Update book length
+        newbook.numAtoms = newbook.numAtoms - length(index);
+        disp([ '[' num2str(length(index)) '] atoms removed from book'])
+ 
     end
 
 end % End of bookedit.m (function declaration)
