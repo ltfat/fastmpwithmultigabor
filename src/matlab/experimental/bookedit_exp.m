@@ -617,7 +617,6 @@ set(figH,'UserData',data)
 
     function timeStretch(varargin)
         figBookedit = gcbf;
-        disp('timeStretch() - under implementation')
         % Get input arguments
         d = inputTimeStretch();
         uiwait(d);
