@@ -151,11 +151,13 @@ menuItem(item) = uimenu(menuItem(3),'Label','&Pitch Shift ...','Callback',@pitch
 item = item + 1;
 menuItem(item) = uimenu(menuItem(3),'Label','&Time Stretch ...','Callback',@timeStretch,'Separator','off','Accelerator','T');
 item = item + 1;
-menuItem(item) = uimenu(menuItem(3),'Label','&Gain ...','Callback',@applyGain,'Separator','off','Accelerator','G');
+menuItem(item) = uimenu(menuItem(3),'Label','Apply &Gain on selection ...','Callback',@applyGain,'Separator','off','Accelerator','G');
 item = item + 1;
-menuItem(item) = uimenu(menuItem(3),'Label','&Time Reverse selection ...','Callback',@timeReverse,'Separator','off','Accelerator','I');
+menuItem(item) = uimenu(menuItem(3),'Label','T&ime Reverse selection ...','Callback',@timeReverse,'Separator','off','Accelerator','I');
 item = item + 1;
 menuItem(item) = uimenu(menuItem(3),'Label','&Freq reverse selection ...','Callback',@freqReverse,'Separator','off','Accelerator','F');
+item = item + 1;
+menuItem(item) = uimenu(menuItem(3),'Label','Te&mpo detection ...','Callback',@tempoDetect,'Separator','on','Accelerator','M');
 item = item + 1;
 % 'Help subitems'
 menuItem(item) = uimenu(menuItem(4),'Label','How to use this editor','Callback','doc bookedit','Separator','off');
@@ -291,15 +293,16 @@ set(figH,'UserData',data)
     function loadBook(varargin)
         curFig = gcf;
         data = get(gcf,'UserData');
+        curdir = pwd; % Save current directory
         % Just check if interface is already created or start program
-        if (isempty(data))
+        if (~isfield(data,'book'))
             close(curFig);
             cd(varargin{1})
             [filename, pathname] = uigetfile({'*.bin';'*.txt';'*.xml'},'Open a book file');
         else
             if (nargin==2) % Call from uimenu 'open book'
                 % Ask the user a book name
-                if (exist(data.loadBookDir,'dir') == 7) % sometimes this variable is lost ...
+                if (exist(data.loadBookDir,'dir') == 7) % sometimes this variable is lost ...                    
                     cd(data.loadBookDir);
                 end
                 [filename, pathname] = uigetfile({'*.bin';'*.txt';'*.xml'},'Open a book file');
@@ -308,6 +311,7 @@ set(figH,'UserData',data)
                 filename = [ fn e ];
             end
         end
+        cd(curdir); % Back to current directory
 
         if (filename)
             if (~isempty(pathname))
@@ -582,18 +586,52 @@ set(figH,'UserData',data)
 % -----------------------------
 %% Apply a Gain to selection
     function applyGain(varargin)
-        disp('applyGain() - not implemented')
+        prompt = {'Enter the gain to apply to selected atom in dB:'};
+        name = 'Apply gain to selection';
+        numlines = 1;
+        defaultanswer = {'3'};
+        val = inputdlg(prompt,name,numlines,defaultanswer);
+        gaindB=str2double(val);
+        if isnan(gaindB), 
+            errordlg('You must enter a numeric value','Bad Input','modal');
+        else
+            data = get(gcf,'UserData');
+            % Convert gain in dB to linear scale 
+            gain = 10.^(gaindB/20);
+            % Browse atoms type and apply gain on selected atoms
+            for t = 1:length(data.book.atom)
+               data.book.atom(t).params.amp(data.book.atom(t).selected==1,:) = data.book.atom(t).params.amp(data.book.atom(t).selected==1,:) * gain;
+            end
+            set(gcf,'UserData',data);
+            refreshFigure();
+        end
+        
     end
 
     function pitchShift(varargin)
         % Ask the user for pitch shift parameters
-        getUserPitchShift(); 
+        inputPitchShift(); 
         % When validating user parameters 'ok' button 
         % launches @applyPitchShift()
     end
 
     function timeStretch(varargin)
-        disp('timeStretch() - not implemented')
+        figBookedit = gcbf;
+        disp('timeStretch() - under implementation')
+        % Get input arguments
+        d = inputTimeStretch();
+        uiwait(d);
+        if (ishandle(d)) % OK button pushed
+            args = get(d,'UserData');
+            close(d);
+
+            % Core function for applying pitchShift
+            data = get(figBookedit,'UserData');
+            data.book = applyTimeStretch(data.book,args);
+            set(figBookedit,'UserData',data);
+            refreshFigure();
+        end
+
     end
 
     function timeReverse(varargin)
@@ -603,9 +641,29 @@ set(figH,'UserData',data)
     function freqReverse(varargin)
         disp( 'freqReverse() - not implemented')
     end
+   function tempoDetect(varargin)
+        disp( 'tempoDetect() - not implemented')
+    end
 
 %% SUB FUNCTIONS
 %  -------------
+
+
+%% Get index entries of visible atoms (in all atom type)
+    function index = indexOfVisible(book)
+        index = zeros(1,book.numAtoms);
+        for t = 1:length(book.atom)
+            index(1,book.index(2,:)==t) = book.atom(t).visible;
+        end
+    end
+
+%% Get index entries of selected atoms (in all atom type)
+    function index = indexOfSelected(book)
+        index = zeros(1,book.numAtoms);
+        for t = 1:length(book.atom)
+            index(1,book.index(2,:)==t) = book.atom(t).visible;
+        end
+    end
 
 %% Write a MPTK binary book file - user is asked for the book name
     function newsavedir = writeBook(book,defaultDir)
@@ -891,8 +949,94 @@ set(figH,'UserData',data)
         newbook = b;
     end
 
+%% INPUT DIALOG FIGURE FOR TIME STRETCH ARGUMENTS
+% create a figure in which the user data is a structure with fields
+% scaleVal: (double) Time stretch factor
+% scaleLength: (bool) 0: scale position and length of atoms, 1: scale only pos
+% applyTo: 'visible', 'selected' or 'all'
+%
+% called by @timeStretch()
+
+    function dialogH = inputTimeStretch(varargin)
+        % Get Arguments
+        dialogH = dialog('Name','Time strecth arguments','Units','Normalized','Position',[0.3 0.4 0.3 0.2]);
+
+        args.scaleVal = 2;
+        args.scaleLength = 0;
+        args.applyTo = 'all';
+        
+        % RADIO button group for specifying to which atoms apply the pich shift
+        h1 = uibuttongroup('visible','off','Position',[0.05 0.65 .9 .3]);
+        % Create 2 radio buttons in the button group.
+        u1 = uicontrol('Style','Radio','String','Apply to all atoms',...
+            'Units','normalized','Tag','all', ...
+            'pos',[0.05 0.03 0.8 0.3],'parent',h1,'HandleVisibility','off');
+        uicontrol('Style','Radio','String','Apply to selected atoms',...
+            'Units','normalized','Tag','selected', ...
+            'pos',[0.05 0.33 0.8 0.3],'parent',h1,'HandleVisibility','off');
+        uicontrol('Style','Radio','String','Apply to visible atoms',...
+            'Units','normalized','Tag','visible', ...
+            'pos',[0.05 0.66 0.8 0.3],'parent',h1,'HandleVisibility','off');
+        
+        % Initialize some button group properties.
+        set(h1,'SelectionChangeFcn','args = get(gcbf,''UserData''); args.applyTo = get(gcbo,''Tag''); set(gcbf,''UserData'',args);');
+        set(h1,'SelectedObject',u1);  % 'all' selected
+        set(h1,'Visible','on')
+        
+        % Text edit for Stretching factor (double)
+        uicontrol('Style','Text','Units','normalized', ...
+            'Position',[0.05 0.5 0.45 0.1],...
+            'String','Enter time stretch factor ]0,+inf[');
+        uicontrol('Style','Text','Units','normalized', ...
+            'Position',[0.05 0.4 0.9 0.1],...
+            'String','value<1 : compress time, value>1 : expand time');
+        args.scaleH = uicontrol('Style','edit', ...
+            'Units','normalized', ...
+            'Enable','on',...
+            'Visible','on',...
+            'Position',[0.5 0.525 0.45 0.1], ...
+            'String',num2str(args.scaleVal), ...
+            'Callback', [ 'args = get(gcbf,''UserData''); val=str2double(get(args.scaleH,''String'')); ' ...
+            'if isnan(val), errordlg(''You must enter a numeric value'',''Bad Input'',''modal'');return; end; ' ...
+            'args.scaleVal = val; set(gcbf,''UserData'',args);']);
+
+        % Checkbox for limiting atoms length (don't shift atoms below a given length)
+        uicontrol( ...
+            'Style','checkbox', ...
+            'Units','normalized', ...
+            'Position',[0.05 0.25 0.9 0.15], ...
+            'String','Don''t scale atom length (only start)', ...
+            'Value',0, ...
+            'Enable','on',...
+            'Visible','on',...
+            'Callback',[ 'args = get(gcbf,''UserData'');  '...
+            'args.scaleLength=get(gcbo,''Value''); ' ...
+            'set(gcbf,''UserData'',args);' ]);
+
+        % Ok and cancel buttons
+        % OK Button, resume ui
+        uicontrol('Style','pushbutton', ...
+            'Units','normalized', ...
+            'Position',[ 0.6 0.05 0.3 0.15 ], ...
+            'String','OK', ...
+            'Visible','on',...
+            'Callback','uiresume(gcbf)');
+
+        % Cancel action - just close argument gui
+        uicontrol('Style','pushbutton', ...
+            'Units','normalized', ...
+            'Position',[ 0.1 0.05 0.3 0.15 ], ...
+            'String','Cancel', ...
+            'Enable','on',...
+            'Visible','on',...
+            'Callback','close(gcbf);');
+
+        set(dialogH,'UserData',args);
+    end
+
 %% CREATE A LITTLE GUI TO ASK THE USER FOR PITCH SHIFT INPUT ARGUMENTS
-    function getUserPitchShift(varargin)
+% Called by @pitchShift()
+    function inputPitchShift(varargin)
         data = get(gcf,'UserData');
         % Init Pitch Shift algo arguments
         data.args = [];
@@ -1048,15 +1192,15 @@ set(figH,'UserData',data)
         %    scaleType: 'hertz' or 'semitone'
         %    scaleVal: (int of float) shift value according to shift type
         
-        data.args % debug display
+        % data.args % debug display
         
         nTypes = length(data.book.atom);
         % Get the index of atoms to apply the pitch shift
         switch (data.args.applyTo) 
             case 'selected'
-               indApply = find(data.book.index(:,2)==1); 
+               indApply = find(data.book.index(:,2)==1);  %% Todo
             case 'visible' 
-               indApply = find(data.book.index(:,2)==1); 
+               indApply = find(data.book.index(:,2)==1);  %% Todo
             otherwise % case 'all'
                indApply = (1:size(data.book.index,2));
         end
@@ -1087,7 +1231,7 @@ set(figH,'UserData',data)
         
         disp(['Pitch shift factor : ' num2str(pitchScale) ])
 
-        % Loop on index
+        % Apply Pitch shift factor to the atoms
         nApply = length(indApply);
         wb = waitbar(0,'Pitch shift atoms','Name','Pitch shift ...');
         removeAtomIndex = [];
@@ -1100,6 +1244,13 @@ set(figH,'UserData',data)
             switch(data.book.atom(aType).type)
                 case {'gabor','mclt','mdct','mdst','harmonic'},
                     newfreq = data.book.atom(aType).params.freq(aNum) * pitchScale;
+                    % Compensate phase
+                    if (data.args.compensatePhase)
+                        if (isfield(data.book.atom(aType).params,'phase'))
+                            % Generate a random phase in [0,2*PI]
+                        data.book.atom(aType).params.phase = 2*pi*randn(size(data.book.atom(aType).params.phase));
+                        end
+                    end
                     % Check that shifted atom is not over Fs
                     if (newfreq < data.book.sampleRate/2)
                         data.book.atom(aType).params.freq(aNum) = newfreq;
@@ -1119,6 +1270,49 @@ set(figH,'UserData',data)
         set(gcf,'UserData',data);
         % Redraw book
         refreshFigure();
+    end
+
+
+%% PROCESS TIME STRETCH ON BOOK ATOMS
+% Input arguments structure has fields :
+%  - scaleVal: (double) time stretch factor value<1= compress, value>1=expand
+%  - scaleLength: (bool) Scale atom length or only atoms position
+%  - applyTo: (string) 'all' 'selected' or 'visible'
+    function newbook = applyTimeStretch(oldbook,args)
+        % Copy book
+        newbook = oldbook;
+        % Get the index of atoms to apply the pitch shift
+        switch (args.applyTo) 
+            case 'selected'               
+               indApply = find(indexOfSelected(newbook)==1);
+            case 'visible' 
+               indApply = find(indexOfVisible(newbook)==1);
+            otherwise % case 'all'
+               indApply = (1:newbook.numAtoms);
+        end
+        
+        aType = newbook.index(2,indApply);
+        aNum  = newbook.index(3,indApply);
+        [uType,i,j] = unique(aType); % Get types without doublons
+        wb = waitbar(0,'Time Stretch atoms','Name','Time Stretch ...');
+        % Remove corresponding params in atom struct
+        for t = 1:length(uType)            
+            % Get index of atom to remove in each atom struct
+            ind = find(aType==uType(t));
+
+            % Scale atom position
+            newbook.atom(uType(t)).params.pos(aNum(ind),:) = round(newbook.atom(uType(t)).params.pos(aNum(ind),:) * args.scaleVal);
+
+            % Scale Length            
+            if (args.scaleLength==0)
+                newbook.atom(uType(t)).params.len(aNum(ind),:) = round(newbook.atom(uType(t)).params.len(aNum(ind),:) * args.scaleVal);
+            end
+            wb = waitbar(0.9*t/length(uType),wb);
+        end
+        newbook.numSamples = bookLength(newbook);
+        close(wb);
+        refreshFigure();
+        
     end
 
 %% RETURNS A VECTOR OF UIHANDLES TO CHECKBOX FOR SHOWING/HIDING ATOM PER TYPE
@@ -1264,6 +1458,7 @@ set(figH,'UserData',data)
             axH = varargin{1};
             for c = 1:nC
                 axes(axH(c));
+                axis([0 (book.numSamples/book.sampleRate) 0 book.sampleRate/2]);
                 hold on;
             end
         end
@@ -1458,6 +1653,17 @@ set(figH,'UserData',data)
         disp([ '[' num2str(length(index)) '] atoms removed from book'])
  
     end
+
+%% bookLength : recompute book length for atoms
+% usefull after Time Stretching
+    function newLength = bookLength(book)
+       newLength = 0;
+       for t=1:length(book.atom);
+           maxTypeLength = max(max(book.atom(t).params.pos + book.atom(t).params.len));
+           newLength = max(newLength,maxTypeLength);           
+       end
+    end
+
 
 end % End of bookedit.m (function declaration)
 
