@@ -17,7 +17,6 @@ function varargout = bookedit_exp( book, channel, bwfactor )
 %    the book is read from the corresponding file. Books
 %    can be read separately using the BOOKREAD utility.
 %
-%
 %    The patches delimit the support of the atoms. Their
 %    color is proportional to the atom's amplitudes,
 %    mapped to the current colormap and the current caxis.
@@ -33,9 +32,16 @@ function varargout = bookedit_exp( book, channel, bwfactor )
 % distributed under the General Public License.
 %
 %% SVN log:
-%   $Author: broy $
+%   $Author: gonon $
 %   $Date: 2008-02-14 18:00:30 +0100 (Wed, 14 Feb 2008) $
 %   $Revision: 783 $
+%
+
+
+%% INITIALIZATIONS 
+% - Load a book
+% - Define Figure Menus - toolbar
+% - define data structure stored in GUI figure
 %
 
 % Check if a bookDir has already been provided bu user
@@ -149,7 +155,7 @@ item = item + 1;
 % 'Transform' subitems
 menuItem(item) = uimenu(menuItem(3),'Label','&Pitch Shift ...','Callback',@pitchShift,'Separator','off','Accelerator','P');
 item = item + 1;
-menuItem(item) = uimenu(menuItem(3),'Label','&Time Stretch ...','Callback',@timeStretch,'Separator','off','Accelerator','T');
+menuItem(item) = uimenu(menuItem(3),'Label','&Time Scale ...','Callback',@timeStretch,'Separator','off','Accelerator','T');
 item = item + 1;
 menuItem(item) = uimenu(menuItem(3),'Label','Apply &Gain on selection ...','Callback',@applyGain,'Separator','off','Accelerator','G');
 item = item + 1;
@@ -277,9 +283,12 @@ end
 data.saveBookDir = data.loadBookDir;
 set(figH,'UserData',data)
 
-%% ------------------
-%  CALLBACK FUNCTIONS
-%  ------------------
+
+% END OF INITIALIZATIONS
+%-------------------------
+
+%% CALLBACK FUNCTIONS
+% -------------------
 
 %% FIGURE MENUS CALLBACKS
 % -------------------------
@@ -608,6 +617,8 @@ set(figH,'UserData',data)
         
     end
 
+%% Pitch Shift transformation (NOTE: rewrite inputPitchShift() and applyPitchShift() as for TimeStretch )
+% This function only opens a GUI which ask the user for the transform parameters
     function pitchShift(varargin)
         % Ask the user for pitch shift parameters
         inputPitchShift(); 
@@ -615,6 +626,8 @@ set(figH,'UserData',data)
         % launches @applyPitchShift()
     end
 
+%% Pitch Shift transformation
+% This function only opens a GUI which ask the user for transform parameters
     function timeStretch(varargin)
         figBookedit = gcbf;
         % Get input arguments
@@ -624,7 +637,7 @@ set(figH,'UserData',data)
             args = get(d,'UserData');
             close(d);
 
-            % Core function for applying pitchShift
+            % Core function for applying time Stretch
             data = get(figBookedit,'UserData');
             data.book = applyTimeStretch(data.book,args);
             set(figBookedit,'UserData',data);
@@ -633,20 +646,28 @@ set(figH,'UserData',data)
 
     end
 
+%% Reverse time for selected atoms in each rectangle
     function timeReverse(varargin)
         disp('timeReverse() - not implemented')
     end
 
+%% Reverse frequency for the selected atoms in each rectangle
     function freqReverse(varargin)
         disp( 'freqReverse() - not implemented')
     end
-   function tempoDetect(varargin)
+
+%% Detect tempo - todo
+% Open a gui with a slidebar for interaction with the user
+% Hint : use histograms on atoms position occurence shows a clear view of note occurences
+    function tempoDetect(varargin)
         disp( 'tempoDetect() - not implemented')
     end
 
-%% SUB FUNCTIONS
-%  -------------
 
+%% OTHER SUB FUNCTIONS 
+% These functions are not direct callbacks but are called by the different
+% callbacks
+% ----------------------
 
 %% Get index entries of visible atoms (in all atom type)
     function index = indexOfVisible(book)
@@ -688,7 +709,6 @@ set(figH,'UserData',data)
         if (book.index(4,:)== 0)
             disp('There are no selected atoms for reconstruction')
         else
-
             signal = mpReconstruct(book);
             if (~isempty(signal))
                 soundsc(signal,book.sampleRate);
@@ -985,10 +1005,10 @@ set(figH,'UserData',data)
         % Text edit for Stretching factor (double)
         uicontrol('Style','Text','Units','normalized', ...
             'Position',[0.05 0.5 0.45 0.1],...
-            'String','Enter time stretch factor ]0,+inf[');
+            'String','Enter time scale factor ]0,+inf[');
         uicontrol('Style','Text','Units','normalized', ...
             'Position',[0.05 0.4 0.9 0.1],...
-            'String','value<1 : compress time, value>1 : expand time');
+            'String','value<1 : compress time (stretch), value>1 : expand time');
         args.scaleH = uicontrol('Style','edit', ...
             'Units','normalized', ...
             'Enable','on',...
@@ -1246,8 +1266,16 @@ set(figH,'UserData',data)
                     % Compensate phase
                     if (data.args.compensatePhase)
                         if (isfield(data.book.atom(aType).params,'phase'))
-                            % Generate a random phase in [0,2*PI]
-                        data.book.atom(aType).params.phase = 2*pi*randn(size(data.book.atom(aType).params.phase));
+                            % Compensate phase so that : newPhase = Phase + 2*pi/pitchScale
+                            %data.book.atom(aType).params.phase = data.book.atom(aType).params.phase + 2*pi/pitchScale;
+                            % Compensate phase so that : newPhase = Phase/pitchScale
+                            % This one works slightly better
+                            if (pitchScale < 1)
+                                phaseOffset = - 2*pi*pitchScale;
+                            else
+                                phaseOffset = 2*pi/pitchScale;
+                            end
+                            data.book.atom(aType).params.phase = data.book.atom(aType).params.phase + 2*pi/pitchScale;
                         end
                     end
                     % Check that shifted atom is not over Fs
@@ -1345,6 +1373,7 @@ set(figH,'UserData',data)
             vSpace = 0.01;
             bHeight = min(0.05,(0.83/l-vSpace));
             figure(figHandle);
+            
             tl=0; % Counter of type and len (number of checkboxes)
 
             % First CHECKBOX IS FOR VIEW/HIDE ALL ATOMS
@@ -1415,7 +1444,7 @@ set(figH,'UserData',data)
 
 %% Refresh book plot - Used after a transformation on the book
     function refreshFigure(varargin)
-        data = get(gcf,'UserData');
+        data = get(gcbf,'UserData');
         
         % Clear Patches and Checkbox handles
         delete(data.typeHandles(ishandle(data.typeHandles)));
@@ -1425,8 +1454,8 @@ set(figH,'UserData',data)
         set(gcf,'UserData',data);
         
         % Redraw patches and checkboxes
-        data.typeHandles = addCheckBoxTypes(data.book,gcf);        
-        data.atomHandles = plotBook(data.book,axH);
+        data.typeHandles = addCheckBoxTypes(data.book,gcbf);        
+        data.atomHandles = plotBook(data.book,data.axH);
         
         % Redraw selection
         % Todo if necessary (should be yet applied to book structure)
@@ -1565,10 +1594,28 @@ set(figH,'UserData',data)
 
                         end
                     end
+                case 'constant'
+                    for a = 1:length(params.amp)
+                        for chan = 1:nC
+                            pos = params.pos(a,chan)/fs;
+                            len = params.len(a,chan)/fs;
+                            amp = params.amp(a,chan);
+                            amp = max(-150,20*log10(abs(amp))); % Set a mininum amplitude value to -80dB
 
-                    % Atom types not processed
+                            pv = [pos; pos+len; pos+len; pos];
+                            fv = [0; 0; len; len];
+                            av = [amp; amp; amp; amp];
+
+                            pX{chan} = [pX{chan}, pv];
+                            pY{chan} = [pY{chan}, fv];
+                            pZ{chan} = [pZ{chan}, av];
+                            pC{chan} = [pC{chan}, amp];
+
+                        end
+                    end
+                % Atom types not processed
                 otherwise,
-                    disp( [ '[' type '] cannot be displayed yet.'] );
+                   disp( [ '[' type '] cannot be displayed yet.'] );
             end
             % Add patch to handle vector
             % DEBUG DISPLAY

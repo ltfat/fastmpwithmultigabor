@@ -870,7 +870,7 @@ void mxBook::MP_BookWrite(string fileName, const char mode) {
 }
 
 /** Reconstruct Signal from book and return a pointer to a mxArray containing the MP_Signal samples 
- *  (A simplified version of mpr)
+ *  (A simplified version of mpr with no residual)
  */
 
 mxArray * mxBook::Book_Reconstruct() {
