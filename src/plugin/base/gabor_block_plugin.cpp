@@ -48,7 +48,7 @@
 #include "chirp_block_plugin.h"
 #include "gabor_atom_plugin.h"
 #include "block_factory.h"
-#include <map.h>
+#include <map>
 #include <sstream>
 
 /***************************/
@@ -80,7 +80,7 @@ MP_Block_c* MP_Gabor_Block_Plugin_c::create( MP_Signal_c *setSignal, map<string,
     }
       
   /* Analyse the parameter map */
-  if (strcmp((*paramMap)["type"].c_str(),"gabor") ==1 or strcmp((*paramMap)["type"].c_str(),"harmonic") ==1)
+  if (strcmp((*paramMap)["type"].c_str(),"gabor") ==1 || strcmp((*paramMap)["type"].c_str(),"harmonic") ==1)
     {
       mp_error_msg( func, "Parameter map does not define a Gabor block.\n" );
       return( NULL );
@@ -932,7 +932,7 @@ unsigned int MP_Gabor_Block_Plugin_c::create_atom( MP_Atom_c **atom,
 
           amp = sqrt( energy );
           if   ( re >= 0 ) phase = 0.0;  /* corresponds to the '+' sign */
-          else             phase = M_PI; /* corresponds to the '-' sign exp(i\pi) */
+          else             phase = MP_PI; /* corresponds to the '-' sign exp(i\pi) */
         }
 
       /* 5) fill in the atom parameters */

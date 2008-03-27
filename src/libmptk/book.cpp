@@ -788,8 +788,8 @@ MP_Atom_c* MP_Book_c::get_closest_atom(MP_Real_t time, MP_Real_t freq,
   MP_Atom_c *atomClosest = NULL;
   MP_Real_t dist, distClosest;
   
-  distClosest = 1e700;
-
+  //distClosest = 1e700;
+  distClosest = 1.7e308;
   if (mask == NULL) {
     for (i = 0; i < numAtoms; i++) {
       dist = atom[i]->dist_to_tfpoint( time, freq , chanIdx );

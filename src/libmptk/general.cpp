@@ -159,7 +159,7 @@ void complex2amp_and_phase( double re, double im,
 		    which is already dealt with */
     *phase = 0.0; /* corresponds to the '+' sign */
   } else {
-    *phase = M_PI; /* corresponds to the '-' sign exp(i\pi) */
+    *phase = MP_PI; /* corresponds to the '-' sign exp(i\pi) */
   }
   return;
 }

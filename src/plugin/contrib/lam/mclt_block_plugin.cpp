@@ -761,7 +761,7 @@ unsigned int MP_Mclt_Block_Plugin_c::create_atom( MP_Atom_c **atom,
             {
               amp = sqrt( energy );
               if   ( re >= 0 ) phase = 0.0;  /* corresponds to the '+' sign */
-              else             phase = M_PI; /* corresponds to the '-' sign exp(i\pi) */
+              else             phase = MP_PI; /* corresponds to the '-' sign exp(i\pi) */
             }
         }
 

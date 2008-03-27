@@ -57,8 +57,12 @@ MP_Dll_Manager_c::~MP_Dll_Manager_c()
 /* Load and registrate all the dll */
 bool MP_Dll_Manager_c::load_dll()
 {
-if ( MPTK_Env_c::get_env()->get_config_path("dll_directory")!= NULL){
+if ( true){
+//MPTK_Env_c::get_env()->get_config_path("dll_directory")!= NULL){
+mp_debug_msg( MP_DEBUG_CONSTRUCTION, "MP_Dll_Manager::load_dll", "Plug-in localisation: %s.\n", MPTK_Env_c::get_env()->get_config_path("dll_directory") );          	
+  //if (MP_Dll_Manager_c::search_library(dllVectorName, MPTK_Env_c::get_env()->get_config_path("dll_directory")))
   if (MP_Dll_Manager_c::search_library(dllVectorName, MPTK_Env_c::get_env()->get_config_path("dll_directory")))
+  
     {
       for (unsigned int k=0;k<dllVectorName->size();k++ )
         {
@@ -92,7 +96,8 @@ if ( MPTK_Env_c::get_env()->get_config_path("dll_directory")!= NULL){
 
       return false;
     }
-} else return false;
+} else { mp_error_msg( "MP_Dll_Manager::load_dll","Problem with config path '%s' .\n", MPTK_Env_c::get_env()->get_config_path("dll_directory"));
+	return false;}
 }
 
 /************/

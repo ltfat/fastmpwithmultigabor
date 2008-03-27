@@ -154,7 +154,16 @@ MP_Signal_c* MP_Signal_c::init( const char *fName )
       mp_debug_msg( MP_DEBUG_FILE_IO, func, "-- end after init.\n");
 
       MP_Chan_t numChans = newSig->numChans;
-      double frame[numChans];
+         /** will initialize initial numCols and numRows with the first value with wich this function is called */
+      static unsigned long int allocated_numChans = 0;
+      //double frame[numChans];
+      double* frame=0;
+    if (!frame || allocated_numChans != numChans) {
+	  if (frame) free(frame) ;
+	  	  allocated_numChans = numChans ; 
+		  frame= (double*) malloc (allocated_numChans*sizeof(double)) ;
+  }
+      
       unsigned long int sample;
       MP_Chan_t chanIdx;
       MP_Real_t** chan = newSig->channel;
@@ -507,7 +516,18 @@ unsigned long int MP_Signal_c::read_from_float_file( const char *fName )
 {
 
   FILE *fid;
-  float buffer[numChans*numSamples];
+  /** will initialize initial numCols and numRows with the first value with wich this function is called */
+  static int allocated_numChans = 0;
+  static unsigned long int allocated_numSamples = 0;
+  //float buffer[numChans*numSamples];
+  static float* buffer = 0;
+    if (!buffer|| allocated_numChans != numChans || allocated_numSamples != numSamples) {
+	  if (buffer) free(buffer) ;
+	  	  allocated_numChans = numChans ; 
+	  	  allocated_numSamples = numSamples;
+		  buffer= (float*) malloc (allocated_numChans* allocated_numSamples * sizeof(float)) ;
+  }
+  
   unsigned long int nRead = 0;
   unsigned long int i;
 
@@ -560,7 +580,16 @@ unsigned long int MP_Signal_c::dump_to_float_file( const char *fName )
 {
 
   FILE *fid;
-  float buffer[numChans*numSamples];
+  static int allocated_numChans = 0;
+  static unsigned long int allocated_numSamples = 0;
+  static float* buffer = 0;
+    if (!buffer|| allocated_numChans != numChans || allocated_numSamples != numSamples) {
+	  if (buffer) free(buffer) ;
+	  	  allocated_numChans = numChans ; 
+	  	  allocated_numSamples = numSamples;
+		  buffer= (float*) malloc (allocated_numChans* allocated_numSamples * sizeof(float)) ;
+  }
+ // float buffer[numChans*numSamples];
   unsigned long int nWrite = 0;
   unsigned long int i;
 
@@ -601,7 +630,16 @@ unsigned long int MP_Signal_c::dump_to_double_file( const char *fName )
 {
 
   FILE *fid;
-  double buffer[numChans*numSamples];
+  //double buffer[numChans*numSamples];
+  static int allocated_numChans = 0;
+  static unsigned long int allocated_numSamples = 0;
+  static double* buffer = 0;
+    if (!buffer|| allocated_numChans != numChans || allocated_numSamples != numSamples) {
+	  if (buffer) free(buffer) ;
+	  	  allocated_numChans = numChans ; 
+	  	  allocated_numSamples = numSamples;
+		  buffer= (double*) malloc (allocated_numChans* allocated_numSamples * sizeof(double)) ;
+  }
   unsigned long int nWrite = 0;
   unsigned long int i;
 
@@ -682,7 +720,14 @@ unsigned long int MP_Signal_c::wavwrite( const char *fName )
 
   /* write the file */
   {
-    double frame[numChans];
+   // double frame[numChans];
+  static int allocated_numChans = 0;
+  static double* frame = 0;
+    if (!frame|| allocated_numChans != numChans) {
+	  if (frame) free(frame) ;
+	  	  allocated_numChans = numChans ; 
+		  frame= (double*) malloc (allocated_numChans * sizeof(double)) ;
+  }
     unsigned long int sample;
     int chan;
     for (sample=0; sample < numSamples; sample++)
@@ -754,7 +799,14 @@ unsigned long int MP_Signal_c::matwrite( const char *fName )
 
   /* write the file */
   {
-    double frame[numChans];
+    //double frame[numChans];
+    static int allocated_numChans = 0;
+  static double* frame = 0;
+    if (!frame|| allocated_numChans != numChans) {
+	  if (frame) free(frame) ;
+	  	  allocated_numChans = numChans ; 
+		  frame= (double*) malloc (allocated_numChans * sizeof(double)) ;
+  }
     unsigned long int sample;
     int chan;
     for (sample=0; sample < numSamples; sample++)

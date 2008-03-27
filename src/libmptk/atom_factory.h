@@ -36,7 +36,8 @@
 #define ATOM_FACTORY_H_
 
 #include "atom.h"
-#include <hash_map.h>
+#include "mp_hash_container_header.h"
+
 
 /*******************************/
 /* ATOM FACTORY CLASS          */
@@ -56,15 +57,6 @@ class MP_Atom_Factory_c
     /* DATA */
     /********/
 
-  public:
-    /** \brief Public struct to compare the value in hash map */
-    struct eqstr
-      {
-        bool operator()(const char* s1, const char* s2) const
-          {
-            return strcmp(s1, s2) == 0;
-          }
-      };
   protected:
     /** \brief Protected pointer on MP_Atom_Factory_c*/
     static MP_Atom_Factory_c * myAtomFactory;
@@ -72,11 +64,13 @@ class MP_Atom_Factory_c
   private:
     /** \brief Boolean set to true when an instance is created */
     static bool instanceFlag;
-
-    /** \brief Hash map to store the atom name and the file creation atom method pointer */
-    hash_map<const char*, MP_Atom_c*(*)(FILE *fid, const char mode), hash<const char*>, eqstr> atom;
+ 
+	  /** \brief Hash map to store the atom name and the file creation atom method pointer */
+STL_EXT_NM::hash_map<const char*, MP_Atom_c*(*)(FILE *fid, const char mode), mp_hash_fun, mp_eqstr> atom;
     /** \brief Hash map to store the atom name and the empty atom method pointer */
-    hash_map<const char*, MP_Atom_c*(*)(void), hash<const char*>, eqstr> atom_empty;
+STL_EXT_NM::hash_map<const char*, MP_Atom_c*(*)(void), mp_hash_fun, mp_eqstr> atom_empty;
+
+
 
     /***********/
     /* METHODS */

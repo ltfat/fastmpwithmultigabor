@@ -45,7 +45,11 @@
 
 #include <stdio.h>
 #include <utility>
+#ifdef __MINGW32__
 #include <vector.h>
+#else
+#include <vector>
+#endif
 
 /** \brief The MP_Abstract_Mixer class is an abstract base class used to define the interface between MPTK
  * and various mixer class

@@ -90,7 +90,7 @@ MP_TF_Map_c::MP_TF_Map_c( const unsigned long int setNCols,  const unsigned long
       int i;
       unsigned long int size = (setNRows*setNCols);
       for ( i = 0; i < setNumChans; i++) channel[i] = storage + i*size;
-
+      
       numCols = setNCols;
       numRows = setNRows;
       numChans = setNumChans;
@@ -156,8 +156,17 @@ unsigned long int MP_TF_Map_c::dump_to_file( const char *fName , char flagUpside
   unsigned long int nWrite = 0;
   MP_Tfmap_t *ptrColumn;
   unsigned long int i;
-  MP_Tfmap_t column[numRows];
-  MP_Tfmap_t *endStorage = storage + ( numChans*numRows*numCols );
+   /** will initialize initial numCols and numRows with the first value with wich this function is called */
+  static unsigned long int allocated_numRows = 0;
+  
+  static MP_Tfmap_t* column = 0;
+    if (!column || allocated_numRows != numRows) {
+	  if (column) free(column) ;
+	  	  allocated_numRows = numRows ; 
+		  column = (MP_Tfmap_t*) malloc (allocated_numRows*sizeof(MP_Tfmap_t)) ;
+  }
+  
+  MP_Tfmap_t *endStorage = storage + ( numChans*numCols*numRows );
 
   /* Open the file in write mode */
   if ( ( fid = fopen( fName, "w" ) ) == NULL ) {

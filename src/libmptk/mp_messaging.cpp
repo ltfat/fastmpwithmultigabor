@@ -87,8 +87,9 @@ MP_Msg_Server_c::MP_Msg_Server_c( void ) {
   msgTypeStack = NULL;
   stackSize = 0;
   maxStackSize = 0;
-  
-  displayFunction = hash_map<const char*, void(*)(char * message), hash<const char*>, function_name_eqstr>(5);
+
+
+//hash_map<const char*,void(*)(char * message),mycomp> displayFunction ;
 
 #ifndef NDEBUG
 cerr << MP_LIB_STR_PREFIX << " DEBUG -- MP_Msg_Server_c -- Exiting the messaging server constructor.\n" << flush;
@@ -264,7 +265,7 @@ size_t make_msg_str( const char *strMsgType, const char *funcName, const char *f
   }
 
   /* Typeset the rest of the string, with the variable argument list */
-  finalSize = beginSize + vsnprintf( MPTK_Server_c::get_msg_server()->stdBuff + beginSize,
+  finalSize = beginSize + MPTK_Server_c::get_msg_server()->mp_vsnprintf( MPTK_Server_c::get_msg_server()->stdBuff + beginSize,
 				     MPTK_Server_c::get_msg_server()->stdBuffSize - beginSize,
 				     format, arg );
 
@@ -278,7 +279,7 @@ size_t make_msg_str( const char *strMsgType, const char *funcName, const char *f
     }
     else {
       MPTK_Server_c::get_msg_server()->stdBuff = tmp;
-      finalSize = beginSize + vsnprintf( MPTK_Server_c::get_msg_server()->stdBuff + beginSize,
+      finalSize = beginSize + MPTK_Server_c::get_msg_server()->mp_vsnprintf( MPTK_Server_c::get_msg_server()->stdBuff + beginSize,
 					 MPTK_Server_c::get_msg_server()->stdBuffSize - beginSize,
 					 format, arg );
     }

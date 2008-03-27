@@ -63,6 +63,7 @@ bool MPTK_Env_c::environnement_loaded= false;
 /* NULL constructor */
 MPTK_Env_c::MPTK_Env_c()
 {
+  //configPath = STL_EXT_NM::hash_map<const char*,const char*,mycomp>(1);
   nameBufferCstr = NULL;
   pathBufferCstr = NULL;
 }
@@ -136,7 +137,7 @@ bool MPTK_Env_c::set_env(string filename)
 const char * MPTK_Env_c::get_config_path(const char* name)
 {
 
-  return configPath[name];
+  return MPTK_Env_c::get_env()->configPath[name];
 
 }
 
@@ -217,7 +218,9 @@ else
               std::string pathBuffer = elem->Attribute("path");
               pathBufferCstr[i] = (char *) malloc(pathBuffer.size()+1);
               strncpy(pathBufferCstr[i], pathBuffer.c_str() ,pathBuffer.size()+1);
-              MPTK_Env_c::get_env()->configPath[nameBufferCstr[i]] = pathBufferCstr[i];           
+              if (NULL == MPTK_Env_c::get_env()->get_config_path(nameBufferCstr[i])) MPTK_Env_c::get_env()->configPath[nameBufferCstr[i]] = pathBufferCstr[i]; 
+              else mp_error_msg( "MPTK_Env_c::load_environnement()", "Two variable with the same name");            
+                        
               /* iterate on the next element */
               elem = elem->NextSiblingElement();
               i++;
@@ -229,7 +232,7 @@ else
               mp_error_msg( func, "Failed to create a dll manager");
               return false;
             }
-            
+
           /* Load DLL */ 
           if (dll->load_dll())
             {

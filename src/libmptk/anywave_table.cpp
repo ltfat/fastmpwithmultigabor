@@ -38,7 +38,7 @@
 
 #include "mptk.h"
 #include "mp_system.h"
-#include <iostream.h>
+#include <iostream>
 /***********************************************************/
 /*                                                         */
 /* anywave_table.cpp: methods for class MP_Anywave_Table_c */

@@ -47,10 +47,7 @@
 #include <iostream>
 #include <list>
 #include "tinyxml.h"
-
-
-
-using namespace std;
+#include "mp_hash_container_header.h"
 
 
 
@@ -68,21 +65,10 @@ class MPTK_Env_c
   {
 
 
-    /** \brief Structure to compare key in configPath hash map
-      */
-    struct eqstr
-      {
-        bool operator()(const char* s1, const char* s2) const
-          {
-            return strcmp(s1, s2) == 0;
-          }
-      };
-
-
     /********/
     /* DATA */
     /********/
-    
+public:
 
   protected:
 
@@ -108,8 +94,11 @@ class MPTK_Env_c
     */
     static bool environnement_loaded;
 
-    /** \brief Hash map to store the atom name and the file creation atom method pointer */
-    hash_map<const char*,const char*, hash<const char*>, eqstr> configPath;
+   /** \brief Hash map to store the atom name and the file creation atom method pointer */
+STL_EXT_NM::hash_map<const char*,const char*,mp_hash_fun, mp_eqstr> configPath;
+
+
+ 
 
     /** \brief buffer to store the name of the path */
     char** nameBufferCstr;

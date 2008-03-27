@@ -81,14 +81,14 @@ MP_Win_Server_c::~MP_Win_Server_c() {
 
 /* Memory release */
 void MP_Win_Server_c::release( void ) {
-
+   const char* func = "MP_Win_Server_c::release()";
 #ifndef NDEBUG
-  const char* func = "MP_Win_Server_c::release()";
+   mp_debug_msg( MP_DEBUG_FUNC_ENTER, func, "Entering.\n" );
 #endif
   unsigned short int i;
   unsigned long int n;
 
-  mp_debug_msg( MP_DEBUG_FUNC_ENTER, func, "Entering.\n" );
+ 
 
   for ( i = 0; i < DSP_NUM_WINDOWS; i++ ) {
 
@@ -106,8 +106,9 @@ void MP_Win_Server_c::release( void ) {
     maxNumberOf[i] = 0;
 
   }
-
+#ifndef NDEBUG
   mp_debug_msg( MP_DEBUG_FUNC_EXIT, func, "Exiting.\n" );
+#endif
 }
 
 /* Window service */
@@ -116,14 +117,25 @@ unsigned long int MP_Win_Server_c::get_window( MP_Real_t **out,
 					       const unsigned char type,
 					       double optional ) {
   const char* func = "MP_Win_Server_c::get_window(...)";
+  if (length >0)
+  {
+	  /** will initialize initial_length with the first value with wich this function is called */
+  static unsigned long int allocated_length = 0 ;
   unsigned long int n;
   unsigned long int num;
   MP_Win_t* ptrWin;
-  Dsp_Win_t buffer[length];
+  static Dsp_Win_t *buffer=0;
+  //Dsp_Win_t buffer[length];
   Dsp_Win_t* ptrWinT;
   MP_Real_t* ptrReal;
   unsigned long int center;
 
+  if (!buffer || allocated_length != length) {
+	  if (buffer) free(buffer);
+	  	  allocated_length = length ; 
+		  buffer = (Dsp_Win_t*)malloc(allocated_length*sizeof(double)) ;
+  }
+ 
   /* Seek if the window exists */
   num = numberOf[type];
   for (  n = 0,   ptrWin = window[type];
@@ -201,6 +213,11 @@ unsigned long int MP_Win_Server_c::get_window( MP_Real_t **out,
     *out = NULL;
     return( 0 );
   }
+  }  else {
+    mp_error_msg( func, "Oooops, length is null."
+		  " Returning a NULL buffer.\n" );
+    *out = NULL;
+    return( 0 );}
 
 }
 

@@ -46,11 +46,16 @@
 
 #include "mp_system.h"
 
-#include <iostream>
-#include <hash_map.h>
+#include "mp_hash_container_header.h"
 
-using namespace std;
 
+#if defined(_MSC_VER)
+#define _CRT_SECURE_NO_DEPRECATE
+#include <stdio.h>
+#ifndef snprintf
+#define snprintf _snprintf
+#endif
+#endif
 
 /*********************/
 /* DEFAULT MSG TYPES */
@@ -121,95 +126,111 @@ using namespace std;
  * \brief The Messaging Server class holds and manages all the info necessary
  * to handle the redirection of error/warning/info/debug messages.
  */
-class MP_Msg_Server_c {
+class MP_Msg_Server_c
+  {
 
-  /********/
-  /* DATA */
-  /********/
+    /********/
+    /* DATA */
+    /********/
+      protected:
+    /** \brief Protected pointer on MP_Atom_Factory_c*/
+    static MP_Msg_Server_c * myMsgServer;
+     public:
+     
+STL_EXT_NM::hash_map<const char*,void(*)(char * message),mp_hash_fun, mp_eqstr> displayFunction;
 
-public:
-    /** \brief Public struct to compare the value in hash map */
-    struct function_name_eqstr
-      {
-        bool operator()(const char* s1, const char* s2) const
-          { 	
-            return strcmp(s1, s2) == 0;
-          }
-      };
-protected:
-/** \brief Protected pointer on MP_Atom_Factory_c*/
-static MP_Msg_Server_c * myMsgServer;
-
-public:
-hash_map<const char*, void(*)(char * message), hash<const char*>, function_name_eqstr> displayFunction;
-  /** \brief A default buffer, to store the current message string. */  
-  char *stdBuff;
+    /** \brief A default buffer, to store the current message string. */
+    char *stdBuff;
 #define MP_DEFAULT_STDBUFF_SIZE 2048
-  /** \brief The size of the default message-storing buffer. */  
-  size_t stdBuffSize;
-  /** \brief The type of the current message (see constants above). */  
-  unsigned long int currentMsgType;
+    /** \brief The size of the default message-storing buffer. */
+    size_t stdBuffSize;
+    /** \brief The type of the current message (see constants above). */
+    unsigned long int currentMsgType;
 
-  /** \brief The handler function associated with the error messages. */  
-  void (*errorHandler)( void );
-  /** \brief The handler function associated with the warning messages. */  
-  void (*warningHandler)( void );
-  /** \brief The handler function associated with the info messages. */  
-  void (*infoHandler)( void );
-  /** \brief The handler function associated with the progress messages. */  
-  void (*progressHandler)( void );
-  /** \brief The handler function associated with the debug messages. */  
-  void (*debugHandler)( void );
+    /** \brief The handler function associated with the error messages. */
+    void (*errorHandler)( void );
+    /** \brief The handler function associated with the warning messages. */
+    void (*warningHandler)( void );
+    /** \brief The handler function associated with the info messages. */
+    void (*infoHandler)( void );
+    /** \brief The handler function associated with the progress messages. */
+    void (*progressHandler)( void );
+    /** \brief The handler function associated with the debug messages. */
+    void (*debugHandler)( void );
 
-  /** \brief The output stream associated with error messages. */  
-  void * errorStream;
-  /** \brief The output stream associated with warning messages. */  
-  void * warningStream;
-  /** \brief The output stream associated with info messages. */  
-   void *infoStream;
-  /** \brief The output stream associated with progress messages. */  
-   void *progressStream;
-  /** \brief The output stream associated with debug messages. */  
-   void *debugStream;
+    /** \brief The output stream associated with error messages. */
+    void * errorStream;
+    /** \brief The output stream associated with warning messages. */
+    void * warningStream;
+    /** \brief The output stream associated with info messages. */
+    void *infoStream;
+    /** \brief The output stream associated with progress messages. */
+    void *progressStream;
+    /** \brief The output stream associated with debug messages. */
+    void *debugStream;
 
-  /** \brief A binary mask to sort the DEBUG messages */
-  unsigned long int debugMask;
+    /** \brief A binary mask to sort the DEBUG messages */
+    unsigned long int debugMask;
 
-  /** \brief A message stack **/
-  char **msgStack;
-  unsigned long int *msgTypeStack;
-  unsigned long int stackSize;
-  unsigned long int maxStackSize;
-  /** \brief Granularity before a realloc of the msg stack occurs */
+    /** \brief A message stack **/
+    char **msgStack;
+    unsigned long int *msgTypeStack;
+    unsigned long int stackSize;
+    unsigned long int maxStackSize;
+    /** \brief Granularity before a realloc of the msg stack occurs */
 #define MP_MSG_STACK_GRANULARITY 128
 
+
+
+    /***********/
+    /* METHODS */
+    /***********/
+
+    /***************************/
+    /* CONSTRUCTORS/DESTRUCTOR */
+    /***************************/
+
+
+  public:
+    static void default_display_error_function(char* message);
+    /** \brief Method to get the MP_Atom_Factory_c */
+    static MP_Msg_Server_c * get_msg_server();
+    /** \brief A plain constructor **/
+
+    /** \brief A plain destructor **/
+    virtual ~MP_Msg_Server_c( void );
+    void register_display_function(const char* functionType, void(*displayFunctionPointer)(char * message));
+    void (*get_display_function( const char* functionType))(char * message);
+
+#if defined(_MSC_VER)
+
+int mp_vsnprintf( char *str, size_t size, const char *format, va_list ap )
+{
+    if( str != NULL )
+    {
+        //Version "secure" microsoft (VS2005 ou supérieur requis)
+        //_vsnprintf_s( str, size, _TRUNCATE, format, ap );
  
-    
-  /***********/
-  /* METHODS */
-  /***********/
+        //Version "ancienne"
+        _vsnprintf( str, size, format, ap );
+        str[size-1] = '\0';
+    }
+    return _vscprintf( format, ap );
+}
+#else
 
-  /***************************/
-  /* CONSTRUCTORS/DESTRUCTOR */
-  /***************************/
+int mp_vsnprintf( char *str, size_t size, const char *format, va_list ap )
+{
+  return vsnprintf(str,size,format,ap);
+}
 
-
-public:
-  static void default_display_error_function(char* message);
-  /** \brief Method to get the MP_Atom_Factory_c */
-  static MP_Msg_Server_c * get_msg_server();
- /** \brief A plain constructor **/
-  
-  /** \brief A plain destructor **/
-  virtual ~MP_Msg_Server_c( void );
-  void register_display_function(const char* functionType, void(*displayFunctionPointer)(char * message));
-  void (*get_display_function( const char* functionType))(char * message);
+#endif
 
 
-private:
-MP_Msg_Server_c( void );
+  private:
+    MP_Msg_Server_c( void );
 
-};
+  };
 
 /***************************************/
 /* DEFINITION OF SOME MESSAGE HANDLERS */
@@ -406,7 +427,8 @@ size_t mp_progress_msg( FILE *fid, const char *funcName, const char *format, ...
 #ifndef NDEBUG
 size_t mp_debug_msg( const unsigned long int msgType, const char *funcName, const char *format, ... );
 #else
-#define mp_debug_msg( A, B, C, ... ) (void)(0)
+#define mp_debug_msg
+//( A, B, C, ... ) (void)(0)
 #endif
 
 /** \brief Pretty-printing of the libmptk debug messages to a specific stream

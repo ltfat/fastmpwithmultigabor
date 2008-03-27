@@ -282,8 +282,17 @@ void MP_Atom_c::substract_add( MP_Signal_c *sigSub, MP_Signal_c *sigAdd ) {
   double sigEBefSub = 0.0;
   double sigEAftSub = 0.0;
   double sigVal;
+  //MP_Real_t totalBuffer[totalChanLen];
+  /** will initialize initial numCols and numRows with the first value with wich this function is called */
+  static unsigned long int allocated_totalChanLen = 0;
+  static MP_Real_t* totalBuffer=0;
+    if (!totalBuffer|| allocated_totalChanLen != totalChanLen) {
+	  if (totalBuffer) free(totalBuffer) ;
+	  	  allocated_totalChanLen = totalChanLen ; 
+		  totalBuffer = (MP_Real_t*) malloc (allocated_totalChanLen*sizeof(MP_Real_t)) ;
+  }
 
-  MP_Real_t totalBuffer[totalChanLen];
+  
   MP_Real_t *atomIn;
   MP_Real_t *ps;
   MP_Real_t *pa;
@@ -505,6 +514,7 @@ MP_Atom_c::Add_Worker * MP_Atom_c::myAddWorker = NULL ;
 /* run method for Add_Worker if MULTITHREAD mode Off */	
     void* MP_Atom_c::Add_Worker::run(void* a)
     {
+    	return 0;
     }
 
 /* Add_Worker constructor if MULTITHREAD mode Off */
@@ -542,8 +552,18 @@ void MP_Atom_c::substract_add_var_amp( MP_Real_t *amp, MP_Chan_t numAmps,
   double sigEBefSub = 0.0;
   double sigEAftSub = 0.0;
   double sigVal;
+  
+  static unsigned long int allocated_totalChanLen = 0;
+  static unsigned long int allocated_numAmps = 0;
+  static MP_Real_t* totalBuffer=0;
+    if (!totalBuffer|| allocated_totalChanLen != totalChanLen || allocated_numAmps != numAmps ) {
+	  if (totalBuffer) free(totalBuffer) ;
+	  	  allocated_totalChanLen = totalChanLen ; 
+	  	  allocated_numAmps = numAmps;
+		  totalBuffer = (MP_Real_t*) malloc (allocated_totalChanLen*allocated_numAmps*sizeof(MP_Real_t)) ;
+  }
 
-  MP_Real_t totalBuffer[numAmps*totalChanLen];
+ // MP_Real_t totalBuffer[numAmps*totalChanLen];
   MP_Real_t *atomIn;
   MP_Real_t *ps;
   MP_Real_t *pa;

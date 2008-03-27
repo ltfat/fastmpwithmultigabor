@@ -35,9 +35,12 @@
 #ifndef BLOCK_FACTORY_H_
 #define BLOCK_FACTORY_H_
 #include "mptk.h"
-#include <hash_map.h>
-#include <map.h>
-#include <vector.h>
+
+#include "mp_hash_container_header.h"
+#     include <map>
+#     include <vector>
+
+
 
 /******************************/
 /* BLOCK FACTORY CLASS        */
@@ -53,15 +56,7 @@ class MP_Block_Factory_c
     /********/
     /* DATA */
     /********/
-  public:
-    /** \brief Public struct to compare the value in hash map */
-    struct block_name_eqstr
-      {
-        bool operator()(const char* s1, const char* s2) const
-          { 	
-            return strcmp(s1, s2) == 0;
-          }
-      };
+
 
   private:
     /** \brief Boolean set to true when an instance is created */
@@ -69,15 +64,16 @@ class MP_Block_Factory_c
 
     /** \brief Protected pointer on MP_Atom_Factory_c*/
     static MP_Block_Factory_c * myBlockFactory;
+ 
 
-    /** \brief Hash map to store the block name and method to create it*/
-    hash_map<const char*, MP_Block_c*(*)(MP_Signal_c *s, map<string, string, mp_ltstring> *paramMap), hash<const char*>, block_name_eqstr> block;
+	    /** \brief Hash map to store the block name and method to create it*/
+STL_EXT_NM::hash_map<const char*, MP_Block_c*(*)(MP_Signal_c *s, map<string, string, mp_ltstring> *paramMap),mp_hash_fun, mp_eqstr> block;
     /** \brief Hash map to store the block parameter type map */
-    hash_map<const char*, void (*)(map< string, string, mp_ltstring> * parameterMapType), hash<const char*>, block_name_eqstr> blockType;
+STL_EXT_NM::hash_map<const char*, void (*)(map< string, string, mp_ltstring> * parameterMapType),mp_hash_fun, mp_eqstr> blockType;
     /** \brief Hash map to store the block parameter info map */
-    hash_map<const char*, void (*)(map< string, string, mp_ltstring> * parameterMapInfo), hash<const char*>, block_name_eqstr> blockInfo;
+STL_EXT_NM::hash_map<const char*, void (*)(map< string, string, mp_ltstring> * parameterMapInfo),mp_hash_fun, mp_eqstr> blockInfo;
     /** \brief Hash map to store the block parameter default map */
-	hash_map<const char*, void (*)(map< string, string, mp_ltstring> * parameterMapDefault), hash<const char*>, block_name_eqstr> blockDefault;
+STL_EXT_NM::hash_map<const char*, void (*)(map< string, string, mp_ltstring> * parameterMapDefault),mp_hash_fun, mp_eqstr> blockDefault;
 
 
     /***********/

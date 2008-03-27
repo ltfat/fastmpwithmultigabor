@@ -492,6 +492,11 @@ int MP_Dict_c::create_block(MP_Signal_c * setSignal , map<string, string, mp_lts
               return 0;
             }
             
+              if (NULL == blockCreator)
+            {
+              mp_error_msg( func, "The %s block creator is not type is not registred in the block factory.\n",(*setPropertyMap)["type"].c_str() );
+              return 0;
+            }
           /*Create a new block*/  
           newBlock =  blockCreator(setSignal, setPropertyMap);
 
@@ -541,7 +546,7 @@ int MP_Dict_c::parse_block(TiXmlNode * pParent, map<string, PropertiesMap, mp_lt
       return 0;
       
     }
-  if (pParent->ToElement()->Attribute("uses")!=0 and setPropertyMap != NULL )
+  if (pParent->ToElement()->Attribute("uses")!=0 && setPropertyMap != NULL )
     {
 
       if ( (*setPropertyMap)[pParent->ToElement()->Attribute("uses")].size()>0 )
@@ -668,7 +673,7 @@ int MP_Dict_c::parse_param_list(map<string, list<string>, mp_ltstring> setVarPar
           if (NULL == blockCreator)
             {
               mp_error_msg( func, "The %s block is not registred in the atom factory.\n",(*blockMapLocal)["type"].c_str() );
-
+              return 0;
             }
           /* Create the block */
           newBlock =  blockCreator(signal, blockMapLocal);
