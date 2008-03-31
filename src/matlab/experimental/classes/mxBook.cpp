@@ -894,7 +894,6 @@ mxArray * mxBook::Book_Reconstruct() {
 
   
   // Reconstruct book to signal
-  mpBook->info();
   //if (MP_FALSE == mpBook->recheck_num_channels()) {  mexPrintf( "mxBook::Book_Reconstruct() WARNING -- BOOK NUMCHANS NOT UP TO DATE\n" ); }
   
   //if (MP_FALSE == mpBook->recheck_num_samples()) {  mexPrintf( "mxBook::Book_Reconstruct() WARNING -- BOOK NUMSAMPLES NOT UP TO DATE\n" ); }

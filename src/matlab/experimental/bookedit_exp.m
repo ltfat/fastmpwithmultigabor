@@ -23,6 +23,7 @@ function varargout = bookedit_exp( book, channel, bwfactor )
 %
 %    See also BOOKREAD_EXP, BOOKWRITE_EXP and
 %    the patch handle graphics properties.
+%
 
 %% Authors:
 % Gilles Gonon
@@ -92,7 +93,7 @@ nS = book.numSamples;
 fs = book.sampleRate;
 
 %----------------------------
-% General UI variables
+% General GUI variables
 bHeight = 0.05;
 vSpace = 0.01;
 bgColor = [0.7 0.8 0.9];
@@ -148,7 +149,7 @@ menuItem(item) = uimenu(menuItem(2),'Label','Cut selected atoms','Callback',@cut
 item = item + 1;
 menuItem(item) = uimenu(menuItem(2),'Label','&Keep only selected atoms','Callback',@keepSelection,'Separator','off','Accelerator','K');
 item = item + 1;
-menuItem(item) = uimenu(menuItem(2),'Label','&Export selection to Anywave','Callback',@exportAnywave,'Separator','on','Accelerator','E');
+menuItem(item) = uimenu(menuItem(2),'Label','&Export selection to Anywave','Callback',@exportAnywave,'Separator','on','Accelerator','E','Enable','off');
 item = item + 1;
 menuItem(item) = uimenu(menuItem(2),'Label','&Refresh figure','Callback',@refreshFigure,'Separator','on','Accelerator','R');
 item = item + 1;
@@ -159,14 +160,14 @@ menuItem(item) = uimenu(menuItem(3),'Label','&Time Scale ...','Callback',@timeSt
 item = item + 1;
 menuItem(item) = uimenu(menuItem(3),'Label','Apply &Gain on selection ...','Callback',@applyGain,'Separator','off','Accelerator','G');
 item = item + 1;
-menuItem(item) = uimenu(menuItem(3),'Label','T&ime Reverse selection ...','Callback',@timeReverse,'Separator','off','Accelerator','I');
+menuItem(item) = uimenu(menuItem(3),'Label','T&ime Reverse selection ...','Callback',@timeReverse,'Separator','off','Accelerator','I','Enable','off');
 item = item + 1;
-menuItem(item) = uimenu(menuItem(3),'Label','&Freq reverse selection ...','Callback',@freqReverse,'Separator','off','Accelerator','F');
+menuItem(item) = uimenu(menuItem(3),'Label','&Freq reverse selection ...','Callback',@freqReverse,'Separator','off','Accelerator','F','Enable','off');
 item = item + 1;
-menuItem(item) = uimenu(menuItem(3),'Label','Te&mpo detection ...','Callback',@tempoDetect,'Separator','on','Accelerator','M');
+menuItem(item) = uimenu(menuItem(3),'Label','Te&mpo detection ...','Callback',@tempoDetect,'Separator','on','Accelerator','M','Enable','off');
 item = item + 1;
 % 'Help subitems'
-menuItem(item) = uimenu(menuItem(4),'Label','How to use this editor','Callback','doc bookedit','Separator','off');
+menuItem(item) = uimenu(menuItem(4),'Label','Help','Callback','doc bookedit_exp','Separator','off');
 item = item + 1;
 menuItem(item) = uimenu(menuItem(4),'Label','About BOOKEDIT','Callback',@aboutBookedit,'Separator','on');
 item = item + 1;
@@ -239,6 +240,8 @@ for ac = 1:book.numChans
         'Drawmode','fast', ...
         'Layer','top', ...
         'Visible','on');
+    colorMapH(ac) = colorbar('peer',axH(ac));
+    set(colorMapH(ac),'ButtonDownFcn','colormapeditor');
 end
 
 
@@ -275,8 +278,10 @@ data.indAtomsSelected = []; % Indexes of selected atoms in book
 data.curRectH = -1;         % Current rectangle handle
 data.rectSelH = [];         % Vector of Selection handles
 data.toolH = toolH;         % Vector of toolbar icons handles
-data.book = book;           % Vector of toolbar icons handles
-data.axH = axH;           % Vector of toolbar icons handles
+data.book = book;           % Book data
+data.axH = axH;             % Vector of channel axes handles
+data.colorMapH = colorMapH; % Vector of colormap handles
+
 if (~isfield(data,'loadBookDir'))
     data.loadBookDir = pwd;
 end
@@ -601,32 +606,43 @@ set(figH,'UserData',data)
         defaultanswer = {'3'};
         val = inputdlg(prompt,name,numlines,defaultanswer);
         gaindB=str2double(val);
-        if isnan(gaindB), 
-            errordlg('You must enter a numeric value','Bad Input','modal');
-        else
-            data = get(gcf,'UserData');
-            % Convert gain in dB to linear scale 
-            gain = 10.^(gaindB/20);
-            % Browse atoms type and apply gain on selected atoms
-            for t = 1:length(data.book.atom)
-               data.book.atom(t).params.amp(data.book.atom(t).selected==1,:) = data.book.atom(t).params.amp(data.book.atom(t).selected==1,:) * gain;
+        if (~isempty(gaindB))
+            if isnan(gaindB),
+                errordlg('You must enter a numeric value','Bad Input','modal');
+            else
+                data = get(gcf,'UserData');
+                % Convert gain in dB to linear scale
+                gain = 10.^(gaindB/20);
+                % Browse atoms type and apply gain on selected atoms
+                for t = 1:length(data.book.atom)
+                    data.book.atom(t).params.amp(data.book.atom(t).selected==1,:) = data.book.atom(t).params.amp(data.book.atom(t).selected==1,:) * gain;
+                end
+                set(gcf,'UserData',data);
+                refreshFigure();
             end
-            set(gcf,'UserData',data);
-            refreshFigure();
         end
-        
     end
 
 %% Pitch Shift transformation (NOTE: rewrite inputPitchShift() and applyPitchShift() as for TimeStretch )
 % This function only opens a GUI which ask the user for the transform parameters
     function pitchShift(varargin)
-        % Ask the user for pitch shift parameters
-        inputPitchShift(); 
-        % When validating user parameters 'ok' button 
-        % launches @applyPitchShift()
+        figBookedit = gcbf;
+        % Get input arguments
+        d = inputPitchShift();
+        uiwait(d);
+        if (ishandle(d)) % OK button pushed
+            args = get(d,'UserData');
+            close(d);
+
+            % Core function for applying time Stretch
+            data = get(figBookedit,'UserData');
+            data.book = applyPitchShift(data.book,args);
+            set(figBookedit,'UserData',data);
+            refreshFigure();
+        end
     end
 
-%% Pitch Shift transformation
+%% Time stretch transformation
 % This function only opens a GUI which ask the user for transform parameters
     function timeStretch(varargin)
         figBookedit = gcbf;
@@ -1055,24 +1071,18 @@ set(figH,'UserData',data)
 
 %% CREATE A LITTLE GUI TO ASK THE USER FOR PITCH SHIFT INPUT ARGUMENTS
 % Called by @pitchShift()
-    function inputPitchShift(varargin)
-        data = get(gcf,'UserData');
+    function dialogH = inputPitchShift(varargin)
+        % Get Arguments
+        dialogH = dialog('Name','Pitch Shift arguments','Units','Normalized','Position',[0.3 0.3 0.3 0.3]);
+
         % Init Pitch Shift algo arguments
-        data.args = [];
-        data.args.compensatePhase = 0; % Bool for phase optimization
-        data.args.useLowLimit = 0;     % Bool for lower limit on atom length for freq shifting
-        data.args.lowLimitVal = 0;     % value (int) lower limit on atom length for freq shifting
-        data.args.scaleVal = -12;        % value (int or float) for shifting atom length
-        data.args.scaleType = 'semitone'; % String 'hertz' or 'semitone' for shifting atoms
-        data.args.applyTo = 'all';     % String 'all' or 'selected' or 'visible', to what apply pitch shift
+        args.compensatePhase = 0; % Bool for phase optimization
+        args.useLowLimit = 0;     % Bool for lower limit on atom length for freq shifting
+        args.lowLimitVal = 0;     % value (int) lower limit on atom length for freq shifting
+        args.scaleVal = -12;        % value (int or float) for shifting atom length
+        args.scaleType = 'semitone'; % String 'hertz' or 'semitone' for shifting atoms
+        args.applyTo = 'all';     % String 'all' or 'selected' or 'visible', to what apply pitch shift
         
-        psArgH = figure('Name','Bookedit - Pitch Shift arguments', ...
-            'NumberTitle','off', ...
-            'Backingstore','off', ...
-            'Units','normalized', ...
-            'Position',[ 0.3 .3 .3 .3 ], ...
-            'MenuBar','none',...
-            'Visible','on');
         
         % RADIO button group for Semitone or Hertz
         h = uibuttongroup('visible','off','Position',[0.1 0.7 .85 .25]);
@@ -1085,7 +1095,7 @@ set(figH,'UserData',data)
             'pos',[0.05 0.525 0.5 0.35],'parent',h,'HandleVisibility','off');
 
         % Initialize some button group properties.
-        set(h,'SelectionChangeFcn','data = get(gcf,''UserData''); data.args.scaleType = get(gcbo,''Tag''); set(gcf,''UserData'',data);');
+        set(h,'SelectionChangeFcn','args = get(gbcf,''UserData''); args.scaleType = get(gcbo,''Tag''); set(gbcf,''UserData'',args);');
         set(h,'SelectedObject',u0);  % Default semitones
         set(h,'Visible','on')
 
@@ -1103,7 +1113,7 @@ set(figH,'UserData',data)
             'pos',[0.05 0.66 0.8 0.3],'parent',h1,'HandleVisibility','off');
         
         % Initialize some button group properties.
-        set(h1,'SelectionChangeFcn','data = get(gcf,''UserData''); data.args.applyTo = get(gcbo,''Tag''); set(gcf,''UserData'',data);');
+        set(h1,'SelectionChangeFcn','args = get(gcbf,''UserData''); args.applyTo = get(gcbo,''Tag''); set(gcbf,''UserData'',args);');
         set(h1,'SelectedObject',u1);  % 'all' selected
         set(h1,'Visible','on')
    
@@ -1112,7 +1122,7 @@ set(figH,'UserData',data)
             semiStr{k} = k-13;
         end
         % Popup for shifting semitones (int)
-        data.args.semiH = uicontrol( ...
+        args.semiH = uicontrol( ...
             'Style','popupmenu', ...
             'Units','normalized', ...
             'Position',[0.55 0.0525 0.4 0.25], ...
@@ -1120,19 +1130,19 @@ set(figH,'UserData',data)
             'parent',h,'HandleVisibility','off', ...
             'Tag','semitone',...
             'Value',1,...
-            'Callback', [ 'data = get(gcf,''UserData''); vals = get(data.args.semiH,''String''); val=str2double(vals{get(data.args.semiH,''Value'')}); ' ...
-            'data.args.scaleVal = val; set(gcf,''UserData'',data);']);
+            'Callback', [ 'args = get(gcbf,''UserData''); vals = get(args.semiH,''String''); val=str2double(vals{get(args.semiH,''Value'')}); ' ...
+            'args.scaleVal = val; set(gcbf,''UserData'',args);']);
 
         % Text edit for shifting by hertz (double)
-        data.args.hertzH = uicontrol('Style','edit', ...
+        args.hertzH = uicontrol('Style','edit', ...
             'Units','normalized', ...
             'Position',[0.55 0.475 0.4 0.4], ...
             'String','0', ...
             'Value',1, ...
             'parent',h,'HandleVisibility','off',...
-            'Callback', [ 'data = get(gcf,''UserData''); val=str2double(get(data.args.hertzH,''String'')); ' ...
-            'if isnan(val), errordlg(''You must enter a numeric value'',''Bad Input'',''modal'');return; end; ' ...
-            'data.args.scaleVal = val; set(gcf,''UserData'',data);']);
+            'Callback', [ 'args = get(gcbf,''UserData''); val=str2double(get(args.hertzH,''String'')); ' ...
+            'if (isnan(val) || isempty(val)), errordlg(''You must enter a numeric value'',''Bad Input'',''modal'');return; end; ' ...
+            'args.scaleVal = val; set(gcbf,''UserData'',args);']);
 
 
         % Checkbox for limiting atoms length (don't shift atoms below a given length)
@@ -1144,9 +1154,9 @@ set(figH,'UserData',data)
             'Value',0, ...
             'Enable','on',...
             'Visible','on',...
-            'Callback',[ 'data = get(gcf,''UserData'');  '...
-            'data.args.useLowLimit=get(gcbo,''Value''); ' ...
-            'set(gcf,''UserData'',data);' ]);
+            'Callback',[ 'args = get(gcbf,''UserData'');  '...
+            'args.useLowLimit=get(gcbo,''Value''); ' ...
+            'set(gcbf,''UserData'',args);' ]);
 
         % Checkbox for compensating phase of atoms length
         for k=1:15
@@ -1160,8 +1170,8 @@ set(figH,'UserData',data)
             'String',lowStr,...
             'Tag','semitone',...
             'Value',1,...
-            'Callback', [ 'data = get(gcf,''UserData''); vals = get(data.args.lowH,''String''); val=str2double(vals{get(data.args.lowH,''Value'')}); ' ...
-            'data.args.lowLimitVal = val; set(gcf,''UserData'',data);']);
+            'Callback', [ 'args = get(gcbf,''UserData''); vals = get(args.lowH,''String''); val=str2double(vals{get(args.lowH,''Value'')}); ' ...
+            'args.lowLimitVal = val; set(gcbf,''UserData'',args);']);
 
         u5 = uicontrol( ...
             'Style','checkbox', ...
@@ -1171,9 +1181,9 @@ set(figH,'UserData',data)
             'Value',0, ...
             'Enable','on',...
             'Visible','on',...
-            'Callback',[ 'data = get(gcf,''UserData''); '...
-            'data.args.compensatePhase=get(gcbo,''Value''); ' ...
-            'set(gcf,''UserData'',data);' ]);
+            'Callback',[ 'args = get(gcbf,''UserData''); '...
+            'args.compensatePhase=get(gcbo,''Value''); ' ...
+            'set(gcbf,''UserData'',args);' ]);
 
         % OK Button, becomes valid when a popup is chosen
         % Launch function
@@ -1183,7 +1193,7 @@ set(figH,'UserData',data)
             'String','OK', ...
             'Value',1, ...
             'Visible','on',...
-            'Callback',@applyPitchShift);
+            'Callback','uiresume(gcbf)');
 
         % Cancel action - just close argument gui
         uCancel = uicontrol('Style','pushbutton', ...
@@ -1193,17 +1203,16 @@ set(figH,'UserData',data)
             'Value',1, ...
             'Enable','on',...
             'Visible','on',...
-            'Callback','close(gcf);');
+            'Callback','close(gcbf);');
 
-        set(psArgH,'UserData',data);
+        set(dialogH,'UserData',args);
     end
 
 %% Apply pitch Shift algorithm to 
-    function applyPitchShift(varargin)
-        % Get arguments and close little gui
-        data = get(gcf,'UserData');
-        close(gcf);
-        % data.args structure has field : 
+    function newbook = applyPitchShift(oldbook,args)
+        % Copy book
+        newbook = oldbook;
+        % args structure has field : 
         %    - compensatePhase: Recompute phase problems (0 or 1)
         %    - useLowLimit: Don't scale atoms with small length (0 or 1)
         %    - lowLimitVal: Lower scale value for scaling atoms (int)
@@ -1211,26 +1220,25 @@ set(figH,'UserData',data)
         %    scaleType: 'hertz' or 'semitone'
         %    scaleVal: (int of float) shift value according to shift type
         
-        % data.args % debug display
         
         nTypes = length(data.book.atom);
         % Get the index of atoms to apply the pitch shift
-        switch (data.args.applyTo) 
-            case 'selected'
-               indApply = find(data.book.index(:,2)==1);  %% Todo
+        switch (args.applyTo) 
+            case 'selected'               
+               indApply = find(indexOfSelected(newbook)==1);
             case 'visible' 
-               indApply = find(data.book.index(:,2)==1);  %% Todo
+               indApply = find(indexOfVisible(newbook)==1);
             otherwise % case 'all'
-               indApply = (1:size(data.book.index,2));
+               indApply = (1:newbook.numAtoms);
         end
         
         % Restrict according to atoms length is useLowLimit==1
-        if (data.args.useLowLimit==1)
+        if (args.useLowLimit==1)
             indinf = [];
             for inda = 1:length(indApply)
-                aType = data.book.index(2,indApply(inda));
-                aNum  = data.book.index(3,indApply(inda));
-                if (data.book.atom(aType).params.len(aNum) <= data.args.lowLimitVal)
+                aType = newbook.index(2,indApply(inda));
+                aNum  = newbook.index(3,indApply(inda));
+                if (newbook.atom(aType).params.len(aNum) <= args.lowLimitVal)
                     indinf = [ indinf inda ];
                 end
             end
@@ -1238,14 +1246,14 @@ set(figH,'UserData',data)
         end
         
         % Calculate Pitch shift factor
-        switch(data.args.scaleType)
+        switch(args.scaleType)
             case 'semitone',
-                pitchScale = exp(data.args.scaleVal/12 * log(2));
+                pitchScale = exp(args.scaleVal/12 * log(2));
             case 'hertz',
-                pitchScale = data.args.scaleVal;
+                pitchScale = args.scaleVal;
             otherwise
                 pitchScale = 1;
-                disp(['Unknown scale type ' data.args.scaleType])
+                disp(['Unknown scale type ' args.scaleType])
         end
         
         disp(['Pitch shift factor : ' num2str(pitchScale) ])
@@ -1257,15 +1265,15 @@ set(figH,'UserData',data)
         for inda = 1:nApply
             waitbar(inda/nApply,wb); % update waitbar
             % Get shortcuts for atom index
-            aType = data.book.index(2,indApply(inda));
-            aNum  = data.book.index(3,indApply(inda));
+            aType = newbook.index(2,indApply(inda));
+            aNum  = newbook.index(3,indApply(inda));
             % Different shift rule according to atom type
-            switch(data.book.atom(aType).type)
+            switch(newbook.atom(aType).type)
                 case {'gabor','mclt','mdct','mdst','harmonic'},
-                    newfreq = data.book.atom(aType).params.freq(aNum) * pitchScale;
+                    newfreq = newbook.atom(aType).params.freq(aNum) * pitchScale;
                     % Compensate phase
-                    if (data.args.compensatePhase)
-                        if (isfield(data.book.atom(aType).params,'phase'))
+                    if (args.compensatePhase)
+                        if (isfield(newbook.atom(aType).params,'phase'))
                             % Compensate phase so that : newPhase = Phase + 2*pi/pitchScale
                             %data.book.atom(aType).params.phase = data.book.atom(aType).params.phase + 2*pi/pitchScale;
                             % Compensate phase so that : newPhase = Phase/pitchScale
@@ -1275,28 +1283,26 @@ set(figH,'UserData',data)
                             else
                                 phaseOffset = 2*pi/pitchScale;
                             end
-                            data.book.atom(aType).params.phase = data.book.atom(aType).params.phase + 2*pi/pitchScale;
+                            newbook.atom(aType).params.phase = newbook.atom(aType).params.phase + 2*pi/pitchScale;
                         end
                     end
                     % Check that shifted atom is not over Fs
-                    if (newfreq < data.book.sampleRate/2)
-                        data.book.atom(aType).params.freq(aNum) = newfreq;
+                    if (newfreq < newbook.sampleRate/2)
+                        newbook.atom(aType).params.freq(aNum) = newfreq;
                     else % Mark atom to be removed
                         removeAtomIndex = [removeAtomIndex indApply(inda)];
                     end
                 otherwise,
-                    disp(['No rule for pitch shifting atom type:' data.book.atom(aType).type])
+                    disp(['No rule for pitch shifting atom type:' newbook.atom(aType).type])
             end
         end
         % Remove aliased atoms 
         if (~isempty(removeAtomIndex))
             disp('Removing aliased atoms')
-            data.book = removeBookAtom(data.book,removeAtomIndex);
+            newbook = removeBookAtom(newbook,removeAtomIndex);
         end
         close(wb);
-        set(gcf,'UserData',data);
-        % Redraw book
-        refreshFigure();
+
     end
 
 
@@ -1338,8 +1344,7 @@ set(figH,'UserData',data)
         end
         newbook.numSamples = bookLength(newbook);
         close(wb);
-        refreshFigure();
-        
+
     end
 
 %% RETURNS A VECTOR OF UIHANDLES TO CHECKBOX FOR SHOWING/HIDING ATOM PER TYPE
@@ -1632,9 +1637,9 @@ set(figH,'UserData',data)
                 axes(axH(chan));
                 if (~isempty(pX{chan}))
                     if (strcmp(type,'dirac'))
-                        atomH(h,chan) = patch(pX{chan},pY{chan},100+pZ{chan},pC{chan},'FaceAlpha',1,'EdgeAlpha',1);
+                        atomH(h,chan) = patch(pX{chan},pY{chan},100+pZ{chan},pC{chan},'FaceAlpha',1,'EdgeColor','none');
                     else
-                        atomH(h,chan) = patch(pX{chan},pY{chan},100+pZ{chan},pC{chan},'FaceAlpha',1,'EdgeAlpha',1);
+                        atomH(h,chan) = patch(pX{chan},pY{chan},100+pZ{chan},pC{chan},'FaceAlpha',1,'EdgeColor','none');
                     end
                 else
                     atomH(h,chan) = -1;

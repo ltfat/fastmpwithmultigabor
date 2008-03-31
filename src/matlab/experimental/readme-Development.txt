@@ -99,6 +99,97 @@ group processing a selection of atoms.
 -----------------------
 2. BOOKEDIT MATLAB GUI
 -----------------------
-bookedit opens a GUI
+See and update doc/userman-bookedit.{odt,pdf} for user manual instructions.
 
+The development and maintenance of bookedit should be quite simple and straightforward.
+
+This GUI makes intensive use of function_handles ( denoted with @functionName ).
+All the differents callbacks of the GUI are function handles which refer to sub functions.
+As a consequence, the code is divided in a large number of subfunctions. A tip to navigate inside 
+the code is to select the function name, right-click and "open selection" to jump to the sub-function.
+
+The data (book info, selection info, figure handles and other variables) are organised in structure 
+and are stored inside the figure.
+The data structure is loaded at the beginning of many functions and saved back at their end using the commands:
+data = get(gcbf,'UserData'); % load data
+set(gcbf,'UserData',data);   % save data
+
+'bookPlot' and 'applyTimeStretch' are quite complete examples of sub function for book and figure manipulations.
+
+
+Here is a list of sub-function:
+-------------------------------
+- FILE MENU CALLBACKS
+loadBook(varargin)
+saveVisibleBook(varargin)
+saveSelectedBook(varargin)
+
+- EDIT MENU CALLBACKS
+selectAll(varargin)
+selectNone(varargin)
+cutSelection(varargin)
+keepSelection(varargin)
+exportAnywave(varargin)
+
+- HELP MENU CALLBACKS
+aboutBookedit(varargin)
+
+- TOOLBAR ICONS CALLBACKS
+playvisiblesound(varargin)
+playselectedsound(varargin)
+toggleOnSelectAtoms(varargin)
+clearMouseFcn(varargin)
+zoomHorizontal(varargin)
+zoomVertical(varargin)
+panPlot(varargin)
+zoomIn(varargin)
+zoomOutFull(varargin)
+
+- TOGGLE VIEW ATOM TYPE / LENGTH CALLBACKS
+toggleViewAllAtom(varargin)
+toggleViewAtomType(varargin)
+toggleViewAtomLength(varargin)
+
+- TRANSFORM MENU CALLBACKS
+applyGain(varargin)
+pitchShift(varargin)
+timeStretch(varargin)
+timeReverse(varargin)                       TODO
+freqReverse(varargin)                       TODO
+tempoDetect(varargin)                       TODO
+
+- OTHER SUB FUNCTIONS
+index = indexOfVisible(book)                TOFIX
+index = indexOfSelected(book)               TOFIX
+newsavedir = writeBook(book,defaultDir)
+playBook(book)
+[x,y] = figToAxe(curpoint)
+startSelectRect(varargin)
+stopSelectRect(varargin)
+dragSelectRect(varargin)
+toggleToolbar(varargin)
+idx = getTypeIndex(book,type,varargin)
+updateAtomSelection(rpos)
+sig = mpReconstruct(book)                   CHECK IF IT MAKES A SEGMENTATION FAULT (depends on libMPTK)
+newbook = addMatlabBookFields(b)
+dialogH = inputTimeStretch(varargin)
+dialogH = inputPitchShift(varargin)
+newbook = applyPitchShift(oldbook,args)
+newbook = applyTimeStretch(oldbook,args)
+typeH = addCheckBoxTypes(book,figHandle)
+refreshFigure(varargin)
+atomH = plotBook(book,varargin)
+newbook = removeBookAtom(oldbook,index)
+newLength = bookLength(book)
+
+TODO:
+------
+- Fix the colorbar bounds ( now [0-1], 'Yticks' should be set to [ampMindB,ampMaxdB] )
+- Check the behavior of the interface in the case of multichannel signal (selection and transforms are not done properly)
+
+- Externalize the different processing functions (pitch shift, time stretch, ...) so they become available as matlab command line tools
+for processing MPTK books. There is nothing more to do that cut and paste the functions to new m.files. It just needs a little
+folder re-organizations.
+
+- Implement the functions not enabled in the GUI.
 
