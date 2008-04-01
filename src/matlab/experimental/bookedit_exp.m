@@ -63,7 +63,6 @@ if nargin<1
     return;
 end
 
-
 %% Test input args
 if ischar(book),
     disp('Loading the book...');
@@ -89,6 +88,8 @@ if nargin < 3,
     bwfactor = 2;
 end;
 
+% ------------------------
+% General Variables
 nS = book.numSamples;
 fs = book.sampleRate;
 
@@ -148,6 +149,8 @@ item = item + 1;
 menuItem(item) = uimenu(menuItem(2),'Label','Cut selected atoms','Callback',@cutSelection,'Separator','on','Accelerator','X');
 item = item + 1;
 menuItem(item) = uimenu(menuItem(2),'Label','&Keep only selected atoms','Callback',@keepSelection,'Separator','off','Accelerator','K');
+item = item + 1;
+menuItem(item) = uimenu(menuItem(2),'Label','&Move selected atoms','Callback',@moveSelection,'Separator','off','Accelerator','B');
 item = item + 1;
 menuItem(item) = uimenu(menuItem(2),'Label','&Export selection to Anywave','Callback',@exportAnywave,'Separator','on','Accelerator','E','Enable','off');
 item = item + 1;
@@ -233,6 +236,10 @@ toolH(end+1) = uitoggletool(toolH(1),'CData',icons.open_hand,'TooltipString','Gr
 axH = zeros(1,book.numChans);
 vspace = 0.05; % vertical space between 2 axes
 axHeight = (1-(book.numChans+1)*vspace ) / book.numChans; % axes Height
+
+data.colorAmpdB = [-150 150]; % Min and Max atom amplitudes in dB
+colorTick = linspace(data.colorAmpdB(1),data.colorAmpdB(2),5);
+
 for ac = 1:book.numChans
     axH(ac) = axes( ...
         'Units','normalized', ...
@@ -243,7 +250,6 @@ for ac = 1:book.numChans
     colorMapH(ac) = colorbar('peer',axH(ac));
     set(colorMapH(ac),'ButtonDownFcn','colormapeditor');
 end
-
 
 %% -----------------------------------
 %  UI FRAME for BOOK INFO - QUERIES
@@ -281,6 +287,7 @@ data.toolH = toolH;         % Vector of toolbar icons handles
 data.book = book;           % Book data
 data.axH = axH;             % Vector of channel axes handles
 data.colorMapH = colorMapH; % Vector of colormap handles
+data.colorAmpdB = [-150 150]; % Min and Max atom amplitudes in dB
 
 if (~isfield(data,'loadBookDir'))
     data.loadBookDir = pwd;
@@ -455,6 +462,19 @@ set(figH,'UserData',data)
         % Clear selection
         selectNone();
     end
+
+    function moveSelection(varargin)
+        % Get figure data
+        data = get(gcf,'UserData');
+        % Disable toolbar function
+        toggleToolbar();
+        zoom off;
+        % Set drag function in rectangle handles
+        for k = 1:length(data.rectSelH)
+            set(data.rectSelH,'ButtonDownFcn',@startDragRect)
+        end
+    end
+
 
     function exportAnywave(varargin)
         disp('exportAnywave() - Not implemented')
@@ -804,7 +824,7 @@ set(figH,'UserData',data)
                     [x,y] = figToAxe(xy);
                     axlim = axis();
                     if (x~=data.begSelectAtoms(1) && y~=data.begSelectAtoms(2) && ...
-                            x>axlim(1) && x<axlim(2) && y>axlim(3) && y<axlim(4) )
+                            x>=(axlim(1)-0.1) && x<=(axlim(2)+0.1) && y>=(axlim(3)-10) && y<=(axlim(4)+10) )
                         newrpos = [ min(data.begSelectAtoms(1),x) min(data.begSelectAtoms(2),y) ...
                             abs(data.begSelectAtoms(1)-x) abs(data.begSelectAtoms(2)-y) ];
                         set(data.curRectH,'Position',newrpos);
@@ -815,6 +835,67 @@ set(figH,'UserData',data)
         end
     end
 
+%% MOVE SELECTION RECTANGLE AND THE ATOMS INSIDE
+    function startDragRect(varargin)
+        % Save current clicked object handle (rectangle if this function
+        % is called)
+        rH = gcbo; 
+        data = get(gcbf,'UserData');
+        data.curRectH = rH;
+        xy = get(gcbf,'CurrentPoint');
+        [x,y] = figToAxe(xy);
+        rpos = get(rH,'Position');
+        data.begSelectAtoms =  [x-rpos(1) y-rpos(2)]; % offset mouse-rectangle
+        % Find atom in selected rectangle and plot them
+        set(gcbf,'UserData',data);
+        [data.indAtomsSelected,atomBounds] = findAtomInRect(rpos);  % THIS FUNCTION DOES NOT WORK !!!
+        if ~isempty(atomBounds)
+            pX = [ atomBounds(:,1)  atomBounds(:,1) atomBounds(:,2) atomBounds(:,2) ];
+            pY = [ atomBounds(:,3)  atomBounds(:,4) atomBounds(:,4) atomBounds(:,3) ];
+            pZ = 10000*ones(size(pX));
+            pC = ones(size(pX));
+            size(pX)
+            size(pZ)
+            size(pC)
+            data.curAtomsH = patch(pX*fs,pY*fs,pZ,'k');
+            set(gcbf,'UserData',data);
+            set(gcf,'WindowButtonUpFcn',@stopDragRect);
+            set(gcf,'WindowButtonMotionFcn',@moveDragRect);
+        else
+            warndlg('Selection contains no atoms', 'Warning - empty selection', 'modal');
+        end
+    end
+
+    function moveDragRect(varargin)
+        data = get(gcbf,'UserData');
+
+        xy = get(gcbf,'CurrentPoint');
+        [x,y] = figToAxe(xy);
+        axlim = axis();
+        rpos = get(data.curRectH,'Position');
+        
+        % Update X & Y position of rectangle
+        rpos(1) = (x-data.begSelectAtoms(1));
+        rpos(2) = (y-data.begSelectAtoms(2));
+        
+        pX = get(data.curAtomsH,'XData');
+        pY = get(data.curAtomsH,'YData');
+        
+        set(data.curAtomsH,'XData',pX+(x-data.begSelectAtoms(1)));
+        set(data.curAtomsH,'YData',pY+(y-data.begSelectAtoms(2)));
+        
+        set(data.curRectH,'Position',rpos); 
+        
+    end
+
+    function stopDragRect(varargin)
+        set(gcf,'WindowButtonUpFcn',[]);
+        set(gcf,'WindowButtonMotionFcn',[]);
+        % Move atoms - Get new atoms position
+        
+        % Replot book
+        refreshFigure();
+    end
 
 %% Toggle toolbar icons to 'off' state when a icon is pressed
     function toggleToolbar(varargin)
@@ -867,7 +948,6 @@ set(figH,'UserData',data)
         nAS = 0; % Counter for the number of atoms selected
         for k = 1:nT,
 
-            data.book.atom(k).params;
             % Process any visible atom
             ind = find( data.book.atom(k).visible(:,chan) == 1 );
             for nv = 1:length(ind),
@@ -915,6 +995,64 @@ set(figH,'UserData',data)
         disp([ '[' num2str(nAS) '] - atoms in new selection'])
         set(gcf,'UserData',data)
     end
+
+%% Find index of atoms inside a rectangle (selection)
+% Return atom index in book and atom position
+function [index,atomBounds] = findAtomInRect(rpos)
+        data = get(gcbf,'UserData');
+        % Init atom Handles vector
+        nC = data.book.numChans;
+        nA = data.book.numAtoms;
+        fs = data.book.sampleRate;
+        nT = length(data.book.atom);
+        % Channel from current axis;
+        chan = 1; %find(data.axH == gca);
+        
+        index = zeros(1,nA);
+        atomBounds = [];
+        % First selection of atoms from index
+        ind = find( ( data.book.index(5,:) >= rpos(1)*fs ) & (data.book.index(5,:)<=(rpos(1)+rpos(3))*fs ) );
+        
+        aType = data.book.index(2,ind);
+        aNum  = data.book.index(3,ind);
+        [uType,i,j] = unique(aType); % Get types without doublons
+        
+        nAS = 0; % count atoms in selection
+        for k = 1:length(ind),
+            idx = ind(k);
+            t = data.book.index(2,idx); % Atom type
+            a = data.book.index(3,idx); % Atom number
+            % Process any visible atom
+            if ( data.book.atom(t).visible(a,chan) == 1 )
+                % Get atom bounds
+                % Temporal position
+                t0  = data.book.atom(t).params.pos(a,chan)/fs;   % Position in seconds
+                dt0 = data.book.atom(t).params.len(a,chan)/fs;   % Length in seconds
+
+                switch (data.book.atom(t).type)
+                    case 'dirac'
+                        f0 = 0;
+                        df0 = 0.5*fs;
+                    case 'constant'
+                        f0 = 0;
+                        df0 = 0.5 / dt0;
+                    case {'harmonic','gabor','mdct','mdst','mclt'}
+                        f0  = fs*data.book.atom(t).params.freq(a);
+                        df0 = 0.5 / dt0;
+                    otherwise
+                        f0 = 0.25 *fs;
+                        df0 = 0.25*fs;
+                end
+                if ( ( f0 - df0*0.5 >=rpos(2)) && (f0+df0*0.5<=rpos(2)+rpos(4)) )
+                    index(idx) = 1;
+                    atomBounds = horzcat( atomBounds,[ t0; t0+dt0 ; f0-df0*0.5; df0+df0*0.5 ] ) ;
+                    nAS = nAS + 1;
+                end
+            end
+        end % for loop
+        disp(['[' num2str(nAS) '] - atoms in selection rectangle'])
+    end
+
 
 %% Reconstruct Signal from book using external system command mpr (needs
 % MPTK_CONFIG_FILENAME) to be set
