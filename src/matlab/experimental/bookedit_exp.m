@@ -835,7 +835,7 @@ set(figH,'UserData',data)
         end
     end
 
-%% MOVE SELECTION RECTANGLE AND THE ATOMS INSIDE
+%% START DRAG SELECTION RECTANGLE AND THE ATOMS INSIDE
     function startDragRect(varargin)
         % Save current clicked object handle (rectangle if this function
         % is called)
@@ -845,19 +845,23 @@ set(figH,'UserData',data)
         xy = get(gcbf,'CurrentPoint');
         [x,y] = figToAxe(xy);
         rpos = get(rH,'Position');
-        data.begSelectAtoms =  [x-rpos(1) y-rpos(2)]; % offset mouse-rectangle
+        
+        data.mouseInitPos = [ x y ]; % Store mouse initial position to get dX and dY of moves
+        data.rectInitPos = [rpos(1) rpos(2)]; % Initial rectangle position
+        data.textH = text(rpos(1),data.book.sampleRate*.49,1000,'dT = 0, dF = 0','Fontsize',14,'BackgroundColor',[ 1 0.7 0.9 ],'EdgeColor',[ 0 0 0 ]);
+        
         % Find atom in selected rectangle and plot them
         set(gcbf,'UserData',data);
         [data.indAtomsSelected,atomBounds] = findAtomInRect(rpos);  % THIS FUNCTION DOES NOT WORK !!!
         if ~isempty(atomBounds)
-            pX = [ atomBounds(:,1)  atomBounds(:,1) atomBounds(:,2) atomBounds(:,2) ];
-            pY = [ atomBounds(:,3)  atomBounds(:,4) atomBounds(:,4) atomBounds(:,3) ];
-            pZ = 10000*ones(size(pX));
+            pX = [ atomBounds(1,:)' atomBounds(1,:)' atomBounds(2,:)' atomBounds(2,:)' ]';
+            pY = [ atomBounds(3,:)' atomBounds(4,:)' atomBounds(4,:)' atomBounds(3,:)' ]';
+            pZ = 1000*ones(size(pX));
             pC = ones(size(pX));
-            size(pX)
-            size(pZ)
-            size(pC)
-            data.curAtomsH = patch(pX*fs,pY*fs,pZ,'k');
+            data.curAtomsH = patch(pX,pY,pZ,'k');
+            data.initPX = pX;
+            data.initPY = pY;
+            
             set(gcbf,'UserData',data);
             set(gcf,'WindowButtonUpFcn',@stopDragRect);
             set(gcf,'WindowButtonMotionFcn',@moveDragRect);
@@ -866,6 +870,7 @@ set(figH,'UserData',data)
         end
     end
 
+%% MOVE SELECTION RECTANGLE AND THE ATOMS INSIDE
     function moveDragRect(varargin)
         data = get(gcbf,'UserData');
 
@@ -875,24 +880,54 @@ set(figH,'UserData',data)
         rpos = get(data.curRectH,'Position');
         
         % Update X & Y position of rectangle
-        rpos(1) = (x-data.begSelectAtoms(1));
-        rpos(2) = (y-data.begSelectAtoms(2));
+        dMove = [x y] - data.mouseInitPos;
+        
+        rpos(1) = data.rectInitPos(1) + dMove(1);
+        rpos(2) = data.rectInitPos(2) + dMove(2);
         
         pX = get(data.curAtomsH,'XData');
         pY = get(data.curAtomsH,'YData');
         
-        set(data.curAtomsH,'XData',pX+(x-data.begSelectAtoms(1)));
-        set(data.curAtomsH,'YData',pY+(y-data.begSelectAtoms(2)));
-        
+        set(data.curAtomsH,'XData',data.initPX+dMove(1));
+        set(data.curAtomsH,'YData',data.initPY+dMove(2));
+        set(data.textH,'String',['dT = ' num2str(dMove(1)) ', dF = ' num2str(dMove(2)) ])
         set(data.curRectH,'Position',rpos); 
         
     end
 
+%% END OF DRAG RECTANGLE SELECTION 
     function stopDragRect(varargin)
-        set(gcf,'WindowButtonUpFcn',[]);
-        set(gcf,'WindowButtonMotionFcn',[]);
-        % Move atoms - Get new atoms position
-        
+        set(gcbf,'WindowButtonUpFcn',[]);
+        set(gcbf,'WindowButtonMotionFcn',[]);
+        data = get(gcbf,'UserData');
+        % Get Delta X and delta Y at mouse release
+        xy = get(gcbf,'CurrentPoint');
+        [x,y] = figToAxe(xy);
+        dMove = [x y] - data.mouseInitPos;
+        % Normalize dMove units
+        fs = data.book.sampleRate;
+        dMove = [ round(dMove(1)*fs) dMove(2)/fs ];
+        % Translate atoms frequency and position
+        ind = find(data.indAtomsSelected==1);
+        for i = 1:length(ind)
+            idx = ind(i);
+            aType = data.book.index(2,idx);
+            aNum = data.book.index(3,idx);
+            % Shift time 'pos'
+            data.book.atom(aType).params.pos(aNum,:) = data.book.atom(aType).params.pos(aNum,:) + dMove(1);
+            data.book.index(5:end,idx) = data.book.atom(aType).params.pos(aNum,:)';
+            % Shift Frequency for atoms who have a frequency
+            if (isfield(data.book.atom(aType).params,'freq'))
+                data.book.atom(aType).params.freq(aNum,:) = data.book.atom(aType).params.freq(aNum,:) + dMove(2);
+            end
+        end
+                
+        % Delete black atoms
+        delete(data.curAtomsH);
+        delete(data.textH);
+        data.curAtomsH = [];
+        data.textH = [];
+        set(gcbf,'UserData',data);
         % Replot book
         refreshFigure();
     end
@@ -1045,7 +1080,7 @@ function [index,atomBounds] = findAtomInRect(rpos)
                 end
                 if ( ( f0 - df0*0.5 >=rpos(2)) && (f0+df0*0.5<=rpos(2)+rpos(4)) )
                     index(idx) = 1;
-                    atomBounds = horzcat( atomBounds,[ t0; t0+dt0 ; f0-df0*0.5; df0+df0*0.5 ] ) ;
+                    atomBounds = horzcat( atomBounds,[ t0; t0+dt0 ; f0-df0*0.5; f0+df0*0.5 ] ) ;
                     nAS = nAS + 1;
                 end
             end

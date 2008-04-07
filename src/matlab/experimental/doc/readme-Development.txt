@@ -73,7 +73,7 @@ matlab.
 The original idea for the organization of the book is that atoms with the same sets of parameters (atoms
 of the same type: gabor, dirac, mdct, constant, ....) are gathered in atom sub structures for fast group processing.
 In order to further ease common atom manipulations, this idea has evolved into also grouping atoms of the same lengths.
-Now, in the book structure, there are as many "atom" as atoms type*length.
+Now, in the book structure, there are as many "atom" as [atoms type*length].
 
 This leads to "book.atom" structures rather close to the different "blocks" in the MP_dictionnary definition.
 
@@ -106,7 +106,7 @@ The development and maintenance of bookedit should be quite simple and straightf
 This GUI makes intensive use of function_handles ( denoted with @functionName ).
 All the differents callbacks of the GUI are function handles which refer to sub functions.
 As a consequence, the code is divided in a large number of subfunctions. A tip to navigate inside 
-the code is to select the function name, right-click and "open selection" to jump to the sub-function.
+the code is to select the function name, right-click and "open selection" or F4 to jump to the sub-function.
 
 The data (book info, selection info, figure handles and other variables) are organised in structure 
 and are stored inside the figure.
@@ -117,7 +117,7 @@ set(gcbf,'UserData',data);   % save data
 'bookPlot' and 'applyTimeStretch' are quite complete examples of sub function for book and figure manipulations.
 
 
-Here is a list of sub-function:
+Here is a list of sub-function (grep 'function' bookedit_exp.m ):
 -------------------------------
 - FILE MENU CALLBACKS
 loadBook(varargin)
@@ -128,6 +128,7 @@ saveSelectedBook(varargin)
 selectAll(varargin)
 selectNone(varargin)
 cutSelection(varargin)
+moveSelection(varargin) -> ALSO LINK TO TOOLBAR ICONS FUNCTIONS
 keepSelection(varargin)
 exportAnywave(varargin)
 
@@ -167,7 +168,11 @@ playBook(book)
 startSelectRect(varargin)
 stopSelectRect(varargin)
 dragSelectRect(varargin)
+startDragRect(varargin)
+moveDragRect(varargin)
+stopDragRect(varargin)
 toggleToolbar(varargin)
+[index,atomBounds] = findAtomInRect(rpos)
 idx = getTypeIndex(book,type,varargin)
 updateAtomSelection(rpos)
 sig = mpReconstruct(book)                   CHECK IF IT MAKES A SEGMENTATION FAULT (depends on libMPTK)
@@ -193,3 +198,7 @@ folder re-organizations.
 
 - Implement the functions not enabled in the GUI.
 
+Known Bugs:
+-----------
+- It seems impossible to select Dirac atoms - check the boundaries of rectangle selections
+- Sometimes the keyboard shortcuts becomes unavailable (I don't know why)
