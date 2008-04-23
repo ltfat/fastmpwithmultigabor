@@ -135,9 +135,9 @@ QString Dialog::setOpenFileName(QString panelName, QString fileType)
     options |= QFileDialog::DontUseNativeDialog;
   QString selectedFilter;
   QString fileName = QFileDialog::getOpenFileName(this,
-                     tr(panelName.toStdString().c_str()),
+                     tr(panelName.toAscii().constData()),
                      openFileNameLabel->text(),
-                     tr(fileType.toStdString().c_str()),
+                     tr(fileType.toAscii().constData()),
                      &selectedFilter,
                      options);
   return fileName;
@@ -151,9 +151,9 @@ QStringList Dialog::setOpenFileNames(QString panelName, QString fileType)
     options |= QFileDialog::DontUseNativeDialog;
   QString selectedFilter;
   QStringList files = QFileDialog::getOpenFileNames(
-                        this, tr(panelName.toStdString().c_str()),
+                        this, tr(panelName.toAscii().constData()),
                         openFilesPath,
-                        tr(fileType.toStdString().c_str()),
+                        tr(fileType.toAscii().constData()),
                         &selectedFilter,
                         options);
   return files;
@@ -166,9 +166,9 @@ QString Dialog::setSaveFileName(QString panelName, QString fileType)
     options |= QFileDialog::DontUseNativeDialog;
   QString selectedFilter;
   QString fileName = QFileDialog::getSaveFileName(this,
-                     tr(panelName.toStdString().c_str()),
+                     tr(panelName.toAscii().constData()),
                      saveFileNameLabel->text(),
-                     tr(fileType.toStdString().c_str()),
+                     tr(fileType.toAscii().constData()),
                      &selectedFilter,
                      options);
   return fileName;
@@ -228,7 +228,7 @@ void Dialog::warningMessage(QString message)
 void Dialog::errorMessage(QString message)
 {
   errorMessageDialog->showMessage(
-    tr(message.toStdString().c_str()));
+    tr(message.toAscii().constData()));
   errorLabel->setText(tr("If the box is unchecked, the message "
                          "won't appear again."));
 }

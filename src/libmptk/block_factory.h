@@ -34,9 +34,8 @@
 
 #ifndef BLOCK_FACTORY_H_
 #define BLOCK_FACTORY_H_
-#include "mptk.h"
 
-#include "mp_hash_container_header.h"
+#include "mptk.h"
 #     include <map>
 #     include <vector>
 
@@ -67,13 +66,13 @@ class MP_Block_Factory_c
  
 
 	    /** \brief Hash map to store the block name and method to create it*/
-STL_EXT_NM::hash_map<const char*, MP_Block_c*(*)(MP_Signal_c *s, map<string, string, mp_ltstring> *paramMap),mp_hash_fun, mp_eqstr> block;
+	STL_EXT_NM::hash_map<const char*, MP_Block_c*(*)(MP_Signal_c *s, map<string, string, mp_ltstring> *paramMap),CSTRING_HASHER> block;
     /** \brief Hash map to store the block parameter type map */
-STL_EXT_NM::hash_map<const char*, void (*)(map< string, string, mp_ltstring> * parameterMapType),mp_hash_fun, mp_eqstr> blockType;
+	STL_EXT_NM::hash_map<const char*, void (*)(map< string, string, mp_ltstring> * parameterMapType),CSTRING_HASHER> blockType;
     /** \brief Hash map to store the block parameter info map */
-STL_EXT_NM::hash_map<const char*, void (*)(map< string, string, mp_ltstring> * parameterMapInfo),mp_hash_fun, mp_eqstr> blockInfo;
+	STL_EXT_NM::hash_map<const char*, void (*)(map< string, string, mp_ltstring> * parameterMapInfo),CSTRING_HASHER> blockInfo;
     /** \brief Hash map to store the block parameter default map */
-STL_EXT_NM::hash_map<const char*, void (*)(map< string, string, mp_ltstring> * parameterMapDefault),mp_hash_fun, mp_eqstr> blockDefault;
+	STL_EXT_NM::hash_map<const char*, void (*)(map< string, string, mp_ltstring> * parameterMapDefault),CSTRING_HASHER> blockDefault;
 
 
     /***********/
@@ -87,10 +86,10 @@ STL_EXT_NM::hash_map<const char*, void (*)(map< string, string, mp_ltstring> * p
   public:
 
     /** \brief Public destructor  */
-    virtual ~MP_Block_Factory_c();
+    MPTK_LIB_EXPORT virtual ~MP_Block_Factory_c();
 
     /** \brief Method to get the MP_Atom_Factory_c */
-    static MP_Block_Factory_c * get_block_factory();
+    MPTK_LIB_EXPORT static MP_Block_Factory_c * get_block_factory();
 
   private:
     /** \brief Private constructor*/
@@ -109,7 +108,7 @@ STL_EXT_NM::hash_map<const char*, void (*)(map< string, string, mp_ltstring> * p
     *   \param fillBlockMapDefaultFunctionPointer :a pointer on the function used to fill a map with the default values of the block's parameters
     * 
     */ 
-    void register_new_block(const char* blockName, MP_Block_c*(*createBlockFunctionPointer)(MP_Signal_c *s, map<string, string, mp_ltstring> *paramMap),
+    MPTK_LIB_EXPORT void register_new_block(const char* blockName, MP_Block_c*(*createBlockFunctionPointer)(MP_Signal_c *s, map<string, string, mp_ltstring> *paramMap),
                             void (*fillBlockMapTypeFunctionPointer)(map< string, string, mp_ltstring> * parameterMapType),
                             void (*fillBlockMapInfoFunctionPointer)(map< string, string, mp_ltstring> * parameterMapInfo),
                             void (*fillBlockMapDefaultFunctionPointer)(map< string, string, mp_ltstring> * parameterMapDefault) );
@@ -119,30 +118,30 @@ STL_EXT_NM::hash_map<const char*, void (*)(map< string, string, mp_ltstring> * p
     *   \return a pointer on a Factory Method able to create the block identified by blockName with a MP_Signal_c *s, map<string, string, mp_ltstring> *paramMap
     *   , NULL if the block isn't registered
     */
-    MP_Block_c*(*get_block_creator( const char* blockName ))(MP_Signal_c *s, map<string, string, mp_ltstring> *paramMap);
+    MPTK_LIB_EXPORT MP_Block_c*(*get_block_creator( const char* blockName ))(MP_Signal_c *s, map<string, string, mp_ltstring> *paramMap);
 
     /** \brief Method to fill a parameter type map for blockName 
     *   \param blockName : name of the block for which the map has to be fill
     *   \return a pointer on a method able to fill the given map< string, string, mp_ltstring> * parameterMapType
     */
-    void(*get_block_type_map( const char* blockName )) (map< string, string, mp_ltstring> * parameterMapType);
+    MPTK_LIB_EXPORT void(*get_block_type_map( const char* blockName )) (map< string, string, mp_ltstring> * parameterMapType);
     
     /** \brief Method to fill a parameter info map for blockName
     *   \param blockName : name of the block for which the map has to be fill
     *   \return a pointer on a method able to fill the given map< string, string, mp_ltstring> * parameterMapInfo
     */
-    void (*get_block_info_map( const char* blockName )) (map< string, string, mp_ltstring> * parameterMapInfo);
+    MPTK_LIB_EXPORT void (*get_block_info_map( const char* blockName )) (map< string, string, mp_ltstring> * parameterMapInfo);
     
     /** \brief Method to fill a parameter default map for blockName
     *   \param blockName : name of the block for which the map has to be fill
     *  \return a pointer on a method able to fill the given map< string, string, mp_ltstring> * parameterMapDefault
     */
-    void (*get_block_default_map( const char* blockName )) (map< string, string, mp_ltstring> * parameterMapDefault);
+    MPTK_LIB_EXPORT void (*get_block_default_map( const char* blockName )) (map< string, string, mp_ltstring> * parameterMapDefault);
    
     /** \brief Method to fill a vector with the name of all the blocks registred in the block factory
     *   \param nameVector : pointer on the vector which has to be fill with the name of blocks 
     */
-    void get_registered_block_name(vector< string >* nameVector);
+    MPTK_LIB_EXPORT void get_registered_block_name(vector< string >* nameVector);
 
   };
 

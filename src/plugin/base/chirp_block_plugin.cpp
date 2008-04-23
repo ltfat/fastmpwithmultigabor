@@ -584,7 +584,7 @@ unsigned int MP_Chirp_Block_Plugin_c::create_atom( MP_Atom_c **atom,
   /* I.1) FIT A NEW CHIRP RATE */
 
   /* Find the index closest to the frequency of the current atom */
-  freqIdx = (unsigned long int) round( (double)(gatom->freq) * (double)(fftSize) );
+  freqIdx = (unsigned long int) floor( (double)(gatom->freq) * (double)(fftSize) + 0.5 );
 
   mp_debug_msg( MP_DEBUG_CREATE_ATOM, func,
                 "freqIdx was = %lu , freq = %f (cplxSize = %g).\n",
@@ -970,7 +970,7 @@ unsigned int MP_Chirp_Block_Plugin_c::create_atom( MP_Atom_c **atom,
           assert( im == 0 );
           amp = sqrt( energy );
           if   ( re >= 0 ) atomphase = 0.0;  /* corresponds to the '+' sign */
-          else             atomphase = M_PI; /* corresponds to the '-' sign exp(i\pi) */
+          else             atomphase = MP_PI; /* corresponds to the '-' sign exp(i\pi) */
         }
 
       /* 5) fill in the atom parameters */

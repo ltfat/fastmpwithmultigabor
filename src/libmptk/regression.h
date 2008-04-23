@@ -47,7 +47,7 @@
 
 
 /** \brief A function implementing parabolic regression. */
-int parabolic_regression( MP_Real_t *Al, MP_Real_t *Phil,
+MPTK_LIB_EXPORT int parabolic_regression( MP_Real_t *Al, MP_Real_t *Phil,
 			  const int L,
 			  MP_Real_t *a, MP_Real_t *b, MP_Real_t *d, MP_Real_t *e );
 

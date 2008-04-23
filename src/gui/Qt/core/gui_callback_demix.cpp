@@ -63,7 +63,7 @@ MP_Gui_Callback_Demix_c * MP_Gui_Callback_Demix_c::get_gui_call_back()
 }
 bool MP_Gui_Callback_Demix_c::openMixer(QString fileName)
 {
-  FILE * mixerFile = fopen (fileName.toStdString().c_str(),"rt");
+  FILE * mixerFile = fopen (fileName.toAscii().constData(),"rt");
   string test = fileName.toStdString();
   int p = test.find_last_of('.',test.size());
   string nom = test.substr(0, p);
@@ -94,7 +94,7 @@ bool MP_Gui_Callback_Demix_c::openMixer(QString fileName)
 void MP_Gui_Callback_Demix_c::addDictToArray(QString fileName, int index)
 {
   MP_Dict_c* dict = MP_Dict_c::init();
-  if (NULL!= dict) {dict->add_blocks( fileName.toStdString().c_str() );
+  if (NULL!= dict) {dict->add_blocks( fileName.toAscii().constData() );
    dictArray->at(index) = dict;}
 }
 
@@ -126,7 +126,7 @@ bool MP_Gui_Callback_Demix_c::coreInit()
 }
 
  unsigned long int MP_Gui_Callback_Demix_c::saveSourceSequence(QString fileName){
- return mpd_Demix_Core->save_source_sequence(fileName.toStdString().c_str());
+ return mpd_Demix_Core->save_source_sequence(fileName.toAscii().constData());
  }
  
 int MP_Gui_Callback_Demix_c::openSignal(QString fileName)
@@ -165,7 +165,7 @@ void MP_Gui_Callback_Demix_c::saveBook(QString fileName)
   char line[1024];
   for (unsigned int j = 0; j < mixer->numSources; j++ )
     {
-      sprintf( line, "%s_%02u.bin", fileName.toStdString().c_str(), j );
+      sprintf( line, "%s_%02u.bin", fileName.toAscii().constData(), j );
       bookArray->at(j)->print( line, MP_BINARY);
     }
 }
@@ -176,7 +176,7 @@ void MP_Gui_Callback_Demix_c::saveApprox(QString fileName)
   if ((approxArray && approxArray->size()==mixer->numSources))
     for (unsigned int j = 0; j < mixer->numSources; j++ )
       {
-        sprintf( line, "%s_%02u.wav", fileName.toStdString().c_str(), j );
+        sprintf( line, "%s_%02u.wav", fileName.toAscii().constData(), j );
         approxArray->at(j)->wavwrite( line );
 
       }
@@ -184,7 +184,7 @@ void MP_Gui_Callback_Demix_c::saveApprox(QString fileName)
 
 void MP_Gui_Callback_Demix_c::setSave(const unsigned long int setSaveHit,QString bookFileName, QString resFileName,QString decayFileName, QString sequenceFileName)
 {
-  mpd_Demix_Core->set_save_hit(setSaveHit,bookFileName.toStdString().c_str(),resFileName.toStdString().c_str(),decayFileName.toStdString().c_str(),sequenceFileName.toStdString().c_str());
+  mpd_Demix_Core->set_save_hit(setSaveHit,bookFileName.toAscii().constData(),resFileName.toAscii().constData(),decayFileName.toAscii().constData(),sequenceFileName.toAscii().constData());
 }
 
 void MP_Gui_Callback_Demix_c::emitInfoMessage(char* message)

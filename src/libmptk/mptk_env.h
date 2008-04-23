@@ -47,7 +47,6 @@
 #include <iostream>
 #include <list>
 #include "tinyxml.h"
-#include "mp_hash_container_header.h"
 
 
 
@@ -95,7 +94,7 @@ public:
     static bool environnement_loaded;
 
    /** \brief Hash map to store the atom name and the file creation atom method pointer */
-STL_EXT_NM::hash_map<const char*,const char*,mp_hash_fun, mp_eqstr> configPath;
+STL_EXT_NM::hash_map<const char*,const char*,CSTRING_HASHER> configPath;
 
 
  
@@ -133,43 +132,43 @@ STL_EXT_NM::hash_map<const char*,const char*,mp_hash_fun, mp_eqstr> configPath;
      *  myEnv's static data member
      *  (the ptr, not a myEnv inst)
      */
-    static MPTK_Env_c * get_env();
+    MPTK_LIB_EXPORT static MPTK_Env_c * get_env();
 
     /** \brief Get boolean defining if Wisdom file was correctly loaded
      */
-    bool get_fftw_wisdom_loaded();
+    MPTK_LIB_EXPORT bool get_fftw_wisdom_loaded();
 
     /** \brief Set boolean defining if Wisdom file was correctly loaded
      */
-    bool set_fftw_wisdom_loaded();
+    MPTK_LIB_EXPORT bool set_fftw_wisdom_loaded();
 
     /** \brief Method to change MPTK environnement if necessary
      *  \param filename the name of environment file to change
      */
-    bool set_env(string filename);
+   MPTK_LIB_EXPORT bool set_env(string filename);
 
     /** \brief Method to load MPTK environnement
      * \param name the name of xml file containing the environment informations
     */
-    bool load_environment(const char * name);
+    MPTK_LIB_EXPORT bool load_environment(const char * name);
 
     /** \brief Method to get the name of the configuration file via environnement variable 
     */
-    char * get_configuration_file();
+    MPTK_LIB_EXPORT char * get_configuration_file();
     
     /** \brief Method to get a boolean that say if environment is loaded
      */ 
-    bool get_environment_loaded();
+    MPTK_LIB_EXPORT bool get_environment_loaded();
 
     /** \brief Method to get the name of a configuration path 
     *  \param name of the path
     *  \return true if successful
     */
-    const char * get_config_path(const char * name);
+    MPTK_LIB_EXPORT const char * get_config_path(const char * name);
 
     /** \brief Method to release environnement, desallocate all variables.
     */
-    static void release_environment();
+    MPTK_LIB_EXPORT static void release_environment();
     
   };
 
@@ -239,19 +238,19 @@ class MPTK_Server_c
     *  myMsgServer's static data member
     *  (the ptr, not a myMsgServer inst)
     */
-    static MP_Msg_Server_c* get_msg_server();
+    MPTK_LIB_EXPORT static MP_Msg_Server_c* get_msg_server();
     
     /** \brief Allocating and initializing
     *  myWinServer's static data member
     *  (the ptr, not a myWinServer inst)
     */
-    static MP_Win_Server_c* get_win_server();
+    MPTK_LIB_EXPORT static MP_Win_Server_c* get_win_server();
     
     /** \brief Allocating and initializing
     *  myAnywaveServer's static data member
     *  (the ptr, not a myAnywaveServer inst)
     */
-    static MP_Anywave_Server_c* get_anywave_server();
+    MPTK_LIB_EXPORT static MP_Anywave_Server_c* get_anywave_server();
 
     /** \brief Release all the server
     * Note that the chronology of server destruction is critical for Debug Mode

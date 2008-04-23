@@ -93,16 +93,16 @@ public:
   /***************************/
 
 public:
-  static MP_Book_c* create();
-  static MP_Book_c* create(MP_Chan_t numChans, unsigned long int numSamples, int sampleRate );
-  static MP_Book_c* create( FILE *fid );
+  MPTK_LIB_EXPORT static MP_Book_c* create();
+  MPTK_LIB_EXPORT static MP_Book_c* create(MP_Chan_t numChans, unsigned long int numSamples, int sampleRate );
+  MPTK_LIB_EXPORT static MP_Book_c* create( FILE *fid );
 private:
   /* NULL constructor */
   MP_Book_c();
 
 public:
   /* Destructor */
-  ~MP_Book_c();
+  MPTK_LIB_EXPORT ~MP_Book_c();
 
 
   /***************************/
@@ -117,43 +117,43 @@ public:
    * \return The number of atoms actually printed to the stream 
    * \remark Passing mask == NULL forces all atoms to be used. 
    */
-  unsigned long int print( FILE *fid , const char mode, MP_Mask_c* mask);
+  MPTK_LIB_EXPORT unsigned long int print( FILE *fid , const char mode, MP_Mask_c* mask);
 
   /** \brief Same as MP_Book_c::print (FILE *fid, const char mode, char* mask) but with a file name */
-  unsigned long int print( const char *fName, const char mode, MP_Mask_c* mask);
+  MPTK_LIB_EXPORT unsigned long int print( const char *fName, const char mode, MP_Mask_c* mask);
 
   /** \brief Same as MP_Book_c::print( FILE *fid, const char mode, char *mask) with mask == NULL */
-  unsigned long int print( FILE *fid, const char mode );
+  MPTK_LIB_EXPORT unsigned long int print( FILE *fid, const char mode );
 
   /** \brief Same as MP_Book_c::print (FILE *fid, const char mode) but with a file name */
-  unsigned long int print( const char *fName, const char mode );
+  MPTK_LIB_EXPORT unsigned long int print( const char *fName, const char mode );
 
   /** \brief Load the book from a stream, determining automatically
    * whether it is in text or binary format
    *
    * \param  fid A readable stream
    * \return The number of atoms loaded from the stream */
-  unsigned long int load( FILE *fid );
+  MPTK_LIB_EXPORT unsigned long int load( FILE *fid );
 
   /** \brief Same as MP_Book_c::load (FILE *fid) but with a file name */
-  unsigned long int load( const char *fName );
+  MPTK_LIB_EXPORT unsigned long int load( const char *fName );
 
   /** \brief Print readable information about the book to a stream
    *
    * \param  fid A writable stream */
-  int info( FILE *fid );
+  MPTK_LIB_EXPORT int info( FILE *fid );
 
   /** \brief Print readable information about the book to the default info handler,
    *  including info about every atom in the book
    *
    */
-  int info();
+  MPTK_LIB_EXPORT int info();
 
   /** \brief Print readable information about the book to the default info handler,
    *  in a short form (no atom info)
    *
    */
-  int short_info();
+  MPTK_LIB_EXPORT int short_info();
 
 
   /***************************/
@@ -162,7 +162,7 @@ public:
 
   /** \brief Clear all the atoms from the book.
    */
-  void reset( void );
+  MPTK_LIB_EXPORT void reset( void );
 
   /** \brief Add a new atom in the storage space, taking care of the necessary allocations 
    * \param newAtom a reference to an atom
@@ -172,7 +172,7 @@ public:
    * otherwise, if the atom \a numChans does not match \a numChans, it is not appended.
    */
    
-   int append( MP_Atom_c *newAtom );
+   MPTK_LIB_EXPORT int append( MP_Atom_c *newAtom );
    
    /** \brief append two books together 
    * \param newBook a reference to a book
@@ -180,16 +180,16 @@ public:
    * \remark Use int append( MP_Atom_c *newAtom )
    */
   
-  unsigned long int append( MP_Book_c *newBook );
+  MPTK_LIB_EXPORT unsigned long int append( MP_Book_c *newBook );
   /** \brief Re-check the number of samples
    * \return MP_TRUE if numSamples was up to date, MP_FALSE if numSamples has been updated.
    */
-  int recheck_num_samples();
+  MPTK_LIB_EXPORT int recheck_num_samples();
 
   /** \brief Re-check the number of channels
    * \return MP_TRUE if numChans was up to date, MP_FALSE if numChans has been updated.
    */
-  int recheck_num_channels();
+  MPTK_LIB_EXPORT int recheck_num_channels();
 
 
   /** \brief Substract / add some atom waveforms from / to a signal 
@@ -203,7 +203,7 @@ public:
    * \remark An exception (assert) is throwed if the signals numChans does not match the atoms numChans.
    * \remark An exception (assert) is throwed if the support of the atom exceeds the limits of the signal.
    */
-  unsigned long int substract_add( MP_Signal_c *sigSub, MP_Signal_c *sigAdd, MP_Mask_c *mask );
+  MPTK_LIB_EXPORT unsigned long int substract_add( MP_Signal_c *sigSub, MP_Signal_c *sigAdd, MP_Mask_c *mask );
 
   /** \brief Build the waveform corresponding to the sum of some atoms of the book into a signal 
    *
@@ -213,7 +213,7 @@ public:
    * \remark The signal numChans, numSamples and sampleRate are set according to those of the book.
    * \remark Passing mask == NULL forces all atoms to be used.
    */
-  unsigned long int build_waveform( MP_Signal_c *sig, MP_Mask_c *mask );
+  MPTK_LIB_EXPORT unsigned long int build_waveform( MP_Signal_c *sig, MP_Mask_c *mask );
 
   /** \brief Adds the sum of the pseudo Wigner-Ville distributions of some atoms to a time-frequency map 
    * \param tfmap The time-frequency map 
@@ -223,7 +223,7 @@ public:
    * \return the number of atoms used
    * \remark Passing mask == NULL forces all atoms to be used.
    */
-  unsigned long int add_to_tfmap( MP_TF_Map_c *tfmap, const char tfmapType, MP_Mask_c *mask );
+  MPTK_LIB_EXPORT unsigned long int add_to_tfmap( MP_TF_Map_c *tfmap, const char tfmapType, MP_Mask_c *mask );
 
   /** \brief Returns the atom which is the closest to a given 
    *  time-frequency location, as well as its index in the book->atom[] array
@@ -235,21 +235,21 @@ public:
    * \param n points to the index of the resulting atom in the book->atom[] array. Meaningless if no matching atom is found.
    * \return atom, the closest atom, NULL if no matching atom is found
    */
-  MP_Atom_c *get_closest_atom(MP_Real_t time,MP_Real_t freq,
+  MPTK_LIB_EXPORT MP_Atom_c *get_closest_atom(MP_Real_t time,MP_Real_t freq,
 			      MP_Chan_t chanIdx, MP_Mask_c *mask,
 			      unsigned long int *n);
 			      
 /** \brief Open a new book and check if this book have the same dimensions. */
-  MP_Bool_t can_append( FILE * fid );
+  MPTK_LIB_EXPORT MP_Bool_t can_append( FILE * fid );
 
   /** \brief Check if numAtoms is the same in a mask and in the book. */
-  MP_Bool_t is_compatible_with( MP_Mask_c mask );
+  MPTK_LIB_EXPORT MP_Bool_t is_compatible_with( MP_Mask_c mask );
   /** \brief Check between two books. */
-  MP_Bool_t is_compatible_with( MP_Book_c *book );
+  MPTK_LIB_EXPORT MP_Bool_t is_compatible_with( MP_Book_c *book );
   /** \brief Check if parameters are the same. */
-  MP_Bool_t is_compatible_with(MP_Chan_t testedNumChans, int testedSampleRate);  
+  MPTK_LIB_EXPORT MP_Bool_t is_compatible_with(MP_Chan_t testedNumChans, int testedSampleRate);  
   /** \brief Check between a books and a signal. */
-  MP_Bool_t is_compatible_with( MP_Signal_c *sig );  
+  MPTK_LIB_EXPORT MP_Bool_t is_compatible_with( MP_Signal_c *sig );  
 };
 
 

@@ -72,7 +72,7 @@ MPTK_Env_c::MPTK_Env_c()
 /* Destructor */
 MPTK_Env_c::~MPTK_Env_c()
 {
-  for (int i= 0; i<2 ; i++)
+  for (int i= 0; i<3 ; i++)
     {
       free(pathBufferCstr[i]);
       free(nameBufferCstr[i]);
@@ -207,8 +207,8 @@ else
             }
 
           int i= 0;
-          nameBufferCstr = (char **) malloc(sizeof(char*)*2);
-          pathBufferCstr = (char **) malloc(sizeof(char*)*2);
+          nameBufferCstr = (char **) malloc(sizeof(char*)*3);
+          pathBufferCstr = (char **) malloc(sizeof(char*)*3);
           while (elem)
             {
 

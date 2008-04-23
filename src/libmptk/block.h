@@ -113,24 +113,24 @@ public:
 
 public:
   /** \brief an initializer for the parameters which ARE related to the signal */
-  virtual int plug_signal( MP_Signal_c *setSignal );
+  MPTK_LIB_EXPORT virtual int plug_signal( MP_Signal_c *setSignal );
 
 protected:
   /** \brief an initializer for the parameters which ARE NOT related to the signal */
-  virtual int init_parameters( const unsigned long int setFilterLen,
+  MPTK_LIB_EXPORT virtual int init_parameters( const unsigned long int setFilterLen,
 			       const unsigned long int setFilterShift,
 			       const unsigned long int setNumFilters, 
 			       const unsigned long int setBlockOffset);
 
   /** \brief nullification of the signal-related parameters */
-  virtual void nullify_signal( void );
+  MPTK_LIB_EXPORT virtual void nullify_signal( void );
 
   /** \brief a constructor which initializes everything to zero or NULL */
-  MP_Block_c( void );
+  MPTK_LIB_EXPORT MP_Block_c( void );
 
 public:
   /* Destructor */
-  virtual ~MP_Block_c();
+  MPTK_LIB_EXPORT virtual ~MP_Block_c();
 
 
   /***************************/
@@ -142,15 +142,15 @@ public:
   /** \brief Get the type of the block as a string
    *
    * \return the type as a string */
-  virtual char * type_name( void ) = 0;
+  MPTK_LIB_EXPORT virtual char * type_name( void ) = 0;
   /** \brief Send a brief information about the block to a stream
    * \param fid A writeable block
    * \return The number of written characters.
    */
-  virtual int info( FILE *fid ) = 0;
+  MPTK_LIB_EXPORT virtual int info( FILE *fid ) = 0;
 
   /** \brief Get the number of atoms of the block */
-  virtual unsigned long int num_atoms( void );
+  MPTK_LIB_EXPORT virtual unsigned long int num_atoms( void );
 
   /* Other */
   /** \brief update the inner products with a minimum number of arithmetic operations
@@ -162,7 +162,7 @@ public:
    * where they might have been touched.
    * \return a support indicating which frames have been touched by the inner products' update 
    * \remark Pass touch == NULL to force a full update. */
-  virtual MP_Support_t update_ip( const MP_Support_t *touch );
+  MPTK_LIB_EXPORT virtual MP_Support_t update_ip( const MP_Support_t *touch );
 
   /** \brief update the inner products of a given frame and return the correlation
    * \a maxCorr and index in the frame \a maxFilterIdx of the maximally correlated
@@ -176,7 +176,7 @@ public:
    * \param maxFilterIdx an unsigned long int* pointer to return the index of
    * the maximum inner product
    */
-  virtual void update_frame( unsigned long int frameIdx, 
+  MPTK_LIB_EXPORT virtual void update_frame( unsigned long int frameIdx, 
 			     MP_Real_t *maxCorr, 
 			     unsigned long int *maxFilterIdx ) = 0; 
 
@@ -184,7 +184,7 @@ public:
    * \param frameSupport a support indicating which frames have been touched
    *  by a previous update of the inner products
    */
-  MP_Real_t update_max( const MP_Support_t frameSupport );
+  MPTK_LIB_EXPORT MP_Real_t update_max( const MP_Support_t frameSupport );
 
   /** \brief create a new atom corresponding to a given (frameIdx,filterIdx)
    *
@@ -192,11 +192,11 @@ public:
    * \param frameIdx the frame coordinate of the atom
    * \param filterIdx the position of the atom in the frame
    * \return the number of extracted atom */  
-  virtual unsigned int create_atom( MP_Atom_c** atom,
+  MPTK_LIB_EXPORT virtual unsigned int create_atom( MP_Atom_c** atom,
 				    const unsigned long int frameIdx,
 				    const unsigned long int filterIdx ) = 0;
 				    
- map< string, string, mp_ltstring> * get_block_parameters_map();
+ MPTK_LIB_EXPORT map< string, string, mp_ltstring> * get_block_parameters_map();
  
 };
 

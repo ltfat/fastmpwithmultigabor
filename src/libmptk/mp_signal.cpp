@@ -43,6 +43,7 @@
 
 #include "mptk.h"
 #include "mp_system.h"
+#include "mtrand.h"
 
 #include <sndfile.h>
 
@@ -398,13 +399,13 @@ void MP_Signal_c::fill_zero( void )
 /* Fill the storage space with white noise */
 void MP_Signal_c::fill_noise( MP_Real_t energyLevel )
 {
-
-  MP_Real_t *p;
-  extern int mti; /* => a global variable from mtrand.c . */
+  //MP_Real_t *p;
+ // extern int mti; /* => a global variable from mtrand.c . */
 
   /* Reset the signal's energy */
-  energy = 0.0;
+ // energy = 0.0;
   /* Seed the random generator if it has never been done before */
+ /*
   if (mti == MTRAND_N+1)
     {
       init_genrand( (unsigned long int)(time(NULL)) );
@@ -420,11 +421,11 @@ void MP_Signal_c::fill_noise( MP_Real_t energyLevel )
     }
 #endif
   /* Fill the signal with random doubles in the interval [-1.0,1.0] */
-  for ( p = storage;
-        p < (storage + numSamples*numChans);
-        *p++ = (MP_Real_t)(mt_nrand( 0.0, 1.0 )) );
+ // for ( p = storage;
+   //     p < (storage + numSamples*numChans);
+    //    *p++ = (MP_Real_t)(mt_nrand( 0.0, 1.0 )) );
   /* Normalize */
-  apply_gain( (MP_Real_t)sqrt( (double)energyLevel) / l2norm() );
+  //apply_gain( (MP_Real_t)sqrt( (double)energyLevel) / l2norm() );
 
   return;
 }

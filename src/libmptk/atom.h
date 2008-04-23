@@ -144,18 +144,18 @@ public:
 protected:
 
   /** \brief a constructor which initializes everything to zero or NULL */
-  MP_Atom_c( void );
+  MPTK_LIB_EXPORT MP_Atom_c( void );
 
   /** \brief File reader */
-  virtual int read( FILE *fid, const char mode );
+  MPTK_LIB_EXPORT virtual int read( FILE *fid, const char mode );
 
 public:
 
   /* Destructor */
-  virtual ~MP_Atom_c();
+  MPTK_LIB_EXPORT virtual ~MP_Atom_c();
 
   /** \brief Internal allocations of the local vectors */
-   int alloc_atom_param( const MP_Chan_t setNumChans );
+  MPTK_LIB_EXPORT int alloc_atom_param( const MP_Chan_t setNumChans );
   /***************************/
   /* OUTPUT METHOD           */
   /***************************/
@@ -168,7 +168,7 @@ public:
    * \remark in MP_TEXT mode, NO enclosing XML tag <atom type="*"> ... </atom> is written
    * \sa write_atom()
    */
-  virtual int write( FILE *fid, const char mode );
+  MPTK_LIB_EXPORT virtual int write( FILE *fid, const char mode );
 
 
   /***************************/
@@ -180,7 +180,7 @@ public :
   /** \brief Get the type of the atom as a string
    *
    * \return the type as a string */
-  virtual char* type_name( void );
+  MPTK_LIB_EXPORT virtual char* type_name( void );
 
   /** \brief Substract /add the atom's multichannel waveform from / to a multichannel signal
    * \param sigSub signal from which the atom waveform is to be removed
@@ -188,7 +188,7 @@ public :
    *
    * \remark Passing sigSub == NULL or sigAdd == NULL skips the corresponding substraction / addition.
    */
-  void substract_add( MP_Signal_c *sigSub, MP_Signal_c *sigAdd );
+  MPTK_LIB_EXPORT void substract_add( MP_Signal_c *sigSub, MP_Signal_c *sigAdd );
 
 
   /** \brief Substract/add the atom's monochannel waveform from / to a multichannel signal
@@ -201,7 +201,7 @@ public :
    *
    * \remark Passing sigSub == NULL or sigAdd == NULL skips the corresponding substraction / addition.
    */
-  void substract_add_var_amp( MP_Real_t *amp, MP_Chan_t numAmps, MP_Signal_c *sigSub, MP_Signal_c *sigAdd );
+  MPTK_LIB_EXPORT void substract_add_var_amp( MP_Real_t *amp, MP_Chan_t numAmps, MP_Signal_c *sigSub, MP_Signal_c *sigAdd );
 
 
   /*****************************************************/
@@ -213,16 +213,16 @@ public :
   /** \brief Print human readable information about the atom to a stream
    * \param  fid A writable stream
    * \return The number of characters written to the stream */
-  virtual int info( FILE *fid ) = 0;
+  MPTK_LIB_EXPORT virtual int info( FILE *fid ) = 0;
 
   /** \brief Print human readable information about the atom to the default info handler
    * \return The number of characters written to the stream */
-  virtual int info() = 0;
+  MPTK_LIB_EXPORT virtual int info() = 0;
 
   /** \brief Build concatenated waveforms corresponding to each channel of an atom. 
    * \param outBuffer the array of size \b totalChanLen which is filled with the  concatenated 
    * waveforms of all channels. */ 
-  virtual void build_waveform( MP_Real_t *outBuffer ) = 0;
+  MPTK_LIB_EXPORT virtual void build_waveform( MP_Real_t *outBuffer ) = 0;
 
   /** \brief Adds a pseudo Wigner-Ville of the atom to a time-frequency map 
    * \param tfmap the time-frequency map to which the atom distribution will be plotted
@@ -230,9 +230,9 @@ public :
    * MP_TFMAP_SUPPORTS or MP_TFMAP_PSEUDO_WIGNER (see tfmap.h for more).
    * \return one if the atom printed something into the map, zero otherwise
    */
-  virtual int add_to_tfmap( MP_TF_Map_c *tfmap, const char tfmapType ) = 0;
+  MPTK_LIB_EXPORT virtual int add_to_tfmap( MP_TF_Map_c *tfmap, const char tfmapType ) = 0;
 
-  virtual MP_Real_t dist_to_tfpoint( MP_Real_t time, MP_Real_t freq , MP_Chan_t chanIdx );
+  MPTK_LIB_EXPORT virtual MP_Real_t dist_to_tfpoint( MP_Real_t time, MP_Real_t freq , MP_Chan_t chanIdx );
 
   /** \brief Tests if a field of an atom satisfies a property on a given channel 
    * \param field the type of the property (ex: MP_AMP_PROP, MP_FREQ_PROP, ...)
@@ -249,22 +249,22 @@ public :
    * \return MP_TRUE if the test is succesful, MP_FALSE otherwise
    * \sa has_field() get_field()
    */
-  int satisfies( int field, int test, MP_Real_t val, MP_Chan_t chanIdx );
+  MPTK_LIB_EXPORT int satisfies( int field, int test, MP_Real_t val, MP_Chan_t chanIdx );
   /** \brief Tests if a field of an atom satisfies a property on ALL channels
    * \sa satisfies
    */
-  int satisfies( int field, int test, MP_Real_t val );
+  MPTK_LIB_EXPORT int satisfies( int field, int test, MP_Real_t val );
 
   /** \brief Test if the atom has a given field 
    * \param field the field type
    * \return MP_TRUE if the atom has the field, MP_FALSE otherwise */
-  virtual int      has_field( int field );
+  MPTK_LIB_EXPORT virtual int      has_field( int field );
   
   /** \brief Gets a field of a channel of an atom 
    * \param field the field type
    * \param chanIdx the desired channel
    * \return the desired field value, zero if the atom has no such field */
-  virtual MP_Real_t get_field( int field , MP_Chan_t chanIdx );
+  MPTK_LIB_EXPORT virtual MP_Real_t get_field( int field , MP_Chan_t chanIdx );
   
   protected :
   
@@ -275,7 +275,7 @@ public :
   * \param chanIdx : channel to work on
   * \param atomIn : waveform to add
   */
-  std::pair<double,double> add ( MP_Signal_c *sigAdd, 
+  MPTK_LIB_EXPORT std::pair<double,double> add ( MP_Signal_c *sigAdd, 
   								 unsigned long int pos, 
   								 unsigned long int len,
 							     MP_Chan_t chanIdx,

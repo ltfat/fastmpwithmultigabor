@@ -27,7 +27,7 @@
 /*                                                                            */
 /******************************************************************************/
 
-#ifdef __WIN32__
+#ifdef _WIN32
 
 #include "dll.h"
 
@@ -57,10 +57,8 @@ MP_Dll_Manager_c::~MP_Dll_Manager_c()
 /* Load and registrate all the dll */
 bool MP_Dll_Manager_c::load_dll()
 {
-if ( true){
-//MPTK_Env_c::get_env()->get_config_path("dll_directory")!= NULL){
-mp_debug_msg( MP_DEBUG_CONSTRUCTION, "MP_Dll_Manager::load_dll", "Plug-in localisation: %s.\n", MPTK_Env_c::get_env()->get_config_path("dll_directory") );          	
-  //if (MP_Dll_Manager_c::search_library(dllVectorName, MPTK_Env_c::get_env()->get_config_path("dll_directory")))
+if (MPTK_Env_c::get_env()->get_config_path("dll_directory")!= NULL){
+mp_debug_msg( MP_DEBUG_CONSTRUCTION, "MP_Dll_Manager::load_dll", "Plug-in localisation: [%s].\n", MPTK_Env_c::get_env()->get_config_path("dll_directory") );          	
   if (MP_Dll_Manager_c::search_library(dllVectorName, MPTK_Env_c::get_env()->get_config_path("dll_directory")))
   
     {
@@ -178,7 +176,7 @@ bool MP_Dll_Manager_c::search_library(vector<string> * lib_names, const char * p
       return false;
     }
   else
-    { if (strcmp( c_file.name ,"libmptk.dll")){
+    { if (strcmp( c_file.name ,"mptk.dll") && strcmp( c_file.name ,"libmptk.dll")){
       fname = path ;
       fname += "\\";
       fname += c_file.name;
@@ -189,7 +187,7 @@ bool MP_Dll_Manager_c::search_library(vector<string> * lib_names, const char * p
 
       while ( _findnext(hFile, &c_file) == 0 )
         {
-        if (strcmp( c_file.name ,"libmptk.dll")){
+        if (strcmp( c_file.name ,"mptk.dll")&& strcmp( c_file.name ,"libmptk.dll")){
           fname = path ;
           fname += "\\";
           fname += c_file.name;

@@ -68,7 +68,7 @@ return guiCallback;
 int MP_Gui_Callback_c::openBook(QString fileName)
 {
   if (book) delete book;
-  FILE* fid = fopen(fileName.toStdString().c_str(),"rb");
+  FILE* fid = fopen(fileName.toAscii().constData(),"rb");
   book = MP_Book_c::create(fid);
   fclose(fid);
   opBook = BOOK_OPENED;
@@ -134,7 +134,7 @@ void MP_Gui_Callback_c::setDictionary(QString fileName)
     {
 
       MP_Dict_c *oldDict = NULL;
-      if (MP_Dict_c::init(fileName.toStdString().c_str())&& (mpd_Core !=NULL)) oldDict = mpd_Core->change_dict(MP_Dict_c::init(fileName.toStdString().c_str()));
+      if (MP_Dict_c::init(fileName.toAscii().constData())&& (mpd_Core !=NULL)) oldDict = mpd_Core->change_dict(MP_Dict_c::init(fileName.toAscii().constData()));
       if ( oldDict ) delete( oldDict );
 
       dicoName=fileName;
@@ -152,24 +152,24 @@ mpd_Core->init_dict();
 
 void MP_Gui_Callback_c::setSave(const unsigned long int setSaveHit,QString setBookFileName,QString setResFileName,QString setDecayFileName )
 {
-  mpd_Core->set_save_hit(setSaveHit,setBookFileName.toStdString().c_str(),setResFileName.toStdString().c_str(),setDecayFileName.toStdString().c_str());
+  mpd_Core->set_save_hit(setSaveHit,setBookFileName.toAscii().constData(),setResFileName.toAscii().constData(),setDecayFileName.toAscii().constData());
 }
 // Save Custom dictionary
 void MP_Gui_Callback_c::saveDictionary(QString dictName){
-if (mpd_Core) mpd_Core->save_dict(dictName.toStdString().c_str());
+if (mpd_Core) mpd_Core->save_dict(dictName.toAscii().constData());
 }
 
 // Save book
 void MP_Gui_Callback_c::saveBook(QString fileName)
 {
-  if (book) book->print(fileName.toStdString().c_str(), MP_TEXT);
+  if (book) book->print(fileName.toAscii().constData(), MP_TEXT);
 }
 
 
 // Save approximant
 void MP_Gui_Callback_c::saveApproximant(QString fileName)
 {
-  if (approximant)approximant->wavwrite(fileName.toStdString().c_str());
+  if (approximant)approximant->wavwrite(fileName.toAscii().constData());
 }
 
 bool MP_Gui_Callback_c::coreInit()
@@ -183,7 +183,7 @@ return opBook;
 }
 
 int MP_Gui_Callback_c::addDefaultBlockToDictionary(QString blockName){
-if (mpd_Core) { mpd_Core->add_default_block_to_dict(blockName.toStdString().c_str());
+if (mpd_Core) { mpd_Core->add_default_block_to_dict(blockName.toAscii().constData());
  mpd_Core->plug_dict_to_signal();
  return 1;
 }

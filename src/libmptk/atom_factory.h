@@ -35,9 +35,7 @@
 #ifndef ATOM_FACTORY_H_
 #define ATOM_FACTORY_H_
 
-#include "atom.h"
-#include "mp_hash_container_header.h"
-
+#include "mptk.h"
 
 /*******************************/
 /* ATOM FACTORY CLASS          */
@@ -66,9 +64,9 @@ class MP_Atom_Factory_c
     static bool instanceFlag;
  
 	  /** \brief Hash map to store the atom name and the file creation atom method pointer */
-STL_EXT_NM::hash_map<const char*, MP_Atom_c*(*)(FILE *fid, const char mode), mp_hash_fun, mp_eqstr> atom;
+	STL_EXT_NM::hash_map<const char*, MP_Atom_c*(*)(FILE *fid, const char mode),CSTRING_HASHER> atom;
     /** \brief Hash map to store the atom name and the empty atom method pointer */
-STL_EXT_NM::hash_map<const char*, MP_Atom_c*(*)(void), mp_hash_fun, mp_eqstr> atom_empty;
+	STL_EXT_NM::hash_map<const char*, MP_Atom_c*(*)(void),CSTRING_HASHER> atom_empty;
 
 
 
@@ -81,10 +79,10 @@ STL_EXT_NM::hash_map<const char*, MP_Atom_c*(*)(void), mp_hash_fun, mp_eqstr> at
     /***************************/
   public:
     /** \brief Public destructor  */
-    virtual ~MP_Atom_Factory_c();
+    MPTK_LIB_EXPORT virtual ~MP_Atom_Factory_c();
 
     /** \brief Method to get the MP_Atom_Factory_c singleton*/
-    static MP_Atom_Factory_c * get_atom_factory();
+    MPTK_LIB_EXPORT static MP_Atom_Factory_c * get_atom_factory();
 
   private:
     /** \brief Private constructor*/
@@ -100,26 +98,26 @@ STL_EXT_NM::hash_map<const char*, MP_Atom_c*(*)(void), mp_hash_fun, mp_eqstr> at
      *  \param atomName: name of the atom to register
      *  \param createAtomFunctionPointer: a pointer on the function used to create an atom from a file
      */
-    void register_new_atom(const char* atomName, MP_Atom_c*(*createAtomFunctionPointer)(FILE *fid, const char mode));
+   MPTK_LIB_EXPORT void register_new_atom(const char* atomName, MP_Atom_c*(*createAtomFunctionPointer)(FILE *fid, const char mode));
 
     /** \brief Method to register a new method to create empty atom
      *  \param atomName: name of the atom to register
      *  \param createEmptyAtomFunctionPointer: a pointer on the function used to create an empty atom
      *  
      */
-    void register_new_atom_empty(const char* atomName, MP_Atom_c*(*createEmptyAtomFunctionPointer)(void));
+   MPTK_LIB_EXPORT void register_new_atom_empty(const char* atomName, MP_Atom_c*(*createEmptyAtomFunctionPointer)(void));
 
     /** \brief Accesor method to obtain the adress of a function to create empty atom
     *   \param atomName: name of the atom to create
     * \return a pointer on a method able to create an empty atom 
     */
-    MP_Atom_c*(*get_empty_atom_creator( const char* atomName ))(void);
+    MPTK_LIB_EXPORT MP_Atom_c*(*get_empty_atom_creator( const char* atomName ))(void);
 
     /** \brief Accesor method to obtain the adress of a function to create atom initialised from a file
      *   \param atomName: name of the atom to create
      *   \return a pointer on a method able to create an atom from a file
     */
-    MP_Atom_c*(*get_atom_creator( const char* atomName ))(FILE *fid, const char mode);
+    MPTK_LIB_EXPORT MP_Atom_c*(*get_atom_creator( const char* atomName ))(FILE *fid, const char mode);
 
   };
 #endif /*ATOM_FACTORY_H_*/

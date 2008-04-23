@@ -43,6 +43,10 @@
 #include <QThread>
 #include <QWaitCondition>
 #include <QMutex>
+#include <QString>
+
+#include <sstream>
+#include <string>
 
 /***********************/
 /* CONSTANTS           */
@@ -310,7 +314,7 @@ class MP_Gui_Callback_Abstract_c: public QThread
     */
     void saveResidual(QString fileName)
     {
-      if (signal) signal->wavwrite(fileName.toStdString().c_str());
+      if (signal) signal->wavwrite(fileName.toAscii().constData());
     }
     /** \brief Method to get the number of iteration done */
     unsigned long int getNumIter(void)
@@ -323,8 +327,8 @@ class MP_Gui_Callback_Abstract_c: public QThread
     */
     void saveDecay(QString fileName)
     {
-      if (mpd_Core && getActivated()) mpd_Core->save_decay( fileName.toStdString().c_str());
-      if (mpd_Demix_Core && getActivated())mpd_Demix_Core->save_decay( fileName.toStdString().c_str());
+      if (mpd_Core && getActivated()) mpd_Core->save_decay( fileName.toAscii().constData());
+      if (mpd_Demix_Core && getActivated())mpd_Demix_Core->save_decay( fileName.toAscii().constData());
     }
 
     /** \brief Method to open a signal
@@ -334,7 +338,7 @@ class MP_Gui_Callback_Abstract_c: public QThread
     {
       if (signal != NULL) delete signal;
       if (baseSignal != NULL) delete baseSignal;
-      signal = MP_Signal_c::init( fileName.toStdString().c_str() );
+      signal = MP_Signal_c::init( fileName.toAscii().constData() );
       if (signal != NULL) baseSignal = new MP_Signal_c ( *signal );
       if (signal != NULL)
         {

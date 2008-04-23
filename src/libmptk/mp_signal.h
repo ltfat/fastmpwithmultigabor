@@ -52,6 +52,8 @@
 
 /** \brief The default sample rate of signals */
 #define MP_SIGNAL_DEFAULT_SAMPLERATE 44100
+/** \brief Value for using variable globale of mtrand.c */
+#define _DECLAREVAR 1
 
 /* Declare that the class MP_Atom_c will be used in the signal class */
 class MP_Atom_c;
@@ -110,7 +112,7 @@ public:
    *
    * \return NULL if something failed.
    */
-  static MP_Signal_c* init( const int setNumChans,
+  MPTK_LIB_EXPORT static MP_Signal_c* init( const int setNumChans,
 			    const unsigned long int setNumSamples ,
 			    const int setSampleRate);
 
@@ -121,7 +123,7 @@ public:
    *
    * \return NULL if something failed.
    */
-  static MP_Signal_c* init( const char *fName );
+  MPTK_LIB_EXPORT static MP_Signal_c* init( const char *fName );
 
 
   /** \brief A factory function which exports a channel from an existing signal
@@ -131,7 +133,7 @@ public:
    *
    * \return NULL if something failed.
    */
-  static MP_Signal_c* init( MP_Signal_c *sig, MP_Chan_t chanIdx );
+  MPTK_LIB_EXPORT static MP_Signal_c* init( MP_Signal_c *sig, MP_Chan_t chanIdx );
 
 
   /** \brief A factory function which exports a particular support
@@ -142,7 +144,7 @@ public:
    *
    * \return NULL if something failed.
    */
-  static MP_Signal_c* init( MP_Signal_c *sig, MP_Support_t supp );
+  MPTK_LIB_EXPORT static MP_Signal_c* init( MP_Signal_c *sig, MP_Support_t supp );
 
 
   /** \brief A factory function which makes a signal from an atom's waveform
@@ -155,7 +157,7 @@ public:
    * \warning This method won't work if the atom has different supports
    * over its different channels.
    */
-  static MP_Signal_c* init( MP_Atom_c *atom, const int sampleRate );
+  MPTK_LIB_EXPORT static MP_Signal_c* init( MP_Atom_c *atom, const int sampleRate );
 
 
   /* \brief A utility to clear and reallocate the storage at a given
@@ -167,7 +169,7 @@ public:
    *
    * \return nonzero in case of failure, zero otherwise.
    */
-  int init_parameters( const int setNumChans,
+  MPTK_LIB_EXPORT int init_parameters( const int setNumChans,
 		       const unsigned long int setNumSamples,
 		       const int setSampleRate );
 
@@ -175,7 +177,7 @@ public:
   /* \brief A utility to set the stored signal to zero
    * without changing its dimensions in terms of number of samples,
    * number of channels and sampling rate */
-  void fill_zero( void );
+  MPTK_LIB_EXPORT void fill_zero( void );
 
 
   /* \brief A utility to set the stored signal to a uniform random noise
@@ -187,22 +189,22 @@ public:
    *  be 3.0).
    *
    */
-  void fill_noise( MP_Real_t energyLevel );
+  MPTK_LIB_EXPORT void fill_noise( MP_Real_t energyLevel );
 
 
   /** \brief A copy constructor
    *
    * \param from A reference to the copied signal
    */
-  MP_Signal_c( const MP_Signal_c &from );
+  MPTK_LIB_EXPORT MP_Signal_c( const MP_Signal_c &from );
 
 
   /* NULL constructor */
-  MP_Signal_c( void );
+  MPTK_LIB_EXPORT MP_Signal_c( void );
 
 public:
   /* Destructor */
-  ~MP_Signal_c();
+  MPTK_LIB_EXPORT ~MP_Signal_c();
 
 
   /***************************/
@@ -216,48 +218,48 @@ public:
    * and a warning is emitted if we can't read enough samples
    * \remark the \a sampleRate is not modified
    */
-  unsigned long int read_from_float_file( const char *fName );
+  MPTK_LIB_EXPORT unsigned long int read_from_float_file( const char *fName );
 
 
   /** \brief Write a signal to a file as raw data in float precision
    * \param fName the file name
    * \return the number of floats written (zero if failure to write the float file)
    */
-  unsigned long int dump_to_float_file( const char *fName );
+  MPTK_LIB_EXPORT unsigned long int dump_to_float_file( const char *fName );
 
 
   /** \brief Write a signal to a file as raw data in double precision
    * \param fName the file name
    * \return the number of doubles written (zero if failure to write the float file)
    */
-  unsigned long int dump_to_double_file( const char *fName );
+  MPTK_LIB_EXPORT unsigned long int dump_to_double_file( const char *fName );
 
 
   /** \brief Write a signal to a WAV file 
    * \param fName the file name 
    * \return the number of frames written (zero if failure to write the WAV file)
    */
-  unsigned long int wavwrite( const char *fName );
+  MPTK_LIB_EXPORT unsigned long int wavwrite( const char *fName );
 
 
   /** \brief Write a signal to a MAT file 
    * \param fName the file name 
    * \return the number of frames written (zero if failure to write the MAT file)
    */
-  unsigned long int matwrite( const char *fName );
+  MPTK_LIB_EXPORT unsigned long int matwrite( const char *fName );
 
 
   /** \brief Send a brief info about the signal to a stream
    * \param fid A writeable stream
    * \return the number of written characters
    */
-  int info( FILE *fid );
+  MPTK_LIB_EXPORT int info( FILE *fid );
 
 
   /** \brief Send a brief info about the signal to the standard info output
    * \return the number of written characters
    */
-  int info( void );
+  MPTK_LIB_EXPORT int info( void );
 
 
   /***************************/
@@ -268,11 +270,11 @@ public:
 
   /** \brief Compute the L1-norm of the signal over all the channels.
    *  \return the computed norm. */
-  MP_Real_t l1norm( void );
+  MPTK_LIB_EXPORT MP_Real_t l1norm( void );
 
   /** \brief Compute the L2-norm of the signal over all the channels.
    *  \return the computed norm. */
-  MP_Real_t l2norm( void );
+  MPTK_LIB_EXPORT MP_Real_t l2norm( void );
 
   /** \brief Compute the Lp-norm of the signal over all the channels.
    *  \param p the order of the norm.
@@ -280,29 +282,29 @@ public:
    *
    *  \sa l1norm(), l2norm(), linfnorm()
    */
-  MP_Real_t lpnorm( MP_Real_t p );
+  MPTK_LIB_EXPORT MP_Real_t lpnorm( MP_Real_t p );
 
   /** \brief Compute the Linf-norm of the signal over all the channels.
    *  \return the computed norm. */
-  MP_Real_t linfnorm( void );
+  MPTK_LIB_EXPORT MP_Real_t linfnorm( void );
 
 
   /** \brief Updates the energy field in the signal object,
    *  by internally calling compute_energy(). */
-  void refresh_energy( void );
+  MPTK_LIB_EXPORT void refresh_energy( void );
 
 
   /** \brief Compute the total signal energy over all channels,
    *  using the signal samples.
    *  \return the computed energy */
-  MP_Real_t compute_energy( void );
+  MPTK_LIB_EXPORT MP_Real_t compute_energy( void );
 
 
   /** \brief Compute the signal energy over a specified channel
    * \param chanIdx the channel index 
    * \return the computed energy
    */
-  MP_Real_t compute_energy_in_channel( MP_Chan_t chanIdx );
+  MPTK_LIB_EXPORT MP_Real_t compute_energy_in_channel( MP_Chan_t chanIdx );
 
 
   /** \brief Apply a gain to the signal
@@ -311,7 +313,7 @@ public:
    *
    * \note signal.energy is set to the new energy.
    */
-  MP_Real_t apply_gain( MP_Real_t gain );
+  MPTK_LIB_EXPORT MP_Real_t apply_gain( MP_Real_t gain );
 
 
   /** \brief Pre-emphasize the signal (in all the channels)
@@ -320,7 +322,7 @@ public:
    *
    * \note signal.energy is set to the new energy.
    */
-  MP_Real_t preemp( double coeff );
+  MPTK_LIB_EXPORT MP_Real_t preemp( double coeff );
 
 
   /** \brief De-emphasize the signal (in all the channels)
@@ -329,7 +331,7 @@ public:
    *
    * \note signal.energy is set to the new energy.
    */
-  MP_Real_t deemp( double coeff );
+  MPTK_LIB_EXPORT MP_Real_t deemp( double coeff );
 
 
   /***************************/
@@ -337,13 +339,13 @@ public:
   /***************************/
 
   /** \brief Assignment operator */
-  MP_Signal_c& operator=(  const MP_Signal_c& from );
+  MPTK_LIB_EXPORT MP_Signal_c& operator=(  const MP_Signal_c& from );
 
   /** \brief Operator == */
-  MP_Bool_t operator==( const MP_Signal_c& s1 );
+  MPTK_LIB_EXPORT MP_Bool_t operator==( const MP_Signal_c& s1 );
 
   /** \brief Operator != */
-  MP_Bool_t operator!=( const MP_Signal_c& s1 );
+  MPTK_LIB_EXPORT MP_Bool_t operator!=( const MP_Signal_c& s1 );
 
 };
 

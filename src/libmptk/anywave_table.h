@@ -170,18 +170,18 @@ public:
 public:
   /** \brief Default constructor 
    */
-  MP_Anywave_Table_c( void );
+  MPTK_LIB_EXPORT MP_Anywave_Table_c( void );
 
   /** \brief Constructor using a filename
    *
    * \param fileName A string containing the name of the file that
    * describes the anywave table ("PATH/anywave.xml" in the example)
    */
-  MP_Anywave_Table_c( char* fileName );
+  MPTK_LIB_EXPORT MP_Anywave_Table_c( char* fileName );
 
   /** \brief Default destructor
    */
-  virtual ~MP_Anywave_Table_c( void );
+  MPTK_LIB_EXPORT virtual ~MP_Anywave_Table_c( void );
 
   /***************************/
   /* I/O METHODS             */
@@ -196,7 +196,7 @@ public:
    * \return The number of printed characters
    * \remark DO NOT WRITE THE DATA TO the file \a dataFileName
    */
-  unsigned long int print ( FILE *fid );
+  MPTK_LIB_EXPORT unsigned long int print ( FILE *fid );
 
   /** \brief Print the table structure to a file
    *
@@ -206,22 +206,22 @@ public:
    * \return The number of printed characters
    * \remark DO NOT WRITE THE DATA TO the file \a dataFileName
    */
-  unsigned long int print( const char *fName );
+  MPTK_LIB_EXPORT unsigned long int print( const char *fName );
 
   /** \brief load the data contained in dataFileName, store it in
    * storage and update the pointers in wave
    *
    * \return true for success, false for failure
   **/
-  bool load_data( void );
+  MPTK_LIB_EXPORT bool load_data( void );
 
 
 
   /* Creates a copy of this table (with all allocations needed) */
-  MP_Anywave_Table_c* copy( void );
+  MPTK_LIB_EXPORT MP_Anywave_Table_c* copy( void );
 
   /* Creates the dual table, named name, containing, for each filter, its hilbert transform */
-  MP_Anywave_Table_c* create_hilbert_dual( char* name );
+  MPTK_LIB_EXPORT MP_Anywave_Table_c* create_hilbert_dual( char* name );
 
  private:
   /** \brief Parse the xml file fName that describes the table
@@ -237,38 +237,38 @@ public:
  public:
   /** \brief Test function, called by the test executable test_anywave
    **/
-  static bool test( char* filename );
+  MPTK_LIB_EXPORT static bool test( char* filename );
   
   /** \brief Initialize all the members
    **/
-  void set_null( void );
+  MPTK_LIB_EXPORT void set_null( void );
   
   /** \brief Re-initialize all the members
    **/
-  void reset( void );
+  MPTK_LIB_EXPORT void reset( void );
 
   /** \brief Normalize the waveforms and update the flag \a normalize
    *
    * \returns 1 if succeed or 2 if an error occured
    */
-  unsigned long int normalize( void );
+  MPTK_LIB_EXPORT unsigned long int normalize( void );
 
   /** \brief Sets the mean and the nyquist component of the waveforms
    * to 0, and update the flag \a centeredAndDenyquisted
    *
    * \returns 1 if succeed or 2 if an error occured
    */
-  unsigned long int center_and_denyquist( void );
+  MPTK_LIB_EXPORT unsigned long int center_and_denyquist( void );
 
   /** \brief set the \a tableFileName member to  \a fileName
    * \return pointer to the string \a tableFileName
    */
-  char* set_table_file_name( const char* fileName );
+  MPTK_LIB_EXPORT char* set_table_file_name( const char* fileName );
 
   /** \brief set the \a dataFileName member to \a fileName
    * \return pointer to the string \a dataFileName
    */
-  char* set_data_file_name( const char* fileName );
+  MPTK_LIB_EXPORT char* set_data_file_name( const char* fileName );
 
  private:  
   /** \brief Allocate the pointers array \a wave, using the dimensions

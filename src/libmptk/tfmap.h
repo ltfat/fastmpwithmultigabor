@@ -99,39 +99,39 @@ public :
   /* METHODS */
 public :
   /** \brief Constructor that allocates and folds the storage space */
-  MP_TF_Map_c( const unsigned long int setNumCols, const unsigned long int setNumRows,
+  MPTK_LIB_EXPORT MP_TF_Map_c( const unsigned long int setNumCols, const unsigned long int setNumRows,
 	       const int setNumChans, 
 	       const unsigned long int setTMin,    const unsigned long int setTMax,
 	       const MP_Real_t setFMin,            const MP_Real_t setFMax );
 
   /* Destructor */
-  ~MP_TF_Map_c();
+  MPTK_LIB_EXPORT ~MP_TF_Map_c();
 
 
   /** \brief Reset the storage to 0 */
-  void reset( void );
+  MPTK_LIB_EXPORT void reset( void );
 
   /** \brief Print human readable information about the tfmap to a stream
    *
    * \param  fid A writable stream
    * \return The number of characters written to the stream */
-  int info( FILE *fid );
+  MPTK_LIB_EXPORT int info( FILE *fid );
 
 
   /** \brief Write to a file as raw data
    * \param fName the file name 
    * \param flagUpsideDown if yes writes the columns upside down 
    * \return nonzero upon success, zero otherwise */
-  unsigned long int dump_to_file( const char *fName , char flagUpsideDown );
+  MPTK_LIB_EXPORT unsigned long int dump_to_file( const char *fName , char flagUpsideDown );
 
 
   /** \brief Convert between real coordinates and discrete coordinates */
   /* Time: */
-  unsigned long int time_to_pix( unsigned long int t );
-  unsigned long int pix_to_time( unsigned long int n );
+  MPTK_LIB_EXPORT unsigned long int time_to_pix( unsigned long int t );
+  MPTK_LIB_EXPORT unsigned long int pix_to_time( unsigned long int n );
   /* Freq: */
-  unsigned long int freq_to_pix( MP_Real_t f );
-  MP_Real_t pix_to_freq( unsigned long int k );
+  MPTK_LIB_EXPORT unsigned long int freq_to_pix( MP_Real_t f );
+  MPTK_LIB_EXPORT MP_Real_t pix_to_freq( unsigned long int k );
 
 };
 

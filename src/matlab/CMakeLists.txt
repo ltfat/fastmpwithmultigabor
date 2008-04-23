@@ -19,9 +19,21 @@ ENDIF(CMAKE_OSX_ARCHITECTURES MATCHES i386)
 ELSE(APPLE)
 SET(MEX_EXTENSION mexglx)
 ENDIF(APPLE)
+ELSE(UNIX)
+IF(WIN32)
+IF( CMAKE_CXX_COMPILER STREQUAL "cl")
+SET(MEX_EXTENSION mexw32)
+ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
+ENDIF(WIN32)
+ENDIF(UNIX)
+
 INCLUDE(FindMatlab)
 FIND_PROGRAM(MEX_COMPILER mex)
 IF(MEX_COMPILER)
+
+IF( CMAKE_CXX_COMPILER STREQUAL "cl")
+MESSAGE("Please set mex compiler with Visual Studio using Matlab command line and mex -setup command")
+ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
 
 ADD_CUSTOM_TARGET(dictread_matlab ALL echo
       DEPENDS    ${MPTK_BINARY_DIR}/src/matlab/dictread.${MEX_EXTENSION}
@@ -41,6 +53,47 @@ ADD_CUSTOM_TARGET(loadenv_matlab ALL echo
 ADD_CUSTOM_TARGET(releaseenv_matlab ALL echo
       DEPENDS    ${MPTK_BINARY_DIR}/src/matlab/releaseenv.${MEX_EXTENSION}
     )
+    
+IF( CMAKE_CXX_COMPILER STREQUAL "cl")
+ADD_CUSTOM_COMMAND(
+TARGET bookread_matlab
+  COMMAND   ${MEX_COMPILER}
+  ARGS      -O -DHAVE_FFTW3 -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${MPTK_SOURCE_DIR}/src/tinyxml/ -I/usr/include/ -I${MPTK_SOURCE_DIR} -I${MPTK_SOURCE_DIR}/src/libdsp_windows/ -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${FFTW3_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/ ${MPTK_SOURCE_DIR}/src/matlab/bookread.cpp -L${MPTK_BINARY_DIR}/lib/release -lmptk
+      COMMENT   "MEX"
+  )
+ADD_CUSTOM_COMMAND(
+TARGET bookwrite_matlab
+  COMMAND   ${MEX_COMPILER}
+  ARGS      -O -DHAVE_FFTW3 -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${MPTK_SOURCE_DIR}/src/tinyxml/ -I/usr/include/ -I${MPTK_SOURCE_DIR} -I${MPTK_SOURCE_DIR}/src/libdsp_windows/ -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${FFTW3_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/ ${MPTK_SOURCE_DIR}/src/matlab/bookwrite.cpp -L${MPTK_BINARY_DIR}/lib/release -lmptk
+      COMMENT   "MEX"
+  )
+ADD_CUSTOM_COMMAND(
+TARGET dictread_matlab
+  COMMAND   ${MEX_COMPILER}
+  ARGS      -O -DHAVE_FFTW3 -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${MPTK_SOURCE_DIR}/src/tinyxml/ -I/usr/include/ -I${MPTK_SOURCE_DIR} -I${MPTK_SOURCE_DIR}/src/libdsp_windows/ -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${FFTW3_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/ ${MPTK_SOURCE_DIR}/src/matlab/dictread.cpp -L${MPTK_BINARY_DIR}/lib/release -lmptk
+      COMMENT   "MEX"
+  )
+ADD_CUSTOM_COMMAND(
+TARGET dictwrite_matlab
+  COMMAND   ${MEX_COMPILER}
+  ARGS      -O -DHAVE_FFTW3 -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${MPTK_SOURCE_DIR}/src/tinyxml/ -I/usr/include/ -I${MPTK_SOURCE_DIR} -I${MPTK_SOURCE_DIR}/src/libdsp_windows/ -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${FFTW3_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/ ${MPTK_SOURCE_DIR}/src/matlab/dictwrite.cpp -L${MPTK_BINARY_DIR}/lib/release -lmptk
+      COMMENT   "MEX"
+  )
+ADD_CUSTOM_COMMAND(
+TARGET loadenv_matlab
+  COMMAND   ${MEX_COMPILER}
+  ARGS      -O -DHAVE_FFTW3 -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${MPTK_SOURCE_DIR}/src/tinyxml/ -I/usr/include/ -I${MPTK_SOURCE_DIR} -I${MPTK_SOURCE_DIR}/src/libdsp_windows/ -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${FFTW3_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/ ${MPTK_SOURCE_DIR}/src/matlab/loadenv.cpp -L${MPTK_BINARY_DIR}/lib/release -lmptk
+      COMMENT   "MEX"
+  )
+ADD_CUSTOM_COMMAND(
+TARGET releaseenv_matlab
+  COMMAND   ${MEX_COMPILER}
+  ARGS      -O -DHAVE_FFTW3 -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${MPTK_SOURCE_DIR}/src/tinyxml/ -I/usr/include/ -I${MPTK_SOURCE_DIR} -I${MPTK_SOURCE_DIR}/src/libdsp_windows/ -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${FFTW3_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/ ${MPTK_SOURCE_DIR}/src/matlab/releaseenv.cpp -L${MPTK_BINARY_DIR}/lib/release -lmptk
+      COMMENT   "MEX"
+  )
+
+
+ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
 
 ADD_CUSTOM_COMMAND(
 TARGET bookread_matlab
@@ -78,6 +131,9 @@ TARGET releaseenv_matlab
   ARGS      -O -DHAVE_FFTW3 -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${MPTK_SOURCE_DIR}/src/tinyxml/ -I/usr/include/ -I${MPTK_SOURCE_DIR} -I${MPTK_SOURCE_DIR}/src/libdsp_windows/ -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${FFTW3_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/ ${MPTK_SOURCE_DIR}/src/matlab/releaseenv.cpp -L${MPTK_BINARY_DIR}/lib -lmptk
       COMMENT   "MEX"
   )
+
+
+ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
 CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/matlab/bookread.m ${MPTK_BINARY_DIR}/src/matlab/bookread.m
                  COPYONLY) 
 
@@ -98,52 +154,12 @@ CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/matlab/loadenv.m ${MPTK_BINARY_DIR}/src/ma
 CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/matlab/releaseenv.m ${MPTK_BINARY_DIR}/src/matlab/releaseenv.m
                  COPYONLY)
 
-ELSE(MEX_COMPILER) 
-MESSAGE("MEX compiler not fond, please set the path to Mex compiler or Matlab Mex files will not be compiled" )
-ENDIF(MEX_COMPILER)
-
 CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/matlab/scripts/bookover.m ${MPTK_BINARY_DIR}/src/matlab/bookover.m
                  COPYONLY)
 CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/matlab/scripts/bookplot.m ${MPTK_BINARY_DIR}/src/matlab/bookplot.m
                  COPYONLY) 
 CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/matlab/scripts/mpview.m ${MPTK_BINARY_DIR}/src/matlab/mpview.m
                  COPYONLY) 
-ELSE(UNIX) # INSTALL SCRIPT VERSION FOR WINDOWS
-
- CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/matlab/scripts/dictread.m ${MPTK_BINARY_DIR}/src/matlab/dictread.m
-                 COPYONLY)
- CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/matlab/scripts/dictwrite.m ${MPTK_BINARY_DIR}/src/matlab/dictwrite.m
-                 COPYONLY)
- CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/matlab/scripts/bookwrite.m ${MPTK_BINARY_DIR}/src/matlab/bookwrite.m
-                 COPYONLY)
- CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/matlab/scripts/bookread.m ${MPTK_BINARY_DIR}/src/matlab/bookread.m
-                 COPYONLY)
- CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/matlab/scripts/bookover.m ${MPTK_BINARY_DIR}/src/matlab/bookover.m
-                 COPYONLY)
- CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/matlab/scripts/bookplot.m ${MPTK_BINARY_DIR}/src/matlab/bookplot.m
-                 COPYONLY) 
- CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/matlab/scripts/mpview.m ${MPTK_BINARY_DIR}/src/matlab/mpview.m
-                 COPYONLY) 
-
-
-#Not actually implemented on windows
-#FIND_PROGRAM(MEX_COMPILER mex)
-#IF(MEX_COMPILER)
-#ADD_CUSTOM_TARGET(dictread_matlab ALL echo
-#      DEPENDS    ${MPTK_BINARY_DIR}/src/matlab/dictread.dll
-#    )
-#  ADD_CUSTOM_COMMAND(
-#TARGET dictread_matlab
-#  COMMAND   ${MEX_COMPILER}
-#  ARGS      -f ${MPTK_SOURCE_DIR}/src/matlab/mexopts.bat -O -DHAVE_FFTW3 -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${MPTK_SOURCE_DIR}/src/tinyxml/ -I/usr/include/ -I${MPTK_SOURCE_DIR} -I${MPTK_BINARY_DIR} -I${MPTK_SOURCE_DIR}/src/libdsp_windows/ -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${FFTW3_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/ ${MPTK_SOURCE_DIR}/src/matlab/dictread.cpp -L${MPTK_BINARY_DIR}/lib -lmptk
-#      COMMENT   "MEX"
-#  )
-
-
-ENDIF(MEX_COMPILER)
-ENDIF(UNIX)   
-IF(BUILD_SHARED_LIBS)
-IF(UNIX)
 INSTALL(FILES ${MPTK_BINARY_DIR}/src/matlab/dictread.${MEX_EXTENSION}
               ${MPTK_BINARY_DIR}/src/matlab/dictread.m
               ${MPTK_BINARY_DIR}/src/matlab/dictwrite.${MEX_EXTENSION}
@@ -160,9 +176,23 @@ INSTALL(FILES ${MPTK_BINARY_DIR}/src/matlab/dictread.${MEX_EXTENSION}
               ${MPTK_BINARY_DIR}/src/matlab/bookplot.m
               ${MPTK_BINARY_DIR}/src/matlab/mpview.m
 DESTINATION matlab)
-
-ELSE(UNIX)
-INSTALL(FILES ${MPTK_BINARY_DIR}/src/matlab/dictread.m
+ELSE(MEX_COMPILER) 
+MESSAGE("MEX compiler not fond, please set the path to Mex compiler or Matlab Mex files will not be compiled" )
+CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/matlab/scripts/dictread.m ${MPTK_BINARY_DIR}/src/matlab/dictread.m
+                 COPYONLY)
+ CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/matlab/scripts/dictwrite.m ${MPTK_BINARY_DIR}/src/matlab/dictwrite.m
+                 COPYONLY)
+ CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/matlab/scripts/bookwrite.m ${MPTK_BINARY_DIR}/src/matlab/bookwrite.m
+                 COPYONLY)
+ CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/matlab/scripts/bookread.m ${MPTK_BINARY_DIR}/src/matlab/bookread.m
+                 COPYONLY)
+ CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/matlab/scripts/bookover.m ${MPTK_BINARY_DIR}/src/matlab/bookover.m
+                 COPYONLY)
+ CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/matlab/scripts/bookplot.m ${MPTK_BINARY_DIR}/src/matlab/bookplot.m
+                 COPYONLY) 
+ CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/matlab/scripts/mpview.m ${MPTK_BINARY_DIR}/src/matlab/mpview.m
+                 COPYONLY) 
+ INSTALL(FILES ${MPTK_BINARY_DIR}/src/matlab/dictread.m
               ${MPTK_BINARY_DIR}/src/matlab/dictwrite.m
               ${MPTK_BINARY_DIR}/src/matlab/bookread.m
               ${MPTK_BINARY_DIR}/src/matlab/bookwrite.m
@@ -170,9 +200,7 @@ INSTALL(FILES ${MPTK_BINARY_DIR}/src/matlab/dictread.m
               ${MPTK_BINARY_DIR}/src/matlab/bookplot.m
               ${MPTK_BINARY_DIR}/src/matlab/mpview.m
 DESTINATION matlab)
-
-ENDIF(UNIX)
-ENDIF(BUILD_SHARED_LIBS)
+ENDIF(MEX_COMPILER)
 ENDIF(BUILD_MATLAB_MEX_FILES)
 
 # GOTO EXPERIMENTAL MEX FILES SUBDIRECTORY

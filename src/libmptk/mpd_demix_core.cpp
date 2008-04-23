@@ -357,8 +357,7 @@ unsigned short int MP_Mpd_demix_Core_c::step()
 {
 
   const char* func = "MP_Mpd_Core_c::step()";
-  unsigned int j;
-  int k;
+
   /* Reset the state info */
   state = 0;
 
@@ -381,15 +380,15 @@ unsigned short int MP_Mpd_demix_Core_c::step()
   maxSrc = 0;
 
   /* Follow through the remaining sources */
-  for ( unsigned int j = 1; j < mixer->numSources; j++ )
+  for ( unsigned int a = 1; a < mixer->numSources; a++ )
     {
-      dictArray->at(j)->update();
-      blockIdx = dictArray->at(j)->blockWithMaxIP;
-      val = dictArray->at(j)->block[blockIdx]->maxIPValue;
+      dictArray->at(a)->update();
+      blockIdx = dictArray->at(a)->blockWithMaxIP;
+      val = dictArray->at(a)->block[blockIdx]->maxIPValue;
       if ( val > max )
         {
           max = val;
-          maxSrc = j;
+          maxSrc = a;
           maxBlock = blockIdx;
         }
     }
@@ -413,11 +412,11 @@ unsigned short int MP_Mpd_demix_Core_c::step()
 
   mp_debug_msg( MP_DEBUG_MPD_LOOP, func, "mpd_demix DEBUG -- Updating the signals..." );
   /* - update the multiple signal */
-  for ( j = 0; j < mixer->numSources; j++ )
+  for ( unsigned int b = 0; b < mixer->numSources; b++ )
     {
-      maxAtom->amp[0] = maxAmp * (*(mixer->Ah + j*(mixer->numSources) + maxSrc));
-      if (approxArray && approxArray->size() == mixer->numSources) maxAtom->substract_add( dictArray->at(j)->signal, approxArray->at(maxSrc) );
-      else maxAtom->substract_add( dictArray->at(j)->signal, NULL );
+      maxAtom->amp[0] = maxAmp * (*(mixer->Ah + b*(mixer->numSources) + maxSrc));
+      if (approxArray && approxArray->size() == mixer->numSources) maxAtom->substract_add( dictArray->at(b)->signal, approxArray->at(maxSrc) );
+      else maxAtom->substract_add( dictArray->at(b)->signal, NULL );
     }
   /* Restore the initial atom's amplitude */
 
@@ -427,9 +426,9 @@ unsigned short int MP_Mpd_demix_Core_c::step()
      (note that maxAmp will be used in build_waveform, when calling
      substract_add_var_amp. that's why amp[k] is not multiplied by
      maxAmp) */
-  for ( k = 0; k < residual->numChans; k++)
+  for ( int c = 0; c < residual->numChans; c++)
     {
-      amp[k] = (*(mixer->mixer + k*(mixer->numSources) + maxSrc));
+      amp[c] = (*(mixer->mixer + c*(mixer->numSources) + maxSrc));
     }
 
   maxAtom->substract_add_var_amp( amp, residual->numChans, residual, NULL );
@@ -442,10 +441,10 @@ unsigned short int MP_Mpd_demix_Core_c::step()
   /*-----------------------------------------------------------------*/
   /* -- Keep track of the support where the signal has been modified */
   /*-----------------------------------------------------------------*/
-  for ( j = 0; j < mixer->numSources; j++ )
+  for ( unsigned int d = 0; d < mixer->numSources; d++ )
     {
-      dictArray->at(j)->touch[0].pos = maxAtom->support[0].pos;
-      dictArray->at(j)->touch[0].len = maxAtom->support[0].len;
+      dictArray->at(d)->touch[0].pos = maxAtom->support[0].pos;
+      dictArray->at(d)->touch[0].len = maxAtom->support[0].len;
     }
   residual->refresh_energy();
   residualEnergyBefore = residualEnergy;

@@ -48,9 +48,15 @@
 #include "mtrand.h"
 #include "mp_system.h"
 
+
 /* Global variables */
+#ifdef _DECLAREMTI
+int mti=MTRAND_N+1; /* mti==N+1 means mt[N] is not initialized */ 
+#else
+extern int mti=MTRAND_N+1; /* mti==N+1 means mt[N] is not initialized */
+#endif
 unsigned long mt[MTRAND_N]; /* the array for the state vector  */
-int mti=MTRAND_N+1; /* mti==N+1 means mt[N] is not initialized */
+
 
 /* initializes mt[N] with a seed */
 void init_genrand(unsigned long s)

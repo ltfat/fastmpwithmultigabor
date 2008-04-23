@@ -46,10 +46,10 @@
 
 
 /** \brief A wrapper for fread which byte-swaps if the machine is BIG_ENDIAN. */
-size_t mp_fread( void *buf, size_t size, size_t n, FILE *fid );
+MPTK_LIB_EXPORT size_t mp_fread( void *buf, size_t size, size_t n, FILE *fid );
 
 /** \brief A wrapper for fwrite which byte-swaps if the machine is BIG_ENDIAN. */
-size_t mp_fwrite( void *buf, size_t size, size_t n, FILE *fid );
+MPTK_LIB_EXPORT size_t mp_fwrite( void *buf, size_t size, size_t n, FILE *fid );
 
 
 /** \brief A utility that computes how many frames with a given frameLength
@@ -147,13 +147,13 @@ public:
   
 #define MP_VAR_ARRAY_DEFAULT_BLOCK_SIZE 1024
 
-  MP_Var_Array_c( void ) { elem = NULL; nElem = maxNElem = 0; blockSize = MP_VAR_ARRAY_DEFAULT_BLOCK_SIZE; }
-  MP_Var_Array_c( unsigned long int setBlockSize ) { elem = NULL; nElem = maxNElem = 0; blockSize = setBlockSize; }
-  ~MP_Var_Array_c() { if ( elem ) free( elem ); }
-  int append( TYPE newElem );
-  unsigned long int save_ui_to_text ( const char* fName );
-  unsigned long int save ( const char* fName );
-  void clear() { if (elem != NULL) memset( elem, 0, maxNElem*sizeof( TYPE ) ); nElem = 0; }
+  MPTK_LIB_EXPORT MP_Var_Array_c( void ) { elem = NULL; nElem = maxNElem = 0; blockSize = MP_VAR_ARRAY_DEFAULT_BLOCK_SIZE; }
+  MPTK_LIB_EXPORT MP_Var_Array_c( unsigned long int setBlockSize ) { elem = NULL; nElem = maxNElem = 0; blockSize = setBlockSize; }
+  MPTK_LIB_EXPORT ~MP_Var_Array_c() { if ( elem ) free( elem ); }
+  MPTK_LIB_EXPORT int append( TYPE newElem );
+  MPTK_LIB_EXPORT unsigned long int save_ui_to_text ( const char* fName );
+  MPTK_LIB_EXPORT unsigned long int save ( const char* fName );
+  MPTK_LIB_EXPORT void clear() { if (elem != NULL) memset( elem, 0, maxNElem*sizeof( TYPE ) ); nElem = 0; }
 };
 
 //#include "general.cpp" // <-- tips here for link editing !!!

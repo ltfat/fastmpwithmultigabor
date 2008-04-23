@@ -154,14 +154,14 @@ class MP_FFT_Interface_c
      *
      * \sa make_window(), exec_complex().
      */
-    static MP_FFT_Interface_c* init( const unsigned long int windowSize,
+   MPTK_LIB_EXPORT static MP_FFT_Interface_c* init( const unsigned long int windowSize,
                                      const unsigned char windowType,
                                      const double windowOption,
                                      const unsigned long int fftSize );
 
     /** \brief A generic method to test if the default instantiation of the FFT class for a given
      * window scales correctly the energy of a signal, which is a clue whether it is correctly implemented */
-    static int test(const unsigned long int windowSize,
+   MPTK_LIB_EXPORT static int test(const unsigned long int windowSize,
                     const unsigned char windowType,
                     const double windowOption,
                     MP_Real_t *samples);
@@ -174,13 +174,13 @@ class MP_FFT_Interface_c
   protected:
 
     /** \brief A generic constructor used only by non-virtual children classes */
-    MP_FFT_Interface_c( const unsigned long int windowSize,
+    MPTK_LIB_EXPORT MP_FFT_Interface_c( const unsigned long int windowSize,
                         const unsigned char windowType,
                         const double windowOption,
                         const unsigned long int fftSize );
 
   public:
-    virtual ~MP_FFT_Interface_c();
+    MPTK_LIB_EXPORT virtual ~MP_FFT_Interface_c();
 
 
     /***************************/
@@ -207,8 +207,8 @@ class MP_FFT_Interface_c
      * component and the Nyquist frequency, inclusive.
      *
      */
-    virtual void exec_complex( MP_Real_t *in, MP_Real_t *re, MP_Real_t *im ) = 0;
-    virtual void exec_complex_without_window( MP_Real_t *in, MP_Real_t *re, MP_Real_t *im ) = 0;
+    MPTK_LIB_EXPORT virtual void exec_complex( MP_Real_t *in, MP_Real_t *re, MP_Real_t *im ) = 0;
+    MPTK_LIB_EXPORT virtual void exec_complex_without_window( MP_Real_t *in, MP_Real_t *re, MP_Real_t *im ) = 0;
     
      /** \brief Performs the complex FFT of an input signal buffer and puts the result in two output buffers.
       * The input signal is inverted for processing, used by MP_Convolution_FFT_c
@@ -229,8 +229,8 @@ class MP_FFT_Interface_c
      * component and the Nyquist frequency, inclusive.
      *
      */
-    virtual void exec_complex_flip( MP_Real_t *in, MP_Real_t *re, MP_Real_t *im ) = 0;
-    virtual void exec_complex_flip_without_window( MP_Real_t *in, MP_Real_t *re, MP_Real_t *im ) = 0;
+   MPTK_LIB_EXPORT virtual void exec_complex_flip( MP_Real_t *in, MP_Real_t *re, MP_Real_t *im ) = 0;
+   MPTK_LIB_EXPORT virtual void exec_complex_flip_without_window( MP_Real_t *in, MP_Real_t *re, MP_Real_t *im ) = 0;
 
     /** \brief Performs the complex inverse FFT of two input buffers and puts the result in an output signal buffer.
      *
@@ -253,13 +253,13 @@ class MP_FFT_Interface_c
      * frequency.
      *
      */
-    virtual void exec_complex_inverse( MP_Real_t *re, MP_Real_t *im, MP_Real_t *output ) = 0;
-    virtual void exec_complex_inverse_without_window( MP_Real_t *re, MP_Real_t *im, MP_Real_t *output ) = 0;
+   MPTK_LIB_EXPORT virtual void exec_complex_inverse( MP_Real_t *re, MP_Real_t *im, MP_Real_t *output ) = 0;
+   MPTK_LIB_EXPORT virtual void exec_complex_inverse_without_window( MP_Real_t *re, MP_Real_t *im, MP_Real_t *output ) = 0;
 
     /** \brief Performs the complex FFT of an input signal buffer multiplied by a
         demodulation function, and puts the result in two output buffers.
      */
-    virtual void exec_complex_demod( MP_Real_t *in,
+   MPTK_LIB_EXPORT virtual void exec_complex_demod( MP_Real_t *in,
                                      MP_Real_t *demodFuncRe, MP_Real_t *demodFuncIm,
                                      MP_Real_t *re, MP_Real_t *im );
 
@@ -278,19 +278,19 @@ class MP_FFT_Interface_c
      * \f$(\mbox{re}[k],\mbox{im}[k])\f$ and details about zero padding
      * and the use of numFreqs.
      */
-    virtual void exec_mag( MP_Real_t *in, MP_Real_t *mag );
+   MPTK_LIB_EXPORT virtual void exec_mag( MP_Real_t *in, MP_Real_t *mag );
 
     /** \brief Initialise the fft library configuration
      * If FFTW3 is used, a wisdom file is loaded in order to fix the plan used for
      *  the FFT computation. This configuration allows the reproducibility of the computation 
      */
-    static bool init_fft_library_config();
+   MPTK_LIB_EXPORT static bool init_fft_library_config();
 
     /** \brief Save the fft library configuration
      * If FFTW3 is used, a wisdom file can be saved if it's necessary, this files will be used
      * to set the FFTW wisdom to fix FFTW plan for another computation
      */
-    static bool save_fft_library_config();
+   MPTK_LIB_EXPORT static bool save_fft_library_config();
 
   };
 
@@ -308,6 +308,15 @@ class MP_FFT_Interface_c
 #ifdef USE_FFTW3
 
 #include <fftw3.h>
+static void my_fftw_write_char(char c, void *f) { fputc(c, (FILE *) f); }
+#define fftw_export_wisdom_to_file(f) fftw_export_wisdom(my_fftw_write_char, (void*) (f))
+#define fftwf_export_wisdom_to_file(f) fftwf_export_wisdom(my_fftw_write_char, (void*) (f))
+#define fftwl_export_wisdom_to_file(f) fftwl_export_wisdom(my_fftw_write_char, (void*) (f))
+
+static int my_fftw_read_char(void *f) { return fgetc((FILE *) f); }
+#define fftw_import_wisdom_from_file(f) fftw_import_wisdom(my_fftw_read_char, (void*) (f))
+#define fftwf_import_wisdom_from_file(f) fftwf_import_wisdom(my_fftw_read_char, (void*) (f))
+#define fftwl_import_wisdom_from_file(f) fftwl_import_wisdom(my_fftw_read_char, (void*) (f))
 
 /*********************************/
 /*                               */

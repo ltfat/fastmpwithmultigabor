@@ -34,7 +34,7 @@
 #ifndef MAIN_WINDOW_H_
 #define MAIN_WINDOW_H_
 
-using namespace std;
+
 
 #include "ui_MPTK_GUI_APP.h"
 #include <QMetaType>
@@ -53,6 +53,8 @@ using namespace std;
 #include <QMainWindow>
 #include <QMessageBox>
 #include <QFileDialog>
+
+using namespace std;
 /**
  * \brief MainWindow is a class that provides the GUI for MPTK library
  * \note inherit from the window defined in designer Ui::MainWindow and QMainWindow

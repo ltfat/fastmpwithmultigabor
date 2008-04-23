@@ -204,7 +204,7 @@ void MainWindow::on_tabWidget_currentChanged()
 // play in mpd tab
 void MainWindow::on_btnPlay_clicked()
 {
-  if (NULL!=guiCallBack->signal)
+  if ((NULL!=guiCallBack->signal))
     {
       std::vector<bool> * selectedChannel =  new std::vector<bool>(guiCallBack->signal->numChans, false);
       for (int i = 0 ; i<guiCallBack->signal->numChans ; i++)
@@ -695,16 +695,10 @@ void MainWindow::on_btnOpenDefaultSig_clicked()
   std::string strAppDirectory;
   if (!guiCallBackDemo->coreInit())
     {
-#ifdef __WIN32__
-      char szAppPath[MAX_PATH] = "";
 
-      GetModuleFileName(NULL, szAppPath, MAX_PATH);
-
-// Extract directory
-      strAppDirectory = szAppPath;
-
-      strAppDirectory = strAppDirectory.substr(0, strAppDirectory.rfind("\\"));
-      strAppDirectory += "\\reference\\signal\\glockenspiel.wav";
+      strAppDirectory = MPTK_Env_c::get_env()->get_config_path("reference");
+      if (strAppDirectory.size()>0) {
+      strAppDirectory += "/signal/glockenspiel.wav";
       FILE *fp = fopen (strAppDirectory.c_str(), "r");
       if (fp == NULL)
         {
@@ -719,26 +713,10 @@ void MainWindow::on_btnOpenDefaultSig_clicked()
           guiCallBackDemo->initMpdCore(QString(strAppDirectory.c_str()), "");
         }
 
-#else
-      char path[2048];
-      getcwd(path, 2004);
-      strAppDirectory = path;
-      strAppDirectory += "/reference/signal/glockenspiel.wav";
-      FILE *fp = fopen (strAppDirectory.c_str(), "r");
-      if (fp == NULL)
-        {
-          /* no files*/
-          dialog->errorMessage("Cannot open signal file\n Please open a signal file");
-        }
-      else
-        {
-          /* files */
-          fclose(fp);
-          labelOriginalSignalDemo->setText(QString(strAppDirectory.c_str()));
-          guiCallBackDemo->initMpdCore(QString(strAppDirectory.c_str()), "");
-        }
-#endif /* WIN32 */
-    }
+
+    } else dialog->errorMessage("Cannot find the reference files path\n Please open a signal file");
+      
+      }
 }
 
 void MainWindow::on_btnValidateDefautlDict_clicked()
@@ -750,16 +728,10 @@ void MainWindow::on_btnValidateDefautlDict_clicked()
   char buf3[32];
   if (guiCallBackDemo->coreInit() && !dictOpenDemo)
     {
-#ifdef __WIN32__
-      char szAppPath[MAX_PATH] = "";
 
-      GetModuleFileName(NULL, szAppPath, MAX_PATH);
-
-      /* Extract directory*/
-      strAppDirectory = szAppPath;
-
-      strAppDirectory = strAppDirectory.substr(0, strAppDirectory.rfind("\\"));
-      strAppDirectory += "\\reference\\dictionary\\dic_gabor_two_scales.xml";
+      strAppDirectory = MPTK_Env_c::get_env()->get_config_path("reference");
+      if (strAppDirectory.size()>0) {
+      strAppDirectory += "/dictionary/dic_gabor_two_scales.xml";
       FILE *fp = fopen (strAppDirectory.c_str(), "r");
       if (fp == NULL)
         {
@@ -784,44 +756,13 @@ void MainWindow::on_btnValidateDefautlDict_clicked()
           dictOpenDemoDefault = true;
           groupBox_19->hide();
         }
-
-#else
-      char path[2048];
-      getcwd(path, 2004);
-      strAppDirectory = path;
-      strAppDirectory += "/reference/dictionary/dic_gabor_two_scales.xml";
-      FILE *fp = fopen (strAppDirectory.c_str(), "r");
-      if (fp == NULL)
-        {
-          /* no files*/
-          dialog->errorMessage("Cannot open dictionary file\n Please open a dictionary or use the custom dictionary");
-        }
-      else
-        {
-          /* files */
-          fclose(fp);
-          if (guiCallBackDemo->coreInit())labelDictDemixDemo->setText(QString(strAppDirectory.c_str()));
-          if (guiCallBackDemo->coreInit())guiCallBackDemo->setDictionary(QString(strAppDirectory.c_str()));
-          guiCallBackDemo->getDictFilterlengths(2);
-          sprintf(buf, "%lu",guiCallBackDemo->dictFilterLengthsVector->at(0));
-          labeltransientsize->setText(buf);
-          sprintf(buf2, "%f",1000.0*guiCallBackDemo->dictFilterLengthsVector->at(0)/guiCallBackDemo->getSignalSampleRate());
-          labeltransientsizemilliseconds->setText(buf2);
-          sprintf(buf1, "%lu",guiCallBackDemo->dictFilterLengthsVector->at(1));
-          labeltonalsize->setText(buf1);
-          sprintf(buf3, "%f",1000.0*guiCallBackDemo->dictFilterLengthsVector->at(1)/guiCallBackDemo->getSignalSampleRate());
-          labeltonalsizemilliseconds->setText(buf3);
-          dictOpenDemoDefault = true;
-          groupBox_19->hide();
-        }
-#endif /* WIN32 */
-
+      } else dialog->errorMessage("Cannot find the reference files path\n Please open a signal file");
     }
 }
 
 void MainWindow::on_btnOpenDefaultMixerDemix_clicked(){
   std::string strAppDirectory;
-#ifdef __WIN32__
+#ifdef _WIN32
       char szAppPath[MAX_PATH] = "";
 
       GetModuleFileName(NULL, szAppPath, MAX_PATH);
@@ -879,7 +820,7 @@ void MainWindow::on_btnOpenDefaultSigDemix_clicked(){
   std::string strAppDirectory;
     if (guiCallBackDemix->mixer != NULL)
     {
-#ifdef __WIN32__
+#ifdef _WIN32
       char szAppPath[MAX_PATH] = "";
 
       GetModuleFileName(NULL, szAppPath, MAX_PATH);
@@ -944,27 +885,27 @@ void MainWindow::on_btnValidateCustomDict_clicked()
   if (guiCallBackDemo->coreInit() && !dictOpenDemo)
     {
 
-      MP_Block_Factory_c::get_block_factory()->get_block_default_map(comboBoxBlock1Type->currentText().toStdString().c_str())(parameterCustomBlock1);
+      MP_Block_Factory_c::get_block_factory()->get_block_default_map(comboBoxBlock1Type->currentText().toAscii().constData())(parameterCustomBlock1);
 
       if (lineEditCustomBlock1WindowLen->text().toInt()> 0)
         {
-          (*parameterCustomBlock1)["windowLen"] = lineEditCustomBlock1WindowLen->text().toStdString();
+          (*parameterCustomBlock1)["windowLen"] = lineEditCustomBlock1WindowLen->text().toAscii().constData();
 
         }
       if (lineEditCustomBlock1FftSize->text().toInt()> 0 && lineEditCustomBlock1FftSize->text().toInt()%2 ==0)
         {
-          (*parameterCustomBlock1)["fftSize"] = lineEditCustomBlock1FftSize->text().toStdString();
+          (*parameterCustomBlock1)["fftSize"] = lineEditCustomBlock1FftSize->text().toAscii().constData();
         }
 
-      MP_Block_Factory_c::get_block_factory()->get_block_default_map(comboBoxBlock2Type->currentText().toStdString().c_str())(parameterCustomBlock2);
+      MP_Block_Factory_c::get_block_factory()->get_block_default_map(comboBoxBlock2Type->currentText().toAscii().constData())(parameterCustomBlock2);
       if (lineEditCustomBlock2WindowLen->text().toInt()> 0)
         {
-          (*parameterCustomBlock2)["windowLen"] = lineEditCustomBlock2WindowLen->text().toStdString();
+          (*parameterCustomBlock2)["windowLen"] = lineEditCustomBlock2WindowLen->text().toAscii().constData();
 
         }
       if (lineEditCustomBlock2FftSize->text().toInt()> 0 && lineEditCustomBlock2FftSize->text().toInt()%2 ==0)
         {
-          (*parameterCustomBlock2)["fftSize"] = lineEditCustomBlock2FftSize->text().toStdString();
+          (*parameterCustomBlock2)["fftSize"] = lineEditCustomBlock2FftSize->text().toAscii().constData();
         }
 
       guiCallBackDemo->initDictionary();
@@ -999,7 +940,7 @@ void MainWindow::on_btnLauchDemo_clicked()
 void MainWindow::on_btnPlayDemo_clicked()
 {
 
-  if (NULL!=guiCallBackDemo->signal)
+  if ((NULL!=guiCallBackDemo->signal) && (NULL!=guiCallBackDemo->transientSignal) && (NULL!=guiCallBackDemo->otherSignal))
     {
       std::vector<bool> * selectedChannel =  new std::vector<bool>(guiCallBackDemo->signal->numChans, false);
       for (int i = 0 ; i<guiCallBackDemo->signal->numChans ; i++)

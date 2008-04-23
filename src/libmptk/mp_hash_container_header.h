@@ -93,32 +93,42 @@
 #include <ext/hash_map>
 #endif
 
-struct mp_hash_fun
- { // define hash function for strings
- enum
-  { // parameters for hash table
-  bucket_size = 4, // 0 < bucket_size
-  min_buckets = 8}; // min_buckets = 2 ^^ N, 0 < N
 
- size_t operator()(const char *s1) const
-  { // hash string s1 to size_t value
-  const unsigned char *p = (const unsigned char *)s1;
-  size_t hashval = 5381;
-        int c;
 
-        while (c = *p++)
-            hashval = ((hashval << 5) + hashval) + c; /* hash * 33 + c */
-
-  return (hashval);
-  }
-
- }; 
-
-struct mp_eqstr
-{
-  bool operator()(const char* s1, const char* s2) const
-  {
-    return strcmp(s1, s2) == 0;
+#if defined(SGI_STL)
+ 
+#include <string>
+ 
+namespace STL_EXT_NM {
+    template<>
+    struct hash<std::string> {
+        size_t operator()(std::string const & str) const {
+            hash<const char *> H;
+            return H(str.c_str());
+        }
+    };   
+}
+ 
+struct cmp_cstr {
+  bool operator()(char const * s1, char const * s2) const {
+    // test if s1 ordered before s2
+    return (strcmp(s1, s2) == 0);
   }
 };
+ 
+#define CSTRING_HASHER STL_EXT_NM::hash<char const *>, cmp_cstr
+ 
+#elif defined(MSC_STL)
+ 
+struct cmp_cstr { 
+  bool operator()(char const * s1, char const * s2) const {
+    // test if s1 ordered before s2
+    return (strcmp(s1, s2) < 0);
+  }
+};
+ 
+#define CSTRING_HASHER STL_EXT_NM::hash_compare<char const *, cmp_cstr>
+ 
+#endif
+
 #endif /*MP_HASH_CONTAINER_HEADER_H_*/

@@ -580,9 +580,7 @@ int main( int argc, char **argv )
   FILE* fid;
 
   unsigned short int numDictionaries;
-  
-  unsigned short int j;
-  unsigned long int i=0;
+  unsigned long int i;
   char line[1024]; 
   char ** dictFileNameList = NULL; 
   
@@ -670,7 +668,7 @@ for (unsigned int j =0; j <mixer->numSources; j++) bookArray->at(j) = MP_Book_c:
       free_mem(dictArray, bookArray,  mixer, inSignal, mpdDemixCore, dictFileNameList  );
       return( ERR_DICT );
     } else {
-      for ( j = 0; j < mixer->numSources; j++ ) {
+      for ( unsigned short int j = 0; j < mixer->numSources; j++ ) {
 	if ( (dictFileNameList[j] = (char*)malloc(1024 * sizeof(char))) == NULL ) {
 	  mp_error_msg( func ,"Can't create the char* array of size [%hu] called dictFileNameList[%hu].\n", 1024, j );
 	  free_mem(dictArray, bookArray,  mixer, inSignal, mpdDemixCore, dictFileNameList  );
@@ -704,27 +702,27 @@ for (unsigned int j =0; j <mixer->numSources; j++) bookArray->at(j) = MP_Book_c:
                   free_mem(dictArray, bookArray,  mixer, inSignal, mpdDemixCore, dictFileNameList  );
                   return( ERR_DICT );
                 }
-              for ( j = 0; j < mixer->numSources; j++ )
+              for ( unsigned short int m = 0; m < mixer->numSources; m++ )
                 {
                   if ( (fgets( line, MP_MAX_STR_LEN, fid ) == NULL) ||
                        (strlen(line) == 0) )
                     {
-                      mp_error_msg( func, "Can't read the name of the [%hu]th dictionary filename from file %s.\n", j, dictFileName );
+                      mp_error_msg( func, "Can't read the name of the [%hu]th dictionary filename from file %s.\n", m, dictFileName );
                       free_mem(dictArray, bookArray,  mixer, inSignal, mpdDemixCore, dictFileNameList  );
                       return( ERR_DICT );
                     }
                   /* cut the newline character */
-                  strncpy(dictFileNameList[j],line,strlen(line) - 1);
-                  dictFileNameList[j][strlen(line)-1] = '\0';
+                  strncpy(dictFileNameList[m],line,strlen(line) - 1);
+                  dictFileNameList[m][strlen(line)-1] = '\0';
 
                 }
 
             }
           else
             {
-              for ( j = 0; j < mixer->numSources; j++ )
+              for ( unsigned short int n = 0; n < mixer->numSources; n++ )
                 {
-                  strcpy(dictFileNameList[j],dictFileName);
+                  strcpy(dictFileNameList[n],dictFileName);
                   
                 }
             }
@@ -733,40 +731,40 @@ for (unsigned int j =0; j <mixer->numSources; j++) bookArray->at(j) = MP_Book_c:
       else
         {
           mp_info_msg( func, "dictFileName is NULL, mpd_demix will use the default gabor block.\n" );
-          for ( j = 0; j < mixer->numSources; j++ )
+          for ( unsigned short int o = 0; o < mixer->numSources; o++ )
             {
-              dictFileNameList[j] = NULL;
+              dictFileNameList[o] = NULL;
             }
         }
       /* Build the dictionary array */
      dictArray = new  std::vector<MP_Dict_c*>(mixer->numSources);
      
-      for ( j = 0; j < mixer->numSources; j++ )
-        {dictArray->at(j)= MP_Dict_c::init();
+      for ( unsigned short int p = 0; p < mixer->numSources; p++ )
+        {dictArray->at(p)= MP_Dict_c::init();
    
-          if ( dictArray->at(j) == NULL )
+          if ( dictArray->at(p) == NULL )
             {
-               mp_error_msg( func, "Can't create a new dictionary for source [%hu].\n", j );
+               mp_error_msg( func, "Can't create a new dictionary for source [%hu].\n", p );
                free_mem(dictArray, bookArray,  mixer, inSignal, mpdDemixCore, dictFileNameList  );
               return( ERR_DICT );
             }
-          if ( dictFileNameList[j] != NULL )
+          if ( dictFileNameList[p] != NULL )
             { 
-             dictArray->at(j)->add_blocks( dictFileNameList[j] );
+             dictArray->at(p)->add_blocks( dictFileNameList[p] );
             }
           /* If no file name is given, use the following default dictionnary: */
           else { 
               mp_info_msg( func, "Use the default gabor block.\n" );
-              dictArray->at(j)->add_default_block("gabor");
+              dictArray->at(p)->add_default_block("gabor");
           }
                   
           if ( MPD_VERBOSE )
             {
-              if ( dictFileNameList[j] ) mp_info_msg( func, "The dictionary for source [%hu], read from file [%s], contains [%u] blocks:\n",
-                                                    j,dictFileNameList[j], dictArray->at(j)->numBlocks );
-              else mp_info_msg( func, " The default dictionary for source [%hu] contains [%u] blocks:\n", j, dictArray->at(j)->numBlocks );
-              for ( i = 0; i < dictArray->at(j)->numBlocks; i++ ) dictArray->at(j)->block[i]->info( stderr );
-              mp_info_msg( func, "End of dictionary for source [%hu].\n",j );
+              if ( dictFileNameList[p] ) mp_info_msg( func, "The dictionary for source [%hu], read from file [%s], contains [%u] blocks:\n",
+                                                    p,dictFileNameList[p], dictArray->at(p)->numBlocks );
+              else mp_info_msg( func, " The default dictionary for source [%hu] contains [%u] blocks:\n", p, dictArray->at(p)->numBlocks );
+              for ( unsigned int q = 0; q < dictArray->at(p)->numBlocks; q++ ) dictArray->at(p)->block[q]->info( stderr );
+              mp_info_msg( func, "End of dictionary for source [%hu].\n",p );
             }
 
         }
@@ -779,7 +777,7 @@ for (unsigned int j =0; j <mixer->numSources; j++) bookArray->at(j) = MP_Book_c:
       if ( dictFileName ) mp_info_msg( func, "The dictionary read from file [%s] contains [%u] blocks:\n",
                                      dictFileName, dictArray->at(0)->numBlocks );
       else mp_info_msg( func, "The default dictionary contains [%u] blocks:\n", dictArray->at(0)->numBlocks );
-      for ( i = 0; i < dictArray->at(0)->numBlocks; i++ ) dictArray->at(0)->block[i]->info( stderr );
+      for ( unsigned int i = 0; i < dictArray->at(0)->numBlocks; i++ ) dictArray->at(0)->block[i]->info( stderr );
       mp_info_msg( func, "End of dictionary.\n" );
     }
     

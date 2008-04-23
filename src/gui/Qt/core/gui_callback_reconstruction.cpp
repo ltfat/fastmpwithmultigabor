@@ -175,7 +175,7 @@ void MP_Gui_Callback_Reconstruct_c::run()
 int MP_Gui_Callback_Reconstruct_c::openBook(QString fileName)
 {
   if (book) delete book;
-  FILE* fid = fopen(fileName.toStdString().c_str(),"rb");
+  FILE* fid = fopen(fileName.toAscii().constData(),"rb");
   book = MP_Book_c::create(fid);
   fclose(fid);
   opBook = BOOK_OPENED;
@@ -184,12 +184,12 @@ int MP_Gui_Callback_Reconstruct_c::openBook(QString fileName)
 
 void MP_Gui_Callback_Reconstruct_c::saveReconstruct(QString fileName)
 {
-  if (reconstruct) reconstruct->wavwrite(fileName.toStdString().c_str());
+  if (reconstruct) reconstruct->wavwrite(fileName.toAscii().constData());
 }
 
 void MP_Gui_Callback_Reconstruct_c::saveApproximant(QString fileName)
 {
-  if (approximant) approximant->wavwrite(fileName.toStdString().c_str());
+  if (approximant) approximant->wavwrite(fileName.toAscii().constData());
 }
 
 int MP_Gui_Callback_Reconstruct_c::getSignalOpen()
@@ -201,7 +201,7 @@ int MP_Gui_Callback_Reconstruct_c::openSignal(QString fileName)
     {
       if (reconstruct != NULL) delete reconstruct;
       if (approximant != NULL) delete approximant;
-      reconstruct = MP_Signal_c::init( fileName.toStdString().c_str() );
+      reconstruct = MP_Signal_c::init( fileName.toAscii().constData() );
       if (reconstruct != NULL) approximant = MP_Signal_c::init( reconstruct->numChans, reconstruct->numSamples, reconstruct->sampleRate );
       if (reconstruct != NULL)
         {

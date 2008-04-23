@@ -1,5 +1,7 @@
 #include "mex.h"
 #include "mptk.h"
+#include <iostream>
+#include <sstream>
 
 
 void mexFunction(int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[])

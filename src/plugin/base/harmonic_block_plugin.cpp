@@ -816,7 +816,7 @@ unsigned int MP_Harmonic_Block_Plugin_c::create_atom( MP_Atom_c **atom,
                   assert( im == 0 );
                   amp = sqrt( energy );
                   if   ( re >= 0 ) phase = 0.0;  /* corresponds to the '+' sign */
-                  else             phase = M_PI; /* corresponds to the '-' sign exp(i\pi) */
+                  else             phase = MP_PI; /* corresponds to the '-' sign exp(i\pi) */
                 }
               /* When the atom and its conjugate are aligned, they should be real
                * and the phase is simply the sign of the inner product (re,im) = (re,0) */

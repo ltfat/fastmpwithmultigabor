@@ -170,7 +170,7 @@ class MP_Dict_c
      * It is mandatory to call dict.copy_signal( signal ) or
      * dict.plug_signal( signal ) before starting to iterate.
      */
-    static MP_Dict_c* init( const char* dictFileName );
+   MPTK_LIB_EXPORT static MP_Dict_c* init( const char* dictFileName );
 
     /** \brief Factory function which creates an empty dictionary.
      *
@@ -179,16 +179,16 @@ class MP_Dict_c
      * dict.copy_signal( signal ) or dict.plug_signal( signal ).
      *
      */
-    static MP_Dict_c* init( void );
+   MPTK_LIB_EXPORT static MP_Dict_c* init( void );
 
   protected:
     /* NULL constructor */
-    MP_Dict_c();
+    MPTK_LIB_EXPORT MP_Dict_c();
 
 
   public:
     /* Destructor */
-    ~MP_Dict_c();
+    MPTK_LIB_EXPORT ~MP_Dict_c();
 
 
     /***************************/
@@ -201,7 +201,7 @@ class MP_Dict_c
     *  \param fName A string containing the file name
     * \return an error number
     */
-    int load_xml_file(const char* fName);
+    MPTK_LIB_EXPORT int load_xml_file(const char* fName);
     
     /** \brief Parse dictionary in xml format using
     * tiny XML library.
@@ -209,26 +209,26 @@ class MP_Dict_c
     *  \param doc A TiXmlDocument
     *  \return an error number
     */
-    int parse_xml_file(TiXmlDocument doc);
+    MPTK_LIB_EXPORT int parse_xml_file(TiXmlDocument doc);
 
     /** \brief Print the dictionary structure to a file, in an xml form which can be used by add_blocks()
      *
      * \param fName A string containing the xml file name.
      * \return zero if succed.
      */
-    int print( const char *fName );
+    MPTK_LIB_EXPORT int print( const char *fName );
 
     /** \brief Add a few blocks which structure is determined by the dictionary structure file
       * \param fName a dictionary structure file name where the structure is read from
       * \return the number of added blocks
       */
-    int add_blocks( const char *fName );
+    MPTK_LIB_EXPORT int add_blocks( const char *fName );
     
        /** \brief Add a few blocks which structure is determined by the dictionary structure file
       * \param doc a dictionary structure file in xml where the structure is read from
       * \return the number of added blocks
       */
-    int add_blocks( TiXmlDocument doc );
+    MPTK_LIB_EXPORT int add_blocks( TiXmlDocument doc );
 
     /** \brief Add a block to a dictionary
      *
@@ -238,7 +238,7 @@ class MP_Dict_c
      * has been successfully added, or 0 in case of failure or
      * if newBlock was initially NULL.
      */
-    int add_block( MP_Block_c *newBlock );
+    MPTK_LIB_EXPORT int add_block( MP_Block_c *newBlock );
   
     /** \brief Add a  default blocks to a dictionary.
      * \param blockName A string containing default block name to add
@@ -246,7 +246,7 @@ class MP_Dict_c
      * has been successfully added, or 0 in case of failure or
      * if newBlock was initially NULL.
      */
-    int add_default_block( const char* blockName );
+    MPTK_LIB_EXPORT int add_default_block( const char* blockName );
 
     /***************************/
     /* MISC METHODS            */
@@ -264,7 +264,7 @@ class MP_Dict_c
     * \param setPropertyMap a map<const char*, PropertiesMap, ltstr> contenaing all the properties map with their ID
     * \return true in case of success
     */
-    bool parse_property(TiXmlNode * pParent, map<string, PropertiesMap, mp_ltstring> *setPropertyMap);
+    MPTK_LIB_EXPORT bool parse_property(TiXmlNode * pParent, map<string, PropertiesMap, mp_ltstring> *setPropertyMap);
 
     /** \brief Create a block using the factory method
     *
@@ -276,7 +276,7 @@ class MP_Dict_c
     * \return the number of created block
     */
     
-    int create_block(MP_Signal_c* setSignal , map<string, string, mp_ltstring>* setPropertyMap);
+    MPTK_LIB_EXPORT int create_block(MP_Signal_c* setSignal , map<string, string, mp_ltstring>* setPropertyMap);
     
     /** \brief Parse the xml block and create it using eventually a map of properties stocked in the properties map
     *
@@ -287,7 +287,7 @@ class MP_Dict_c
     *
     * \return the number of created block
     */
-    int parse_block(TiXmlNode * pParent , map<string, PropertiesMap, mp_ltstring> *setPropertyMap);
+    MPTK_LIB_EXPORT int parse_block(TiXmlNode * pParent , map<string, PropertiesMap, mp_ltstring> *setPropertyMap);
 
     /** \brief Parse the  parameter list in xml block and create each block using a different parameter of the list
     *  and eventually a map of properties stocked in the properties map
@@ -299,14 +299,14 @@ class MP_Dict_c
     *
     * \return the number of created block
     */
-    int parse_param_list(map<string, list<string>, mp_ltstring> setVarParam , map<string, string, mp_ltstring> *setPropertyMap);
+    MPTK_LIB_EXPORT int parse_param_list(map<string, list<string>, mp_ltstring> setVarParam , map<string, string, mp_ltstring> *setPropertyMap);
 
     /** \brief Test
      */
-    static int test( char* signalFileName, char* dicoFileName );
+    MPTK_LIB_EXPORT static int test( char* signalFileName, char* dicoFileName );
 
     /** \brief Get the number of atoms of the dictionary */
-    unsigned long int num_atoms( void );
+    MPTK_LIB_EXPORT unsigned long int num_atoms( void );
 
 
     /** \brief Copy a signal into the dictionary
@@ -320,7 +320,7 @@ class MP_Dict_c
      *
      * \return nonzero in case of failure, zero otherwise.
      */
-    int copy_signal( MP_Signal_c *setSignal );
+    MPTK_LIB_EXPORT int copy_signal( MP_Signal_c *setSignal );
 
     /** \brief Copy a new signal from a file to the dictionary
      *
@@ -332,7 +332,7 @@ class MP_Dict_c
      *
      * \return nonzero in case of failure, zero otherwise.
      */
-    int copy_signal( const char *fName );
+    MPTK_LIB_EXPORT int copy_signal( const char *fName );
 
     /** \brief Plug (or hook) a new signal to the dictionary
      *
@@ -346,7 +346,7 @@ class MP_Dict_c
      * \return nonzero in case of failure, zero otherwise.
      */
 
-    int plug_signal( MP_Signal_c *setSignal );
+    MPTK_LIB_EXPORT int plug_signal( MP_Signal_c *setSignal );
 
     /** \brief Detach the signal from the dictionary, and reset
      * the dictionary signal to NULL.
@@ -354,7 +354,7 @@ class MP_Dict_c
      * \return The signal which was formerly plugged/copied
      * into the dictionary.
      */
-    MP_Signal_c* detach_signal( void );
+    MPTK_LIB_EXPORT MP_Signal_c* detach_signal( void );
 
 
   private:
@@ -364,19 +364,19 @@ class MP_Dict_c
   public:
 
     /** \brief parallel method with ParallelConstruct (tasks) argument */
-    void calcul_max_per_block(ParallelConstruct* f);
+    MPTK_LIB_EXPORT void calcul_max_per_block(ParallelConstruct* f);
 
     /** \brief parallel method with void argument */
-    void calcul_max_per_block(void);
+    MPTK_LIB_EXPORT void calcul_max_per_block(void);
 
     /** \brief method start a parrallel computing */
-    void parallel_computing(volatile MP_Real_t* tab);
+    MPTK_LIB_EXPORT void parallel_computing(volatile MP_Real_t* tab);
 
     /** \brief Delete all the blocks from a dictionary
      *
      * \return The number of deleted blocks
      */
-    int delete_all_blocks( void );
+    MPTK_LIB_EXPORT int delete_all_blocks( void );
 
 
     /** \brief Compute all the inner products which need to be updated and finds the max.
@@ -384,21 +384,21 @@ class MP_Dict_c
      * Side-effect : blockWithMaxIP is updated.
      * \return The value of the maximum inner product
      */
-    MP_Real_t update( void );
+    MPTK_LIB_EXPORT MP_Real_t update( void );
 
     /** \brief Compute all the inner products and finds the max
      *
      * Side-effect : blockWithMaxIP is updated.
      * \return The value of the maximum inner product
      */
-    MP_Real_t update_all( void );
+    MPTK_LIB_EXPORT MP_Real_t update_all( void );
 
 
     /** \brief create a new atom corresponding to the best atom of the best block.
      *
      * \param atom a pointer to (or an array of) reference to the returned atom(s)
      * \return the number of extracted atom */
-    unsigned int create_max_atom( MP_Atom_c** atom );
+    MPTK_LIB_EXPORT  unsigned int create_max_atom( MP_Atom_c** atom );
 
 
     /** \brief Perform one matching pursuit iteration (update the blocks, find the max,
@@ -410,7 +410,7 @@ class MP_Dict_c
      * \remark Pass sigRecons == NULL to skip the reconstruction step
      * \remark Ideally, the number of arithmetic operations is kept to a minimum.
      */
-    int iterate_mp( MP_Book_c* book , MP_Signal_c* sigRecons );
+    MPTK_LIB_EXPORT int iterate_mp( MP_Book_c* book , MP_Signal_c* sigRecons );
 
 
   };

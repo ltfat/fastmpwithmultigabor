@@ -129,7 +129,7 @@ return MP_Block_Factory_c::get_block_factory()->blockDefault[blockName];
 /* fil a vector with the nam of the block registred in block factory */
 void MP_Block_Factory_c::get_registered_block_name( vector< string >* nameVector ){
 
-STL_EXT_NM::hash_map<const char*, MP_Block_c*(*)(MP_Signal_c *s, map<string, string, mp_ltstring> *paramMap),mp_hash_fun, mp_eqstr>::iterator iter;
+STL_EXT_NM::hash_map<const char*, MP_Block_c*(*)(MP_Signal_c *s, map<string, string, mp_ltstring> *paramMap),CSTRING_HASHER>::iterator iter;
 
 for( iter = MP_Block_Factory_c::block.begin(); iter != MP_Block_Factory_c::block.end(); iter++ ) nameVector->push_back(iter->first);
 

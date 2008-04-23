@@ -136,10 +136,10 @@ class MP_Convolution_c {
    * \param anywaveTable the anywave table containing the filters
    * \param filterShift length between two successive frames of signal   
    */
-  MP_Convolution_c( MP_Anywave_Table_c* anywaveTable,
+  MPTK_LIB_EXPORT MP_Convolution_c( MP_Anywave_Table_c* anywaveTable,
 		   const unsigned long int filterShift );
 
-  MP_Convolution_c( MP_Anywave_Table_c* anywaveTable,
+  MPTK_LIB_EXPORT MP_Convolution_c( MP_Anywave_Table_c* anywaveTable,
 		    MP_Anywave_Table_c* anywaveRealTable,
 		    MP_Anywave_Table_c* anywaveHilbertTable,
 		   const unsigned long int filterShift );
@@ -147,7 +147,7 @@ class MP_Convolution_c {
  public:
   
   /** \brief Destructor */
-  virtual ~MP_Convolution_c();
+  MPTK_LIB_EXPORT virtual ~MP_Convolution_c();
 
 
   /***************************/
@@ -159,17 +159,17 @@ class MP_Convolution_c {
   /** \brief Deletes anywaveRealTable and anywaveHilbertTable if
       needed, inits them with the inputs, and puts localTables to
       zero. */
-  virtual void add_real_and_hilbert_tables( MP_Anywave_Table_c* setAnywaveRealTable,
+  MPTK_LIB_EXPORT virtual void add_real_and_hilbert_tables( MP_Anywave_Table_c* setAnywaveRealTable,
 					    MP_Anywave_Table_c* setAnywaveHilbertTable);
 
   /** \brief Deletes anywaveRealTable and anywaveHilbertTable if
       needed, creates them from anywaveTable, and puts localTables to
       one. */
-  virtual void add_real_and_hilbert_tables( void );
+  MPTK_LIB_EXPORT virtual void add_real_and_hilbert_tables( void );
   
   /** \brief Deletes anywaveRealTable and anywaveHilbertTable if
       needed, and puts localTables to zero. */
-  virtual void delete_real_and_hilbert_tables( void );
+  MPTK_LIB_EXPORT virtual void delete_real_and_hilbert_tables( void );
 
   /** \brief computes the inner products between frames of \a input
    * and the channel \a chanIdx of all the filters of the \a
@@ -197,9 +197,9 @@ class MP_Convolution_c {
    *
    * \remark inputLen shall not be lower than anywaveTable->filterLen
    **/
-  virtual void compute_IP( MP_Real_t* input, unsigned long int inputLen, unsigned short int chanIdx, double** output ) = 0;
+  MPTK_LIB_EXPORT virtual void compute_IP( MP_Real_t* input, unsigned long int inputLen, unsigned short int chanIdx, double** output ) = 0;
 
-  virtual void compute_max_IP( MP_Signal_c* s, unsigned long int inputLen, unsigned long int fromSample, MP_Real_t* ampOutput, unsigned long int* idxOutput ) = 0;
+  MPTK_LIB_EXPORT virtual void compute_max_IP( MP_Signal_c* s, unsigned long int inputLen, unsigned long int fromSample, MP_Real_t* ampOutput, unsigned long int* idxOutput ) = 0;
 
 };
 
@@ -253,10 +253,10 @@ class MP_Convolution_Fastest_c:public MP_Convolution_c {
    * \param anywaveTable the wavetable containing the filters (of the same size)
    * \param filterShift length between two successive frames of signal
    */
-  MP_Convolution_Fastest_c( MP_Anywave_Table_c* anywaveTable,
+  MPTK_LIB_EXPORT MP_Convolution_Fastest_c( MP_Anywave_Table_c* anywaveTable,
 			   const unsigned long int filterShift );
 
-  MP_Convolution_Fastest_c( MP_Anywave_Table_c* anywaveTable,
+  MPTK_LIB_EXPORT MP_Convolution_Fastest_c( MP_Anywave_Table_c* anywaveTable,
 			    MP_Anywave_Table_c* anywaveRealTable,
 			    MP_Anywave_Table_c* anywaveHilbertTable,
 			   const unsigned long int filterShift );
@@ -269,11 +269,11 @@ class MP_Convolution_Fastest_c:public MP_Convolution_c {
    * \param filterShift length between two successive frames of signal
    * \param computationMethod index of the only method to use
    */
-  MP_Convolution_Fastest_c( MP_Anywave_Table_c* anywaveTable,
+  MPTK_LIB_EXPORT MP_Convolution_Fastest_c( MP_Anywave_Table_c* anywaveTable,
 			   const unsigned long int filterShift,
 			   const unsigned short int computationMethod );
 
-  MP_Convolution_Fastest_c( MP_Anywave_Table_c* anywaveTable,
+  MPTK_LIB_EXPORT MP_Convolution_Fastest_c( MP_Anywave_Table_c* anywaveTable,
 			    MP_Anywave_Table_c* anywaveRealTable,
 			    MP_Anywave_Table_c* anywaveHilbertTable,
 			    const unsigned long int filterShift,
@@ -281,22 +281,22 @@ class MP_Convolution_Fastest_c:public MP_Convolution_c {
 
   /** \brief Destructor
    */
-  ~MP_Convolution_Fastest_c();
+  MPTK_LIB_EXPORT ~MP_Convolution_Fastest_c();
 
   /** \brief Deletes anywaveRealTable and anywaveHilbertTable if
       needed, inits them with the inputs, and puts localTables to
       zero. */
-  virtual void add_real_and_hilbert_tables( MP_Anywave_Table_c* setAnywaveRealTable,
+  MPTK_LIB_EXPORT virtual void add_real_and_hilbert_tables( MP_Anywave_Table_c* setAnywaveRealTable,
 					    MP_Anywave_Table_c* setAnywaveHilbertTable);
 
   /** \brief Deletes anywaveRealTable and anywaveHilbertTable if
       needed, creates them from anywaveTable, and puts localTables to
       one. */
-  virtual void add_real_and_hilbert_tables( void );
+  MPTK_LIB_EXPORT virtual void add_real_and_hilbert_tables( void );
   
   /** \brief Deletes anywaveRealTable and anywaveHilbertTable if
       needed, and puts localTables to zero. */
-  virtual void delete_real_and_hilbert_tables( void );
+  MPTK_LIB_EXPORT virtual void delete_real_and_hilbert_tables( void );
 
   /** \brief Initializes the member \a methods and \a methodSwitchLimit
    *
@@ -304,18 +304,18 @@ class MP_Convolution_Fastest_c:public MP_Convolution_c {
    * methods. Tests them to find the limit \a methodSwitchLimit where
    * the methods switch.
    */
-  void initialize(void);
+  MPTK_LIB_EXPORT void initialize(void);
 
   /** \brief Initializes the members \a methods and \a methodSwitchLimit
    *
    * Creates one instance of each method, and puts them in \a
    * methods. Sets \a methodSwitchLimit to anywaveTable->filterLen
    */
-  void initialize( unsigned short int computationMethod );
+  MPTK_LIB_EXPORT void initialize( unsigned short int computationMethod );
 
   /** \brief Release all that is allocated in initialize()
    */
-  void release(void);
+  MPTK_LIB_EXPORT void release(void);
 
   /***************************/
   /* OTHER METHODS           */
@@ -365,7 +365,7 @@ class MP_Convolution_Fastest_c:public MP_Convolution_c {
    *
    * \remark inputLen shall not be lower than anywaveTable->filterLen
    **/
-  virtual void compute_IP( MP_Real_t* input, unsigned long int inputLen, unsigned short int chanIdx, double** output );
+  MPTK_LIB_EXPORT virtual void compute_IP( MP_Real_t* input, unsigned long int inputLen, unsigned short int chanIdx, double** output );
 
   /** \brief computes the inner product between ONE frame of signal
    * and ONE filter by the fastest method : the direct one
@@ -383,19 +383,19 @@ class MP_Convolution_Fastest_c:public MP_Convolution_c {
    *
    * \return the inner product
    **/
-  virtual double compute_IP( MP_Real_t* input, unsigned long int filterIdx, unsigned short int chanIdx );
+  MPTK_LIB_EXPORT virtual double compute_IP( MP_Real_t* input, unsigned long int filterIdx, unsigned short int chanIdx );
 
-  virtual double compute_mean_IP( MP_Real_t* input );
+  MPTK_LIB_EXPORT virtual double compute_mean_IP( MP_Real_t* input );
 
-  virtual double compute_nyquist_IP( MP_Real_t* input );
+  MPTK_LIB_EXPORT virtual double compute_nyquist_IP( MP_Real_t* input );
 
-  virtual double compute_real_IP( MP_Real_t* input, unsigned long int filterIdx, unsigned short int chanIdx );
+  MPTK_LIB_EXPORT virtual double compute_real_IP( MP_Real_t* input, unsigned long int filterIdx, unsigned short int chanIdx );
 
-  virtual double compute_hilbert_IP( MP_Real_t* input, unsigned long int filterIdx, unsigned short int chanIdx );
+  MPTK_LIB_EXPORT virtual double compute_hilbert_IP( MP_Real_t* input, unsigned long int filterIdx, unsigned short int chanIdx );
 
-  virtual void compute_max_IP( MP_Signal_c* s, unsigned long int inputLen, unsigned long int fromSample, MP_Real_t* ampOutput, unsigned long int* idxOutput );
+  MPTK_LIB_EXPORT virtual void compute_max_IP( MP_Signal_c* s, unsigned long int inputLen, unsigned long int fromSample, MP_Real_t* ampOutput, unsigned long int* idxOutput );
 
-  virtual void compute_max_hilbert_IP( MP_Signal_c* s, unsigned long int inputLen, unsigned long int fromSample, MP_Real_t* ampOutput, unsigned long int* idxOutput );
+  MPTK_LIB_EXPORT virtual void compute_max_hilbert_IP( MP_Signal_c* s, unsigned long int inputLen, unsigned long int fromSample, MP_Real_t* ampOutput, unsigned long int* idxOutput );
 
 };
 
@@ -430,32 +430,32 @@ class MP_Convolution_Direct_c:public MP_Convolution_c {
    * \param anywaveTable the wavetable containing the filters (of the same size)
    * \param filterShift length between two successive frames of signal
    */
-  MP_Convolution_Direct_c( MP_Anywave_Table_c* anywaveTable,
+  MPTK_LIB_EXPORT MP_Convolution_Direct_c( MP_Anywave_Table_c* anywaveTable,
 			  const unsigned long int filterShift );
 
-  MP_Convolution_Direct_c( MP_Anywave_Table_c* anywaveTable,
+  MPTK_LIB_EXPORT MP_Convolution_Direct_c( MP_Anywave_Table_c* anywaveTable,
 			   MP_Anywave_Table_c* anywaveRealTable,
 			   MP_Anywave_Table_c* anywaveHilbertTable,
 			   const unsigned long int filterShift );
   
   /** \brief Destructor
    */
-  ~MP_Convolution_Direct_c();
+  MPTK_LIB_EXPORT ~MP_Convolution_Direct_c();
 
   /** \brief Deletes anywaveRealTable and anywaveHilbertTable if
       needed, inits them with the inputs, and puts localTables to
       zero. */
-  virtual void add_real_and_hilbert_tables( MP_Anywave_Table_c* setAnywaveRealTable,
+  MPTK_LIB_EXPORT virtual void add_real_and_hilbert_tables( MP_Anywave_Table_c* setAnywaveRealTable,
 					    MP_Anywave_Table_c* setAnywaveHilbertTable);
 
   /** \brief Deletes anywaveRealTable and anywaveHilbertTable if
       needed, creates them from anywaveTable, and puts localTables to
       one. */
-  virtual void add_real_and_hilbert_tables( void );
+  MPTK_LIB_EXPORT virtual void add_real_and_hilbert_tables( void );
   
   /** \brief Deletes anywaveRealTable and anywaveHilbertTable if
       needed, and puts localTables to zero. */
-  virtual void delete_real_and_hilbert_tables( void );
+  MPTK_LIB_EXPORT virtual void delete_real_and_hilbert_tables( void );
 
   /***************************/
   /* OTHER METHODS           */
@@ -495,7 +495,7 @@ class MP_Convolution_Direct_c:public MP_Convolution_c {
    *
    * \remark inputLen shall not be lower than anywaveTable->filterLen
    **/
-  virtual void compute_IP( MP_Real_t* input, unsigned long int inputLen, unsigned short int chanIdx, double** output );
+  MPTK_LIB_EXPORT virtual void compute_IP( MP_Real_t* input, unsigned long int inputLen, unsigned short int chanIdx, double** output );
 
   /** \brief computes the inner product between ONE frame of signal
    * and ONE filter by the direct method
@@ -517,17 +517,17 @@ class MP_Convolution_Direct_c:public MP_Convolution_c {
    *
    * \return the inner product
    **/
-  virtual double compute_IP( MP_Real_t* input, unsigned long int filterIdx, unsigned short int chanIdx );
+  MPTK_LIB_EXPORT virtual double compute_IP( MP_Real_t* input, unsigned long int filterIdx, unsigned short int chanIdx );
 
-  virtual double compute_mean_IP( MP_Real_t* input );
+  MPTK_LIB_EXPORT virtual double compute_mean_IP( MP_Real_t* input );
 
-  virtual double compute_nyquist_IP( MP_Real_t* input );
+  MPTK_LIB_EXPORT virtual double compute_nyquist_IP( MP_Real_t* input );
 
-  virtual double compute_real_IP( MP_Real_t* input, unsigned long int filterIdx, unsigned short int chanIdx );
+  MPTK_LIB_EXPORT virtual double compute_real_IP( MP_Real_t* input, unsigned long int filterIdx, unsigned short int chanIdx );
 
-  virtual double compute_hilbert_IP( MP_Real_t* input, unsigned long int filterIdx, unsigned short int chanIdx );
+  MPTK_LIB_EXPORT virtual double compute_hilbert_IP( MP_Real_t* input, unsigned long int filterIdx, unsigned short int chanIdx );
 
-  virtual void compute_max_IP( MP_Signal_c* s, unsigned long int inputLen, unsigned long int fromSample, MP_Real_t* ampOutput, unsigned long int* idxOutput );
+  MPTK_LIB_EXPORT virtual void compute_max_IP( MP_Signal_c* s, unsigned long int inputLen, unsigned long int fromSample, MP_Real_t* ampOutput, unsigned long int* idxOutput );
 
 };
 
@@ -655,32 +655,32 @@ class MP_Convolution_FFT_c:public MP_Convolution_c {
    * \param anywaveTable the wavetable containing the filters (of the same size)
    * \param filterShift length between two successive frames of signal
    */
-  MP_Convolution_FFT_c( MP_Anywave_Table_c* anywaveTable,
+  MPTK_LIB_EXPORT MP_Convolution_FFT_c( MP_Anywave_Table_c* anywaveTable,
 			    const unsigned long int filterShift );
 
-  MP_Convolution_FFT_c( MP_Anywave_Table_c* anywaveTable,
+  MPTK_LIB_EXPORT MP_Convolution_FFT_c( MP_Anywave_Table_c* anywaveTable,
 			MP_Anywave_Table_c* anywaveRealTable,
 			MP_Anywave_Table_c* anywaveHilbertTable,
 			const unsigned long int filterShift );
 
   /** \brief Destructor
    */
-  ~MP_Convolution_FFT_c();
+  MPTK_LIB_EXPORT ~MP_Convolution_FFT_c();
 
   /** \brief Deletes anywaveRealTable and anywaveHilbertTable if
       needed, inits them with the inputs, and puts localTables to
       zero. */
-  virtual void add_real_and_hilbert_tables( MP_Anywave_Table_c* setAnywaveRealTable,
+  MPTK_LIB_EXPORT virtual void add_real_and_hilbert_tables( MP_Anywave_Table_c* setAnywaveRealTable,
 					    MP_Anywave_Table_c* setAnywaveHilbertTable);
 
   /** \brief Deletes anywaveRealTable and anywaveHilbertTable if
       needed, creates them from anywaveTable, and puts localTables to
       one. */
-  virtual void add_real_and_hilbert_tables( void );
+  MPTK_LIB_EXPORT virtual void add_real_and_hilbert_tables( void );
   
   /** \brief Deletes anywaveRealTable and anywaveHilbertTable if
       needed, and puts localTables to zero. */
-  virtual void delete_real_and_hilbert_tables( void );
+  MPTK_LIB_EXPORT virtual void delete_real_and_hilbert_tables( void );
 
  private:
 
@@ -860,7 +860,7 @@ class MP_Convolution_FFT_c:public MP_Convolution_c {
    *
    * \remark inputLen shall not be lower than anywaveTable->filterLen
    **/
-  virtual void compute_IP( MP_Real_t* input, unsigned long int inputLen, unsigned short int chanIdx, double** output );
+  MPTK_LIB_EXPORT virtual void compute_IP( MP_Real_t* input, unsigned long int inputLen, unsigned short int chanIdx, double** output );
 
   /** \brief finds the max inner product, for every frame, between the
    * input and all the filters, using fast convolution with
@@ -962,9 +962,9 @@ class MP_Convolution_FFT_c:public MP_Convolution_c {
    *
    * \remark inputLen shall not be lower than anywaveTable->filterLen
    **/
-  virtual void compute_max_IP( MP_Signal_c* s, unsigned long int inputLen, unsigned long int fromSample, MP_Real_t* ampOutput, unsigned long int* idxOutput );
+  MPTK_LIB_EXPORT virtual void compute_max_IP( MP_Signal_c* s, unsigned long int inputLen, unsigned long int fromSample, MP_Real_t* ampOutput, unsigned long int* idxOutput );
 
-  virtual void compute_max_hilbert_IP( MP_Signal_c* s, unsigned long int inputLen, unsigned long int fromSample, MP_Real_t* ampOutput, unsigned long int* idxOutput );
+  MPTK_LIB_EXPORT virtual void compute_max_hilbert_IP( MP_Signal_c* s, unsigned long int inputLen, unsigned long int fromSample, MP_Real_t* ampOutput, unsigned long int* idxOutput );
 
 };
 

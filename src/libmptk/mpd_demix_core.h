@@ -121,7 +121,7 @@ class MP_Mpd_demix_Core_c:public MP_Abstract_Core_c
     * \param setMixer A mixer to demix the signal
     * \param setBookArray an array to stock the extracted atoms
     *  */
-    static MP_Mpd_demix_Core_c* create( MP_Signal_c *signal, MP_Mixer_c* setMixer, std::vector<MP_Book_c*> *setBookArray );
+    MPTK_LIB_EXPORT static MP_Mpd_demix_Core_c* create( MP_Signal_c *signal, MP_Mixer_c* setMixer, std::vector<MP_Book_c*> *setBookArray );
 
   private:
     /** \brief A private constructor
@@ -131,7 +131,7 @@ class MP_Mpd_demix_Core_c:public MP_Abstract_Core_c
   public:
     /** \brief A public destructor
     *  */
-    virtual ~MP_Mpd_demix_Core_c();
+    MPTK_LIB_EXPORT virtual ~MP_Mpd_demix_Core_c();
 
     /***************************/
     /* OTHER METHODS           */
@@ -140,30 +140,30 @@ class MP_Mpd_demix_Core_c:public MP_Abstract_Core_c
     /* Control object*/
 
     /* Set the dictionary */
-    std::vector<MP_Dict_c*>* change_dict( std::vector<MP_Dict_c*> *setDictArray );
+    MPTK_LIB_EXPORT std::vector<MP_Dict_c*>* change_dict( std::vector<MP_Dict_c*> *setDictArray );
 
     /* Runtime settings */
-    bool plug_approximant( std::vector<MP_Signal_c*> *setApproxArray );
+    MPTK_LIB_EXPORT bool plug_approximant( std::vector<MP_Signal_c*> *setApproxArray );
     /* Runtime */
     /** \brief make one step iterate
      *  */
-    unsigned short int step();
+    MPTK_LIB_EXPORT unsigned short int step();
 
     /* Misc */
     /** \brief Save the result
     *  */
-    virtual void save_result( void );
+    MPTK_LIB_EXPORT virtual void save_result( void );
     /** \brief test if can step
      *  */
-    MP_Bool_t can_step( void );
+    MPTK_LIB_EXPORT MP_Bool_t can_step( void );
     /** \brief print informations on the result of decomposition
      *  */
-    virtual unsigned long int book_append(MP_Book_c *newBook);
+    MPTK_LIB_EXPORT virtual unsigned long int book_append(MP_Book_c *newBook);
 
-    virtual void info_result( void );
+    MPTK_LIB_EXPORT virtual void info_result( void );
     /** \brief print informations on the setting of decomposition
      *  */
-    virtual void info_conditions( void );
+    MPTK_LIB_EXPORT virtual void info_conditions( void );
     /** \brief Set informations for save hit
     * \param  setSaveHit an unsigned long int defining the step for automatic save
     * \param setBookFileName name for saving the book
@@ -171,12 +171,15 @@ class MP_Mpd_demix_Core_c:public MP_Abstract_Core_c
     * \param setDecayFileName name for saving the decay file
     * \param setSrcSeqFileName name for saving the sequence file
     *  */
-    void set_save_hit( const unsigned long int setSaveHit,
+    MPTK_LIB_EXPORT void set_save_hit( const unsigned long int setSaveHit,
                        const char* setBookFileName,
                        const char* setResFileName,
                        const char* setDecayFileName,
                        const char* setSrcSeqFileName );
-    unsigned long int save_source_sequence(const char * filename);
+     /** \brief save the source sequence in a file
+      * \param filename: name of the file
+     *  */
+    MPTK_LIB_EXPORT unsigned long int save_source_sequence(const char * filename);
                        
   };
 

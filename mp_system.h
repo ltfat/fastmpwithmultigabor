@@ -115,4 +115,17 @@
 #  define assert(expr) (void)(0)
 # endif
 
+#ifdef _WIN32
+#if defined(_MSC_VER)
+#define MPTK_LIB_EXPORT __declspec(dllexport)  /* export function out of the lib */
+#define MPTK_LIB_IMPORT __declspec(dllimport)  /* import function in the lib */
+#else
+#define MPTK_LIB_EXPORT
+#define MPTK_LIB_IMPORT
+#endif
+#else
+#define MPTK_LIB_EXPORT
+#define MPTK_LIB_IMPORT
+#endif
+
 #endif /* _mp_system_h_ */

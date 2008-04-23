@@ -112,8 +112,8 @@ class MP_Abstract_Mixer_c
 class MP_Mixer_c : public MP_Abstract_Mixer_c
   {
   	public:
-  	static MP_Mixer_c* creator_from_txt_file( const char *mixerFileName );
-    static MP_Mixer_c* creator_from_txt_file( FILE * mixerFID );
+  	MPTK_LIB_EXPORT static MP_Mixer_c* creator_from_txt_file( const char *mixerFileName );
+    MPTK_LIB_EXPORT static MP_Mixer_c* creator_from_txt_file( FILE * mixerFID );
     
     /********/
     /* DATA */
@@ -153,17 +153,17 @@ class MP_Mixer_c : public MP_Abstract_Mixer_c
 
   public:
     /** \brief A public destructor */
-    virtual ~MP_Mixer_c();
+    MPTK_LIB_EXPORT virtual ~MP_Mixer_c();
     
     /****************/
     /* MISC METHODS */
     /****************/
     
-    virtual int read( FILE *fid);
+    MPTK_LIB_EXPORT virtual int read( FILE *fid);
     /** Direct filtering method */
-	virtual void applyDirect( const std::vector<MP_Signal_c*> *sourceSignalArray, MP_Signal_c *mixedSignal );
+	MPTK_LIB_EXPORT virtual void applyDirect( const std::vector<MP_Signal_c*> *sourceSignalArray, MP_Signal_c *mixedSignal );
 	/** Inverse filtering method */
-	virtual void applyAdjoint( std::vector<MP_Signal_c*> *sourceSignalArray, const MP_Signal_c *mixedSignal );
+	MPTK_LIB_EXPORT virtual void applyAdjoint( std::vector<MP_Signal_c*> *sourceSignalArray, const MP_Signal_c *mixedSignal );
 
   };
 

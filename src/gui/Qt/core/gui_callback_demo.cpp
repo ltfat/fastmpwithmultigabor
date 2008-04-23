@@ -44,6 +44,9 @@ MP_Gui_Callback_Demo_c::MP_Gui_Callback_Demo_c():
     MP_Gui_Callback_c()
 {
   newAtom = NULL;
+  transientSignal= NULL;
+  otherSignal = NULL;
+  
 }
 
 MP_Gui_Callback_Demo_c::~MP_Gui_Callback_Demo_c()

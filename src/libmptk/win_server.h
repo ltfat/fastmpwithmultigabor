@@ -115,8 +115,8 @@ public:
   /***************************/
 
 public:
-  MP_Win_Server_c( void );
-  ~MP_Win_Server_c( void );
+  MPTK_LIB_EXPORT MP_Win_Server_c( void );
+  MPTK_LIB_EXPORT ~MP_Win_Server_c( void );
 
   /***************************/
   /* OTHER METHODS           */
@@ -124,7 +124,7 @@ public:
 
   /** \brief Destroy all the windows stored in the server and release all the memory
    **/
-  void release( void );
+  MPTK_LIB_EXPORT void release( void );
 
   /** \brief Returns a reference on an array with various classical windows of unit energy.
    * If the window has been computed before, it does not re-compute it.
@@ -142,7 +142,7 @@ public:
    * \sa window_type_is_ok() can be used with the argument \a type before calling get_window() to check if the type is known
    * \sa make_window()
    */
-  unsigned long int get_window( MP_Real_t **out,
+  MPTK_LIB_EXPORT unsigned long int get_window( MP_Real_t **out,
 				const unsigned long int length,
 				const unsigned char type,
 				double optional );

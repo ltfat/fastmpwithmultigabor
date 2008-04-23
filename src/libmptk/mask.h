@@ -97,11 +97,11 @@ public:
    *
    * \param setNumAtoms The number of booleans in the sieve array.
    */
-  MP_Mask_c( unsigned long int setNumAtoms );
+  MPTK_LIB_EXPORT MP_Mask_c( unsigned long int setNumAtoms );
 
 
   /** \brief Destructor. */
-  virtual ~MP_Mask_c();
+  MPTK_LIB_EXPORT virtual ~MP_Mask_c();
 
 
   /***************************/
@@ -111,7 +111,7 @@ public:
  public:
 
   /** \brief Factory method. */
-  static MP_Mask_c * init( unsigned long int setNumAtoms );
+  MPTK_LIB_EXPORT static MP_Mask_c * init( unsigned long int setNumAtoms );
 
 
   /***************************/
@@ -121,17 +121,17 @@ public:
 public:
 
   /** \brief Set one element to MP_TRUE at index i. */
-  void set_true( unsigned long int i );
+  MPTK_LIB_EXPORT void set_true( unsigned long int i );
 
   /** \brief Set one element to MP_FALSE at index i. */
-  void set_false( unsigned long int i );
+  MPTK_LIB_EXPORT void set_false( unsigned long int i );
 
 
   /** \brief A method setting the whole array to MP_TRUE. */
-  void reset_all_true( void );
+  MPTK_LIB_EXPORT void reset_all_true( void );
 
   /** \brief A method setting the whole array to MP_FALSE. */
-  void reset_all_false( void );
+  MPTK_LIB_EXPORT void reset_all_false( void );
 
 
 private:
@@ -145,24 +145,24 @@ public:
    * \return 0 if failed, otherwise the new total number of elements in the sieve array.
    * \remark A realloc may be performed, hence the pointer to the sieve array may change.
    */
-  unsigned long int append_true( unsigned long int nElem );
+  MPTK_LIB_EXPORT unsigned long int append_true( unsigned long int nElem );
 
   /** \brief A method appending nElem MP_FALSE elements to the sieve array.
    * \param nElem The number of MP_FALSE elements to add
    * \return 0 if failed, otherwise the new total number of elements in the sieve array.
    * \remark A realloc may be performed, hence the pointer to the sieve array may change.
    */
-  unsigned long int append_false( unsigned long int nElem );
+  MPTK_LIB_EXPORT unsigned long int append_false( unsigned long int nElem );
 
   /** \brief A method appending any element to the sieve array.
    * \param val MP_Bool_t the element to add
    * \return 0 if failed, otherwise the new total number of elements in the sieve array.
    * \remark A realloc may be performed, hence the pointer to the sieve array may change.
    */
-  unsigned long int append( MP_Bool_t val );
+  MPTK_LIB_EXPORT unsigned long int append( MP_Bool_t val );
 
   /** \brief Check if numAtoms is the same in both masks. */
-  MP_Bool_t is_compatible_with( MP_Mask_c mask );
+  MPTK_LIB_EXPORT MP_Bool_t is_compatible_with( MP_Mask_c mask );
 
 
   /***************************/
@@ -170,16 +170,16 @@ public:
   /***************************/
 
   /** \brief A method to read from a stream. */
-  unsigned long int read_from_stream( FILE* fid );
+  MPTK_LIB_EXPORT unsigned long int read_from_stream( FILE* fid );
 
   /** \brief A method to write to a stream. */
-  unsigned long int write_to_stream( FILE* fid );
+  MPTK_LIB_EXPORT unsigned long int write_to_stream( FILE* fid );
 
   /** \brief A method to read from a file. */
-  unsigned long int read_from_file( const char* fName );
+  MPTK_LIB_EXPORT unsigned long int read_from_file( const char* fName );
 
   /** \brief A method to write to a file. */
-  unsigned long int write_to_file( const char* fName );
+  MPTK_LIB_EXPORT unsigned long int write_to_file( const char* fName );
 
 
   /***************************/
@@ -187,22 +187,22 @@ public:
   /***************************/
 
   /** \brief Assignment operator */
-  MP_Mask_c& operator=(  const MP_Mask_c& from );
+  MPTK_LIB_EXPORT MP_Mask_c& operator=(  const MP_Mask_c& from );
 
   /** \brief Operator AND. */
-  MP_Mask_c operator&&( const MP_Mask_c& m1 );
+  MPTK_LIB_EXPORT MP_Mask_c operator&&( const MP_Mask_c& m1 );
 
   /** \brief Operator OR. */
-  MP_Mask_c operator||( const MP_Mask_c& m1 );
+  MPTK_LIB_EXPORT MP_Mask_c operator||( const MP_Mask_c& m1 );
 
   /** \brief Operator NOT. */
-  MP_Mask_c operator!( void );
+  MPTK_LIB_EXPORT MP_Mask_c operator!( void );
 
   /** \brief Operator == */
-  MP_Bool_t operator==( const MP_Mask_c& m1 );
+  MPTK_LIB_EXPORT MP_Bool_t operator==( const MP_Mask_c& m1 );
 
   /** \brief Operator != */
-  MP_Bool_t operator!=( const MP_Mask_c& m1 );
+  MPTK_LIB_EXPORT MP_Bool_t operator!=( const MP_Mask_c& m1 );
 
 };
 

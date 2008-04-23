@@ -228,7 +228,7 @@ my_index (str, chr)
 
 /* If using GCC, we can safely declare strlen this way.
    If not using GCC, it is ok not to declare it.  */
-#ifdef __GNUC__
+#ifdef __GNUC__ || defined (__cplusplus)
 /* Note that Motorola Delta 68k R3V7 comes with GCC but not stddef.h.
    That was relevant to code that was here before.  */
 #if !defined (__STDC__) || !__STDC__

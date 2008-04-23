@@ -94,10 +94,10 @@ public:
 public:
   /** \brief Default constructor
    */
-  MP_Anywave_Server_c( void );
+  MPTK_LIB_EXPORT MP_Anywave_Server_c( void );
   /** \brief Default destructor
    */
-  ~MP_Anywave_Server_c( void );
+  MPTK_LIB_EXPORT virtual ~MP_Anywave_Server_c( void );
 
   /***************************/
   /* OTHER METHODS           */
@@ -105,37 +105,37 @@ public:
 
   /** \brief Test function, called by the test executable test_anywave
    **/
-  static bool test( void );
+  MPTK_LIB_EXPORT static bool test( void );
 
   /** \brief Destroy all the tables stored in the server and release
    * all the memory
    **/
-  void release( void );
+  MPTK_LIB_EXPORT void release( void );
 
   /** \brief Add a waveform table to the server
    *
    * \return the number of the added table
    **/
-  unsigned long int add( MP_Anywave_Table_c* table );
+  MPTK_LIB_EXPORT unsigned long int add( MP_Anywave_Table_c* table );
 
   /** \brief Add the waveform \a table in filename to the server
    *
    * \return the number of the added table
    **/
-  unsigned long int add( char* filename );
+  MPTK_LIB_EXPORT unsigned long int add( char* filename );
 
   /** \brief Get the filename associated to the table number \a index
    *
    *  \return the filename corresponding to the table number \a index
    *  or NULL if not found
    **/
-  char* get_filename( unsigned long int index );
+  MPTK_LIB_EXPORT char* get_filename( unsigned long int index );
 
   /** \brief Get the table number associated to \a filename 
    *
    * \return the table number, or \a numTables if not found
    */
-  unsigned long int get_index( char* filename );
+  MPTK_LIB_EXPORT unsigned long int get_index( char* filename );
 
 };
 

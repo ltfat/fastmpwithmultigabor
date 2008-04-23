@@ -137,7 +137,7 @@ class MP_Msg_Server_c
     static MP_Msg_Server_c * myMsgServer;
      public:
      
-STL_EXT_NM::hash_map<const char*,void(*)(char * message),mp_hash_fun, mp_eqstr> displayFunction;
+STL_EXT_NM::hash_map<const char*,void(*)(char * message),CSTRING_HASHER> displayFunction;
 
     /** \brief A default buffer, to store the current message string. */
     char *stdBuff;
@@ -192,15 +192,15 @@ STL_EXT_NM::hash_map<const char*,void(*)(char * message),mp_hash_fun, mp_eqstr> 
 
 
   public:
-    static void default_display_error_function(char* message);
+    MPTK_LIB_EXPORT  static void default_display_error_function(char* message);
     /** \brief Method to get the MP_Atom_Factory_c */
-    static MP_Msg_Server_c * get_msg_server();
+    MPTK_LIB_EXPORT static MP_Msg_Server_c * get_msg_server();
     /** \brief A plain constructor **/
 
     /** \brief A plain destructor **/
-    virtual ~MP_Msg_Server_c( void );
-    void register_display_function(const char* functionType, void(*displayFunctionPointer)(char * message));
-    void (*get_display_function( const char* functionType))(char * message);
+    MPTK_LIB_EXPORT virtual ~MP_Msg_Server_c( void );
+    MPTK_LIB_EXPORT void register_display_function(const char* functionType, void(*displayFunctionPointer)(char * message));
+    MPTK_LIB_EXPORT  void (*get_display_function( const char* functionType))(char * message);
 
 #if defined(_MSC_VER)
 
@@ -240,12 +240,12 @@ int mp_vsnprintf( char *str, size_t size, const char *format, va_list ap )
     to the appropriate pre-set stream. */
 #define MP_FLUSH mp_msg_handler_flush
 /** \brief Instanciation of the MP_FLUSH handler. */
-void mp_msg_handler_flush( void );
+MPTK_LIB_EXPORT void mp_msg_handler_flush( void );
 
 /** \brief A message handler which ignores the incoming message. */
 #define MP_IGNORE mp_msg_handler_ignore
 /** \brief Instanciation of the MP_IGNORE handler. */
-void mp_msg_handler_ignore( void );
+MPTK_LIB_EXPORT void mp_msg_handler_ignore( void );
 
 /* TODO: MP_QUEUE, MP_RELEASE_QUEUE_AFTER_NEXT */
 
@@ -336,7 +336,7 @@ void mp_msg_handler_ignore( void );
  *
  * \sa set_error_stream(), set_error_handler().
  */
-size_t mp_error_msg( const char *funcName, const char *format, ... );
+MPTK_LIB_EXPORT size_t mp_error_msg( const char *funcName, const char *format, ... );
 
 /** \brief Pretty-printing of the libmptk error messages to a specific stream
  *
@@ -345,7 +345,7 @@ size_t mp_error_msg( const char *funcName, const char *format, ... );
  * \param format a format string similar to the printf formats
  * \param ... a variable list of arguments to be printed according to the format
  */
-size_t mp_error_msg( FILE *fid, const char *funcName, const char *format, ... );
+MPTK_LIB_EXPORT size_t mp_error_msg( FILE *fid, const char *funcName, const char *format, ... );
 
 
 
@@ -357,7 +357,7 @@ size_t mp_error_msg( FILE *fid, const char *funcName, const char *format, ... );
  *
  * \sa set_warning_stream(), set_warning_handler().
  */
-size_t mp_warning_msg( const char *funcName, const char *format, ... );
+MPTK_LIB_EXPORT size_t mp_warning_msg( const char *funcName, const char *format, ... );
 
 /** \brief Pretty-printing of the libmptk warning messages to a specific stream
  *
@@ -366,7 +366,7 @@ size_t mp_warning_msg( const char *funcName, const char *format, ... );
  * \param format a format string similar to the printf formats
  * \param ... a variable list of arguments to be printed according to the format
  */
-size_t mp_warning_msg( FILE *fid, const char *funcName, const char *format, ... );
+MPTK_LIB_EXPORT size_t mp_warning_msg( FILE *fid, const char *funcName, const char *format, ... );
 
 
 
@@ -378,7 +378,7 @@ size_t mp_warning_msg( FILE *fid, const char *funcName, const char *format, ... 
  *
  * \sa set_info_stream(), set_info_handler().
  */
-size_t mp_info_msg( const char *funcName, const char *format, ... );
+MPTK_LIB_EXPORT size_t mp_info_msg( const char *funcName, const char *format, ... );
 
 /** \brief Pretty-printing of the libmptk info messages to a specific stream
  *
@@ -387,7 +387,7 @@ size_t mp_info_msg( const char *funcName, const char *format, ... );
  * \param format a format string similar to the printf formats
  * \param ... a variable list of arguments to be printed according to the format
  */
-size_t mp_info_msg( FILE *fid, const char *funcName, const char *format, ... );
+MPTK_LIB_EXPORT size_t mp_info_msg( FILE *fid, const char *funcName, const char *format, ... );
 
 
 
@@ -399,7 +399,7 @@ size_t mp_info_msg( FILE *fid, const char *funcName, const char *format, ... );
  *
  * \sa set_progress_stream(), set_progress_handler().
  */
-size_t mp_progress_msg( const char *funcName, const char *format, ... );
+MPTK_LIB_EXPORT size_t mp_progress_msg( const char *funcName, const char *format, ... );
 
 /** \brief Pretty-printing of the libmptk progress messages to a specific stream
  *
@@ -408,7 +408,7 @@ size_t mp_progress_msg( const char *funcName, const char *format, ... );
  * \param format a format string similar to the printf formats
  * \param ... a variable list of arguments to be printed according to the format
  */
-size_t mp_progress_msg( FILE *fid, const char *funcName, const char *format, ... );
+MPTK_LIB_EXPORT size_t mp_progress_msg( FILE *fid, const char *funcName, const char *format, ... );
 
 
 
@@ -425,7 +425,7 @@ size_t mp_progress_msg( FILE *fid, const char *funcName, const char *format, ...
  * \sa mp_debug_msg_forced(), set_debug_stream(), set_debug_handler(), set_debug_mask().
  */
 #ifndef NDEBUG
-size_t mp_debug_msg( const unsigned long int msgType, const char *funcName, const char *format, ... );
+MPTK_LIB_EXPORT size_t mp_debug_msg( const unsigned long int msgType, const char *funcName, const char *format, ... );
 #else
 #define mp_debug_msg
 //( A, B, C, ... ) (void)(0)
@@ -445,7 +445,7 @@ size_t mp_debug_msg( const unsigned long int msgType, const char *funcName, cons
  * \sa mp_debug_msg_forced(), set_debug_stream(), set_debug_handler(), set_debug_mask().
  */
 #ifndef NDEBUG
-size_t mp_debug_msg( FILE *fid, const unsigned long int msgType, const char *funcName, const char *format, ... );
+MPTK_LIB_EXPORT size_t mp_debug_msg( FILE *fid, const unsigned long int msgType, const char *funcName, const char *format, ... );
 #endif
 
 
@@ -462,7 +462,7 @@ size_t mp_debug_msg( FILE *fid, const unsigned long int msgType, const char *fun
  *
  * \sa mp_msg_debug(), set_debug_stream(), set_debug_handler(), set_debug_mask().
  */
-size_t mp_debug_msg_forced( const unsigned long int msgType, const char *funcName, const char *format, ... );
+MPTK_LIB_EXPORT size_t mp_debug_msg_forced( const unsigned long int msgType, const char *funcName, const char *format, ... );
 
 /** \brief Forced pretty-printing of the libmptk debug messages to a specific stream
  *
@@ -478,7 +478,7 @@ size_t mp_debug_msg_forced( const unsigned long int msgType, const char *funcNam
  *
  * \sa mp_msg_debug(), set_debug_stream(), set_debug_handler(), set_debug_mask().
  */
-size_t mp_debug_msg_forced( FILE *fid, const unsigned long int msgType, const char *funcName, const char *format, ... );
+MPTK_LIB_EXPORT size_t mp_debug_msg_forced( FILE *fid, const unsigned long int msgType, const char *funcName, const char *format, ... );
 
 
 #endif /* __mp_messaging_h_ */
