@@ -142,7 +142,7 @@ SET(CMAKE_SHARED_LINKER_FLAGS "-fPIC -Wl,--export-all-symbols,--enable-auto-impo
 ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
 ELSE( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
 IF( CMAKE_CXX_COMPILER STREQUAL "cl")
-#SET(CMAKE_SHARED_LINKER_FLAGS "-Wl,--export-all-symbols,--enable-auto-import,--enable-runtime-pseudo-reloc")
+SET(CMAKE_SHARED_LINKER_FLAGS "-Wl,--export-all-symbols,--enable-auto-import,--enable-runtime-pseudo-reloc")
 ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
 SET(CMAKE_SHARED_LINKER_FLAGS "-Wl,--export-all-symbols,--enable-auto-import,--enable-runtime-pseudo-reloc  -Wno-deprecated")
 ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")

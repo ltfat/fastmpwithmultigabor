@@ -1,9 +1,4 @@
 CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/utils/readme.txt ${MPTK_BINARY_DIR}/bin/readme.txt COPYONLY)
-#------------------------------------------------
-# Build getopt lib
-# 
-
-
 
 #------------------------------------------------
 # Build mdp executable
