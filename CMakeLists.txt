@@ -75,6 +75,18 @@ IF(WIN32)
 ENDIF(WIN32)
 ENDIF(UNIX)
 
+# With Visual Studio 2005, Microsoft deprecates the standard C library, for
+# example fopen() and sprintf(), to non-portable functions fopen_s() and
+# sprintf_s(). These functions are considered by Microsoft more secure. This is
+# a worthwhile exercise ! The use of these deprecated functions causes a lot of
+# warnings. To suppress it, we add the _CRT_SECURE_NO_DEPRECATE preprocessor
+# definition
+IF(WIN32)
+  IF(MSVC80 OR MSVC90)
+    ADD_DEFINITIONS("-D_CRT_SECURE_NO_DEPRECATE")
+  ENDIF(MSVC80 OR MSVC90)
+ENDIF(WIN32)
+
 #Define compilation tag
 #Select the ADD_DEFINITIONS according to selected options
 IF( CMAKE_CXX_COMPILER STREQUAL "cl")
@@ -223,15 +235,6 @@ ENDIF(NOT CMAKE_HAS_ANSI_STRING_STREAM)
 #############################
 INCLUDE(${MPTK_SOURCE_DIR}/CMake/CMakeGenerateMPTKHeader.cmake)
 
-# setting dart config
-#####################
-#IF(BUILD_TESTING)
-  # profile flag options
-#  SET(CMAKE_CXX_FLAGS "-fprofile-arcs -ftest-coverage  ${CMAKE_CXX_FLAGS}") 
- # ENABLE_TESTING()
-  #INCLUDE(${MPTK_SOURCE_DIR}/DartConfig.cmake)
- # INCLUDE(Dart)
-#ENDIF(BUILD_TESTING)
 
 #-----------------------------------------------------------------------------
 ## STARTING WITH SUBFOLDERS
@@ -330,7 +333,18 @@ INCLUDE(CPack)
 #ENDIF(RPMTools_FOUND)
 #ENDIF(BUILD_RPM)
 
-#Tests
-#ENABLE_TESTING()
-#ADD_TEST(Test1, ${MPTK_DIR}/bin/TEST)
+# TEST:
+IF(BUILD_TESTING)
+ENABLE_TESTING()
+INCLUDE(CTest)
+INCLUDE(CTestConfig.cmake)
+SET(CMAKE_CXX_FLAGS "-fprofile-arcs -ftest-coverage  ${CMAKE_CXX_FLAGS}") 
+IF(BUILD_MULTITHREAD)
+ADD_TEST(MPD, ${MPTK_BINARY_DIR}/bin/mpd_multithread -C ${MPTK_BINARY_DIR}/bin/path.xml -D ${MPTK_BINARY_DIR}/bin/reference/dictionary/dic_gabor_two_scales.xml -n 10 -q ${MPTK_BINARY_DIR}/bin/reference/signal/glockenspiel.wav ${MPTK_BINARY_DIR}/bin/reference/signal/test.bin)
+ELSE(BUILD_MULTITHREAD)
+ADD_TEST(MPD, ${MPTK_BINARY_DIR}/bin/mpd -C ${MPTK_BINARY_DIR}/bin/path.xml -D ${MPTK_BINARY_DIR}/bin/reference/dictionary/dic_gabor_two_scales.xml -n 10 -q ${MPTK_BINARY_DIR}/bin/reference/signal/glockenspiel.wav ${MPTK_BINARY_DIR}/bin/reference/signal/test.bin)
+ENDIF(BUILD_MULTITHREAD)
+ADD_TEST(MPR, ${MPTK_BINARY_DIR}/bin/mpr -C ${MPTK_BINARY_DIR}/bin/path.xml ${MPTK_BINARY_DIR}/bin/reference/signal/test.bin ${MPTK_BINARY_DIR}/bin/reference/signal/test.wav)
+# Add other test
 #ADD_TEST(Test1, ${MPTK_DIR}/bin/Testmptk)
+ENDIF(BUILD_TESTING)

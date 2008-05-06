@@ -79,8 +79,36 @@ MARK_AS_ADVANCED(
 ELSE(UNIX)
   
   IF(WIN32)
-#Todo
-      
+  
+FIND_PROGRAM(DOXYGEN
+  doxygen
+  $ENV{DOXYGEN_HOME}
+  "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\doxygen_is1;Inno Setup: App Path]/bin"
+  "$ENV{ProgramFiles}/doxygen/bin"
+  "$ENV{ProgramFiles}/doxygen/bin"
+)
+
+# In the older versions of OS X Doxygen, dot was included with the 
+# Doxygen bundle. But the new versions place make you download Graphviz.app
+# which contains dot in its bundle.
+FIND_PROGRAM(DOT
+  dot
+  $ENV{DOT_HOME}
+  "[HKEY_LOCAL_MACHINE\\SOFTWARE\\ATT\\Graphviz;InstallPath]/bin"
+  "$ENV{ProgramFiles}/ATT/Graphviz/bin"
+  "$ENV{ProgramFiles}/Graphviz/bin"
+)
+
+# The Doxyfile wants the path to Dot, not the entire path and executable
+# so for convenience, I'll add another search for DOT_PATH.
+FIND_PATH(DOT_PATH
+  dot
+  $ENV{DOT_HOME}
+  "[HKEY_LOCAL_MACHINE\\SOFTWARE\\ATT\\Graphviz;InstallPath]/bin"
+  "$ENV{ProgramFiles}/ATT/Graphviz/bin"
+  "$ENV{ProgramFiles}/Graphviz/bin"
+)
+
   ENDIF(WIN32)
 ENDIF(UNIX)
 
