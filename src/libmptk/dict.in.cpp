@@ -164,7 +164,7 @@ MP_Dict_c::~MP_Dict_c()
     }
 
    if (numBlocks > 0) delete [] threads;
-  if (bar && numBlocks > 0){  for (i = 0; i < numBlocks; ++i)
+  if (bar && numBlocks > 0){  for (i = 0; i < 2; ++i)
     {
         if (bar[i]) delete  bar[i];
     }
@@ -368,6 +368,9 @@ int MP_Dict_c::print( const char *fName )
 int MP_Dict_c::add_default_block( const char* blockName ){
 	const char* func = "MP_Dict_c::add_default_block( const char* blockName )";
 	 MP_Block_c *newBlock = NULL;
+	 if (NULL == blockName ) {   mp_error_msg( func, "No block name specified" );
+              return 0;
+	 }
 	map<string, string, mp_ltstring>* localDefaultMap = new map<string, string, mp_ltstring>();
 	MP_Block_Factory_c::get_block_factory()->get_block_default_map(blockName)(localDefaultMap);
 	

@@ -86,9 +86,9 @@ public:
 
 /** \brief The public destructor:
  */
-  ~MP_Barrier_c(void) {
-    pthread_mutex_destroy(&barrierLock);
+  virtual ~MP_Barrier_c(void) {
     pthread_cond_destroy(&mustWait);
+    pthread_mutex_destroy(&barrierLock);
 
   }
 
