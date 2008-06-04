@@ -332,6 +332,14 @@ public:
    * \note signal.energy is set to the new energy.
    */
   MPTK_LIB_EXPORT MP_Real_t deemp( double coeff );
+  
+    /** \brief compare if two signals has differences using a precision
+   * \param the first signal
+   * \param the precision
+   * \return a boolean
+   *
+   */
+  MPTK_LIB_EXPORT MP_Bool_t diff( const MP_Signal_c& s1, double precision );
 
 
   /***************************/

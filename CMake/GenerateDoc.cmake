@@ -1,4 +1,3 @@
-
 ##Generation of the documentation using doxygen
 FIND_PATH(DOXYGEN_DIR doxygen
 /usr/local/bin

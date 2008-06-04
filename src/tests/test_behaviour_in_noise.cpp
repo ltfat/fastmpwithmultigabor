@@ -38,180 +38,154 @@
 #include <mptk.h>
 #include <time.h>
 
-int main( void ) {
+int main( int argc, char ** argv )
+{
+  /* Data */
+  char* func = "test behaviour in noise";
+  char* configFileName = NULL;
+  std::vector<MP_Mpd_Core_c*> *coreArray;
+  std::vector<MP_Dict_c*> *dictArray;
+  std::vector<MP_Signal_c*> *approxArray;
+  std::vector< string >* nameBlockVector;
+  nameBlockVector = new vector< string >();
+  unsigned int numIter = 0;
+  unsigned int numTestSignals = 0;
+  char *p;
+  std::vector<MP_Book_c*> *book ;
 
-  char* func = "test";
+  /* Set environement */
+  MPTK_Env_c::get_env()->load_environment(configFileName);
+  /* Get registered block */
+  MP_Block_Factory_c::get_block_factory()->get_registered_block_name(nameBlockVector);
 
-  MP_Dict_c *dict = NULL;
-  MP_Signal_c *sig = NULL;
+  dictArray = new  std::vector<MP_Dict_c*>(nameBlockVector->size());
+  for (unsigned int n=0; n < nameBlockVector->size(); n++)
+    {
+      if (strcmp(nameBlockVector->at(n).c_str(),"anywave" )==0)nameBlockVector->erase(nameBlockVector->begin() +n);
+    }
+  for (unsigned int n=0; n < nameBlockVector->size(); n++)
+    {
+      if (strcmp(nameBlockVector->at(n).c_str(),"anywavehilbert")==0)nameBlockVector->erase(nameBlockVector->begin() +n);
+    }
 
-  MP_Signal_c *gsig = NULL;
-  MP_Signal_c *hsig = NULL;
-  MP_Signal_c *dsig = NULL;
-  MP_Signal_c *csig = NULL;
+  /*Parse parameters*/
 
-  MP_Gabor_Atom_c    *gatom = NULL;
-  MP_Harmonic_Atom_c *hatom = NULL;
-  MP_Dirac_Atom_c    *datom = NULL;
-  MP_Gabor_Atom_c    *catom = NULL; /* <- Chirp atom */
+  if (argc == 1)
+    {
+      /*Default value */
+      numIter = 10;
+      numTestSignals = 1;
+    }
+  else
+    {
+      if (argc == 3)
+        {
+          numIter= strtoul(argv[1], &p, 0);
+          if ( (p == argv[1]) || (*p != 0) )
+            {
+              mp_error_msg( func, "Failed to convert argument [%s] to a unsigned long int value.\n",
+                            argv[1] );
+              return( -1 );
+            }
+          numTestSignals = strtoul(argv[2], &p, 0);
+          if ( (p == argv[1]) || (*p != 0) )
+            {
+              mp_error_msg( func, "Failed to convert argument [%s] to a unsigned long int value.\n",
+                            argv[1] );
+              return( -1 );
+            }
+          mp_info_msg( func, "Test behavior in noise with [%i] ierations on [%i] signals.\n" ,numIter, numTestSignals );
+        }
+      else mp_error_msg( func, "Bad Number of arguments, test_behaviour_in_noise require number of iteration and number of testing signals as argument in unsigned long int.\n"
+                         );
+    }
 
-  unsigned long int i;
 
-  //set_debug_mask( 0 );
+
 
   /***********************/
   /* Make the dictionary */
   /***********************/
-  dict = MP_Dict_c::init();
-  
-  /* For blocks with windows (all but Dirac):
-     window length = 1024
-     window shift  = 512
-     fftSize, windowtype = see below
-   */
-#define WINDOW DSP_HANNING_WIN
-#define FFTSIZE 1024
-  
-  /*** Block 1: GABOR */
-  add_gabor_block( dict,
-		   1024, 512, FFTSIZE,
-		   WINDOW, 0.0 );
+  for (unsigned int m=0; m < numTestSignals; m++)
+    {
+      for (unsigned int n=0; n < nameBlockVector->size(); n++)
+        {
+          dictArray->at(n) = MP_Dict_c::init();
+          dictArray->at(n)->add_default_block(nameBlockVector->at(n).c_str());
+        }
+      coreArray= new std::vector<MP_Mpd_Core_c*>(nameBlockVector->size());
+      approxArray = new std::vector<MP_Signal_c*>(nameBlockVector->size());
+      book = new std::vector<MP_Book_c*>(nameBlockVector->size());
 
-  /*** Block 2: HARMONIC */
-  add_harmonic_block( dict,
-		      1024, 512, FFTSIZE,
-		      WINDOW, 0.0,
-		      1, 4000, 0 );
-
-  /*** Block 3: DIRAC */
-  add_dirac_block( dict );
-
-  /*** Block 4: CHIRP */
-  add_chirp_block( dict,
-		   1024, 512, FFTSIZE,
-		   WINDOW, 0.0,
-		   1, 1 );
-
-
-  /*******************/
-  /* Make the signal */
-  /*******************/
-  func = "noise";
-  mp_info_msg( func, "****************************************\n" );
-  mp_info_msg( func, "NOISE REPORT:\n" );
-  mp_info_msg( func, "****************************************\n" );
-  /* 1 channel,
-     3072 samples (5 frames of length 1024 shifted by 512),
-     sample rate see below */
+      /*******************/
+      /* Make the signal */
+      /*******************/
+      /* 1 channel,
+         3072 samples (5 frames of length 1024 shifted by 512),
+         sample rate see below */
 #define SAMPLE_RATE 8000
-  sig = MP_Signal_c::init( 1, 3072, SAMPLE_RATE );
-  /* Fill the signal with noise of energy 1.0 */
-  //set_debug_mask( MP_DEBUG_GENERAL );
-  sig->fill_noise( 1.0 );
-  /* Check */
-  sig->dump_to_double_file( "signals/sig_noise_3072samp_8kHz.dbl" );
-  sig->wavwrite( "signals/sig_noise_3072samp_8kHz.wav" );
-  sig->info();
-  /* Plug this dummy signal into the dict */
-  dict->copy_signal( sig );
+      for (unsigned int n=0; n < nameBlockVector->size(); n++)
+        {
+          approxArray->at(n) = MP_Signal_c::init( 1, 3072, SAMPLE_RATE );
+          /* Fill the signal with noise of energy 1.0 */
+          approxArray->at(n)->fill_noise( 1.0 );
+        }
+      for (int n=0; n < nameBlockVector->size(); n++)
+        {
+          book->at(n) = MP_Book_c::create(1, 3072, SAMPLE_RATE );
+          if (book->at(n)==NULL)
+            {
+              mp_error_msg( func, "failed to create block[%s]\n",nameBlockVector->at(n).c_str());
+              return(-1);
+            }
+        }
 
 
+      /**************************************/
+      /* Make the individual atom waveforms */
+      /**************************************/
+      mp_info_msg( func, "****************************************\n" );
+      mp_info_msg( func, "ENERGIES:\n" );
+      mp_info_msg( func, "****************************************\n" );
+
+
+      for (unsigned int n=0; n < nameBlockVector->size(); n++)
+        {
+          coreArray->at(n) = MP_Mpd_Core_c::create( approxArray->at(n), book->at(n), dictArray->at(n) );
+          if (coreArray->at(n)!=NULL)coreArray->at(n)->set_iter_condition( numIter );
+          else
+            {
+              mp_error_msg( func, "failed to initialise core for block[%s]\n",nameBlockVector->at(n).c_str());
+              return (-1);
+            }
+          if (coreArray->at(n)->can_step())coreArray->at(n)->run();
+          if (coreArray->at(n)->get_initial_energy() <= dictArray->at(n)->signal->energy) return(-1);
+          else
+            {
+              mp_info_msg( func, "block[%s]: energy of signal before extraction [%g] after [%g] \n", nameBlockVector->at(n).c_str(), coreArray->at(n)->get_initial_energy() , dictArray->at(n)->signal->energy  );
+            }
+        }
+    }
   /**************************************/
-  /* Make the individual atoms          */
-  /**************************************/
-  func = "atom";
-  mp_info_msg( func, "****************************************\n" );
-  mp_info_msg( func, "ATOM REPORT:\n" );
-  mp_info_msg( func, "****************************************\n" );
-  /* Gabor: */
-  dict->block[0]->create_atom( (MP_Atom_c**)(&gatom), 2, 128 );
-  gatom->amp[0]   = 1.0;
-  gatom->phase[0] = 0.0;
-  gatom->info( stderr );
-  /* Harmo: */
-  dict->block[1]->create_atom( (MP_Atom_c**)(&hatom), 2, 576 ); /* 576 = 512 (last gabor) + 64 (Nyquist/16) */
-  hatom->amp[0]   = 1.0;
-  hatom->phase[0] = 0.0;
-  for ( i = 1; i < hatom->numPartials; i++) {
-    hatom->partialAmp[0][i] = 1.0;
-    //hatom->partialPhase[0][i] = 0.0;
-    hatom->partialPhase[0][i] += 0.01;
-  }
-  hatom->info( stderr );
-  /* Dirac: */
-  dict->block[2]->create_atom( (MP_Atom_c**)(&datom), 1536, 0 );
-  datom->amp[0]   = 1.0;
-  datom->info( stderr );
-  /* Chirp: */
-  dict->block[3]->create_atom( (MP_Atom_c**)(&catom), 2, 128 );
-  catom->amp[0]   = 1.0;
-  catom->phase[0] = 0.0;
-  catom->chirp = 0.000025;
-  catom->info( stderr );
-
-  /**************************************/
-  /* Make the individual atom waveforms */
-  /**************************************/
-  mp_info_msg( func, "****************************************\n" );
-  mp_info_msg( func, "ENERGIES:\n" );
-  mp_info_msg( func, "****************************************\n" );
-
-  gsig = MP_Signal_c::init( 1, 3072, SAMPLE_RATE );
-  //gatom->build_waveform( gsig->storage + 1024 );
-  //gsig->refresh_energy();
-  gatom->substract_add( NULL, gsig );
-  gsig->dump_to_double_file( "signals/gatom_3072samp_8kHz.dbl" );
-  gsig->wavwrite( "signals/gatom_3072samp_8kHz.wav" );
-  mp_info_msg( func, "GABOR ATOM: energy before norm [%g]\n", gsig->energy );
-  gsig->apply_gain( 1.0 / gsig->l2norm() );
-  mp_info_msg( func, "        |-: energy  after norm [%g]\n", gsig->energy );
-  
-
-  hsig = MP_Signal_c::init( 1, 3072, SAMPLE_RATE );
-  //hatom->build_waveform( hsig->storage + 1024 );
-  //hsig->refresh_energy();
-  hatom->substract_add( NULL, hsig );
-  hsig->dump_to_double_file( "signals/hatom_3072samp_8kHz.dbl" );
-  hsig->wavwrite( "signals/hatom_3072samp_8kHz.wav" );
-  mp_info_msg( func, "HARMO ATOM: energy before norm [%g]\n", hsig->energy );
-  hsig->apply_gain( 1.0 / hsig->l2norm() );
-  mp_info_msg( func, "        |-: energy  after norm [%g]\n", hsig->energy );
-
-  dsig = MP_Signal_c::init( 1, 3072, SAMPLE_RATE );
-  //datom->build_waveform( dsig->storage + 1024 );
-  //dsig->refresh_energy();
-  datom->substract_add( NULL, dsig );
-  dsig->dump_to_double_file( "signals/datom_3072samp_8kHz.dbl" );
-  dsig->wavwrite( "signals/datom_3072samp_8kHz.wav" );
-  mp_info_msg( func, "DIRAC ATOM: energy before norm [%g]\n", dsig->energy );
-  mp_info_msg( func, "        |-: energy  after norm [%g]\n", dsig->energy );
-
-  csig = MP_Signal_c::init( 1, 3072, SAMPLE_RATE );
-  //catom->build_waveform( csig->storage + 1024 );
-  //csig->refresh_energy();
-  catom->substract_add( NULL, csig );
-  csig->dump_to_double_file( "signals/catom_3072samp_8kHz.dbl" );
-  csig->wavwrite( "signals/catom_3072samp_8kHz.wav" );
-  mp_info_msg( func, "CHIRP ATOM: energy before norm [%g]\n", csig->energy );
-  csig->apply_gain( 1.0 / csig->l2norm() );
-  mp_info_msg( func, "        |-: energy  after norm [%g]\n", csig->energy );
-
-
-  /*******************/
   /* Clean the house */
-  /*******************/
-  delete( dict );
-  delete( sig );
+  /**************************************/
+  for (unsigned int n=0; n < nameBlockVector->size(); n++)
+    {
+      delete(coreArray->at(n));
+      delete(approxArray->at(n));
+      delete(dictArray->at(n));
+      delete(book->at(n));
 
-  delete( gsig );
-  delete( hsig );
-  delete( dsig );
-  delete( csig );
 
-  delete( gatom );
-  delete( hatom );
-  delete( datom );
-  delete( catom );
+    }
+  delete(coreArray);
+  delete(approxArray);
+  delete(dictArray);
+  delete(book);
+  
+  /* Release Mptk environnement */
+  MPTK_Env_c::get_env()->release_environment();
+  return(0);
 
-  return( 0 );
+
 }

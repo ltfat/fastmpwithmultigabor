@@ -161,7 +161,7 @@ class MP_FFT_Interface_c
 
     /** \brief A generic method to test if the default instantiation of the FFT class for a given
      * window scales correctly the energy of a signal, which is a clue whether it is correctly implemented */
-   MPTK_LIB_EXPORT static int test(const unsigned long int windowSize,
+   MPTK_LIB_EXPORT static int test(const double presicion , const unsigned long int windowSize,
                     const unsigned char windowType,
                     const double windowOption,
                     MP_Real_t *samples);

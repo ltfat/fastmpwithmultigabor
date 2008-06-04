@@ -106,6 +106,15 @@ ENDIF(BUILD_VERBOSE)
 ENDIF(BUILD_DEBUG)
 ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
 
+#In case of 64 bits plateform we have to compil with -fPIC flag
+#
+IF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
+
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
+SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
+ADD_DEFINITIONS(-fPIC)
+ENDIF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
+
 #Set  BUILDVERSION, BUILDVERSION, BUILDVERSION and AUTHORS according to text files in /version
 FILE(READ ${MPTK_SOURCE_DIR}/version/buildversion.cmake BUILDVERSION)
 FILE(READ ${MPTK_SOURCE_DIR}/version/packagename.cmake PACKAGENAME)
@@ -122,6 +131,10 @@ SET(MPTK_FTTW_WISDOM_FILE ${MPTK_BINARY_DIR}/bin/default_fftw_wisdom_file)
 SET(MPTK_FTTW_WISDOM_FILE_INSTALL ${CMAKE_INSTALL_PREFIX}/bin/default_fftw_wisdom_file)
 SET(MPTK_REFERENCE_PATH_INSTALL ${CMAKE_INSTALL_PREFIX}/bin/reference)
 SET(MPTK_REFERENCE_PATH ${MPTK_BINARY_DIR}/bin/reference)
+SET(MPTK_DEFAULT_DICT_PATH  ${MPTK_BINARY_DIR}/bin/reference/dictionary/dic_gabor_two_scales.xml)
+SET(MPTK_ANYWAVE_TEST_TABLE ${MPTK_BINARY_DIR}/bin/reference/dictionary/anywave_table.xml)
+SET(MPTK_ANYWAVE_TEST_TABLE_BIN ${MPTK_BINARY_DIR}/bin/reference/signal/anywave_table_data.bin)
+
 
 IF( CMAKE_CXX_COMPILER STREQUAL "cl")
 SET(MPTK_PLUGIN_DIR_INSTALL ${MPTK_BINARY_DIR}/lib/release)
@@ -333,18 +346,31 @@ INCLUDE(CPack)
 #ENDIF(RPMTools_FOUND)
 #ENDIF(BUILD_RPM)
 
-# TEST:
 IF(BUILD_TESTING)
 ENABLE_TESTING()
 INCLUDE(CTest)
 INCLUDE(CTestConfig.cmake)
+# TEST with CTest:
 SET(CMAKE_CXX_FLAGS "-fprofile-arcs -ftest-coverage  ${CMAKE_CXX_FLAGS}") 
+ADD_TEST(FFT, ${MPTK_BINARY_DIR}/bin/test_fft)
+ADD_TEST(PARABOLIC_REGRESSION, ${MPTK_BINARY_DIR}/bin/test_parabolic_regression)
+ADD_TEST(BEHAVIOUR_IN_NOISE, ${MPTK_BINARY_DIR}/bin/test_behaviour_in_noise)
 IF(BUILD_MULTITHREAD)
 ADD_TEST(MPD, ${MPTK_BINARY_DIR}/bin/mpd_multithread -C ${MPTK_BINARY_DIR}/bin/path.xml -D ${MPTK_BINARY_DIR}/bin/reference/dictionary/dic_gabor_two_scales.xml -n 10 -q ${MPTK_BINARY_DIR}/bin/reference/signal/glockenspiel.wav ${MPTK_BINARY_DIR}/bin/reference/signal/test.bin)
+ADD_TEST(MPDANYWAVE, ${MPTK_BINARY_DIR}/bin/mpd_multithread -C ${MPTK_BINARY_DIR}/bin/path.xml -D ${MPTK_BINARY_DIR}/bin/reference/dictionary/dico_test_anywave.xml -n 10 -q ${MPTK_BINARY_DIR}/bin/reference/signal/anywave_signal.wav ${MPTK_BINARY_DIR}/bin/reference/signal/test_anywave.bin)
 ELSE(BUILD_MULTITHREAD)
 ADD_TEST(MPD, ${MPTK_BINARY_DIR}/bin/mpd -C ${MPTK_BINARY_DIR}/bin/path.xml -D ${MPTK_BINARY_DIR}/bin/reference/dictionary/dic_gabor_two_scales.xml -n 10 -q ${MPTK_BINARY_DIR}/bin/reference/signal/glockenspiel.wav ${MPTK_BINARY_DIR}/bin/reference/signal/test.bin)
+ADD_TEST(MPD ANYWAVE, ${MPTK_BINARY_DIR}/bin/mpd -C ${MPTK_BINARY_DIR}/bin/path.xml -D ${MPTK_BINARY_DIR}/bin/reference/dictionary/dico_test_anywave.xml -n 10 -q ${MPTK_BINARY_DIR}/bin/reference/signal/anywave_signal.wav ${MPTK_BINARY_DIR}/bin/reference/signal/test_anywave.bin)
 ENDIF(BUILD_MULTITHREAD)
 ADD_TEST(MPR, ${MPTK_BINARY_DIR}/bin/mpr -C ${MPTK_BINARY_DIR}/bin/path.xml ${MPTK_BINARY_DIR}/bin/reference/signal/test.bin ${MPTK_BINARY_DIR}/bin/reference/signal/test.wav)
-# Add other test
+ADD_TEST(MPF, ${MPTK_BINARY_DIR}/bin/mpf -C ${MPTK_BINARY_DIR}/bin/path.xml --Freq=[0:110] --len=[0:256] ${MPTK_BINARY_DIR}/bin/reference/signal/test.bin ${MPTK_BINARY_DIR}/bin/reference/signal/booktestYes.bin ${MPTK_BINARY_DIR}/bin/reference/signal/booktestNo.bin)
+ADD_TEST(TEST_MP, ${MPTK_BINARY_DIR}/bin/test_mp)
+ADD_TEST(ANYWAVE, ${MPTK_BINARY_DIR}/bin/test_anywave ${MPTK_BINARY_DIR}/bin/reference/signal/anywave_signal.wav ${MPTK_BINARY_DIR}/bin/reference/dictionary/anywave_table.xml ${MPTK_BINARY_DIR}/bin/reference/dictionary/dico_test_anywave.xml)
+IF(BUILD_MULTITHREAD)
+ADD_TEST(MPD_DEMIX, ${MPTK_BINARY_DIR}/bin/mpd_demix_multithread -C ${MPTK_BINARY_DIR}/bin/path.xml -D ${MPTK_BINARY_DIR}/bin/reference/dictionary/dict-list.txt -M ${MPTK_BINARY_DIR}/bin/reference/mixer/mix_58_mixer.txt -n 10 -q ${MPTK_BINARY_DIR}/bin/reference/signal/mix_58_stereo.wav ${MPTK_BINARY_DIR}/bin/reference/signal/test_demix.bin)
+ELSE(BUILD_MULTITHREAD)
+ADD_TEST(MPD_DEMIX, ${MPTK_BINARY_DIR}/bin/mpd_demix -C ${MPTK_BINARY_DIR}/bin/path.xml -D ${MPTK_BINARY_DIR}/bin/reference/dictionary/dict-list.txt -M ${MPTK_BINARY_DIR}/bin/reference/mixer/mix_58_mixer.txt -n 10 -q ${MPTK_BINARY_DIR}/bin/reference/signal/mix_58_stereo.wav ${MPTK_BINARY_DIR}/bin/reference/signal/test_demix.bin)
+ENDIF(BUILD_MULTITHREAD)
+
 #ADD_TEST(Test1, ${MPTK_DIR}/bin/Testmptk)
 ENDIF(BUILD_TESTING)

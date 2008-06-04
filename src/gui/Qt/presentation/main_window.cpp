@@ -761,22 +761,17 @@ void MainWindow::on_btnValidateDefautlDict_clicked()
 }
 
 void MainWindow::on_btnOpenDefaultMixerDemix_clicked(){
-  std::string strAppDirectory;
-#ifdef _WIN32
-      char szAppPath[MAX_PATH] = "";
+   std::string strAppDirectory;
 
-      GetModuleFileName(NULL, szAppPath, MAX_PATH);
 
-      /* Extract directory*/
-      strAppDirectory = szAppPath;
-
-      strAppDirectory = strAppDirectory.substr(0, strAppDirectory.rfind("\\"));
-      strAppDirectory += "\\reference\\mixer\\mix_58_mixer.txt";
+      strAppDirectory = MPTK_Env_c::get_env()->get_config_path("reference");
+      if (strAppDirectory.size()>0) {
+      strAppDirectory += "/mixer/mix_58_mixer.txt";
       FILE *fp = fopen (strAppDirectory.c_str(), "r");
       if (fp == NULL)
         {
           /* no files*/
-          dialog->errorMessage("Cannot open dictionary file\n Please open a dictionary or use the custom dictionary");
+          dialog->errorMessage("Cannot open mixer file\n Please open a mixer file");
         }
       else
         {
@@ -790,86 +785,41 @@ void MainWindow::on_btnOpenDefaultMixerDemix_clicked(){
           labelBookMixeeNbrSources->setText(buf);
         }
         }
-#else
-      char path[2048];
-      getcwd(path, 2004);
-      strAppDirectory = path;
-      strAppDirectory += "/reference/mixer/mix_58_mixer.txt";
-      FILE *fp = fopen (strAppDirectory.c_str(), "r");
-      if (fp == NULL)
-        {
-          /* no files*/
-          dialog->errorMessage("Cannot open dictionary file\n Please open a dictionary or use the custom dictionary");
-        }
-      else
-        {
-          /* files */
-          fclose(fp);
-           if (guiCallBackDemix->openMixer(QString(strAppDirectory.c_str())))
-        {
-          labelMixer->setText(strAppDirectory.c_str());
-          char buf[3];
-          sprintf(buf, "%d", guiCallBackDemix->mixer->numSources);
-          labelBookMixeeNbrSources->setText(buf);
-        }
-        }
-#endif /* WIN32 */
-}
 
+
+    } else dialog->errorMessage("Cannot find the reference files path\n Please open a mixer file");
+      
+      
+}
+  
 void MainWindow::on_btnOpenDefaultSigDemix_clicked(){
   std::string strAppDirectory;
     if (guiCallBackDemix->mixer != NULL)
     {
-#ifdef _WIN32
-      char szAppPath[MAX_PATH] = "";
-
-      GetModuleFileName(NULL, szAppPath, MAX_PATH);
-
-// Extract directory
-      strAppDirectory = szAppPath;
-
-      strAppDirectory = strAppDirectory.substr(0, strAppDirectory.rfind("\\"));
-      strAppDirectory += "\\reference\\signal\\mix_58_stereo.wav";
+    	
+      strAppDirectory = MPTK_Env_c::get_env()->get_config_path("reference");
+      if (strAppDirectory.size()>0) {
+      strAppDirectory += "/signal/mix_58_stereo.wav";
       FILE *fp = fopen (strAppDirectory.c_str(), "r");
       if (fp == NULL)
         {
           /* no files*/
           dialog->errorMessage("Cannot open signal file\n Please open a signal file");
-       }
+        }
       else
         {
           /* files */
           fclose(fp);
-
-          if (! guiCallBackDemix->openSignal(QString(strAppDirectory.c_str())) == SIGNAL_OPENED) dialog->errorMessage("Failed to open original signal file");
+           if (! guiCallBackDemix->openSignal(QString(strAppDirectory.c_str())) == SIGNAL_OPENED) dialog->errorMessage("Failed to open original signal file");
           guiCallBackDemix->setBookArray();
           guiCallBackDemix->initMpdDemixCore();
           guiCallBackDemix->plugApprox();
           labelOriginalSignalDemix->setText(strAppDirectory.c_str());
         }
 
-#else
-      char path[2048];
-      getcwd(path, 2004);
-      strAppDirectory = path;
-      strAppDirectory += "/reference/signal/mix_58_stereo.wav";
-      FILE *fp = fopen (strAppDirectory.c_str(), "r");
-      if (fp == NULL)
-        {
-          /* no files*/
-          dialog->errorMessage("Cannot open signal file\n Please open a signal file");
-       }
-      else
-        {
-          /* files */
-          fclose(fp);
-          if (! guiCallBackDemix->openSignal(QString(strAppDirectory.c_str())) == SIGNAL_OPENED) dialog->errorMessage("Failed to open original signal file");      
-          guiCallBackDemix->setBookArray();
-          guiCallBackDemix->initMpdDemixCore();
-          guiCallBackDemix->plugApprox();
-          labelOriginalSignalDemix->setText(strAppDirectory.c_str());
-        }
-#endif /* WIN32 */
+
+    } else dialog->errorMessage("Cannot find the reference files path\n Please open a signal file");
+
         } else dialog->errorMessage("Open a mixer file");
 
 

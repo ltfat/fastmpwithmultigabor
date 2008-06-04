@@ -12,6 +12,7 @@ export MPTK_CONFIG_FILENAME="path_to_MPTK/bin/path.xml"
 setenv MPTK_CONFIG_FILENAME "path_to_MPTK/bin/path.xml"
 You can check if the environment variable is correctly set with:
 echo $MPTK_CONFIG_FILENAME
+On Mac OSX an other solution is to edit ~/.MacOSX/environment.plist to add a key-value pair MPTK_CONFIG_FILENAME="/Users/your-username/.mptk/path.xml"
 In order to set environment variable on Windows like system:
 Lauch a command line and use the SET command:
 SET MPTK_CONFIG_FILENAME=path_to_MPTK/bin/path.xml 

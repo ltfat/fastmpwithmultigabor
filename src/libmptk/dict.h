@@ -188,7 +188,7 @@ class MP_Dict_c
 
   public:
     /* Destructor */
-    MPTK_LIB_EXPORT ~MP_Dict_c();
+    MPTK_LIB_EXPORT virtual ~MP_Dict_c();
 
 
     /***************************/

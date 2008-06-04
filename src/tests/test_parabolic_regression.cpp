@@ -69,7 +69,12 @@ int main(void) {
 
   parabolic_regression( buff1, buff2, L,
 			&a, &b, &d, &e );
-
+			
+  if (A-a > 1e-5) return( -1 );
+  if (B-b > 1e-5) return( -1 );
+  if (D-d > 1e-5) return( -1 );
+  if (E-e > 1e-5) return( -1 );
+  
   fprintf( stdout, "A before: %f A estimated: %f DIFF: %f\n", A, a, A-a );
   fprintf( stdout, "B before: %f B estimated: %f DIFF: %f\n", B, b, B-b );
   fprintf( stdout, "D before: %f D estimated: %f DIFF: %f\n", D, d, D-d );

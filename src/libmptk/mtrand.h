@@ -74,13 +74,26 @@
    email: m-mat @ math.sci.hiroshima-u.ac.jp (remove space)
 */
 
+
 #ifndef _mtrand_h_
 # define _mtrand_h_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
+class MP_Mtrand_c
+  {
+    /********/
+    /* DATA */
+    /********/
+    
+    private:
+/* Global variables */
+ /** \brief Protected pointer on MP_Atom_Factory_c*/
+ static MP_Mtrand_c * myMPMtrand;
+
+public:
+
+
+    
   /* Period parameters */
 #define MTRAND_N 624
 #define MTRAND_M 397
@@ -88,9 +101,34 @@ extern "C" {
 #define MTRAND_UPPER_MASK 0x80000000UL /* most significant w-r bits */
 #define MTRAND_LOWER_MASK 0x7fffffffUL /* least significant r bits */
 
+int mti; 
+unsigned long mt[MTRAND_N]; /* the array for the state vector  */
+    /***********/
+    /* METHODS */
+    /***********/
+
+    /***************************/
+    /* CONSTRUCTORS/DESTRUCTOR */
+    /***************************/
+
+  public:
+
+    /** \brief Public destructor  */
+    virtual ~MP_Mtrand_c();
+
+    /** \brief Method to get the MP_Atom_Factory_c */
+    static MP_Mtrand_c * get_mtrand();
+
+  private:
+    /** \brief Private constructor*/
+    MP_Mtrand_c();
+    
+    public:
   /* Mersenne twister random generator */
   /* initializes the random generator with a seed */
   void init_genrand(unsigned long s);
+  
+  void init_by_array(unsigned long init_key[], int key_length);
   /* generates a random number on [0,0xffffffff]-interval */
   unsigned long genrand_int32(void);
   /* generates a random number on [0,1]-real-interval */
@@ -109,8 +147,6 @@ extern "C" {
    */
   double mt_nrand( double mean, double var );
 
-#ifdef __cplusplus
-}
-#endif
 
+  };
 #endif /* _mtrand_h_ */

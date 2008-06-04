@@ -45,6 +45,7 @@
 #include "mp_system.h"
 #include "mp_messaging.h"
 #include <iostream>
+#include <stdarg.h>
 
 using namespace std;
 
@@ -573,3 +574,29 @@ void MP_Msg_Server_c::default_display_error_function(char* message){
 fprintf( stderr, "%s", message );
 fflush( stderr );
 }
+
+void MP_Msg_Server_c::default_display_in_file_error_function(char* message){
+fprintf( (FILE*)get_error_stream(), "%s", message );
+fflush(  (FILE*)get_error_stream() );
+}
+
+void MP_Msg_Server_c::default_display_in_file_info_function(char* message){
+fprintf( (FILE*)get_info_stream(), "%s", message );
+fflush(  (FILE*)get_info_stream() );
+}
+
+void MP_Msg_Server_c::default_display_in_file_warning_function(char* message){
+fprintf( (FILE*)get_warning_stream(), "%s", message );
+fflush(  (FILE*)get_warning_stream() );
+}
+
+void MP_Msg_Server_c::default_display_in_file_debug_function(char* message){
+fprintf( (FILE*)get_debug_stream(), "%s", message );
+fflush(  (FILE*)get_debug_stream() );
+}
+
+void MP_Msg_Server_c::default_display_in_file_progress_function(char* message){
+fprintf( (FILE*)get_progress_stream(), "%s", message );
+fflush(  (FILE*)get_progress_stream() );
+}
+

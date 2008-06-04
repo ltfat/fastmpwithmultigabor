@@ -193,6 +193,11 @@ STL_EXT_NM::hash_map<const char*,void(*)(char * message),CSTRING_HASHER> display
 
   public:
     MPTK_LIB_EXPORT  static void default_display_error_function(char* message);
+    MPTK_LIB_EXPORT  static void default_display_in_file_error_function(char* message);
+    MPTK_LIB_EXPORT  static void default_display_in_file_info_function(char* message);
+    MPTK_LIB_EXPORT  static void default_display_in_file_warning_function(char* message);
+    MPTK_LIB_EXPORT  static void default_display_in_file_debug_function(char* message);
+    MPTK_LIB_EXPORT  static void default_display_in_file_progress_function(char* message);
     /** \brief Method to get the MP_Atom_Factory_c */
     MPTK_LIB_EXPORT static MP_Msg_Server_c * get_msg_server();
     /** \brief A plain constructor **/

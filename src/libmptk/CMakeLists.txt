@@ -94,7 +94,7 @@ MACRO(GET_MPTK_LIB_CPPSOURCE out)
 	${CMAKE_SOURCE_DIR}/src/libmptk/dll_elf.cpp
 	${CMAKE_SOURCE_DIR}/src/libmptk/dll_win32.cpp
 	${CMAKE_SOURCE_DIR}/src/libmptk/general.cpp       
-	${CMAKE_SOURCE_DIR}/src/libmptk/mtrand.c          
+	${CMAKE_SOURCE_DIR}/src/libmptk/mtrand.cpp          
 	${CMAKE_SOURCE_DIR}/src/libmptk/regression.cpp    
 	${CMAKE_SOURCE_DIR}/src/libmptk/mp_signal.cpp     
 	${CMAKE_SOURCE_DIR}/src/libmptk/win_server.cpp    

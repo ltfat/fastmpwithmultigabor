@@ -45,21 +45,33 @@
    email: m-mat @ math.sci.hiroshima-u.ac.jp (remove space)
 */
 
-#include "mtrand.h"
-#include "mp_system.h"
+#include "mptk.h"
 
 
-/* Global variables */
-#ifdef _DECLAREMTI
-int mti=MTRAND_N+1; /* mti==N+1 means mt[N] is not initialized */ 
-#else
-extern int mti=MTRAND_N+1; /* mti==N+1 means mt[N] is not initialized */
-#endif
-unsigned long mt[MTRAND_N]; /* the array for the state vector  */
+MP_Mtrand_c* MP_Mtrand_c::myMPMtrand = NULL;
+
+MP_Mtrand_c::MP_Mtrand_c(){
+mti=MTRAND_N+1;
+}
+
+MP_Mtrand_c::~MP_Mtrand_c(){}
+/**************/
+/* Singleton */
+
+/* Create a singleton of BlockFactory class */
+
+MP_Mtrand_c * MP_Mtrand_c::get_mtrand()
+{
+  if (!MP_Mtrand_c::myMPMtrand)
+    {
+      MP_Mtrand_c::myMPMtrand = new MP_Mtrand_c();
+    }
+  return  MP_Mtrand_c::myMPMtrand;
+}
 
 
 /* initializes mt[N] with a seed */
-void init_genrand(unsigned long s)
+void MP_Mtrand_c::init_genrand(unsigned long s)
 {
     mt[0]= s & 0xffffffffUL;
     for (mti=1; mti<MTRAND_N; mti++) {
@@ -78,7 +90,7 @@ void init_genrand(unsigned long s)
 /* init_key is the array for initializing keys */
 /* key_length is its length */
 /* slight change for C++, 2004/2/26 */
-void init_by_array(unsigned long init_key[], int key_length)
+void MP_Mtrand_c::init_by_array(unsigned long init_key[], int key_length)
 {
     int i, j, k;
     init_genrand(19650218UL);
@@ -104,7 +116,7 @@ void init_by_array(unsigned long init_key[], int key_length)
 }
 
 /* generates a random number on [0,0xffffffff]-interval */
-unsigned long genrand_int32(void)
+unsigned long MP_Mtrand_c::genrand_int32(void)
 {
     unsigned long y;
     static unsigned long mag01[2]={0x0UL, MTRAND_MATRIX_A};
@@ -148,7 +160,7 @@ unsigned long genrand_int32(void)
  * This random generator uses the polar form of the Box-Muller transform.
  *
  */
-double mt_nrand( double mean, double var ) {
+double MP_Mtrand_c::mt_nrand( double mean, double var ) {
 
   double fac, rsq, v, v1, v2;
   static int iset = 0;

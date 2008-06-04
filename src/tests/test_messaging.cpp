@@ -40,7 +40,10 @@
 int main( void ) {
 
   FILE *fid;
-
+  char* func = "test_messaging";
+  mp_info_msg( func, "---------------------------------------------\n" );
+  mp_info_msg( func, "TEST - TESTING MPTK MESSAGING FUNCTIONALITIES\n" );
+  mp_info_msg( func, "---------------------------------------------\n" );
   mp_error_msg( "foo()", "Bluk bluk: int [%d] str:[%s]\n", 16, "TOTO" );
   mp_warning_msg( "foo()", "Bluk bluk: int [%d] str:[%s]\n", 16, "TOTO" );
   mp_info_msg( "foo()", "Bluk bluk: int [%d] str:[%s] lu:[%lu]\n", 16, "TOTO", 64800 );
@@ -65,28 +68,33 @@ int main( void ) {
   mp_warning_msg( "foo()", "Bluk bluk: int [%d] str:[%s]\n", 16, "TOTO" );
   mp_info_msg( "foo()", "Bluk bluk: int [%d] str:[%s] lu:[%lu]\n", 16, "TOTO", 64800 );
   mp_debug_msg( MP_DEBUG, "foo()", "Bluk bluk: int [%d] str:[%s]\n", 16, "TOTO" );
-
-  fprintf( stderr, "Redirecting to file [test_messaging.out]...\n" ); fflush( stderr );
-  fid = fopen( "test_messaging.out", "w" );
-  set_msg_stream( fid );
-  mp_error_msg( "foo()", "Bluk bluk: int [%d] str:[%s]\n", 16, "TOTO" );
-  mp_warning_msg( "foo()", "Bluk bluk: int [%d] str:[%s]\n", 16, "TOTO" );
-  mp_info_msg( "foo()", "Bluk bluk: int [%d] str:[%s] lu:[%lu]\n", 16, "TOTO", 64800 );
-  mp_debug_msg( MP_DEBUG, "foo()", "Bluk bluk: int [%d] str:[%s]\n", 16, "TOTO" );
-  fclose( fid );
-  fprintf( stderr, "Done.\n" ); fflush( stderr );
-
-  fprintf( stderr, "Redirecting only warnings to file [test_messaging_warn.out]...\n" ); fflush( stderr );
+  
+    fprintf( stderr, "Redirecting only warnings to file [test_messaging_warn.out]...\n" ); fflush( stderr );
   fid = fopen( "test_messaging_warn.out", "w" );
   set_msg_stream( stderr );
   set_warning_stream( fid );
+  MP_Msg_Server_c::get_msg_server()->register_display_function("warning_message_display",&MP_Msg_Server_c::default_display_in_file_warning_function);
   mp_error_msg( "foo()", "Bluk bluk: int [%d] str:[%s]\n", 16, "TOTO" );
   mp_warning_msg( "foo()", "Bluk bluk: int [%d] str:[%s]\n", 16, "TOTO" );
   mp_info_msg( "foo()", "Bluk bluk: int [%d] str:[%s] lu:[%lu]\n", 16, "TOTO", 64800 );
   mp_debug_msg( MP_DEBUG, "foo()", "Bluk bluk: int [%d] str:[%s]\n", 16, "TOTO" );
   fclose( fid );
   fprintf( stderr, "Done.\n" ); fflush( stderr );
-
+  
+  fprintf( stderr, "Redirecting to file [test_messaging.out]...\n" ); fflush( stderr );
+  fid = fopen( "test_messaging.out", "w" );
+  set_msg_stream( fid );
+  set_debug_stream( fid );
+  MP_Msg_Server_c::get_msg_server()->register_display_function("info_message_display",&MP_Msg_Server_c::default_display_in_file_info_function);
+  MP_Msg_Server_c::get_msg_server()->register_display_function("error_message_display",&MP_Msg_Server_c::default_display_in_file_error_function);
+  MP_Msg_Server_c::get_msg_server()->register_display_function("progress_message_display",&MP_Msg_Server_c::default_display_in_file_progress_function);
+  MP_Msg_Server_c::get_msg_server()->register_display_function("debug_message_display",&MP_Msg_Server_c::default_display_in_file_debug_function);
+  mp_error_msg( "foo()", "Bluk bluk: int [%d] str:[%s]\n", 16, "TOTO" );
+  mp_warning_msg( "foo()", "Bluk bluk: int [%d] str:[%s]\n", 16, "TOTO" );
+  mp_info_msg( "foo()", "Bluk bluk: int [%d] str:[%s] lu:[%lu]\n", 16, "TOTO", 64800 );
+  mp_debug_msg( MP_DEBUG, "foo()", "Bluk bluk: int [%d] str:[%s]\n", 16, "TOTO" );
+  fclose( fid );
+  fprintf( stderr, "Done.\n" ); fflush( stderr );
 
   fprintf( stderr, "\nTesting the DEBUG masking system...\n" ); fflush( stderr );
 

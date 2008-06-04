@@ -44,7 +44,6 @@
 #include "mptk.h"
 #include "mp_system.h"
 #include "mtrand.h"
-
 #include <sndfile.h>
 
 
@@ -399,16 +398,15 @@ void MP_Signal_c::fill_zero( void )
 /* Fill the storage space with white noise */
 void MP_Signal_c::fill_noise( MP_Real_t energyLevel )
 {
-  //MP_Real_t *p;
- // extern int mti; /* => a global variable from mtrand.c . */
+  MP_Real_t *p;
 
   /* Reset the signal's energy */
- // energy = 0.0;
+  energy = 0.0;
   /* Seed the random generator if it has never been done before */
- /*
-  if (mti == MTRAND_N+1)
+ 
+  if (MP_Mtrand_c::get_mtrand()->mti == MTRAND_N+1)
     {
-      init_genrand( (unsigned long int)(time(NULL)) );
+      MP_Mtrand_c::get_mtrand()->init_genrand( (unsigned long int)(time(NULL)) );
       mp_debug_msg( MP_DEBUG_GENERAL, "MP_Signal_c::fill_noise(e)",
                     "SEEDING the random generator !\n" );
     }
@@ -421,11 +419,11 @@ void MP_Signal_c::fill_noise( MP_Real_t energyLevel )
     }
 #endif
   /* Fill the signal with random doubles in the interval [-1.0,1.0] */
- // for ( p = storage;
-   //     p < (storage + numSamples*numChans);
-    //    *p++ = (MP_Real_t)(mt_nrand( 0.0, 1.0 )) );
+  for ( p = storage;
+        p < (storage + numSamples*numChans);
+        *p++ = (MP_Real_t)(MP_Mtrand_c::get_mtrand()->mt_nrand( 0.0, 1.0 )) );
   /* Normalize */
-  //apply_gain( (MP_Real_t)sqrt( (double)energyLevel) / l2norm() );
+  apply_gain( (MP_Real_t)sqrt( (double)energyLevel) / l2norm() );
 
   return;
 }
@@ -1147,7 +1145,6 @@ MP_Bool_t MP_Signal_c::operator==( const MP_Signal_c& s1 )
   /* Note: the energy test is optional. Normally, if the samples are the same
      (tested below), the energy should be synchronized as well, unless
      something is screwed up somewhere else in the code. */
-
   /* Browse until different sample values are found */
   for ( chanIdx = 0; chanIdx < numChans; chanIdx++ )
     {
@@ -1155,12 +1152,49 @@ MP_Bool_t MP_Signal_c::operator==( const MP_Signal_c& s1 )
             (i < numSamples) && ( channel[chanIdx][i] == s1.channel[chanIdx][i] );
             i++ );
       /* And check where the loop stopped: */
-      if ( i != numSamples ) return( (MP_Bool_t)( MP_FALSE ) );
+      if ( i != numSamples ){
+      	mp_warning_msg( "MP_Signal_c::matwrite(file)", "diff in sample :[%i]\n",i );
+      	 return( (MP_Bool_t)( MP_FALSE ) );}
+      
     }
 
   return( (MP_Bool_t)( MP_TRUE ) );
 }
+/* DIFF */
+MP_Bool_t MP_Signal_c::diff( const MP_Signal_c& s1, double precision )
+{
 
+  int chanIdx;
+  unsigned long int i;
+
+  if ( numChans != s1.numChans )    {
+  	mp_warning_msg( "MP_Signal_c::diff", "diff in number of channel");
+  	 return ( (MP_Bool_t)( MP_TRUE ) );}
+  if ( numSamples != s1.numSamples ) {
+  	mp_warning_msg( "MP_Signal_c::diff", "diff in number of samples");
+  	return ( (MP_Bool_t)( MP_TRUE ));}
+  if ( sampleRate != s1.sampleRate ) {
+  	mp_warning_msg( "MP_Signal_c::diff", "diff in sample rate");
+  	return ( (MP_Bool_t)( MP_TRUE ) );}
+  //if ( energy != s1.energy )         return ( (MP_Bool_t)( MP_FALSE ) );
+  /* Note: the energy test is optional. Normally, if the samples are the same
+     (tested below), the energy should be synchronized as well, unless
+     something is screwed up somewhere else in the code. */
+  /* Browse until different sample values are found */
+  for ( chanIdx = 0; chanIdx < numChans; chanIdx++ )
+    {
+      for ( i = 0;
+            (i < numSamples);
+            i++ ) { 
+      /* And check where the loop stopped: */
+      if ( ( (channel[chanIdx][i]- s1.channel[chanIdx][i])*(channel[chanIdx][i]- s1.channel[chanIdx][i]) >= precision*precision ) ){
+      	mp_warning_msg( "MP_Signal_c::diff", "diff in sample :[%i]\n",i );
+      	 return( (MP_Bool_t)( MP_TRUE ) );
+    
+    }}}
+
+  return( (MP_Bool_t)( MP_FALSE ) );
+}
 
 /***********************/
 /* != (NEG COMPARISON) */

@@ -37,175 +37,131 @@
 
 #include <mptk.h>
 
-int main( void ) {
-
-  MP_Signal_c *sig = NULL;
+int main( int argc, char ** argv ) {
+  char* func = "test_mp";
+  std::string strAppDirectory;
+  MP_Signal_c *sigref = NULL;
+  MP_Signal_c *sigtest = NULL;
   unsigned long int check;
   MP_Dict_c *dico = NULL;
   MP_Book_c *book;
-  MP_Block_c *bl = NULL;
   int i;
   unsigned long int frameIdx, freqIdx;
   char str[1024];
+  MP_Mpd_Core_c *mpdCore = NULL;
+  unsigned int numIter = 0;
+  double precision = 0;
+  char *p;
+  
+  
+  /* Set environement */
+  MPTK_Env_c::get_env()->load_environment("");
+  
+  
+  /*Parse parameters*/
+  /*Parse parameters*/
 
-  /*************************/
+  if (argc == 1)
+    {
+      /*Default value */
+      numIter = 10;
+      precision = 0.0001;
+    }
+  else
+    {
+      if (argc == 3)
+        {
+          numIter= strtoul(argv[1], &p, 0);
+          if ( (p == argv[1]) || (*p != 0) )
+            {
+              mp_error_msg( func, "Failed to convert argument [%s] to a unsigned long int value.\n",
+                            argv[1] );
+              return( -1 );
+            }
+          precision = strtod(argv[2], &p);
+          if ( (p == argv[1]) || (*p != 0) )
+            {
+              mp_error_msg( func, "Failed to convert argument [%s] to a unsigned long int value.\n",
+                            argv[1] );
+              return( -1 );
+            }
+         
+        }
+      else{ mp_error_msg( func, "Bad Number of arguments, test_mp require number of iteration and precision as argument in unsigned long int and double.\n");
+    return( -1 );}
+    }
+
+  
+    /*************************/
   /* Read signal form file */
-  sig = MP_Signal_c::init( 1, 8000 , 8000);
-  check = sig->read_from_float_file( "signals/2_atoms.flt" );
+  strAppDirectory = MPTK_Env_c::get_env()->get_config_path("reference");
+  strAppDirectory += "/signal/glockenspiel.wav";
+  sigref = MP_Signal_c::init( strAppDirectory.c_str() );
+  sigtest = MP_Signal_c::init( strAppDirectory.c_str() );
+  
+    if ( sigref == NULL )
+    {
+      mp_error_msg( func, "Failed to load a signal from file [%s].\n",
+                    strAppDirectory.c_str() );
+ 
 
+  return(-1);
+    }
+  
   /**************************/
   /* Build a new dictionary */
-  dico = MP_Dict_c::init();
-  add_gabor_block( dico,  32, 32, 256, DSP_GAUSS_WIN, DSP_GAUSS_DEFAULT_OPT );
-  add_gabor_block( dico,  64, 32, 256, DSP_HAMMING_WIN, 0.0 );
-  add_gabor_block( dico, 128, 32, 256, DSP_HAMMING_WIN, 0.0 );
-  add_gabor_block( dico, 256, 32, 256, DSP_HAMMING_WIN, 0.0 );
-  dico->plug_signal( sig );
+  
+  strAppDirectory = MPTK_Env_c::get_env()->get_config_path("reference");
+  strAppDirectory += "/dictionary/dico_test.xml";
+  
+  dico = MP_Dict_c::init( strAppDirectory.c_str());
+  
+  if ( dico == NULL )
+    {
+      mp_error_msg( func, "Failed to create a dictionary from XML file [%s].\n",
+                    strAppDirectory.c_str() );
+ 
 
-  /*****************************/
-  /* Init the matching pursuit */
-  dico->update_all();
-
-  /* Output inner products to file */
-  // dico->dump_ip( "signals/out_2atoms_specgram.dbl" );
-  /* Check the max */
-  fprintf( stdout, "Max is now found in block %u\n",
-	   dico->blockWithMaxIP );
-  bl = dico->block[dico->blockWithMaxIP];
-  frameIdx = bl->maxIPFrameIdx;
-  freqIdx = bl->maxIPIdxInFrame[frameIdx];
-  fprintf( stdout, "    at ( frame #%lu , frequency #%lu )\n", frameIdx, freqIdx );
-
+  return(-1);
+    }
   /*****************/
   /* Make the book */
-  book = MP_Book_c::init();
+  book = MP_Book_c::create(sigtest->numChans, sigtest->numSamples, sigtest->sampleRate );;
   if ( book == NULL ) {
-    fprintf( stderr, "Book is NULL.\n" ); fflush( stderr );
-    exit( 1 );
+    mp_error_msg( func, "Book is NULL.\n" );
+    return(-1);
   }
+  /*****************/
+  /* Make the core */
+   mpdCore = MP_Mpd_Core_c::create( sigtest, book, dico );
+  if (mpdCore!=NULL)mpdCore->set_iter_condition( numIter );
+  else       
+    {
+      mp_error_msg( func, "Failed to create a MPD core object.\n" );
+      return( -1 );
+    }
 
-  /****************/
-  /* Find 2 atoms */
-  book->numSamples = dico->signal->numSamples;
-  fprintf( stdout, "STARTING ITERATIONS:\n" );
-  for ( i=0; i<2; i++ ) {
-
-    fprintf( stdout, "------ ITERATION [%i]...\n", i );
-    dico->iterate_mp( book , NULL );
-
-    /* Check the signal */
-    sprintf( str, "signals/2_atoms_after_iter_%d.flt", i );
-    dico->signal->dump_to_float_file( str );
-    /* Check the spectrogram */
-    sprintf( str, "signals/2_atoms_spec_iter_%d.dbl", i );
-    // dico->dump_ip( str );
-    /* Check the support */
-    fprintf( stdout, "Touched support: %lu %lu\n",
-	     dico->touch[0].pos, dico->touch[0].len );
-    /* Check the max */
-    fprintf( stdout, "Max is now found in block %u\n",
-	     dico->blockWithMaxIP );
-    bl = dico->block[dico->blockWithMaxIP];
-    frameIdx = bl->maxIPFrameIdx;
-    freqIdx = bl->maxIPIdxInFrame[frameIdx];
-    fprintf( stdout, "    at ( frame #%lu , frequency #%lu )\n", frameIdx, freqIdx );
-
-  }
-  fprintf( stdout, "------ DONE.\n" );
-
-
-  /****************************/
-  /* I/O TEST                 */
-  /****************************/
-
-  /******************/
-  /* Print the BOOK */
-
-  fprintf(stderr,"BOOK info :\n" ); fflush( stderr );
-  book->info( stdout ); fflush( stdout );
-  fprintf(stderr,"END BOOK INFO.\n\n" ); fflush( stderr );
-
-  fprintf(stderr,"BOOK PRINT (TEXT MODE) :\n" ); fflush( stderr );
-  book->print( stdout, MP_TEXT ); fflush( stdout );
-  book->print( "book_from_test_mp.xml", MP_TEXT );
-
-  fprintf(stderr,"RELOADED BOOK :\n" ); fflush( stderr );
-  fprintf( stderr, "Reloading..." ); fflush( stderr );
-  book->load( "book_from_test_mp.xml" );
-  fprintf( stderr, "Done. [%lu] atoms have been reloaded.\n", book->numAtoms );
-  fflush( stderr );
-  book->print( stdout, MP_TEXT ); fflush( stdout );
-  book->print( "book_from_test_mp_after_reload.xml", MP_TEXT );
-  fprintf(stderr,"END BOOK PRINT/RELOAD (TEXT).\n\n" ); fflush( stderr );
-
-  fprintf(stderr,"BOOK PRINT (BINARY MODE) :\n" ); fflush( stderr );
-  book->print( "book_from_test_mp.bin", MP_BINARY );
-  fprintf( stderr, "Reloading..." ); fflush( stderr );
-  book->load( "book_from_test_mp.bin" );
-  fprintf( stderr, "Done. [%lu] atoms have been reloaded.\n", book->numAtoms );
-  fflush( stderr );
-  book->print( stdout, MP_TEXT ); fflush( stdout );
-  book->print( "book_from_test_mp_after_reload_from_bin.xml", MP_TEXT );
-  fprintf(stderr,"END BOOK PRINT/RELOAD (BINARY).\n\n" ); fflush( stderr );
-
-
-  /*************************/
-  /* Print the DICTIONNARY */
-
-  fprintf(stderr,"DICO PRINT :\n" ); fflush( stderr );
-  dico->print( stdout ); fflush( stdout );
-  dico->print( "dico_from_test_mp.xml" );
-
-  fprintf(stderr,"Deleting all blocks..." ); fflush( stderr );
-  dico->delete_all_blocks();
-  fprintf(stderr,"Done.\n" ); fflush( stderr );
-
-  fprintf(stderr,"Reloading..." ); fflush( stderr );
-  dico->add_blocks( "dico_from_test_mp.xml" );
-  fprintf(stderr,"Done.\n" ); fflush( stderr );
-
-  fprintf(stderr,"RELOADED DICO :\n" ); fflush( stderr );
-  dico->print( stdout ); fflush( stdout );
-  dico->print( "dico_from_test_mp_after_reload.xml" );
-
-  fprintf(stderr,"Adding more blocks..." ); fflush( stderr );
-  dico->add_blocks( "dico_from_test_mp.xml" );
-  fprintf(stderr,"Done.\n" ); fflush( stderr );
-
-  fprintf(stderr,"DUPLICATED DICO :\n" ); fflush( stderr );
-  dico->print( stdout ); fflush( stdout );
+  if (mpdCore->can_step())mpdCore->run();
   
-  fprintf(stderr,"END DICO PRINT/RELOAD.\n\n" ); fflush( stderr );
-
-  /****************************/
-  /* TFMAP test               */
-  {
-    MP_TF_Map_c* tfmap = new MP_TF_Map_c( 640, 480, dico->signal->numChans,
-					  0, dico->signal->numSamples,
-					  0.0, 0.5 );
-    MP_Mask_c mask( book->numAtoms );
-    mask.reset_all_false();
-    mask.set_true(0);
-    mask.set_true(1);
-    mask.set_true(2);
-    book->info( stdout );
-    tfmap->info( stdout );
-    fflush( stdout );
-
-    book->add_to_tfmap( tfmap, MP_TFMAP_SUPPORTS, &mask );
-    tfmap->dump_to_file( "tfmap.flt", 0 );
-    tfmap->dump_to_file( "tfmap_upsidedown.flt", 1 );
-
-    tfmap->reset();
-    book->add_to_tfmap( tfmap, MP_TFMAP_PSEUDO_WIGNER, &mask );
-    tfmap->dump_to_file( "tfmap_wigner.flt", 1 );
-
-    delete tfmap;
+  if ( book->substract_add( NULL, sigtest, NULL ) == 0 ) {
+    mp_error_msg( func,"mpr error -- No atoms were found in the book to rebuild the signal.\n" );
+   return( -1 );
   }
+  
+ if(sigref->diff(*sigtest,precision)) {
+  mp_error_msg( func, "Difference in reconstruct signal.\n" );
+ return (-1);
+ }
+ 
 
   /* Clean the house */
-  delete dico;
-  delete sig;
-
+  if ( sigref  )  delete sigref;
+  if ( sigtest  )  delete sigtest;
+  if ( mpdCore ) delete mpdCore;
+  if (dico) delete dico;
+  if ( book )  delete book; 
+  /* Release Mptk environnement */
+  MPTK_Env_c::get_env()->release_environment();
+  
   return(0);
 }

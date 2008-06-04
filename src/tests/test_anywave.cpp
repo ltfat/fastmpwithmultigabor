@@ -40,7 +40,6 @@
  * that it is properly working.
  */
 #include <mptk.h>
-
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -49,12 +48,12 @@ void usage() {
   fprintf(stderr, "\n test_anywave signal.wav anywave_table.bin dict.xml");
   fprintf(stderr, "\n");
   fprintf(stderr, "\n Calls the test functions of the following classes :");
-  fprintf(stderr, "\n    MP_Anywave_Server_c, MP_Anywave_Table_c, MP_Anywave_Atom_c, MP_Anywave_Block_c, MP_Dict_c");
+  fprintf(stderr, "\n    MP_Anywave_Server_c, MP_Anywave_Table_c, MP_Dict_c");
   fprintf(stderr, "\n");
   fprintf(stderr, "\n");
   fprintf(stderr, "\n signal.wav : a signal in wave format, with as many channels as you want");
   fprintf(stderr, "\n");
-  fprintf(stderr, "\n anywave_table.bin : a file defining an anywave table. ");
+  fprintf(stderr, "\n anywave_table.xml : a file defining an anywave table. ");
   fprintf(stderr, "\n   The waveforms must have either one channel, either as many channels as the signal");
   fprintf(stderr, "\n");
   fprintf(stderr, "\n dict.xml : a dictionary defining the atoms. Use a dictionary including anywave atoms in order to test them.");  
@@ -92,10 +91,6 @@ int main( int argc, char **argv ) {
   serverOK = MP_Anywave_Server_c::test();
 
   tableOK = MP_Anywave_Table_c::test( tableFileName );
-
-  atomOK = MP_Anywave_Atom_c::test( tableFileName );
-
-  blockOK = MP_Anywave_Block_c::test( signalFileName, 25, tableFileName);
 
   dictOK = MP_Dict_c::test( signalFileName, dictFileName);  
 

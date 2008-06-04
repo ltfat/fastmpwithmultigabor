@@ -34,7 +34,6 @@
  * $Revision: 20 $
  *
  */
-
 #include <stdio.h>
 #include <dsp_windows.h>
 #include <math.h>
@@ -44,8 +43,10 @@
  * Extracted from LastWave 2.0.4 code for computing the Gaussian window 
  * with minor modifications
  */
+#define MP_PI    3.14159265358979323846
 //#define LW_Win_t float
 #define LW_Win_t double
+char* func = "test_windows";
 double theGaussianSigma2 = 0.02;  
 void LWGauss(LW_Win_t *window,unsigned long int size)
 {
@@ -106,7 +107,7 @@ void LWExponential(LW_Win_t *window,unsigned long size)
 }
 
 LW_Win_t decayFoF = 1e5; /* 1e5 */ 
-LW_Win_t betaFoF = M_PI/0.25; /* pi/0.25 */
+LW_Win_t betaFoF = MP_PI/0.25; /* pi/0.25 */
 
 void LWFoF(LW_Win_t *window,unsigned long int size)
 { 
@@ -122,7 +123,7 @@ void LWFoF(LW_Win_t *window,unsigned long int size)
   a = log(decayFoF);
   expon = a/size; 
   beta = betaFoF/size;
-  limit = M_PI/beta;
+  limit = MP_PI/beta;
   for(j=0, i=0.0; i <= limit ; j++, i += 1.0) {
     window[j] = 0.5*(1-cos(beta*i))*exp(-expon*i);
     energy += window[j]*window[j];
@@ -145,21 +146,23 @@ void LWFoF(LW_Win_t *window,unsigned long int size)
 /*
  * END
  */
-void Test1(void) 
+int Test1(void) 
 {
   unsigned char windowType;
   Dsp_Win_t out[1];
   unsigned long int retval;
-  printf("Test 1 : generate one point windows for all types\n");
+  printf( "Test 1 : generate one point windows for all types\n");
   for(windowType = DSP_RECTANGLE_WIN; windowType <= DSP_FOF_WIN; windowType++){
     retval = make_window(out,1,windowType,0.0);
-    printf("One point window of type %d has center at %lu and value %g\n",
+    if ((retval ==0)&& (out[0]==1))printf("One point window of type %d has center at %lu and value %g\n",
 	   windowType,retval,out[0]);
+	else return(-1);
   }
+  return (0);
 }
 
 #define TEST_WIN_LENGTH 543
-void Test2(unsigned long int length)
+int Test2(unsigned long int length)
 {
   unsigned char windowType;
   Dsp_Win_t out[TEST_WIN_LENGTH];
@@ -176,12 +179,14 @@ void Test2(unsigned long int length)
     for (i=0, energy = 0.0; i< length; i++) {
       energy += (double) ( out[i]*out[i] );
     }
-    printf("Window of type %d has center at %lu and energy %g\n",
+    if (energy ==1)printf("Window of type %d has center at %lu and energy %g\n",
 	   windowType,retval,energy);
+	else return (-1);
   }
+  return(0);
 }
 
-void Test3(unsigned long int length,unsigned char windowType)
+int Test3(unsigned long int length,unsigned char windowType)
 {
   LW_Win_t lwwin[TEST_WIN_LENGTH];
   char filename[256];
@@ -214,7 +219,7 @@ void Test3(unsigned long int length,unsigned char windowType)
     break;
   default :
     printf("Error : bad window type for this test\n");
-    return;
+    return (-1);
   }
 
   fid = fopen( filename, "w" );
@@ -226,11 +231,13 @@ void Test3(unsigned long int length,unsigned char windowType)
   printf("%g\t\t%g\n",(double)lwwin[0],(double)0.0);
   for (i= 0; i < length-1; i++) {
     /*    out[i] -= lwwin[i+1];*/
-    printf("%g\t%g\t%g\n",(double)lwwin[i+1],(double)out[i],(double)lwwin[i+1]-(double)out[i]);
+    if((double)lwwin[i+1]-(double)out[i]!=0) return(-1);
+    else printf("%g\t%g\t%g\n",(double)lwwin[i+1],(double)out[i],(double)lwwin[i+1]-(double)out[i]);
   }
+  return (0);
 }
 
-void Test4(void)
+int Test4(void)
 {
   Dsp_Win_t out[TEST_WIN_LENGTH];
   unsigned long int retval;
@@ -245,12 +252,14 @@ void Test4(void)
 
   printf("%d points output to window_test.out . Center location is [%lu].\n",
 	 TEST_WIN_LENGTH, retval );
+	 
+ return (0);
 }
 
 
 int main( void ) {
 
-  Test1();
+  if (Test1()!=0) return (-1);
   Test2(10);
   Test2(11);
   //  Test3(4,DSP_GAUSS_WIN); // These windows match those of Lastwave up to numerical accuracy

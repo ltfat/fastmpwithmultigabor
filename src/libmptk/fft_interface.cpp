@@ -86,7 +86,12 @@ MP_FFT_Interface_c* MP_FFT_Interface_c::init( const unsigned long int setWindowS
 #  error "No FFT implementation was found !"
 #endif
 
-  if ( fft == NULL) return( NULL );
+  if ( fft == NULL){ 
+    mp_error_msg( "MP_FFT_Interface_c::init()",
+                    "FFT window is NULL. Returning a NULL fft object.\n");
+  	return( NULL );
+  
+  }
 
   /* Check the internal buffers: */
   /* - window: */
@@ -251,7 +256,8 @@ void MP_FFT_Interface_c::exec_complex_demod( MP_Real_t *in,
 /*             GENERIC TEST      */
 /*                               */
 /*********************************/
-int MP_FFT_Interface_c::test( const unsigned long int setWindowSize ,
+int MP_FFT_Interface_c::test( const double presicion,
+                              const unsigned long int setWindowSize ,
                               const unsigned char windowType,
                               const double windowOption,
                               MP_Real_t *samples)
@@ -284,16 +290,17 @@ int MP_FFT_Interface_c::test( const unsigned long int setWindowSize ,
   energy2 += amp*amp;
 
   tmp = fabsf((energy2/(setWindowSize*energy1))-1);
-  if ( tmp < MP_FFT_TEST_PRECISION )
+  if ( tmp < presicion )
     {
-      printf("FFT size [%ld] energy in/out = 1+/-%g OK\n",
+      mp_info_msg( "MP_FFT_Interface_c::test()","FFT size [%ld] energy in/out = 1+/-%g OK\n",
              setWindowSize,tmp);
       return(0);
     }
   else
     {
-      printf("FFT size [%ld] energy |in/out-1|= %g > %g!!!\n",
-             setWindowSize, tmp, MP_FFT_TEST_PRECISION);
+     mp_error_msg( "MP_FFT_Interface_c::test()",
+                        "FFT size [%ld] energy |in/out-1|= %g > %g!!!\n",
+             setWindowSize, tmp, presicion);
       return(1);
     }
 
