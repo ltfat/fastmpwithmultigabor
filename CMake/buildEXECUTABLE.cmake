@@ -1,3 +1,6 @@
+if(COMMAND cmake_policy)
+      cmake_policy(SET CMP0003 NEW)
+endif(COMMAND cmake_policy)
 CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/utils/readme.txt ${MPTK_BINARY_DIR}/bin/readme.txt COPYONLY)
 
 #------------------------------------------------
@@ -14,7 +17,6 @@ MACRO(GET_MPD_CPP_SOURCES out)
   )
 ENDMACRO(GET_MPD_CPP_SOURCES)
 GET_MPD_CPP_SOURCES(MPD_EXE_SOURCES)
-ADD_CUSTOM_TARGET(mpd-executable DEPENDS ${MPD_EXE_SOURCES})
 IF(BUILD_MULTITHREAD)
 ADD_EXECUTABLE(mpd_multithread ${MPD_EXE_SOURCES})
 #In case of 64 bits plateform we have to compil with -fPIC flag
@@ -29,7 +31,7 @@ SET_TARGET_PROPERTIES(mpd_multithread PROPERTIES COMPILE_FLAGS "${SHARED_FLAGS} 
 ENDIF(MINGW)
 ENDIF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" ) 
 TARGET_LINK_LIBRARIES(mpd_multithread mptk dsp_windows ${PTHREAD_LIBRARY_FILE} ${SNDFILE_LIBRARY_FILE} ${FFTW3_LIBRARY_FILE})
-ADD_DEPENDENCIES(mpd_multithread mpd-executable mptk)
+ADD_DEPENDENCIES(mpd_multithread ${MPD_EXE_SOURCES} mptk)
 ELSE(BUILD_MULTITHREAD)
 ADD_EXECUTABLE(mpd ${MPD_EXE_SOURCES})
 #In case of 64 bits plateform we have to compil with -fPIC flag
@@ -44,7 +46,7 @@ SET_TARGET_PROPERTIES(mpd PROPERTIES COMPILE_FLAGS "${SHARED_FLAGS} -rdynamic")
 ENDIF(MINGW)
 ENDIF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" ) 
 TARGET_LINK_LIBRARIES(mpd mptk dsp_windows ${PTHREAD_LIBRARY_FILE} ${SNDFILE_LIBRARY_FILE} ${FFTW3_LIBRARY_FILE})
-ADD_DEPENDENCIES(mpd mpd-executable mptk)
+ADD_DEPENDENCIES(mpd ${MPD_EXE_SOURCES} mptk)
 ENDIF(BUILD_MULTITHREAD)
 #For win32 and plateform and MINGW build command, copy the dll files in the build dir
 IF (WIN32)

@@ -1,3 +1,6 @@
+if(COMMAND cmake_policy)
+      cmake_policy(SET CMP0003 NEW)
+endif(COMMAND cmake_policy)
 # Include src folder to compiling proccess
 INCLUDE (FindQt)
 find_package(Qt4 REQUIRED) # find and setup Qt4 for this project

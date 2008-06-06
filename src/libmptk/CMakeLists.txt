@@ -9,6 +9,7 @@ ADD_CUSTOM_COMMAND(
    COMMAND ${MY_GENERATOR_EXE} ${EXECUTABLE_OUTPUT_PATH} 
    DEPENDS make_regression_constants
 )
+
 #------------------------------------------------
 #Set the source file properties as generated to include it
 SET_SOURCE_FILES_PROPERTIES(${MPTK_BINARY_DIR}/src/libmptk/regression_constants.h GENERATED)
@@ -122,9 +123,6 @@ ENDMACRO(GET_MPTK_LIB_CPPSOURCE)
 #
 GET_MPTK_LIB_CPPSOURCE(MPTK_LIB_CPPSOURCE)
 #
-#------------------------------------------------
-# Creating target to build the mptk lib with mptk source files and set dependencies of this files
-ADD_CUSTOM_TARGET(mptk-lib-source DEPENDS ${MPTK_LIB_CPPSOURCE})
 #Set the source files properties:
 SET_SOURCE_FILES_PROPERTIES(
   ${MPTK_LIB_CPPSOURCE}
@@ -136,13 +134,13 @@ SET_SOURCE_FILES_PROPERTIES(
 IF(WIN32)
 IF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
 IF( CMAKE_CXX_COMPILER STREQUAL "cl")
-SET(CMAKE_SHARED_LINKER_FLAGS "-fPIC -Wl,--export-all-symbols,--enable-auto-import,--enable-runtime-pseudo-reloc")
+SET(CMAKE_SHARED_LINKER_FLAGS "-fPIC ")
 ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
-SET(CMAKE_SHARED_LINKER_FLAGS "-fPIC -Wl,--export-all-symbols,--enable-auto-import,--enable-runtime-pseudo-reloc  -Wno-deprecated")
+SET(CMAKE_SHARED_LINKER_FLAGS "-fPIC -Wl,--export-all-symbols,--enable-auto-import,--enable-runtime-pseudo-reloc -Wno-deprecated")
 ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
 ELSE( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
 IF( CMAKE_CXX_COMPILER STREQUAL "cl")
-SET(CMAKE_SHARED_LINKER_FLAGS "-Wl,--export-all-symbols,--enable-auto-import,--enable-runtime-pseudo-reloc")
+SET(CMAKE_SHARED_LINKER_FLAGS "")
 ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
 SET(CMAKE_SHARED_LINKER_FLAGS "-Wl,--export-all-symbols,--enable-auto-import,--enable-runtime-pseudo-reloc  -Wno-deprecated")
 ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
@@ -191,7 +189,6 @@ ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
     )
 ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
 ENDIF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
-  ADD_DEPENDENCIES(mptk mptk-lib-source)
   IF(WIN32)
   TARGET_LINK_LIBRARIES(mptk dsp_windows tinyxml ${PTHREAD_LIBRARY_FILE} ${SNDFILE_LIBRARY_FILE} ${FFTW3_LIBRARY_FILE})
   ELSE(WIN32)
