@@ -1,4 +1,7 @@
 # compil test
+   if(COMMAND cmake_policy)
+      cmake_policy(SET CMP0003 OLD)
+    endif(COMMAND cmake_policy)
 
 ADD_EXECUTABLE(test_anywave ${MPTK_SOURCE_DIR}/src/tests/test_anywave.cpp)
 #In case of 64 bits plateform we have to compil with -fPIC flag

@@ -1,3 +1,11 @@
+if(COMMAND cmake_policy)
+      cmake_policy(SET CMP0002 OLD)
+endif(COMMAND cmake_policy)
+
+if(COMMAND cmake_policy)
+      cmake_policy(SET CMP0003 OLD)
+endif(COMMAND cmake_policy)
+
 # Build Matlab MEX EXPERIMENTAL files
 # Test if we are in in X86_64 and then set the -fPIC compil tag
 IF(BUILD_MATLAB_MEX_FILES_EXPERIMENTAL)

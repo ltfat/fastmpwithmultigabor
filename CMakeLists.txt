@@ -35,6 +35,9 @@ OPTION(BUILD_MATLAB_MEX_FILES_EXPERIMENTAL "Enable building Matlab experimental 
 # Allows build RPM experimental feature :
 SET(BUILD_RPM OFF)
 #OPTION(BUILD_RPM "Allows build RPM experimental feature." OFF)
+IF(UNIX)
+OPTION(INSTALL_MAT2MPTK "Install Mat2MPTK toolkit" OFF)
+ENDIF(UNIX)
 #You can reference the special $ENV{} variable to get environment values
 #like any other CMake variable.
 #-----------------------------------------------------------------------------
@@ -138,6 +141,13 @@ SET(MPTK_DEFAULT_DICT_PATH  ${MPTK_BINARY_DIR}/bin/reference/dictionary/dic_gabo
 SET(MPTK_ANYWAVE_TEST_TABLE ${MPTK_BINARY_DIR}/bin/reference/dictionary/anywave_table.xml)
 SET(MPTK_ANYWAVE_TEST_TABLE_BIN ${MPTK_BINARY_DIR}/bin/reference/signal/anywave_table_data.bin)
 
+IF(BUILD_MULTITHREAD) 
+SET(MP_EXECUTABLE mpd_multithread)
+SET(MPDEMIX_EXECUTABLE mpd_demix_multithread)
+ELSE(BUILD_MULTITHREAD)
+SET(MP_EXECUTABLE mpd)
+SET(MPDEMIX_EXECUTABLE mpd_demix)
+ENDIF(BUILD_MULTITHREAD) 
 
 IF( CMAKE_CXX_COMPILER STREQUAL "cl")
 IF (CMAKE_CONFIGURATION_TYPE MATCHES Debug)

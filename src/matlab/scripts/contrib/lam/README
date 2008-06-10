@@ -1,0 +1,46 @@
+Mat2MPTK
+-------
+
+This matlab toolkit make the MPTK commands available under Matlab. The main MPTK commands are available as functions, handling signals and Book structures, without manipulating .wav nor .bin files.
+
+Correspondance between MPTK command lines and Mat2MPTK:
+* -X<value> corresponds to the pair ...,'X', <value>,...
+* --option <value> corresponds to the pair ...,'option', <value>,...
+* '-' in option names must be replaced by '_'
+
+
+Special features:
+----------------
+* the file ~/.mptk/MPTKconfig.txt contains the default options for the MPTK commands. Example: if you write 'v = 1', all the MPTK commands will be called with the '-v' option (verbose), unless you specify the pair ,'v',0, in the function
+* to simplify function callings, the dictionary files are stored in a specific directory (by default, the 'Dict' subdirectory of the toolbox.
+* the 'GenerDict' function has been implemented to generate standard dictionary files, and the returns the name of the file.
+
+Remarks:
+-------
+* mp*_wrap functions allow to call MPTK commands by using files instead of signals or Book structures. They are used by the mp* functions, but they are not very conveninent for standalone use. 
+
+Implemented commands:
+mpd, mpr, mpf, mpcat, mpd_demix
+
+Demo: (also in the Mat2MPTKdemo.m file)
+----
+WARNING: MPTK binaries must be installed !!
+
+load handel;
+[B, res, dec]=mpd(y, Fs, 'n', 1000);%will run mpd with the 'default.xml' dictionary file.
+figure;plot(10*log(dec)); title('Decay');xlabel('iterations');ylabel('Energy [dB]');
+[B1, B2] = mpf(B, 'i', '[1:500]');%split the book into two books, B1 contains the 500 first atoms, B2 the 500 following ones
+figure;bookplot(B1);
+figure;bookplot(B2);
+
+y1 = mpr(B1); %build signal from B1
+y2 = mpr(B2, res); % build signal from B2 and add the initial residual
+B3 = mpcat(B1, B2); % B3 must be equal to B!
+
+Note:
+----
+bookread, bookwrite and bookplot are parts of the MPTK Toolkit. They can also be found in the 'extras/matlab' subdirectory of MPTK package.
+
+
+
+

@@ -1,3 +1,7 @@
+   if(COMMAND cmake_policy)
+      cmake_policy(SET CMP0003 OLD)
+    endif(COMMAND cmake_policy)
+                 
 #------------------------------------------------
 # Generating regression_constants.h using make_regression_constants.cpp
 #
@@ -47,6 +51,7 @@ ${CMAKE_SOURCE_DIR}/src/libmptk/mp_types.h
 	${CMAKE_SOURCE_DIR}/src/libmptk/mpd_core.h
 	${CMAKE_SOURCE_DIR}/src/libmptk/mpd_demix_core.h
 	${CMAKE_SOURCE_DIR}/src/libmptk/mptk_env.h
+	${CMAKE_SOURCE_DIR}/src/libmptk/mp_hash_container_header.h
 	)
 #
 #------------------------------------------------
@@ -79,7 +84,9 @@ ENDIF(BUILD_SHARED_LIBS)
 #Place this header file in the include directory of the build directory
 
 CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/libmptk/mptk.h.cmake ${MPTK_BINARY_DIR}/src/libmptk/mptk.h)
+IF(NOT MPTK_SHARED_HEADER)
 INSTALL(FILES ${MPTK_BINARY_DIR}/include/mptk.h DESTINATION include)
+ENDIF(NOT MPTK_SHARED_HEADER)
 # 
 
 #------------------------------------------------

@@ -1,0 +1,4 @@
+0- Be sure to have installed the Matching Pursuit Tool Kit (http://gforge.inria.fr/projects/mptk/)...
+1- unzip Mat2MPTK.zip (the folder where it is unzipped must NOT contain whitespaces)
+2- run InstallMat2MPTK within matlab, if needed change the default directories of the MPTK binaries and the dictionaries.
+3- enjoy! (you can launch the demo Mat2MPTKdemo.m)

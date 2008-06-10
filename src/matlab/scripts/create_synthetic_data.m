@@ -227,7 +227,7 @@ fid = fopen( [savePath '/dict1.xml'], 'wt');
 fprintf(fid, '<?xml version="1.0" encoding="ISO-8859-1"?>\n');
 fprintf(fid, '<dict>\n');
 fprintf(fid, '<libVersion>0.4beta</libVersion>\n');
-
+fprintf(fid, '\t<block>\n');
 fprintf(fid, '\t<param name="type" value="anywave"/>\n');
 fprintf(fid, '\t\t<param name="tableFileName" value="%s"/>\n', [savePath '/table1.xml']);
 fprintf(fid, '\t\t<param name="windowShift" value="%i"/>\n', filterShift);
