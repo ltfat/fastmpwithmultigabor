@@ -39,7 +39,7 @@ ENDIF(WIN32)
 ENDIF(UNIX)
 
 # SET path for install
-IF(MEX_COMPILER)
+IF(MEX_COMPILER)   
 ADD_CUSTOM_TARGET(dictread_matlab ALL echo
       DEPENDS    ${MPTK_BINARY_DIR}/src/matlab/dictread.${MEX_EXTENSION}
     )
@@ -59,47 +59,49 @@ ADD_CUSTOM_TARGET(loadenv_matlab ALL echo
     )
 ADD_CUSTOM_TARGET(releaseenv_matlab ALL echo
       DEPENDS    ${MPTK_BINARY_DIR}/src/matlab/releaseenv.${MEX_EXTENSION}
-    )
-    
+    ) 
 IF( CMAKE_CXX_COMPILER STREQUAL "cl")
 IF (CMAKE_CONFIGURATION_TYPE MATCHES Debug)
 ADD_CUSTOM_COMMAND(
-TARGET bookread_matlab
+  OUTPUT ${MPTK_BINARY_DIR}/src/matlab/bookread.${MEX_EXTENSION}
   POST_BUILD
   COMMAND   ${MEX_COMPILER} -v
   ARGS      -O -DHAVE_FFTW3 -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${MPTK_SOURCE_DIR}/src/tinyxml/ -I/usr/include/ -I${MPTK_SOURCE_DIR} -I${MPTK_SOURCE_DIR}/src/libdsp_windows/ -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${FFTW3_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/ ${MPTK_SOURCE_DIR}/src/matlab/bookread.cpp -L${MPTK_BINARY_DIR}/lib/debug -lmptk
       COMMENT   "MEX"
   )
 ADD_CUSTOM_COMMAND(
-TARGET bookwrite_matlab
+  OUTPUT ${MPTK_BINARY_DIR}/src/matlab/bookwrite.${MEX_EXTENSION}
   POST_BUILD
   COMMAND   ${MEX_COMPILER} -v
   ARGS      -O -DHAVE_FFTW3  -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${MPTK_SOURCE_DIR}/src/tinyxml/ -I/usr/include/ -I${MPTK_SOURCE_DIR} -I${MPTK_SOURCE_DIR}/src/libdsp_windows/ -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${FFTW3_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/ ${MPTK_SOURCE_DIR}/src/matlab/bookwrite.cpp -L${MPTK_BINARY_DIR}/lib/debug -lmptk
       COMMENT   "MEX"
   )
 ADD_CUSTOM_COMMAND(
-TARGET dictread_matlab
+  OUTPUT ${MPTK_BINARY_DIR}/src/matlab/dictread.${MEX_EXTENSION}
   POST_BUILD
   COMMAND   ${MEX_COMPILER} -v
   ARGS      -O -DHAVE_FFTW3 -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${MPTK_SOURCE_DIR}/src/tinyxml/ -I/usr/include/ -I${MPTK_SOURCE_DIR} -I${MPTK_SOURCE_DIR}/src/libdsp_windows/ -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${FFTW3_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/ ${MPTK_SOURCE_DIR}/src/matlab/dictread.cpp -L${MPTK_BINARY_DIR}/lib/debug -lmptk
       COMMENT   "MEX"
   )
 ADD_CUSTOM_COMMAND(
-TARGET dictwrite_matlab
+  OUTPUT ${MPTK_BINARY_DIR}/src/matlab/dictwrite.${MEX_EXTENSION}
+  POST_BUILD
   COMMAND   ${MEX_COMPILER} -v
   ARGS      -O -DHAVE_FFTW3 -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${MPTK_SOURCE_DIR}/src/tinyxml/ -I/usr/include/ -I${MPTK_SOURCE_DIR} -I${MPTK_SOURCE_DIR}/src/libdsp_windows/ -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${FFTW3_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/ ${MPTK_SOURCE_DIR}/src/matlab/dictwrite.cpp -L${MPTK_BINARY_DIR}/lib/debug -lmptk
       COMMENT   "MEX"
   )
 
 ADD_CUSTOM_COMMAND(
-TARGET loadenv_matlab
+  OUTPUT ${MPTK_BINARY_DIR}/src/matlab/loadenv.${MEX_EXTENSION}
+  POST_BUILD
   COMMAND   ${MEX_COMPILER} -v
   ARGS      -O -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${MPTK_SOURCE_DIR}/src/tinyxml/ -I/usr/include/ -I${MPTK_SOURCE_DIR} -I${MPTK_SOURCE_DIR}/src/libdsp_windows/ -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${FFTW3_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/ ${MPTK_SOURCE_DIR}/src/matlab/loadenv.cpp -L${MPTK_BINARY_DIR}/lib/release -lmptk
       COMMENT   "MEX"
   )
   
 ADD_CUSTOM_COMMAND(
-TARGET releaseenv_matlab
+ OUTPUT ${MPTK_BINARY_DIR}/src/matlab/releaseenv.${MEX_EXTENSION}
+ POST_BUILD
   COMMAND   ${MEX_COMPILER} -v
   ARGS      -O -DHAVE_FFTW3 -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${MPTK_SOURCE_DIR}/src/tinyxml/ -I/usr/include/ -I${MPTK_SOURCE_DIR} -I${MPTK_SOURCE_DIR}/src/libdsp_windows/ -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${FFTW3_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/ ${MPTK_SOURCE_DIR}/src/matlab/releaseenv.cpp -L${MPTK_BINARY_DIR}/lib/release -lmptk
       COMMENT   "MEX"
@@ -108,39 +110,45 @@ TARGET releaseenv_matlab
 ELSE(CMAKE_CONFIGURATION_TYPE MATCHES Debug)
 
 ADD_CUSTOM_COMMAND(
-TARGET bookread_matlab
+  OUTPUT ${MPTK_BINARY_DIR}/src/matlab/bookread.${MEX_EXTENSION}
+  POST_BUILD
   COMMAND   ${MEX_COMPILER} -v
   ARGS      -O -DHAVE_FFTW3 -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${MPTK_SOURCE_DIR}/src/tinyxml/ -I/usr/include/ -I${MPTK_SOURCE_DIR} -I${MPTK_SOURCE_DIR}/src/libdsp_windows/ -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${FFTW3_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/ ${MPTK_SOURCE_DIR}/src/matlab/bookread.cpp -L${MPTK_BINARY_DIR}/lib/release -lmptk
       COMMENT   "MEX"
   )
 ADD_CUSTOM_COMMAND(
-TARGET bookwrite_matlab
+  OUTPUT ${MPTK_BINARY_DIR}/src/matlab/bookwrite.${MEX_EXTENSION}
+  POST_BUILD
   COMMAND   ${MEX_COMPILER} -v
   ARGS      -O -DHAVE_FFTW3  -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${MPTK_SOURCE_DIR}/src/tinyxml/ -I/usr/include/ -I${MPTK_SOURCE_DIR} -I${MPTK_SOURCE_DIR}/src/libdsp_windows/ -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${FFTW3_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/ ${MPTK_SOURCE_DIR}/src/matlab/bookwrite.cpp -L${MPTK_BINARY_DIR}/lib/release -lmptk
       COMMENT   "MEX"
   )
 ADD_CUSTOM_COMMAND(
-TARGET dictread_matlab
+  OUTPUT ${MPTK_BINARY_DIR}/src/matlab/dictread.${MEX_EXTENSION}
+  POST_BUILD
   COMMAND   ${MEX_COMPILER} -v
   ARGS      -O -DHAVE_FFTW3 -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${MPTK_SOURCE_DIR}/src/tinyxml/ -I/usr/include/ -I${MPTK_SOURCE_DIR} -I${MPTK_SOURCE_DIR}/src/libdsp_windows/ -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${FFTW3_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/ ${MPTK_SOURCE_DIR}/src/matlab/dictread.cpp -L${MPTK_BINARY_DIR}/lib/release -lmptk
       COMMENT   "MEX"
   )
 ADD_CUSTOM_COMMAND(
-TARGET dictwrite_matlab
+  OUTPUT ${MPTK_BINARY_DIR}/src/matlab/dictwrite.${MEX_EXTENSION}
+  POST_BUILD
   COMMAND   ${MEX_COMPILER} -v
   ARGS      -O -DHAVE_FFTW3 -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${MPTK_SOURCE_DIR}/src/tinyxml/ -I/usr/include/ -I${MPTK_SOURCE_DIR} -I${MPTK_SOURCE_DIR}/src/libdsp_windows/ -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${FFTW3_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/ ${MPTK_SOURCE_DIR}/src/matlab/dictwrite.cpp -L${MPTK_BINARY_DIR}/lib/release -lmptk
       COMMENT   "MEX"
   )
 
 ADD_CUSTOM_COMMAND(
-TARGET loadenv_matlab
+  OUTPUT ${MPTK_BINARY_DIR}/src/matlab/loadenv.${MEX_EXTENSION}
+  POST_BUILD
   COMMAND   ${MEX_COMPILER} -v
   ARGS      -O -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${MPTK_SOURCE_DIR}/src/tinyxml/ -I/usr/include/ -I${MPTK_SOURCE_DIR} -I${MPTK_SOURCE_DIR}/src/libdsp_windows/ -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${FFTW3_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/ ${MPTK_SOURCE_DIR}/src/matlab/loadenv.cpp -L${MPTK_BINARY_DIR}/lib/release -lmptk
       COMMENT   "MEX"
   )
   
 ADD_CUSTOM_COMMAND(
-TARGET releaseenv_matlab
+  OUTPUT ${MPTK_BINARY_DIR}/src/matlab/releaseenv.${MEX_EXTENSION}
+  POST_BUILD
   COMMAND   ${MEX_COMPILER} -v
   ARGS      -O -DHAVE_FFTW3 -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${MPTK_SOURCE_DIR}/src/tinyxml/ -I/usr/include/ -I${MPTK_SOURCE_DIR} -I${MPTK_SOURCE_DIR}/src/libdsp_windows/ -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${FFTW3_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/ ${MPTK_SOURCE_DIR}/src/matlab/releaseenv.cpp -L${MPTK_BINARY_DIR}/lib/release -lmptk
       COMMENT   "MEX"
@@ -150,37 +158,43 @@ ENDIF(CMAKE_CONFIGURATION_TYPE MATCHES Debug)
 ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
 
 ADD_CUSTOM_COMMAND(
-TARGET bookread_matlab
+  OUTPUT ${MPTK_BINARY_DIR}/src/matlab/bookread.${MEX_EXTENSION}
+  POST_BUILD
   COMMAND   ${MEX_COMPILER} -v
   ARGS      -O -DHAVE_FFTW3 -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${MPTK_SOURCE_DIR}/src/tinyxml/ -I/usr/include/ -I${MPTK_SOURCE_DIR} -I${MPTK_SOURCE_DIR}/src/libdsp_windows/ -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${FFTW3_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/ ${MPTK_SOURCE_DIR}/src/matlab/bookread.cpp -L${MPTK_BINARY_DIR}/lib -lmptk
       COMMENT   "MEX"
   )
 ADD_CUSTOM_COMMAND(
-TARGET bookwrite_matlab
+  OUTPUT ${MPTK_BINARY_DIR}/src/matlab/bookwrite.${MEX_EXTENSION}
+  POST_BUILD
   COMMAND   ${MEX_COMPILER} -v
   ARGS      -O -DHAVE_FFTW3 -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${MPTK_SOURCE_DIR}/src/tinyxml/ -I/usr/include/ -I${MPTK_SOURCE_DIR} -I${MPTK_SOURCE_DIR}/src/libdsp_windows/ -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${FFTW3_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/ ${MPTK_SOURCE_DIR}/src/matlab/bookwrite.cpp -L${MPTK_BINARY_DIR}/lib -lmptk
       COMMENT   "MEX"
   )
 ADD_CUSTOM_COMMAND(
-TARGET dictread_matlab
+  OUTPUT ${MPTK_BINARY_DIR}/src/matlab/dictread.${MEX_EXTENSION}
+  POST_BUILD
   COMMAND   ${MEX_COMPILER} -v
   ARGS      -O -DHAVE_FFTW3 -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${MPTK_SOURCE_DIR}/src/tinyxml/ -I/usr/include/ -I${MPTK_SOURCE_DIR} -I${MPTK_SOURCE_DIR}/src/libdsp_windows/ -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${FFTW3_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/ ${MPTK_SOURCE_DIR}/src/matlab/dictread.cpp -L${MPTK_BINARY_DIR}/lib -lmptk
       COMMENT   "MEX"
   )
 ADD_CUSTOM_COMMAND(
-TARGET dictwrite_matlab
+  OUTPUT ${MPTK_BINARY_DIR}/src/matlab/dictwrite.${MEX_EXTENSION}
+  POST_BUILD
   COMMAND   ${MEX_COMPILER} -v
   ARGS      -O -DHAVE_FFTW3 -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${MPTK_SOURCE_DIR}/src/tinyxml/ -I/usr/include/ -I${MPTK_SOURCE_DIR} -I${MPTK_SOURCE_DIR}/src/libdsp_windows/ -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${FFTW3_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/ ${MPTK_SOURCE_DIR}/src/matlab/dictwrite.cpp -L${MPTK_BINARY_DIR}/lib -lmptk
       COMMENT   "MEX"
   )
 ADD_CUSTOM_COMMAND(
-TARGET loadenv_matlab
+  OUTPUT ${MPTK_BINARY_DIR}/src/matlab/loadenv.${MEX_EXTENSION}
+  POST_BUILD
   COMMAND   ${MEX_COMPILER} -v
   ARGS      -O -DHAVE_FFTW3 -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${MPTK_SOURCE_DIR}/src/tinyxml/ -I/usr/include/ -I${MPTK_SOURCE_DIR} -I${MPTK_SOURCE_DIR}/src/libdsp_windows/ -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${FFTW3_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/ ${MPTK_SOURCE_DIR}/src/matlab/loadenv.cpp -L${MPTK_BINARY_DIR}/lib -lmptk
       COMMENT   "MEX"
   )
 ADD_CUSTOM_COMMAND(
-TARGET releaseenv_matlab
+  OUTPUT ${MPTK_BINARY_DIR}/src/matlab/releaseenv.${MEX_EXTENSION}
+  POST_BUILD
   COMMAND   ${MEX_COMPILER} -v
   ARGS      -O -DHAVE_FFTW3 -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${MPTK_SOURCE_DIR}/src/tinyxml/ -I/usr/include/ -I${MPTK_SOURCE_DIR} -I${MPTK_SOURCE_DIR}/src/libdsp_windows/ -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${FFTW3_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/ ${MPTK_SOURCE_DIR}/src/matlab/releaseenv.cpp -L${MPTK_BINARY_DIR}/lib -lmptk
       COMMENT   "MEX"
