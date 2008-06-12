@@ -49,7 +49,7 @@
 #define OUT_SIZE 257
 #define IN_SIZE 512
 #define MAX_SIZE 8192
-#define MP_FFT_TEST_PRECISION 1e-15
+#define MP_FFT_TEST_PRECISION 1e-14
 
 int main(int argc, char ** argv)
 {
