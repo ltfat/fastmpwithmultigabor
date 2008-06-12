@@ -152,11 +152,9 @@ CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/tests/signals/dico_test_anywave.in.xml ${M
 CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/tests/signals/anywave_table.bin ${MPTK_BINARY_DIR}/bin/reference/dictionary/anywave_table.xml @ONLY)                 
 CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/tests/signals/anywave_table_data.bin ${MPTK_BINARY_DIR}/bin/reference/signal/anywave_table_data.bin
                  COPYONLY)    
-                               
-INSTALL(FILES
-${MPTK_BINARY_DIR}/bin/reference/dictionary/dic_gabor_two_scales.xml DESTINATION bin/reference/dictionary)
-INSTALL(FILES
-${MPTK_BINARY_DIR}/bin/reference/signal/glockenspiel.wav DESTINATION bin/reference/signal)
-
+CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/mixer/mix_58_mixer.txt ${MPTK_BINARY_DIR}/bin/reference/mixer/mix_58_mixer.txt
+                 COPYONLY)                             
+CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/tests/signals/mix_58_stereo.wav ${MPTK_BINARY_DIR}/bin/reference/signal/mix_58_stereo.wav
+                 COPYONLY)
 
 

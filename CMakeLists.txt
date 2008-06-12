@@ -379,7 +379,7 @@ ADD_TEST(MPD, ${MPTK_BINARY_DIR}/bin/mpd_multithread -C ${MPTK_BINARY_DIR}/bin/p
 ADD_TEST(MPDANYWAVE, ${MPTK_BINARY_DIR}/bin/mpd_multithread -C ${MPTK_BINARY_DIR}/bin/path.xml -D ${MPTK_BINARY_DIR}/bin/reference/dictionary/dico_test_anywave.xml -n 10 -q ${MPTK_BINARY_DIR}/bin/reference/signal/anywave_signal.wav ${MPTK_BINARY_DIR}/bin/reference/signal/test_anywave.bin)
 ELSE(BUILD_MULTITHREAD)
 ADD_TEST(MPD, ${MPTK_BINARY_DIR}/bin/mpd -C ${MPTK_BINARY_DIR}/bin/path.xml -D ${MPTK_BINARY_DIR}/bin/reference/dictionary/dic_gabor_two_scales.xml -n 10 -q ${MPTK_BINARY_DIR}/bin/reference/signal/glockenspiel.wav ${MPTK_BINARY_DIR}/bin/reference/signal/test.bin)
-ADD_TEST(MPD ANYWAVE, ${MPTK_BINARY_DIR}/bin/mpd -C ${MPTK_BINARY_DIR}/bin/path.xml -D ${MPTK_BINARY_DIR}/bin/reference/dictionary/dico_test_anywave.xml -n 10 -q ${MPTK_BINARY_DIR}/bin/reference/signal/anywave_signal.wav ${MPTK_BINARY_DIR}/bin/reference/signal/test_anywave.bin)
+ADD_TEST(MPDANYWAVE, ${MPTK_BINARY_DIR}/bin/mpd -C ${MPTK_BINARY_DIR}/bin/path.xml -D ${MPTK_BINARY_DIR}/bin/reference/dictionary/dico_test_anywave.xml -n 10 -q ${MPTK_BINARY_DIR}/bin/reference/signal/anywave_signal.wav ${MPTK_BINARY_DIR}/bin/reference/signal/test_anywave.bin)
 ENDIF(BUILD_MULTITHREAD)
 ADD_TEST(MPR, ${MPTK_BINARY_DIR}/bin/mpr -C ${MPTK_BINARY_DIR}/bin/path.xml ${MPTK_BINARY_DIR}/bin/reference/signal/test.bin ${MPTK_BINARY_DIR}/bin/reference/signal/test.wav)
 ADD_TEST(MPF, ${MPTK_BINARY_DIR}/bin/mpf -C ${MPTK_BINARY_DIR}/bin/path.xml --Freq=[0:110] --len=[0:256] ${MPTK_BINARY_DIR}/bin/reference/signal/test.bin ${MPTK_BINARY_DIR}/bin/reference/signal/booktestYes.bin ${MPTK_BINARY_DIR}/bin/reference/signal/booktestNo.bin)
