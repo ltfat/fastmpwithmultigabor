@@ -1,6 +1,6 @@
 - If you have never used the mex compiler before, first configure the mex compiler using: mex -setup
 - Use CMake to set the build system.
-- Activate BUILD_MATLAB_MEX_FILES option in CMAKe
+- Activate BUILD_MATLAB_MEX_FILES_EXPERIMENTAL option in CMAKe
 - Compil using your usual compiler.
 - Use the install command of the compiler to install files in CMAKE_INSTALL_PREFIX
 

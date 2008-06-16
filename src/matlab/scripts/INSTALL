@@ -1,0 +1,5 @@
+- Use CMake to set the build system.
+- Use the install command of the compiler to install files in CMAKE_INSTALL_PREFIX
+
+
+

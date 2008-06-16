@@ -1,0 +1,68 @@
+The core mex interface with MPTK is gathered in a few classes that interact with the MPTK library.
+
+The mex functions bookread/bookwrite(_exp) are thus simplified:
+ - check the sanity of input/output arguments and class constructor.
+ - Use the mxBook class constructor and method to parse MPTK and MATLAB book
+
+The different classes are defined in subdirectory "classes/":
+ - Class mxAtoms (defined in mxBook.h and mxBook.cpp) :
+ --------------------------------------------------------
+     class for parsing MP_Atom and filling mex structure of atoms per type
+     (used by mxBook for importing MP_Book )
+
+ The matlab 'atom' structure contains the following fields:
+     - type : string
+     - params: structure of atoms parameters arrays, whose field are type dependent
+
+ - Class mxBook (defined in mxBook.h and mxBook.cpp) :
+ -------------------------------------------------------
+     class for interfacing MP_Book_c with matlab structure
+     As the atoms in MPTK have parameters dependent to their type
+     the matlab 'book' structure store the atom parameters per type of atom.
+
+    Constructors allows to construct a matlab book from a (MP_Book_c *) use for loading a binary book file
+    Or to use a matlab book structure
+
+    The main interface methods are :
+   - Export matlab book structure to MP_Book_c class:
+     MP_Book_c * Book_MEX_2_MPTK();
+   - Export matlab book structure to MP_Book_c class
+     void MP_BookWrite(string fileName, const char mode);
+
+   - Reconstruct Signal from book and return a pointer to a mxArray containing the MP_Signal samples.
+     This is the same as calling the "mpr" shell command with no residual
+     mxArray * Book_Reconstruct();
+     
+See 'doc/readme-Development.txt' for more informations.
+
+Note:
+----
+WARNING: MPTK must be installed !!
+And matlab search path variable as to be set with the mptk lib directory 
+
+On all plateform, the utilities need an environment variable called MPTK_CONFIG_FILENAME to be set with the path 
+of the path.xml file located in the bin directory.
+This file defines the path to the Atoms/Block plugin location. On Windows system in the case you have installed MPTK library and utilities in an non standard directory
+(eg different of "C:/Program Files/MPTK-0.5.4") you have to modify the path inside of this file with the real installation path.
+
+In order to set an environment variable on Linux like os:
+-with Bash shell:
+export MPTK_CONFIG_FILENAME="path_to_MPTK/bin/path.xml"
+-with C-shell:
+setenv MPTK_CONFIG_FILENAME "path_to_MPTK/bin/path.xml"
+You can check if the environment variable is correctly set with:
+echo $MPTK_CONFIG_FILENAME
+On Mac OSX an other solution is to edit ~/.MacOSX/environment.plist to add a key-value pair MPTK_CONFIG_FILENAME="/Users/your-username/.mptk/path.xml"
+In order to set environment variable on Windows like system:
+Lauch a command line and use the SET command:
+SET MPTK_CONFIG_FILENAME=path_to_MPTK/bin/path.xml 
+for example SET MPTK_CONFIG_FILENAME=C:/Program Files/MPTK-0.5.4/bin/path.xml 
+To check if the environment variable is correctly set you can use the ECHO command:
+ECHO %MPTK_CONFIG_FILENAME%
+
+Windows OS like system may complain with a missing dll: MSVCR71D.DLL
+You may install the files by using the Microsoft (TM) c runtime library SDK installer 
+Or download it with this adress for example: http://www.dll-files.com/dllindex/dll-files.shtml?msvcr71d
+
+
+
