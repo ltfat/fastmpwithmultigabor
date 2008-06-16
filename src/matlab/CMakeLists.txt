@@ -224,7 +224,8 @@ CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/matlab/scripts/create_synthetic_data.m ${M
                  COPYONLY) 
 CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/matlab/scripts/savetable.m ${MPTK_BINARY_DIR}/src/matlab/savetable.m
                  COPYONLY)   
-          
+CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/matlab/README ${MPTK_BINARY_DIR}/src/matlab/README
+                 COPYONLY)           
 INSTALL(FILES ${MPTK_BINARY_DIR}/src/matlab/dictread.${MEX_EXTENSION}
               ${MPTK_BINARY_DIR}/src/matlab/dictread.m
               ${MPTK_BINARY_DIR}/src/matlab/dictwrite.${MEX_EXTENSION}
@@ -242,6 +243,7 @@ INSTALL(FILES ${MPTK_BINARY_DIR}/src/matlab/dictread.${MEX_EXTENSION}
               ${MPTK_BINARY_DIR}/src/matlab/mpview.m
               ${MPTK_BINARY_DIR}/src/matlab/create_synthetic_data.m
               ${MPTK_BINARY_DIR}/src/matlab/savetable.m
+              ${MPTK_BINARY_DIR}/src/matlab/README
 DESTINATION matlab)
 
 ELSE(MEX_COMPILER) 
