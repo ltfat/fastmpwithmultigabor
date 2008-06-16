@@ -148,7 +148,7 @@ ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
                  COPYONLY) 
   CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/matlab/experimental/MPtoolbaricons.mat ${MPTK_BINARY_DIR}/src/matlab/experimental/MPtoolbaricons.mat
                  COPYONLY) 
-  CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/matlab/experimental/MPtoolbaricons.mat ${MPTK_BINARY_DIR}/src/matlab/experimental/README
+  CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/matlab/experimental/README ${MPTK_BINARY_DIR}/src/matlab/experimental/README
                  COPYONLY) 
                  
   INSTALL(FILES ${MPTK_BINARY_DIR}/src/matlab/experimental/bookread_exp.${MEX_EXTENSION}
