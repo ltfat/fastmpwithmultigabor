@@ -25,7 +25,7 @@ INCLUDE(${MPTK_SOURCE_DIR}/CMake/CMakeGenerateMPTKHeader.cmake)
 #------------------------------------------------
 #Set the list of header files
 SET(HEADER_FILE 
-${CMAKE_SOURCE_DIR}/src/libmptk/mp_types.h 
+    ${CMAKE_SOURCE_DIR}/src/libmptk/mp_types.h 
 	${CMAKE_SOURCE_DIR}/src/libmptk/mp_messaging.h   
     ${CMAKE_SOURCE_DIR}/src/libmptk/dll.h     
 	${CMAKE_SOURCE_DIR}/src/libmptk/win_server.h        
@@ -76,6 +76,8 @@ FILE(READ ${HEADER} BUFFER)
 FILE(APPEND ${MPTK_BINARY_DIR}/include/mptk.h  "${BUFFER}" )
 ENDFOREACH(HEADER)
 FILE(READ ${CMAKE_SOURCE_DIR}/src/libmptk/mp_pthreads_barrier.h BUFFER)
+FILE(APPEND ${MPTK_BINARY_DIR}/include/mptk.h  "${BUFFER}" )
+FILE(READ ${CMAKE_SOURCE_DIR}/src/libmptk/${CMAKE_SOURCE_DIR}/mp_system.h BUFFER)
 FILE(APPEND ${MPTK_BINARY_DIR}/include/mptk.h  "${BUFFER}" )
 FILE(APPEND ${MPTK_BINARY_DIR}/include/mptk.h "#endif /* __mptk_h_ */\n" )
 SET(MPTK_SHARED_HEADER TRUE INTERNAL)

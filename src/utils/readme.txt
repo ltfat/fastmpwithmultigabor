@@ -3,7 +3,7 @@ This document describes how to use THE MPTK utilities.
 On all plateform, the utilities need an environment variable called MPTK_CONFIG_FILENAME to be set with the path 
 of the path.xml file located in the bin directory.
 This file defines the path to the Atoms/Block plugin location. On Windows system in the case you have installed MPTK library and utilities in an non standard directory
-(eg different of "C:/Program Files/MPTK-0.5.4") you have to modify the path inside of this file with the real installation path.
+(eg different of "C:/Program Files/MPTK") you have to modify the path inside of this file with the real installation path.
 
 In order to set an environment variable on Linux like os:
 -with Bash shell:
@@ -16,7 +16,7 @@ On Mac OSX an other solution is to edit ~/.MacOSX/environment.plist to add a key
 In order to set environment variable on Windows like system:
 Lauch a command line and use the SET command:
 SET MPTK_CONFIG_FILENAME=path_to_MPTK/bin/path.xml 
-for example SET MPTK_CONFIG_FILENAME=C:/Program Files/MPTK-0.5.4/bin/path.xml 
+for example SET MPTK_CONFIG_FILENAME=C:/Program Files/MPTK/bin/path.xml 
 To check if the environment variable is correctly set you can use the ECHO command:
 ECHO %MPTK_CONFIG_FILENAME%
 
