@@ -1,8 +1,5 @@
 INCLUDE(FindLATEX)
 IF(LATEX_COMPILER)
-    ADD_CUSTOM_TARGET(usermam_LaTeXDocument ALL echo
-      DEPENDS    ${MPTK_BINARY_DIR}/doc/userman/userman.pdf
-    )
 CONFIGURE_FILE(${MPTK_SOURCE_DIR}/doc/userman/latex_src/biblio_MP.bib ${MPTK_BINARY_DIR}/doc/userman/biblio_MP.bib
                  COPYONLY)
 CONFIGURE_FILE(${MPTK_SOURCE_DIR}/doc/userman/latex_src/atom.ps ${MPTK_BINARY_DIR}/doc/userman/atom.ps
@@ -19,56 +16,45 @@ CONFIGURE_FILE(${MPTK_SOURCE_DIR}/doc/userman/latex_src/mpcycle.fig ${MPTK_BINAR
                  COPYONLY)
 CONFIGURE_FILE(${MPTK_SOURCE_DIR}/doc/userman/latex_src/userman.tex ${MPTK_BINARY_DIR}/doc/userman/userman.tex
                  COPYONLY)
-ADD_CUSTOM_COMMAND(
-  OUTPUT    ${MPTK_BINARY_DIR}/doc/userman/userman.tex
-  DEPENDS   ${MPTK_BINARY_DIR}/doc/userman/userman.tex
-  COMMAND   ${LATEX_COMPILER}
-  ARGS      ${MPTK_BINARY_DIR}/doc/userman/userman.tex
-      COMMENT   "Latex (first pass)"
-  )
-
-ADD_CUSTOM_COMMAND(
-TARGET usermam_LaTeXDocument
-  COMMAND   ${LATEX_COMPILER}
-  ARGS      ${MPTK_BINARY_DIR}/doc/userman/userman.tex
-      COMMENT   "Latex (second pass)"
-  )
 IF(BIBTEX_COMPILER) 
 ADD_CUSTOM_COMMAND(
-TARGET usermam_LaTeXDocument
-  COMMAND   ${BIBTEX_COMPILER}
-  ARGS      ${MPTK_BINARY_DIR}/doc/userman/userman
-  COMMENT   "Bibtex"
+  OUTPUT    ${MPTK_BINARY_DIR}/doc/userman/userman.aux
+  DEPENDS   ${MPTK_BINARY_DIR}/doc/userman/userman.tex
+  COMMAND   ${LATEX_COMPILER}
+  ARGS      -interaction=batchmode ${MPTK_BINARY_DIR}/doc/userman/userman
+  COMMENT   "Latex (first pass)"
   )
-ENDIF(BIBTEX_COMPILER) 
 
 ADD_CUSTOM_COMMAND(
-  TARGET usermam_LaTeXDocument
-  COMMAND   ${LATEX_COMPILER}
-  ARGS      ${MPTK_BINARY_DIR}/doc/userman/userman 
-  COMMENT   "Latex (third pass)"
+  OUTPUT    ${MPTK_BINARY_DIR}/doc/userman/userman.bbl
+  DEPENDS   ${MPTK_BINARY_DIR}/doc/userman/userman.aux
+  COMMAND   ${BIBTEX_COMPILER}
+  ARGS      -terse ${MPTK_BINARY_DIR}/doc/userman/userman
+  COMMENT   "Bibtex"
   )
-  
+
 ADD_CUSTOM_COMMAND(
-  TARGET usermam_LaTeXDocument
+  OUTPUT    ${MPTK_BINARY_DIR}/doc/userman/userman.dvi
+  DEPENDS   ${MPTK_BINARY_DIR}/doc/userman/userman.bbl
   COMMAND   ${LATEX_COMPILER}
-  ARGS      ${MPTK_BINARY_DIR}/doc/userman/userman 
-  COMMENT   "Latex (third pass)"
+  ARGS      -interaction=batchmode ${MPTK_BINARY_DIR}/doc/userman/userman
+  COMMENT   "Latex (second pass)"
   )
+
 ADD_CUSTOM_COMMAND(
-  TARGET usermam_LaTeXDocument
+  OUTPUT    ${MPTK_BINARY_DIR}/doc/userman/userman.log
+  DEPENDS   ${MPTK_BINARY_DIR}/doc/userman/userman.bbl
             ${MPTK_BINARY_DIR}/doc/userman/userman.dvi
   COMMAND   ${LATEX_COMPILER}
-  ARGS      ${MPTK_BINARY_DIR}/doc/userman/userman.bbl  
-  COMMENT   "Latex (fourth pass)"
+  ARGS      -interaction=batchmode ${MPTK_BINARY_DIR}/doc/userman/userman
+  COMMENT   "Latex (third pass)"
   )
-ADD_CUSTOM_COMMAND(
-  TARGET usermam_LaTeXDocument
-            ${MPTK_BINARY_DIR}/doc/userman/userman.dvi
-  COMMAND   ${LATEX_COMPILER}
-  ARGS      ${MPTK_BINARY_DIR}/doc/userman/userman.bbl  
-  COMMENT   "Latex (fourth pass)"
-  )
+# Eventually trigger the whole process
+ADD_CUSTOM_TARGET(LaTeXDocument ALL echo
+   DEPENDS   ${MPTK_BINARY_DIR}/doc/userman/userman.log
+   )
+ENDIF(BIBTEX_COMPILER) 
+
   IF(DVIPS_CONVERTER)
     ADD_CUSTOM_COMMAND( 
       OUTPUT    ${MPTK_BINARY_DIR}/doc/userman/userman.ps
