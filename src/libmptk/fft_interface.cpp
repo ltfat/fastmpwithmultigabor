@@ -639,8 +639,8 @@ bool MP_FFT_Interface_c::init_fft_library_config()
 
     }
    
-  else{  mp_error_msg( "MP_FFT_Interface_c::init_fft_library_config()",
-                        "fftw wisdom file with path %s  doesn't exist .\n", MPTK_Env_c::get_env()->get_config_path("fftw_wisdomfile"));
+  else{  mp_warning_msg( "MP_FFT_Interface_c::init_fft_library_config()",
+                        "fftw wisdom file with path %s  doesn't exist. It will be created.\n", MPTK_Env_c::get_env()->get_config_path("fftw_wisdomfile"));
   	return false;
   	
   	}
