@@ -4,7 +4,7 @@
 /*                                                                            */
 /*                        Matching Pursuit Library                            */
 /*                                                                            */
-/* Rémi Gribonval                                                             */
+/* RÃˆmi Gribonval                                                             */
 /* Sacha Krstulovic                                           Mon Feb 21 2005 */
 /* -------------------------------------------------------------------------- */
 /*                                                                            */
@@ -782,7 +782,7 @@ unsigned int MP_Mclt_Block_Plugin_c::create_atom( MP_Atom_c **atom,
 void MP_Mclt_Block_Plugin_c::get_parameters_type_map(map< string, string, mp_ltstring> * parameterMapType)
 {
 
-  const char * func = "void MP_Gabor_Block_Plugin_c::get_parameters_type_map( map< string, string, mp_ltstring>* parameterMapType )";
+  const char * func = "void MP_Mclt_Block_Plugin_c::get_parameters_type_map()";
 
   if ((*parameterMapType).empty())
     {
@@ -793,6 +793,7 @@ void MP_Mclt_Block_Plugin_c::get_parameters_type_map(map< string, string, mp_lts
       (*parameterMapType)["windowtype"] = "string";
       (*parameterMapType)["windowopt"] = "real";
       (*parameterMapType)["blockOffset"] = "ulong";
+      (*parameterMapType)["windowRate"] = "real";
 
     }
   else  mp_error_msg( func, "Map for parameters type wasn't empty.\n" );
@@ -806,17 +807,18 @@ void MP_Mclt_Block_Plugin_c::get_parameters_type_map(map< string, string, mp_lts
 void MP_Mclt_Block_Plugin_c::get_parameters_info_map(map< string, string, mp_ltstring> * parameterMapInfo )
 {
 
-  const char * func = "void MP_Gabor_Block_Plugin_c::get_parameters_info_map( map< string, string, mp_ltstring>* parameterMapInfo )";
+  const char * func = "void MP_Mclt_Block_Plugin_c::get_parameters_info_map()";
 
   if ((*parameterMapInfo).empty())
     {
-      (*parameterMapInfo)["type"] = "type: the type of blocks";
-      (*parameterMapInfo)["windowLen"] = "windowLen: the length of the signal window, in number of sample";
-      (*parameterMapInfo)["windowShift"] = "windowShift: the window shift, in number of samples";
-      (*parameterMapInfo)["fftSize"] = "fftSize: the size of the FFT, including zero padding";
-      (*parameterMapInfo)["windowtype"] = "windowType: the window type (see the doc of libdsp_windows.h)";
-      (*parameterMapInfo)["windowopt"] = "windowOption: the optional window parameter";
-      (*parameterMapInfo)["blockOffset"] = "blockOffset: the block offset";
+      (*parameterMapInfo)["type"] = "the type of blocks";
+      (*parameterMapInfo)["windowLen"] = "The common length of the atoms (which is the length of the signal window), in number of samples.";
+      (*parameterMapInfo)["windowShift"] = "The shift between atoms on adjacent time frames, in number of samples. It MUST be at least one.";
+      (*parameterMapInfo)["fftSize"] = "the size of the FFT, including zero padding";
+      (*parameterMapInfo)["windowtype"] = "The window type, which determines its shape. Examples include 'gauss', 'rect', 'hamming' (see the developper documentation of libdsp_windows.h). A related parameter is <windowopt>.";
+      (*parameterMapInfo)["windowopt"] = "The optional window shape parameter (see the developper documentation oflibdsp_windows.h).";
+      (*parameterMapInfo)["blockOffset"] = "Offset between beginning of signal and beginning of first atom, in number of samples.";
+	  (*parameterMapInfo)["windowRate"] = "The shift between atoms on adjacent time frames, in proportion of the <windowLen>. For example, windowRate = 0.5 corresponds to half-overlapping signal windows.";
 
     }
   else  mp_error_msg( func, "Map for parameters info wasn't empty.\n" );
@@ -828,7 +830,7 @@ void MP_Mclt_Block_Plugin_c::get_parameters_info_map(map< string, string, mp_lts
 void MP_Mclt_Block_Plugin_c::get_parameters_default_map( map< string, string, mp_ltstring>* parameterMapDefault )
 {
 
-  const char * func = "void MP_Gabor_Block_Plugin_c::get_parameters_default_map( map< string, string, mp_ltstring>* parameterMapDefault )";
+  const char * func = "void MP_Mclt_Block_Plugin_c::get_parameters_default_map()";
 
   if ((*parameterMapDefault).empty())
     {
@@ -839,6 +841,7 @@ void MP_Mclt_Block_Plugin_c::get_parameters_default_map( map< string, string, mp
       (*parameterMapDefault)["windowtype"] = "rectangle";
       (*parameterMapDefault)["windowopt"] = "0";
       (*parameterMapDefault)["blockOffset"] = "0";
+      (*parameterMapDefault)["windowRate"] = "0.5";
     }
 
   else  mp_error_msg( func, "Map for parameter default wasn't empty.\n" );

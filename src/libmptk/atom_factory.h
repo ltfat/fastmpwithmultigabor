@@ -119,6 +119,11 @@ class MP_Atom_Factory_c
     */
     MPTK_LIB_EXPORT MP_Atom_c*(*get_atom_creator( const char* atomName ))(FILE *fid, const char mode);
 
+    /** \brief Method to fill a vector with the name of all the atoms registred in the atom factory
+    *   \param nameVector : pointer on the vector which has to be fill with the name of blocks 
+    */
+    MPTK_LIB_EXPORT void get_registered_atom_name(vector< string >* nameVector);
+
   };
 #endif /*ATOM_FACTORY_H_*/
 

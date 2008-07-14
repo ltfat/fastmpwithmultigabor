@@ -49,6 +49,9 @@ ENDIF(UNIX)
 # COMPILE MEX Files
 IF(MEX_COMPILER)
 
+ ADD_CUSTOM_TARGET(plugininfo_exp_matlab ALL echo
+        DEPENDS    ${MPTK_BINARY_DIR}/src/matlab/experimental/plugininfo_exp.${MEX_EXTENSION}
+  )
  ADD_CUSTOM_TARGET(bookread_exp_matlab ALL echo
         DEPENDS    ${MPTK_BINARY_DIR}/src/matlab/experimental/bookread_exp.${MEX_EXTENSION}
   )
@@ -61,6 +64,14 @@ IF(MEX_COMPILER)
 IF( CMAKE_CXX_COMPILER STREQUAL "cl")
 IF(CMAKE_CONFIGURATION_TYPE MATCHES Debug)
 
+ ADD_CUSTOM_COMMAND(
+   OUTPUT ${MPTK_BINARY_DIR}/src/matlab/experimental/plugininfo_exp.${MEX_EXTENSION}
+   POST_BUILD
+   COMMAND   ${MEX_COMPILER} -v
+   ARGS      -O -DHAVE_FFTW3 -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${MPTK_SOURCE_DIR}/src/tinyxml/ -I/usr/include/ -I${MPTK_SOURCE_DIR} -I${MPTK_SOURCE_DIR}/src/libdsp_windows/ -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${MPTK_SOURCE_DIR}/src/matlab/experimental/classes/ -I${MPTK_SOURCE_DIR}/src/plugin/base/ -I${MPTK_SOURCE_DIR}/src/plugin/contrib/lam/ -I${FFTW3_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/ ${MPTK_SOURCE_DIR}/src/matlab/experimental/plugininfo_exp.cpp  -L${MPTK_BINARY_DIR}/lib/debug -lmptk
+   COMMENT   "MEX"
+ )
+  
  ADD_CUSTOM_COMMAND(
    OUTPUT ${MPTK_BINARY_DIR}/src/matlab/experimental/bookread_exp.${MEX_EXTENSION}
    POST_BUILD
@@ -86,6 +97,14 @@ ADD_CUSTOM_COMMAND(
   )
   
 ELSE(CMAKE_CONFIGURATION_TYPE MATCHES Debug)
+  ADD_CUSTOM_COMMAND(
+   OUTPUT ${MPTK_BINARY_DIR}/src/matlab/experimental/plugininfo_exp.${MEX_EXTENSION}
+   POST_BUILD
+   COMMAND   ${MEX_COMPILER} -v
+   ARGS      -O -DHAVE_FFTW3 -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${MPTK_SOURCE_DIR}/src/tinyxml/ -I/usr/include/ -I${MPTK_SOURCE_DIR} -I${MPTK_SOURCE_DIR}/src/libdsp_windows/ -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${MPTK_SOURCE_DIR}/src/matlab/experimental/classes/ -I${MPTK_SOURCE_DIR}/src/plugin/base/ -I${MPTK_SOURCE_DIR}/src/plugin/contrib/lam/ -I${FFTW3_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/ ${MPTK_SOURCE_DIR}/src/matlab/experimental/plugininfo_exp.cpp  -L${MPTK_BINARY_DIR}/lib/release -lmptk
+   COMMENT   "MEX"
+ )
+
  ADD_CUSTOM_COMMAND(
    OUTPUT ${MPTK_BINARY_DIR}/src/matlab/experimental/bookread_exp.${MEX_EXTENSION}
    POST_BUILD
@@ -114,6 +133,13 @@ ENDIF(CMAKE_CONFIGURATION_TYPE MATCHES Debug)
 ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
 
  ADD_CUSTOM_COMMAND(
+   OUTPUT ${MPTK_BINARY_DIR}/src/matlab/experimental/plugininfo_exp.${MEX_EXTENSION}
+   COMMAND   ${MEX_COMPILER} -v
+   ARGS      -O -DHAVE_FFTW3 -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${MPTK_SOURCE_DIR}/src/tinyxml/ -I/usr/include/ -I${MPTK_SOURCE_DIR} -I${MPTK_SOURCE_DIR}/src/libdsp_windows/ -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${MPTK_SOURCE_DIR}/src/matlab/experimental/classes/ -I${MPTK_SOURCE_DIR}/src/plugin/base/ -I${MPTK_SOURCE_DIR}/src/plugin/contrib/lam/ -I${FFTW3_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/ ${MPTK_SOURCE_DIR}/src/matlab/experimental/plugininfo_exp.cpp  -L${MPTK_BINARY_DIR}/lib -lmptk
+   COMMENT   "MEX"
+ )
+
+ ADD_CUSTOM_COMMAND(
    OUTPUT ${MPTK_BINARY_DIR}/src/matlab/experimental/bookread_exp.${MEX_EXTENSION}
    COMMAND   ${MEX_COMPILER} -v
    ARGS      -O -DHAVE_FFTW3 -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${MPTK_SOURCE_DIR}/src/tinyxml/ -I/usr/include/ -I${MPTK_SOURCE_DIR} -I${MPTK_SOURCE_DIR}/src/libdsp_windows/ -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${MPTK_SOURCE_DIR}/src/matlab/experimental/classes/ -I${MPTK_SOURCE_DIR}/src/plugin/base/ -I${MPTK_SOURCE_DIR}/src/plugin/contrib/lam/ -I${FFTW3_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/ ${MPTK_SOURCE_DIR}/src/matlab/experimental/bookread_exp.cpp ${MPTK_SOURCE_DIR}/src/matlab/experimental/classes/mxBook.cpp -L${MPTK_BINARY_DIR}/lib -lmptk
@@ -138,6 +164,8 @@ ADD_CUSTOM_COMMAND(
 
 ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
 
+  CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/matlab/experimental/plugininfo_exp.m ${MPTK_BINARY_DIR}/src/matlab/experimental/plugininfo_exp.m
+                 COPYONLY) 
   CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/matlab/experimental/bookread_exp.m ${MPTK_BINARY_DIR}/src/matlab/experimental/bookread_exp.m
                  COPYONLY) 
   CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/matlab/experimental/bookwrite_exp.m ${MPTK_BINARY_DIR}/src/matlab/experimental/bookwrite_exp.m
@@ -151,7 +179,9 @@ ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
   CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/matlab/experimental/README ${MPTK_BINARY_DIR}/src/matlab/experimental/README
                  COPYONLY) 
                  
-  INSTALL(FILES ${MPTK_BINARY_DIR}/src/matlab/experimental/bookread_exp.${MEX_EXTENSION}
+  INSTALL(FILES ${MPTK_BINARY_DIR}/src/matlab/experimental/plugininfo_exp.${MEX_EXTENSION}
+              ${MPTK_BINARY_DIR}/src/matlab/experimental/plugininfo_exp.m
+              ${MPTK_BINARY_DIR}/src/matlab/experimental/bookread_exp.${MEX_EXTENSION}
               ${MPTK_BINARY_DIR}/src/matlab/experimental/bookread_exp.m
               ${MPTK_BINARY_DIR}/src/matlab/experimental/bookwrite_exp.${MEX_EXTENSION}
               ${MPTK_BINARY_DIR}/src/matlab/experimental/bookwrite_exp.m

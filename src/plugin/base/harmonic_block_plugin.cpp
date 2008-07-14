@@ -4,7 +4,7 @@
 /*                                                                            */
 /*                        Matching Pursuit Library                            */
 /*                                                                            */
-/* Rémi Gribonval                                                             */
+/* RÃˆmi Gribonval                                                             */
 /* Sacha Krstulovic                                           Mon Feb 21 2005 */
 /* -------------------------------------------------------------------------- */
 /*                                                                            */
@@ -859,7 +859,7 @@ unsigned int MP_Harmonic_Block_Plugin_c::create_atom( MP_Atom_c **atom,
 /*********************************************/
 /* get Paramater type map defining the block */
 void MP_Harmonic_Block_Plugin_c::get_parameters_type_map(map< string, string, mp_ltstring> * parameterMapType){
-const char * func = "void MP_Gabor_Block_Plugin_c::get_parameters_default_map( map< string, string, mp_ltstring>* parameterMapDefault )";
+const char * func = "void MP_Harmonic_Block_Plugin_c::get_parameters_type_map()";
 if ((*parameterMapType).empty()) {
 (*parameterMapType)["type"] = "string";
 (*parameterMapType)["windowLen"] = "ulong";
@@ -871,6 +871,7 @@ if ((*parameterMapType).empty()) {
 (*parameterMapType)["f0Max"] = "real";
 (*parameterMapType)["numPartials"] = "uint";
 (*parameterMapType)["blockOffset"] = "ulong";
+(*parameterMapType)["windowRate"] = "real";
 } else  mp_error_msg( func, "Map for parameters type wasn't empty.\n" );
 
 
@@ -880,29 +881,31 @@ if ((*parameterMapType).empty()) {
 /***********************************/
 /* get Info map defining the block */
 void MP_Harmonic_Block_Plugin_c::get_parameters_info_map(map< string, string, mp_ltstring> * parameterMapInfo ){
-const char * func = "void MP_Gabor_Block_Plugin_c::get_parameters_default_map( map< string, string, mp_ltstring>* parameterMapDefault )";
+const char * func = "void MP_Harmonic_Block_Plugin_c::get_parameters_info_map()";
 
-if ((*parameterMapInfo).empty()) {
-(*parameterMapInfo)["type"] = "type: the type of blocks";
-(*parameterMapInfo)["windowLen"] = "windowLen: the length of the signal window, in number of sample";
-(*parameterMapInfo)["windowShift"] = "windowShift: the window shift, in number of samples";
-(*parameterMapInfo)["fftSize"] = "fftSize: the size of the FFT, including zero padding";
-(*parameterMapInfo)["windowtype"] = "windowType: the window type (see the doc of libdsp_windows.h)";
-(*parameterMapInfo)["windowopt"] = "windowOption: the optional window parameter";
-(*parameterMapInfo)["f0Min"] = "f0Min:  minimum allowed fundamental frequency of the harmonic subspaces, expressed in frequency bins between 0 (DC) and \a numFreqs-1 (Nyquist)";
-(*parameterMapInfo)["f0Max"] = "f0Max: maximum allowed fundamental frequency of the harmonic subspaces, expressed in frequency bins between 0 (DC) and \a numFreqs-1 (Nyquist)";
-(*parameterMapInfo)["numPartials"] = "numPartials: maximum number of partials to be considered in each harmonic subspace";
-(*parameterMapInfo)["blockOffset"] = "blockOffset: the block offset";
-
-} else  mp_error_msg( func, "Map for parameters info wasn't empty.\n" );
-
+	if ((*parameterMapInfo).empty()) {
+		(*parameterMapInfo)["type"] = "'harmonic' block generate harmonic atoms or Gabor atoms. If a harmonic atom with fundamental frequency within the given range has more energy than all Gabor atoms at the specified scale, then a harmonic atom is generated. If some Gabor atom below the minimum fundamental frequency or above the highest partial has more energy, it is the one generated.";
+		(*parameterMapInfo)["windowLen"] = "The common length of the atoms (which is the length of the signal window), in number of samples.";
+		(*parameterMapInfo)["windowShift"] = "The shift between atoms on adjacent time frames, in number of samples. It MUST be at least one.";
+		(*parameterMapInfo)["fftSize"] = "The size of the FFT, including the effect of zero padding. It MUST be and EVEN integer, at least as large as <windowLen>. It determines the number of discrete frequencies of the collection of Gabor atoms associated with a Gabor block, which is (fftSize/2)+1.";
+		(*parameterMapInfo)["windowtype"] = "The window type, which determines its shape. Examples include 'gauss', 'rect', 'hamming' (see the developper documentation of libdsp_windows.h). A related parameter is <windowopt>.";
+		(*parameterMapInfo)["windowopt"] = "The optional window shape parameter (see the developper documentation oflibdsp_windows.h).";
+		(*parameterMapInfo)["f0Min"] = "Minimum allowed fundamental frequency of the harmonic subspaces, expressed in frequency bins between 0 (DC) and fftSize/2 (Nyquist).";
+		(*parameterMapInfo)["f0Max"] = "Maximum allowed fundamental frequency of the harmonic subspaces, expressed in frequency bins between 0 (DC) and fftSize/2 (Nyquist).";
+		(*parameterMapInfo)["numPartials"] = "Maximum number of partials to be considered in each harmonic subspace.";
+		(*parameterMapInfo)["blockOffset"] = "Offset between beginning of signal and beginning of first atom, in number of samples.";
+		(*parameterMapInfo)["windowRate"] = "The shift between atoms on adjacent time frames, in proportion of the <windowLen>. For example, windowRate = 0.5 corresponds to half-overlapping signal windows.";
+		
+		
+	} else  mp_error_msg( func, "Map for parameters info wasn't empty.\n" );
+	
 }
 
 /***********************************/
 /* get default map defining the block */
 void MP_Harmonic_Block_Plugin_c::get_parameters_default_map( map< string, string, mp_ltstring>* parameterMapDefault ){
 
-const char * func = "void MP_Gabor_Block_Plugin_c::get_parameters_default_map( map< string, string, mp_ltstring>* parameterMapDefault )";
+const char * func = "void MP_Harmonic_Block_Plugin_c::get_parameters_default_map()";
 
 if ((*parameterMapDefault).empty()) {
 (*parameterMapDefault)["type"] = "harmonic";
@@ -914,7 +917,9 @@ if ((*parameterMapDefault).empty()) {
 (*parameterMapDefault)["f0Min"] = "100";
 (*parameterMapDefault)["f0Max"] = "1000";
 (*parameterMapDefault)["numPartials"] = "1000";
-(*parameterMapDefault)["blockOffset"] = "0"; }
+(*parameterMapDefault)["blockOffset"] = "0";
+(*parameterMapDefault)["windowRate"] = "0.5";
+ }
 
  else  mp_error_msg( func, "Map for parameter default wasn't empty.\n" );
 

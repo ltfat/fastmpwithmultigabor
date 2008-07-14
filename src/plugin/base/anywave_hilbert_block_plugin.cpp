@@ -4,7 +4,7 @@
 /*                                                                            */
 /*                        Matching Pursuit Library                            */
 /*                                                                            */
-/* Rémi Gribonval                                                             */
+/* RÃˆmi Gribonval                                                             */
 /* Sacha Krstulovic                                                           */
 /* Sylvain Lesage                                             Tue Mar 07 2006 */
 /* -------------------------------------------------------------------------- */
@@ -213,7 +213,7 @@ int MP_Anywave_Hilbert_Block_Plugin_c::init_parameter_map( const unsigned long i
     char* anywaveTableFilename,
     const unsigned long int setBlockOffset )
 {
-const char* func = "MP_Gabor_Block_c::init_parameter_map(...)";
+const char* func = "MP_Anywave_Hilbert_Block_c::init_parameter_map(...)";
 
 parameterMap = new map< string, string, mp_ltstring>();
    
@@ -630,7 +630,7 @@ void MP_Anywave_Hilbert_Block_Plugin_c::update_frame(unsigned long int frameIdx,
 /* get Paramater type map defining the block */
 void MP_Anywave_Hilbert_Block_Plugin_c::get_parameters_type_map(map< string, string, mp_ltstring> * parameterMapType){
 
-const char * func = "void MP_Gabor_Block_Plugin_c::get_parameters_type_map( map< string, string, mp_ltstring>* parameterMapType )";
+const char * func = "void MP_Anywave_Hilbert_Block_Plugin_c::get_parameters_type_map()";
 
 if ((*parameterMapType).empty()) {
 (*parameterMapType)["type"] = "string";
@@ -648,13 +648,13 @@ if ((*parameterMapType).empty()) {
 /* get Info map defining the block */
 void MP_Anywave_Hilbert_Block_Plugin_c::get_parameters_info_map(map< string, string, mp_ltstring> * parameterMapInfo ){
 
-const char * func = "void MP_Gabor_Block_Plugin_c::get_parameters_info_map( map< string, string, mp_ltstring>* parameterMapInfo )";
+const char * func = "void MP_Anywave_Hilbert_Block_Plugin_c::get_parameters_info_map()";
 
 if ((*parameterMapInfo).empty()) {
-(*parameterMapInfo)["type"] = "type: the type of blocks";
-(*parameterMapInfo)["tableFileName"] =  "tableFileName: path to a table file";
-(*parameterMapInfo)["windowShift"] = "windowShift: the window shift, in number of samples";
-(*parameterMapInfo)["blockOffset"] = "blockOffset: the block offset";
+(*parameterMapInfo)["type"] = "the type of blocks";
+(*parameterMapInfo)["tableFileName"] =  "Filename of a wavetable where the waveforms of the desired anywave atoms are stored.";
+(*parameterMapInfo)["windowShift"] = "The shift between atoms on adjacent time frames, in number of samples. It MUST be at least one.";
+(*parameterMapInfo)["blockOffset"] = "Offset between beginning of signal and beginning of first atom, in number of samples.";
 
 } else  mp_error_msg( func, "Map for parameters info wasn't empty.\n" );
 
@@ -664,7 +664,7 @@ if ((*parameterMapInfo).empty()) {
 /* get default map defining the block */
 void MP_Anywave_Hilbert_Block_Plugin_c::get_parameters_default_map( map< string, string, mp_ltstring>* parameterMapDefault ){
 
-const char * func = "void MP_Gabor_Block_Plugin_c::get_parameters_default_map( map< string, string, mp_ltstring>* parameterMapDefault )";
+const char * func = "void MP_Anywave_Hilbert_Block_Plugin_c::get_parameters_default_map()";
 
 if ((*parameterMapDefault).empty()) {
 (*parameterMapDefault)["type"] = "anywavehilbert";

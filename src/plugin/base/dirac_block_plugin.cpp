@@ -4,7 +4,7 @@
 /*                                                                            */
 /*                        Matching Pursuit Library                            */
 /*                                                                            */
-/* Rémi Gribonval                                                             */
+/* RÃˆmi Gribonval                                                             */
 /* Sacha Krstulovic                                           Mon Feb 21 2005 */
 /* -------------------------------------------------------------------------- */
 /*                                                                            */
@@ -54,7 +54,7 @@
 /* Factory function     */
 MP_Block_c* MP_Dirac_Block_Plugin_c::create( MP_Signal_c* setSignal , map<string, string, mp_ltstring> *paramMap) {
 
-  const char* func = "MP_Dirac_Block_c::init()";
+  const char* func = "MP_Dirac_Block_c::create()";
   MP_Dirac_Block_Plugin_c *newBlock = NULL;
 
   /* Instantiate and check */
@@ -277,7 +277,7 @@ unsigned int MP_Dirac_Block_Plugin_c::create_atom( MP_Atom_c **atom,
 /* get Paramater type map defining the block */
 void MP_Dirac_Block_Plugin_c::get_parameters_type_map(map< string, string, mp_ltstring> * parameterMapType){
 
-const char * func = "void MP_Gabor_Block_Plugin_c::get_parameters_type_map( map< string, string, mp_ltstring>* parameterMapType )";
+const char * func = "void MP_Dirac_Block_Plugin_c::get_parameters_type_map()";
 
 if ((*parameterMapType).empty()) {
 (*parameterMapType)["type"] = "string";
@@ -291,10 +291,10 @@ if ((*parameterMapType).empty()) {
 /* get Info map defining the block */
 void MP_Dirac_Block_Plugin_c::get_parameters_info_map(map< string, string, mp_ltstring> * parameterMapInfo ){
 
-const char * func = "void MP_Gabor_Block_Plugin_c::get_parameters_info_map( map< string, string, mp_ltstring>* parameterMapInfo )";
+const char * func = "void MP_Dirac_Block_Plugin_c::get_parameters_info_map()";
 
 if ((*parameterMapInfo).empty()) {
-(*parameterMapInfo)["type"] = "type: the type of blocks";
+(*parameterMapInfo)["type"] = "The 'dirac' block generates 'dirac' atoms, with a single nonzero sample. It is useless to include several 'dirac' blocks in a dictionary.";
 } else  mp_error_msg( func, "Map for parameters info wasn't empty.\n" );
 
 }
@@ -303,7 +303,7 @@ if ((*parameterMapInfo).empty()) {
 /* get default map defining the block */
 void MP_Dirac_Block_Plugin_c::get_parameters_default_map( map< string, string, mp_ltstring>* parameterMapDefault ){
 
-const char * func = "void MP_Gabor_Block_Plugin_c::get_parameters_default_map( map< string, string, mp_ltstring>* parameterMapDefault )";
+const char * func = "void MP_Dirac_Block_Plugin_c::get_parameters_default_map()";
 
 if ((*parameterMapDefault).empty()) {
 (*parameterMapDefault)["type"] = "dirac"; }

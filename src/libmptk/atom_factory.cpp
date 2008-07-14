@@ -4,7 +4,7 @@
 /*                                                                            */
 /*                        Matching Pursuit Library                            */
 /*                                                                            */
-/* Rémi Gribonval                                                             */
+/* RÃˆmi Gribonval                                                             */
 /* Sacha Krstulovic                                           Mon Feb 21 2007 */
 /* -------------------------------------------------------------------------- */
 /*                                                                            */
@@ -116,4 +116,15 @@ void MP_Atom_Factory_c::register_new_atom_empty(const char* nameplug, MP_Atom_c*
     {
       MP_Atom_Factory_c::get_atom_factory()->atom_empty[nameplug] = createEmptyAtomFunctionPointer;
     }
+}
+
+
+/* fill a vector with the name of the atoms registred in atom factory */
+void MP_Atom_Factory_c::get_registered_atom_name( vector< string >* nameVector ){
+
+STL_EXT_NM::hash_map<const char*, MP_Atom_c*(*)(void),CSTRING_HASHER>::iterator iter;
+
+for( iter = MP_Atom_Factory_c::atom_empty.begin(); iter != MP_Atom_Factory_c::atom_empty.end(); iter++ ) nameVector->push_back(string(iter->first));
+
+
 }

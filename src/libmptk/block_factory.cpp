@@ -4,7 +4,7 @@
 /*                                                                            */
 /*                        Matching Pursuit Library                            */
 /*                                                                            */
-/* Rémi Gribonval                                                             */
+/* RÃˆmi Gribonval                                                             */
 /* Sacha Krstulovic                                           Mon Feb 21 2005 */
 /* -------------------------------------------------------------------------- */
 /*                                                                            */
@@ -85,6 +85,8 @@ void (*fillBlockMapTypeFunctionPointer)(map< string, string, mp_ltstring> * para
 void (*fillBlockMapInfoFunctionPointer)(map< string, string, mp_ltstring> * parameterMapInfo),
 void (*fillBlockMapDefaultFunctionPointer)(map< string, string, mp_ltstring> * parameterMapDefault))
 {
+	const char * func = "void MP_Block_Factory_c::register_new_block()";
+	
   if ((NULL!=blockName)&&(NULL == MP_Block_Factory_c::get_block_factory()->block[blockName]))
     {
       MP_Block_Factory_c::block[blockName] = createBlockFunctionPointer;
@@ -92,6 +94,23 @@ void (*fillBlockMapDefaultFunctionPointer)(map< string, string, mp_ltstring> * p
       MP_Block_Factory_c::blockInfo[blockName] = fillBlockMapInfoFunctionPointer;
       MP_Block_Factory_c::blockDefault[blockName]= fillBlockMapDefaultFunctionPointer;
     }
+	
+	// Checks that all maps have the same number of elements
+	{
+		map<string, string, mp_ltstring>* defaultMap  = new map<string, string, mp_ltstring>();
+		map<string, string, mp_ltstring>* typeMap     = new map<string, string, mp_ltstring>();
+		map<string, string, mp_ltstring>* infoMap     = new map<string, string, mp_ltstring>();
+		fillBlockMapDefaultFunctionPointer(defaultMap);
+		fillBlockMapTypeFunctionPointer(typeMap);
+		fillBlockMapInfoFunctionPointer(infoMap);
+		if (defaultMap->size()!=typeMap->size() || defaultMap->size()!=infoMap->size()) {
+			mp_error_msg(func,"Registered maps have different number of elements for block of type %s\n",blockName);
+			mp_error_msg(func," default(%d), type(%d), info(%d)\n",defaultMap->size(),typeMap->size(),infoMap->size());
+		}
+		if (defaultMap) delete(defaultMap);
+		if (typeMap) delete(typeMap);
+		if (infoMap) delete(infoMap);	
+	} 
 }
 
 /* get a block create function registered in the hash map */

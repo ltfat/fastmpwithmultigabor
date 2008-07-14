@@ -162,92 +162,93 @@ return 	environnement_loaded;
 /* Load Mptk environnement and initialize all the utility class instance */
 bool MPTK_Env_c::load_environment(const char * name )
 {
-  const char * func ="MPTK_Env_c::environment()";
-  TiXmlElement *elem;
-  char path[1024];
-  if(!environnement_loaded){
-  if (name!= NULL && strlen(name)>0){
-  FILE *fp = fopen (name, "r");
-
-if (fp == NULL)
-{
-  mp_error_msg( func, "The config file with name %s doesn't exist. \n", name);
-  return false;
-}
-else
-{
-   /* existing file */
-   fclose(fp); 	
-  strcpy(path,name);}
-  } else if (get_configuration_file() != NULL)
-    {
-    strcpy(path,get_configuration_file());
-    }
-      else
-    {
-      mp_error_msg( "MPTK_Env_c::load_environnement()", "couldn't load the MPTK environment");
-     environnement_loaded = false;
-      return false;
-    }
-     
-      TiXmlDocument configFile(path);
-      
-      if (!configFile.LoadFile())
+	const char * func ="MPTK_Env_c::load_environment()";
+	TiXmlElement *elem;
+	char path[1024];
+	
+	if(!environnement_loaded){ 	/* Get the name of the configuration file ... */
+		if (name!= NULL && strlen(name)>0){ /* ... from the file name which was provided as an argument... */
+			FILE *fp = fopen (name, "r");
+			if (fp == NULL) {
+				mp_error_msg( func, "The config file with name %s doesn't exist.\n", name);
+				return false;
+			}
+			else {   /* ... if it exists ... */
+				fclose(fp); 	
+				strcpy(path,name);
+			}
+		} else if (get_configuration_file() != NULL) /* ... otherwise try the default configuration file it it exists ... */
+		{
+			strcpy(path,get_configuration_file());
+		}
+		else /* ... but if the configuration file is not found, miserably fail! */
+		{
+			mp_error_msg(func, "couldn't load the MPTK environment\n");
+			mp_info_msg("","The MPTK environment can be specified either by:\n");
+			mp_info_msg("","  a) setting the MPTK_CONFIG_FILENAME environment variable, using e.g. 'setenv MPTK_CONFIG_FILENAME <path_to_config_file.xml>')\n");
+			mp_info_msg("","  b) using the -C <path_to_configfile.xml> option in many MPTK command line utilities.\n");
+			environnement_loaded = false;
+			return false;
+		}
+		
+		TiXmlDocument configFile(path);
+		
+		if (!configFile.LoadFile()) /* Try to load the file, and check success */
         {
-          mp_error_msg( "MPTK_Env_c::load_environnement()", "Could not load the xml file: %s , description: %s .\n", get_configuration_file(), configFile.ErrorDesc() );
-          return false;
+			mp_error_msg( func, "Could not load the xml file: %s , description: %s .\n", get_configuration_file(), configFile.ErrorDesc() );
+			return false;
         }
-      else
+		else
         {
-          TiXmlHandle hdl(&configFile);
-          elem = hdl.FirstChildElement("configpath").FirstChildElement("path").Element();
-          if (!elem)
+			TiXmlHandle hdl(&configFile);
+			elem = hdl.FirstChildElement("configpath").FirstChildElement("path").Element();
+			if (!elem)
             {
-              mp_error_msg( "MPTK_Env_c::load_environnement()", "the node doesn't exist");
+				mp_error_msg( func, "the node doesn't exist");
             }
-
-          int i= 0;
-          nameBufferCstr = (char **) malloc(sizeof(char*)*3);
-          pathBufferCstr = (char **) malloc(sizeof(char*)*3);
-          while (elem)
+			
+			int i= 0;
+			nameBufferCstr = (char **) malloc(sizeof(char*)*3);
+			pathBufferCstr = (char **) malloc(sizeof(char*)*3);
+			while (elem)
             {
-
-              std::string nameBuffer = elem->Attribute("name");
-              nameBufferCstr[i] = (char *) malloc(nameBuffer.size()+1);
-              strncpy(nameBufferCstr[i],nameBuffer.c_str(),nameBuffer.size()+1 );
-              std::string pathBuffer = elem->Attribute("path");
-              pathBufferCstr[i] = (char *) malloc(pathBuffer.size()+1);
-              strncpy(pathBufferCstr[i], pathBuffer.c_str() ,pathBuffer.size()+1);
-              if (NULL == MPTK_Env_c::get_env()->get_config_path(nameBufferCstr[i])) MPTK_Env_c::get_env()->configPath[nameBufferCstr[i]] = pathBufferCstr[i]; 
-              else mp_error_msg( "MPTK_Env_c::load_environnement()", "Two variable with the same name");            
-                        
-              /* iterate on the next element */
-              elem = elem->NextSiblingElement();
-              i++;
+				
+				std::string nameBuffer = elem->Attribute("name");
+				nameBufferCstr[i] = (char *) malloc(nameBuffer.size()+1);
+				strncpy(nameBufferCstr[i],nameBuffer.c_str(),nameBuffer.size()+1 );
+				std::string pathBuffer = elem->Attribute("path");
+				pathBufferCstr[i] = (char *) malloc(pathBuffer.size()+1);
+				strncpy(pathBufferCstr[i], pathBuffer.c_str() ,pathBuffer.size()+1);
+				if (NULL == MPTK_Env_c::get_env()->get_config_path(nameBufferCstr[i])) MPTK_Env_c::get_env()->configPath[nameBufferCstr[i]] = pathBufferCstr[i]; 
+				else mp_error_msg( "MPTK_Env_c::load_environnement()", "Two variable with the same name");            
+				
+				/* iterate on the next element */
+				elem = elem->NextSiblingElement();
+				i++;
             }
-          /* Create DLL Manager */ 
-          dll = new MP_Dll_Manager_c();
-          if ( dll == NULL )
+			/* Create DLL Manager */ 
+			dll = new MP_Dll_Manager_c();
+			if ( dll == NULL )
             {
-              mp_error_msg( func, "Failed to create a dll manager");
-              return false;
+				mp_error_msg( func, "Failed to create a dll manager");
+				return false;
             }
-
-          /* Load DLL */ 
-          if (dll->load_dll())
+			
+			/* Load DLL */ 
+			if (dll->load_dll())
             {
-              mp_debug_msg( MP_DEBUG_CONSTRUCTION, func, "Load successfully the following Block type: \n" );
-              vector< string >* nameVector = new vector< string >();
-              MP_Block_Factory_c::get_block_factory()->get_registered_block_name( nameVector );
-              for (unsigned int i= 0; i < nameVector->size(); i++) mp_debug_msg( MP_DEBUG_CONSTRUCTION, func, "%s block.\n",nameVector->at(i).c_str()  );
-              delete(nameVector);
+				mp_debug_msg( MP_DEBUG_CONSTRUCTION, func, "Load successfully the following Block type: \n" );
+				vector< string >* nameVector = new vector< string >();
+				MP_Block_Factory_c::get_block_factory()->get_registered_block_name( nameVector );
+				for (unsigned int i= 0; i < nameVector->size(); i++) mp_debug_msg( MP_DEBUG_CONSTRUCTION, func, "%s block.\n",nameVector->at(i).c_str()  );
+				delete(nameVector);
             }
-          /* Load FFT wisdom file */ 
-          if (MP_FFT_Interface_c::init_fft_library_config()) mp_debug_msg( MP_DEBUG_CONSTRUCTION ,func, "The fftw Plan is now loaded.\n" );
-          else mp_debug_msg(MP_DEBUG_CONSTRUCTION, func, "No fftw Plan well formed was found.\n" );
-          environnement_loaded = true;  
-          return true;
-
+			/* Load FFT wisdom file */ 
+			if (MP_FFT_Interface_c::init_fft_library_config()) mp_debug_msg( MP_DEBUG_CONSTRUCTION ,func, "The fftw Plan is now loaded.\n" );
+			else mp_debug_msg(MP_DEBUG_CONSTRUCTION, func, "No fftw Plan well formed was found.\n" );
+			environnement_loaded = true;  
+			return true;
+			
         }
     } return false;
 }

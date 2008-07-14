@@ -4,7 +4,7 @@
 /*                                                                            */
 /*                        Matching Pursuit Library                            */
 /*                                                                            */
-/* Rémi Gribonval                                                             */
+/* RÃˆmi Gribonval                                                             */
 /* Sacha Krstulovic                                           Mon Feb 21 2005 */
 /* -------------------------------------------------------------------------- */
 /*                                                                            */
@@ -56,7 +56,7 @@
 /* Factory function     */
 MP_Block_c* MP_Chirp_Block_Plugin_c::create( MP_Signal_c *setSignal, map<string, string, mp_ltstring> *paramMap )
 {
-	const char* func = "MP_Gabor_Block_Plugin_c::create( MP_Signal_c *setSignal, map<const char*, const char*, ltstr> *paramMap )";
+	const char* func = "MP_Chirp_Block_Plugin_c::create( MP_Signal_c *setSignal, map<const char*, const char*, ltstr> *paramMap )";
   MP_Chirp_Block_Plugin_c *newBlock = NULL;
   char*  convertEnd;
   unsigned long int filterLen = 0;
@@ -167,7 +167,7 @@ MP_Block_c* MP_Chirp_Block_Plugin_c::create( MP_Signal_c *setSignal, map<string,
     }
 	  if ((*paramMap)["numFitPoints"].size()>0)
     {
-      /*Convert windowopt*/
+      /*Convert numFitPoints*/
       numFitPoints=strtol((*paramMap)["numFitPoints"].c_str(), &convertEnd, 10);
       if (*convertEnd != '\0')
         {
@@ -182,7 +182,7 @@ MP_Block_c* MP_Chirp_Block_Plugin_c::create( MP_Signal_c *setSignal, map<string,
 	
 		  if ((*paramMap)["numIter"].size()>0)
     {
-      /*Convert windowopt*/
+      /*Convert numIter*/
       numIter=strtol((*paramMap)["numIter"].c_str(), &convertEnd, 10);
       if (*convertEnd != '\0')
         {
@@ -196,7 +196,7 @@ MP_Block_c* MP_Chirp_Block_Plugin_c::create( MP_Signal_c *setSignal, map<string,
     }
        if ((*paramMap)["blockOffset"].size()>0)
     {
-      /*Convert windowShift*/
+      /*Convert blockOffset*/
       blockOffset=strtol((*paramMap)["blockOffset"].c_str(), &convertEnd, 10);
       if (*convertEnd != '\0')
         {
@@ -1027,7 +1027,7 @@ int MP_Chirp_Block_Plugin_c::set_chirp_demodulator( MP_Real_t chirprate )
 /*********************************************/
 /* get Paramater type map defining the block */
 void MP_Chirp_Block_Plugin_c::get_parameters_type_map(map< string, string, mp_ltstring> * parameterMapType){
-const char * func = "void MP_Gabor_Block_Plugin_c::get_parameters_default_map( map< string, string, mp_ltstring>* parameterMapDefault )";
+const char * func = "void MP_Chirp_Block_Plugin_c::get_parameters_type_map()";
 if ((*parameterMapType).empty()) {
 (*parameterMapType)["type"] = "string";
 (*parameterMapType)["windowLen"] = "ulong";
@@ -1038,6 +1038,7 @@ if ((*parameterMapType).empty()) {
 (*parameterMapType)["numFitPoints"] = "uint";
 (*parameterMapType)["numIter"] = "uint";
 (*parameterMapType)["blockOffset"] = "ulong";
+(*parameterMapType)["windowRate"] = "real";
 
 } else  mp_error_msg( func, "Map for parameters type wasn't empty.\n" );
 
@@ -1047,17 +1048,19 @@ if ((*parameterMapType).empty()) {
 /* get Info map defining the block */
 void MP_Chirp_Block_Plugin_c::get_parameters_info_map(map< string, string, mp_ltstring> * parameterMapInfo ){
 
-const char * func = "void MP_Gabor_Block_Plugin_c::get_parameters_default_map( map< string, string, mp_ltstring>* parameterMapDefault )";
+const char * func = "void MP_Chirp_Block_Plugin_c::get_parameters_info_map()";
 if ((*parameterMapInfo).empty()) {
-(*parameterMapInfo)["type"] = "type: the type of blocks";
-(*parameterMapInfo)["windowLen"] = "windowLen: the length of the signal window, in number of sample";
-(*parameterMapInfo)["windowShift"] = "windowShift: the window shift, in number of samples";
-(*parameterMapInfo)["fftSize"] = "fftSize: the size of the FFT, including zero padding";
-(*parameterMapInfo)["windowtype"] = "windowType: the window type (see the doc of libdsp_windows.h)";
-(*parameterMapInfo)["windowopt"] = "windowOption: the optional window parameter";
-(*parameterMapInfo)["numFitPoints"] = "numFitPoints number of frequency points used on both sides of a local maximum to fit a chirp";
-(*parameterMapInfo)["numIter"] = "numIter number of iteration done to fit a chirp";
-(*parameterMapInfo)["blockOffset"] = "blockOffset: the block offset";
+(*parameterMapInfo)["type"] = "'Chirp' blocks generate Gabor atoms with possibly nonzero chirp rate. The best Gabor atom is first selected, then an interpolation procedure is iterated to estimate the chirprate.";
+(*parameterMapInfo)["windowLen"] = "The common length of the atoms (which is the length of the signal window), in number of samples.";
+(*parameterMapInfo)["windowShift"] = "The shift between atoms on adjacent time frames, in number of samples. It MUST be at least one.";
+(*parameterMapInfo)["fftSize"] = "The size of the FFT, including the effect of zero padding. It MUST be and EVEN integer, at least as large as <windowLen>. It determines the number of discrete frequencies of the collection of Gabor atoms associated with a Gabor block, which is (fftSize/2)+1.";
+(*parameterMapInfo)["windowtype"] = "The window type, which determines its shape. Examples include 'gauss', 'rect', 'hamming' (see the developper documentation of libdsp_windows.h). A related parameter is <windowopt>.";
+(*parameterMapInfo)["windowopt"] = "The optional window shape parameter (see the developper documentation oflibdsp_windows.h).";
+(*parameterMapInfo)["numFitPoints"] = "The number of frequency points used on both sides of a local frequency maximum to fit a chirp.";
+(*parameterMapInfo)["numIter"] = "The number of iterations done to fit a chirp.";
+(*parameterMapInfo)["blockOffset"] = "Offset between beginning of signal and beginning of first atom, in number of samples.";
+(*parameterMapInfo)["windowRate"] = "The shift between atoms on adjacent time frames, in proportion of the <windowLen>. For example, windowRate = 0.5 corresponds to half-overlapping signal windows.";
+
 
 } else  mp_error_msg( func, "Map for parameters info wasn't empty.\n" );
 
@@ -1067,7 +1070,7 @@ if ((*parameterMapInfo).empty()) {
 /* get default map defining the block */
 void MP_Chirp_Block_Plugin_c::get_parameters_default_map( map< string, string, mp_ltstring>* parameterMapDefault ){
 
-const char * func = "void MP_Gabor_Block_Plugin_c::get_parameters_default_map( map< string, string, mp_ltstring>* parameterMapDefault )";
+const char * func = "void MP_Chirp_Block_Plugin_c::get_parameters_default_map()";
 
 if ((*parameterMapDefault).empty()) {
 (*parameterMapDefault)["type"] = "chirp";
@@ -1076,7 +1079,11 @@ if ((*parameterMapDefault).empty()) {
 (*parameterMapDefault)["fftSize"] = "1024";
 (*parameterMapDefault)["windowtype"] = "gauss";
 (*parameterMapDefault)["windowopt"] = "0";
-(*parameterMapDefault)["blockOffset"] = "0"; }
+(*parameterMapDefault)["numFitPoints"] = "1";
+(*parameterMapDefault)["numIter"] = "1";
+(*parameterMapDefault)["blockOffset"] = "0"; 
+(*parameterMapDefault)["windowRate"] = "0.5";
+}
 
  else  mp_error_msg( func, "Map for parameter default wasn't empty.\n" );
 

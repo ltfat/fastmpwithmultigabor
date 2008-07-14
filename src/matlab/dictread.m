@@ -1,6 +1,21 @@
-% DICTREAD Imports a dictionary Matching Pursuit dict in Matlab
-%  dict = dictread(filename)
-% 
+% function dict = dictread(filename)
+%
+% MPTK - Matlab interface
+% Imports a dictionary description from a file to Matlab, using MPTK
+%
+% Usage : dict = dictread(filename)
+%
+% Input: 
+% filename : the filename where to read the dictionary description in XML
+%
+% Output:
+% dict     : a dictionary description with the following structure
+%      dict.block{i} = block
+%  where, for example
+%      block.type = 'dirac'
+%  and block may have other field names
+%
+% Author : Remi Gribonval, July 2008
 % Distributed under the General Public License.
 %                                       
 %#mex
