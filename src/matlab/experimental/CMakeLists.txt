@@ -164,6 +164,8 @@ ADD_CUSTOM_COMMAND(
 
 ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
 
+  CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/matlab/experimental/BuildDictionary.m ${MPTK_BINARY_DIR}/src/matlab/experimental/BuildDictionary.m
+                 COPYONLY) 
   CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/matlab/experimental/plugininfo_exp.m ${MPTK_BINARY_DIR}/src/matlab/experimental/plugininfo_exp.m
                  COPYONLY) 
   CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/matlab/experimental/bookread_exp.m ${MPTK_BINARY_DIR}/src/matlab/experimental/bookread_exp.m
@@ -181,6 +183,7 @@ ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
                  
   INSTALL(FILES ${MPTK_BINARY_DIR}/src/matlab/experimental/plugininfo_exp.${MEX_EXTENSION}
               ${MPTK_BINARY_DIR}/src/matlab/experimental/plugininfo_exp.m
+              ${MPTK_BINARY_DIR}/src/matlab/experimental/BuildDictionary.m
               ${MPTK_BINARY_DIR}/src/matlab/experimental/bookread_exp.${MEX_EXTENSION}
               ${MPTK_BINARY_DIR}/src/matlab/experimental/bookread_exp.m
               ${MPTK_BINARY_DIR}/src/matlab/experimental/bookwrite_exp.${MEX_EXTENSION}
