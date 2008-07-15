@@ -61,7 +61,6 @@ II) IMPROVEMENTS TO THE CORE LIBRARY
   - enable mpd_demix to use one dictionary for each source *feature*
   - enable mpd_demix with a matrix of filters *feature*
   - allow atom selection with weights/penalties (applications include auditory masking)
-  - implement anywave_atoms and anywave_blocks with Hilbert transform
   - implement orthonormal matching pursuit
   - check the divergence between signal.compute_energy() and signal.energy
 

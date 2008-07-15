@@ -135,11 +135,31 @@ SET(LIB_HOME     ${CMAKE_INSTALL_PREFIX}/lib)
 SET(MPTK_PLUGIN_DIR ${MPTK_BINARY_DIR}/lib)
 SET(MPTK_FTTW_WISDOM_FILE ${MPTK_BINARY_DIR}/bin/default_fftw_wisdom_file)
 SET(MPTK_FTTW_WISDOM_FILE_INSTALL ${CMAKE_INSTALL_PREFIX}/bin/default_fftw_wisdom_file)
-SET(MPTK_REFERENCE_PATH_INSTALL ${CMAKE_INSTALL_PREFIX}/bin/reference)
 SET(MPTK_REFERENCE_PATH ${MPTK_BINARY_DIR}/bin/reference)
-SET(MPTK_DEFAULT_DICT_PATH  ${MPTK_BINARY_DIR}/bin/reference/dictionary/dic_gabor_two_scales.xml)
-SET(MPTK_ANYWAVE_TEST_TABLE ${MPTK_BINARY_DIR}/bin/reference/dictionary/anywave_table.xml)
-SET(MPTK_ANYWAVE_TEST_TABLE_BIN ${MPTK_BINARY_DIR}/bin/reference/signal/anywave_table_data.bin)
+SET(MPTK_REFERENCE_PATH_INSTALL ${CMAKE_INSTALL_PREFIX}/bin/reference)
+SET(MPTK_DEFAULT_DICT_FILENAME dictionary/dic_gabor_two_scales.xml)
+SET(MPTK_DEFAULT_DICT_FILE  ${MPTK_REFERENCE_PATH}/${MPTK_DEFAULT_DICT_FILENAME})
+SET(MPTK_DEFAULT_DICT_FILE_INSTALL  ${MPTK_REFERENCE_PATH_INSTALL}/${MPTK_DEFAULT_DICT_FILENAME})
+SET(MPTK_DEFAULT_DICT_LISTNAME  dictionary/dict-list.txt)
+SET(MPTK_DEFAULT_DICT_LIST  ${MPTK_REFERENCE_PATH}/${MPTK_DEFAULT_DICT_LISTNAME})
+SET(MPTK_DEFAULT_DICT_LIST_INSTALL  ${MPTK_REFERENCE_PATH_INSTALL}/${MPTK_DEFAULT_DICT_LISTNAME})
+SET(MPTK_DEFAULT_MIXER_FILENAME  mixer/mix_58_mixer.txt)
+SET(MPTK_DEFAULT_MIXER_FILE  ${MPTK_REFERENCE_PATH}/${MPTK_DEFAULT_MIXER_FILENAME})
+SET(MPTK_DEFAULT_MIXER_FILE_INSTALL  ${MPTK_REFERENCE_PATH_INSTALL}/${MPTK_DEFAULT_MIXER_FILENAME})
+SET(MPTK_DEFAULT_ANYWAVEDICT_FILENAME dictionary/dic_anywave.xml)
+SET(MPTK_DEFAULT_ANYWAVEDICT_FILE ${MPTK_REFERENCE_PATH}/${MPTK_DEFAULT_ANYWAVEDICT_FILENAME})
+SET(MPTK_DEFAULT_ANYWAVEDICT_FILE_INSTALL ${MPTK_REFERENCE_PATH_INSTALL}/${MPTK_DEFAULT_ANYWAVEDICT_FILENAME})
+SET(MPTK_DEFAULT_ANYWAVETABLE_FILENAME wavetable/defaultWaveTable.xml)
+SET(MPTK_DEFAULT_ANYWAVETABLE_FILE ${MPTK_REFERENCE_PATH}/${MPTK_DEFAULT_ANYWAVETABLE_FILENAME})
+SET(MPTK_DEFAULT_ANYWAVETABLE_FILE_INSTALL ${MPTK_REFERENCE_PATH_INSTALL}/${MPTK_DEFAULT_ANYWAVETABLE_FILENAME})
+SET(MPTK_DEFAULT_ANYWAVETABLE_DATA_FILENAME wavetable/defaultWaveTableData.bin)
+SET(MPTK_DEFAULT_ANYWAVETABLE_DATA_FILE ${MPTK_REFERENCE_PATH}/${MPTK_DEFAULT_ANYWAVETABLE_DATA_FILENAME})
+SET(MPTK_DEFAULT_ANYWAVETABLE_DATA_FILE_INSTALL ${MPTK_REFERENCE_PATH_INSTALL}/${MPTK_DEFAULT_ANYWAVETABLE_DATA_FILENAME})
+
+
+SET(MPTK_ANYWAVE_TEST_TABLE_BIN ${MPTK_REFERENCE_PATH}/signal/anywave_table_data.bin)
+SET(MPTK_ANYWAVE_TEST_TABLE ${MPTK_REFERENCE_PATH}/dictionary/anywave_table.xml)
+SET(MPTK_ANYWAVE_TEST_TABLE_BIN ${MPTK_REFERENCE_PATH}/signal/anywave_table_data.bin)
 
 IF(BUILD_MULTITHREAD) 
 SET(MP_EXECUTABLE mpd_multithread)
@@ -163,9 +183,22 @@ SET(LIB_HOME_INSTALL ${CMAKE_INSTALL_PREFIX}/lib)
 ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
 
 #-----------------------------------------------------------------------------
-# setting bin path
+# setting path configuration file
 CONFIGURE_FILE(${MPTK_SOURCE_DIR}/path.xml.in ${MPTK_BINARY_DIR}/bin/path.xml @ONLY)
 CONFIGURE_FILE(${MPTK_SOURCE_DIR}/path.xml.install ${MPTK_BINARY_DIR}/path.xml @ONLY)
+
+# ----------------------------------------------------------------------------
+# default dictionary file
+CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/${MPTK_DEFAULT_DICT_FILENAME} ${MPTK_REFERENCE_PATH}/${MPTK_DEFAULT_DICT_FILENAME} @ONLY)
+# default mixer and dictionary list file
+CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/${MPTK_DEFAULT_DICT_LISTNAME}.in ${MPTK_REFERENCE_PATH}/${MPTK_DEFAULT_DICT_LISTNAME} @ONLY)
+CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/${MPTK_DEFAULT_MIXER_FILENAME} ${MPTK_REFERENCE_PATH}/${MPTK_DEFAULT_MIXER_FILENAME} @ONLY)
+# default anywave tables / data / dictionary
+CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/${MPTK_DEFAULT_ANYWAVETABLE_FILENAME}.in ${MPTK_REFERENCE_PATH}/${MPTK_DEFAULT_ANYWAVETABLE_FILENAME} @ONLY)
+CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/${MPTK_DEFAULT_ANYWAVETABLE_DATA_FILENAME} ${MPTK_REFERENCE_PATH}/${MPTK_DEFAULT_ANYWAVETABLE_DATA_FILENAME} @ONLY)
+CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/${MPTK_DEFAULT_ANYWAVEDICT_FILENAME}.in ${MPTK_REFERENCE_PATH}/${MPTK_DEFAULT_ANYWAVEDICT_FILENAME} @ONLY)
+
+# ----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
 # setting bin path
@@ -379,20 +412,20 @@ ADD_TEST(FFT, ${MPTK_BINARY_DIR}/bin/test_fft)
 ADD_TEST(PARABOLIC_REGRESSION, ${MPTK_BINARY_DIR}/bin/test_parabolic_regression)
 ADD_TEST(BEHAVIOUR_IN_NOISE, ${MPTK_BINARY_DIR}/bin/test_behaviour_in_noise)
 IF(BUILD_MULTITHREAD)
-ADD_TEST(MPD, ${MPTK_BINARY_DIR}/bin/mpd_multithread -C ${MPTK_BINARY_DIR}/bin/path.xml -D ${MPTK_BINARY_DIR}/bin/reference/dictionary/dic_gabor_two_scales.xml -n 10 -q ${MPTK_BINARY_DIR}/bin/reference/signal/glockenspiel.wav ${MPTK_BINARY_DIR}/bin/reference/signal/test.bin)
-ADD_TEST(MPDANYWAVE, ${MPTK_BINARY_DIR}/bin/mpd_multithread -C ${MPTK_BINARY_DIR}/bin/path.xml -D ${MPTK_BINARY_DIR}/bin/reference/dictionary/dico_test_anywave.xml -n 10 -q ${MPTK_BINARY_DIR}/bin/reference/signal/anywave_signal.wav ${MPTK_BINARY_DIR}/bin/reference/signal/test_anywave.bin)
+ADD_TEST(MPD, ${MPTK_BINARY_DIR}/bin/mpd_multithread -C ${MPTK_BINARY_DIR}/bin/path.xml -D ${MPTK_DEFAULT_DICT_FILE} -n 10 -q ${MPTK_REFERENCE_PATH}/signal/glockenspiel.wav ${MPTK_REFERENCE_PATH}/signal/test.bin)
+ADD_TEST(MPDANYWAVE, ${MPTK_BINARY_DIR}/bin/mpd_multithread -C ${MPTK_BINARY_DIR}/bin/path.xml -D ${MPTK_REFERENCE_PATH}/dictionary/dico_test_anywave.xml -n 10 -q ${MPTK_REFERENCE_PATH}/signal/anywave_signal.wav ${MPTK_REFERENCE_PATH}/signal/test_anywave.bin)
 ELSE(BUILD_MULTITHREAD)
-ADD_TEST(MPD, ${MPTK_BINARY_DIR}/bin/mpd -C ${MPTK_BINARY_DIR}/bin/path.xml -D ${MPTK_BINARY_DIR}/bin/reference/dictionary/dic_gabor_two_scales.xml -n 10 -q ${MPTK_BINARY_DIR}/bin/reference/signal/glockenspiel.wav ${MPTK_BINARY_DIR}/bin/reference/signal/test.bin)
-ADD_TEST(MPDANYWAVE, ${MPTK_BINARY_DIR}/bin/mpd -C ${MPTK_BINARY_DIR}/bin/path.xml -D ${MPTK_BINARY_DIR}/bin/reference/dictionary/dico_test_anywave.xml -n 10 -q ${MPTK_BINARY_DIR}/bin/reference/signal/anywave_signal.wav ${MPTK_BINARY_DIR}/bin/reference/signal/test_anywave.bin)
+ADD_TEST(MPD, ${MPTK_BINARY_DIR}/bin/mpd -C ${MPTK_BINARY_DIR}/bin/path.xml -D ${MPTK_DEFAULT_DICT_FILE} -n 10 -q ${MPTK_REFERENCE_PATH}/signal/glockenspiel.wav ${MPTK_REFERENCE_PATH}/signal/test.bin)
+ADD_TEST(MPDANYWAVE, ${MPTK_BINARY_DIR}/bin/mpd -C ${MPTK_BINARY_DIR}/bin/path.xml -D ${MPTK_REFERENCE_PATH}/dictionary/dico_test_anywave.xml -n 10 -q ${MPTK_REFERENCE_PATH}/signal/anywave_signal.wav ${MPTK_REFERENCE_PATH}/signal/test_anywave.bin)
 ENDIF(BUILD_MULTITHREAD)
-ADD_TEST(MPR, ${MPTK_BINARY_DIR}/bin/mpr -C ${MPTK_BINARY_DIR}/bin/path.xml ${MPTK_BINARY_DIR}/bin/reference/signal/test.bin ${MPTK_BINARY_DIR}/bin/reference/signal/test.wav)
-ADD_TEST(MPF, ${MPTK_BINARY_DIR}/bin/mpf -C ${MPTK_BINARY_DIR}/bin/path.xml --Freq=[0:110] --len=[0:256] ${MPTK_BINARY_DIR}/bin/reference/signal/test.bin ${MPTK_BINARY_DIR}/bin/reference/signal/booktestYes.bin ${MPTK_BINARY_DIR}/bin/reference/signal/booktestNo.bin)
+ADD_TEST(MPR, ${MPTK_BINARY_DIR}/bin/mpr -C ${MPTK_BINARY_DIR}/bin/path.xml ${MPTK_REFERENCE_PATH}/signal/test.bin ${MPTK_REFERENCE_PATH}/signal/test.wav)
+ADD_TEST(MPF, ${MPTK_BINARY_DIR}/bin/mpf -C ${MPTK_BINARY_DIR}/bin/path.xml --Freq=[0:110] --len=[0:256] ${MPTK_REFERENCE_PATH}/signal/test.bin ${MPTK_REFERENCE_PATH}/signal/booktestYes.bin ${MPTK_REFERENCE_PATH}/signal/booktestNo.bin)
 ADD_TEST(TEST_MP, ${MPTK_BINARY_DIR}/bin/test_mp)
-ADD_TEST(ANYWAVE, ${MPTK_BINARY_DIR}/bin/test_anywave ${MPTK_BINARY_DIR}/bin/reference/signal/anywave_signal.wav ${MPTK_BINARY_DIR}/bin/reference/dictionary/anywave_table.xml ${MPTK_BINARY_DIR}/bin/reference/dictionary/dico_test_anywave.xml)
+ADD_TEST(ANYWAVE, ${MPTK_BINARY_DIR}/bin/test_anywave ${MPTK_REFERENCE_PATH}/signal/anywave_signal.wav ${MPTK_REFERENCE_PATH}/dictionary/anywave_table.xml ${MPTK_REFERENCE_PATH}/dictionary/dico_test_anywave.xml)
 IF(BUILD_MULTITHREAD)
-ADD_TEST(MPD_DEMIX, ${MPTK_BINARY_DIR}/bin/mpd_demix_multithread -C ${MPTK_BINARY_DIR}/bin/path.xml -D ${MPTK_BINARY_DIR}/bin/reference/dictionary/dict-list.txt -M ${MPTK_BINARY_DIR}/bin/reference/mixer/mix_58_mixer.txt -n 10 -q ${MPTK_BINARY_DIR}/bin/reference/signal/mix_58_stereo.wav ${MPTK_BINARY_DIR}/bin/reference/signal/test_demix.bin)
+ADD_TEST(MPD_DEMIX, ${MPTK_BINARY_DIR}/bin/mpd_demix_multithread -C ${MPTK_BINARY_DIR}/bin/path.xml -D ${MPTK_DEFAULT_DICT_LIST} -M ${MPTK_REFERENCE_PATH}/mixer/mix_58_mixer.txt -n 10 -q ${MPTK_REFERENCE_PATH}/signal/mix_58_stereo.wav ${MPTK_REFERENCE_PATH}/signal/test_demix.bin)
 ELSE(BUILD_MULTITHREAD)
-ADD_TEST(MPD_DEMIX, ${MPTK_BINARY_DIR}/bin/mpd_demix -C ${MPTK_BINARY_DIR}/bin/path.xml -D ${MPTK_BINARY_DIR}/bin/reference/dictionary/dict-list.txt -M ${MPTK_BINARY_DIR}/bin/reference/mixer/mix_58_mixer.txt -n 10 -q ${MPTK_BINARY_DIR}/bin/reference/signal/mix_58_stereo.wav ${MPTK_BINARY_DIR}/bin/reference/signal/test_demix.bin)
+ADD_TEST(MPD_DEMIX, ${MPTK_BINARY_DIR}/bin/mpd_demix -C ${MPTK_BINARY_DIR}/bin/path.xml -D ${MPTK_DEFAULT_DICT_LIST} -M ${MPTK_REFERENCE_PATH}/mixer/mix_58_mixer.txt -n 10 -q ${MPTK_REFERENCE_PATH}/signal/mix_58_stereo.wav ${MPTK_REFERENCE_PATH}/signal/test_demix.bin)
 ENDIF(BUILD_MULTITHREAD)
 
 #ADD_TEST(Test1, ${MPTK_DIR}/bin/Testmptk)

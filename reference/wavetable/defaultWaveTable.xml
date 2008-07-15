@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<table>
+<libVersion>0.4beta</libVersion>
+     <param name="numChans" value="1"/>	
+	 <param name="filterLen" value="64"/>	
+	 <param name="numFilters" value="20"/>
+	 <param name="data" value="@MPTK_ANYWAVE_TEST_TABLE_BIN@"/>
+</table>

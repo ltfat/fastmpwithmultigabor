@@ -178,7 +178,7 @@ void mexFunction(int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[])
 	if(nlhs>1) plhs[1] = mxCreateDoubleScalar((double)iswritten);
 	
 	// We need to understand why deleting the dictionary crashes !!!!
-	// delete dict;
+	//delete dict;
 	
 	return;
 }

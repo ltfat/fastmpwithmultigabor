@@ -7,6 +7,7 @@
 % 
 % Output :
 % info : a structure with the information
+%      info.referencePath
 %      info.atoms.type{}
 %      info.blocks.type{}
 %      info.blocks.info{}

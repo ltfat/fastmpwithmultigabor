@@ -3,4 +3,5 @@
 	<path name="dll_directory" path="@MPTK_PLUGIN_DIR_INSTALL@" />
 	<path name="fftw_wisdomfile" path="@MPTK_FTTW_WISDOM_FILE@"/>
 	<path name="reference" path="@MPTK_REFERENCE_PATH@"/>
+	<path name="defaultAnyWaveTable" path="@MPTK_DEFAULT_ANYWAVETABLE_FILE@"/>
 </configpath>

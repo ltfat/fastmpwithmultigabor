@@ -163,7 +163,7 @@ STL_EXT_NM::hash_map<const char*,const char*,CSTRING_HASHER> configPath;
 
     /** \brief Method to get the name of a configuration path 
     *  \param name of the path
-    *  \return true if successful
+    *  \return the path if successful, NULL otherwise
     */
     MPTK_LIB_EXPORT const char * get_config_path(const char * name);
 

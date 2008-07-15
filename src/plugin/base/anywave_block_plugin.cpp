@@ -608,7 +608,8 @@ const char * func = "void MP_Anywave_Block_Plugin_c::get_parameters_default_map(
 
 if ((*parameterMapDefault).empty()) {
 (*parameterMapDefault)["type"] = "anywave";
-(*parameterMapDefault)["tableFileName"] = "none";
+//(*parameterMapDefault)["tableFileName"] = "none";
+(*parameterMapDefault)["tableFileName"] = string(MPTK_Env_c::get_env()->get_config_path("defaultAnyWaveTable"));
 (*parameterMapDefault)["windowShift"] = "512";
 (*parameterMapDefault)["blockOffset"] = "0"; }
 

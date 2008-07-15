@@ -15,7 +15,7 @@ function dictcreate_gui(op)
 % Case 25 : choose a wavetable file name
 % Case 30 : display help information on selected block parameter
 
-persistent figDict dict spacing mptkinfo blockinfo blockFramePos blockTitlePos ...
+persistent figDict dict currentPath dictPathName waveTablePathName spacing mptkinfo blockinfo blockFramePos blockTitlePos ...
     blockListPos blockInfoPos blockNameStr paramFillFramePos ...
     paramFillTitlePos paramFramePos paramTitlePos paramListPos  ...
     paramInfoPos buttonPos...
@@ -46,7 +46,14 @@ switch(op)
     case 0 %%%%%% CREATE INTERFACE
         %% Load the mptk information
         mptkinfo = mptk_getinfo_exp;
-
+        currentPath  = pwd;
+        if ~isempty(dir(mptkinfo.referencePath))
+            dictPathName = [mptkinfo.referencePath '/dictionary'];
+            waveTablePathName = [mptkinfo.referencePath '/wavetable'];
+        else
+            dictPathName = '.';
+            waveTablePathName = '.';
+        end
         %% Create the main figure
         figDict=figure( ...
             'Name','MPTK - Dictionary creation interface', ...
@@ -225,10 +232,17 @@ switch(op)
         set(H_SET(2),'Visible','off');
         set(H_SET(3),'Visible','off');
     case 80 %%%%% SAVE DICTIONARY
+        % go to last dictionary path
+        cd(dictPathName);
+        % choose a file
         [fname, pname, filterind] = uiputfile({'*.xml'},'Save the dictionary in XML format');
+        % go back to original path
+        cd(currentPath);
         if (~isempty(fname))
             [isvalid iswritten] = dictwrite(dict,fullfile(pname,fname));
         end
+        % memorize path
+        dictPathName = pname;
 
     case 50 %%%%% ADD A BLOCK TO THE DICTIONARY
 
@@ -459,7 +473,13 @@ switch(op)
         
     case 25 %%%% CHOOSE WAVETABLE FILE
         blockNum = get(H_CHOICE(1),'Value');
+        % Go to last path for wavetable
+        cd(waveTablePathName);
         [filename, pathname, filterind] = uiputfile({'*.bin'},'Choose the wavetable in binary format');
+        % Back to pwd
+        cd(currentPath);
+        % memorize path
+        waveTablePathName = pathname;
         if isequal(filename,0) || isequal(pathname,0)
             tmp = 'Choose a file';
         else

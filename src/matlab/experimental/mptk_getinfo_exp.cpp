@@ -1,6 +1,6 @@
 /******************************************************************************/
 /*                                                                            */
-/*                  	      plugininfo_exp.cpp                               */
+/*                  	      mptk_getinfo_exp.cpp                            */
 /*                                                                            */
 /*          				mptkMEX toolbox									  */
 /*                                                                            */
@@ -50,7 +50,6 @@ void fillWindowNameVector(vector <string>*windowNameVector,vector<bool>*windowNe
 	}
 }
 
-
 /*
  *
  *     MAIN MEX FUNCTION
@@ -93,33 +92,38 @@ void mexFunction(int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[]) {
 	//mexPrintf(" done\n");
 
 	// Create the output information structure 
-	// pluginInfo.atoms(numAtomTypes)
-	// pluginInfo.blocks(numBlockTypes)
-	int numPluginInfoFieldNames    = 3;
-	const char *pluginInfoFieldNames[] = {"atoms","blocks","windows"};
-	mxArray *mexPluginInfo = mxCreateStructMatrix((mwSize)1,(mwSize)1,numPluginInfoFieldNames,pluginInfoFieldNames);
+	// info.atoms(numAtomTypes)
+	// info.blocks(numBlockTypes)
+	int numInfoFieldNames    = 4;
+	const char *infoFieldNames[] = {"atoms","blocks","windows","referencePath"};
+	mxArray *mexInfo = mxCreateStructMatrix((mwSize)1,(mwSize)1,numInfoFieldNames,infoFieldNames);
 	
+	// PATH TO REFERENCE FILES
+	//
+	// Create the info.referencePath
+	mxArray *mexPathInfo = mxCreateString(MPTK_Env_c::get_env()->get_config_path("reference"));
+
 	// ATOMS
 	//
-	// Create the pluginInfo.atoms structure
-	// pluginInfo.atoms(numAtomTypes).type
-	int numPluginAtomFieldNames  = 1;
-	const char *pluginAtomFieldNames[] = {"type"};
-	mxArray *mexPluginAtomInfo = mxCreateStructMatrix((mwSize)atomNameVector->size(),(mwSize)1,
-														numPluginAtomFieldNames,pluginAtomFieldNames);
+	// Create the info.atoms structure
+	// info.atoms(numAtomTypes).type
+	int numAtomFieldNames  = 1;
+	const char *atomFieldNames[] = {"type"};
+	mxArray *mexAtomInfo = mxCreateStructMatrix((mwSize)atomNameVector->size(),(mwSize)1,
+														numAtomFieldNames,atomFieldNames);
 	// Gets the information for all atoms
 	for (unsigned int i= 0; i < atomNameVector->size(); i++)
 	{
 		// Gets the name of the atom  
 		tmp = mxCreateString(atomNameVector->at(i).c_str());
-		mxSetField(mexPluginAtomInfo,(mwIndex)i,"type",tmp);
+		mxSetField(mexAtomInfo,(mwIndex)i,"type",tmp);
 	}
 
 	// WINDOWS
 	//
-	// Create the pluginInfo.windows structure
-	// pluginInfo.windows(numWindows).type
-	// pluginInfo.windows(numWindows).needsOption
+	// Create the info.windows structure
+	// info.windows(numWindows).type
+	// info.windows(numWindows).needsOption
 	int numWindowsFieldNames  = 2;
 	const char *windowsFieldNames[] = {"type","needsOption"};
 	mxArray *mexWindowsInfo = mxCreateStructMatrix((mwSize)windowNameVector->size(),(mwSize)1,
@@ -133,16 +137,17 @@ void mexFunction(int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[]) {
 		tmp = mxCreateDoubleScalar((double)(windowNeedsOptionVector->at(i)));
 		mxSetField(mexWindowsInfo,(mwIndex)i,"needsOption",tmp);
 	}
-
+		
+	
 	// BLOCKS
 	//
-	// Create the pluginInfo.blocks structure
-	// pluginInfo.blocks(numBlockTypes).type
-	// pluginInfo.blocks(numBlockTypes).parameters
-	int numPluginBlockFieldNames  = 2;
-	const char *pluginBlockFieldNames[] = {"type","parameters"};
-	mxArray *mexPluginBlockInfo = mxCreateStructMatrix((mwSize)blockNameVector->size(),(mwSize)1,
-														numPluginBlockFieldNames,pluginBlockFieldNames);
+	// Create the info.blocks structure
+	// info.blocks(numBlockTypes).type
+	// info.blocks(numBlockTypes).parameters
+	int numBlockFieldNames  = 2;
+	const char *blockFieldNames[] = {"type","parameters"};
+	mxArray *mexBlockInfo = mxCreateStructMatrix((mwSize)blockNameVector->size(),(mwSize)1,
+														numBlockFieldNames,blockFieldNames);
 
 	// Prepare for storing the block parameters information
 	int numBlockInfoFieldNames         = 4;
@@ -165,7 +170,7 @@ void mexFunction(int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[]) {
 	
 		// Gets the name of the block  
 		tmp = mxCreateString(blockNameVector->at(i).c_str());
-		mxSetField(mexPluginBlockInfo,(mwIndex)i,"type",tmp);
+		mxSetField(mexBlockInfo,(mwIndex)i,"type",tmp);
 		// Debug
 		//mexPrintf("%s\t",blockNameVector->at(i).c_str());
 		// Creates the struct array to store the parameters and their information
@@ -196,16 +201,17 @@ void mexFunction(int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[]) {
 		if (typeMap) delete(typeMap);
 		if (infoMap) delete(infoMap);	
 		// Store parameter information for the current block
-		mxSetField(mexPluginBlockInfo,(mwIndex)i,"parameters",mexParameters);	
+		mxSetField(mexBlockInfo,(mwIndex)i,"parameters",mexParameters);	
 	}
 
 	// Store information for blocks and atoms
-	mxSetField(mexPluginInfo,(mwIndex)0,"atoms",mexPluginAtomInfo);
-	mxSetField(mexPluginInfo,(mwIndex)0,"blocks",mexPluginBlockInfo);
-	mxSetField(mexPluginInfo,(mwIndex)0,"windows",mexWindowsInfo);
+	mxSetField(mexInfo,(mwIndex)0,"atoms",mexAtomInfo);
+	mxSetField(mexInfo,(mwIndex)0,"blocks",mexBlockInfo);
+	mxSetField(mexInfo,(mwIndex)0,"windows",mexWindowsInfo);
+	mxSetField(mexInfo,(mwIndex)0,"referencePath",mexPathInfo);
 
     // mexPrintf("Done\n");
     
-    plhs[0] = mexPluginInfo;
+    plhs[0] = mexInfo;
     
 }

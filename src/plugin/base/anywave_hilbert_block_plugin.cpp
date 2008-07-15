@@ -651,7 +651,7 @@ void MP_Anywave_Hilbert_Block_Plugin_c::get_parameters_info_map(map< string, str
 const char * func = "void MP_Anywave_Hilbert_Block_Plugin_c::get_parameters_info_map()";
 
 if ((*parameterMapInfo).empty()) {
-(*parameterMapInfo)["type"] = "the type of blocks";
+(*parameterMapInfo)["type"] = "A block corresponding to 'anywavehilbert' atoms which are specified by a unit norm waveform with zero mean selected in a wavetable, and a pair of amplitudes. The final waveform is a linear combination of the unit norm zero mean waveform and its discrete Hilbert transform.";
 (*parameterMapInfo)["tableFileName"] =  "Filename of a wavetable where the waveforms of the desired anywave atoms are stored.";
 (*parameterMapInfo)["windowShift"] = "The shift between atoms on adjacent time frames, in number of samples. It MUST be at least one.";
 (*parameterMapInfo)["blockOffset"] = "Offset between beginning of signal and beginning of first atom, in number of samples.";
@@ -668,7 +668,8 @@ const char * func = "void MP_Anywave_Hilbert_Block_Plugin_c::get_parameters_defa
 
 if ((*parameterMapDefault).empty()) {
 (*parameterMapDefault)["type"] = "anywavehilbert";
-(*parameterMapDefault)["tableFileName"] = "none";
+//(*parameterMapDefault)["tableFileName"] = "none";
+(*parameterMapDefault)["tableFileName"] = string(MPTK_Env_c::get_env()->get_config_path("defaultAnyWaveTable"));
 (*parameterMapDefault)["windowShift"] = "512";
 (*parameterMapDefault)["blockOffset"] = "0"; }
 
