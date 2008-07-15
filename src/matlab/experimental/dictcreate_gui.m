@@ -1,19 +1,21 @@
-function BuildDictionary(op)
+function dictcreate_gui(op)
 % 
 %  Build a dictionary for MPTK using graphical tools
-%  usage : dict = BuildDictionary();
+%  usage : dict = dictcreate_gui();
 %
 
 % Possible actions
-% Case 0 : initialize
-% Case 1 : display information on selected block and list of parameters
-% Case 2 : display help information on selected block parameter
-% Case 10: add a block to dictionary
-% Case 20: save dictionary to file
-% Case 30: clear dictionary
-% Case 40: close
+% Case 0  : initialize
+% Case 100: close
+% Case 90 : clear dictionary
+% Case 80 : save dictionary to file
+% Case 50 : add a block to dictionary
+% Case 10 : select a block type and update display
+% Case 20 : toggle the use of default parameters
+% Case 25 : choose a wavetable file name
+% Case 30 : display help information on selected block parameter
 
-persistent figDict dict spacing plugininfo blockinfo blockFramePos blockTitlePos ...
+persistent figDict dict spacing mptkinfo blockinfo blockFramePos blockTitlePos ...
     blockListPos blockInfoPos blockNameStr paramFillFramePos ...
     paramFillTitlePos paramFramePos paramTitlePos paramListPos  ...
     paramInfoPos buttonPos...
@@ -41,9 +43,9 @@ txtcolor = [1 1 1];
 
 
 switch(op)
-    case 0 %%%%%% Creation of the interface
-        %% Load the plugin information
-        plugininfo = plugininfo_exp;
+    case 0 %%%%%% CREATE INTERFACE
+        %% Load the mptk information
+        mptkinfo = mptk_getinfo_exp;
 
         %% Create the main figure
         figDict=figure( ...
@@ -77,7 +79,7 @@ switch(op)
             'ForegroundColor',txtcolor);
 
         % List to select blocks from
-        blockinfo = plugininfo.blocks;
+        blockinfo = mptkinfo.blocks;
         for i=1:length(blockinfo)
             blockNameStr{i} = blockinfo(i).type;
         end
@@ -90,7 +92,7 @@ switch(op)
             'Position',blockListPos, ...
             'String',blockNameStr, ...
             'Value',1,...
-            'Callback','BuildDictionary(1)');
+            'Callback','dictcreate_gui(10)'); % select the block
         
         % Block info panel
         blockInfoHeight = 0.1;
@@ -115,7 +117,8 @@ switch(op)
             'BackgroundColor',fgcolor,...
             'Position',btnPos, ...
             'String','Quit',...
-            'Callback','BuildDictionary(40)');
+            'Callback','dictcreate_gui(100)'); % quit
+
         % The CLEAR button
         btnPos = [blockFramePos(1)+0.2 blockFramePos(2)-0.1 blockFramePos(3)-0.02 0.03];
         H_SET(2) = uicontrol( ...
@@ -124,8 +127,9 @@ switch(op)
             'BackgroundColor',fgcolor,...
             'Position',btnPos, ...
             'String','Clear dictionary',...
-            'Callback','BuildDictionary(30)',...
-            'Visible','off');
+            'Visible','off',...
+            'Callback','dictcreate_gui(90)'); % clear
+
         % The SAVE button
          btnPos = [blockFramePos(1)+0.4 blockFramePos(2)-0.1 blockFramePos(3)-0.02 0.03];
          H_SET(3) = uicontrol( ...
@@ -134,8 +138,8 @@ switch(op)
              'BackgroundColor',fgcolor,...
              'Position',btnPos, ...
              'String','Save dictionary',...
-             'Callback','BuildDictionary(20)',...
-             'Visible','off');
+             'Visible','off',...
+             'Callback','dictcreate_gui(80)'); % save
          
          % The INFO panel
          panelPos = [blockFramePos(1)+0.6 blockFramePos(2)-0.1 0.3 0.03];
@@ -167,17 +171,14 @@ switch(op)
              'BackgroundColor',fgcolor, ...
              'ForegroundColor',txtcolor);
          
-         %H_PARAM.name = [];
-         %H_PARAM.value = [];
-         %H_PARAM.default = [];
          H_CHOICE(3) = uicontrol( ...
             'Style','checkbox', ...
             'Units','normalized', ...
             'BackgroundColor',fgcolor,...
             'Position',paramFillTitlePos, ...
             'String','Push to toggle all boxes',...
-            'Callback','BuildDictionary(15)',...
-            'Visible','off');
+            'Visible','off',...
+            'Callback','dictcreate_gui(20)'); % toggle all checkboxes
          
          %% RIGHT frame
          paramFramePos = blockFramePos + [0.77 0 0 0];
@@ -208,31 +209,80 @@ switch(op)
              'Position',paramListPos, ...
              'String','', ...
              'Value',1,...
-             'Callback','BuildDictionary(2)',...
-             'Visible','off');
+             'Visible','off',...
+             'Callback','dictcreate_gui(30)'); % display parameter help
 
          
-    case 40 %%%%% QUIT
+    case 100 %%%%% QUIT
         clear H_PANEL H_CHOICE H_SET H_PARAM
         close(figDict);
         return;
-    case 30 %%%%% Clear dictionary
+    case 90 %%%%% CLEAR DICTIONARY
         dict.block = {};
         set(H_PANEL(2),'Visible','off');
         set(H_PANEL(2),'String','Dictionary is empty');
         set(H_PANEL(2),'Visible','on');
         set(H_SET(2),'Visible','off');
         set(H_SET(3),'Visible','off');
-    case 20 %%%%% Save dictionary
+    case 80 %%%%% SAVE DICTIONARY
         [fname, pname, filterind] = uiputfile({'*.xml'},'Save the dictionary in XML format');
         if (~isempty(fname))
             [isvalid iswritten] = dictwrite(dict,fullfile(pname,fname));
         end
 
+    case 50 %%%%% ADD A BLOCK TO THE DICTIONARY
+
+        blockNum = get(H_CHOICE(1),'Value');
+        label = get(H_CHOICE(1),'String');
+        blockName = label{blockNum};
+  
+        numParams = length(blockinfo(blockNum).parameters);  
+        warningMsg = '';
+        % Find which parameters have been set
+        for i=1:numParams
+            name      = get(H_PARAM(i).name,'String');
+            value      = get(H_PARAM(i).value,'String');
+            usedefault = get(H_PARAM(i).default,'value');
+            if(usedefault && length(value)>0)
+                warningMsg = ['Please choose between using the default value and setting a specific value for parameter "' name '".'];
+                break;
+            elseif((~usedefault) && (length(value)==0))
+                continue;
+            else
+               if usedefault
+                  value = blockinfo(blockNum).parameters(i).default;
+               end
+                
+               newblock.(name) = value;
+            end
+        end
+        % If everything is OK, validate the block and add it if OK
+        if length(warningMsg)==0
+            if validateblock(newblock)
+                dict.block{end+1} = newblock;
+            else
+                warningMsg = [warningMsg 'The block seems ill formed.'];
+            end
+        end
+        
+        % Display the new warning msge ...
+        if length(warningMsg)>0
+             set(H_PANEL(2),'String',warningMsg);
+             set(H_PANEL(2),'Visible','on');
+        % or update the information on the dictionary
+        else
+            set(H_PANEL(2),'Visible','off');
+            set(H_PANEL(2),'String',['Dictionary has ' num2str(length(dict.block)) ' blocks']);
+            set(H_PANEL(2),'Visible','on');
+            set(H_SET(2),'Visible','on');
+            set(H_SET(3),'Visible','on');
+        end
 
 
-    case 1 % Display information on selected block in left frame (H_PANEL(1)
-           % and update middle frame (H_PARAM) and right frame (H_CHOIX(2))
+    case 10 %%%% SELECT BLOCK TYPE and ...
+	   %%%% -display block help in left frame (H_PANEL(1)
+	   %%%% -update parameter help list in right frame (H_CHOIX(2))
+	   %%%% -update parameter selection in middle frame (H_PARAM) 
         blockNum  = get(H_CHOICE(1),'Value');
         label     = get(H_CHOICE(1),'String');
         blockName = label{blockNum};
@@ -324,8 +374,8 @@ switch(op)
                      'String',paramDefaultStr{i},...
                      'Position',paramFillPos);
              elseif strcmp(paramNameStr{i},'windowtype')
-                 for i=1:length(plugininfo.windows)
-                     popupStr{i} = plugininfo.windows(i).type;
+                 for i=1:length(mptkinfo.windows)
+                     popupStr{i} = mptkinfo.windows(i).type;
                  end
                  H_PARAM(i).value = uicontrol( ...
                      'Style','popupmenu', ...
@@ -342,7 +392,7 @@ switch(op)
                      'String','Choose a file',...
                      'Value',1,...
                      'Position',paramFillPos,...
-                     'Callback','BuildDictionary(17)');
+                     'Callback','dictcreate_gui(25)'); % choose wavetable file name
              else
                  H_PARAM(i).value = uicontrol( ...
                      'Style','edit', ...
@@ -383,13 +433,9 @@ switch(op)
              end
         end
         paramFillPos = paramFillPos -[0 spacing 0 0];
-        H_CHOICE(3) = uicontrol( ...
-            'Style','checkbox', ...
-            'Units','normalized', ...
-            'BackgroundColor',fgcolor,...
-            'Position',paramFillPos, ...
-            'String','Push to toggle all boxes',...
-            'Callback','BuildDictionary(15)');
+	set(H_CHOICE(3),'Visible','off');
+	set(H_CHOICE(3),'Position',paramFillPos);
+	set(H_CHOICE(3),'Visible','on');
 
 
         % Button used to validate proposition
@@ -400,9 +446,10 @@ switch(op)
             'BackgroundColor',fgcolor,...
             'Position',buttonPos, ...
             'String','Validate block and add to dictionary',...
-            'Callback','BuildDictionary(10)');
+            'Callback','dictcreate_gui(50)'); % add block
 
-    case 15 % Toggle the default checkboxes
+
+    case 20 %%%% TOGGLE DEFAULT CHECKBOXES Toggle the default checkboxes
         blockNum = get(H_CHOICE(1),'Value');
         for i=1:length(blockinfo(blockNum).parameters)
             if ~strcmp(blockinfo(blockNum).parameters(i).name,'type')
@@ -410,7 +457,7 @@ switch(op)
             end
         end
         
-    case 17 % Choose a file
+    case 25 %%%% CHOOSE WAVETABLE FILE
         blockNum = get(H_CHOICE(1),'Value');
         [filename, pathname, filterind] = uiputfile({'*.bin'},'Choose the wavetable in binary format');
         if isequal(filename,0) || isequal(pathname,0)
@@ -424,7 +471,7 @@ switch(op)
             end
         end
 
-    case 2 % Display parameter information for a given block
+    case 30 %%% DISPLAY PARAMETER HELP ON RIGHT PANEL
         
         blockNum = get(H_CHOICE(1),'Value');
         label = get(H_CHOICE(1),'String');
@@ -456,53 +503,6 @@ switch(op)
             'Visible','on');
  
         
-    case 10 % Validate a block
-
-        blockNum = get(H_CHOICE(1),'Value');
-        label = get(H_CHOICE(1),'String');
-        blockName = label{blockNum};
-  
-        numParams = length(blockinfo(blockNum).parameters);  
-        warningMsg = '';
-        % Find which parameters have been set
-        for i=1:numParams
-            name      = get(H_PARAM(i).name,'String');
-            value      = get(H_PARAM(i).value,'String');
-            usedefault = get(H_PARAM(i).default,'value');
-            if(usedefault && length(value)>0)
-                warningMsg = ['Please choose between using the default value and setting a specific value for parameter "' name '".'];
-                break;
-            elseif((~usedefault) && (length(value)==0))
-                continue;
-            else
-               if usedefault
-                  value = blockinfo(blockNum).parameters(i).default;
-               end
-                
-               newblock.(name) = value;
-            end
-        end
-        % If everything is OK, validate the block and add it if OK
-        if length(warningMsg)==0
-            if validateblock(newblock)
-                dict.block{end+1} = newblock;
-            else
-                warningMsg = [warningMsg 'The block seems ill formed.'];
-            end
-        end
-        
-        % Display the new warning msge ...
-        if length(warningMsg)>0
-             set(H_PANEL(2),'String',warningMsg);
-             set(H_PANEL(2),'Visible','on');
-        % or update the information on the dictionary
-        else
-            set(H_PANEL(2),'Visible','off');
-            set(H_PANEL(2),'String',['Dictionary has ' num2str(length(dict.block)) ' blocks']);
-            set(H_PANEL(2),'Visible','on');
-            set(H_SET(2),'Visible','on');
-            set(H_SET(3),'Visible','on');
-        end
     otherwise error(['Unknown option: ' op]);
 end
 

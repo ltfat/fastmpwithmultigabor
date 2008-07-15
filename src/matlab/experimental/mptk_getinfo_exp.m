@@ -1,9 +1,9 @@
-% function info = plugininfo_exp()
+% function info = mptk_getinfo_exp()
 % 
 % MPTK - Matlab interface
 % Gets information on blocks, atoms and windows from MTPK plugins into Matlab
 %
-% Usage :  info = plugin_info() 
+% Usage :  info = mptk_getinfo() 
 % 
 % Output :
 % info : a structure with the information
