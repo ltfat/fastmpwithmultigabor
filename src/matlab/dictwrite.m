@@ -1,4 +1,4 @@
-% function [isvalid iswritten] = dictwrite(dict,filename)
+% function [isvalid iswritten] = dictwrite(dict[,filename])
 %
 % MPTK - Matlab interface
 % Export a dictionary description from Matlab to a file, using MPTK
@@ -13,6 +13,7 @@
 %  and block may have other field names
 %
 % filename : the filename where to write the dictionary description in XML
+%            if ommited, we just check if the syntax of dict is valid
 %
 % Outputs: 
 % isvalid   : indicates if the dictionary structure was correctly formed. 
