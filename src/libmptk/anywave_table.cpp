@@ -4,7 +4,7 @@
 /*                                                                            */
 /*                        Matching Pursuit Library                            */
 /*                                                                            */
-/* Rémi Gribonval                                                             */
+/* RÃˆmi Gribonval                                                             */
 /* Sacha Krstulovic                                                           */
 /* Sylvain Lesage                                             Tue Nov 03 2005 */
 /* -------------------------------------------------------------------------- */
@@ -76,18 +76,18 @@ MP_Anywave_Table_c::MP_Anywave_Table_c( void )
 /* fileName constructor */
 MP_Anywave_Table_c::MP_Anywave_Table_c( char* fileName )
 {
-
+	char * func = "MP_Anywave_Table_c::MP_Anywave_Table_c";
   set_null();
   if (set_table_file_name( fileName ) == NULL)
     {
-      mp_error_msg( "MP_Anywave_Table_c::MP_Anywave_Table_c", "Can't alloc tableFileName to the size of fileName : %s  - Default initialization by 'void constructor'.\n", fileName );
+      mp_error_msg( func, "Can't alloc tableFileName to the size of fileName : %s  - Default initialization by 'void constructor'.\n", fileName );
       reset();
     }
   else
     {
       if ( parse_xml_file( fileName ) == false  ) 
         {
-          mp_error_msg( "MP_Anywave_Table_c::MP_Anywave_Table_c", "Can't parse the file %s - Default initialization by 'void constructor'.\n", fileName );
+          mp_error_msg( func, "Can't parse the file %s - Default initialization by 'void constructor'.\n", fileName );
           reset();
         }
     }

@@ -4,7 +4,7 @@
 /*                                                                            */
 /*                        Matching Pursuit Library                            */
 /*                                                                            */
-/* Rémi Gribonval                                                             */
+/* RÃˆmi Gribonval                                                             */
 /* Sacha Krstulovic                                                           */
 /* Sylvain Lesage                                             Mon Feb 21 2005 */
 /* -------------------------------------------------------------------------- */
@@ -255,7 +255,7 @@ unsigned long int MP_Anywave_Server_c::add( MP_Anywave_Table_c* table ){
 
 /* Add waveform tables from file */
 unsigned long int MP_Anywave_Server_c::add( char* filename ){
-  
+  char * func =  "MP_Anywave_Server_c::add(char *)";
   /* Check if the table already exists in the tables array */
   unsigned long int n = 0;
   MP_Anywave_Table_c** ptrTable = NULL;
@@ -274,17 +274,17 @@ unsigned long int MP_Anywave_Server_c::add( char* filename ){
   /* Else, add the table */
   else if (n == numTables) {
 
-    /* test if the file exists */
+    /* test if the file exists either in the current directory or in the default table directory */
     pFile = fopen (filename,"rt");
-    if ( pFile == NULL) {
-      mp_error_msg( "MP_Anywave_Server_c::add", "Can't open the file %s - Returning index maxNumTables (= max + 1).\n", filename );
+    if (NULL == pFile) {
+      mp_error_msg(func , "Can't open the file %s - Returning index maxNumTables (= max + 1).\n", filename );
       return( maxNumTables );
     } else {
       
       /* create the table */
       table = new MP_Anywave_Table_c( filename );
-      if ( table == NULL ) {
-	mp_error_msg( "MP_Anywave_Server_c::add", "Can't create a anywave table from file %s - Returning index maxNumTables (= max + 1).\n", filename );
+      if (NULL == table ) {
+	mp_error_msg( func, "Can't create a anywave table from file %s - Returning index maxNumTables (= max + 1).\n", filename );
 	return( maxNumTables );
     fclose( pFile );
       } else {
@@ -292,7 +292,7 @@ unsigned long int MP_Anywave_Server_c::add( char* filename ){
 	/* close the file and set the property tableFileName of the table to filename */
 	fclose( pFile );
 	if (table->set_table_file_name(filename) == NULL) {
-	  mp_error_msg( "MP_Anywave_Server_c::add", "Can't create modify the tableFileName property of the table to %s - Returning index maxNumTables (= max + 1).\n", filename );
+	  mp_error_msg( func, "Can't modify the tableFileName property of the table to %s - Returning index maxNumTables (= max + 1).\n", filename );
 	  return( maxNumTables );
 	} else {
 
@@ -300,16 +300,16 @@ unsigned long int MP_Anywave_Server_c::add( char* filename ){
 	  if (numTables == maxNumTables) { 
 	    /* check that the number of tables is not greater than the max of an unsigned long int */
 	    if ( MP_MAX_UNSIGNED_LONG_INT - MP_ANYWAVE_BLOCK_SIZE <= numTables) {
-	      mp_error_msg( "MP_Anywave_Server_c::add", "numTables [%lu] + MP_ANYWAVE_BLOCK_SIZE [%lu] is greater than the max for an unsigned long int [%lu]. Cannot add new tables. Exiting from add().\n", numTables, MP_ANYWAVE_BLOCK_SIZE, MP_MAX_UNSIGNED_LONG_INT);
+	      mp_error_msg(func, "numTables [%lu] + MP_ANYWAVE_BLOCK_SIZE [%lu] is greater than the max for an unsigned long int [%lu]. Cannot add new tables. Exiting from add().\n", numTables, MP_ANYWAVE_BLOCK_SIZE, MP_MAX_UNSIGNED_LONG_INT);
 	      return( maxNumTables );
 	    }
 	    if ( (double)MP_MAX_SIZE_T / (double)(numTables + MP_ANYWAVE_BLOCK_SIZE) / (double)sizeof(MP_Anywave_Table_c*) <= 1.0) {
-	      mp_error_msg( "MP_Anywave_Server_c::add", "(numTables + MP_ANYWAVE_BLOCK_SIZE) [%lu] . sizeof(MP_Anywave_Table_c*) [%lu] is greater than the max for a size_t [%lu]. Cannot reallocate the array of tables. Exiting from add().\n", numTables + MP_ANYWAVE_BLOCK_SIZE, sizeof(MP_Anywave_Table_c*), MP_MAX_SIZE_T);
+	      mp_error_msg( func, "(numTables + MP_ANYWAVE_BLOCK_SIZE) [%lu] . sizeof(MP_Anywave_Table_c*) [%lu] is greater than the max for a size_t [%lu]. Cannot reallocate the array of tables. Exiting from add().\n", numTables + MP_ANYWAVE_BLOCK_SIZE, sizeof(MP_Anywave_Table_c*), MP_MAX_SIZE_T);
 	      return( maxNumTables );
 	    }
     
 	    if ( (ptrTable = (MP_Anywave_Table_c**)realloc( tables, (numTables+MP_ANYWAVE_BLOCK_SIZE)*sizeof(MP_Anywave_Table_c*) )) == NULL ) {
-	      mp_error_msg( "MP_Anywave_Server_c::add", "Can't realloc to add a new table."
+	      mp_error_msg( func, "Can't realloc to add a new table."
 		       " Returning index maxNumTables (= max + 1).\n" );
 	      return( maxNumTables );
 	    } else {
@@ -326,7 +326,7 @@ unsigned long int MP_Anywave_Server_c::add( char* filename ){
     
 	  /* Verify that normalization performed well */
 	  if (table->normalized == 2) {
-	    mp_error_msg( "MP_Anywave_Server_c::add", "Can't normalize the waveforms. Returning index maxNumTables (= max + 1).\n");
+	    mp_error_msg( func, "Can't normalize the waveforms. Returning index maxNumTables (= max + 1).\n");
 	    return( maxNumTables );
 	  } else {
 	    
@@ -343,7 +343,7 @@ unsigned long int MP_Anywave_Server_c::add( char* filename ){
       }
     }
   } else {
-    mp_error_msg( "MP_Anywave_Server_c::add", "Oooops, this code is theoretically"
+    mp_error_msg( func, "Oooops, this code is theoretically"
 	     " unreachable. Returning index maxNumTables (= max + 1).\n" );
     return( maxNumTables );
   }

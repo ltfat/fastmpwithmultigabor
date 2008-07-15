@@ -1,14 +1,14 @@
-function savetable( dictionary, tableFileName, dataFileName )
+function savetable( table, tableFileName, dataFileName )
 
-% SAVETABLE Save a wavetable file from a dictionary in Matlab
+% SAVETABLE Save a wavetable file from a table in Matlab
 %
-%    savetable( dictionary, 'tableFileName', 'dataFileName',
+%    savetable( table, 'tableFileName', 'dataFileName',
 %                    endianType ) 
-%    saves the waveforms from the struct dictionary to the
+%    saves the waveforms from the struct table to the
 %    wavetable file 'tableFileName', while the binary data file is
 %    'dataFileName', in LITTLE ENDIAN
 %
-%    dictionary struct has fields :
+%    table struct has fields :
 %     - numFilters
 %     - numChans
 %     - filterLen
@@ -42,9 +42,9 @@ fprintf(fid, '<?xml version="1.0" encoding="ISO-8859-1"?>\n');
 fprintf(fid, '<table>\n');
 fprintf(fid, '<libVersion>0.4beta</libVersion>\n');
 
-fprintf(fid, '\t<param name="numChans" value="%i"/>\n', dictionary.numChans);
-fprintf(fid, '\t<param name="filterLen" value="%i"/>\n', dictionary.filterLen);
-fprintf(fid, '\t<param name="numFilters" value="%i"/>\n', dictionary.numFilters);
+fprintf(fid, '\t<param name="numChans" value="%i"/>\n', table.numChans);
+fprintf(fid, '\t<param name="filterLen" value="%i"/>\n', table.filterLen);
+fprintf(fid, '\t<param name="numFilters" value="%i"/>\n', table.numFilters);
 fprintf(fid, '\t<param name="data" value="%s"/>\n', dataFileName);
 fprintf(fid, '</table>');
 
@@ -57,9 +57,9 @@ if (fid == -1),
    error( [ 'Can''t open file [' dataFileName ']' ] );
 end;
 
-for filterIdx = 1:dictionary.numFilters,
-  for chanIdx = 1:dictionary.numChans,
-    fwrite(fid ,dictionary.filters(filterIdx).chans(chanIdx).wave, 'double');
+for filterIdx = 1:table.numFilters,
+  for chanIdx = 1:table.numChans,
+    fwrite(fid ,table.filters(filterIdx).chans(chanIdx).wave, 'double');
   end;
 end;
 
