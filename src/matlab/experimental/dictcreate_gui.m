@@ -475,7 +475,7 @@ switch(op)
         blockNum = get(H_CHOICE(1),'Value');
         % Go to last path for wavetable
         cd(waveTablePathName);
-        [filename, pathname, filterind] = uiputfile({'*.bin'},'Choose the wavetable in binary format');
+        [filename, pathname, filterind] = uiputfile({'*.xml'},'Choose the wavetable in XML format');
         % Back to pwd
         cd(currentPath);
         % memorize path
