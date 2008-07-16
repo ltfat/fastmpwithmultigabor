@@ -252,5 +252,5 @@ end
 varargout{1} = [MPTKPath,'@MP_EXECUTABLE@ ',in1,' ',in2, ' ',StrDict,StrNit,StrSNR,StrDecay,StrRepHit,...
 StrSavHit,StrSnrHit,Strq,Strv,StrV,Strh,Strp,StrRes];
 
-system(['setenv LD_LIBRARY_PATH @MPTK_PLUGIN_DIR@; ', varargout{1} ,' -C @MPTK_BINARY_DIR@/bin/path.xml']);
+system(['setenv LD_LIBRARY_PATH @MPTK_LIB_DIR@; ', varargout{1} ,' -C @MPTK_BINARY_DIR@/bin/path.xml']);
 

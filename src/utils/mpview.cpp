@@ -4,7 +4,7 @@
 /*                                                                            */
 /*                        Matching Pursuit Utilities                          */
 /*                                                                            */
-/* Rémi Gribonval                                                             */
+/* RÃˆmi Gribonval                                                             */
 /* Sacha Krstulovic                                           Mon Feb 21 2005 */
 /* -------------------------------------------------------------------------- */
 /*                                                                            */
@@ -69,6 +69,7 @@ char* func = "mpview";
 /********************/
 int MPVIEW_QUIET      = MPVIEW_FALSE;
 int MPVIEW_VERBOSE    = MPVIEW_FALSE;
+int MPVIEW_WVMODE     = MPVIEW_FALSE;
 
 /* Input/output file names: */
 char *bookFileName    = NULL;
@@ -90,9 +91,10 @@ void usage( void ) {
   fprintf( stdout, " Synopsis:\n" );
   fprintf( stdout, "     Makes a time-frequency pixmap fill it with the time-frequency representation\n");
   fprintf( stdout, "     of the atoms contained in the book file bookFile.bin and write it to the file\n");
-  fprintf( stdout, "     tfmapFILE.flt as a raw sequence of floats. The pixmap size is %dx%d pixels\n",
-	   numCols, numRows );
-  fprintf( stdout, "     unless option --size is used.\n" );
+  fprintf( stdout, "     tfmapFILE.flt as a raw sequence of floats.\n");
+  fprintf( stdout, "     The pixmap size is %dx%d pixels unless option --size is used.\n", numCols, numRows );
+  fprintf( stdout, "     Each time-frequency atom is displayed with a rectangle unless\n");
+  fprintf( stdout, "     unless option --wigner is used to display its pseudo Wigner-Ville distribution\n" );
   fprintf( stdout, " \n" );
   fprintf( stdout, " Mandatory arguments:\n" );
   fprintf( stdout, "     (bookFILE.bin|-)     A book of atoms, or stdin.\n" );
@@ -103,6 +105,7 @@ void usage( void ) {
   fprintf( stdout, "                                     otherwise the MPTK_CONFIG_FILENAME environment variable will be\n" );
   fprintf( stdout, "                                     used to find the configuration file and set up the MPTK environment.\n" );
   fprintf( stdout, "     -s, --size=<numCols>x<numRows> : change the size of the pixmap.\n" );
+  fprintf( stdout, "     -w, --wigner : change the display mode.\n" );
   fprintf( stdout, "     -q, --quiet          No text output.\n" );
   fprintf( stdout, "     -v, --verbose        Verbose.\n" );
   fprintf( stdout, "     -V, --version        Output the version and exit.\n" );
@@ -127,6 +130,7 @@ int parse_args(int argc, char **argv) {
     {"size",   required_argument, NULL, 's'},
 
     {"quiet",   no_argument, NULL, 'q'},
+    {"wigner",   no_argument, NULL, 'w'},
     {"verbose", no_argument, NULL, 'v'},
     {"version", no_argument, NULL, 'V'},
     {"help",    no_argument, NULL, 'h'},
@@ -136,7 +140,7 @@ int parse_args(int argc, char **argv) {
   opterr = 0;
   optopt = '!';
 
-  while ((c = getopt_long(argc, argv, "C:s:qvVh", longopts, &i)) != -1 ) {
+  while ((c = getopt_long(argc, argv, "C:s:qwvVh", longopts, &i)) != -1 ) {
 
     switch (c) {
     	
@@ -160,6 +164,13 @@ int parse_args(int argc, char **argv) {
       MPVIEW_QUIET = MPVIEW_TRUE;
 #ifndef NDEBUG
       fprintf( stderr, "mpview DEBUG -- MPVIEW_QUIET is TRUE.\n" );
+#endif
+      break;
+
+    case 'w':
+      MPVIEW_WVMODE = MPVIEW_TRUE;
+#ifndef NDEBUG
+      fprintf( stderr, "mpview DEBUG -- MPVIEW_WVMODE is TRUE.\n" );
 #endif
       break;
 
@@ -264,6 +275,7 @@ int parse_args(int argc, char **argv) {
 int main( int argc, char **argv ) {
   MP_Book_c *book;
   int i;
+   
   /* Parse the command line */
   if ( argc == 1 ) usage();
 
@@ -323,8 +335,10 @@ int main( int argc, char **argv ) {
 					0.0, 0.5 );
   if ( MPVIEW_VERBOSE ) fprintf( stderr, "Done.\n" );
   if ( MPVIEW_VERBOSE ) fprintf( stderr, "mpview msg -- Filling the pixmap..." );
-  //    if ( book->add_to_tfmap( tfmap, MP_TFMAP_PSEUDO_WIGNER, NULL ) == 0 ) {
-  if ( book->add_to_tfmap( tfmap, MP_TFMAP_SUPPORTS, NULL ) == 0 ) {
+
+  char tfMapType = MP_TFMAP_SUPPORTS;
+  if (MPVIEW_TRUE==MPVIEW_WVMODE) tfMapType = MP_TFMAP_PSEUDO_WIGNER;
+  if ( book->add_to_tfmap( tfmap, tfMapType, NULL ) == 0 ) {
     fprintf( stderr, "mpview error -- No atoms were found in the book to fill the pixmap.\n" );
     fflush( stderr );
     return( ERR_BUILD );

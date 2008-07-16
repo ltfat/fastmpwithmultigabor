@@ -8,6 +8,7 @@ function dictcreate_gui(op)
 % Case 0  : initialize
 % Case 100: close
 % Case 90 : clear dictionary
+% TODO Case 85 : save dictionary to workspace
 % Case 80 : save dictionary to file
 % Case 50 : add a block to dictionary
 % Case 10 : select a block type and update display
@@ -117,7 +118,7 @@ switch(op)
 
         %% BOTTOM part : control buttons
         % The QUIT button, always visible
-        btnPos = [blockFramePos(1)+0.01 blockFramePos(2)-0.1 blockFramePos(3)-0.02 0.03];
+        btnPos = [blockFramePos(1)+0.01 blockFramePos(2)-0.1 blockFramePos(3)-0.1 0.03];
         H_SET(1) = uicontrol( ...
             'Style','pushbutton', ...
             'Units','normalized', ...
@@ -127,7 +128,7 @@ switch(op)
             'Callback','dictcreate_gui(100)'); % quit
 
         % The CLEAR button
-        btnPos = [blockFramePos(1)+0.2 blockFramePos(2)-0.1 blockFramePos(3)-0.02 0.03];
+        btnPos = [blockFramePos(1)+0.1 blockFramePos(2)-0.1 blockFramePos(3)-0.1 0.03];
         H_SET(2) = uicontrol( ...
             'Style','pushbutton', ...
             'Units','normalized', ...
@@ -138,7 +139,7 @@ switch(op)
             'Callback','dictcreate_gui(90)'); % clear
 
         % The SAVE button
-         btnPos = [blockFramePos(1)+0.4 blockFramePos(2)-0.1 blockFramePos(3)-0.02 0.03];
+         btnPos = [blockFramePos(1)+0.2 blockFramePos(2)-0.1 blockFramePos(3)-0.1 0.03];
          H_SET(3) = uicontrol( ...
              'Style','pushbutton', ...
              'Units','normalized', ...
@@ -148,8 +149,19 @@ switch(op)
              'Visible','off',...
              'Callback','dictcreate_gui(80)'); % save
          
+        % The SAVE TO WORKSPACE button
+%         btnPos = [blockFramePos(1)+0.3 blockFramePos(2)-0.1 blockFramePos(3) 0.03];
+%         H_SET(4) = uicontrol( ...
+%             'Style','pushbutton', ...
+%             'Units','normalized', ...
+%             'BackgroundColor',fgcolor,...
+%             'Position',btnPos, ...
+%             'String','Save dictionary to variable dictcreateresult',...
+%             'Visible','off',...
+%             'Callback','dictcreate_gui(85)'); % save to workspace
+         
          % The INFO panel
-         panelPos = [blockFramePos(1)+0.6 blockFramePos(2)-0.1 0.3 0.03];
+         panelPos = [blockFramePos(1)+0.6 blockFramePos(2)-0.1 0.3 0.05];
          H_PANEL(2) = uicontrol( ...
              'Style','text', ...
              'Units','normalized', ...
@@ -231,14 +243,20 @@ switch(op)
         set(H_PANEL(2),'Visible','on');
         set(H_SET(2),'Visible','off');
         set(H_SET(3),'Visible','off');
-    case 80 %%%%% SAVE DICTIONARY
+%        set(H_SET(4),'Visible','off');
+
+%    case 85 %%%%% SAVE DICTIONARY TO WORKSPACE
+%        global dictcreateresult;
+%	dictcreateresult = dict;
+%	disp('totototot');
+    case 80 %%%%% SAVE DICTIONARY TO FILE
         % go to last dictionary path
         cd(dictPathName);
         % choose a file
         [fname, pname, filterind] = uiputfile({'*.xml'},'Save the dictionary in XML format');
         % go back to original path
         cd(currentPath);
-        if (~isempty(fname))
+        if (~isempty(fname) && length(fname)>0)
             [isvalid iswritten] = dictwrite(dict,fullfile(pname,fname));
         end
         % memorize path
@@ -290,6 +308,7 @@ switch(op)
             set(H_PANEL(2),'Visible','on');
             set(H_SET(2),'Visible','on');
             set(H_SET(3),'Visible','on');
+%            set(H_SET(4),'Visible','on');
         end
 
 
@@ -454,7 +473,7 @@ switch(op)
 
         % Button used to validate proposition
         buttonPos = [paramFillFramePos(1)+0.1*paramFillFramePos(3) paramFillFramePos(2)+0.05 paramFillFramePos(3)-0.2 0.05];
-        H_SET(4) = uicontrol( ...
+        H_SET(5) = uicontrol( ...
             'Style','pushbutton', ...
             'Units','normalized', ...
             'BackgroundColor',fgcolor,...

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <configpath>
-	<path name="dll_directory" path="@LIB_HOME_INSTALL@" />
+	<path name="dll_directory" path="@MPTK_LIB_DIR_INSTALL@" />
 	<path name="fftw_wisdomfile" path="@MPTK_FTTW_WISDOM_FILE_INSTALL@"/>
 	<path name="reference" path="@MPTK_REFERENCE_PATH_INSTALL@"/>
 	<path name="defaultAnyWaveTable" path="@MPTK_DEFAULT_ANYWAVETABLE_FILE_INSTALL@"/>

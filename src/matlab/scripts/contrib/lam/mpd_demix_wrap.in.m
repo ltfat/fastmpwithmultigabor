@@ -260,6 +260,6 @@ end
 varargout{1} = [MPTKPath,'@MPDEMIX_EXECUTABLE@ ',StrDict,StrMixMatrix,StrNit,StrSNR,StrDecay,StrRepHit,...
 StrSavHit,StrSnrHit,StrQ, Strq,Strv,StrV,Strh,in1,' ',in2,' ',StrRes];
 
-system(['setenv LD_LIBRARY_PATH @MPTK_PLUGIN_DIR@; ', varargout{1} ,' -C @MPTK_BINARY_DIR@/bin/path.xml']);
+system(['setenv LD_LIBRARY_PATH @MPTK_LIB_DIR@; ', varargout{1} ,' -C @MPTK_BINARY_DIR@/bin/path.xml']);
 
 
