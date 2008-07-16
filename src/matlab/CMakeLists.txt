@@ -200,12 +200,17 @@ FOREACH(target mptk_getinfo_exp bookread_exp bookwrite_exp bookmpr_exp)
 ENDFOREACH(target)
 
 # The list of scripts and data files which rely on the MEX_files
-FOREACH(file dictcreate_gui.m  bookedit_exp.m  MPtoolbaricons.mat README)  
+FOREACH(file dictcreate_gui.m  bookedit_exp.m  MPtoolbaricons.mat)  
   CONFIGURE_FILE(${MPTK_MATLAB_SRC_DIR}/experimental/${file} ${MPTK_MATLAB_OUTPUT_DIR}/${file}
                  COPYONLY) 
   INSTALL(FILES ${MPTK_MATLAB_OUTPUT_DIR}/${file}
           DESTINATION ${MPTK_MATLAB_INSTALL_DIR})
 ENDFOREACH(file)
+# The README, renames to avoid erasing other README from Mat2MPTK or standard scripts
+CONFIGURE_FILE(${MPTK_MATLAB_SRC_DIR}/experimental/README ${MPTK_MATLAB_OUTPUT_DIR}/README_EXP
+                 COPYONLY) 
+  INSTALL(FILES ${MPTK_MATLAB_OUTPUT_DIR}/README_EXP
+          DESTINATION ${MPTK_MATLAB_INSTALL_DIR})
 ELSE(MEX_COMPILER) 
     MESSAGE("MEX compiler not found, please set the path to Mex compiler or Matlab Mex experimental files will not be compiled" )
 ENDIF(MEX_COMPILER)
@@ -237,8 +242,14 @@ FOREACH(file GenerDict.m Mat2MPTKLoadSettings.m Mat2MPTKUpdateOptions.m Mat2MPTK
      CONFIGURE_FILE(${MAT2MPTK_SRCPATH}/${file} ${MPTK_MATLAB_OUTPUT_DIR}/${file} 
                     COPYONLY)   
      INSTALL(FILES ${MPTK_MATLAB_OUTPUT_DIR}/${file}   
-             DESTINATION ${MPTK_MATLAB_INSTALL_DIR}/mat2mptk)
+             DESTINATION ${MPTK_MATLAB_INSTALL_DIR})
 ENDFOREACH(file)
+
+# README
+CONFIGURE_FILE(${MAT2MPTK_SRCPATH}/README ${MPTK_MATLAB_OUTPUT_DIR}/REAME_MAT2MPTK
+               COPYONLY)   
+INSTALL(FILES ${MPTK_MATLAB_OUTPUT_DIR}/REAME_MAT2MPTK
+        DESTINATION ${MPTK_MATLAB_INSTALL_DIR})
 
 ENDIF(INSTALL_MAT2MPTK)  
 

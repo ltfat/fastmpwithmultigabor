@@ -255,8 +255,8 @@ mxBook::mxBook(const mxArray * mxbook) {
 mxBook::mxBook(MP_Book_c *mpbook) {
   /* Declarations */
   int tmpcharlen,m;
-  
-  const char *bookFieldNames[] = {"numAtoms","numChans","numSamples","sampleRate","index","atom"};
+  int numFields = 7;
+  const char *bookFieldNames[] = {"format","numAtoms","numChans","numSamples","sampleRate","index","atom"};
   mwSize bookDims[2] = {1, 1};
   mwSize atomDims[2] = {1, 1};
   
@@ -273,6 +273,8 @@ mxBook::mxBook(MP_Book_c *mpbook) {
   mexbook = mxCreateStructArray(2,bookDims,6,bookFieldNames); //! Output book structure
   
   /** Fill header info */
+  tmp = mxCreateString("0.2 (gonon)");
+  mxSetField(mexbook,0, "format", tmp);
   tmp = mxCreateDoubleMatrix(1, 1, mxREAL); *mxGetPr( tmp ) = (double) numAtoms; //! numAtoms
   mxSetField(mexbook, 0, "numAtoms", tmp);
   tmp = mxCreateDoubleMatrix(1, 1, mxREAL); *mxGetPr( tmp ) = (double) numChans; //! numChans

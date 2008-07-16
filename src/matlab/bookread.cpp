@@ -37,7 +37,9 @@ int nrhs, const mxArray *prhs[]) {
 	int tmpcharlen,n,m;
 	char filename[1000];
 	unsigned long int nAtomUser;
-	const char *field_names[] = {"numAtoms","numChans","numSamples","sampleRate","atom"};
+	int numFields = 6;
+	const char *field_names[] = {"format", "numAtoms","numChans","numSamples","sampleRate","atom"};
+	int numFields2 = 7;
 	const char *field_names2[] = {"type","pos","len","amp","freq","phase","chirp"};
 	mwSize dims[2] = {1, 1};
 	mwSize dims2[2];
@@ -57,7 +59,7 @@ int nrhs, const mxArray *prhs[]) {
     if (!MPTK_Env_c::get_env()->get_environment_loaded())MPTK_Env_c::get_env()->load_environment("");
    
 	/* Output */
-	plhs[0] = mxCreateStructArray(2 , dims, 5,  field_names);
+	plhs[0] = mxCreateStructArray(2 , dims, numFields,  field_names);
     /* Create new book */
 
 	/* Create new book */
@@ -67,6 +69,8 @@ int nrhs, const mxArray *prhs[]) {
 	book->load(filename);
 	
 	/* Header */
+	tmp = mxCreateString("0.1 (ravelli)");
+	mxSetField(plhs[0], 0, "format", tmp);
 	tmp = mxCreateDoubleMatrix(1, 1, mxREAL); *mxGetPr( tmp ) = (double) book->numAtoms;
 	mxSetField(plhs[0], 0, "numAtoms", tmp); 
 	tmp = mxCreateDoubleMatrix(1, 1, mxREAL); *mxGetPr( tmp ) = (double) book->numChans;
