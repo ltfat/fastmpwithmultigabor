@@ -136,8 +136,6 @@ ENDIF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
 TARGET_LINK_LIBRARIES(test_behaviour_in_noise mptk dsp_windows ${PTHREAD_LIBRARY_FILE} ${SNDFILE_LIBRARY_FILE} ${FFTW3_LIBRARY_FILE})
 ADD_DEPENDENCIES(test_behaviour_in_noise mptk)
 
-
-CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/dictionary/dict-list.in.txt ${MPTK_BINARY_DIR}/bin/reference/dictionary/dict-list.txt @ONLY)
 CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/dictionary/dic_gabor_two_scales.xml ${MPTK_BINARY_DIR}/bin/reference/dictionary/dic_gabor_two_scales.xml
                  COPYONLY)
 CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/tests/signals/dico_test.xml ${MPTK_BINARY_DIR}/bin/reference/dictionary/dico_test.xml
@@ -147,8 +145,7 @@ CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/signal/glockenspiel.wav ${MPTK_BINAR
 CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/tests/signals/2_cosines.flt ${MPTK_BINARY_DIR}/bin/reference/signal/2_cosines.flt
                  COPYONLY)     
 CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/tests/signals/anywave_signal.wav ${MPTK_BINARY_DIR}/bin/reference/signal/anywave_signal.wav
-                 COPYONLY)      
-CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/tests/signals/dico_test_anywave.in.xml ${MPTK_BINARY_DIR}/bin/reference/dictionary/dico_test_anywave.xml @ONLY)          
+                 COPYONLY)               
 CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/tests/signals/anywave_table.bin ${MPTK_BINARY_DIR}/bin/reference/dictionary/anywave_table.xml @ONLY)                 
 CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/tests/signals/anywave_table_data.bin ${MPTK_BINARY_DIR}/bin/reference/signal/anywave_table_data.bin
                  COPYONLY)    
