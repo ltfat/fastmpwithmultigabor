@@ -35,6 +35,19 @@
  *
  */
 
+#ifdef _WIN32
+#if defined(_MSC_VER)
+#define MPTK_LIB_EXPORT __declspec(dllexport)  /* export function out of the lib */
+#define MPTK_LIB_IMPORT __declspec(dllimport)  /* import function in the lib */
+#else
+#define MPTK_LIB_EXPORT
+#define MPTK_LIB_IMPORT
+#endif
+#else
+#define MPTK_LIB_EXPORT
+#define MPTK_LIB_IMPORT
+#endif
+
 #ifndef __dsp_windows_h_
 #define __dsp_windows_h_
 
@@ -210,7 +223,7 @@ extern "C" {
    * \remark  When the window type is not a known one, an error message is printed to stderr and out is not filled.
    * \sa window_type_is_ok() can be used before calling make_window() to check if the window type is known
    */
-  unsigned long int make_window( Dsp_Win_t *out,
+  MPTK_LIB_EXPORT unsigned long int make_window( Dsp_Win_t *out,
 				 const unsigned long int length,
 				 const unsigned char type,
 				 double optional );
@@ -220,7 +233,7 @@ extern "C" {
    * \param type The type to be checked
    * \return DSP_UNKNOWN_WIN if the type is unknown, type otherwise
    **/
-  unsigned char     window_type_is_ok(const unsigned char type);
+   MPTK_LIB_EXPORT unsigned char     window_type_is_ok(const unsigned char type);
 
   /** \brief Check if a window needs the optional parameter
    *
@@ -228,25 +241,25 @@ extern "C" {
    * \return true if the type requires the optional argument,
    * false otherwise (including when the window type is unknown).
    **/
-  unsigned char     window_needs_option(const unsigned char type);
+   MPTK_LIB_EXPORT unsigned char     window_needs_option(const unsigned char type);
 
   /** \brief Convert a window name into a window type
    *
    * \param name The name to be converted
    * \return DSP_UNKNOWN_WIN if the type is unknown, the desired type otherwise
    **/
-  unsigned char     window_type(const char * name);
+  MPTK_LIB_EXPORT unsigned char     window_type(const char * name);
 
   /** \brief Convert a window type into a window name
    *
    * \param type The type to be converted
    * \return The string "unknown" if the type is unknown, the desired name otherwise
    **/
-  char*             window_name(const unsigned char type);
+   MPTK_LIB_EXPORT  char*             window_name(const unsigned char type);
 
   /** \brief Compute the zeroth order modified Bessel function of the first kind
   */
-  double BesselI0(double x);
+  MPTK_LIB_EXPORT double BesselI0(double x);
 
 #ifdef __cplusplus
 }
