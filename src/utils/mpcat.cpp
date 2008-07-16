@@ -243,18 +243,18 @@ int main( int argc, char **argv ) {
 
   int numBooks = 0;
   unsigned long int n; /* number of read atoms */
-  /* Load Mptk environnement */
-  MPTK_Env_c::get_env()->load_environment(configFileName);
+ 
   
   /* Parse the command line */
   if ( argc == 1 ) usage();
   if ( parse_args( argc, argv ) ) {
-    fprintf (stderr, "mpcat error -- Please check the syntax of your command line. (Use --help to get some help.)\n" );
-    fflush( stderr );
-    exit( ERR_ARG );
+      mp_error_msg( func, "Please check the syntax of your command line."
+                    " (Use --help to get some help.)\n" );
+      exit( ERR_ARG );
   }
   
-  
+  /* Load Mptk environnement */
+  MPTK_Env_c::get_env()->load_environment(configFileName);
 
   /* Make the book */
   book = MP_Book_c::create();

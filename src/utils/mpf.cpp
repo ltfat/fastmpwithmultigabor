@@ -623,17 +623,16 @@ int main( int argc, char **argv ) {
   int k;
   MP_Mask_c* mask = NULL;
   
-  /* Load Mptk environnement */
-  MPTK_Env_c::get_env()->load_environment(configFileName);
-
   /* Parse the command line */
   if ( argc == 1 ) usage();
   if ( parse_args( argc, argv ) ) {
-    fprintf (stderr, "mpf error -- Please check the syntax of your command line. (Use --help to get some help.)\n" );
-    fflush( stderr );
-    exit( ERR_ARG );
+      mp_error_msg( func, "Please check the syntax of your command line."
+                    " (Use --help to get some help.)\n" );
+      exit( ERR_ARG );
   }
   
+  /* Load Mptk environnement */
+  MPTK_Env_c::get_env()->load_environment(configFileName);
   
   /* Load the book */
   if ( !strcmp( bookInName, "-" ) ) book = MP_Book_c::create( stdin );

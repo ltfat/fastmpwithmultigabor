@@ -584,10 +584,6 @@ int main( int argc, char **argv )
   char line[1024]; 
   char ** dictFileNameList = NULL; 
   
-  /* Load Mptk environnement */
-  MPTK_Env_c::get_env()->load_environment(configFileName);
-
-  
   /* Parse the command line */
   if ( argc == 1 ) usage();
   if ( parse_args( argc, argv ) )
@@ -595,6 +591,9 @@ int main( int argc, char **argv )
       mp_error_msg( func, "mpd_demix error -- Please check the syntax of your command line. (Use --help to get some help.)\n" );
       exit( ERR_ARG );
     }
+    
+  /* Load Mptk environnement */
+  MPTK_Env_c::get_env()->load_environment(configFileName);
 
   /* Re-print the command line */
   if ( !MPD_QUIET )
