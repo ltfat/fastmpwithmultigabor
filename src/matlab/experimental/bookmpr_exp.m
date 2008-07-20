@@ -1,16 +1,12 @@
-% BOOKREAD_EXP Imports a binary Matching Pursuit book in Matlab
+% BOOKMPR_EXP Reconstructs a book in Matlab
 %
-%    book = BOOKREAD_EXP( 'fileName' ) reads the binary format book
-%    file 'fileName' and returns it as a structure.
-%
-%    The following blocks are supported: 
-%    gabor, harmonic, mdct, mdst, mclt, dirac, constant, nyquist
+%    signal = BOOKMPR_EXP( book ) reconstructs and returns a signal
 %
 %    See also BOOKWRITE_EXP, BOOKEDIT_EXP.
 
 %
 % Author:
-% Gilles Gonon
+% Gilles Gonon, Remi Gribonval
 % 
 % Distributed under the General Public License.
 %                                       

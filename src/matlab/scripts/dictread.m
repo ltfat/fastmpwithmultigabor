@@ -19,9 +19,13 @@ function [dict] = dictread( fileName )
 %%   $Date: 2005-07-25 14:54:55 +0200 (Mon, 25 Jul 2005) $
 %%   $Revision: 20 $
 %%
-%% Warm user that this file is no longer maintained by the team.
-%% Use Mex-Files instead!
-warning( 'This file is no longer maintained' );
+% Nota bene:
+% Will be deprecated as soon as MEX implementation is stable
+%
+
+% Warn user that this file is no longer maintained by the team.
+% Use Mex-Files instead!
+warning( 'This file is no longer maintained and will soon be deprecated: MEX-files implementations are under development and the preferred way to read/write books' );
 
 fid = fopen( fileName );
 if (fid == -1),

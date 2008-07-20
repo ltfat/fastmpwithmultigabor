@@ -1,24 +1,35 @@
-% function info = mptk_getinfo_exp()
-% 
 % MPTK - Matlab interface
-% Gets information on blocks, atoms and windows from MTPK plugins into Matlab
-%
-% Usage :  info = mptk_getinfo() 
+% Gets various information on MTPK plugins and configuration into Matlab
+% 
+% Usage :  info = mptk_getinfo_exp() 
 % 
 % Output :
 % info : a structure with the information
-%      info.referencePath
-%      info.atoms.type{}
-%      info.blocks.type{}
-%      info.blocks.info{}
-%      info.blocks.default{}
-%      info.blocks.type{}
-%      info.windows.type{}
-%      info.windows.needsOption{}
+%      info.atoms
+%      info.blocks
+%      info.windows
+%      info.path
 %
-% Author:
-% Remi Gribonval, July 2008
-% 
+%      where 
+%  atoms :
+%      atoms.type{}
+%  blocks :
+%      blocks.type{}
+%      blocks.info{}
+%      blocks.default{}
+%
+%  windows :
+%      windows.type{}
+%      windows.needsOption{}
+%
+%  path : has different fields taken from the configuration file, for example
+%      path.reference
+%      path.dll_directory
+%      path.fftw_wisdom_file
+%
+% Author : 
+% Remi Gribonval (IRISA, Rennes, France), July 2008
+%
 % Distributed under the General Public License.
 %                                       
 %#mex

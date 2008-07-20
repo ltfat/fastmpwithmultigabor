@@ -82,9 +82,7 @@ diracY = [];
 diracZ = [];
 
 for i = 1:book.numAtoms,
-
-    atom = book.atom{i};
-
+  atom = extract_atom_from_book(book,i);
     switch atom.type,
 
 	   case 'gabor',
@@ -168,3 +166,27 @@ gaborP = patch( gaborX, gaborY, gaborZ, gaborC, 'edgecol', 'none' );
 mdctP = patch( mdctX, mdctY, mdctZ, mdctC, 'edgecol', 'none' );
 harmP  = patch( harmX,  harmY,  harmZ,  harmC,  'edgecol', 'none' );
 diracL = line( diracX, diracY, diracZ, 'color', 'k' );
+
+
+function atom=extract_atom_from_book(book,i)
+  switch book.format
+    case '0.0 (sacha)'
+      atom = book.atom{i};
+    case '0.2 (gonon)'
+      % Get the type
+      typeindex = book.index(2,i);
+      atom.type = book.atom(typeindex).type; 
+      % Get the index of the atom within atom of its type
+      atomNumberInAtomsOfType = book.index(3,i);
+      % Get the list of fields
+      fields = fieldnames(book.atom(typeindex).params);
+      % Copy the fields
+      for j=1:length(fields)
+	field = fields{j};
+	atom.(field) = book.atom(typeindex).params.(field)(atomNumberInAtomsOfType,:);
+      end
+    otherwise
+      error(['Unknown format ' book.format]);
+  end
+
+

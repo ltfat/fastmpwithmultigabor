@@ -28,7 +28,7 @@
  * $Date 07/03/2008$
  */
 
-#include "mex.h"
+#include "mptk4matlab.h"
 #include "mxBook.h"
 
 
@@ -61,7 +61,7 @@ int nrhs, const mxArray *prhs[]) {
     }
     
     /* Load the MPTK environment if not loaded */
-    if (!MPTK_Env_c::get_env()->get_environment_loaded())MPTK_Env_c::get_env()->load_environment("");
+    InitMPTK4Matlab(mexFunctionName());
 
     /** Load book structure in object */
     mxBook mybook(prhs[0]);

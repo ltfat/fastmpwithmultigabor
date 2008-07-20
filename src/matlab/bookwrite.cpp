@@ -2,9 +2,10 @@
 /*                                                                            */
 /*                  	          bookwrite.c                       	      */
 /*                                                                            */
-/*				mptkMEX toolbox			      	      */
+/*				mptk4matlab toolbox		      	      */
 /*                                                                            */
 /* Emmanuel Ravelli                                            	   Jan 1 2007 */
+/* Remi Gribonval                                            	  July   2008 */
 /* -------------------------------------------------------------------------- */
 /*                                                                            */
 /*  This program is free software; you can redistribute it and/or             */

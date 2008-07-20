@@ -1,10 +1,11 @@
 /******************************************************************************/
 /*                                                                            */
-/*                  	          bookread.c                       	      */
+/*                  	          bookread.cpp                       	      */
 /*                                                                            */
-/*				mptkMEX toolbox			      	      */
+/*				mptk4matlab toolbox		      	      */
 /*                                                                            */
 /* Emmanuel Ravelli                                            	  May 22 2007 */
+/* Remi Gribonval                                            	  July   2008 */
 /* -------------------------------------------------------------------------- */
 /*                                                                            */
 /*  This program is free software; you can redistribute it and/or             */
@@ -28,10 +29,9 @@
  * $Date 05/22/2007$
  */
 
-#include "mex.h"
-#include "mptk.h"
-void mexFunction(int nlhs, mxArray *plhs[],
-int nrhs, const mxArray *prhs[]) {
+#include "mptk4matlab.h"
+
+void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 
 	/* Declarations */
 	int tmpcharlen,n,m;
@@ -55,8 +55,7 @@ int nrhs, const mxArray *prhs[]) {
 		nAtomUser = (unsigned long int)mxGetScalar(prhs[1]);
 	}
 	
-	/* Load the MPTK environment if not loaded */
-    if (!MPTK_Env_c::get_env()->get_environment_loaded())MPTK_Env_c::get_env()->load_environment("");
+	InitMPTK4Matlab(mexFunctionName());
    
 	/* Output */
 	plhs[0] = mxCreateStructArray(2 , dims, numFields,  field_names);
@@ -163,5 +162,5 @@ int nrhs, const mxArray *prhs[]) {
 	mxSetField(atom, 0, "chirp", chirp);
 	mxSetField(plhs[0], 0, "atom", atom);
     
-    book->info();
+	//  book->info(stdout);
 }

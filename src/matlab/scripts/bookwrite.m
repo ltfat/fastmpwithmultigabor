@@ -1,26 +1,35 @@
 function bookwrite( book , fileName )
-
-% BOOKREAD Exports a binary Matching Pursuit book from Matlab
+% MPTK - Matlab interface
+% Exports a binary Matching Pursuit book from Matlab, as a script
 %
-%    bookwrite( book , fileName ) writes the binary format book
-%    file 'fileName' from its as a structure.
+% WARNING: Will be deprecated as soon as MEX implementation is stable
 %
-%    See also BOOKREAD, BOOKPLOT, BOOKOVER.
+% Usage : bookwrite(book,filename ) 
+%
+% Input : 
+% book     : a book structure with the following structure
+%    TODO
+% filename : the filename where to read the book
+%
+% Known limitations : only the following atom types are supported: 
+%    gabor, harmonic, mdct, mclt, dirac.
+%
+% See also : bookread, bookplot, bookover
+%
+% Authors:
+% Sacha Krstulovic, Remi Gribonval (IRISA, Rennes, France)
+% Thomas Blumensath (Queen Mary, University of London)
+% 
+% Distributed under the General Public License.
+%                                       
+% The writing of Harmonic atoms is not tested yet.
+% Error handling not implemented yet.
+% Routine to determine if book structure is correct not implemented yet.
+%
 
-%%
-%% Author:
-%% Thomas BlumensathQueen Mary, University of London                                              
-%%
-%% Distributed under the General Public License.
-%%
-%% Under development
-%% The writing of Harmonic atoms is not tested yet.
-%% Error handling not implemented yet.
-%% Routine to determine if book structure is correct not implemented yet.
-%%
-%% Warm user that this file is no longer maintained by the team.
-%% Use Mex-Files instead!
-warning( 'This file is no longer maintained' );
+% Warn user that this file is no longer maintained by the team.
+% Use Mex-Files instead!
+warning( 'This file is no longer maintained and will soon be deprecated: MEX-files implementations are under development and the preferred way to read/write books' );
 
 fid = fopen( fileName, 'w', 'l' );
 if (fid == -1),
@@ -67,8 +76,6 @@ for ( i = 1:book.numAtoms );
     fwrite( fid, book.atom{i}.partialAmpStorage, 'double' );
     fwrite( fid, book.atom{i}.partialPhaseStorage, 'double' );
 
-   case 'dirac',
-    
    case 'anywave'
     fwrite( fid, length(book.atom{i}.tableFileName), 'ulong');
     fprintf( fid, '%s\n', book.atom{i}.tableFileName);
@@ -98,7 +105,9 @@ for ( i = 1:book.numAtoms );
     fwrite( fid, book.atom{i}.windowOpt, 'double' );
     fwrite( fid, book.atom{i}.freq, 'double' );
     fwrite( fid, book.atom{i}.phase, 'double' );
-    
+
+   otherwise
+    error(['writing ' book.atom{i}.type ' atoms not implemented.');
   end
 end
 

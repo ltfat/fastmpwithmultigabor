@@ -4,7 +4,6 @@ function [dictFileName,tableFileNameList,dataTableFileNameList] = dictwrite( dic
 %
 % DICTWRITE Exports a XML Matching Pursuit dictionary from Matlab
 %
-
 %%
 %% Authors:
 %% Sylvain Lesage & Sacha Krstulovic & Rémi Gribonval
@@ -13,9 +12,14 @@ function [dictFileName,tableFileNameList,dataTableFileNameList] = dictwrite( dic
 %% This script is part of the Matching Pursuit Library package,
 %% distributed under the General Public License.
 %%
-%% Warm user that this file is no longer maintained by the team.
-%% Use Mex-Files instead!
-warning( 'This file is no longer maintained' );
+% Nota bene:
+% Will be deprecated as soon as MEX implementation is stable
+%
+
+% Warn user that this file is no longer maintained by the team.
+% Use Mex-Files instead!
+warning( 'This file is no longer maintained and will soon be deprecated: MEX-files implementations are under development and the preferred way to read/write books' );
+
 
 if (strcmp(fileName(end-3:end),'.xml') == 1)
   dictFileName = fileName;

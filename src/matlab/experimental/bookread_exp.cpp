@@ -1,10 +1,12 @@
 /******************************************************************************/
 /*                                                                            */
-/*                  	      bookreadGil.c                                   */
+/*                  	      bookread_exp.cpp                                */
 /*                                                                            */
-/*          				mptkMEX toolbox			      */
+/*				mptk4matlab toolbox		      	      */
 /*                                                                            */
 /* Emmanuel Ravelli                                            	  May 22 2007 */
+/* Gilles Gonon                                               	  Feb 20 2008 */
+/* Remi Gribonval                                              	  July   2008 */
 /* -------------------------------------------------------------------------- */
 /*                                                                            */
 /*  This program is free software; you can redistribute it and/or             */
@@ -28,8 +30,7 @@
  * $Date 05/22/2007$
  */
 
-#include "mex.h"
-#include "mptk.h"
+#include "mptk4matlab.h"
 #include "matrix.h"
 #include "mxBook.h"
 
@@ -41,47 +42,82 @@
  *     MAIN MEX FUNCTION
  *
  */
-void mexFunction(int nlhs, mxArray *plhs[],
-int nrhs, const mxArray *prhs[]) {
+void mexFunction(int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[]) {
     
-    /* Check input arguments */
-    if (nrhs < 1) {
-        mexPrintf("!!! %s error -- bad number of input arguments\n",mexFunctionName());
-        mexPrintf("    see help %s\n",mexFunctionName());
-        return;
-    }
-    
-    if ( !mxIsChar(prhs[0])) {
-        mexPrintf("!!! %s error -- At least one argument has a wrong type\n",mexFunctionName());
-        mexPrintf("    see help %s\n",mexFunctionName());
-        return;        
-    }
-    
-    /** Get Book filename */
-    string bookName(mxArrayToString(prhs[0]));
+  // Load the MPTK environment if not loaded 
+  InitMPTK4Matlab(mexFunctionName());
+  
+  /* Check input arguments */
+  if (1!=nrhs) {
+    mexPrintf("!!! %s error -- bad number of input arguments\n",mexFunctionName());
+    mexPrintf("    see help %s\n",mexFunctionName());
+    mexErrMsgTxt("Aborting");
+    return;
+  }
+  
+  if (!mxIsChar(prhs[0])) {
+    mexPrintf("!!! %s error -- The filename argument should be a string\n",mexFunctionName());
+    mexPrintf("    see help %s\n",mexFunctionName());
+    mexErrMsgTxt("Aborting");
+    return;        
+  }
 
-   /* Get optionnal number of atom to read */
-    unsigned long int nAtomUser; 
-    if (nrhs==2) {
-        nAtomUser = (unsigned long int)mxGetScalar(prhs[1]);
-    }
-    
-    /* Load the MPTK environment if not loaded */
-    if (!MPTK_Env_c::get_env()->get_environment_loaded())MPTK_Env_c::get_env()->load_environment("");
-    
-    /** Create empty book */
-    MP_Book_c * mpBook;
-    mpBook = MP_Book_c::create();
-    
-    /* Fill it loading book file */
-    mpBook->load(bookName.c_str());
-    
-    mexPrintf("Book file: %s \n successfully loaded (%ld atoms)\n",bookName.c_str(),mpBook->numAtoms);
-    
-    /** Load book structure in object */
-    mxBook * matBook;
-    matBook = new mxBook(mpBook);
-    
-    plhs[0] = mxDuplicateArray(matBook->mexbook);
-    
+  // Check output arguments
+  if (1<nlhs) {
+    mexPrintf("%s error -- bad number of output arguments\n",mexFunctionName());
+    mexPrintf("    see help %s\n",mexFunctionName());
+    mexErrMsgTxt("Aborting");
+    return;
+  }
+  
+  // Get the book filename
+  char *fileName = mxArrayToString(prhs[0]);
+  if (NULL==fileName) {
+    mexErrMsgTxt("The book file name could not be retrieved from the input. Aborting.");
+    return;
+  }
+
+  // Try to load the book
+  MP_Book_c * book;
+  book = MP_Book_c::create();
+  if (NULL==book) {
+    mexPrintf("Failed to create a book.\n");
+    // Clean the house 
+    mxFree(fileName);
+    mexErrMsgTxt("Aborting");
+    return;
+  }
+  if(0==book->load(fileName)) {
+    mexPrintf("Failed to load atoms from file [%s].\n",fileName);
+    // Clean the house 
+    mxFree(fileName);
+    mexErrMsgTxt("Aborting");
+    return;
+  }
+  // DEBUG
+  mexPrintf("Book file: %s \n successfully loaded (%ld atoms)\n",fileName,book->numAtoms);
+  // Clean the house
+  mxFree(fileName);
+
+
+  // Load book object in Matlab structure
+  mxBook * mexBook = new mxBook(book); // It used to crashes here!!!!
+  
+  // 
+  plhs[0] = mxDuplicateArray(mexBook->mexbook);
+
 }
+
+
+/*
+  // Load book object in Matlab structure
+  mxArray *mxBook = mp_create_mxBook_from_book(book);
+  if(NULL==mxBook) {
+    mexPrintf("Failed to convert a book from MPTK to Matlab.\n");
+    mexErrMsgTxt("Aborting");
+    return;
+  }
+  plhs[0] = mxBook;
+}
+
+*/

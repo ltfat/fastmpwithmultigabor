@@ -48,9 +48,9 @@ switch(op)
         %% Load the mptk information
         mptkinfo = mptk_getinfo_exp;
         currentPath  = pwd;
-        if ~isempty(dir(mptkinfo.referencePath))
-            dictPathName = [mptkinfo.referencePath '/dictionary'];
-            waveTablePathName = [mptkinfo.referencePath '/wavetable'];
+        if ~isempty(dir(mptkinfo.path.reference))
+            dictPathName = [mptkinfo.path.reference '/dictionary'];
+            waveTablePathName = [mptkinfo.path.reference '/wavetable'];
         else
             dictPathName = '.';
             waveTablePathName = '.';
@@ -257,7 +257,7 @@ switch(op)
         % go back to original path
         cd(currentPath);
         if (~isempty(fname) && length(fname)>0)
-            [isvalid iswritten] = dictwrite(dict,fullfile(pname,fname));
+            isvalid = dictwrite(dict,fullfile(pname,fname));
         end
         % memorize path
         dictPathName = pname;
@@ -550,8 +550,8 @@ function isvalid = validateblock(block)
 
 filename = '/tmp/tmpdict.xml';
 tmpdict.block{1} = block;
-[isvalid iswritten] = dictwrite(tmpdict,filename);
-%isvalid = floor(2*rand);
+isvalid = dictwrite(tmpdict,filename);
+
 
 
 

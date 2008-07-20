@@ -1,9 +1,7 @@
-% function dict = dictread(filename)
-%
 % MPTK - Matlab interface
 % Imports a dictionary description from a file to Matlab, using MPTK
-%
-% Usage : dict = dictread(filename)
+% 
+% Usage: dict = dictread(filename)
 %
 % Input: 
 % filename : the filename where to read the dictionary description in XML
@@ -15,7 +13,11 @@
 %      block.type = 'dirac'
 %  and block may have other field names
 %
-% Author : Remi Gribonval, July 2008
+% See also : dictwrite
+%
+% Author : 
+% Remi Gribonval (IRISA, Rennes, France), July 2008
+%
 % Distributed under the General Public License.
 %                                       
 %#mex

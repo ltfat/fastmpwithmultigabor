@@ -28,7 +28,7 @@
  * $Date 21/02/2008$
  */
 
-#include "mex.h"
+#include "mptk4matlab.h"
 #include "mxBook.h"
 
 #include <string.h>
@@ -49,6 +49,9 @@ int nrhs, const mxArray *prhs[]) {
         return;        
     }
     
+    /* Load MPTK4Matlab */
+    InitMPTK4Matlab(mexFunctionName());
+
     /** Load book structure in object */
     mxBook mybook(prhs[0]);
     

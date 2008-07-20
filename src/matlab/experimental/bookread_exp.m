@@ -1,16 +1,25 @@
-% BOOKREAD_EXP Imports a binary Matching Pursuit book in Matlab
+% MPTK - Matlab interface
+% Imports a binary Matching Pursuit book file to Matlab, using MPTK
 %
-%    book = BOOKREAD_EXP( 'fileName' ) reads the binary format book
-%    file 'fileName' and returns it as a structure.
+% WARNING : NEW EXPERIMENTAL VERSION
 %
-%    The following blocks are supported: 
-%    gabor, harmonic, mdct, mdst, mclt, dirac, constant, nyquist
+% Usage : book = bookread_exp(filename)
 %
-%    See also BOOKWRITE_EXP, BOOKEDIT_EXP.
-
+% Input : 
+% filename : the filename where to read the book
 %
-% Author:
-% Gilles Gonon
+% Output:
+% book     : a book structure with the following structure
+%    TODO
+%
+% Known limitations : only the following atom types are supported: 
+%    gabor, harmonic, mdct, mclt, dirac.
+%
+% See also : bookwrite_exp, bookedit_exp
+%
+% Authors:
+% Emmanuel Ravelli (LAM, Paris, France)
+% Gilles Gonon, Remi Gribonval (IRISA, Rennes, France)
 % 
 % Distributed under the General Public License.
 %                                       

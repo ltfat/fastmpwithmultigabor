@@ -1,28 +1,35 @@
 function [book] = bookread( fileName )
-
-% BOOKREAD Imports a binary Matching Pursuit book in Matlab
+% MPTK - Matlab interface
+% Imports a binary Matching Pursuit book file to Matlab, using MPTK
 %
-%    book = BOOKREAD( 'fileName' ) reads the binary format book
-%    file 'fileName' and returns it as a structure.
+% WARNING: Will be deprecated as soon as MEX implementation is stable
 %
-%    See also BOOKPLOT, BOOKOVER.
+% Usage : book = bookread(filename)
+%
+% Input : 
+% filename : the filename where to read the book
+%
+% Output:
+% book     : a book structure with the following structure
+%    TODO
+%
+% Known limitations : only the following atom types are supported: 
+%    gabor, harmonic, mdct, mclt, dirac.
+%
+% See also : bookwrite, bookplot, bookover
+%
+% Authors:
+% Sacha Krstulovic, Remi Gribonval (IRISA, Rennes, France)
+% Copyright (C) 2005 IRISA                                              
+%
+% Distributed under the General Public License.
+%                                       
+% This script is part of the Matching Pursuit Library package,
+%
 
-%%
-%% Authors:
-%% Sacha Krstulovic & R�mi Gribonval
-%% Copyright (C) 2005 IRISA                                              
-%%
-%% This script is part of the Matching Pursuit Library package,
-%% distributed under the General Public License.
-%%
-%% SVN log:
-%%   $Author: sacha $
-%%   $Date: 2006-07-03 16:44:54 +0200 (Mon, 03 Jul 2006) $
-%%   $Revision: 580 $
-%%
-%% Warm user that this file is no longer maintained by the team.
-%% Use Mex-Files instead!
-warning( 'This file is no longer maintained' );
+% Warn user that this file is no longer maintained by the team.
+% Use Mex-Files instead!
+warning( 'This file is no longer maintained and will soon be deprecated: MEX-files implementations are under development and the preferred way to read/write books' );
 
 fid = fopen( fileName, 'r', 'l' );
 if (fid == -1),

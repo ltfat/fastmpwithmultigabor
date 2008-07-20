@@ -1,16 +1,21 @@
-% BOOKWRITE Exports a binary Matching Pursuit book from Matlab
+% MPTK - Matlab interface
+% Exports a binary Matching Pursuit book from Matlab, using MPTK
 %
-%    bookwrite( book , fileName ) writes the binary format book
-%    file 'fileName' from its as a structure.
+% Usage : bookwrite(book,filename ) 
 %
-%    The following blocks are supported: gabor, harmonic, mdct,
-%    mclt, dirac.
+% Input : 
+% book     : a book structure with the following structure
+%    TODO
+% filename : the filename where to read the book
 %
-%    See also BOOKREAD.
-
+% Known limitations : only the following atom types are supported: 
+%    gabor, harmonic, mdct, mclt, dirac.
 %
-% Author:
-% Emmanuel Ravelli
+% See also : bookread
+%
+% Authors:
+% Emmanuel Ravelli (LAM, Paris, France)
+% Remi Gribonval (IRISA, Rennes, France)
 % 
 % Distributed under the General Public License.
 %                                       

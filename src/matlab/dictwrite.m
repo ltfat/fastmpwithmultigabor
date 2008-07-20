@@ -1,9 +1,7 @@
-% function [isvalid iswritten] = dictwrite(dict[,filename])
-%
 % MPTK - Matlab interface
 % Export a dictionary description from Matlab to a file, using MPTK
 %
-% Usage : [isvalid iswritten] = dictwrite(dict,filename)
+% Usage: isvalid = dictwrite(dict[,filename])
 %
 % Inputs: 
 % dict     : a dictionary description with the following structure
@@ -17,9 +15,12 @@
 %
 % Outputs: 
 % isvalid   : indicates if the dictionary structure was correctly formed. 
-% iswritten : indicates if the file writing was successfull
 %
-% Author : Remi Gribonval, July 2008
+% See also : dictread
+%
+% Author : 
+% Remi Gribonval (IRISA, Rennes, France), July 2008
+%
 % Distributed under the General Public License.
 %                                       
 %#mex

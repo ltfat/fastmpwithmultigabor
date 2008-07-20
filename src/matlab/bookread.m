@@ -1,16 +1,23 @@
-% BOOKREAD Imports a binary Matching Pursuit book in Matlab
+% MPTK - Matlab interface
+% Imports a binary Matching Pursuit book file to Matlab, using MPTK
 %
-%    book = BOOKREAD( 'fileName' ) reads the binary format book
-%    file 'fileName' and returns it as a structure.
+% Usage : book = bookread(filename)
 %
-%    The following blocks are supported: gabor, harmonic, mdct,
-%    mclt, dirac.
+% Input : 
+% filename : the filename where to read the book
 %
-%    See also BOOKWRITE.
-
+% Output:
+% book     : a book structure with the following structure
+%    TODO
 %
-% Author:
-% Emmanuel Ravelli
+% Known limitations : only the following atom types are supported: 
+%    gabor, harmonic, mdct, mclt, dirac.
+%
+% See also : bookwrite
+%
+% Authors:
+% Emmanuel Ravelli (LAM, Paris, France)
+% Remi Gribonval (IRISA, Rennes, France)
 % 
 % Distributed under the General Public License.
 %                                       
