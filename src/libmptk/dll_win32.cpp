@@ -176,7 +176,8 @@ bool MP_Dll_Manager_c::search_library(vector<string> * lib_names, const char * p
       return false;
     }
   else
-    { if (strcmp( c_file.name ,"mptk.dll") && strcmp( c_file.name ,"libmptk.dll")){
+    { if (strcmp( c_file.name ,"mptk.dll") && strcmp( c_file.name ,"libmptk.dll")
+	&& (strcmp( c_file.name ,"mptk4matlab.dll") && strcmp( c_file.name ,"libmptk4matlab.dll")){
       fname = path ;
       fname += "\\";
       fname += c_file.name;
