@@ -91,19 +91,10 @@ public:
     /** \brief Boolean set to true when when the fftw wisdom file is correctly
     * loaded and the wisdom is well formed
     */
-    static bool environnement_loaded;
+    static bool environment_loaded;
 
    /** \brief Hash map to store the atom name and the file creation atom method pointer */
 STL_EXT_NM::hash_map<const char*,const char*,CSTRING_HASHER> configPath;
-
-
- 
-
-    /** \brief buffer to store the name of the path */
-    char** nameBufferCstr;
-
-    /** \brief buffer to store the value of the path */
-    char** pathBufferCstr;
 
     /***********/
     /* METHODS */
@@ -167,6 +158,11 @@ STL_EXT_NM::hash_map<const char*,const char*,CSTRING_HASHER> configPath;
     */
     MPTK_LIB_EXPORT const char * get_config_path(const char * name);
 
+	/** \brief Method to get the list of path names registered in configuration path
+    *   \param nameVector : pointer on the vector which has to be fill with the name of paths
+	*/
+	MPTK_LIB_EXPORT void get_registered_path_name( vector< string >* nameVector );
+	
     /** \brief Method to release environnement, desallocate all variables.
     */
     MPTK_LIB_EXPORT static void release_environment();

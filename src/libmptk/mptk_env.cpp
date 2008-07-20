@@ -53,32 +53,24 @@ const char * mptk_Config_File_Name = "MPTK_CONFIG_FILENAME";
 /*boolean to set if the loading of the file containing the wisdow was successful */
 bool MPTK_Env_c::fftw_file_loaded= false;
 /*boolean to set if the environnement was loading */
-bool MPTK_Env_c::environnement_loaded= false;
+bool MPTK_Env_c::environment_loaded= false;
 
 /***************************/
 /* CONSTRUCTORS/DESTRUCTOR */
 /***************************/
+int bufferSize = 3;
 
 /********************/
 /* NULL constructor */
 MPTK_Env_c::MPTK_Env_c()
 {
   //configPath = STL_EXT_NM::hash_map<const char*,const char*,mycomp>(1);
-  nameBufferCstr = NULL;
-  pathBufferCstr = NULL;
 }
 
 /**************/
 /* Destructor */
 MPTK_Env_c::~MPTK_Env_c()
 {
-  for (int i= 0; i<3 ; i++)
-    {
-      free(pathBufferCstr[i]);
-      free(nameBufferCstr[i]);
-    }
-  free(pathBufferCstr);
-  free(nameBufferCstr);
   instanceFlag=false;
 }
 
@@ -96,8 +88,8 @@ MPTK_Env_c * MPTK_Env_c::get_env()
 /*Destroy a singleton of MPTK_Env_c class */
 void MPTK_Env_c::release_environment()
 {
- const char * func = "MPTK_Env_c::release_environnement()";
-if (environnement_loaded){
+ const char * func = "MPTK_Env_c::release_environment()";
+ if (environment_loaded){
   if (MP_FFT_Interface_c::save_fft_library_config()) mp_debug_msg( MP_DEBUG_FILE_IO, func, "The fftw Plan is now saved.\n" );
 
   else mp_debug_msg(MP_DEBUG_FILE_IO, func, "The fftw Plan is not saved.\n" );
@@ -111,7 +103,7 @@ if (environnement_loaded){
     {
       delete myEnv;
       myEnv = NULL;
-    environnement_loaded = false;
+    environment_loaded = false;
     }
 }
 }
@@ -136,10 +128,29 @@ bool MPTK_Env_c::set_env(string filename)
 
 const char * MPTK_Env_c::get_config_path(const char* name)
 {
-
-  return MPTK_Env_c::get_env()->configPath[name];
-
+	STL_EXT_NM::hash_map<const char*,const char*,CSTRING_HASHER>::iterator iter;
+	// Test if the name exists, because we don't want to add it (by default configPath[name] adds name if it does not yet exist) 
+	iter= MPTK_Env_c::get_env()->configPath.find(name);
+	if(iter==MPTK_Env_c::get_env()->configPath.end()) 
+		return NULL;
+	else
+		return MPTK_Env_c::get_env()->configPath[name];
 }
+
+/* fill a vector with the name of the atoms registred in atom factory */
+void MPTK_Env_c::get_registered_path_name( vector< string >* nameVector ){
+	char *func = "MPTK_Env_c::get_registered_path_name";
+	STL_EXT_NM::hash_map<const char*,const char*,CSTRING_HASHER>::iterator iter;
+	if (NULL==nameVector) {
+		mp_error_msg(func, "nameVector is NULL!");
+	}
+	else {
+		for( iter = MPTK_Env_c::configPath.begin(); iter != MPTK_Env_c::configPath.end(); iter++ ) {
+			nameVector->push_back(string(iter->first)); // the string put in the name vector is a copy of the char* iter->first
+		}
+	}
+}
+ 
 
 /* Get the path of the configuration file using a env variable */
 char * MPTK_Env_c::get_configuration_file()
@@ -155,7 +166,7 @@ char * MPTK_Env_c::get_configuration_file()
 /* Get the boolean environment loaded */
 bool MPTK_Env_c::get_environment_loaded(){
 
-return 	environnement_loaded;
+return 	environment_loaded;
 
 }
 
@@ -166,7 +177,7 @@ bool MPTK_Env_c::load_environment(const char * name )
 	TiXmlElement *elem;
 	char path[1024];
 	
-	if(!environnement_loaded){ 	/* Get the name of the configuration file ... */
+	if(!environment_loaded){ 	/* Get the name of the configuration file ... */
 		if (name!= NULL && strlen(name)>0){ /* ... from the file name which was provided as an argument... */
 			FILE *fp = fopen (name, "r");
 			if (fp == NULL) {
@@ -187,7 +198,7 @@ bool MPTK_Env_c::load_environment(const char * name )
 			mp_info_msg("","The MPTK environment can be specified either by:\n");
 			mp_info_msg("","  a) setting the MPTK_CONFIG_FILENAME environment variable, using e.g. 'setenv MPTK_CONFIG_FILENAME <path_to_config_file.xml>')\n");
 			mp_info_msg("","  b) using the -C <path_to_configfile.xml> option in many MPTK command line utilities.\n");
-			environnement_loaded = false;
+			environment_loaded = false;
 			return false;
 		}
 		
@@ -200,35 +211,51 @@ bool MPTK_Env_c::load_environment(const char * name )
         }
 		else
         {
-			TiXmlHandle hdl(&configFile);
-			elem = hdl.FirstChildElement("configpath").FirstChildElement("path").Element();
+			TiXmlHandle hdl(&configFile); /* Load and parse the file with TinyXML */
+			/* Find the first <configpath> <path .../><configpath> entry */
+			elem = hdl.FirstChildElement("configpath").FirstChildElement("path").Element(); 
 			if (!elem)
             {
-				mp_error_msg( func, "the node doesn't exist");
+				mp_error_msg( func, "the <configpath> <path .../> </configpath> node doesn't exist in file %s",get_configuration_file());
+				return false;
             }
 			
-			int i= 0;
-			nameBufferCstr = (char **) malloc(sizeof(char*)*3);
-			pathBufferCstr = (char **) malloc(sizeof(char*)*3);
+			/* Read each node */
 			while (elem)
             {
-				
+				/* Get the name and path */
 				std::string nameBuffer = elem->Attribute("name");
-				nameBufferCstr[i] = (char *) malloc(nameBuffer.size()+1);
-				strncpy(nameBufferCstr[i],nameBuffer.c_str(),nameBuffer.size()+1 );
 				std::string pathBuffer = elem->Attribute("path");
-				pathBufferCstr[i] = (char *) malloc(pathBuffer.size()+1);
-				strncpy(pathBufferCstr[i], pathBuffer.c_str() ,pathBuffer.size()+1);
-				if (NULL == MPTK_Env_c::get_env()->get_config_path(nameBufferCstr[i])) MPTK_Env_c::get_env()->configPath[nameBufferCstr[i]] = pathBufferCstr[i]; 
-				else mp_error_msg( "MPTK_Env_c::load_environnement()", "Two variable with the same name");            
-				
+				/* Allocate a new char *to copy them */
+				char *nameBufferCstr = (char *) malloc(nameBuffer.size()+1);
+				if(NULL==nameBufferCstr) {
+					mp_error_msg( func, "Could not allocate nameBufferCstr");
+					return false;
+				}
+				char *pathBufferCstr = (char *) malloc(pathBuffer.size()+1);
+				if(NULL==pathBufferCstr) {
+					mp_error_msg( func, "Could not allocate pathBufferCstr");
+					return false;
+				}
+				/* Copy */
+				strncpy(nameBufferCstr,nameBuffer.c_str(),nameBuffer.size()+1 );
+				strncpy(pathBufferCstr,pathBuffer.c_str(),pathBuffer.size()+1 );
+	
+				/* If the pair (name,path) does not already exist in the configPath, add it */
+				if (NULL == MPTK_Env_c::get_env()->get_config_path(nameBufferCstr)) {
+					MPTK_Env_c::get_env()->configPath[nameBufferCstr] = pathBufferCstr;
+					mp_debug_msg(func,"Setting %s=%s\n",nameBufferCstr,pathBufferCstr);
+				}
+				/* Otherwise generate an warning */
+				else {
+					mp_warning_msg( func, "Two path variable with the same name=%s in config file\n",nameBufferCstr); 
+				}
 				/* iterate on the next element */
 				elem = elem->NextSiblingElement();
-				i++;
             }
 			/* Create DLL Manager */ 
 			dll = new MP_Dll_Manager_c();
-			if ( dll == NULL )
+			if (NULL== dll)
             {
 				mp_error_msg( func, "Failed to create a dll manager");
 				return false;
@@ -246,7 +273,7 @@ bool MPTK_Env_c::load_environment(const char * name )
 			/* Load FFT wisdom file */ 
 			if (MP_FFT_Interface_c::init_fft_library_config()) mp_debug_msg( MP_DEBUG_CONSTRUCTION ,func, "The fftw Plan is now loaded.\n" );
 			else mp_debug_msg(MP_DEBUG_CONSTRUCTION, func, "No fftw Plan well formed was found.\n" );
-			environnement_loaded = true;  
+			environment_loaded = true;  
 			return true;
 			
         }
