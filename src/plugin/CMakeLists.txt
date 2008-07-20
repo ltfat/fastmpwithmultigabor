@@ -1,399 +1,39 @@
-   if(COMMAND cmake_policy)
-      cmake_policy(SET CMP0003 OLD)
-    endif(COMMAND cmake_policy)
+# CMakeLists.txt file for MPTK plugins
+# This is where you should add instructions to compile your news plugins (blocks/atoms) if needed
+#
+
+if(COMMAND cmake_policy)
+    cmake_policy(SET CMP0003 OLD)
+endif(COMMAND cmake_policy)
+
+#In case of 64 bits plateform we have to compil with -fPIC flag
+# THIS SHOULD BE INHERITED FROM CALLING CMakeLists.txt !!!!
+IF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
+IF( CMAKE_CXX_COMPILER STREQUAL "cl")
+    SET(PLUGIN_COMPILE_FLAGS " -fPIC")
+ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
+    SET(PLUGIN_COMPILE_FLAGS " -Wno-deprecated -fPIC")
+ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
+ELSE( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" ) 
+IF( CMAKE_CXX_COMPILER STREQUAL "cl")
+    SET(PLUGIN_COMPILE_FLAGS "")
+ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
+    SET(PLUGIN_COMPILE_FLAGS " -Wno-deprecated")
+ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
+ENDIF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" ) 
 
 #########################################
-#Create the Gabor Atom plugin in DLL
+# GABOR 
+#Create the Gabor plugins in DLL
 #Including Harmonic Atom
-  SET(GABOR_ATOM_PLUGIN_SOURCES
+
+SET(GABOR_ATOM_PLUGIN_SOURCES
 base/gabor_atom_plugin.h
 base/gabor_atom_plugin.cpp
 base/harmonic_atom_plugin.h
 base/harmonic_atom_plugin.cpp
   ) 
-ADD_CUSTOM_TARGET(gaboratom-lib DEPENDS ${GABOR_ATOM_PLUGIN_SOURCES})
-ADD_LIBRARY(gaboratom SHARED ${GABOR_ATOM_PLUGIN_SOURCES})
-#In case of 64 bits plateform we have to compil with -fPIC flag
-#
-IF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
-IF( CMAKE_CXX_COMPILER STREQUAL "cl")
-   SET_TARGET_PROPERTIES(gaboratom PROPERTIES
-    COMPILE_FLAGS " -DC_BUILDING_GABORATOM ${SHARED_FLAGS} -fPIC"
-    PREFIX ""
-    OUTPUT_NAME "GaborAtom")
-ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
-   SET_TARGET_PROPERTIES(gaboratom PROPERTIES
-    COMPILE_FLAGS " -DC_BUILDING_GABORATOM ${SHARED_FLAGS} -Wno-deprecated -fPIC"
-    PREFIX ""
-    OUTPUT_NAME "GaborAtom")
-ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
-ELSE( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" ) 
-IF( CMAKE_CXX_COMPILER STREQUAL "cl")
-  SET_TARGET_PROPERTIES(gaboratom PROPERTIES
-    COMPILE_FLAGS " -DC_BUILDING_GABORATOM ${SHARED_FLAGS}"
-    PREFIX ""
-    OUTPUT_NAME "GaborAtom")
-ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
-  SET_TARGET_PROPERTIES(gaboratom PROPERTIES
-    COMPILE_FLAGS " -DC_BUILDING_GABORATOM ${SHARED_FLAGS} -Wno-deprecated"
-    PREFIX ""
-    OUTPUT_NAME "GaborAtom")
-ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
-ENDIF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" ) 
-
-TARGET_LINK_LIBRARIES(gaboratom  mptk)
-ADD_DEPENDENCIES(gaboratom  gaboratom-lib mptk) 
-
-IF(BUILD_SHARED_LIBS)
-INSTALL(TARGETS
-  gaboratom
- LIBRARY DESTINATION lib
- ARCHIVE DESTINATION lib
-)
-ENDIF(BUILD_SHARED_LIBS)
-
-#########################################
-#Create the Constant Atom plugin in DLL
-
-
-
-  SET(CONSTANT_ATOM_PLUGIN_SOURCES
-base/constant_atom_plugin.h
-base/constant_atom_plugin.cpp
-  ) 
-ADD_CUSTOM_TARGET(constantatom-lib DEPENDS ${CONSTANT_ATOM_PLUGIN_SOURCES})
-ADD_LIBRARY(constantatom SHARED ${CONSTANT_ATOM_PLUGIN_SOURCES})
-#In case of 64 bits plateform we have to compil with -fPIC flag
-#
-IF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
-IF( CMAKE_CXX_COMPILER STREQUAL "cl")
-  SET_TARGET_PROPERTIES(constantatom PROPERTIES
-    COMPILE_FLAGS " -DC_BUILDING_CONSTANTATOM ${SHARED_FLAGS} -fPIC"
-    PREFIX ""
-    OUTPUT_NAME "ConstantAtom")
-ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
-  SET_TARGET_PROPERTIES(constantatom PROPERTIES
-    COMPILE_FLAGS " -DC_BUILDING_CONSTANTATOM ${SHARED_FLAGS} -Wno-deprecated -fPIC"
-    PREFIX ""
-    OUTPUT_NAME "ConstantAtom")
-ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
-ELSE( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" ) 
-IF( CMAKE_CXX_COMPILER STREQUAL "cl")
-  SET_TARGET_PROPERTIES(constantatom PROPERTIES
-    COMPILE_FLAGS " -DC_BUILDING_CONSTANTATOM ${SHARED_FLAGS}"
-    PREFIX ""
-    OUTPUT_NAME "ConstantAtom")
-ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
-  SET_TARGET_PROPERTIES(constantatom PROPERTIES
-    COMPILE_FLAGS " -DC_BUILDING_CONSTANTATOM ${SHARED_FLAGS} -Wno-deprecated"
-    PREFIX ""
-    OUTPUT_NAME "ConstantAtom")
-ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
-ENDIF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" ) 
-
-TARGET_LINK_LIBRARIES(constantatom mptk)
-ADD_DEPENDENCIES(constantatom constantatom-lib mptk)
-
-IF(BUILD_SHARED_LIBS)
-INSTALL(TARGETS
-  constantatom
- LIBRARY DESTINATION lib
- ARCHIVE DESTINATION lib
-)
-ENDIF(BUILD_SHARED_LIBS)
-
-#########################################
-#Create the Dirac Atom plugin in DLL
-
-  SET(DIRAC_ATOM_PLUGIN_SOURCES
-base/dirac_atom_plugin.h
-base/dirac_atom_plugin.cpp
-  ) 
-ADD_CUSTOM_TARGET(diracatom-lib DEPENDS ${DIRAC_ATOM_PLUGIN_SOURCES})
-ADD_LIBRARY(diracatom SHARED ${DIRAC_ATOM_PLUGIN_SOURCES})
-#In case of 64 bits plateform we have to compil with -fPIC flag
-#
-IF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
-IF( CMAKE_CXX_COMPILER STREQUAL "cl")
-  SET_TARGET_PROPERTIES(diracatom PROPERTIES
-    COMPILE_FLAGS " -DC_BUILDING_DIRACATOM ${SHARED_FLAGS} -fPIC"
-    PREFIX ""
-    OUTPUT_NAME "DiracAtom")
-ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
-  SET_TARGET_PROPERTIES(diracatom PROPERTIES
-    COMPILE_FLAGS " -DC_BUILDING_DIRACATOM ${SHARED_FLAGS} -Wno-deprecated -fPIC"
-    PREFIX ""
-    OUTPUT_NAME "DiracAtom")
-ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
-ELSE( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" ) 
-IF( CMAKE_CXX_COMPILER STREQUAL "cl")
-  SET_TARGET_PROPERTIES(diracatom PROPERTIES
-    COMPILE_FLAGS " -DC_BUILDING_DIRACATOM ${SHARED_FLAGS}"
-    PREFIX ""
-    OUTPUT_NAME "DiracAtom")
-ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
-  SET_TARGET_PROPERTIES(diracatom PROPERTIES
-    COMPILE_FLAGS " -DC_BUILDING_DIRACATOM ${SHARED_FLAGS} -Wno-deprecated"
-    PREFIX ""
-    OUTPUT_NAME "DiracAtom")
-ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
-ENDIF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" ) 
-
-TARGET_LINK_LIBRARIES(diracatom mptk)
-ADD_DEPENDENCIES(diracatom diracatom-lib mptk)
-
-IF(BUILD_SHARED_LIBS)
-INSTALL(TARGETS
-  diracatom
- LIBRARY DESTINATION lib
- ARCHIVE DESTINATION lib
-)
-ENDIF(BUILD_SHARED_LIBS)
-
-#########################################
-#Create the Nyquist Atom plugin in DLL
-
-SET(NYQUIST_ATOM_PLUGIN_SOURCES
-base/nyquist_atom_plugin.h
-base/nyquist_atom_plugin.cpp
-  ) 
-ADD_CUSTOM_TARGET(nyquistatom-lib DEPENDS ${NYQUIST_ATOM_PLUGIN_SOURCES})
-ADD_LIBRARY(nyquistatom SHARED ${NYQUIST_ATOM_PLUGIN_SOURCES})
-#In case of 64 bits plateform we have to compil with -fPIC flag
-#
-IF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
-IF( CMAKE_CXX_COMPILER STREQUAL "cl")
-  SET_TARGET_PROPERTIES(nyquistatom PROPERTIES
-    COMPILE_FLAGS " -DC_BUILDING_NYQUISTATOM ${SHARED_FLAGS} -fPIC"
-    PREFIX ""
-    OUTPUT_NAME "NyquistAtom")
-ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
-  SET_TARGET_PROPERTIES(nyquistatom PROPERTIES
-    COMPILE_FLAGS " -DC_BUILDING_NYQUISTATOM ${SHARED_FLAGS} -Wno-deprecated -fPIC"
-    PREFIX ""
-    OUTPUT_NAME "NyquistAtom")
-ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
-ELSE( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" ) 
-IF( CMAKE_CXX_COMPILER STREQUAL "cl")
-  SET_TARGET_PROPERTIES(nyquistatom PROPERTIES
-    COMPILE_FLAGS " -DC_BUILDING_NYQUISTATOM ${SHARED_FLAGS}"
-    PREFIX ""
-    OUTPUT_NAME "NyquistAtom")
-ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
-  SET_TARGET_PROPERTIES(nyquistatom PROPERTIES
-    COMPILE_FLAGS " -DC_BUILDING_NYQUISTATOM ${SHARED_FLAGS} -Wno-deprecated"
-    PREFIX ""
-    OUTPUT_NAME "NyquistAtom")
-ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
-ENDIF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" ) 
-TARGET_LINK_LIBRARIES(nyquistatom mptk)
-ADD_DEPENDENCIES(nyquistatom nyquistatom-lib mptk)
-
-IF(BUILD_SHARED_LIBS)
-INSTALL(TARGETS
-  nyquistatom
- LIBRARY DESTINATION lib
- ARCHIVE DESTINATION lib
-)
-ENDIF(BUILD_SHARED_LIBS)
-#########################################
-#Create the Anywave Atom plugin in DLL
-
-
-  SET(ANYWAVE_ATOM_PLUGIN_SOURCES
-base/anywave_atom_plugin.h
-base/anywave_atom_plugin.cpp
-base/anywave_hilbert_atom_plugin.h
-base/anywave_hilbert_atom_plugin.cpp
-  ) 
-ADD_CUSTOM_TARGET(anywaveatom-lib DEPENDS ${ANYWAVE_ATOM_PLUGIN_SOURCES})
-ADD_LIBRARY(anywaveatom SHARED ${ANYWAVE_ATOM_PLUGIN_SOURCES})
-#In case of 64 bits plateform we have to compil with -fPIC flag
-#
-IF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
-IF( CMAKE_CXX_COMPILER STREQUAL "cl")
-  SET_TARGET_PROPERTIES(anywaveatom  PROPERTIES
-    COMPILE_FLAGS " -DC_BUILDING_ANYWAVEATOM ${SHARED_FLAGS} -fPIC"
-    PREFIX ""
-    OUTPUT_NAME "AnywaveAtom")
-ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
-  SET_TARGET_PROPERTIES(anywaveatom  PROPERTIES
-    COMPILE_FLAGS " -DC_BUILDING_ANYWAVEATOM ${SHARED_FLAGS} -Wno-deprecated -fPIC"
-    PREFIX ""
-    OUTPUT_NAME "AnywaveAtom")
-ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
-ELSE( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" ) 
-IF( CMAKE_CXX_COMPILER STREQUAL "cl")
-  SET_TARGET_PROPERTIES(anywaveatom  PROPERTIES
-    COMPILE_FLAGS " -DC_BUILDING_ANYWAVEATOM ${SHARED_FLAGS}"
-    PREFIX ""
-    OUTPUT_NAME "AnywaveAtom")
-ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
-  SET_TARGET_PROPERTIES(anywaveatom  PROPERTIES
-    COMPILE_FLAGS " -DC_BUILDING_ANYWAVEATOM ${SHARED_FLAGS} -Wno-deprecated"
-    PREFIX ""
-    OUTPUT_NAME "AnywaveAtom")
-ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
-ENDIF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" ) 
-TARGET_LINK_LIBRARIES(anywaveatom mptk)
-ADD_DEPENDENCIES(anywaveatom anywaveatom-lib mptk)
-
-IF(BUILD_SHARED_LIBS)
-INSTALL(TARGETS
-  anywaveatom
- LIBRARY DESTINATION lib
- ARCHIVE DESTINATION lib
-)
-ENDIF(BUILD_SHARED_LIBS)
-
-#########################################
-#Create the Mclt Atom plugin in DLL
-
-SET(MCLT_ATOM_PLUGIN_SOURCES
-contrib/lam/mclt_atom_plugin.h
-contrib/lam/mclt_atom_plugin.cpp
-  ) 
-ADD_CUSTOM_TARGET(mcltatom-lib DEPENDS ${MCLT_ATOM_PLUGIN_SOURCES})
-ADD_LIBRARY(mcltatom SHARED ${MCLT_ATOM_PLUGIN_SOURCES})
-#In case of 64 bits plateform we have to compil with -fPIC flag
-#
-IF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
-IF( CMAKE_CXX_COMPILER STREQUAL "cl")
-  SET_TARGET_PROPERTIES(mcltatom PROPERTIES
-    COMPILE_FLAGS " -DC_BUILDING_MCLTATOM ${SHARED_FLAGS} -fPIC"
-    PREFIX ""
-    OUTPUT_NAME "McltAtom")
-ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
-  SET_TARGET_PROPERTIES(mcltatom PROPERTIES
-    COMPILE_FLAGS " -DC_BUILDING_MCLTATOM ${SHARED_FLAGS} -Wno-deprecated -fPIC"
-    PREFIX ""
-    OUTPUT_NAME "McltAtom")
-ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
-ELSE( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" ) 
-IF( CMAKE_CXX_COMPILER STREQUAL "cl")
-  SET_TARGET_PROPERTIES(mcltatom PROPERTIES
-    COMPILE_FLAGS " -DC_BUILDING_MCLTATOM ${SHARED_FLAGS}"
-    PREFIX ""
-    OUTPUT_NAME "McltAtom")
-ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
-  SET_TARGET_PROPERTIES(mcltatom PROPERTIES
-    COMPILE_FLAGS " -DC_BUILDING_MCLTATOM ${SHARED_FLAGS} -Wno-deprecated"
-    PREFIX ""
-    OUTPUT_NAME "McltAtom")
-ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
-ENDIF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" ) 
-
-TARGET_LINK_LIBRARIES(mcltatom mptk)
-ADD_DEPENDENCIES(mcltatom mcltatom-lib mptk)
-
-IF(BUILD_SHARED_LIBS)
-INSTALL(TARGETS
-  mcltatom
- LIBRARY DESTINATION lib
- ARCHIVE DESTINATION lib
-)
-ENDIF(BUILD_SHARED_LIBS)
-
-#########################################
-#Create the Mdct Atom plugin in DLL
-
-SET(MDCT_ATOM_PLUGIN_SOURCES
-contrib/lam/mdct_atom_plugin.h
-contrib/lam/mdct_atom_plugin.cpp
-  ) 
-ADD_CUSTOM_TARGET(mdctatom-lib DEPENDS ${MDCT_ATOM_PLUGIN_SOURCES})
-ADD_LIBRARY(mdctatom SHARED ${MDCT_ATOM_PLUGIN_SOURCES})
-#In case of 64 bits plateform we have to compil with -fPIC flag
-#
-IF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
-IF( CMAKE_CXX_COMPILER STREQUAL "cl")
-  SET_TARGET_PROPERTIES(mdctatom PROPERTIES
-    COMPILE_FLAGS " -DC_BUILDING_MDCTATOM ${SHARED_FLAGS} -fPIC"
-    PREFIX ""
-    OUTPUT_NAME "MdctAtom")
-ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
-  SET_TARGET_PROPERTIES(mdctatom PROPERTIES
-    COMPILE_FLAGS " -DC_BUILDING_MDCTATOM ${SHARED_FLAGS} -Wno-deprecated -fPIC"
-    PREFIX ""
-    OUTPUT_NAME "MdctAtom")
-ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
-ELSE( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" ) 
-IF( CMAKE_CXX_COMPILER STREQUAL "cl")
-  SET_TARGET_PROPERTIES(mdctatom PROPERTIES
-    COMPILE_FLAGS " -DC_BUILDING_MDCTATOM ${SHARED_FLAGS}"
-    PREFIX ""
-    OUTPUT_NAME "MdctAtom")
-ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
-  SET_TARGET_PROPERTIES(mdctatom PROPERTIES
-    COMPILE_FLAGS " -DC_BUILDING_MDCTATOM ${SHARED_FLAGS} -Wno-deprecated"
-    PREFIX ""
-    OUTPUT_NAME "MdctAtom")
-ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
-ENDIF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" ) 
-
-TARGET_LINK_LIBRARIES(mdctatom mptk)
-ADD_DEPENDENCIES(mdctatom mdctatom-lib mptk)
-
-IF(BUILD_SHARED_LIBS)
-INSTALL(TARGETS
-  mdctatom
- LIBRARY DESTINATION lib
- ARCHIVE DESTINATION lib
-)
-ENDIF(BUILD_SHARED_LIBS)
-
-#########################################
-#Create the Mdst Atom plugin in DLL
-
-SET(MDST_ATOM_PLUGIN_SOURCES
-contrib/lam/mdst_atom_plugin.h
-contrib/lam/mdst_atom_plugin.cpp
-  ) 
-ADD_CUSTOM_TARGET(mdstatom-lib DEPENDS ${MDST_ATOM_PLUGIN_SOURCES})
-ADD_LIBRARY(mdstatom SHARED ${MDST_ATOM_PLUGIN_SOURCES})
-#In case of 64 bits plateform we have to compil with -fPIC flag
-#
-IF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
-IF( CMAKE_CXX_COMPILER STREQUAL "cl")
-  SET_TARGET_PROPERTIES(mdstatom PROPERTIES
-    COMPILE_FLAGS " -DC_BUILDING_MDSTATOM ${SHARED_FLAGS} -fPIC"
-    PREFIX ""
-    OUTPUT_NAME "MdstAtom")
-ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
-  SET_TARGET_PROPERTIES(mdstatom PROPERTIES
-    COMPILE_FLAGS " -DC_BUILDING_MDSTATOM ${SHARED_FLAGS} -Wno-deprecated -fPIC"
-    PREFIX ""
-    OUTPUT_NAME "MdstAtom")
-ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
-ELSE( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
-IF( CMAKE_CXX_COMPILER STREQUAL "cl") 
-  SET_TARGET_PROPERTIES(mdstatom PROPERTIES
-    COMPILE_FLAGS " -DC_BUILDING_MDSTATOM ${SHARED_FLAGS}"
-    PREFIX ""
-    OUTPUT_NAME "MdstAtom")
-ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
-  SET_TARGET_PROPERTIES(mdstatom PROPERTIES
-    COMPILE_FLAGS " -DC_BUILDING_MDSTATOM ${SHARED_FLAGS} -Wno-deprecated"
-    PREFIX ""
-    OUTPUT_NAME "MdstAtom")
-ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
-ENDIF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" ) 
-
-TARGET_LINK_LIBRARIES(mdstatom mptk)
-ADD_DEPENDENCIES(mdstatom mdstatom-lib mptk)
-
-IF(BUILD_SHARED_LIBS)
-INSTALL(TARGETS
-  mdstatom
- LIBRARY DESTINATION lib
- ARCHIVE DESTINATION lib
-)
-ENDIF(BUILD_SHARED_LIBS)
-
-#########################################
-#Create the Gabor block plugin in DLL
-
-  SET(GABOR_BLOCK_PLUGIN_SOURCES
+SET(GABOR_BLOCK_PLUGIN_SOURCES
 base/gabor_block_plugin.h
 base/gabor_block_plugin.cpp
 base/harmonic_block_plugin.h
@@ -401,503 +41,149 @@ base/harmonic_block_plugin.cpp
 base/chirp_block_plugin.h
 base/chirp_block_plugin.cpp
   ) 
-ADD_CUSTOM_TARGET(gaborblock-lib DEPENDS ${GABOR_BLOCK_PLUGIN_SOURCES})
-ADD_LIBRARY(gaborblock SHARED ${GABOR_BLOCK_PLUGIN_SOURCES})
-
-#In case of 64 bits plateform we have to compil with -fPIC flag
-#
-IF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
-IF( CMAKE_CXX_COMPILER STREQUAL "cl") 
-  SET_TARGET_PROPERTIES(gaborblock PROPERTIES
-    COMPILE_FLAGS " -DC_BUILDING_GABORBLOCK ${SHARED_FLAGS} -fPIC"
-    PREFIX ""
-    OUTPUT_NAME "GaborBlock")
-ELSE( CMAKE_CXX_COMPILER STREQUAL "cl") 
-  SET_TARGET_PROPERTIES(gaborblock PROPERTIES
-    COMPILE_FLAGS " -DC_BUILDING_GABORBLOCK ${SHARED_FLAGS} -Wno-deprecated -fPIC"
-    PREFIX ""
-    OUTPUT_NAME "GaborBlock")
-ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl") 
-ELSE( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" ) 
-IF( CMAKE_CXX_COMPILER STREQUAL "cl")
-  SET_TARGET_PROPERTIES(gaborblock PROPERTIES
-    COMPILE_FLAGS " -DC_BUILDING_GABORBLOCK ${SHARED_FLAGS}"
-    PREFIX ""
-    OUTPUT_NAME "GaborBlock")
-ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
-  SET_TARGET_PROPERTIES(gaborblock PROPERTIES
-    COMPILE_FLAGS " -DC_BUILDING_GABORBLOCK ${SHARED_FLAGS} -Wno-deprecated"
-    PREFIX ""
-    OUTPUT_NAME "GaborBlock")
-ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
-ENDIF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" ) 
-
-TARGET_LINK_LIBRARIES(gaborblock  mptk)
-ADD_DEPENDENCIES(gaborblock  gaborblock-lib mptk)
-
-IF(BUILD_SHARED_LIBS)
-INSTALL(TARGETS
-  gaborblock
- LIBRARY DESTINATION lib
- ARCHIVE DESTINATION lib
-)
-ENDIF(BUILD_SHARED_LIBS)
-
 #########################################
-#Create the Nyquist block plugin  in DLL
+# CONSTANT
+#Create the Constant plugins in DLL
 
-  SET(NYQUIST_BLOCK_PLUGIN_SOURCES
-base/nyquist_block_plugin.h
-base/nyquist_block_plugin.cpp
+SET(CONSTANT_ATOM_PLUGIN_SOURCES
+base/constant_atom_plugin.h
+base/constant_atom_plugin.cpp
   ) 
-ADD_CUSTOM_TARGET(nyquistblock-lib DEPENDS ${NYQUIST_BLOCK_PLUGIN_SOURCES})
-ADD_LIBRARY(nyquistblock SHARED ${NYQUIST_BLOCK_PLUGIN_SOURCES})
-
-#In case of 64 bits plateform we have to compil with -fPIC flag
-#
-IF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
-IF( CMAKE_CXX_COMPILER STREQUAL "cl") 
-  SET_TARGET_PROPERTIES(nyquistblock PROPERTIES
-    COMPILE_FLAGS " -DC_BUILDING_NYQUISTBLOCK ${SHARED_FLAGS} -fPIC"
-    PREFIX ""
-    OUTPUT_NAME "NyquistBlock")
-ELSE( CMAKE_CXX_COMPILER STREQUAL "cl") 
-  SET_TARGET_PROPERTIES(nyquistblock PROPERTIES
-    COMPILE_FLAGS " -DC_BUILDING_NYQUISTBLOCK ${SHARED_FLAGS} -Wno-deprecated -fPIC"
-    PREFIX ""
-    OUTPUT_NAME "NyquistBlock")
-ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl") 
-ELSE( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" ) 
-IF( CMAKE_CXX_COMPILER STREQUAL "cl")
-  SET_TARGET_PROPERTIES(nyquistblock PROPERTIES
-    COMPILE_FLAGS " -DC_BUILDING_NYQUISTBLOCK ${SHARED_FLAGS}"
-    PREFIX ""
-    OUTPUT_NAME "NyquistBlock")
-ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
-  SET_TARGET_PROPERTIES(nyquistblock PROPERTIES
-    COMPILE_FLAGS " -DC_BUILDING_NYQUISTBLOCK ${SHARED_FLAGS} -Wno-deprecated"
-    PREFIX ""
-    OUTPUT_NAME "NyquistBlock")
-ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
-ENDIF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" ) 
-
-TARGET_LINK_LIBRARIES(nyquistblock  mptk)
-ADD_DEPENDENCIES(nyquistblock  nyquistblock-lib mptk)
-
-IF(BUILD_SHARED_LIBS)
-INSTALL(TARGETS
- nyquistblock
- LIBRARY DESTINATION lib
- ARCHIVE DESTINATION lib
-)
-ENDIF(BUILD_SHARED_LIBS)
-
-#########################################
-#Create the Constant block plugin in DLL
-
-  SET(CONSTANT_BLOCK_PLUGIN_SOURCES
-
+SET(CONSTANT_BLOCK_PLUGIN_SOURCES
 base/constant_block_plugin.h
 base/constant_block_plugin.cpp
   ) 
-ADD_CUSTOM_TARGET(constantblock-lib DEPENDS ${CONSTANT_BLOCK_PLUGIN_SOURCES})
-ADD_LIBRARY(constantblock SHARED ${CONSTANT_BLOCK_PLUGIN_SOURCES})
-
-#In case of 64 bits plateform we have to compil with -fPIC flag
-#
-IF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
-IF( CMAKE_CXX_COMPILER STREQUAL "cl")
-  SET_TARGET_PROPERTIES(constantblock PROPERTIES
-    COMPILE_FLAGS " -DC_BUILDING_CONSTANTBLOCK ${SHARED_FLAGS} -fPIC"
-    PREFIX ""
-    OUTPUT_NAME "ConstantBlock")
-ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
-  SET_TARGET_PROPERTIES(constantblock PROPERTIES
-    COMPILE_FLAGS " -DC_BUILDING_CONSTANTBLOCK ${SHARED_FLAGS} -Wno-deprecated -fPIC"
-    PREFIX ""
-    OUTPUT_NAME "ConstantBlock")
-ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
-ELSE( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
-IF( CMAKE_CXX_COMPILER STREQUAL "cl")
-  SET_TARGET_PROPERTIES(constantblock PROPERTIES
-    COMPILE_FLAGS " -DC_BUILDING_CONSTANTBLOCK ${SHARED_FLAGS}"
-    PREFIX ""
-    OUTPUT_NAME "ConstantBlock")
-ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
-  SET_TARGET_PROPERTIES(constantblock PROPERTIES
-    COMPILE_FLAGS " -DC_BUILDING_CONSTANTBLOCK ${SHARED_FLAGS} -Wno-deprecated"
-    PREFIX ""
-    OUTPUT_NAME "ConstantBlock")
-ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
-ENDIF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" ) 
-
-
-TARGET_LINK_LIBRARIES(constantblock  mptk)
-ADD_DEPENDENCIES(constantblock  constantblock-lib mptk)
-
-IF(BUILD_SHARED_LIBS)
-INSTALL(TARGETS
- constantblock
- LIBRARY DESTINATION lib
- ARCHIVE DESTINATION lib
-)
-ENDIF(BUILD_SHARED_LIBS)
 
 #########################################
-#Create the Dirac block plugin in DLL
+# DIRAC
+#Create the Dirac plugins in DLL
 
-  SET(DIRAC_BLOCK_PLUGIN_SOURCES
-
+SET(DIRAC_ATOM_PLUGIN_SOURCES
+base/dirac_atom_plugin.h
+base/dirac_atom_plugin.cpp
+) 
+SET(DIRAC_BLOCK_PLUGIN_SOURCES
 base/dirac_block_plugin.h
 base/dirac_block_plugin.cpp
   ) 
-ADD_CUSTOM_TARGET(diracblock-lib DEPENDS ${DIRAC_BLOCK_PLUGIN_SOURCES})
-ADD_LIBRARY(diracblock SHARED ${DIRAC_BLOCK_PLUGIN_SOURCES})
-#In case of 64 bits plateform we have to compil with -fPIC flag
-#
-IF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
-IF( CMAKE_CXX_COMPILER STREQUAL "cl")
-  SET_TARGET_PROPERTIES(diracblock PROPERTIES
-    COMPILE_FLAGS " -DC_BUILDING_DIRACBLOCK ${SHARED_FLAGS} -fPIC"
-    PREFIX ""
-    OUTPUT_NAME "DiracBlock")
-ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
-  SET_TARGET_PROPERTIES(diracblock PROPERTIES
-    COMPILE_FLAGS " -DC_BUILDING_DIRACBLOCK ${SHARED_FLAGS} -Wno-deprecated -fPIC"
-    PREFIX ""
-    OUTPUT_NAME "DiracBlock")
-ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
-ELSE( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" ) 
-IF( CMAKE_CXX_COMPILER STREQUAL "cl")
-  SET_TARGET_PROPERTIES(diracblock PROPERTIES
-    COMPILE_FLAGS " -DC_BUILDING_DIRACBLOCK ${SHARED_FLAGS}"
-    PREFIX ""
-    OUTPUT_NAME "DiracBlock")
-ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
-  SET_TARGET_PROPERTIES(diracblock PROPERTIES
-    COMPILE_FLAGS " -DC_BUILDING_DIRACBLOCK ${SHARED_FLAGS} -Wno-deprecated"
-    PREFIX ""
-    OUTPUT_NAME "DiracBlock")
-ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
-ENDIF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" ) 
+#########################################
+# NYQUIST
+#Create the Nyquist plugins in DLL
 
-TARGET_LINK_LIBRARIES(diracblock  mptk)
-ADD_DEPENDENCIES(diracblock diracblock-lib mptk)
-
-IF(BUILD_SHARED_LIBS)
-INSTALL(TARGETS
- diracblock
- LIBRARY DESTINATION lib
- ARCHIVE DESTINATION lib
-)
-ENDIF(BUILD_SHARED_LIBS)
+SET(NYQUIST_ATOM_PLUGIN_SOURCES
+base/nyquist_atom_plugin.h
+base/nyquist_atom_plugin.cpp
+  ) 
+SET(NYQUIST_BLOCK_PLUGIN_SOURCES
+base/nyquist_block_plugin.h
+base/nyquist_block_plugin.cpp
+  ) 
 
 #########################################
-#Create the Mclt block plugin in DLL
+# ANYWAVE
+#Create the Anywave plugin in DLL
+#Including Anywave Hilbert
+SET(ANYWAVE_ATOM_PLUGIN_SOURCES
+base/anywave_atom_plugin.h
+base/anywave_atom_plugin.cpp
+base/anywave_hilbert_atom_plugin.h
+base/anywave_hilbert_atom_plugin.cpp
+  ) 
+SET(ANYWAVE_BLOCK_PLUGIN_SOURCES
+base/anywave_block_plugin.h
+base/anywave_block_plugin.cpp
+base/anywave_hilbert_block_plugin.h
+base/anywave_hilbert_block_plugin.cpp
+  ) 
 
-  SET(MCLT_BLOCK_PLUGIN_SOURCES
+#########################################
+# MCLT
+#Create the Mclt plugin in DLL
 
+SET(MCLT_ATOM_PLUGIN_SOURCES
+contrib/lam/mclt_atom_plugin.h
+contrib/lam/mclt_atom_plugin.cpp
+  ) 
+SET(MCLT_BLOCK_PLUGIN_SOURCES
 contrib/lam/mclt_abstract_block_plugin.h
 contrib/lam/mclt_abstract_block_plugin.cpp
 contrib/lam/mclt_block_plugin.h
 contrib/lam/mclt_block_plugin.cpp
   ) 
-ADD_CUSTOM_TARGET(mcltblock-lib DEPENDS ${MCLT_BLOCK_PLUGIN_SOURCES})
-ADD_LIBRARY(mcltblock SHARED ${MCLT_BLOCK_PLUGIN_SOURCES})
-#In case of 64 bits plateform we have to compil with -fPIC flag
-IF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
-IF( CMAKE_CXX_COMPILER STREQUAL "cl")
-  SET_TARGET_PROPERTIES(mcltblock PROPERTIES
-    COMPILE_FLAGS " -DC_BUILDING_MCLTBLOCK ${SHARED_FLAGS} -fPIC"
-    PREFIX ""
-    OUTPUT_NAME "McltBlock")
-ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
-  SET_TARGET_PROPERTIES(mcltblock PROPERTIES
-    COMPILE_FLAGS " -DC_BUILDING_MCLTBLOCK ${SHARED_FLAGS} -Wno-deprecated -fPIC"
-    PREFIX ""
-    OUTPUT_NAME "McltBlock")
-ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
-ELSE( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
-IF( CMAKE_CXX_COMPILER STREQUAL "cl")
-  SET_TARGET_PROPERTIES(mcltblock PROPERTIES
-    COMPILE_FLAGS " -DC_BUILDING_MCLTBLOCK ${SHARED_FLAGS}"
-    PREFIX ""
-    OUTPUT_NAME "McltBlock")
-ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
-  SET_TARGET_PROPERTIES(mcltblock PROPERTIES
-    COMPILE_FLAGS " -DC_BUILDING_MCLTBLOCK ${SHARED_FLAGS} -Wno-deprecated"
-    PREFIX ""
-    OUTPUT_NAME "McltBlock")
-ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
-ENDIF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" ) 
-
-TARGET_LINK_LIBRARIES(mcltblock  mptk)
-ADD_DEPENDENCIES(mcltblock mcltblock-lib mptk)
-
-IF(BUILD_SHARED_LIBS)
-INSTALL(TARGETS
- mcltblock
- LIBRARY DESTINATION lib
- ARCHIVE DESTINATION lib
-)
-ENDIF(BUILD_SHARED_LIBS)
-
 #########################################
-#Create the Mdct block plugin in DLL
+# MDCT
+#Create the Mdct plugin in DLL
 
-  SET(MDCT_BLOCK_PLUGIN_SOURCES
-
+SET(MDCT_ATOM_PLUGIN_SOURCES
+contrib/lam/mdct_atom_plugin.h
+contrib/lam/mdct_atom_plugin.cpp
+  ) 
+SET(MDCT_BLOCK_PLUGIN_SOURCES
 contrib/lam/mclt_abstract_block_plugin.h
 contrib/lam/mclt_abstract_block_plugin.cpp
 contrib/lam/mdct_block_plugin.h
 contrib/lam/mdct_block_plugin.cpp
   ) 
-ADD_CUSTOM_TARGET(mdctblock-lib DEPENDS ${MDCT_BLOCK_PLUGIN_SOURCES})
-ADD_LIBRARY(mdctblock SHARED ${MDCT_BLOCK_PLUGIN_SOURCES})
-
-#In case of 64 bits plateform we have to compil with -fPIC flag
-IF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
-IF( CMAKE_CXX_COMPILER STREQUAL "cl")
-  SET_TARGET_PROPERTIES(mdctblock PROPERTIES
-    COMPILE_FLAGS " -DC_BUILDING_MDCTBLOCK ${SHARED_FLAGS} -fPIC"
-    PREFIX ""
-    OUTPUT_NAME "MdctBlock")
-ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
-  SET_TARGET_PROPERTIES(mdctblock PROPERTIES
-    COMPILE_FLAGS " -DC_BUILDING_MDCTBLOCK ${SHARED_FLAGS} -Wno-deprecated -fPIC"
-    PREFIX ""
-    OUTPUT_NAME "MdctBlock")
-ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
-ELSE( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" ) 
-IF( CMAKE_CXX_COMPILER STREQUAL "cl")
-  SET_TARGET_PROPERTIES(mdctblock PROPERTIES
-    COMPILE_FLAGS " -DC_BUILDING_MDCTBLOCK ${SHARED_FLAGS}"
-    PREFIX ""
-    OUTPUT_NAME "MdctBlock")
-ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
-  SET_TARGET_PROPERTIES(mdctblock PROPERTIES
-    COMPILE_FLAGS " -DC_BUILDING_MDCTBLOCK ${SHARED_FLAGS} -Wno-deprecated"
-    PREFIX ""
-    OUTPUT_NAME "MdctBlock")
-ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
-ENDIF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" ) 
-
-TARGET_LINK_LIBRARIES(mdctblock  mptk)
-ADD_DEPENDENCIES(mdctblock mdctblock-lib mptk)
-
-IF(BUILD_SHARED_LIBS)
-INSTALL(TARGETS
- mdctblock
- LIBRARY DESTINATION lib
- ARCHIVE DESTINATION lib
-)
-ENDIF(BUILD_SHARED_LIBS)
 
 #########################################
-#Create the Mdst block plugin in DLL
+# MDST
+#Create the Mdst  plugin in DLL
 
-  SET(MDST_BLOCK_PLUGIN_SOURCES
-
+SET(MDST_ATOM_PLUGIN_SOURCES
+contrib/lam/mdst_atom_plugin.h
+contrib/lam/mdst_atom_plugin.cpp
+  ) 
+SET(MDST_BLOCK_PLUGIN_SOURCES
 contrib/lam/mclt_abstract_block_plugin.h
 contrib/lam/mclt_abstract_block_plugin.cpp
 contrib/lam/mdst_block_plugin.h
 contrib/lam/mdst_block_plugin.cpp
   ) 
-ADD_CUSTOM_TARGET(mdstblock-lib DEPENDS ${MDST_BLOCK_PLUGIN_SOURCES})
-ADD_LIBRARY(mdstblock SHARED ${MDST_BLOCK_PLUGIN_SOURCES})
 
-#In case of 64 bits plateform we have to compil with -fPIC flag
-IF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
-IF( CMAKE_CXX_COMPILER STREQUAL "cl")
-  SET_TARGET_PROPERTIES(mdstblock PROPERTIES
-    COMPILE_FLAGS " -DC_BUILDING_MDSTBLOCK ${SHARED_FLAGS} -Wno-deprecated -fPIC"
-    PREFIX ""
-    OUTPUT_NAME "MdstBlock")
-ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
-  SET_TARGET_PROPERTIES(mdstblock PROPERTIES
-    COMPILE_FLAGS " -DC_BUILDING_MDSTBLOCK ${SHARED_FLAGS} -fPIC"
-    PREFIX ""
-    OUTPUT_NAME "MdstBlock")
-ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
-ELSE( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
-IF( CMAKE_CXX_COMPILER STREQUAL "cl")
-  SET_TARGET_PROPERTIES(mdstblock PROPERTIES
-    COMPILE_FLAGS " -DC_BUILDING_MDSTBLOCK ${SHARED_FLAGS}"
-    PREFIX ""
-    OUTPUT_NAME "MdstBlock")
-ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
-  SET_TARGET_PROPERTIES(mdstblock PROPERTIES
-    COMPILE_FLAGS " -DC_BUILDING_MDSTBLOCK ${SHARED_FLAGS} -Wno-deprecated"
-    PREFIX ""
-    OUTPUT_NAME "MdstBlock")
-ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
-ENDIF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" ) 
-
-TARGET_LINK_LIBRARIES(mdstblock  mptk)
-ADD_DEPENDENCIES(mdstblock mdstblock-lib mptk)
-
-IF(BUILD_SHARED_LIBS)
-INSTALL(TARGETS
- mdstblock
- LIBRARY DESTINATION lib
- ARCHIVE DESTINATION lib
-)
-ENDIF(BUILD_SHARED_LIBS)
-
+################################################
+#
+# TEMPLATE : TO BUILD YOUR OWN ATOMS AND BLOCKS:
+# 1) REPLACE "TEMPLATE" BY THE NAME OF YOUR 
+#    BLOCKS/ATOMS AND UNCOMMENT 
+# 2) ADD THE NAME OF YOUR BLOCKS/ATOMS IN THE 
+#    FOREACH LOOP
 #########################################
-#Create the anywave block plugin in DLL
-
-  SET(ANYWAVE_BLOCK_PLUGIN_SOURCES
-
-base/anywave_block_plugin.h
-base/anywave_block_plugin.cpp
-base/anywave_hilbert_block_plugin.h
-base/anywave_hilbert_block_plugin.cpp
-
-  ) 
-ADD_CUSTOM_TARGET(anywaveblock-lib DEPENDS ${ANYWAVE_BLOCK_PLUGIN_SOURCES})
-ADD_LIBRARY(anywaveblock SHARED ${ANYWAVE_BLOCK_PLUGIN_SOURCES})
-
-#In case of 64 bits plateform we have to compil with -fPIC flag
-
-IF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
-IF( CMAKE_CXX_COMPILER STREQUAL "cl")
-  SET_TARGET_PROPERTIES(anywaveblock PROPERTIES
-    COMPILE_FLAGS " -DC_BUILDING_ANYWAVEBLOCK ${SHARED_FLAGS} -fPIC"
-    PREFIX ""
-    OUTPUT_NAME "AnywaveBlock")
-ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
-  SET_TARGET_PROPERTIES(anywaveblock PROPERTIES
-    COMPILE_FLAGS " -DC_BUILDING_ANYWAVEBLOCK ${SHARED_FLAGS} -Wno-deprecated -fPIC"
-    PREFIX ""
-    OUTPUT_NAME "AnywaveBlock")
-ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
-ELSE( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" ) 
-IF( CMAKE_CXX_COMPILER STREQUAL "cl")
-  SET_TARGET_PROPERTIES(anywaveblock PROPERTIES
-    COMPILE_FLAGS " -DC_BUILDING_ANYWAVEBLOCK ${SHARED_FLAGS}"
-    PREFIX ""
-    OUTPUT_NAME "AnywaveBlock")
-ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
-  SET_TARGET_PROPERTIES(anywaveblock PROPERTIES
-    COMPILE_FLAGS " -DC_BUILDING_ANYWAVEBLOCK ${SHARED_FLAGS} -Wno-deprecated"
-    PREFIX ""
-    OUTPUT_NAME "AnywaveBlock")
-ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
-ENDIF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" ) 
-
-TARGET_LINK_LIBRARIES(anywaveblock  mptk)
-ADD_DEPENDENCIES(anywaveblock anywaveblock-lib mptk)
-
-IF(BUILD_SHARED_LIBS)
-INSTALL(TARGETS
- anywaveblock
- LIBRARY DESTINATION lib
- ARCHIVE DESTINATION lib
-)
-
-##EXAMPLE FOR BUILD YOUR OWN ATOMS AND BLOCKS:
-##JUST REPLACE TEMPLATE BY THE NAME OF YOUR BLOCKS/ATOMS AND UNCOMMENT
-#########################################
-#Create the Constant Atom plugin in DLL
-
+#Create the <Template> plugin in DLL
 #SET(TEMPLATE_ATOM_PLUGIN_SOURCES
 #contrib/template/template_atom_plugin.h
 #contrib/template/template_atom_plugin.cpp) 
-
-#ADD_CUSTOM_TARGET(templateatom-lib DEPENDS ${TEMPLATE_ATOM_PLUGIN_SOURCES})
-#ADD_LIBRARY(templateatom SHARED ${TEMPLATE_ATOM_PLUGIN_SOURCES})
-
-#In case of 64 bits plateform we have to compil with -fPIC flag
-#
-#IF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
-#  SET_TARGET_PROPERTIES(constantatom PROPERTIES
-#IF( CMAKE_CXX_COMPILER STREQUAL "cl")
-#    COMPILE_FLAGS " -DC_BUILDING_TEMPLATEATOM ${SHARED_FLAGS} -fPIC"
-#    PREFIX ""
-#    OUTPUT_NAME "TemplateAtom")
-#ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
-#    COMPILE_FLAGS " -DC_BUILDING_TEMPLATEATOM ${SHARED_FLAGS} -Wno-deprecated -fPIC"
-#    PREFIX ""
-#    OUTPUT_NAME "TemplateAtom")
-#ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
-#ELSE( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
-#IF( CMAKE_CXX_COMPILER STREQUAL "cl")
-#  SET_TARGET_PROPERTIES(constantatom PROPERTIES
-#    COMPILE_FLAGS " -DC_BUILDING_TEMPLATEATOM ${SHARED_FLAGS}"
-#    PREFIX ""
-#    OUTPUT_NAME "TemplateAtom")
-#ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
-#  SET_TARGET_PROPERTIES(constantatom PROPERTIES
-#    COMPILE_FLAGS " -DC_BUILDING_TEMPLATEATOM ${SHARED_FLAGS} -Wno-deprecated"
-#    PREFIX ""
-#    OUTPUT_NAME "TemplateAtom")
-#ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
-#ENDIF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
-
-
-#TARGET_LINK_LIBRARIES(templateatom mptk)
-#ADD_DEPENDENCIES(templateatom templateatom-lib mptk)
-
-#IF(BUILD_SHARED_LIBS)
-#INSTALL(TARGETS
-#  templateatom
-# LIBRARY DESTINATION lib
-# ARCHIVE DESTINATION lib)
-#ENDIF(BUILD_SHARED_LIBS)
- 
-#########################################
-#Create the template block plugin in DLL
-
 #SET(TEMPLATE_BLOCK_PLUGIN_SOURCES
 #contrib/template/template_block_plugin.h
-#contrib/template/template_block_plugin.cpp)
- 
-#ADD_CUSTOM_TARGET(templateblock-lib DEPENDS ${TEMPLATE_BLOCK_PLUGIN_SOURCES})
-#ADD_LIBRARY(templateblock SHARED ${TEMPLATE_BLOCK_PLUGIN_SOURCES})
+#contrib/template/template_block_plugin.cpp) 
 
-#In case of 64 bits plateform we have to compil with -fPIC flag
-#
-#IF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
-#IF( CMAKE_CXX_COMPILER STREQUAL "cl")
-#  SET_TARGET_PROPERTIES(templateblock PROPERTIES
-#    COMPILE_FLAGS " -DC_BUILDING_TEMPLATEBLOCK ${SHARED_FLAGS} -fPIC"
-#    PREFIX ""
-#    OUTPUT_NAME "TemplateBlock")
-#ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
-#  SET_TARGET_PROPERTIES(templateblock PROPERTIES
-#    COMPILE_FLAGS " -DC_BUILDING_TEMPLATEBLOCK ${SHARED_FLAGS}-Wno-deprecated -fPIC"
-#    PREFIX ""
-#    OUTPUT_NAME "TemplateBlock")
-#ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
-#ELSE( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
-#IF( CMAKE_CXX_COMPILER STREQUAL "cl")
-#  SET_TARGET_PROPERTIES(templateblock PROPERTIES
-#    COMPILE_FLAGS " -DC_BUILDING_TEMPLATEBLOCK ${SHARED_FLAGS}"
-#    PREFIX ""
-#    OUTPUT_NAME "TemplateBlock")
-#ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
-#  SET_TARGET_PROPERTIES(templateblock PROPERTIES
-#    COMPILE_FLAGS " -DC_BUILDING_TEMPLATEBLOCK ${SHARED_FLAGS}-Wno-deprecated"
-#    PREFIX ""
-#    OUTPUT_NAME "TemplateBlock")
-#ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
-#ENDIF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
+# LOOP TO GENERATE ALL PLUGINS
 
+FOREACH(target GABOR CONSTANT DIRAC NYQUIST ANYWAVE MCLT MDCT MDST)
+   FOREACH(type ATOM BLOCK)
+#      ADD_CUSTOM_TARGET(${target}_${type}-plugin DEPENDS ${${target}_${type}_PLUGIN_SOURCES})
+      ADD_LIBRARY(${target}_${type} SHARED ${${target}_${type}_PLUGIN_SOURCES})
+         SET_TARGET_PROPERTIES(${target}_${type} PROPERTIES
+	 		       COMPILE_FLAGS " -DC_BUILDING_${target}_${type} ${SHARED_FLAGS} ${PLUGIN_COMPILE_FLAGS}"
+			       PREFIX ""
+    			       OUTPUT_NAME "${target}_${type}")
+    			       TARGET_LINK_LIBRARIES(${target}_${type}  mptk)
+#        ADD_DEPENDENCIES(${target}_${type}  ${target}_${type}-plugin mptk) 
+        ADD_DEPENDENCIES(${target}_${type}  mptk) 
+    	 IF(BUILD_SHARED_LIBS)
+		INSTALL(TARGETS ${target}_${type}
+      			LIBRARY DESTINATION lib
+			ARCHIVE DESTINATION lib
+       			)
+	 ENDIF(BUILD_SHARED_LIBS)
+   ENDFOREACH(type)
+ENDFOREACH(target)
 
-#TARGET_LINK_LIBRARIES(templateblock  mptk)
-
-#ADD_DEPENDENCIES(templateblock templateblock-lib mptk)
-
-#IF(BUILD_SHARED_LIBS)
-#INSTALL(TARGETS
-# templateblock
-# LIBRARY DESTINATION lib
-# ARCHIVE DESTINATION lib)
-
+# COPY THE PLUGIN INFO. TODO : generate plugin info dynamically
 CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/plugin/plugin-info.txt ${MPTK_BINARY_DIR}/lib/plugin-info.txt COPYONLY)
-IF(WIN32 AND NOT LINUX)
 
+# ???
+IF(BUILD_SHARED_LIBS)
+IF(WIN32 AND NOT LINUX)
 INSTALL(DIRECTORY ${MPTK_BINARY_DIR}/lib/ DESTINATION lib)
 ENDIF(WIN32 AND NOT LINUX)
 ENDIF(BUILD_SHARED_LIBS)
