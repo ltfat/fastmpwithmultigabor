@@ -162,8 +162,8 @@ dictcreate_gui;
 disp('(press enter to continue)');pause;
 
 
-%%%
-%%% Should have a full directory 
+%%% TODO
+%%% Should have a full directory for tutorials
 %%% src/matlab/GettingStarted.m.in
 %%% src/matlab/tutorials/Dictionaries.m
 %%% src/matlab/tutorials/Multichannel.m
@@ -171,7 +171,7 @@ disp('(press enter to continue)');pause;
 %%% Next topics :
 %%% Running a decomposition + filtering + reconstruction
 %%% Bookedit ? 
-%%% Multichannel
+%%% Multichannel : with an exampleBookStereo
 %%% Anywave
 %%% Demix
 %%%

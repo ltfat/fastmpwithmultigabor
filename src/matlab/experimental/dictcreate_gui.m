@@ -46,7 +46,7 @@ txtcolor = [1 1 1];
 switch(op)
     case 0 %%%%%% CREATE INTERFACE
         %% Load the mptk information
-        mptkinfo = mptk_getinfo_exp;
+        mptkinfo = mptk4matlab_getinfo_exp;
         currentPath  = pwd;
         if ~isempty(dir(mptkinfo.path.reference))
             dictPathName = [mptkinfo.path.reference '/dictionary'];

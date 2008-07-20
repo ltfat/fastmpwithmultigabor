@@ -1,11 +1,12 @@
 /******************************************************************************/
 /*                                                                            */
-/*                  	          bookread.cpp                       	      */
+/*                  	      bookread_exp.cpp                                */
 /*                                                                            */
 /*				mptk4matlab toolbox		      	      */
 /*                                                                            */
 /* Emmanuel Ravelli                                            	  May 22 2007 */
-/* Remi Gribonval                                            	  July   2008 */
+/* Gilles Gonon                                               	  Feb 20 2008 */
+/* Remi Gribonval                                              	  July   2008 */
 /* -------------------------------------------------------------------------- */
 /*                                                                            */
 /*  This program is free software; you can redistribute it and/or             */
@@ -30,137 +31,93 @@
  */
 
 #include "mptk4matlab.h"
+#include "matrix.h"
+#include "mxBook.h"
 
-void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
+#include <map>
+#include <vector>
 
-	/* Declarations */
-	int tmpcharlen,n,m;
-	char filename[1000];
-	unsigned long int nAtomUser;
-	int numFields = 6;
-	const char *field_names[] = {"format", "numAtoms","numChans","numSamples","sampleRate","atom"};
-	int numFields2 = 7;
-	const char *field_names2[] = {"type","pos","len","amp","freq","phase","chirp"};
-	mwSize dims[2] = {1, 1};
-	mwSize dims2[2];
-	MP_Book_c *book;
-	mxArray *tmp, *type,*atom,*pos,*len,*amp,*freq,*phase,*chirp;
-	unsigned long int nAtom;
-	unsigned short int numChans;
-
-	/* Input */
-	tmpcharlen = mxGetN(prhs[0])+1;
-	mxGetString(prhs[0],&filename[0],tmpcharlen);
-	if (nrhs==2) {
-		nAtomUser = (unsigned long int)mxGetScalar(prhs[1]);
-	}
-	
-	InitMPTK4Matlab(mexFunctionName());
-   
-	/* Output */
-	plhs[0] = mxCreateStructArray(2 , dims, numFields,  field_names);
-    /* Create new book */
-
-	/* Create new book */
-	book = MP_Book_c::create();
-
-	/* Load the book */
-	book->load(filename);
-	
-	/* Header */
-	tmp = mxCreateString("0.1 (ravelli)");
-	mxSetField(plhs[0], 0, "format", tmp);
-	tmp = mxCreateDoubleMatrix(1, 1, mxREAL); *mxGetPr( tmp ) = (double) book->numAtoms;
-	mxSetField(plhs[0], 0, "numAtoms", tmp); 
-	tmp = mxCreateDoubleMatrix(1, 1, mxREAL); *mxGetPr( tmp ) = (double) book->numChans;
-	mxSetField(plhs[0], 0, "numChans", tmp); 
-	tmp = mxCreateDoubleMatrix(1, 1, mxREAL); *mxGetPr( tmp ) = (double) book->numSamples;
-	mxSetField(plhs[0], 0, "numSamples", tmp); 
-	tmp = mxCreateDoubleMatrix(1, 1, mxREAL); *mxGetPr( tmp ) = (double) book->sampleRate;
-	mxSetField(plhs[0], 0, "sampleRate", tmp);
-	if (nrhs==2&&nAtomUser<book->numAtoms) {
-		nAtom = nAtomUser;
-	} else {
-		nAtom = book->numAtoms;
-	}
-	numChans = book->numChans;
-
-	/* Init */
-	atom = mxCreateStructArray(2 , dims, 7,  field_names2);
-	dims2[0] = nAtom; dims2[1] = 1;
-	type = mxCreateCellArray(2, dims2 );
-	pos = mxCreateDoubleMatrix(nAtom, numChans, mxREAL);
-	len = mxCreateDoubleMatrix(nAtom, numChans, mxREAL);
-	amp = mxCreateDoubleMatrix(nAtom, numChans, mxREAL);
-	freq = mxCreateDoubleMatrix(nAtom, numChans, mxREAL);
-	phase = mxCreateDoubleMatrix(nAtom, numChans, mxREAL);
-	chirp = mxCreateDoubleMatrix(nAtom, numChans, mxREAL);
-
-	/* Atoms */
-	for ( n=0 ; n<nAtom ; n++ ) {
-		
-		/* Type */
-		tmp = mxCreateString(book->atom[n]->type_name());
-		mxSetCell(type, n, tmp);
-
-		/* Pos */
-		for ( m=0 ; m<numChans ; m++ ) {
-			*(mxGetPr( pos )+ m*nAtom + n) = book->atom[n]->support[m].pos;
-		}
-		
-		/* Len */
-		for ( m=0 ; m<numChans ; m++ ) {
-			*(mxGetPr( len )+ m*nAtom + n) = book->atom[n]->support[m].len;
-		}
-
-		/* Amp */
-		for ( m=0 ; m<numChans ; m++ ) {
-			*(mxGetPr( amp )+ m*nAtom + n) = book->atom[n]->amp[m];
-		}
-
-		/* Freq */
-		if ( book->atom[n]->has_field( MP_FREQ_PROP ) ) {
-			for ( m=0 ; m<numChans ; m++ ) {
-				*(mxGetPr( freq )+ m*nAtom + n) = book->atom[n]->get_field( MP_FREQ_PROP, m);
-			}
-		} else {
-			for ( m=0 ; m<numChans ; m++ ) {
-				*(mxGetPr( freq )+ m*nAtom + n) = mxGetNaN();
-			}
-		}
-	
-		/* Phase */
-		if ( book->atom[n]->has_field( MP_PHASE_PROP ) ) {
-			for ( m=0 ; m<numChans ; m++ ) {
-				*(mxGetPr( phase )+ m*nAtom + n) = book->atom[n]->get_field( MP_PHASE_PROP, m);
-			}
-		} else {
-			for ( m=0 ; m<numChans ; m++ ) {
-				*(mxGetPr( phase )+ m*nAtom + n) = mxGetNaN();
-			}
-		}	
-	
-		/* Chirp */
-		if ( book->atom[n]->has_field( MP_CHIRP_PROP ) ) {
-			for ( m=0 ; m<numChans ; m++ ) {
-				*(mxGetPr( chirp )+ m*nAtom + n) = book->atom[n]->get_field( MP_CHIRP_PROP, m);
-			}
-		} else {
-			for ( m=0 ; m<numChans ; m++ ) {
-				*(mxGetPr( chirp )+ m*nAtom + n) = mxGetNaN();
-			}
-		}	
-	}
-
-	/* Set */
-	mxSetField(atom, 0, "type", type);
-	mxSetField(atom, 0, "pos", pos);
-	mxSetField(atom, 0, "len",  len);
-	mxSetField(atom, 0, "amp", amp);
-	mxSetField(atom, 0, "freq", freq);
-	mxSetField(atom, 0, "phase", phase);
-	mxSetField(atom, 0, "chirp", chirp);
-	mxSetField(plhs[0], 0, "atom", atom);
+/*
+ *
+ *     MAIN MEX FUNCTION
+ *
+ */
+void mexFunction(int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[]) {
     
-	//  book->info(stdout);
+  // Load the MPTK environment if not loaded 
+  InitMPTK4Matlab(mexFunctionName());
+  
+  /* Check input arguments */
+  if (1!=nrhs) {
+    mexPrintf("!!! %s error -- bad number of input arguments\n",mexFunctionName());
+    mexPrintf("    see help %s\n",mexFunctionName());
+    mexErrMsgTxt("Aborting");
+    return;
+  }
+  
+  if (!mxIsChar(prhs[0])) {
+    mexPrintf("!!! %s error -- The filename argument should be a string\n",mexFunctionName());
+    mexPrintf("    see help %s\n",mexFunctionName());
+    mexErrMsgTxt("Aborting");
+    return;        
+  }
+
+  // Check output arguments
+  if (1<nlhs) {
+    mexPrintf("%s error -- bad number of output arguments\n",mexFunctionName());
+    mexPrintf("    see help %s\n",mexFunctionName());
+    mexErrMsgTxt("Aborting");
+    return;
+  }
+  
+  // Get the book filename
+  char *fileName = mxArrayToString(prhs[0]);
+  if (NULL==fileName) {
+    mexErrMsgTxt("The book file name could not be retrieved from the input. Aborting.");
+    return;
+  }
+
+  // Try to load the book
+  MP_Book_c * book;
+  book = MP_Book_c::create();
+  if (NULL==book) {
+    mexPrintf("Failed to create a book.\n");
+    // Clean the house 
+    mxFree(fileName);
+    mexErrMsgTxt("Aborting");
+    return;
+  }
+  if(0==book->load(fileName)) {
+    mexPrintf("Failed to load atoms from file [%s].\n",fileName);
+    // Clean the house 
+    mxFree(fileName);
+    mexErrMsgTxt("Aborting");
+    return;
+  }
+  // DEBUG
+  mexPrintf("Book file: %s \n successfully loaded (%ld atoms)\n",fileName,book->numAtoms);
+  // Clean the house
+  mxFree(fileName);
+
+
+  // Load book object in Matlab structure
+  mxBook * mexBook = new mxBook(book); // It used to crashes here!!!!
+  
+  // 
+  plhs[0] = mxDuplicateArray(mexBook->mexbook);
+
 }
+
+
+/*
+  // Load book object in Matlab structure
+  mxArray *mxBook = mp_create_mxBook_from_book(book);
+  if(NULL==mxBook) {
+    mexPrintf("Failed to convert a book from MPTK to Matlab.\n");
+    mexErrMsgTxt("Aborting");
+    return;
+  }
+  plhs[0] = mxBook;
+}
+
+*/

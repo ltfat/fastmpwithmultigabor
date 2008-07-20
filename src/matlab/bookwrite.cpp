@@ -1,11 +1,11 @@
 /******************************************************************************/
 /*                                                                            */
-/*                  	          bookwrite.c                       	      */
+/*                  	          bookwrite.cpp                      	      */
 /*                                                                            */
 /*				mptk4matlab toolbox		      	      */
 /*                                                                            */
-/* Emmanuel Ravelli                                            	   Jan 1 2007 */
-/* Remi Gribonval                                            	  July   2008 */
+/* Gilles Gonon                                                	  Feb 21 2008 */
+/* Remi Gribonval                                              	  July   2008 */
 /* -------------------------------------------------------------------------- */
 /*                                                                            */
 /*  This program is free software; you can redistribute it and/or             */
@@ -25,211 +25,44 @@
 /*                                                                            */
 /******************************************************************************/
 /*
- * $Version 0.5.2$
- * $Date 01/01/2007$
+ * $Version 0.5.4$
+ * $Date 21/02/2008$
  */
 
-#include "mex.h" 
-#include <string.h> 
+#include "mptk4matlab.h"
+#include "mxBook.h"
 
-void mexFunction(int nlhs, mxArray *plhs[],
-int nrhs, const mxArray *prhs[]) {
-
-    /* Declarations */
-    mxArray *tmp,*atoms,*atom;
-    char *tmpchar,*VERSION,*type;
-    double tmpdouble;
-    double *tmparray,*tmparray2;
-    int n,i,tmpcharlen,sampleRate;
-	unsigned short int numChans;
-    unsigned int numPartials;
-    unsigned long int nAtom,numSamples,tmplint,tmplint2;
-	FILE *fid;
+void mexFunction(int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[]) 
+{
+  char *fileName = NULL;
+  
+  InitMPTK4Matlab(mexFunctionName());
     
-    /* Open the file */
-    tmpcharlen = mxGetN(prhs[1])+1;
-    tmpchar = (char*)mxCalloc(tmpcharlen, sizeof(char)); 
-    mxGetString(prhs[1],tmpchar,tmpcharlen);
-     if ( (fid = fopen(tmpchar , "w" ) ) == NULL ) {
-        mexErrMsgTxt( "Can't open file");
-    }
-    mxFree(tmpchar);
+  // Check input arguments
+  if (nrhs < 2 ) {
+    mexPrintf("!!! %s error -- bad number of input arguments\n",mexFunctionName());
+    mexPrintf("    see help %s\n",mexFunctionName());
+    return;
+  }
+  if ( !mxIsStruct(prhs[0]) || !mxIsChar(prhs[1])) {
+    mexPrintf("!!! %s error -- At least one argument has a wrong type\n",mexFunctionName());
+    mexPrintf("    see help %s\n",mexFunctionName());
+    return;        
+  }
     
-    /* Header */
-    tmp = mxGetField(prhs[0],0,"numAtoms");
-    nAtom = (unsigned long int)mxGetScalar(tmp);
-    tmp = mxGetField(prhs[0],0,"numChans");
-    numChans = (unsigned int)mxGetScalar(tmp);
-    tmp = mxGetField(prhs[0],0,"numSamples");
-    numSamples = (unsigned long int)mxGetScalar(tmp);
-    tmp = mxGetField(prhs[0],0,"sampleRate");
-    sampleRate = (unsigned int)mxGetScalar(tmp);
-    tmp = mxGetField(prhs[0],0,"libVersion");
-    tmpcharlen = mxGetN(tmp)+1;
-    VERSION = (char*)mxCalloc(tmpcharlen, sizeof(char)); 
-    mxGetString(tmp,VERSION,tmpcharlen);
-    fprintf( fid, "bin\n" );
-    fprintf( fid, "<book nAtom=\"%lu\" numChans=\"%d\" numSamples=\"%lu\""
-	   " sampleRate=\"%d\" libVersion=\"%s\">\n",
-	   nAtom, numChans, numSamples, sampleRate, VERSION );
-    mxFree(VERSION);
+  // Load book structure in object 
+  mxBook mybook(prhs[0]);
     
-    /* Atoms */
-    atoms = mxGetField(prhs[0],0,"atom");
-    for ( n = 0; n < nAtom; n++ ) {
-        atom = mxGetCell(atoms,n);
-        
-        /* Atom type */
-        tmp = mxGetField(atom,0,"type");
-        tmpcharlen = mxGetN(tmp)+1;
-        type = (char*)mxCalloc(tmpcharlen, sizeof(char)); 
-        mxGetString(tmp,type,tmpcharlen);
-        fprintf( fid, "%s\n", type );
-        
-        /* numChans */
-        fwrite( &numChans, sizeof(unsigned short int), 1, fid );
-        
-        /* Support */
-        tmp = mxGetField(atom,0,"pos");
-        tmparray = mxGetPr(tmp);
-        tmp = mxGetField(atom,0,"len");
-        tmparray2 = mxGetPr(tmp);
-        for ( i=0; i<numChans; i++ ) {
-          tmplint = (unsigned long int)(*(tmparray+i));
-          fwrite( &tmplint, sizeof(unsigned long int), 1, fid );
-          tmplint2 = (unsigned long int)(*(tmparray2+i));            
-          fwrite( &tmplint2, sizeof(unsigned long int), 1, fid );
-        }
-        
-        /* Amp */
-        tmp = mxGetField(atom,0,"amp");
-        tmparray = mxGetPr(tmp);
-        fwrite( tmparray,   sizeof(double), numChans, fid );
-        
-        /* - Gabor atom: */
-        if ( !strcmp(type,"gabor") ) {
-            
-            /* Window name */
-            tmp = mxGetField(atom,0,"windowType");
-            tmpcharlen = mxGetN(tmp)+1;
-            tmpchar = (char*)mxCalloc(tmpcharlen, sizeof(char)); 
-            mxGetString(tmp,tmpchar,tmpcharlen);
-            fprintf( fid, "%s\n", tmpchar );
-            mxFree(tmpchar);
-            /* Window option */
-            tmp = mxGetField(atom,0,"windowOpt");
-            tmpdouble = mxGetScalar(tmp);
-            fwrite( &tmpdouble,  sizeof(double), 1, fid );
-            /* Binary parameters */
-            tmp = mxGetField(atom,0,"freq");
-            tmpdouble = mxGetScalar(tmp);
-            fwrite( &tmpdouble,  sizeof(double), 1, fid );
-            tmp = mxGetField(atom,0,"chirp");
-            tmpdouble = mxGetScalar(tmp);
-            fwrite( &tmpdouble, sizeof(double), 1, fid );
-            tmp = mxGetField(atom,0,"phase");
-            tmparray = mxGetPr(tmp);
-            fwrite( tmparray,   sizeof(double), numChans, fid );
-            
-        } 
-        /* - Harmonic atom: */
-        else if ( !strcmp(type,"harmonic") ) {
-            
-            /* Window name */
-            tmp = mxGetField(atom,0,"windowType");
-            tmpcharlen = mxGetN(tmp)+1;
-            tmpchar = (char*)mxCalloc(tmpcharlen, sizeof(char)); 
-            mxGetString(tmp,tmpchar,tmpcharlen);
-            fprintf( fid, "%s\n", tmpchar );
-            mxFree(tmpchar);
-            /* Window option */
-            tmp = mxGetField(atom,0,"windowOpt");
-            tmpdouble = mxGetScalar(tmp);
-            fwrite( &tmpdouble,  sizeof(double), 1, fid );
-            /* Binary parameters */
-            tmp = mxGetField(atom,0,"freq");
-            tmpdouble = mxGetScalar(tmp);
-            fwrite( &tmpdouble,  sizeof(double), 1, fid );
-            tmp = mxGetField(atom,0,"chirp");
-            tmpdouble = mxGetScalar(tmp);
-            fwrite( &tmpdouble, sizeof(double), 1, fid );
-            tmp = mxGetField(atom,0,"phase");
-            tmparray = mxGetPr(tmp);
-            fwrite( tmparray,   sizeof(double), numChans, fid );
-            /* Number of partials */
-            tmp = mxGetField(atom,0,"numPartials");
-            numPartials = (unsigned int) mxGetScalar(tmp);
-            fwrite( &numPartials,  sizeof(unsigned int), 1, fid );
-            /* Binary parameters */
-            tmp = mxGetField(atom,0,"harmonicity");
-            tmparray = mxGetPr(tmp);
-            fwrite( tmparray,   sizeof(double), numPartials, fid );
-            tmp = mxGetField(atom,0,"partialAmpStorage");
-            tmparray = mxGetPr(tmp);
-            fwrite( tmparray,   sizeof(double), numChans*numPartials, fid );
-            tmp = mxGetField(atom,0,"partialPhaseStorage");
-            tmparray = mxGetPr(tmp);
-            fwrite( tmparray, sizeof(double), numChans*numPartials, fid );
-            
-        }
-        /* - Mdct atom : */
-        else if ( !strcmp(type,"mdct") ) {
-            
-            /* Window name */
-            tmp = mxGetField(atom,0,"windowType");
-            tmpcharlen = mxGetN(tmp)+1;
-            tmpchar = (char*)mxCalloc(tmpcharlen, sizeof(char)); 
-            mxGetString(tmp,tmpchar,tmpcharlen);
-            fprintf( fid, "%s\n", tmpchar );
-            mxFree(tmpchar);
-            /* Window option */
-            tmp = mxGetField(atom,0,"windowOpt");
-            tmpdouble = mxGetScalar(tmp);
-            fwrite( &tmpdouble,  sizeof(double), 1, fid );
-            /* Binary parameters */
-            tmp = mxGetField(atom,0,"freq");
-            tmpdouble = mxGetScalar(tmp);
-            fwrite( &tmpdouble,  sizeof(double), 1, fid );
-            
-        } 
-        /* - Mclt atom: */
-        else if ( !strcmp(type,"mclt") ) {
-            
-            /* Window name */
-            tmp = mxGetField(atom,0,"windowType");
-            tmpcharlen = mxGetN(tmp)+1;
-            tmpchar = (char*)mxCalloc(tmpcharlen, sizeof(char)); 
-            mxGetString(tmp,tmpchar,tmpcharlen);
-            fprintf( fid, "%s\n", tmpchar );
-            mxFree(tmpchar);
-            /* Window option */
-            tmp = mxGetField(atom,0,"windowOpt");
-            tmpdouble = mxGetScalar(tmp);
-            fwrite( &tmpdouble,  sizeof(double), 1, fid );
-            /* Binary parameters */
-            tmp = mxGetField(atom,0,"freq");
-            tmpdouble = mxGetScalar(tmp);
-            fwrite( &tmpdouble,  sizeof(double), 1, fid );
-            tmp = mxGetField(atom,0,"phase");
-            tmparray = mxGetPr(tmp);
-            fwrite( tmparray,   sizeof(double), numChans, fid );
-        }
-        /* - Dirac atom: */
-        else if ( !strcmp(type,"dirac") ) {
-        }
-        /* - Unknown atom type: */
-        else { 
-            mexErrMsgTxt("Cannot write atom type");
-        }
-    }
-
-    /* print the closing </book> tag */
-    fprintf( fid, "</book>\n"); 
+  // Get Book filename
+  string bookName(mxArrayToString(prhs[1]));
     
-    /* Close the file */
-    fclose( fid );
+  // Check write mode */
+  char writeMode = MP_TEXT;  // Change to MP_BINARY after debug
+  if (nrhs==3) {
+    writeMode = (char) mxGetScalar(prhs[2]);
+  }
     
-    /* Free */
-    mxFree(type);
+  mybook.MP_BookWrite(bookName, writeMode);
     
+  return;
 }

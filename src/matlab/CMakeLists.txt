@@ -198,14 +198,34 @@ ENDFOREACH(scriptfile)
 
 IF(BUILD_MATLAB_MEX_FILES AND MEX_COMPILER)   
 
+# mptk4matlab library:
+SET(MPTK4MATLAB_SOURCES
+classes/mptk4matlab.h
+classes/mptk4matlab.cpp
+classes/mexDict.cpp
+experimental/classes/mxBook.h
+experimental/classes/mxBook.cpp)
+
+ADD_LIBRARY(mptk4matlab SHARED ${MPTK4MATLAB_SOURCES})
+
+SET_TARGET_PROPERTIES(mptk4matlab PROPERTIES
+		      COMPILE_FLAGS " -DC_BUILDING_mptk4matlab ${SHARED_FLAGS} ${MPTK4MATLAB_COMPILE_FLAGS} -I${MATLAB_INCLUDE_DIR}  -I${MPTK_SOURCE_DIR}/src/plugin/base/ -I${MPTK_SOURCE_DIR}/src/plugin/contrib/lam/ -L${MATLAB_LIBRARIES}"
+    PREFIX ""
+    OUTPUT_NAME "libmptk4matlab")
+    TARGET_LINK_LIBRARIES(mptk4matlab  mptk ${MATLAB_LIBRARIES})
+    ADD_DEPENDENCIES(mptk4matlab mptk) 
+
 # List of mex files to be compiled and installed
-FOREACH(target dictread dictwrite bookread bookwrite loadenv releaseenv)
+FOREACH(target dictread dictwrite bookread bookwrite)
    ADD_CUSTOM_TARGET(matlab_${target} 
    	             ALL echo
                      DEPENDS  
 		     ${MPTK_MATLAB_OUTPUT_DIR}/${target}.${MEX_EXTENSION} 
 		     ${MPTK_MATLAB_SRC_DIR}/${target}.cpp 
+		     ${target}.cpp 
 		     mptk4matlab)
+
+#   ADD_EXECUTABLE(${target}.${MEX_EXTENSION} ${MPTK_MATLAB_SRC_DIR}/${target}.cpp)
 
    ## ======> What is the use of this line ?
    SET_TARGET_PROPERTIES(matlab_${target} PROPERTIES GENERATED true )
@@ -215,7 +235,7 @@ FOREACH(target dictread dictwrite bookread bookwrite loadenv releaseenv)
     OUTPUT ${MPTK_MATLAB_OUTPUT_DIR}/${target}.${MEX_EXTENSION}
     POST_BUILD
     COMMAND   ${MEX_COMPILER} -v
-    ARGS      -O -DHAVE_FFTW3 -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${MPTK_SOURCE_DIR}/src/tinyxml/ -I/usr/include/ -I${MPTK_SOURCE_DIR} -I${MPTK_SOURCE_DIR}/src/libdsp_windows/ -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${FFTW3_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/ -I${MPTK_MATLAB_SRC_DIR}/experimental/classes/ ${MPTK_MATLAB_SRC_DIR}/${target}.cpp -L${MPTK_LIB_DIR} -lmptk -lmptk4matlab
+    ARGS      -O -DHAVE_FFTW3 -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${MPTK_SOURCE_DIR}/src/tinyxml/ -I/usr/include/ -I${MPTK_SOURCE_DIR} -I${MPTK_SOURCE_DIR}/src/libdsp_windows/ -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${FFTW3_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/ -I${MPTK_MATLAB_SRC_DIR}/classes/ -I${MPTK_MATLAB_SRC_DIR}/experimental/classes/ -I${MPTK_SOURCE_DIR}/src/plugin/base/ -I${MPTK_SOURCE_DIR}/src/plugin/contrib/lam/ ${MPTK_MATLAB_SRC_DIR}/${target}.cpp -L${MPTK_LIB_DIR} -lmptk -lmptk4matlab
     COMMENT   "MEX")
 
     # Copy the MEX-wrapper
@@ -263,29 +283,16 @@ IF(BUILD_MATLAB_MEX_FILES_EXPERIMENTAL)
 # The MEX files and the files that depend on them ... if possible
 IF(MEX_COMPILER)
 
-# List of src files to be compiled
-SET(MPTK4MATLAB_SOURCES
-experimental/classes/mptk4matlab.h
-experimental/classes/mptk4matlab.cpp
-experimental/classes/mexDict.cpp
-experimental/classes/mxBook.h
-experimental/classes/mxBook.cpp)
-
-ADD_LIBRARY(mptk4matlab SHARED ${MPTK4MATLAB_SOURCES})
-
-SET_TARGET_PROPERTIES(mptk4matlab PROPERTIES
-		 COMPILE_FLAGS " -DC_BUILDING_mptk4matlab ${SHARED_FLAGS} ${MPTK4MATLAB_COMPILE_FLAGS} -I${MATLAB_INCLUDE_DIR} -I${MPTK_SOURCE_DIR}/src/plugin/base/ -I${MPTK_SOURCE_DIR}/src/plugin/contrib/lam/ -L${MATLAB_LIBRARIES}"
-    PREFIX ""
-    OUTPUT_NAME "libmptk4matlab")
-    TARGET_LINK_LIBRARIES(mptk4matlab  mptk ${MATLAB_LIBRARIES})
-    ADD_DEPENDENCIES(mptk4matlab  mptk4matlab-lib mptk) 
-
 # List of mex files to be compiled
-FOREACH(target mptk_getinfo_exp bookread_exp bookwrite_exp bookmpr_exp mextest)
-   ADD_CUSTOM_TARGET(matlab_${target} ALL echo
- DEPENDS ${MPTK_MATLAB_OUTPUT_DIR}/${target}.mexmaci mptk4matlab)
+FOREACH(target mptk4matlab_getinfo_exp mextest loadenv_exp releaseenv_exp bookmpr_exp)
+   ADD_CUSTOM_TARGET(matlab_${target} 
+                     ALL echo
+                     DEPENDS 
+		     ${MPTK_MATLAB_OUTPUT_DIR}/${target}.mexmaci
+		     ${MPTK_MATLAB_SRC_DIR}/experimental/${target}.cpp 
+		     experimental/${target}.cpp 
+		     mptk4matlab)
 
-# DEPENDS ${MPTK_MATLAB_SRC_DIR}/experimental/${target}.cpp ptk4matlab)
    SET_TARGET_PROPERTIES(matlab_${target} PROPERTIES GENERATED true )
 
    # Command to generate MEX-binary  
@@ -293,7 +300,7 @@ FOREACH(target mptk_getinfo_exp bookread_exp bookwrite_exp bookmpr_exp mextest)
    OUTPUT ${MPTK_MATLAB_OUTPUT_DIR}/${target}.${MEX_EXTENSION}
    POST_BUILD
    COMMAND   ${MEX_COMPILER} -v
-   ARGS      -O -DHAVE_FFTW3 -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${MPTK_SOURCE_DIR}/src/tinyxml/ -I/usr/include/ -I${MPTK_SOURCE_DIR} -I${MPTK_SOURCE_DIR}/src/libdsp_windows/ -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${MPTK_MATLAB_SRC_DIR}/experimental/classes/ -I${MPTK_SOURCE_DIR}/src/plugin/base/ -I${MPTK_SOURCE_DIR}/src/plugin/contrib/lam/ -I${FFTW3_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/ ${MPTK_MATLAB_SRC_DIR}/experimental/${target}.cpp  -L${MPTK_LIB_DIR} -lmptk -lmptk4matlab
+   ARGS      -O -DHAVE_FFTW3 -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${MPTK_SOURCE_DIR}/src/tinyxml/ -I/usr/include/ -I${MPTK_SOURCE_DIR} -I${MPTK_SOURCE_DIR}/src/libdsp_windows/ -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${MPTK_MATLAB_SRC_DIR}/experimental/classes/ -I${MPTK_MATLAB_SRC_DIR}/classes/ -I${FFTW3_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/  -I${MPTK_SOURCE_DIR}/src/plugin/base/ -I${MPTK_SOURCE_DIR}/src/plugin/contrib/lam/ ${MPTK_MATLAB_SRC_DIR}/experimental/${target}.cpp  -L${MPTK_LIB_DIR} -lmptk -lmptk4matlab
    COMMENT   "MEX")
 
   # Copy the MEX-wrapper
@@ -305,7 +312,7 @@ FOREACH(target mptk_getinfo_exp bookread_exp bookwrite_exp bookmpr_exp mextest)
 ENDFOREACH(target)
 
 # The list of scripts and data files which rely on the MEX_files
-FOREACH(file dictcreate_gui.m  bookedit_exp.m  MPtoolbaricons.mat debugbookio_exp.m)  
+FOREACH(file dictcreate_gui.m  bookedit_exp.m  MPtoolbaricons.mat debugbook_exp.m)  
   CONFIGURE_FILE(${MPTK_MATLAB_SRC_DIR}/experimental/${file} ${MPTK_MATLAB_OUTPUT_DIR}/${file}
                  COPYONLY) 
   INSTALL(FILES ${MPTK_MATLAB_OUTPUT_DIR}/${file}
