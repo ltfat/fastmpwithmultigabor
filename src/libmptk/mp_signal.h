@@ -334,8 +334,8 @@ public:
   MPTK_LIB_EXPORT MP_Real_t deemp( double coeff );
   
     /** \brief compare if two signals has differences using a precision
-   * \param the first signal
-   * \param the precision
+   * \param s1 the signal to compare
+   * \param precision the precision
    * \return a boolean
    *
    */

@@ -98,7 +98,7 @@ class MP_Mpd_Core_c:public MP_Abstract_Core_c
      */
     MPTK_LIB_EXPORT static MP_Mpd_Core_c* create( MP_Signal_c *setSignal, MP_Book_c *setBook, MP_Dict_c *setDict );
     /** \brief A factory function for the MP_Mpd_Core_c
-    * \param signal the signal to decompose
+    * \param setSignal the signal to decompose
     * \param setBook the book to stock the atoms
     * \param setApproximant  an approximant to reconstruct the signal
     * 
