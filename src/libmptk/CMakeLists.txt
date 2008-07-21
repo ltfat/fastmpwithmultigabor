@@ -203,11 +203,6 @@ ENDIF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
   ELSE(WIN32)
 TARGET_LINK_LIBRARIES(mptk dsp_windows dl tinyxml ${PTHREAD_LIBRARY_FILE} ${SNDFILE_LIBRARY_FILE} ${FFTW3_LIBRARY_FILE})
 ENDIF(WIN32)
-#------------------------------------------------  
-#Build the executable if requested by the end-user
-IF(BUILD_EXECUTABLE)
-INCLUDE( ${MPTK_SOURCE_DIR}/CMake/buildEXECUTABLE.cmake )
-ENDIF(BUILD_EXECUTABLE)
 #
 #------------------------------------------------
 # Define install target:
