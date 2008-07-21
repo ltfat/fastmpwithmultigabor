@@ -28,7 +28,6 @@
 
 void mexFunction(int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[])
 {
-  double isvalid   = 0.0;
   char *fileName   = NULL;
 
   InitMPTK4Matlab(mexFunctionName());
@@ -68,25 +67,30 @@ void mexFunction(int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[])
   // Converting dictionary
   const mxArray* mxDict = prhs[0];
   MP_Dict_c *dict = mp_create_dict_from_mxDict(mxDict);
-  
-  // If the dictionary is valid
-  if(NULL!=dict) {
-    isvalid = 1.0;
+
+  // If the dictionary is not valid
+  if(NULL==dict) {
+    double isvalid   = 0.0;
     if(nlhs>0) plhs[0] = mxCreateDoubleScalar((double)isvalid);
-    // If a filename was provided, we need to try to write to file
-    if(NULL!=fileName) {
-      if (dict->print(fileName)) {
-	mexPrintf("%s error --the dictionary could not be written to file %s\n",mexFunctionName(),fileName);
-	// Clean the house
-	mxFree(fileName);
-	return;
-      } 
-      else {
-	// Clean the house
-	mxFree(fileName);
-      }
-    }
-    // Clean the house
-    delete dict;
+    return;
   }
+  // If it is valid
+  isvalid = 1.0;
+  if(nlhs>0) plhs[0] = mxCreateDoubleScalar((double)isvalid);
+  // If a filename was provided, we need to try to write to file
+  if(NULL!=fileName) {
+    if (dict->print(fileName)) {
+      mexPrintf("%s error --the dictionary could not be written to file %s\n",mexFunctionName(),fileName);
+      // Clean the house
+      mxFree(fileName);
+      mxErrMsgTxt("Aborting");
+      return;
+    } 
+    else {
+      // Clean the house
+      mxFree(fileName);
+    }
+  }
+  // Clean the house
+  delete dict;
 }

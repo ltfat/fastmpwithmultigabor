@@ -148,7 +148,7 @@ MP_Dict_c * mp_create_dict_from_mxDict(const mxArray *mxDict)
       if(NULL!=dict) delete dict; 
       return(NULL);
     }
-    for (int j= 0; j <numFields ; j++) {
+    for (unsigned int j= 0; j <numFields ; j++) {
       const char * fieldName = mxGetFieldNameByNumber(mxBlock,j);
       if (NULL==fieldName) {
 	mp_error_msg(func,"field number %d in dict.block{%d} could not be retrieved\n",j+1,i+1);

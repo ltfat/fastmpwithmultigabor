@@ -1,12 +1,10 @@
 /******************************************************************************/
 /*                                                                            */
-/*                  	      bookread_exp.cpp                                */
+/*                  	          sigwrite.cpp                       	      */
 /*                                                                            */
 /*				mptk4matlab toolbox		      	      */
 /*                                                                            */
-/* Emmanuel Ravelli                                            	  May 22 2007 */
-/* Gilles Gonon                                               	  Feb 20 2008 */
-/* Remi Gribonval                                              	  July   2008 */
+/* Remi Gribonval                                            	  July   2008 */
 /* -------------------------------------------------------------------------- */
 /*                                                                            */
 /*  This program is free software; you can redistribute it and/or             */
@@ -25,87 +23,71 @@
 /*  Boston, MA  02111-1307, USA.                                              */
 /*                                                                            */
 /******************************************************************************/
-/*
- * $Version 0.5.3$
- * $Date 05/22/2007$
- */
 
 #include "mptk4matlab.h"
-#include "matrix.h"
-#include "mxBook.h"
 
-#include <map>
-#include <vector>
+void mexFunction(int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[])
+{
+  char *fileName   = NULL;
 
-/*
- *
- *     MAIN MEX FUNCTION
- *
- */
-void mexFunction(int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[]) {
-    
-  // Load the MPTK environment if not loaded 
   InitMPTK4Matlab(mexFunctionName());
   
-  /* Check input arguments */
-  if (1!=nrhs) {
-    mexPrintf("!!! %s error -- bad number of input arguments\n",mexFunctionName());
+  // Check input arguments
+  if (3!=nrhs) {
+    mexPrintf("%s error -- bad number of input arguments\n",mexFunctionName());
     mexPrintf("    see help %s\n",mexFunctionName());
     mexErrMsgTxt("Aborting");
     return;
   }
-  
-  if (!mxIsChar(prhs[0])) {
-    mexPrintf("!!! %s error -- The filename argument should be a string\n",mexFunctionName());
+  if(!mxIsChar(prhs[1])) {
+    mexPrintf("%s error -- the second argument filename should be a string\n",mexFunctionName());
     mexPrintf("    see help %s\n",mexFunctionName());
     mexErrMsgTxt("Aborting");
     return;        
   }
+  fileName = mxArrayToString(prhs[1]);
+  if (NULL==fileName) {
+    mexPrintf("%s error -- the second argument filename could not be retrieved from the input\n",mexFunctionName());
+    mexErrMsgTxt("Aborting");
+    return;
+  }
+  if(!mxIsNumeric(prhs[2])) {
+    mexPrintf("%s error -- the third argument sampleRate should be a positive number\n",mexFunctionName());
+    mexErrMsgTxt("Aborting");
+    return;
+  }
+  double sampleRate = mxGetScalar(prhs[2]);
 
   // Check output arguments
-  if (1<nlhs) {
+  if (nlhs>0) {
     mexPrintf("%s error -- bad number of output arguments\n",mexFunctionName());
     mexPrintf("    see help %s\n",mexFunctionName());
+    // Clean the house
+    mxFree(fileName);
     mexErrMsgTxt("Aborting");
-    return;
-  }
-  
-  // Get the book filename
-  char *fileName = mxArrayToString(prhs[0]);
-  if (NULL==fileName) {
-    mexErrMsgTxt("The book file name could not be retrieved from the input. Aborting.");
     return;
   }
 
-  // Try to load the book
-  MP_Book_c * book;
-  book = MP_Book_c::create();
-  if (NULL==book) {
-    mexPrintf("Failed to create a book.\n");
-    // Clean the house 
+  // Converting signal
+  const mxArray* mxSignal = prhs[0];
+  MP_Signal_c *signal = mp_create_signal_from_mxSignal(mxSignal);
+  if(NULL==signal) {
+    mexPrintf("%s could not convert given signal\n",mexFunctionName());
+    // Clean the house
     mxFree(fileName);
     mexErrMsgTxt("Aborting");
     return;
   }
-  if(0==book->load(fileName)) {
-    mexPrintf("Failed to load atoms from file [%s].\n",fileName);
-    // Clean the house 
+  signal->sampleRate = sampleRate;
+
+  // Writing. 
+  if (0==signal->wavwrite(fileName)) {
+    mexPrintf("%s error --the signal could not be written to WAV file %s\n",mexFunctionName(),fileName);
+    // Clean the house
     mxFree(fileName);
-    mexErrMsgTxt("Aborting");
     return;
-  }
-  // DEBUG
-  mexPrintf("Book file: %s \n successfully loaded (%ld atoms)\n",fileName,book->numAtoms);
+  } 
+
   // Clean the house
-  mxFree(fileName);
-
-  // Load book object in Matlab structure
-  mxArray *mexBook = mp_create_mxBook_from_book(book);
-  if(NULL==mexBook) {
-    mexPrintf("Failed to convert a book from MPTK to Matlab.\n");
-    mexErrMsgTxt("Aborting");
-    return;
-  }
-  if(nlhs>0) plhs[0] = mexBook;
+  delete signal;
 }
-

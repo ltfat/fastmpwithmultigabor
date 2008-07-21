@@ -76,5 +76,5 @@ void mexFunction(int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[])
     mexErrMsgTxt("Aborting");
     return;
   }
-  plhs[0] = mxDict;
+  if (nlhs>0) plhs[0] = mxDict;
 }
