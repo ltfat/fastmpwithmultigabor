@@ -123,6 +123,11 @@ MP_Dict_c::MP_Dict_c()
   block = NULL;
   blockWithMaxIP = UINT_MAX;
   touch = NULL;
+#ifdef MULTITHREAD
+threads = NULL;
+tasks = NULL;
+bar = NULL;
+#endif
   mp_debug_msg( MP_DEBUG_CONSTRUCTION, "MP_Dict_c::MP_Dict_c()",
                 "Done.\n" );
 }
@@ -134,7 +139,7 @@ MP_Dict_c::~MP_Dict_c()
 {
 
   unsigned int i;
-  const char* func = "MP_Dict_c::init(void)";
+  const char* func = "MP_Dict_c::~MP_Dict_c()";
   mp_debug_msg( MP_DEBUG_DESTRUCTION, "MP_Dict_c::~MP_Dict_c()",
                 "Deleting dict...\n" );
 
@@ -154,7 +159,7 @@ MP_Dict_c::~MP_Dict_c()
       tasks[i].exit = true ;
     }
    if (bar && numBlocks > 0) bar[0]->wait();
-  if (numBlocks > 0) for (i = 0; i < numBlocks; ++i)
+  if (bar && numBlocks > 0) for (i = 0; i < numBlocks; ++i)
     {
       if (pthread_join(threads[i], NULL))
         {
@@ -163,7 +168,7 @@ MP_Dict_c::~MP_Dict_c()
         }
     }
 
-   if (numBlocks > 0) delete [] threads;
+   if (threads && numBlocks > 0) delete [] threads;
   if (bar && numBlocks > 0){  for (i = 0; i < 2; ++i)
     {
         if (bar[i]) delete  bar[i];
