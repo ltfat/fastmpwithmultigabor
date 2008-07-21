@@ -99,25 +99,13 @@ void mexFunction(int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[]) {
   // Clean the house
   mxFree(fileName);
 
-
   // Load book object in Matlab structure
-  mxBook * mexBook = new mxBook(book); // It used to crashes here!!!!
-  
-  // 
-  plhs[0] = mxDuplicateArray(mexBook->mexbook);
-
-}
-
-
-/*
-  // Load book object in Matlab structure
-  mxArray *mxBook = mp_create_mxBook_from_book(book);
-  if(NULL==mxBook) {
+  mxArray *mexBook = mp_create_mxBook_from_book(book);
+  if(NULL==mexBook) {
     mexPrintf("Failed to convert a book from MPTK to Matlab.\n");
     mexErrMsgTxt("Aborting");
     return;
   }
-  plhs[0] = mxBook;
+  plhs[0] = mexBook;
 }
 
-*/

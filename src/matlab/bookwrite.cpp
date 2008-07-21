@@ -35,34 +35,92 @@
 void mexFunction(int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[]) 
 {
   char *fileName = NULL;
-  
+  char *writeModeName = NULL;
   InitMPTK4Matlab(mexFunctionName());
     
   // Check input arguments
-  if (nrhs < 2 ) {
+  if (nrhs < 2 || nrhs>3) {
     mexPrintf("!!! %s error -- bad number of input arguments\n",mexFunctionName());
     mexPrintf("    see help %s\n",mexFunctionName());
     return;
-  }
-  if ( !mxIsStruct(prhs[0]) || !mxIsChar(prhs[1])) {
-    mexPrintf("!!! %s error -- At least one argument has a wrong type\n",mexFunctionName());
+  } 
+  if ( !mxIsStruct(prhs[0])) {
+    mexPrintf("!!! %s error -- first argument (book) should be a struct\n",mexFunctionName());
     mexPrintf("    see help %s\n",mexFunctionName());
     return;        
+  } 
+  if(nrhs>=2) {
+	if(!mxIsChar(prhs[1])) {
+		mexPrintf("!!! %s error -- second argument (fileName) should be a string\n",mexFunctionName());
+		mexPrintf("    see help %s\n",mexFunctionName());
+		return;        
+	} else {
+		fileName = mxArrayToString(prhs[1]);
+		if (NULL==fileName) {
+			mexPrintf("%s error -- second argument (fileName) could not be retrieved from the input\n",mexFunctionName());
+			mexErrMsgTxt("Aborting");
+			return;
+		}
+	}
   }
-    
-  // Load book structure in object 
-  mxBook mybook(prhs[0]);
-    
-  // Get Book filename
-  string bookName(mxArrayToString(prhs[1]));
-    
-  // Check write mode */
-  char writeMode = MP_TEXT;  // Change to MP_BINARY after debug
-  if (nrhs==3) {
-    writeMode = (char) mxGetScalar(prhs[2]);
+  if(nrhs==3) {
+	if(!mxIsChar(prhs[2])) {
+		mexPrintf("!!! %s error -- optional third argument (writeMode) should be a string\n",mexFunctionName());
+		mexPrintf("    see help %s\n",mexFunctionName());
+		// Clean the house
+		mxFree(fileName);
+		return;        
+	} else {
+		writeModeName = mxArrayToString(prhs[2]);
+		if (NULL==writeModeName) {
+			mexPrintf("%s error -- the optional third argument writeMode could not be retrieved from the input\n",mexFunctionName());
+			mexErrMsgTxt("Aborting");
+			// Clean the house
+			mxFree(fileName);
+			return;
+		}
+	}
   }
-    
-  mybook.MP_BookWrite(bookName, writeMode);
-    
+  // Check output arguments
+  if (nlhs>0) {
+    mexPrintf("%s error -- wrong number of output arguments\n",mexFunctionName());
+    mexErrMsgTxt("Aborting");
+    // Clean the house
+    mxFree(fileName);
+    if(NULL!=writeModeName) mxFree(writeModeName);
+    return;
+  }
+
+  // Check write mode
+  char writeMode = MP_BINARY;
+  if(NULL!=writeModeName) {
+    if(!strcmp(writeModeName,"binary"))
+      writeMode = MP_BINARY;
+    else if(!strcmp(writeModeName,"txt"))
+      writeMode = MP_TEXT;
+    else {
+      mexPrintf("%s error -- writeMode can be either 'binary' or 'txt'\n",mexFunctionName());
+      mexErrMsgTxt("Aborting");
+      // Clean the house
+      mxFree(fileName);
+      mxFree(writeModeName);
+      return;
+    }
+  }
+
+  // Load book object from Matlab structure
+  const mxArray *mexBook = prhs[0];
+  MP_Book_c *book = mp_create_book_from_mxBook(mexBook);
+  if(NULL==book) {
+    mexPrintf("Failed to convert a book from Matlab to MPTK.\n");
+    mexErrMsgTxt("Aborting");
+    // Clean the house
+    mxFree(fileName);
+    mxFree(writeModeName);
+    return;
+  }
+  
+  book->print(fileName,writeMode);
   return;
 }
+

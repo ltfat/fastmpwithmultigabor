@@ -878,56 +878,89 @@ void mxBook::MP_BookWrite(string fileName, const char mode) {
  */
 
 mxArray * mxBook::Book_Reconstruct() {
+  char *func = "mxBook::Book_Reconstruct()";
   MP_Book_c   * mpBook;
   MP_Signal_c * mpSignal;
   mxArray     * mxSignal = NULL;
     
-  /* Load the MPTK environment if not loaded */
-  if (!MPTK_Env_c::get_env()->get_environment_loaded()) {
-    MPTK_Env_c::get_env()->load_environment("");
-  }
-  
   /** Export mexbook to a MP_Book_c */
   mpBook = this->Book_MEX_2_MPTK();
 
-  if ( mpBook == NULL ) {
-    mexPrintf( "mxBook::Book_Reconstruct() info -- MP_Book_c is ill formed.\n" );
+  if ( NULL==mpBook ) {
+    mp_error_msg(func,"MP_Book_c is ill formed.\n" );
     mxSignal = mxCreateDoubleMatrix(0,0, mxREAL);
     return mxSignal;
   }
 
   
   // Reconstruct book to signal
-  //if (MP_FALSE == mpBook->recheck_num_channels()) {  mexPrintf( "mxBook::Book_Reconstruct() WARNING -- BOOK NUMCHANS NOT UP TO DATE\n" ); }
+  //if (MP_FALSE == mpBook->recheck_num_channels()) {  mp_warning_msg( func," BOOK NUMCHANS NOT UP TO DATE\n" ); }
   
-  //if (MP_FALSE == mpBook->recheck_num_samples()) {  mexPrintf( "mxBook::Book_Reconstruct() WARNING -- BOOK NUMSAMPLES NOT UP TO DATE\n" ); }
+  //if (MP_FALSE == mpBook->recheck_num_samples()) {  mp_warning_msg( func," BOOK NUMSAMPLES NOT UP TO DATE\n" ); }
   
   // Init MP_Signal with book params
   mpSignal = MP_Signal_c::init( mpBook->numChans, mpBook->numSamples, mpBook->sampleRate );
-  if ( mpSignal == NULL ) {
-    mexPrintf( "mxBook::Book_Reconstruct() error -- Can't make a new signal.\n" );
+  if ( NULL==mpSignal ) {
+    mp_error_msg(func, " -- Can't make a new signal.\n" );
     return mxSignal;
   }
   
 
   /** THIS LINE MAKES A SEG FAULT -- GDB GIVES NO TRACE -- MAYBE IT IS A PROBLEM OF MATLAB !!! */
   mpBook->substract_add( NULL,mpSignal, NULL);
-  mexPrintf( "mxBook::Book_Reconstruct() info -- MP_Signal_c reconstructed from MP_Book_c\n" );
+  mp_info_msg( func, "MP_Signal_c reconstructed from MP_Book_c\n" );
   
   
   // Convert MP_Signal to mxArray
   mxSignal = mxCreateDoubleMatrix(mpSignal->numSamples, mpSignal->numChans, mxREAL);
-  unsigned long int nS;
-  unsigned int nC;
-  
-  
-  mexPrintf( "mxBook::Book_Reconstruct() info -- filling signal vector\n" );
-  for (nS=0; nS<mpSignal->numSamples * mpSignal->numChans; nS++) {
-    *( mxGetPr(mxSignal) + nS ) = (double) ( mpSignal->storage[nS]);
+  if (NULL==mxSignal) {
+    mp_error_msg(func, "Can't allocate a new mxSignal.\n" );
+    return mxSignal;
   }
-  
+  unsigned long int nS,sample;
+  unsigned int nC,channel;
+    
+  mp_info_msg( func, "filling signal vector\n" );
+  //  for (nS=0; nS<mpSignal->numSamples * mpSignal->numChans; nS++) {
+  //    *( mxGetPr(mxSignal) + nS ) = (double) ( mpSignal->storage[nS]);
+  //  }
+
+  for (channel=0; channel<mpSignal->numChans; channel++) {
+    for (sample=0; sample<mpSignal->numSamples; sample++) {
+      *( mxGetPr(mxSignal) + channel*mpSignal->numSamples +  sample) = (double) (mpSignal->channel[channel][sample]);
+    }
+  }
+
+  mp_info_msg(func, "filling succesfull of mxSignal = %p\n",mxSignal);
+    //mxArray *temp = mxCreateDoubleMatrix(1,5,mxREAL);
+    //double data[5] = {1,2,3,4,5};
+    //memcpy(mxGetPr(temp), data, 5*sizeof(double)); /* CORRECT *
+
   //  delete(mpBook);
   // delete(mpSignal);
     
   return mxSignal;
 }
+
+
+
+mxArray *mp_create_mxBook_from_book(MP_Book_c *book) {
+  // Load book object in Matlab structure
+  mxBook * mexBook = new mxBook(book);
+  if(NULL!= mexBook) {
+    mxArray *res = mxDuplicateArray(mexBook->mexbook);
+    return(res);
+  }
+  else {
+    return(NULL);
+  }
+}
+
+MP_Book_c *mp_create_book_from_mxBook(const mxArray *mexBook)  {
+  // Load book structure in object 
+  mxBook mybook(mexBook);
+  MP_Book_c* book =  mybook.Book_MEX_2_MPTK();
+  return(book);
+}
+
+

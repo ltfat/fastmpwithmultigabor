@@ -8,7 +8,7 @@
 %
 % Output:
 % book     : a book structure with the following structure
-%    TODO
+%    TODO : document
 %
 % Known limitations : only the following atom types are supported: 
 %    gabor, harmonic, mdct, mclt, dirac.

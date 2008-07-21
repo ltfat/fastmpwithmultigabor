@@ -8,6 +8,8 @@
 %    TODO
 % filename : the filename where to read the book
 %
+% writeMode: optional, 'binary' (default) or 'txt' 
+%
 % Known limitations : only the following atom types are supported: 
 %    gabor, harmonic, mdct, mclt, dirac.
 %

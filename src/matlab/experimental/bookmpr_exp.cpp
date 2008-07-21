@@ -37,39 +37,41 @@
  *     MAIN MEX FUNCTION
  *
  */
-void mexFunction(int nlhs, mxArray *plhs[],
-int nrhs, const mxArray *prhs[]) {
+void mexFunction(int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[]) {
     
-    /* Check input arguments */
-    if (nrhs != 1) {
-        mexPrintf("!!! %s error -- bad number of input arguments\n",mexFunctionName());
-        mexPrintf("    see help %s\n",mexFunctionName());
-        return;
-    }
- 
-    if ( !mxIsStruct(prhs[0])) {
-      mexPrintf("!!! %s error -- At least one argument has a wrong type\n",mexFunctionName());
-      mexPrintf("    see help %s\n",mexFunctionName());
-      return;        
-    }
-       
-    /** Check output args */
-    if (nlhs != 1) {
-        mexPrintf("!!! %s error -- bad number of output arguments\n",mexFunctionName());
-        mexPrintf("    see help %s\n",mexFunctionName());
-        return;
-    }
-    
-    /* Load the MPTK environment if not loaded */
-    InitMPTK4Matlab(mexFunctionName());
-
-    /** Load book structure in object */
-    mxBook mybook(prhs[0]);
-    mxArray *mxOut = NULL;
-    
-    mxOut = mybook.Book_Reconstruct();
-    
-    plhs[0] = mxOut;
-
+  // Check input arguments
+  if (nrhs != 1) {
+    mexPrintf("!!! %s error -- bad number of input arguments\n",mexFunctionName());
+    mexPrintf("    see help %s\n",mexFunctionName());
     return;
+  }
+  
+  if ( !mxIsStruct(prhs[0])) {
+    mexPrintf("!!! %s error -- At least one argument has a wrong type\n",mexFunctionName());
+    mexPrintf("    see help %s\n",mexFunctionName());
+    return;        
+  }
+  
+  // Check output args
+  if (nlhs != 1) {
+    mexPrintf("!!! %s error -- bad number of output arguments\n",mexFunctionName());
+    mexPrintf("    see help %s\n",mexFunctionName());
+    return;
+  }
+  
+  // Load the MPTK environment if not loaded
+  InitMPTK4Matlab(mexFunctionName());
+  
+  // Load book structure in object
+  //  mxBook mybook(prhs[0]);
+  mxBook mybook(mxDuplicateArray(prhs[0]));
+  mxArray *mxOut = NULL;
+  
+  mp_info_msg(mexFunctionName(),"entering Book_Reconstruct() prhs[0]=%p\n",prhs[0]);
+  mxOut = mybook.Book_Reconstruct();
+  mp_info_msg(mexFunctionName(),"finished Book_Reconstruct() with mxOut = %p\n",mxOut);
+  plhs[0] = mxDuplicateArray(mxOut);
+  //plhs[0] = mxOut;
+  mp_info_msg(mexFunctionName(),"returning %p\n",plhs[0]);
+  return;
 }

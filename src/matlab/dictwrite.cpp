@@ -77,10 +77,12 @@ void mexFunction(int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[])
     if(NULL!=fileName) {
       if (dict->print(fileName)) {
 	mexPrintf("%s error --the dictionary could not be written to file %s\n",mexFunctionName(),fileName);
+	// Clean the house
 	mxFree(fileName);
 	return;
       } 
       else {
+	// Clean the house
 	mxFree(fileName);
       }
     }

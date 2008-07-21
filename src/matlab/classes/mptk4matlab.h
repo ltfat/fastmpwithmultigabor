@@ -48,15 +48,3 @@ MPTK_LIB_EXPORT extern mxArray *mp_create_mxDict_from_dict(MP_Dict_c *dict);
  */
 MPTK_LIB_EXPORT extern MP_Dict_c *mp_create_dict_from_mxDict(const mxArray *mxDict);
 
-/** \brief Converts a MP_Book_c object to a Matlab structure 
- * \param book the MPTK object
- * \return the created Matlab structure, NULL in case of problem
- */
-//MPTK_LIB_EXPORT extern mxArray *mp_create_mxBook_from_book(MP_Book_c *book);
-
-/** \brief Converts a Matlab structure to a MP_Book_c object
- * \param mxBook the Matlab structre
- * \return the created MTPK object, NULL in case of problem
- */
-//MPTK_LIB_EXPORT extern MP_Book_c *mp_create_book_from_mxBook(const mxArray *mxBook);
-
