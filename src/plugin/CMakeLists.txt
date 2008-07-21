@@ -3,7 +3,7 @@
 #
 
 if(COMMAND cmake_policy)
-    cmake_policy(SET CMP0003 OLD)
+    cmake_policy(SET CMP0003 NEW)
 endif(COMMAND cmake_policy)
 
 #In case of 64 bits plateform we have to compil with -fPIC flag
@@ -161,16 +161,12 @@ contrib/lam/mdst_block_plugin.cpp
 
 FOREACH(target GABOR CONSTANT DIRAC NYQUIST ANYWAVE MCLT MDCT MDST)
    FOREACH(type ATOM BLOCK)
-# COMMENTED BY REMI, NEED TO UNDERSTAND WHY NEEDED
-#      ADD_CUSTOM_TARGET(${target}_${type}-plugin DEPENDS ${${target}_${type}_PLUGIN_SOURCES})
       ADD_LIBRARY(${target}_${type} SHARED ${${target}_${type}_PLUGIN_SOURCES})
       SET_TARGET_PROPERTIES(${target}_${type} PROPERTIES
 			    COMPILE_FLAGS " -DC_BUILDING_${target}_${type} ${SHARED_FLAGS} ${PLUGIN_COMPILE_FLAGS}"
 			    PREFIX ""
     			    OUTPUT_NAME "${target}_${type}")
       TARGET_LINK_LIBRARIES(${target}_${type}  mptk)
-# COMMENTED BY REMI, NEED TO UNDERSTAND WHY NEEDED
-#      ADD_DEPENDENCIES(${target}_${type}  ${target}_${type}-plugin mptk) 
       ADD_DEPENDENCIES(${target}_${type}  mptk) 
       IF(BUILD_SHARED_LIBS)
 		INSTALL(TARGETS ${target}_${type}
@@ -183,13 +179,6 @@ ENDFOREACH(target)
 
 # COPY THE PLUGIN INFO. TODO : generate plugin info dynamically
 CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/plugin/plugin-info.txt ${MPTK_BINARY_DIR}/lib/plugin-info.txt COPYONLY)
-
-# ??? WHAT IS THIS
-IF(BUILD_SHARED_LIBS)
-IF(WIN32 AND NOT LINUX)
-INSTALL(DIRECTORY ${MPTK_BINARY_DIR}/lib/ DESTINATION lib)
-ENDIF(WIN32 AND NOT LINUX)
-ENDIF(BUILD_SHARED_LIBS)
 
 
 
