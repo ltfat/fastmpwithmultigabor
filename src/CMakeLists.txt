@@ -21,6 +21,12 @@ ADD_SUBDIRECTORY (python)
 # Go to compile mptk plugin
 ADD_SUBDIRECTORY (plugin)
 
+#------------------------------------------------  
+#Build the executable if requested by the end-user
+IF(BUILD_EXECUTABLE)
+ADD_SUBDIRECTORY (utils )
+ENDIF(BUILD_EXECUTABLE)
+
 # Go to compile GUI
 IF(BUILD_GUI)
  ADD_SUBDIRECTORY (gui) 
