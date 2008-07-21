@@ -547,8 +547,8 @@ end
 
 
 function isvalid = validateblock(block)
-
-filename = '/tmp/tmpdict.xml';
+mptkinfo = mptk4matlab_getinfo_exp;
+filename = [mptkinfo.path.reference '/tmp/tmpdict.xml'];
 tmpdict.block{1} = block;
 isvalid = dictwrite(tmpdict,filename);
 
