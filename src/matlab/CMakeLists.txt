@@ -213,11 +213,7 @@ SET_TARGET_PROPERTIES(mptk4matlab PROPERTIES
 		      COMPILE_FLAGS " -DC_BUILDING_mptk4matlab ${SHARED_FLAGS} ${MPTK4MATLAB_COMPILE_FLAGS} -I${MATLAB_INCLUDE_DIR}  -I${MPTK_SOURCE_DIR}/src/plugin/base/ -I${MPTK_SOURCE_DIR}/src/plugin/contrib/lam/"
     PREFIX ""
     OUTPUT_NAME "libmptk4matlab")
-    IF( CMAKE_CXX_COMPILER STREQUAL "cl")
-TARGET_LINK_LIBRARIES(mptk4matlab  mptk ${MATLAB_LIBRARIES} ${MATLAB_MEX_LIBRARY})
-ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
-    TARGET_LINK_LIBRARIES(mptk4matlab  mptk)
-ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")   
+    TARGET_LINK_LIBRARIES(mptk4matlab  mptk ${MATLAB_LIBRARIES} ${MATLAB_MEX_LIBRARY}) 
     ADD_DEPENDENCIES(mptk4matlab mptk) 
 
 # List of mex files to be compiled and installed
