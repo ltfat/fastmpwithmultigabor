@@ -106,13 +106,15 @@ int MP_Dirac_Block_Plugin_c::init_parameters( void ) {
 /* Initialization of signal-independent block parameters map */
 int MP_Dirac_Block_Plugin_c::init_parameter_map( void )
 {
-const char* func = "MP_Gabor_Block_c::init_parameter_map(...)";
+	const char* func = "MP_Gabor_Block_c::init_parameter_map(...)";
 
-parameterMap = new map< string, string, mp_ltstring>();
-   
-(*parameterMap)["type"] = type_name();
-
-return (0);
+	parameterMap = new map< string, string, mp_ltstring>();
+	if(NULL==parameterMap)  {
+		mp_error_msg(func,"could not create map");
+	} else {
+		(*parameterMap)["type"] = type_name();
+	}
+	return (0);
 
 }
 /*******************************************************/
