@@ -112,11 +112,12 @@ ELSE(APPLE)
 ENDIF(APPLE)
 
 ELSE(UNIX)
-IF(WIN32)
-   INCLUDE(FindMatlab)
+IF(WIN32) 
 IF( CMAKE_CXX_COMPILER STREQUAL "cl")
+   INCLUDE(FindMatlab)
    SET(MEX_EXTENSION mexw32)
    FIND_PROGRAM(MEX_COMPILER mex)
+   INCLUDE_DIRECTORIES(${MATLAB_INCLUDE_DIR})
    MESSAGE("Please select Visual Studio as the mex compiler. From within Matlab, type the command line 'mex -setup' and choose Visual Studio in the list.")
 ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
    MESSAGE("Matlab Mex files are only supported by MS Visual Studio")
@@ -212,7 +213,11 @@ SET_TARGET_PROPERTIES(mptk4matlab PROPERTIES
 		      COMPILE_FLAGS " -DC_BUILDING_mptk4matlab ${SHARED_FLAGS} ${MPTK4MATLAB_COMPILE_FLAGS} -I${MATLAB_INCLUDE_DIR}  -I${MPTK_SOURCE_DIR}/src/plugin/base/ -I${MPTK_SOURCE_DIR}/src/plugin/contrib/lam/"
     PREFIX ""
     OUTPUT_NAME "libmptk4matlab")
-    TARGET_LINK_LIBRARIES(mptk4matlab  mptk ${MATLAB_LIBRARIES})
+    IF( CMAKE_CXX_COMPILER STREQUAL "cl")
+TARGET_LINK_LIBRARIES(mptk4matlab  mptk ${MATLAB_LIBRARIES} ${MATLAB_MEX_LIBRARY})
+ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
+    TARGET_LINK_LIBRARIES(mptk4matlab  mptk)
+ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")   
     ADD_DEPENDENCIES(mptk4matlab mptk) 
 
 # List of mex files to be compiled and installed
@@ -288,7 +293,7 @@ FOREACH(target mptk4matlab_getinfo_exp mextest loadenv_exp releaseenv_exp bookmp
    ADD_CUSTOM_TARGET(matlab_${target} 
                      ALL echo
                      DEPENDS 
-		     ${MPTK_MATLAB_OUTPUT_DIR}/${target}.mexmaci
+		     ${MPTK_MATLAB_OUTPUT_DIR}/${target}.${MEX_EXTENSION}
 		     ${MPTK_MATLAB_SRC_DIR}/experimental/${target}.cpp 
 		     experimental/${target}.cpp 
 		     mptk4matlab)
