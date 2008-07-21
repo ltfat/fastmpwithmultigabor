@@ -181,6 +181,7 @@ FOREACH(example BOOK SIGNAL)
 	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/${MPTK_EXAMPLE_${example}_FILENAME} ${MPTK_EXAMPLE_${example}_FILE} COPYONLY)
 ENDFOREACH(example)
 
+CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/${MPTK_DEFAULT_DICT_FILENAME} ${MPTK_BINARY_DIR}/bin/reference/tmp/${MPTK_DEFAULT_DICT_FILENAME} COPYONLY)
 
 # TEST FILES, redundant with defaults ?
 SET(MPTK_ANYWAVE_TEST_TABLE_BIN ${MPTK_REFERENCE_PATH}/signal/anywave_table_data.bin)
@@ -251,18 +252,6 @@ IF(LIBRARY_OUTPUT_PATH)
 ELSE(LIBRARY_OUTPUT_PATH)
 	SET(LIBRARY_OUTPUT_PATH "${MPTK_BINARY_DIR}/lib/${OS}" CACHE PATH "Single output directory for building all libraries.")
 ENDIF(LIBRARY_OUTPUT_PATH)
-
-#-----------------------------------------------------------------------------
-#setting tmp path
-#IF(NOT WIN32)
-#   EXEC_PROGRAM(whoami OUTPUT_VARIABLE USERNAME)
-#   SET(TMP "/tmp/tmpMPTK/${USERNAME}")
-#   MAKE_DIRECTORY(${TMP})
-#ELSE(NOT WIN32)
-#   SET(TMP "c:/tmp/tmpMPTK/")
-#   MAKE_DIRECTORY(${TMP})
-#ENDIF(NOT WIN32)
-#-----------------------------------------------------------------------------
 
 ## FINDING EXTERNAL LIBRARIES
 #############################
