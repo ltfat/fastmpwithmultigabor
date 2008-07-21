@@ -142,26 +142,26 @@ class mxBook {
 
   /** CONSTRUCTORS */
   //! Construct book from matlab structure
-  mxBook(const mxArray * mxbook);
+  MPTK_LIB_EXPORT  mxBook(const mxArray * mxbook);
   //! Construct book from MP_Book_c pointer
-  mxBook(MP_Book_c * mpbook); 
+  MPTK_LIB_EXPORT mxBook(MP_Book_c * mpbook); 
   
   /** DESTRUCTOR */
-  virtual ~mxBook();
+  MPTK_LIB_EXPORT virtual ~mxBook();
 
   /** OTHER METHODS */
 
   /** Get MP_Atom from mx book structure */
-  MP_Atom_c * getMP_Atom(unsigned long int index);
+  MPTK_LIB_EXPORT MP_Atom_c * getMP_Atom(unsigned long int index);
   
   /** Export matlab book structure to MP_Book_c class */
-  MP_Book_c * Book_MEX_2_MPTK();
+  MPTK_LIB_EXPORT MP_Book_c * Book_MEX_2_MPTK();
  
   /** Reconstruct Signal from book and return a pointer to a mxArray containing the MP_Signal samples */
-  mxArray * Book_Reconstruct();
+  MPTK_LIB_EXPORT mxArray * Book_Reconstruct();
   
   /** Export matlab book structure to MP_Book_c class */
-  void MP_BookWrite(string fileName, const char mode);
+  MPTK_LIB_EXPORT void MP_BookWrite(string fileName, const char mode);
   
 };
 
