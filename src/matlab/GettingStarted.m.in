@@ -24,7 +24,7 @@ disp('Can you help ?');
 disp('Please check your installation and provide the full path for this file now.');
 disp('WARNING: don''t forget the quotes, as in');
 disp(['''' configFileName ''').']);
-        configFileName = input('Enter file path then enter (just hit enter if you don''t know):');
+        configFileName = input('Enter file path then enter (just hit enter if you don''t know):','s');
         if isempty(configFileName) || ~exist(configFileName,'file')
             % Everything failed, abort.
 disp('Sorry, but we will need this path to continue!');
@@ -107,7 +107,7 @@ end
 
 
 % Queries MPTK to get some information
-mptkInfo = mptk_getinfo_exp;
+mptkInfo = mptk4matlab_getinfo_exp;
 disp('MPTK is a C++ toolbox implementing Matching Pursuit algorithms as fast as it can');
 disp('for various types of signal dictionaries.');
 disp('The Matlab interface to MPTK makes it possible to interact with MPTK from the Matlab command line.');
@@ -121,9 +121,26 @@ disp(['   ' mptkInfo.path.reference]);
 disp('which can be used to find examples of dictionaries');
 dir([mptkInfo.path.reference '/dictionary/*.xml'])
 disp('(press enter to continue)');pause;
-disp('This basic information can be retrieved using the command ''mptk_getinfo_exp''');
+disp('This basic information can be retrieved using the command ''mptk4matlab _getinfo_exp''');
 % Could add information on mixers and wavetables later on
 
+disp('There are several tutorials on using MPTK4Matlab');
+quitTutorial = 0;
+while (0==quitTutorial)
+     tutorialName = input(...
+['Please choose which tutorial you want to run:\n'...
+ '(0): Quit tutorials\n'...
+ '(1): Dictionaries, how to create them and use them\n'...
+ '(2): Books, which store sparse representations how to process them, visualise them, etc\n'...
+ '(3): Running Matching Pursuit\n'...
+ '(4): Multichannel decompositions (in preparation) \n'...
+ '(5): Anywave atoms (in preparation)\n'...
+ '(6): Demixing pursuit (in preparation)\n'
+],'s');
+     switch tutorialName
+   case '0' % Quit
+     quitTutorial = 1;
+   case '1'			
 %%%
 %%% Dictionaries
 %%%
@@ -159,15 +176,69 @@ disp('or ...')
 disp('(press enter to continue)');pause;
 disp('c) use the dictcreate_gui Graphical interface!');
 dictcreate_gui;
-disp('(press enter to continue)');pause;
+disp('(press enter to finish Dictionaries tutorial)');pause;
 
+   case '2' % Books
+disp('Books are storage format for sparse signal representations.');
+disp('They can be read and written from/to a disk file using the');
+disp('bookread and bookwrite functions. For example we can try');
+disp('         book = bookread(mptkInfo.path.exampleBook)');
+disp('to retrieve an example');
+disp('(press enter to continue)');pause;
+   book = bookread(mptkInfo.path.exampleBook)
+disp('and this book can be plotted using');
+disp('         figure(1);bookplot(book).');
+disp('(press enter to continue)');pause;
+   figure(1);bookplot(book);
+disp('A more elaborate plot superimposed with the spectrogram of the');
+disp('corresponding signal using bookover. We need to retrieve the analysed');
+disp('signal, which turns out to be available in the example files.');
+disp('         sig = sigread(mptkInfo.path.exampleSignal)');
+disp('         figure(2);bookover(book,sig)');
+disp('(press enter to continue)');pause;
+    sig = sigread(mptkInfo.path.exampleSignal);
+    figure(2);bookover(book,sig);
+disp('It is also possible to reconstruct a signal from the book. Let us');
+disp('see what the corresponding time-frequency plot gives');
+disp('         sigrec = bookrecons_exp(book)');
+disp('         figure(3);bookover(book,sigrec)');
+disp('(press enter to continue)');pause;
+    sigrec = bookrecons_exp(book);
+    figure(3);bookover(book,sigrec);
+disp('Let us now compare the original signal with the reconstructed one')
+disp('(press enter to continue)');pause;
+    figure(4);plot(sig,'b');
+    hold on;plot(sigrec,'r');plot(sigrec-sig,'k');
+    legend('original signal','reconstructed signal','difference');
+disp('There is also an experimental interface to play with books.')
+disp('You can try to play with bookedit_exp(book).');
+disp('(press enter to continue)');pause;
+    bookedit_exp(book);
+disp('(press enter to finish Books tutorial)');pause;
+   case '3' % Matching Pursuit
+disp('To run Matching Pursuit, simply use the mpdecomp command');
+disp('For example, let us load a signal and decompose it using the default dictionary');
+disp('       [sig sampleRate] = sigread(mptkInfo.path.exampleSignal);');
+disp('       dict = dictread(mptkInfo.path.defaultDict);');
+disp('       [book residual decay] = mpdecomp(sig,sampleRate,dict,10);');
+disp('       figure(5);bookover(book,sig);');
+disp('(press enter to continue)');pause;
+    [sig sampleRate] = sigread(mptkInfo.path.exampleSignal);
+    dict = dictread(mptkInfo.path.defaultDict);
+    [book residual decay] = mpdecomp(sig,sampleRate,dict,10);
+    figure(5);bookover(book,sig);
+disp('(press enter to finish Running Matching Pursuit tutorial)');pause;
+   case '4' % Multichannel
+     disp('Tutorial in preparation');
+   case '5' % Anywave
+     disp('Tutorial in preparation');
+   case '6' % Demixing Pursuit
+     disp('Tutorial in preparation');
 
 %%% TODO
 %%% Should have a full directory for tutorials
 %%% src/matlab/GettingStarted.m.in
-%%% src/matlab/tutorials/Dictionaries.m
-%%% src/matlab/tutorials/Multichannel.m
-%%% ...
+
 %%% Next topics :
 %%% Running a decomposition + filtering + reconstruction
 %%% Bookedit ? 
@@ -175,3 +246,11 @@ disp('(press enter to continue)');pause;
 %%% Anywave
 %%% Demix
 %%%
+
+otherwise
+  disp('Unknown choice');
+end% switch tutorial
+
+end % while
+
+disp('Bye');

@@ -471,6 +471,13 @@ unsigned long int MP_Book_c::load( FILE *fid ) {
     mp_warning_msg( func, "The book object contains a number of samples [%lu] different from"
 		    " the one read in the stream [%lu].\n",
 		    numSamples, fidNumSamples );
+	if(numSamples < fidNumSamples) {
+		mp_warning_msg(func, "The book.numSamples has been set to match the stream numSamples\n");
+		mp_warning_msg(func, "This is a new behaviour in MPTK 0.5.6 which will become standard\n");
+		numSamples = fidNumSamples;		
+	} else {
+		mp_error_msg(func,"This is very weired, please check your book file\n");
+	}
   }
 
   if ( (sampleRate != 0) && (sampleRate != fidSampleRate) ) {

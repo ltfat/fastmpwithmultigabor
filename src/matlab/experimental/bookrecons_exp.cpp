@@ -75,9 +75,7 @@ void mexFunction(int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[]) {
     mexErrMsgTxt("Aborting");
     return;
   }
-  // Checking compatibility ????
-  // Reconstructing : this is where it crashes! Apparently, in more details, it happens in build_waveform
-  // Maybe this comes from a bad book conversion ????
+  // Reconstructing 
   book->substract_add(NULL,residual,NULL);
   // Clean the house
   delete book;

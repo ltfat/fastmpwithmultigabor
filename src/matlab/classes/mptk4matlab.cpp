@@ -33,6 +33,7 @@
 /* Define a function which displays error messages within Matlab */
 void msgfunc(char *msge) {
 	mexPrintf("%s",msge);
+	mexEvalString("pause(.001);"); // to dump string and flush
 }
 
 void FoundMPTK4Matlab(void)

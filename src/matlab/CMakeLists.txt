@@ -286,7 +286,7 @@ IF(BUILD_MATLAB_MEX_FILES_EXPERIMENTAL)
 IF(MEX_COMPILER)
 
 # List of mex files to be compiled
-FOREACH(target mptk4matlab_getinfo_exp mextest loadenv_exp releaseenv_exp bookrecons_exp atomrecons_exp)
+FOREACH(target mptk4matlab_getinfo_exp bookrecons_exp mpdecomp mextest loadenv_exp releaseenv_exp atomrecons_exp)
    ADD_CUSTOM_TARGET(matlab_${target} 
                      ALL echo
                      DEPENDS 

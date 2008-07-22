@@ -4,7 +4,7 @@
 /*                                                                            */
 /*                        Matching Pursuit Utilities                          */
 /*                                                                            */
-/* Rémi Gribonval                                                             */
+/* RÃˆmi Gribonval                                                             */
 /* Sacha Krstulovic                                           Mon Feb 21 2005 */
 /* -------------------------------------------------------------------------- */
 /*                                                                            */
@@ -299,7 +299,7 @@ unsigned short int MP_Mpd_Core_c::step() {
 					     will be performed on it. */
   residualEnergyBefore = residualEnergy;
   residualEnergy = (double)dict->signal->energy;
-  if ( decayFileName ) decay.append( residualEnergy );
+  if ( useDecay ) decay.append( residualEnergy );
   numIter++;
   
   /* 2) Check for possible breakpoints: */
@@ -405,6 +405,7 @@ void MP_Mpd_Core_c::info_conditions( void )
   }
   if ( resFileName ) mp_info_msg( func, "The residual will be written to file [%s].\n", resFileName );
   else mp_info_msg( func, "The residual will not be saved.\n" );
+  if ( useDecay ) mp_info_msg( func, "The energy decay will be stored at each iteration.\n" );
   if ( decayFileName ) mp_info_msg( func, "The energy decay will be written to file [%s].\n", decayFileName );
   else mp_info_msg( func, "The energy decay will not be saved.\n" );
 
@@ -464,7 +465,9 @@ void MP_Mpd_Core_c::set_save_hit( const unsigned long int setSaveHit,
                            setDecayFileName);                 
                 }
                 else decayFileName = newDecayFileName;
-  strcpy(decayFileName, setDecayFileName); }
+  strcpy(decayFileName, setDecayFileName); 
+  useDecay = MP_TRUE;
+  }
  
 }
 
