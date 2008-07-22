@@ -230,6 +230,153 @@ mxArray * mxAtoms::outputMxStruct(mxArray * atom, unsigned int a) {
 /*                                */
 /**********************************/
 
+//mxArray *mp_create_mxAtom_from_atom(MP_Atom_c *atom);
+
+MP_Atom_c *mp_create_atom_from_mxAtom(const mxArray *mxAtom) {
+  char *func = "mp_create_atom_from_mxAtom";
+
+  if (NULL==mxAtom) {
+    mp_error_msg(func,"NULL input\n");
+    return(NULL);
+  }
+  //  if(!mxIsStruct(mxAtom)) {
+  if(!mxIsChar(mxAtom)) {
+    //    mp_error_msg(func,"Input should be a structure.\n");
+    mp_error_msg(func,"Input should be a string.\n");
+    return(NULL);
+  }
+
+  // Retrieve empty atom creator 
+  char *atomType = mxArrayToString(mxAtom);
+  if(NULL==atomType) {
+    mp_error_msg(func,"Could not retrieve string from argument");
+    return(NULL);
+  }
+  MP_Atom_c* (*emptyAtomCreator)( void ) = MP_Atom_Factory_c::get_atom_factory()->get_empty_atom_creator(atomType);
+  if (NULL == emptyAtomCreator) {
+    mp_error_msg(func,"Cannot retrieve emptyAtomCreator for type:[%s]\n",atomType);	
+    return(NULL);
+  }
+  // DEBUG
+  mp_info_msg(func,"Retrieved emptyAtomCreator for type :[%s]\n",atomType);
+
+  // Default values
+  int numChans = 1;
+  unsigned char windowType = DSP_GAUSS_WIN;
+  unsigned char windowOption = DSP_GAUSS_DEFAULT_OPT;
+  MP_Real_t freq = 0.25;
+  MP_Real_t chirp = 0.0;
+  unsigned long int pos      = 0;
+  unsigned long int len      = 4;
+  MP_Real_t amp = 1.0;
+  MP_Real_t phase = 0.0;
+
+  // Case of Gabor atoms
+  if (!strcmp(atomType,"gabor")) {
+    MP_Gabor_Atom_Plugin_c *atom = (MP_Gabor_Atom_Plugin_c*)(*emptyAtomCreator)();
+    if(NULL==atom) {
+      mp_error_msg(func,"-- could not create empty atom of type %s\n",atomType);
+      return(NULL);
+    }
+    if (atom->alloc_atom_param(numChans) ) {
+      mp_error_msg(func,"Failed to allocate some vectors in the atom %s. Returning a NULL atom.\n",atomType);
+      return(NULL);
+    }
+    if ( atom->alloc_gabor_atom_param(numChans) ) {
+      mp_error_msg(func,"Failed to allocate some vectors in the atom %s. Returning a NULL atom.\n",atomType);
+      return(NULL);
+    }
+	atom->numSamples = pos+len;
+	atom->totalChanLen = 0;
+      
+    atom->windowType = windowType;
+    atom->windowOption = windowOption;
+    atom->freq  = freq;
+    atom->chirp = chirp;
+    for (int channel=0;channel<numChans;channel++) { // loop on channels
+      atom->support[channel].pos = pos;
+      atom->support[channel].len = len;
+      atom->amp[channel] = amp;
+      atom->phase[channel] = phase;
+ 	  atom->totalChanLen += len;
+   }
+    // Clean the house
+    mxFree(atomType);
+    atomType = NULL;
+  
+    // Should we use 
+    //return (dynamic_cast<MP_Atom_c*>(atom));
+    return ((MP_Atom_c*)atom);
+  } 
+
+
+  // Case of Constant atoms
+  if (!strcmp(atomType,"constant")) {
+    MP_Constant_Atom_Plugin_c *atom = (MP_Constant_Atom_Plugin_c*)(*emptyAtomCreator)();
+    if(NULL==atom) {
+      mp_error_msg(func,"-- could not create empty atom of type %s\n",atomType);
+      return(NULL);
+    }
+    if (atom->alloc_atom_param(numChans) ) {
+      mp_error_msg(func,"Failed to allocate some vectors in the atom %s. Returning a NULL atom.\n",atomType);
+      return(NULL);
+    }
+	atom->numSamples = pos+len;
+	atom->totalChanLen = 0;
+    for (int channel=0;channel<numChans;channel++) { // loop on channels
+      atom->support[channel].pos = pos;
+      atom->support[channel].len = len;
+      atom->amp[channel] = amp;
+	  atom->totalChanLen += len;
+    }
+    // Clean the house
+    mxFree(atomType);
+    atomType = NULL;
+
+    // Should we use 
+    //return (dynamic_cast<MP_Atom_c*>(atom));
+    return ((MP_Atom_c*)atom);
+  } 
+
+  // Case of Dirac atoms
+  if (!strcmp(atomType,"dirac")) {
+    MP_Constant_Atom_Plugin_c *atom = (MP_Constant_Atom_Plugin_c*)(*emptyAtomCreator)();
+    if(NULL==atom) {
+      mp_error_msg(func,"-- could not create empty atom of type %s\n",atomType);
+      return(NULL);
+    }
+    if (atom->alloc_atom_param(numChans) ) {
+      mp_error_msg(func,"Failed to allocate some vectors in the atom %s. Returning a NULL atom.\n",atomType);
+      return(NULL);
+    }
+ 	atom->numSamples = pos+len;
+	atom->totalChanLen = 0;
+
+	for (int channel=0;channel<numChans;channel++) { // loop on channels
+      atom->support[channel].pos = pos;
+      atom->support[channel].len = 1;
+      atom->amp[channel] = amp;
+ 	  atom->totalChanLen += len;
+   }
+    // Clean the house
+    mxFree(atomType);
+    atomType = NULL;
+
+    // Should we use 
+    //return (dynamic_cast<MP_Atom_c*>(atom));
+    return ((MP_Atom_c*)atom);
+  } 
+
+	// Should not reach this unless the atom type is not dealt with
+	mp_error_msg(func,"Atom type %s not dealt with\n",atomType);
+   // Clean the house
+    mxFree(atomType);
+    atomType = NULL;
+	return(NULL);
+}
+
+
+
 /***************************/
 /*                         */
 /*  CLASS mxBook  METHODS  */
@@ -242,8 +389,6 @@ mxArray * mxAtoms::outputMxStruct(mxArray * atom, unsigned int a) {
 mxBook::mxBook(const mxArray * mxbook) {
   // Copy mex structure 
   mexbook = mxDuplicateArray(mxbook);
-  //! Init other parameters 
-  setMapTypeName();
   
   mxArray *mxTmp;
   mxTmp = mxGetField(mexbook,0,"numAtoms");
@@ -258,9 +403,7 @@ mxBook::mxBook(const mxArray * mxbook) {
 
 mxBook::mxBook(MP_Book_c *mpbook) {
   
-  // Class parameters initialisation
-  setMapTypeName(); // TODO : This function should be adapted automatically
-  numChans = mpbook->numChans;
+   numChans = mpbook->numChans;
   numAtoms = mpbook->numAtoms;
   
   // Allocate Output book structure
@@ -393,39 +536,12 @@ mxBook::~mxBook() {
 
 
 /** OTHER METHODS */
-/** Set Map of correpondance between atom type (returned by MP_Book_c::type_name()) and atomName (required by MP_Atom_Factory) */
-// TODO : this should probably be set by CMAKE or dynamically found
-void mxBook::setMapTypeName() {
-  typeName["gabor"] = "GaborAtom";
-  typeName["constant"] = "ConstantAtom";
-  typeName["dirac"] = "DiracAtom";
-  typeName["nyquist"] = "NyquistAtom";
-  typeName["harmonic"] = "HarmonicAtom";
-  typeName["mdst"] = "MdstAtom";
-  typeName["mdct"] = "MdctAtom";
-  typeName["mclt"] = "McltAtom";
-  typeName["anywave"] = "AnywaveAtom";
-  typeName["anywaveHilbert"] = "AnywaveHilbertAtom";
-}
 
 
 /** Get MP_Atom from mx book structure */
 /** This maybe far from fast method (get atom by type) */
 MP_Atom_c * mxBook::getMP_Atom(unsigned long int atomIdx) {
-  
-  /** declare NULL atom pointers for each type */
-  MP_Constant_Atom_Plugin_c* newConstant = NULL;
-  MP_Dirac_Atom_Plugin_c* newDirac = NULL;
-  MP_Nyquist_Atom_Plugin_c* newNyquist = NULL;
-  MP_Gabor_Atom_Plugin_c* newGabor = NULL;
-  MP_Harmonic_Atom_Plugin_c* newHarmonic = NULL;
-  MP_Anywave_Atom_Plugin_c* newAnywave = NULL;
-  MP_Anywave_Hilbert_Atom_Plugin_c* newAnywaveHilbert = NULL;
-  MP_Mclt_Atom_Plugin_c* newMclt = NULL;
-  MP_Mdct_Atom_Plugin_c* newMdct = NULL;
-  MP_Mdst_Atom_Plugin_c* newMdst = NULL;
-  MP_Atom_c *newAtom = NULL;
-        
+  char *func = "mxBook::getMP_Atom";
   /** Add index info to book structure */
   mxArray * mxIdx;
   unsigned int indexSize = 4+numChans;
@@ -441,25 +557,13 @@ MP_Atom_c * mxBook::getMP_Atom(unsigned long int atomIdx) {
   mxParams = mxGetField(mxAtom,t-1,"params"); //! Structure with fields different for each type
   mxType = mxGetField(mxAtom,t-1,"type");     //! Get string type
   string aType(mxArrayToString(mxType));
-  string aName;
 
-  if (typeName.find(aType) != typeName.end() ) 
-    {
-      aName = typeName[aType];
-    }
-  else
-    {
-      mexPrintf("mxBook::getMP_Atom warning -- unknown atomName correspondance for type %s\n",aType.c_str());
-      aName = "UnknowAtom";      
-    }
-   
   /** Get Atom creator method */
  
-  MP_Atom_c* (*emptyAtomCreator)( void ) = MP_Atom_Factory_c::get_atom_factory()->get_empty_atom_creator(aName.c_str());
-  if (NULL == emptyAtomCreator)
-    {
-      mexPrintf("mxBook::getMP_Atom error -- unknown  MP_Atom_Factory_c method for atomName:%s\n",aName.c_str());
-      return( newAtom );
+  MP_Atom_c* (*emptyAtomCreator)( void ) = MP_Atom_Factory_c::get_atom_factory()->get_empty_atom_creator(aType.c_str());
+  if (NULL == emptyAtomCreator)  {
+      mexPrintf("mxBook::getMP_Atom error -- unknown  MP_Atom_Factory_c method for atomType:%s\n",aType.c_str());
+      return( NULL );
     }
   
   // mexPrintf("mxBook::getMP_Atom -- atom index %ld [%s]\n",atomIdx,aType.c_str());
@@ -476,86 +580,96 @@ MP_Atom_c * mxBook::getMP_Atom(unsigned long int atomIdx) {
   /** CONSTANT ATOM */
   if (aType=="constant") 
     {
+	  MP_Constant_Atom_Plugin_c* newAtom = NULL;
       /** Create and allocate atom */
-      if ( (newConstant =  (MP_Constant_Atom_Plugin_c*)(*emptyAtomCreator)())  == NULL ) {
+      if ( (newAtom =  (MP_Constant_Atom_Plugin_c*)(*emptyAtomCreator)())  == NULL ) {
 	mexPrintf("mxBook::getMP_Atom error -- could not create empty atom of type %s\n",aType.c_str());
-	return( newAtom );
+	return( NULL );
       }
-      if ( newConstant->alloc_atom_param(numChans) )
+      if ( newAtom->alloc_atom_param(numChans) )
 	{
-	  mexPrintf("Failed to allocate some vectors in the atom %s. Returning a NULL atom.\n",aName.c_str());
-	  return( newAtom );
+	  mexPrintf("Failed to allocate some vectors in the atom %s. Returning a NULL atom.\n",aType.c_str());
+	  return( NULL );
 	}
       
       /** set atoms params */
       for (c=0;c<numChans;c++) { // loop on channels
-	newConstant->support[c].pos = (unsigned long int) *(mxGetPr(mxpos) + c*nA + (n-1));
-	newConstant->support[c].len = (unsigned long int) *(mxGetPr(mxlen) + c*nA + (n-1));
-	newConstant->amp[c] = (MP_Real_t)  *(mxGetPr(mxamp) + c*nA + (n-1));
+	newAtom->support[c].pos = (unsigned long int) *(mxGetPr(mxpos) + c*nA + (n-1));
+	newAtom->support[c].len = (unsigned long int) *(mxGetPr(mxlen) + c*nA + (n-1));
+	newAtom->totalChanLen += newAtom->support[c].len;
+ 	newAtom->amp[c] = (MP_Real_t)  *(mxGetPr(mxamp) + c*nA + (n-1));
       }
           
-      return (dynamic_cast<MP_Atom_c*>(newConstant));
+      return (dynamic_cast<MP_Atom_c*>(newAtom));
     } 
   /** DIRAC ATOM */
   else if (aType=="dirac") 
     {
-      if ( (newDirac =  (MP_Dirac_Atom_Plugin_c*)(*emptyAtomCreator)())  == NULL ) {
+	  MP_Dirac_Atom_Plugin_c* newAtom = NULL;
+
+      if ( (newAtom =  (MP_Dirac_Atom_Plugin_c*)(*emptyAtomCreator)())  == NULL ) {
 	mexPrintf("mxBook::getMP_Atom error -- could not create empty atom of type %s\n",aType.c_str());
-	return( newAtom );
+	return( NULL );
       }
-      if ( newDirac->alloc_atom_param(numChans) )
+      if ( newAtom->alloc_atom_param(numChans) )
 	{
-	  mexPrintf("Failed to allocate some vectors in the atom %s. Returning a NULL atom.\n",aName.c_str());
-	  return( newAtom );
+	  mexPrintf("Failed to allocate some vectors in the atom %s. Returning a NULL atom.\n",aType.c_str());
+	  return( NULL );
 	}
       /** set atoms params */
       for (c=0;c<numChans;c++) { // loop on channels
-	newDirac->support[c].pos = (unsigned long int) *(mxGetPr(mxpos) + c*nA + (n-1));
-	newDirac->support[c].len = (unsigned long int) *(mxGetPr(mxlen) + c*nA + (n-1));
-	newDirac->amp[c] = (MP_Real_t)  *(mxGetPr(mxamp) + c*nA + (n-1));
+	newAtom->support[c].pos = (unsigned long int) *(mxGetPr(mxpos) + c*nA + (n-1));
+	newAtom->support[c].len = (unsigned long int) *(mxGetPr(mxlen) + c*nA + (n-1));
+	newAtom->totalChanLen += newAtom->support[c].len;
+	newAtom->amp[c] = (MP_Real_t)  *(mxGetPr(mxamp) + c*nA + (n-1));
       }
       
-      return (dynamic_cast<MP_Atom_c*>(newDirac));
+      return (dynamic_cast<MP_Atom_c*>(newAtom));
     }
   /** NYQUIST ATOM */
   else if (aType=="nyquist") 
     {
-      if ( (newNyquist =  (MP_Nyquist_Atom_Plugin_c*)(*emptyAtomCreator)())  == NULL ) {
+	  MP_Nyquist_Atom_Plugin_c* newAtom = NULL;
+
+      if ( (newAtom =  (MP_Nyquist_Atom_Plugin_c*)(*emptyAtomCreator)())  == NULL ) {
 	mexPrintf("mxBook::getMP_Atom error -- could not create empty atom of type %s\n",aType.c_str());
-	return( newAtom );
+	return( NULL );
       }
-      if ( newNyquist->alloc_atom_param(numChans) )
+      if ( newAtom->alloc_atom_param(numChans) )
 	{
-	  mexPrintf("Failed to allocate some vectors in the atom %s. Returning a NULL atom.\n",aName.c_str());
-	  return( newAtom );
+	  mexPrintf("Failed to allocate some vectors in the atom %s. Returning a NULL atom.\n",aType.c_str());
+	  return( NULL );
 	}
 
       /** set atoms params */
       for (c=0;c<numChans;c++) { // loop on channels
-	newNyquist->support[c].pos = (unsigned long int) *(mxGetPr(mxpos) + c*nA + (n-1));
-	newNyquist->support[c].len = (unsigned long int) *(mxGetPr(mxlen) + c*nA + (n-1));
-	newNyquist->amp[c] = (MP_Real_t)  *(mxGetPr(mxamp) + c*nA + (n-1));
+	newAtom->support[c].pos = (unsigned long int) *(mxGetPr(mxpos) + c*nA + (n-1));
+	newAtom->support[c].len = (unsigned long int) *(mxGetPr(mxlen) + c*nA + (n-1));
+	newAtom->totalChanLen += newAtom->support[c].len;
+	newAtom->amp[c] = (MP_Real_t)  *(mxGetPr(mxamp) + c*nA + (n-1));
       }
       
-      return (dynamic_cast<MP_Atom_c*>(newNyquist));
+      return (dynamic_cast<MP_Atom_c*>(newAtom));
     }
   /** GABOR ATOM */
   else if (aType=="gabor") 
     {
-      if ( (newGabor =  (MP_Gabor_Atom_Plugin_c*)(*emptyAtomCreator)())  == NULL ) {
+	  MP_Gabor_Atom_Plugin_c* newAtom = NULL;
+
+      if ( (newAtom =  (MP_Gabor_Atom_Plugin_c*)(*emptyAtomCreator)())  == NULL ) {
 	mexPrintf("mxBook::getMP_Atom error -- could not create empty atom of type %s\n",aType.c_str());
-	return( newAtom );
+	return( NULL );
       }
 
-      if ( newGabor->alloc_atom_param(numChans) )
+      if ( newAtom->alloc_atom_param(numChans) )
 	{
-	  mexPrintf("Failed to allocate some vectors in the atom %s. Returning a NULL atom.\n",aName.c_str());
-	  return( newAtom );
+	  mexPrintf("Failed to allocate some vectors in the atom %s. Returning a NULL atom.\n",aType.c_str());
+	  return( NULL );
 	}
-      if ( newGabor->alloc_gabor_atom_param(numChans) )
+      if ( newAtom->alloc_gabor_atom_param(numChans) )
 	{
-	  mexPrintf("Failed to allocate some vectors in the atom %s. Returning a NULL atom.\n",aName.c_str());
-	  return( newAtom );
+	  mexPrintf("Failed to allocate some vectors in the atom %s. Returning a NULL atom.\n",aType.c_str());
+	  return( NULL );
 	}
 
       /** set atoms params */
@@ -566,36 +680,38 @@ MP_Atom_c * mxBook::getMP_Atom(unsigned long int atomIdx) {
       mxwintype = mxGetField(mxParams,0,"windowtype");
       mxwinopt = mxGetField(mxParams,0,"windowoption");
       
-      newGabor->windowType = (unsigned char) *(mxGetPr(mxwintype) + (n-1));
-      newGabor->windowOption = (double) *(mxGetPr(mxwinopt) + (n-1));
-      newGabor->freq  = (MP_Real_t) *(mxGetPr(mxfreq) + (n-1));
-      newGabor->chirp = (MP_Real_t) *(mxGetPr(mxchirp) + (n-1));
+      newAtom->windowType = (unsigned char) *(mxGetPr(mxwintype) + (n-1));
+      newAtom->windowOption = (double) *(mxGetPr(mxwinopt) + (n-1));
+      newAtom->freq  = (MP_Real_t) *(mxGetPr(mxfreq) + (n-1));
+      newAtom->chirp = (MP_Real_t) *(mxGetPr(mxchirp) + (n-1));
       for (c=0;c<numChans;c++) { // loop on channels
-	newGabor->support[c].pos = (unsigned long int) *(mxGetPr(mxpos) + c*nA + (n-1));
-	newGabor->support[c].len = (unsigned long int) *(mxGetPr(mxlen) + c*nA + (n-1));
-	newGabor->amp[c] = (MP_Real_t)  *(mxGetPr(mxamp) + c*nA + (n-1));
-	newGabor->phase[c] = (MP_Real_t)  *(mxGetPr(mxphase) + c*nA + (n-1));
+	newAtom->support[c].pos = (unsigned long int) *(mxGetPr(mxpos) + c*nA + (n-1));
+	newAtom->support[c].len = (unsigned long int) *(mxGetPr(mxlen) + c*nA + (n-1));
+	newAtom->totalChanLen += newAtom->support[c].len;
+	newAtom->amp[c] = (MP_Real_t)  *(mxGetPr(mxamp) + c*nA + (n-1));
+	newAtom->phase[c] = (MP_Real_t)  *(mxGetPr(mxphase) + c*nA + (n-1));
       }
       
-      return (dynamic_cast<MP_Atom_c*>(newGabor));
+      return (dynamic_cast<MP_Atom_c*>(newAtom));
     } 
   /** HARMONIC ATOM */
   else if (aType=="harmonic") 
     {
-      if ( (newHarmonic =  (MP_Harmonic_Atom_Plugin_c*)(*emptyAtomCreator)())  == NULL ) {
+  MP_Harmonic_Atom_Plugin_c* newAtom = NULL;
+      if ( (newAtom =  (MP_Harmonic_Atom_Plugin_c*)(*emptyAtomCreator)())  == NULL ) {
 	mexPrintf("mxBook::getMP_Atom error -- could not create empty atom of type %s\n",aType.c_str());
-	return( newAtom );
+	return( NULL );
       }
       
-      if ( newHarmonic->alloc_atom_param(numChans) )
+      if ( newAtom->alloc_atom_param(numChans) )
 	{
-	  mexPrintf("Failed to allocate some vectors in the atom %s. Returning a NULL atom.\n",aName.c_str());
-	  return( newAtom );
+	  mexPrintf("Failed to allocate some vectors in the atom %s. Returning a NULL atom.\n",aType.c_str());
+	  return( NULL );
 	}
-      if ( newHarmonic->alloc_gabor_atom_param(numChans) )
+      if ( newAtom->alloc_gabor_atom_param(numChans) )
 	{
-	  mexPrintf("Failed to allocate some vectors in the atom %s. Returning a NULL atom.\n",aName.c_str());
-	  return( newAtom );
+	  mexPrintf("Failed to allocate some vectors in the atom %s. Returning a NULL atom.\n",aType.c_str());
+	  return( NULL );
 	}
 
       mxArray *mxnumPartial;
@@ -603,10 +719,10 @@ MP_Atom_c * mxBook::getMP_Atom(unsigned long int atomIdx) {
       unsigned int numPartials = (unsigned int) *(mxGetPr(mxnumPartial) + (n-1));
       unsigned int p;
 
-      if ( newHarmonic->alloc_harmonic_atom_param( numChans, numPartials ) )
+      if ( newAtom->alloc_harmonic_atom_param( numChans, numPartials ) )
 	{
-	  mexPrintf("Failed to allocate some vectors in the atom %s. Returning a NULL atom.\n",aName.c_str());
-	  return( newAtom );
+	  mexPrintf("Failed to allocate some vectors in the atom %s. Returning a NULL atom.\n",aType.c_str());
+	  return( NULL );
 	}
 
       /** set atoms params */
@@ -620,39 +736,42 @@ MP_Atom_c * mxBook::getMP_Atom(unsigned long int atomIdx) {
       mxpartialamp = mxGetField(mxParams,0,"partialAmp");
       mxpartialphase = mxGetField(mxParams,0,"partialPhase");
       
-      newHarmonic->numPartials = numPartials;
-      newHarmonic->windowType = (unsigned char) *(mxGetPr(mxwintype) + (n-1));
-      newHarmonic->windowOption = (double) *(mxGetPr(mxwinopt) + (n-1));
-      newHarmonic->freq  = (MP_Real_t) *(mxGetPr(mxfreq) + (n-1));
-      newHarmonic->chirp = (MP_Real_t) *(mxGetPr(mxchirp) + (n-1));
+      newAtom->numPartials = numPartials;
+      newAtom->windowType = (unsigned char) *(mxGetPr(mxwintype) + (n-1));
+      newAtom->windowOption = (double) *(mxGetPr(mxwinopt) + (n-1));
+      newAtom->freq  = (MP_Real_t) *(mxGetPr(mxfreq) + (n-1));
+      newAtom->chirp = (MP_Real_t) *(mxGetPr(mxchirp) + (n-1));
       for (p=0;p<numPartials;p++) { // loop on partials
-	newHarmonic->harmonicity[p] =  (MP_Real_t)  *(mxGetPr(mxharmo) + p*nA +  (n-1));	  
+	newAtom->harmonicity[p] =  (MP_Real_t)  *(mxGetPr(mxharmo) + p*nA +  (n-1));	  
       }
       
       for (c=0;c<numChans;c++) { // loop on channels
-	newHarmonic->support[c].pos = (unsigned long int) *(mxGetPr(mxpos) + c*nA + (n-1));
-	newHarmonic->support[c].len = (unsigned long int) *(mxGetPr(mxlen) + c*nA + (n-1));
-	newHarmonic->amp[c] = (MP_Real_t)  *(mxGetPr(mxamp) + c*nA + (n-1));
-	newHarmonic->phase[c] = (MP_Real_t)  *(mxGetPr(mxphase) + c*nA + (n-1));
+	newAtom->support[c].pos = (unsigned long int) *(mxGetPr(mxpos) + c*nA + (n-1));
+	newAtom->support[c].len = (unsigned long int) *(mxGetPr(mxlen) + c*nA + (n-1));
+	newAtom->totalChanLen += newAtom->support[c].len;
+	newAtom->amp[c] = (MP_Real_t)  *(mxGetPr(mxamp) + c*nA + (n-1));
+	newAtom->phase[c] = (MP_Real_t)  *(mxGetPr(mxphase) + c*nA + (n-1));
 	for (p=0;p<numPartials;p++) { // loop on partials
-	  newHarmonic->partialAmp[c][p] = (MP_Real_t)  *(mxGetPr(mxpartialamp) + c*(nA*numPartials) + p*nA + (n-1)); // When reading was c*(nAtom*nP) + h*nAtom + curIdx
-	  newHarmonic->partialPhase[c][p] = (MP_Real_t)  *(mxGetPr(mxpartialphase) + c*(nA*numPartials) + p*nA + (n-1));
+	  newAtom->partialAmp[c][p] = (MP_Real_t)  *(mxGetPr(mxpartialamp) + c*(nA*numPartials) + p*nA + (n-1)); // When reading was c*(nAtom*nP) + h*nAtom + curIdx
+	  newAtom->partialPhase[c][p] = (MP_Real_t)  *(mxGetPr(mxpartialphase) + c*(nA*numPartials) + p*nA + (n-1));
 	}
       }
 
-      return (dynamic_cast<MP_Atom_c*>(newHarmonic));
+      return (dynamic_cast<MP_Atom_c*>(newAtom));
     }
   /** ANYWAVE ATOM */
   else if (aType=="anywave") 
-    {
-      if ( (newAnywave =  (MP_Anywave_Atom_Plugin_c*)(*emptyAtomCreator)())  == NULL ) {
+    {  
+	MP_Anywave_Atom_Plugin_c* newAtom = NULL;
+
+      if ( (newAtom =  (MP_Anywave_Atom_Plugin_c*)(*emptyAtomCreator)())  == NULL ) {
 	mexPrintf("mxBook::getMP_Atom error -- could not create empty atom of type %s\n",aType.c_str());
-	return( newAtom );
+	return( NULL );
       }
-      if ( newAnywave->alloc_atom_param(numChans) )
+      if ( newAtom->alloc_atom_param(numChans) )
 	{
-	  mexPrintf("Failed to allocate some vectors in the atom %s. Returning a NULL atom.\n",aName.c_str());
-	  return( newAtom );
+	  mexPrintf("Failed to allocate some vectors in the atom %s. Returning a NULL atom.\n",aType.c_str());
+	  return( NULL );
 	}
       
       /** set atoms params */
@@ -662,28 +781,30 @@ MP_Atom_c * mxBook::getMP_Atom(unsigned long int atomIdx) {
       mxanywavetable = mxGetField(mxParams,0,"anywaveTable");
       
       for (c=0;c<numChans;c++) { // loop on channels
-	newAnywave->support[c].pos = (unsigned long int) *(mxGetPr(mxpos) + c*nA + (n-1));
-	newAnywave->support[c].len = (unsigned long int) *(mxGetPr(mxlen) + c*nA + (n-1));
-	newAnywave->amp[c] = (MP_Real_t)  *(mxGetPr(mxamp) + c*nA + (n-1));
+	newAtom->support[c].pos = (unsigned long int) *(mxGetPr(mxpos) + c*nA + (n-1));
+	newAtom->support[c].len = (unsigned long int) *(mxGetPr(mxlen) + c*nA + (n-1));
+	newAtom->totalChanLen += newAtom->support[c].len;
+	newAtom->amp[c] = (MP_Real_t)  *(mxGetPr(mxamp) + c*nA + (n-1));
       }
-      newAnywave->tableIdx =  (unsigned long int) *(mxGetPr(mxtableidx) + (n-1));
-      newAnywave->anywaveIdx =  (unsigned long int) *(mxGetPr(mxanywaveidx) + (n-1));
+      newAtom->tableIdx =  (unsigned long int) *(mxGetPr(mxtableidx) + (n-1));
+      newAtom->anywaveIdx =  (unsigned long int) *(mxGetPr(mxanywaveidx) + (n-1));
       // TODO : parse anywaveTable info
       mexPrintf("mxBook::getMP_Atom  warning -- Atom %s -- anywaveTable info not added yet\n",aType.c_str());
 
-      return (dynamic_cast<MP_Atom_c*>(newAnywave));
+      return (dynamic_cast<MP_Atom_c*>(newAtom));
     } 
   /** ANYWAVE HILBERT ATOM */
   else if (aType=="anywavehilbert") 
     {
-      if ( (newAnywaveHilbert =  (MP_Anywave_Hilbert_Atom_Plugin_c*)(*emptyAtomCreator)())  == NULL ) {
+  MP_Anywave_Hilbert_Atom_Plugin_c* newAtom = NULL;
+      if ( (newAtom =  (MP_Anywave_Hilbert_Atom_Plugin_c*)(*emptyAtomCreator)())  == NULL ) {
 	mexPrintf("mxBook::getMP_Atom error -- could not create empty atom of type %s\n",aType.c_str());
-	return( newAtom );
+	return( NULL );
       }
-      if ( newAnywaveHilbert->alloc_atom_param(numChans) )
+      if ( newAtom->alloc_atom_param(numChans) )
 	{
-	  mexPrintf("Failed to allocate some vectors in the atom %s. Returning a NULL atom.\n",aName.c_str());
-	  return( newAtom );
+	  mexPrintf("Failed to allocate some vectors in the atom %s. Returning a NULL atom.\n",aType.c_str());
+	  return( NULL );
 	}
       /** set atoms params */
       mxArray *mxhilberttableidx, *mxrealtableidx, *mxrealpart, *mxhilbertpart, *mxanywavehilberttable, *mxanywaverealtable;
@@ -696,33 +817,35 @@ MP_Atom_c * mxBook::getMP_Atom(unsigned long int atomIdx) {
       //      mxanywaverealtable = mxGetField(mxParams,0,"anywaveRealTable");
       
       for (c=0;c<numChans;c++) { // loop on channels
-	newAnywaveHilbert->support[c].pos = (unsigned long int) *(mxGetPr(mxpos) + c*nA + (n-1));
-	newAnywaveHilbert->support[c].len = (unsigned long int) *(mxGetPr(mxlen) + c*nA + (n-1));
-	newAnywaveHilbert->amp[c] = (MP_Real_t)  *(mxGetPr(mxamp) + c*nA + (n-1));
+	newAtom->support[c].pos = (unsigned long int) *(mxGetPr(mxpos) + c*nA + (n-1));
+	newAtom->support[c].len = (unsigned long int) *(mxGetPr(mxlen) + c*nA + (n-1));
+	newAtom->totalChanLen += newAtom->support[c].len;
+	newAtom->amp[c] = (MP_Real_t)  *(mxGetPr(mxamp) + c*nA + (n-1));
       }
-      newAnywaveHilbert->hilbertTableIdx =  (unsigned long int) *(mxGetPr(mxhilberttableidx) + (n-1));
-      newAnywaveHilbert->realTableIdx =  (unsigned long int) *(mxGetPr(mxrealtableidx) + (n-1));
+      newAtom->hilbertTableIdx =  (unsigned long int) *(mxGetPr(mxhilberttableidx) + (n-1));
+      newAtom->realTableIdx =  (unsigned long int) *(mxGetPr(mxrealtableidx) + (n-1));
       // TODO : parse anywave(real,hilbert)Table and (real,hilbert)Part  info
       mexPrintf("mxBook::getMP_Atom  warning -- Atom %s -- anywave(Hilbert,Real)Table info not added yet\n",aType.c_str());
     
-      return (dynamic_cast<MP_Atom_c*>(newAnywaveHilbert));
+      return (dynamic_cast<MP_Atom_c*>(newAtom));
     }
   /** MCLT ATOM */
   else if (aType=="mclt") 
     {
-      if ( (newMclt =  (MP_Mclt_Atom_Plugin_c*)(*emptyAtomCreator)())  == NULL ) {
+  MP_Mclt_Atom_Plugin_c* newAtom = NULL;
+      if ( (newAtom =  (MP_Mclt_Atom_Plugin_c*)(*emptyAtomCreator)())  == NULL ) {
 	mexPrintf("mxBook::getMP_Atom error -- could not create empty atom of type %s\n",aType.c_str());
-	return( newAtom );
+	return( NULL );
       }
-      if ( newMclt->alloc_atom_param(numChans) )
+      if ( newAtom->alloc_atom_param(numChans) )
 	{
-	  mexPrintf("Failed to allocate some vectors in the atom %s. Returning a NULL atom.\n",aName.c_str());
-	  return( newAtom );
+	  mexPrintf("Failed to allocate some vectors in the atom %s. Returning a NULL atom.\n",aType.c_str());
+	  return( NULL );
 	}
-      if ( newMclt->alloc_mclt_atom_param(numChans) )
+      if ( newAtom->alloc_mclt_atom_param(numChans) )
 	{
-	  mexPrintf("Failed to allocate some vectors in the atom %s. Returning a NULL atom.\n",aName.c_str());
-	  return( newAtom );
+	  mexPrintf("Failed to allocate some vectors in the atom %s. Returning a NULL atom.\n",aType.c_str());
+	  return( NULL );
 	}
 
       /** set atoms params */
@@ -733,30 +856,32 @@ MP_Atom_c * mxBook::getMP_Atom(unsigned long int atomIdx) {
       mxwintype = mxGetField(mxParams,0,"windowtype");
       mxwinopt = mxGetField(mxParams,0,"windowoption");
       
-      newMclt->windowType = (unsigned char) *(mxGetPr(mxwintype) + (n-1));
-      newMclt->windowOption = (double) *(mxGetPr(mxwinopt) + (n-1));
-      newMclt->freq  = (MP_Real_t) *(mxGetPr(mxfreq) + (n-1));
-      newMclt->chirp = (MP_Real_t) *(mxGetPr(mxchirp) + (n-1));
+      newAtom->windowType = (unsigned char) *(mxGetPr(mxwintype) + (n-1));
+      newAtom->windowOption = (double) *(mxGetPr(mxwinopt) + (n-1));
+      newAtom->freq  = (MP_Real_t) *(mxGetPr(mxfreq) + (n-1));
+      newAtom->chirp = (MP_Real_t) *(mxGetPr(mxchirp) + (n-1));
       for (c=0;c<numChans;c++) { // loop on channels
-	newMclt->support[c].pos = (unsigned long int) *(mxGetPr(mxpos) + c*nA + (n-1));
-	newMclt->support[c].len = (unsigned long int) *(mxGetPr(mxlen) + c*nA + (n-1));
-	newMclt->amp[c] = (MP_Real_t)  *(mxGetPr(mxamp) + c*nA + (n-1));
-	newMclt->phase[c] = (MP_Real_t)  *(mxGetPr(mxphase) + c*nA + (n-1));
+	newAtom->support[c].pos = (unsigned long int) *(mxGetPr(mxpos) + c*nA + (n-1));
+	newAtom->support[c].len = (unsigned long int) *(mxGetPr(mxlen) + c*nA + (n-1));
+	newAtom->totalChanLen += newAtom->support[c].len;
+	newAtom->amp[c] = (MP_Real_t)  *(mxGetPr(mxamp) + c*nA + (n-1));
+	newAtom->phase[c] = (MP_Real_t)  *(mxGetPr(mxphase) + c*nA + (n-1));
       }
       
-      return (dynamic_cast<MP_Atom_c*>(newMclt));
+      return (dynamic_cast<MP_Atom_c*>(newAtom));
     }
   /** MDCT ATOM */
   else if (aType=="mdct") 
     {
-      if ( (newMdct =  (MP_Mdct_Atom_Plugin_c*)(*emptyAtomCreator)())  == NULL ) {
+  MP_Mdct_Atom_Plugin_c* newAtom = NULL;
+      if ( (newAtom =  (MP_Mdct_Atom_Plugin_c*)(*emptyAtomCreator)())  == NULL ) {
 	mexPrintf("mxBook::getMP_Atom error -- could not create empty atom of type %s\n",aType.c_str());
-	return( newAtom );
+	return( NULL );
       }
-      if ( newMdct->alloc_atom_param(numChans) )
+      if ( newAtom->alloc_atom_param(numChans) )
 	{
-	  mexPrintf("Failed to allocate some vectors in the atom %s. Returning a NULL atom.\n",aName.c_str());
-	  return( newAtom );
+	  mexPrintf("Failed to allocate some vectors in the atom %s. Returning a NULL atom.\n",aType.c_str());
+	  return( NULL );
 	}
 
       /** set atoms params */
@@ -765,28 +890,30 @@ MP_Atom_c * mxBook::getMP_Atom(unsigned long int atomIdx) {
       mxwintype = mxGetField(mxParams,0,"windowtype");
       mxwinopt = mxGetField(mxParams,0,"windowoption");
       
-      newMdct->windowType = (unsigned char) *(mxGetPr(mxwintype) + (n-1));
-      newMdct->windowOption = (double) *(mxGetPr(mxwinopt) + (n-1));
-      newMdct->freq  = (MP_Real_t) *(mxGetPr(mxfreq) + (n-1));
+      newAtom->windowType = (unsigned char) *(mxGetPr(mxwintype) + (n-1));
+      newAtom->windowOption = (double) *(mxGetPr(mxwinopt) + (n-1));
+      newAtom->freq  = (MP_Real_t) *(mxGetPr(mxfreq) + (n-1));
       for (c=0;c<numChans;c++) { // loop on channels
-	newMdct->support[c].pos = (unsigned long int) *(mxGetPr(mxpos) + c*nA + (n-1));
-	newMdct->support[c].len = (unsigned long int) *(mxGetPr(mxlen) + c*nA + (n-1));
-	newMdct->amp[c] = (MP_Real_t)  *(mxGetPr(mxamp) + c*nA + (n-1));
+	newAtom->support[c].pos = (unsigned long int) *(mxGetPr(mxpos) + c*nA + (n-1));
+	newAtom->support[c].len = (unsigned long int) *(mxGetPr(mxlen) + c*nA + (n-1));
+	newAtom->totalChanLen += newAtom->support[c].len;
+	newAtom->amp[c] = (MP_Real_t)  *(mxGetPr(mxamp) + c*nA + (n-1));
       }
       
-      return (dynamic_cast<MP_Atom_c*>(newMdct));
+      return (dynamic_cast<MP_Atom_c*>(newAtom));
     }
   /** MDST ATOM */
   else if (aType=="mdst") 
     {
-      if ( (newMdst =  (MP_Mdst_Atom_Plugin_c*)(*emptyAtomCreator)())  == NULL ) {
+  MP_Mdst_Atom_Plugin_c* newAtom = NULL;
+      if ( (newAtom =  (MP_Mdst_Atom_Plugin_c*)(*emptyAtomCreator)())  == NULL ) {
 	mexPrintf("mxBook::getMP_Atom error -- could not create empty atom of type %s\n",aType.c_str());
-	return( newAtom );
+	return( NULL );
       }
-      if ( newMdst->alloc_atom_param(numChans) )
+      if ( newAtom->alloc_atom_param(numChans) )
 	{
-	  mexPrintf("Failed to allocate some vectors in the atom %s. Returning a NULL atom.\n",aName.c_str());
-	  return( newAtom );
+	  mexPrintf("Failed to allocate some vectors in the atom %s. Returning a NULL atom.\n",aType.c_str());
+	  return( NULL );
 	}
       /** set atoms params */
       mxArray *mxfreq, *mxwintype, *mxwinopt;
@@ -794,21 +921,22 @@ MP_Atom_c * mxBook::getMP_Atom(unsigned long int atomIdx) {
       mxwintype = mxGetField(mxParams,0,"windowtype");
       mxwinopt = mxGetField(mxParams,0,"windowoption");
       
-      newMdst->windowType = (unsigned char) *(mxGetPr(mxwintype) + (n-1));
-      newMdst->windowOption = (double) *(mxGetPr(mxwinopt) + (n-1));
-      newMdst->freq  = (MP_Real_t) *(mxGetPr(mxfreq) + (n-1));
+      newAtom->windowType = (unsigned char) *(mxGetPr(mxwintype) + (n-1));
+      newAtom->windowOption = (double) *(mxGetPr(mxwinopt) + (n-1));
+      newAtom->freq  = (MP_Real_t) *(mxGetPr(mxfreq) + (n-1));
       for (c=0;c<numChans;c++) { // loop on channels
-	newMdst->support[c].pos = (unsigned long int) *(mxGetPr(mxpos) + c*nA + (n-1));
-	newMdst->support[c].len = (unsigned long int) *(mxGetPr(mxlen) + c*nA + (n-1));
-	newMdst->amp[c] = (MP_Real_t)  *(mxGetPr(mxamp) + c*nA + (n-1));
+	newAtom->support[c].pos = (unsigned long int) *(mxGetPr(mxpos) + c*nA + (n-1));
+	newAtom->support[c].len = (unsigned long int) *(mxGetPr(mxlen) + c*nA + (n-1));
+	newAtom->totalChanLen += newAtom->support[c].len;
+	newAtom->amp[c] = (MP_Real_t)  *(mxGetPr(mxamp) + c*nA + (n-1));
       }
        
-      return (dynamic_cast<MP_Atom_c*>(newMdst));
+      return (dynamic_cast<MP_Atom_c*>(newAtom));
     }
   else 
     {
       mexPrintf("Atom type [%s] unknown, consider adding its information in mxBook{h,cpp}\n",aType.c_str());
-      return (newAtom);
+      return (NULL);
     } 
 }
 
@@ -861,89 +989,6 @@ MP_Book_c * mxBook::Book_MEX_2_MPTK() {
   return mpBook;
 }
 
-/** Export matlab book structure to MP_Book_c class */
-void mxBook::MP_BookWrite(string fileName, const char mode) {
-  MP_Book_c * mpBook;
-    
-  /** Export mexbook to a MP_Book_c */
-  mpBook = this->Book_MEX_2_MPTK();
-    
-  /** Save it to file with mode (MP_TEXT or MP_BINARY) */
-  mpBook->print(fileName.c_str(),mode);
-  return;
-}
-
-/** Reconstruct Signal from book and return a pointer to a mxArray containing the MP_Signal samples 
- *  (A simplified version of mpr with no residual)
- */
-
-mxArray * mxBook::Book_Reconstruct() {
-  char *func = "mxBook::Book_Reconstruct()";
-  MP_Book_c   * mpBook;
-  MP_Signal_c * mpSignal;
-  mxArray     * mxSignal = NULL;
-    
-  /** Export mexbook to a MP_Book_c */
-  mpBook = this->Book_MEX_2_MPTK();
-
-  if ( NULL==mpBook ) {
-    mp_error_msg(func,"MP_Book_c is ill formed.\n" );
-    mxSignal = mxCreateDoubleMatrix(0,0, mxREAL);
-    return mxSignal;
-  }
-
-  
-  // Reconstruct book to signal
-  //if (MP_FALSE == mpBook->recheck_num_channels()) {  mp_warning_msg( func," BOOK NUMCHANS NOT UP TO DATE\n" ); }
-  
-  //if (MP_FALSE == mpBook->recheck_num_samples()) {  mp_warning_msg( func," BOOK NUMSAMPLES NOT UP TO DATE\n" ); }
-  
-  // Init MP_Signal with book params
-  mpSignal = MP_Signal_c::init( mpBook->numChans, mpBook->numSamples, mpBook->sampleRate );
-  if ( NULL==mpSignal ) {
-    mp_error_msg(func, " -- Can't make a new signal.\n" );
-    return mxSignal;
-  }
-  
-
-  /** THIS LINE MAKES A SEG FAULT -- GDB GIVES NO TRACE -- MAYBE IT IS A PROBLEM OF MATLAB !!! */
-  mpBook->substract_add( NULL,mpSignal, NULL);
-  mp_info_msg( func, "MP_Signal_c reconstructed from MP_Book_c\n" );
-  
-  
-  // Convert MP_Signal to mxArray
-  mxSignal = mxCreateDoubleMatrix(mpSignal->numSamples, mpSignal->numChans, mxREAL);
-  if (NULL==mxSignal) {
-    mp_error_msg(func, "Can't allocate a new mxSignal.\n" );
-    return mxSignal;
-  }
-  unsigned long int nS,sample;
-  unsigned int nC,channel;
-    
-  mp_info_msg( func, "filling signal vector\n" );
-  //  for (nS=0; nS<mpSignal->numSamples * mpSignal->numChans; nS++) {
-  //    *( mxGetPr(mxSignal) + nS ) = (double) ( mpSignal->storage[nS]);
-  //  }
-
-  for (channel=0; channel<mpSignal->numChans; channel++) {
-    for (sample=0; sample<mpSignal->numSamples; sample++) {
-      *( mxGetPr(mxSignal) + channel*mpSignal->numSamples +  sample) = (double) (mpSignal->channel[channel][sample]);
-    }
-  }
-
-  mp_info_msg(func, "filling succesfull of mxSignal = %p\n",mxSignal);
-    //mxArray *temp = mxCreateDoubleMatrix(1,5,mxREAL);
-    //double data[5] = {1,2,3,4,5};
-    //memcpy(mxGetPr(temp), data, 5*sizeof(double)); /* CORRECT *
-
-  //  delete(mpBook);
-  // delete(mpSignal);
-    
-  return mxSignal;
-}
-
-
-
 mxArray *mp_create_mxBook_from_book(MP_Book_c *book) {
   // Load book object in Matlab structure
   mxBook * mexBook = new mxBook(book);
@@ -962,5 +1007,6 @@ MP_Book_c *mp_create_book_from_mxBook(const mxArray *mexBook)  {
   MP_Book_c* book =  mybook.Book_MEX_2_MPTK();
   return(book);
 }
+
 
 

@@ -41,7 +41,7 @@ void mexFunction(int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[]) {
   }
   
   // Check output args
-  if (nlhs != 1) {
+  if (nlhs > 1) {
     mexPrintf("!!! %s error -- bad number of output arguments\n",mexFunctionName());
     mexPrintf("    see help %s\n",mexFunctionName());
     return;

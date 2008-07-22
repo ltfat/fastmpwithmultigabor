@@ -49,16 +49,6 @@ The different classes are defined in subdirectory "classes/":
     The main interface methods are :
    - Export matlab book structure to MP_Book_c class:
      MP_Book_c * Book_MEX_2_MPTK();
-   - Export matlab book structure to MP_Book_c class
-     void MP_BookWrite(string fileName, const char mode);
-
-   - Reconstruct Signal from book and return a pointer to a mxArray containing the MP_Signal samples.
-     This is the same as calling the "mpr" shell command with no residual
-     mxArray * Book_Reconstruct();
-  NOTE: unfortunately calling this function gives a segmentation fault. 
-        After some unsuccessful debugging attemps, the error is very localized in call to
-        MP_Book_c->substract_add( NULL,mpSignal, NULL);
-        This command crashes matlab even started with gdb in debug mode.
 
    - See mxBook.h and mxBook.cpp
 

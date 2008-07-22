@@ -1,6 +1,6 @@
 /******************************************************************************/
 /*                                                                            */
-/*                  	          dictwrite.cpp                       	      */
+/*                  	          atomrecons.cpp                       	      */
 /*                                                                            */
 /*				mptk4matlab toolbox		      	      */
 /*                                                                            */
@@ -25,72 +25,73 @@
 /******************************************************************************/
 
 #include "mptk4matlab.h"
+#include "mxBook.h"
 
-void mexFunction(int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[])
-{
-  char *fileName   = NULL;
-
+void mexFunction(int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[]) {
+    
+  // Check input arguments
+  if (1!=nrhs) {
+    mexPrintf("!!! %s error -- bad number of input arguments\n",mexFunctionName());
+    mexPrintf("    see help %s\n",mexFunctionName());
+    return;
+  }
+  //if ( !mxIsStruct(prhs[0])) {
+  if ( !mxIsChar(prhs[0])) {
+    // mexPrintf("!!! %s error -- The argument shoud be an atom structure\n",mexFunctionName());
+    mexPrintf("!!! %s error -- The argument shoud be an atom name\n",mexFunctionName());
+    mexPrintf("    see help %s\n",mexFunctionName());
+    return;        
+  }
+  double sampleRate = 1.0;
+  
+  // Check output args
+  if (nlhs > 1) {
+    mexPrintf("!!! %s error -- bad number of output arguments\n",mexFunctionName());
+    mexPrintf("    see help %s\n",mexFunctionName());
+    return;
+  }
+  
+  // Load the MPTK environment if not loaded
   InitMPTK4Matlab(mexFunctionName());
   
-  // Check input arguments
-  if (nrhs<1 || nrhs>2) {
-    mexPrintf("%s error -- bad number of input arguments\n",mexFunctionName());
-    mexPrintf("    see help %s\n",mexFunctionName());
-    mexErrMsgTxt("Aborting");
-    return;
-  }
-  if(nrhs==2) {
-    if(!mxIsChar(prhs[1])) {
-      mexPrintf("%s error -- the optional second argument filename should be a string\n",mexFunctionName());
-      mexPrintf("    see help %s\n",mexFunctionName());
-      mexErrMsgTxt("Aborting");
-      return;        
-    }
-    else {
-      fileName = mxArrayToString(prhs[1]);
-      if (NULL==fileName) {
-	mexPrintf("%s error -- the optional second argument filename could not be retrieved from the input\n",mexFunctionName());
-	mexErrMsgTxt("Aborting");
-	return;
-      }
-    }
-  }
-
-  // Check output arguments
-  if (nlhs>1) {
-    mexPrintf("%s error -- bad number of output arguments\n",mexFunctionName());
-    mexPrintf("    see help %s\n",mexFunctionName());
+  // Load atom object from Matlab 
+  const mxArray *mxAtom = prhs[0];
+  MP_Atom_c *atom = mp_create_atom_from_mxAtom(mxAtom); // Currently creates a default atom from a string
+  if(NULL==atom) {
+    mexPrintf("Failed to convert an atom from Matlab to MPTK.\n");
     mexErrMsgTxt("Aborting");
     return;
   }
 
-  // Converting dictionary
-  const mxArray* mxDict = prhs[0];
-  MP_Dict_c *dict = mp_create_dict_from_mxDict(mxDict);
-
-  // If the dictionary is not valid
-  if(NULL==dict) {
-    double isvalid   = 0.0;
-    if(nlhs>0) plhs[0] = mxCreateDoubleScalar((double)isvalid);
+ // Initializing output signal 
+  MP_Signal_c *signal = MP_Signal_c::init(atom->numChans,atom->numSamples,sampleRate );
+  if(NULL==signal) {
+    mexPrintf("%s could not init output signal\n",mexFunctionName());
+    // Clean the house
+    delete atom;
+    mexErrMsgTxt("Aborting");
     return;
   }
-  // If it is valid
-  double isvalid = 1.0;
-  if(nlhs>0) plhs[0] = mxCreateDoubleScalar((double)isvalid);
-  // If a filename was provided, we need to try to write to file
-  if(NULL!=fileName) {
-    if (dict->print(fileName)) {
-      mexPrintf("%s error --the dictionary could not be written to file %s\n",mexFunctionName(),fileName);
-      // Clean the house
-      mxFree(fileName);
-      mexErrMsgTxt("Aborting");
-      return;
-    } 
-    else {
-      // Clean the house
-      mxFree(fileName);
-    }
-  }
+
+  // Checking compatibility ????
+  // Reconstructing : this is where it crashes! Apparently, in more details, it happens in build_waveform
+  // Maybe this comes from a bad atom conversion ????
+  mexPrintf("Succesfully generated atom\n");
+  atom->write(stdout,MP_TEXT);
+// return;
+  atom->substract_add(NULL,signal);
+  mexPrintf("Succesfully built to signal\n");
   // Clean the house
-  delete dict;
+  delete atom;
+
+  // Load signal object in Matlab structure
+  mxArray *mxSignal = mp_create_mxSignal_from_signal(signal);
+  // Clean the house
+  delete signal;
+  if(NULL==mxSignal) {
+    mexPrintf("Failed to convert a signal from MPTK to Matlab.\n");
+    mexErrMsgTxt("Aborting");
+    return;
+  }
+  if(nlhs>0)  plhs[0] = mxSignal;
 }

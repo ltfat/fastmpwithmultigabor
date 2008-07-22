@@ -29,10 +29,6 @@ The different classes are defined in subdirectory "classes/":
    - Export matlab book structure to MP_Book_c class
      void MP_BookWrite(string fileName, const char mode);
 
-   - Reconstruct Signal from book and return a pointer to a mxArray containing the MP_Signal samples.
-     This is the same as calling the "mpr" shell command with no residual
-     mxArray * Book_Reconstruct();
-     
 See 'doc/readme-Development.txt' for more informations.
 
 Note:

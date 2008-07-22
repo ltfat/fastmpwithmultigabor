@@ -21,7 +21,7 @@ function varargout = bookedit_exp( book, channel, bwfactor )
 %    color is proportional to the atom's amplitudes,
 %    mapped to the current colormap and the current caxis.
 %
-%    See also BOOKREAD_EXP, BOOKWRITE_EXP and
+%    See also bookread, bookwrite, bookrecons_exp and
 %    the patch handle graphics properties.
 %
 
@@ -68,7 +68,7 @@ if ischar(book),
     disp('Loading the book...');
     [p,n] = fileparts(book);
     data.loadBookDir = p;
-    book = bookread_exp( book );
+    book = bookread( book );
     % Add Fields in structure for graphical / selection information to atoms
     book = addMatlabBookFields(book);
     % Record path of the book for open book
@@ -732,7 +732,7 @@ set(figH,'UserData',data)
                 'Save Atoms in book', [ 'book_' num2str(nAtom) 'atoms.bin']);
             if (filename)
                 newsavedir = pathname;
-                bookwrite_exp(book,fullfile(pathname,filename));
+                bookwrite(book,fullfile(pathname,filename));
             end
             cd(curDir); % return in current directory
         else
@@ -745,10 +745,15 @@ set(figH,'UserData',data)
         if (book.index(4,:)== 0)
             disp('There are no selected atoms for reconstruction')
         else
-            signal = mpReconstruct(book);
+%            signal = mpReconstruct(book);
+            signal = bookrecons_exp(book);
             if (~isempty(signal))
                 soundsc(signal,book.sampleRate);
-                PlotSoundJava(signal,book.sampleRate);
+		if(exist('PlotSoundJava'))
+                   PlotSoundJava(signal,book.sampleRate);
+		else
+		   disp('Warning: PlotSoundJava not found');
+		end
             end
         end
 
@@ -1106,7 +1111,7 @@ function [index,atomBounds] = findAtomInRect(rpos)
         tmpwav = 'tempmpr.wav';
         % Save temp book
         wb = waitbar(0,'Exporting visible part of book','Name','Play visible atoms');
-        bookwrite_exp(book,tmpbook);
+        bookwrite(book,tmpbook);
 
         % Reconstruct book with mpr in tempmpr.wav
         waitbar(0.3,wb,'Reconstructing book');

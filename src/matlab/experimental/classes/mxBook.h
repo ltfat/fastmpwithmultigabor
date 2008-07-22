@@ -129,12 +129,8 @@ class mxAtoms {
 // Class for interfacing MP_Book_c with matlab structure
 class mxBook {
  private:
-  map <string, string> typeName; //! Map of correpondance between atom type (returned by MP_Book_c::type_name()) and atomName (required by MP_Atom_Factory)
-  MP_Chan_t numChans;         //! Number of channels
+   MP_Chan_t numChans;             //! Number of channels
   unsigned long int numAtoms;    //! Number of atoms in book
-
-  /** Method */
-  void setMapTypeName(); //! Set Map of correpondance between atom type (returned by MP_Book_c::type_name()) and atomName 
 
  public:
   // Members
@@ -153,16 +149,9 @@ class mxBook {
 
   /** Get MP_Atom from mx book structure */
   MPTK_LIB_EXPORT MP_Atom_c * getMP_Atom(unsigned long int index);
-  
   /** Export matlab book structure to MP_Book_c class */
   MPTK_LIB_EXPORT MP_Book_c * Book_MEX_2_MPTK();
  
-  /** Reconstruct Signal from book and return a pointer to a mxArray containing the MP_Signal samples */
-  MPTK_LIB_EXPORT mxArray * Book_Reconstruct();
-  
-  /** Export matlab book structure to MP_Book_c class */
-  MPTK_LIB_EXPORT void MP_BookWrite(string fileName, const char mode);
-  
 };
 
 
@@ -178,4 +167,16 @@ MPTK_LIB_EXPORT extern mxArray *mp_create_mxBook_from_book(MP_Book_c *book);
  * \return the created MTPK object, NULL in case of problem
  */
 MPTK_LIB_EXPORT extern MP_Book_c *mp_create_book_from_mxBook(const mxArray *mxBook);
+
+/** \brief Converts a MP_Atom_c object to a Matlab structure 
+ * \param atom the MPTK object
+ * \return the created Matlab structure, NULL in case of problem
+ */
+MPTK_LIB_EXPORT extern mxArray *mp_create_mxAtom_from_atom(MP_Atom_c *atom);
+
+/** \brief Converts a Matlab structure to a MP_Atom_c object
+ * \param mxAtom the Matlab structre
+ * \return the created MTPK object, NULL in case of problem
+ */
+MPTK_LIB_EXPORT extern MP_Atom_c *mp_create_atom_from_mxAtom(const mxArray *mxAtom);
 
