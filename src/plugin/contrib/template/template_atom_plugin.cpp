@@ -260,6 +260,6 @@ MP_Real_t MP_Template_Atom_Plugin_c::get_field( int field , MP_Chan_t chanIdx )
 DLL_EXPORT void registry(void)
 {
 
-  MP_Atom_Factory_c::get_atom_factory()->register_new_atom_empty("TemplateAtom",&MP_Template_Atom_Plugin_c::template_atom_create_empty);
+  MP_Atom_Factory_c::get_atom_factory()->register_new_atom_empty("template",&MP_Template_Atom_Plugin_c::template_atom_create_empty);
   MP_Atom_Factory_c::get_atom_factory()->register_new_atom("template",&MP_Template_Atom_Plugin_c::create);
 }

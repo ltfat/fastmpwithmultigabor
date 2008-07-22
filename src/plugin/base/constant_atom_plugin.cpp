@@ -259,6 +259,6 @@ MP_Real_t MP_Constant_Atom_Plugin_c::get_field( int field , MP_Chan_t chanIdx )
 DLL_EXPORT void registry(void)
 {
 
-  MP_Atom_Factory_c::get_atom_factory()->register_new_atom_empty("ConstantAtom",&MP_Constant_Atom_Plugin_c::constant_atom_create_empty);
+  MP_Atom_Factory_c::get_atom_factory()->register_new_atom_empty("constant",&MP_Constant_Atom_Plugin_c::constant_atom_create_empty);
   MP_Atom_Factory_c::get_atom_factory()->register_new_atom("constant",&MP_Constant_Atom_Plugin_c::create);
 }

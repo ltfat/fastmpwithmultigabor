@@ -845,7 +845,7 @@ unsigned int MP_Gabor_Block_Plugin_c::create_atom( MP_Atom_c **atom,
 
   /* Allocate the atom */
   *atom = NULL;
-  MP_Atom_c* (*emptyAtomCreator)( void ) = MP_Atom_Factory_c::get_atom_factory()->get_empty_atom_creator("GaborAtom");
+  MP_Atom_c* (*emptyAtomCreator)( void ) = MP_Atom_Factory_c::get_atom_factory()->get_empty_atom_creator("gabor");
   if (NULL == emptyAtomCreator)
     {
       mp_error_msg( func, "Gabor atom is not registred in the atom factory" );

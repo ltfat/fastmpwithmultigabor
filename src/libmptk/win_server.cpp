@@ -117,54 +117,73 @@ unsigned long int MP_Win_Server_c::get_window( MP_Real_t **out,
 					       const unsigned char type,
 					       double optional ) {
   const char* func = "MP_Win_Server_c::get_window(...)";
-  if (length >0)
-  {
-	  /** will initialize initial_length with the first value with wich this function is called */
+  //  Will initialize allocated_length and buffer with the first nonzero value with which this function is called
   static unsigned long int allocated_length = 0 ;
-  unsigned long int n;
-  unsigned long int num;
-  MP_Win_t* ptrWin;
-  static Dsp_Win_t *buffer=0;
-  //Dsp_Win_t buffer[length];
-  Dsp_Win_t* ptrWinT;
-  MP_Real_t* ptrReal;
-  unsigned long int center;
-
-  if (!buffer || allocated_length != length) {
-	  if (buffer) free(buffer);
-	  	  allocated_length = length ; 
-		  buffer = (Dsp_Win_t*)malloc(allocated_length*sizeof(double)) ;
+  static Dsp_Win_t *buffer=NULL;
+  
+  // Checking input
+  if(NULL==out) {
+    mp_error_msg( func, "Oooops, out is NULL. Returning without doing anything.\n" );
+    return( 0 );
   }
- 
-  /* Seek if the window exists */
-  num = numberOf[type];
+  if(0==length) {
+    mp_error_msg( func, "Oooops, length is zero. Returning NULL.\n" );
+    *out = NULL;
+    return( 0 );
+  }
+
+  // (Re)allocating
+  if (NULL==buffer || allocated_length != length) {
+    if (NULL!=buffer) {
+      free(buffer);
+      buffer = NULL;
+      allocated_length = 0;
+    }
+    buffer = (Dsp_Win_t*)malloc(length*sizeof(double)) ;
+    if(NULL==buffer) {
+      mp_error_msg(func,"Could not allocate buffer. Returning NULL.\n");
+      *out = NULL;
+      return(0);
+    }
+    allocated_length = length ; 
+  }
+  
+  unsigned long int n;
+  unsigned long int numOfType;
+  MP_Win_t  *ptrWin  = NULL;
+  Dsp_Win_t *ptrWinT = NULL;
+  MP_Real_t *ptrReal = NULL;
+  unsigned long int center;
+  
+  // Seek if the window exists
+  numOfType = numberOf[type];
   for (  n = 0,   ptrWin = window[type];
-	 n < num;
+	 n < numOfType;
 	 n++,     ptrWin++ ) {
     if ( (ptrWin->len == length) && (ptrWin->optional == optional) ) break;
   }
-
-  /* If the window exists (i.E., if the above loop stopped before the last slot),
-     return the address of the existing buffer */
-  if (n < num) {
+  
+  // If the window exists (i.E., if the above loop stopped before the last slot),
+  // return the address of the existing buffer
+  if (n < numOfType) {
     *out = ptrWin->win;
     return( ptrWin->center );
   }
-  /* Else, generate the window */
-  else if (n == num) {
-
-    /* If needed, add space for more windows */
-    if (num == maxNumberOf[type]) { /* Note: num == numberOf[type] */
-
-      if ( (ptrWin = (MP_Win_t*)realloc( window[type], (num+MP_WIN_BLOCK_SIZE)*sizeof(MP_Win_t) )) == NULL ) {
-	mp_error_msg( func, "Can't realloc to add a new window. Returning a NULL buffer.\n" );
+  // Else, generate the window 
+  else if (n == numOfType) {
+    
+    // If needed, add space for more windows
+    if (numOfType == maxNumberOf[type]) { // Note: numOfType == numberOf[type] 
+      
+      if ( NULL== (ptrWin = (MP_Win_t*)realloc( window[type], (numOfType+MP_WIN_BLOCK_SIZE)*sizeof(MP_Win_t) ))) {
+	mp_error_msg( func, "Can't realloc to add a new window. Returning NULL.\n" );
 	*out = NULL;
 	return( 0 );
       }
       else {
-	/* If the realloc succeeded, initialize */
+	// If the realloc succeeded, initialize
 	window[type] = ptrWin;
-	for ( n = 0, ptrWin = window[type] + num;
+	for ( n = 0, ptrWin = window[type] + numOfType;
 	      n < MP_WIN_BLOCK_SIZE;
 	      n++,   ptrWin++ ) {
 	  ptrWin->win    = NULL;
@@ -175,37 +194,36 @@ unsigned long int MP_Win_Server_c::get_window( MP_Real_t **out,
 	maxNumberOf[type] = maxNumberOf[type] + MP_WIN_BLOCK_SIZE;
       }
     }
-
-    /* Fill the new window: */
+    
+    // Fill the new window:
     ptrWin = window[type] + numberOf[type];
-    /* Allocate the window buffer */
-    if ( (ptrWin->win = (MP_Real_t*)malloc( length*sizeof(MP_Real_t) )) == NULL ) {
-      mp_error_msg( func, "Can't allocate a new window buffer."
-	       " Returning a NULL buffer.\n" );
+
+    // Allocate the window buffer 
+    if ( NULL==(ptrWin->win = (MP_Real_t*)malloc( length*sizeof(MP_Real_t) )) ) {
+      mp_error_msg( func, "Can't allocate a new window buffer. Returning NULL.\n" );
       *out = NULL;
       return( 0 );
     }
-    /* If the allocation went OK, compute and fill the buffer, then return the window: */
+    // If the allocation went OK, compute and fill the buffer, then return the window:
     else {
-      /* Compute the new window */
+      // Compute the new window
       center = make_window( buffer, length, type, optional );
-      /* Cast it */
+      // Cast it
       for ( n = 0,      ptrReal = ptrWin->win, ptrWinT = buffer;
 	    n < length;
 	    n++,        ptrReal++,             ptrWinT++ ) {
 	*ptrReal = (MP_Real_t)(*ptrWinT);
       }
-      /* Register the other parameters */
+      // Register the other parameters
       ptrWin->len      = length;
       ptrWin->center   = center;
       ptrWin->optional = optional;
-      /* Count the new window */
+      // Count the new window 
       numberOf[type] = numberOf[type] + 1;
-      /* Return the new window */
+      // Return the new window
       *out = ptrWin->win;
       return( center );
     }
-    
   }
   else {
     mp_error_msg( func, "Oooops, this code is theoretically unreachable."
@@ -213,11 +231,5 @@ unsigned long int MP_Win_Server_c::get_window( MP_Real_t **out,
     *out = NULL;
     return( 0 );
   }
-  }  else {
-    mp_error_msg( func, "Oooops, length is null."
-		  " Returning a NULL buffer.\n" );
-    *out = NULL;
-    return( 0 );}
-
 }
 

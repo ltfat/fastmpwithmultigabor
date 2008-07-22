@@ -208,7 +208,7 @@ bool MP_Anywave_Atom_Plugin_c::test( char* filename )
 
   /* create an anywave atom corresponding to the first filter of the first table in the anywave server */
   MP_Anywave_Atom_Plugin_c* atom = NULL;
-  MP_Atom_c* (*emptyAtomCreator)( void ) = MP_Atom_Factory_c::get_atom_factory()->get_empty_atom_creator("AnywaveAtom");
+  MP_Atom_c* (*emptyAtomCreator)( void ) = MP_Atom_Factory_c::get_atom_factory()->get_empty_atom_creator("anywave");
   if (NULL == emptyAtomCreator) {
   mp_error_msg( "MP_Anywave_Atom_c::test", "Anywave atom is not registred in the atom factory" );
   return( false );

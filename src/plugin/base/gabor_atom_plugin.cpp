@@ -369,8 +369,8 @@ int MP_Gabor_Atom_Plugin_c::info()
 void MP_Gabor_Atom_Plugin_c::build_waveform( MP_Real_t *outBuffer )
 {
 
-  MP_Real_t *window;
-  MP_Real_t *atomBuffer;
+  MP_Real_t *window = NULL;
+  MP_Real_t *atomBuffer = NULL;
   unsigned long int windowCenter = 0;
   /* Parameters for the atom waveform : */
   MP_Chan_t chanIdx;
@@ -731,8 +731,8 @@ MP_Real_t MP_Gabor_Atom_Plugin_c::get_field( int field, MP_Chan_t chanIdx )
 
 DLL_EXPORT void registry(void)
 {
-  MP_Atom_Factory_c::get_atom_factory()->register_new_atom_empty("GaborAtom",&MP_Gabor_Atom_Plugin_c::gabor_atom_create_empty);
+  MP_Atom_Factory_c::get_atom_factory()->register_new_atom_empty("gabor",&MP_Gabor_Atom_Plugin_c::gabor_atom_create_empty);
   MP_Atom_Factory_c::get_atom_factory()->register_new_atom("gabor",&MP_Gabor_Atom_Plugin_c::create);
-  MP_Atom_Factory_c::get_atom_factory()->register_new_atom_empty("HarmonicAtom",&MP_Harmonic_Atom_Plugin_c::harmonic_atom_create_empty);
+  MP_Atom_Factory_c::get_atom_factory()->register_new_atom_empty("harmonic",&MP_Harmonic_Atom_Plugin_c::harmonic_atom_create_empty);
   MP_Atom_Factory_c::get_atom_factory()->register_new_atom("harmonic",&MP_Harmonic_Atom_Plugin_c::create);
 }

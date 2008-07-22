@@ -4,7 +4,7 @@
 /*                                                                            */
 /*                        Matching Pursuit Library                            */
 /*                                                                            */
-/* Rémi Gribonval                                                             */
+/* RÃˆmi Gribonval                                                             */
 /* Sacha Krstulovic                                           Mon Feb 21 2005 */
 /* -------------------------------------------------------------------------- */
 /*                                                                            */
@@ -712,12 +712,23 @@ unsigned long int MP_Book_c::substract_add( MP_Signal_c *sigSub, MP_Signal_c *si
 /***********************************************/
 /* Build the sum of (some) atoms into a signal */
 unsigned long int MP_Book_c::build_waveform( MP_Signal_c *sig, MP_Mask_c* mask ) {
-
+  char *func = "MP_Book_c::build_waveform";
   unsigned long int i;
   unsigned long int n = 0;
   
+  /* check input */
+  if (NULL==sig) {
+	mp_error_msg(func,"The signal is NULL.");
+	return 0;
+  }
+  
   /* allocate the signal at the right size */
-  sig->init( numChans, numSamples, sampleRate );
+  if (sig->init_parameters( numChans, numSamples, sampleRate ) )
+	{
+      mp_error_msg( func, "Failed to perform the internal allocations for the reconstructed signal.\n" );
+      return 0;
+    }
+
 
   /* add the atom waveforms */
   if (mask == NULL) {

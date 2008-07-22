@@ -588,9 +588,9 @@ MP_Real_t MP_Anywave_Hilbert_Atom_Plugin_c::get_field( int field , int chanIdx )
 
 DLL_EXPORT void registry(void)
 {
-  MP_Atom_Factory_c::get_atom_factory()->register_new_atom_empty("AnywaveAtom",&MP_Anywave_Atom_Plugin_c::anywave_atom_create_empty);
+  MP_Atom_Factory_c::get_atom_factory()->register_new_atom_empty("anywave",&MP_Anywave_Atom_Plugin_c::anywave_atom_create_empty);
   MP_Atom_Factory_c::get_atom_factory()->register_new_atom("anywave",&MP_Anywave_Atom_Plugin_c::create);
-  MP_Atom_Factory_c::get_atom_factory()->register_new_atom_empty("AnywaveHilbertAtom",&MP_Anywave_Hilbert_Atom_Plugin_c::anywave_hilbert_atom_create_empty);
+  MP_Atom_Factory_c::get_atom_factory()->register_new_atom_empty("anywavehilbert",&MP_Anywave_Hilbert_Atom_Plugin_c::anywave_hilbert_atom_create_empty);
   MP_Atom_Factory_c::get_atom_factory()->register_new_atom("anywavehilbert",&MP_Anywave_Hilbert_Atom_Plugin_c::create);
  
 }

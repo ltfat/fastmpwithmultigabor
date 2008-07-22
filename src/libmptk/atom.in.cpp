@@ -66,10 +66,10 @@ MP_Atom_c::MP_Atom_c( void ) {
 /* Internal allocation */
 int MP_Atom_c::alloc_atom_param( const MP_Chan_t setNumChans ) {
 
-  const char* func = "MP_Atom_c::internal_alloc(numChans)";
+  const char* func = "MP_Atom_c::alloc_atom_param(numChans)";
   /* Check the allocation size */
   if ((double)MP_MAX_SIZE_T / (double)setNumChans / (double)sizeof(MP_Real_t) <= 1.0) {
-    mp_error_msg( "MP_Anywave_Atom_c::MP_Anywave_Atom_c", "numChans [%lu] x sizeof(MP_Real_t) [%lu]"
+    mp_error_msg( func, "numChans [%lu] x sizeof(MP_Real_t) [%lu]"
 		  " is greater than the maximum value for a size_t [%lu]. Cannot use calloc"
 		  " for allocating space for the arrays. The arrays stay NULL.\n",
 		  setNumChans, sizeof(MP_Real_t), MP_MAX_SIZE_T);
@@ -79,7 +79,7 @@ int MP_Atom_c::alloc_atom_param( const MP_Chan_t setNumChans ) {
   /* Allocate the support array */
    
   if ( (support = (MP_Support_t*) calloc( setNumChans, sizeof(MP_Support_t) ) ) == NULL ) {
-    mp_warning_msg( "MP_Atom_c::internal_alloc(numChans)", "Can't allocate support array"
+    mp_warning_msg( func, "Can't allocate support array"
 		    " in atom with [%u] channels. Support array and param array"
 		    " are left NULL.\n", setNumChans );
     return( 1 );
@@ -216,7 +216,7 @@ MP_Atom_c::~MP_Atom_c() {
 /***************************/
 
 int MP_Atom_c::write( FILE *fid, const char mode ) {
-
+  char * func = "MP_Atom_c::write";
   MP_Chan_t i;
   int nItem = 0;
   
@@ -248,7 +248,7 @@ int MP_Atom_c::write( FILE *fid, const char mode ) {
     break;
 
   default:
-    mp_warning_msg( "MP_Atom_c::write()", "Unknown write mode. No output written.\n" );
+    mp_warning_msg( func, "Unknown write mode. No output written.\n" );
     nItem = 0;
     break;
   }
@@ -273,34 +273,13 @@ char * MP_Atom_c::type_name( void ) {
 void MP_Atom_c::substract_add( MP_Signal_c *sigSub, MP_Signal_c *sigAdd ) {
 
   const char* func = "MP_Atom_c::substract_add(...)";
-  MP_Real_t *sigIn;
-  MP_Chan_t chanIdx;
-  unsigned int t;
-  std::pair< double, double> addSigEnergy ;
-  double sigEBefAdd = 0.0;
-  double sigEAftAdd = 0.0;
-  double sigEBefSub = 0.0;
-  double sigEAftSub = 0.0;
-  double sigVal;
-  //MP_Real_t totalBuffer[totalChanLen];
-  /** will initialize initial numCols and numRows with the first value with wich this function is called */
-  static unsigned long int allocated_totalChanLen = 0;
-  static MP_Real_t* totalBuffer=0;
-    if (!totalBuffer|| allocated_totalChanLen != totalChanLen) {
-	  if (totalBuffer) free(totalBuffer) ;
-	  	  allocated_totalChanLen = totalChanLen ; 
-		  totalBuffer = (MP_Real_t*) malloc (allocated_totalChanLen*sizeof(MP_Real_t)) ;
-  }
 
-  
-  MP_Real_t *atomIn;
-  MP_Real_t *ps;
-  MP_Real_t *pa;
-  unsigned long int len;
-  unsigned long int pos;
-  unsigned long int tmpLen;
-  /* Check that the addition / substraction can take place :
-     the signal and atom should have the same number of channels */
+  // Will initialize allocated_totalChanLen with the first value with which this function is called
+  static unsigned long int allocated_totalChanLen = 0;
+  static MP_Real_t* totalBuffer=NULL;
+
+  // Check that the addition / substraction can take place :
+  // the signal and atom should have the same number of channels 
   if ( ( sigSub ) && ( sigSub->numChans != numChans ) ) {
     mp_error_msg( func, "Incompatible number of channels between the atom and the subtraction"
 		  " signal. Returning without any addition or subtraction.\n" );
@@ -312,8 +291,41 @@ void MP_Atom_c::substract_add( MP_Signal_c *sigSub, MP_Signal_c *sigAdd ) {
     return;
   }
 
-  /* build the atom waveform */
+
+  // (Re)allocating
+  if (NULL==totalBuffer || allocated_totalChanLen != totalChanLen) {
+    if (NULL!=totalBuffer) {
+      free(totalBuffer) ;
+      totalBuffer = NULL;
+      allocated_totalChanLen = 0;
+    } 
+    totalBuffer = (MP_Real_t*) malloc (totalChanLen*sizeof(MP_Real_t)) ;
+    if(NULL==totalBuffer) {
+      mp_error_msg(func,"Could not allocate buffer. Returning without any addition or subtraction.\n" );
+      return;
+    }
+    allocated_totalChanLen = totalChanLen ; 
+  }
+
+  // build the atom waveform 
   build_waveform( totalBuffer );
+
+  MP_Real_t *sigIn = NULL;
+  MP_Chan_t chanIdx;
+  unsigned int t;
+  std::pair< double, double> addSigEnergy ;
+  double sigEBefAdd = 0.0;
+  double sigEAftAdd = 0.0;
+  double sigEBefSub = 0.0;
+  double sigEAftSub = 0.0;
+  double sigVal;
+  
+  MP_Real_t *atomIn;
+  MP_Real_t *ps;
+  MP_Real_t *pa;
+  unsigned long int len;
+  unsigned long int pos;
+  unsigned long int tmpLen;
 
   /* loop on channels, seeking the right location in the totalBuffer */
   for ( chanIdx = 0 , atomIn = totalBuffer; chanIdx < numChans; chanIdx++ ) {
@@ -430,44 +442,43 @@ MP_Atom_c::Add_Worker * MP_Atom_c::myAddWorker = NULL ;
   
 /* run method for Add_Worker if MULTITHREAD mode On */	
 /* This is a static function to run the threads and pass the object context via the self pointer */
-    void* MP_Atom_c::Add_Worker::run(void* a)
-    {
-      MP_Atom_c::Add_Worker * myAddWorker = static_cast<MP_Atom_c::Add_Worker *>(a);
-      /* Call the the thread function in Object context */
-      myAddWorker->run_add_parallel () ;
-      pthread_exit(0) ;
-      return 0;
-    }
+void* MP_Atom_c::Add_Worker::run(void* a)
+{
+  MP_Atom_c::Add_Worker * myAddWorker = static_cast<MP_Atom_c::Add_Worker *>(a);
+  /* Call the the thread function in Object context */
+  myAddWorker->run_add_parallel () ;
+  pthread_exit(0) ;
+  return 0;
+}
     
 /********************/
 /* Void constructor */
 
 /* Add_Worker constructor if MULTITHREAD mode On */
- 
-	MP_Atom_c::Add_Worker::Add_Worker() : result (0.0, 0.0) {	
-		
-		pthread_t thread_id ;
-	  
-	  /* create synchronization primitives and worker thread */
-	  /*task class */
-      task = new Parallel_Add();
-
-      /* tab of barrier */
-	  bar = new MP_Barrier_c* [2];
-	  
-      bar[0]=new MP_Barrier_c(2); 
-      bar[1]=new MP_Barrier_c(2); 
-
-      pthread_attr_t attr;  
-      pthread_attr_init(&attr);
-      pthread_attr_setdetachstate(&attr,PTHREAD_CREATE_JOINABLE);
-      task->exit = false ;
-      /*Create the threads*/
-      if (pthread_create(&thread_id, NULL, &run, this) )
-   		{ 
-   			mp_error_msg( "MP_Atom_c::AddWorker::AddWorker()", "Failed to create Threads\n" );
-   		}
-	}
+MP_Atom_c::Add_Worker::Add_Worker() : result (0.0, 0.0) {	
+  char *func = "MP_Atom_c::AddWorker::AddWorker()";
+  pthread_t thread_id ;
+  
+  /* create synchronization primitives and worker thread */
+  /*task class */
+  task = new Parallel_Add();
+  
+  /* tab of barrier */
+  bar = new MP_Barrier_c* [2];
+  
+  bar[0]=new MP_Barrier_c(2); 
+  bar[1]=new MP_Barrier_c(2); 
+  
+  pthread_attr_t attr;  
+  pthread_attr_init(&attr);
+  pthread_attr_setdetachstate(&attr,PTHREAD_CREATE_JOINABLE);
+  task->exit = false ;
+  /*Create the threads*/
+  if (pthread_create(&thread_id, NULL, &run, this) )
+    { 
+      mp_error_msg( func, "Failed to create Threads\n" );
+    }
+}
 
 /* run_add method for Add_Worker if MULTITHREAD mode On */		
 	void MP_Atom_c::Add_Worker::run_add(MP_Atom_c * self,

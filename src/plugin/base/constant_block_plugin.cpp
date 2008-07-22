@@ -378,7 +378,7 @@ unsigned int  MP_Constant_Block_Plugin_c::create_atom( MP_Atom_c **atom,
 
   /* Allocate the atom */
   *atom = NULL;
-  MP_Atom_c* (*emptyAtomCreator)( void ) = MP_Atom_Factory_c::get_atom_factory()->get_empty_atom_creator("ConstantAtom");
+  MP_Atom_c* (*emptyAtomCreator)( void ) = MP_Atom_Factory_c::get_atom_factory()->get_empty_atom_creator("constant");
   if (NULL == emptyAtomCreator)
     {
       mp_error_msg( func, "Constant atom is not registred in the atom factory" );
