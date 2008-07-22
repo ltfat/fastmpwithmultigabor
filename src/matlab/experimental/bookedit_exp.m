@@ -730,11 +730,12 @@ set(figH,'UserData',data)
             cd(defaultDir);
             [filename, pathname] = uiputfile( {'*.bin;*.txt','MPTK book-files (*.bin)'}, ...
                 'Save Atoms in book', [ 'book_' num2str(nAtom) 'atoms.bin']);
+            cd(curDir); % return in current directory
             if (filename)
                 newsavedir = pathname;
                 bookwrite(book,fullfile(pathname,filename));
             end
-            cd(curDir); % return in current directory
+            
         else
             warndlg('No Atom is selected, nothing to save in book', 'Book save info', 'modal');
         end
