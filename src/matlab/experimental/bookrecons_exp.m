@@ -1,7 +1,7 @@
 % MPTK - Matlab interface
 % Reconstructs a signal from a book, using MPTK
 % 
-% Usage: signal = bookrecons(book[,residual])
+% Usage: signal = mprecons(book[,residual])
 %
 % Inputs: 
 % book       : a book Matlab structure
