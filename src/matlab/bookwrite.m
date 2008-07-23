@@ -13,7 +13,7 @@
 % Known limitations : only the following atom types are supported: 
 %    gabor, harmonic, mdct, mclt, dirac.
 %
-% See also : bookread bookedit_exp
+% See also : bookread bookedit
 %
 % Authors:
 % Emmanuel Ravelli (LAM, Paris, France)

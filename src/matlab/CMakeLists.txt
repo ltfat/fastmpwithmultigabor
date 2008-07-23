@@ -169,7 +169,7 @@ ENDFOREACH(file)
 
 # SCRIPT FILES
 # List of script files to be copied and installed
-FOREACH(scriptfile bookover.m bookplot.m mpview.m create_synthetic_data.m savetable.m)
+FOREACH(scriptfile bookover.m bookplot.m mpview.m bookedit.m dictcreate_gui.m  MPtoolbaricons.mat create_synthetic_data.m savetable.m )
    # Copy the script
    CONFIGURE_FILE(${MPTK_MATLAB_SRC_DIR}/scripts/${scriptfile} ${MPTK_MATLAB_OUTPUT_DIR}/${scriptfile}
                   COPYONLY)
@@ -329,7 +329,7 @@ FOREACH(target mextest loadenv_exp releaseenv_exp)
 ENDFOREACH(target)
 
 # The list of scripts and data files which rely on the MEX_files
-FOREACH(file dictcreate_gui.m  bookedit_exp.m  MPtoolbaricons.mat debugbook_exp.m)  
+FOREACH(file debugbook_exp.m)  
   CONFIGURE_FILE(${MPTK_MATLAB_SRC_DIR}/experimental/${file} ${MPTK_MATLAB_OUTPUT_DIR}/${file}
                  COPYONLY) 
   INSTALL(FILES ${MPTK_MATLAB_OUTPUT_DIR}/${file}

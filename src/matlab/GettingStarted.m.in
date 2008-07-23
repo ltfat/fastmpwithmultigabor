@@ -211,9 +211,9 @@ disp('(press enter to continue)');pause;
     hold on;plot(sigrec,'r');plot(sigrec-sig,'k');
     legend('original signal','reconstructed signal','difference');
 disp('There is also an experimental interface to play with books.')
-disp('You can try to play with bookedit_exp(book).');
+disp('You can try to play with bookedit(book).');
 disp('(press enter to continue)');pause;
-    bookedit_exp(book);
+    bookedit(book);
 disp('(press enter to finish Books tutorial)');pause;
    case '3' % Matching Pursuit
 disp('To run Matching Pursuit, simply use the mpdecomp command');
