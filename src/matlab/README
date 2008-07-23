@@ -1,13 +1,18 @@
-mptkMEX
+mptk4matlab
 -------
-This toolbox is a MEX implementation of the matlab utilities included in MPTK. At this time, only the functions bookread and bookwrite are implemented. This toolbox has been tested with the version 0.5.2 of MPTK. The following blocks are supported: gabor, harmonic, mdct, mclt, dirac.
+This toolbox is a MEX implementation of the matlab utilities included in MPTK. 
+The main MEX implementations include
+-input output of the main MPTK data structures (books, dictionaries, signal), e.g. bookread, bookwrite
+-decomposition and reconstruction (mpdecomp, mprecons)
+-some experimental Matlab code to edit and display books made of time-frequency atoms
+-this toolbox has been tested with the version 0.5.6 of MPTK. 
 
 WARNING: MPTK must be installed !!
 And matlab search path variable as to be set with the mptk lib directory:
 for instance "C:\Program Files\MPTK\lib\release" for Windows OS,
 or "usr/local/lib" for Linux OS like system
 
-On all plateform, the utilities need an environment variable called MPTK_CONFIG_FILENAME to be set with the path 
+On all platforms, the utilities need an environment variable called MPTK_CONFIG_FILENAME to be set with the path 
 of the path.xml file located in the bin directory.
 This file defines the path to the Atoms/Block plugin location. On Windows system in the case you have installed MPTK library and utilities in an non standard directory
 (eg different of "C:/Program Files/MPTK") you have to modify the path inside of this file with the real installation path.

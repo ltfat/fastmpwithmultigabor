@@ -313,6 +313,17 @@ int MP_FFT_Interface_c::test( const double presicion,
 /*                               */
 /*********************************/
 
+/* Utilities to save and load FFT library config ("wisdom files")*/
+static void my_fftw_write_char(char c, void *f) { fputc(c, (FILE *) f); }
+#define fftw_export_wisdom_to_file(f) fftw_export_wisdom(my_fftw_write_char, (void*) (f))
+#define fftwf_export_wisdom_to_file(f) fftwf_export_wisdom(my_fftw_write_char, (void*) (f))
+#define fftwl_export_wisdom_to_file(f) fftwl_export_wisdom(my_fftw_write_char, (void*) (f))
+
+static int my_fftw_read_char(void *f) { return fgetc((FILE *) f); }
+#define fftw_import_wisdom_from_file(f) fftw_import_wisdom(my_fftw_read_char, (void*) (f))
+#define fftwf_import_wisdom_from_file(f) fftwf_import_wisdom(my_fftw_read_char, (void*) (f))
+#define fftwl_import_wisdom_from_file(f) fftwl_import_wisdom(my_fftw_read_char, (void*) (f))
+
 /***************************/
 /* CONSTRUCTORS/DESTRUCTOR */
 /***************************/
@@ -652,7 +663,6 @@ bool MP_FFT_Interface_c::init_fft_library_config()
 
 }
 
-/* Save FFT library config */
 
 bool MP_FFT_Interface_c::save_fft_library_config()
 {

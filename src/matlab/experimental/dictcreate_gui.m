@@ -46,7 +46,7 @@ txtcolor = [1 1 1];
 switch(op)
     case 0 %%%%%% CREATE INTERFACE
         %% Load the mptk information
-        mptkinfo = mptk4matlab_getinfo_exp;
+        mptkinfo = getmptkinfo;
         currentPath  = pwd;
         if ~isempty(dir(mptkinfo.path.reference))
             dictPathName = [mptkinfo.path.reference '/dictionary'];
@@ -546,7 +546,10 @@ end
 
 
 function isvalid = validateblock(block)
-mptkinfo = mptk4matlab_getinfo_exp;
+mptkinfo = getmptkinfo;
+if ~exist([mptkinfo.path.reference '/tmp/'],'dir');
+   mkdir(mptkinfo.path.reference,'tmp');
+end
 filename = [mptkinfo.path.reference '/tmp/tmpdict.xml'];
 tmpdict.block{1} = block;
 isvalid = dictwrite(tmpdict,filename);

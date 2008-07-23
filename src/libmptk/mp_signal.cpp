@@ -1020,7 +1020,9 @@ MP_Real_t MP_Signal_c::apply_gain( MP_Real_t gain )
 
   for ( p = storage;
         p < (storage + numChans*numSamples);
-        *p++ = (MP_Real_t)( ((double)(*p)) * (double)(gain) ) );
+		p++) {
+        *p = (MP_Real_t)( ((double)(*p)) * (double)(gain) );
+  }
 
   refresh_energy();
 

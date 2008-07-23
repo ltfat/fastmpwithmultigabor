@@ -170,9 +170,9 @@ diracL = line( diracX, diracY, diracZ, 'color', 'k' );
 
 function atom=extract_atom_from_book(book,i)
   switch book.format
-    case '0.0 (sacha)'
+    case '0.0' % The format of book structures as read by old bookread scripts 
       atom = book.atom{i};
-    case '0.2 (gonon)'
+    case '0.1' % The format of book structures as read by mptk4matlab with MPTK 0.5.6 
       % Get the type
       typeindex = book.index(2,i);
       atom.type = book.atom(typeindex).type; 

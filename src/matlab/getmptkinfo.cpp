@@ -1,8 +1,8 @@
 /******************************************************************************/
 /*                                                                            */
-/*                  	      mptk_getinfo_exp.cpp                            */
+/*                  	      getmptkinfo.cpp                            */
 /*                                                                            */
-/*          				mptkMEX toolbox									  */
+/*          				mptk4matlab toolbox		  */
 /*                                                                            */
 /* Remi Gribonval                                           	 July 13 2008 */
 /* -------------------------------------------------------------------------- */
@@ -28,10 +28,7 @@
  * $Date 05/22/2007$
  */
 
-//#include "mex.h"
-//#include "mptk.h"
 #include "mptk4matlab.h"
-#include "matrix.h"
 #include <map>
 #include <vector>
 

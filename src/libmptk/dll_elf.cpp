@@ -127,7 +127,7 @@ bool MP_Dll_Manager_c::search_library(vector<string> * libraryNames, const char 
   dp = opendir (path);
   if (dp != NULL)
     {
-      while (ep = readdir(dp))
+      while ((ep = readdir(dp)))
         { if ( (strcmp( ep->d_name ,"libmptk.so")) && (strcmp( ep->d_name ,"libmptk.dylib"))
 		&& (strcmp( ep->d_name ,"libmptk4matlab.so")) && (strcmp( ep->d_name ,"libmptk4matlab.dylib"))){
           istringstream iss( ep->d_name );

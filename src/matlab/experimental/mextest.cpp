@@ -2,7 +2,7 @@
 /*                                                                            */
 /*                  	          mextest.cpp                       	      */
 /*                                                                            */
-/*				mptkMEX toolbox			      	      */
+/*				mptk4matlab toolbox		      	      */
 /*                                                                            */
 /* Remi Gribonval                                              	 July 17 2008 */
 /* -------------------------------------------------------------------------- */

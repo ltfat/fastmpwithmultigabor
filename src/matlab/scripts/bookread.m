@@ -49,7 +49,7 @@ if ( c < 4 ),
   fclose(fid);
   error('Failed to scan the header.');
 end;
-book.format     = '0.0 (sacha)';
+book.format     = '0.0';
 book.numAtoms   = a(1);
 book.numChans   = a(2);
 book.numSamples = a(3);

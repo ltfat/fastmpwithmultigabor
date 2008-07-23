@@ -1,5 +1,5 @@
 % Get mptk4matlab information
-mptkInfo = mptk4matlab_getinfo_exp;
+mptkInfo = getmptkinfo;
 bookfile = mptkInfo.path.exampleBook;
 sigfile  = mptkInfo.path.exampleSignal;
 

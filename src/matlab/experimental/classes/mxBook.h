@@ -1,10 +1,11 @@
 /******************************************************************************/
 /*                                                                            */
 /*                  	    mxBook.h                                          */
-/*          		    mptkMEX toolbox  	      	                      */
+/*          		    mptk4matlab toolbox	      	                      */
 /*          Class for interfacing MP_Book with matlab strcture                */
 /*                                                                            */
 /* Gilles Gonon                                               	  Feb 20 2008 */
+/* Remi Gribonval                                              	  July   2008 */
 /* -------------------------------------------------------------------------- */
 /*                                                                            */
 /*  This program is free software; you can redistribute it and/or             */
@@ -168,15 +169,4 @@ MPTK_LIB_EXPORT extern mxArray *mp_create_mxBook_from_book(MP_Book_c *book);
  */
 MPTK_LIB_EXPORT extern MP_Book_c *mp_create_book_from_mxBook(const mxArray *mxBook);
 
-/** \brief Converts a MP_Atom_c object to a Matlab structure 
- * \param atom the MPTK object
- * \return the created Matlab structure, NULL in case of problem
- */
-MPTK_LIB_EXPORT extern mxArray *mp_create_mxAtom_from_atom(MP_Atom_c *atom);
-
-/** \brief Converts a Matlab structure to a MP_Atom_c object
- * \param mxAtom the Matlab structre
- * \return the created MTPK object, NULL in case of problem
- */
-MPTK_LIB_EXPORT extern MP_Atom_c *mp_create_atom_from_mxAtom(const mxArray *mxAtom);
 

@@ -178,18 +178,6 @@ FOREACH(scriptfile bookover.m bookplot.m mpview.m create_synthetic_data.m saveta
            DESTINATION ${MPTK_MATLAB_INSTALL_DIR})
 ENDFOREACH(scriptfile)
 
-# Read/Write deprecated script files 
-FOREACH(scriptfile  dictread dictwrite bookread bookwrite)
-   # Copy the script
-   CONFIGURE_FILE(${MPTK_MATLAB_SRC_DIR}/scripts/${scriptfile}.m ${MPTK_MATLAB_OUTPUT_DIR}/${scriptfile}_deprecated.m
-                 COPYONLY)
-   # Set rule to install it
-   INSTALL(FILES ${MPTK_MATLAB_OUTPUT_DIR}/${scriptfile}_deprecated.m
-           DESTINATION ${MPTK_MATLAB_INSTALL_DIR})
-ENDFOREACH(scriptfile)
-
-
-
 
 ############################################
 #                  -3-
@@ -218,7 +206,7 @@ SET_TARGET_PROPERTIES(mptk4matlab PROPERTIES
     ADD_DEPENDENCIES(mptk4matlab mptk) 
 
 # List of mex files to be compiled and installed
-FOREACH(target dictread dictwrite sigread sigwrite bookread bookwrite)
+FOREACH(target getmptkinfo dictread dictwrite sigread sigwrite bookread bookwrite mprecons mpdecomp)
    ADD_CUSTOM_TARGET(matlab_${target} 
    	             ALL echo
                      DEPENDS  
@@ -313,7 +301,7 @@ IF(BUILD_MATLAB_MEX_FILES_EXPERIMENTAL)
 IF(MEX_COMPILER)
 
 # List of mex files to be compiled
-FOREACH(target mptk4matlab_getinfo_exp mprecons_exp mpdecomp mextest loadenv_exp releaseenv_exp)
+FOREACH(target mextest loadenv_exp releaseenv_exp)
    ADD_CUSTOM_TARGET(matlab_${target} 
                      ALL echo
                      DEPENDS 

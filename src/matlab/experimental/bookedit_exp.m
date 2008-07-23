@@ -27,6 +27,7 @@ function varargout = bookedit_exp( book, channel, bwfactor )
 
 %% Authors:
 % Gilles Gonon
+% Remi Gribonval
 % Copyright (C) 2008 IRISA
 %
 % This script is part of the Matching Pursuit Library package,
@@ -69,11 +70,11 @@ if ischar(book),
     [p,n] = fileparts(book);
     data.loadBookDir = p;
     book = bookread( book );
-    % Add Fields in structure for graphical / selection information to atoms
-    book = addMatlabBookFields(book);
     % Record path of the book for open book
     disp('Done.');
 end;
+% Add Fields in structure for graphical / selection information to atoms
+book = addMatlabBookFields(book);
 
 if nargin < 2,
     channel = 1;
@@ -1155,6 +1156,7 @@ function [index,atomBounds] = findAtomInRect(rpos)
 %   - 'selected' for selection information
 %   - 'visible' for plotting information
     function newbook = addMatlabBookFields(b)
+        disp('Adding visible and selected book field');
         for t = 1:length(b.atom)
             [nA, nC] = size(b.atom(t).params.amp);
             b.atom(t).selected = zeros(nA,nC);

@@ -107,7 +107,7 @@ end
 
 
 % Queries MPTK to get some information
-mptkInfo = mptk4matlab_getinfo_exp;
+mptkInfo = getmptkinfo;
 disp('MPTK is a C++ toolbox implementing Matching Pursuit algorithms as fast as it can');
 disp('for various types of signal dictionaries.');
 disp('The Matlab interface to MPTK makes it possible to interact with MPTK from the Matlab command line.');
@@ -129,7 +129,7 @@ quitTutorial = 0;
 while (0==quitTutorial)
      tutorialName = input(...
 ['Please choose which tutorial you want to run:\n'...
- '(0): Quit tutorials\n'...
+ '(0 or Q): Quit tutorials\n'...
  '(1): Dictionaries, how to create them and use them\n'...
  '(2): Books, which store sparse representations how to process them, visualise them, etc\n'...
  '(3): Running Matching Pursuit\n'...
@@ -138,7 +138,7 @@ while (0==quitTutorial)
  '(6): Demixing pursuit (in preparation)\n'
 ],'s');
      switch tutorialName
-   case '0' % Quit
+   case '0','Q' % Quit
      quitTutorial = 1;
    case '1'			
 %%%
@@ -220,12 +220,12 @@ disp('To run Matching Pursuit, simply use the mpdecomp command');
 disp('For example, let us load a signal and decompose it using the default dictionary');
 disp('       [sig sampleRate] = sigread(mptkInfo.path.exampleSignal);');
 disp('       dict = dictread(mptkInfo.path.defaultDict);');
-disp('       [book residual decay] = mpdecomp(sig,sampleRate,dict,10);');
+disp('       [book residual decay] = mpdecomp(sig,sampleRate,dict,100);');
 disp('       figure(5);bookover(book,sig);');
 disp('(press enter to continue)');pause;
     [sig sampleRate] = sigread(mptkInfo.path.exampleSignal);
     dict = dictread(mptkInfo.path.defaultDict);
-    [book residual decay] = mpdecomp(sig,sampleRate,dict,10);
+    [book residual decay] = mpdecomp(sig,sampleRate,dict,100);
     figure(5);bookover(book,sig);
 disp('(press enter to finish Running Matching Pursuit tutorial)');pause;
    case '4' % Multichannel

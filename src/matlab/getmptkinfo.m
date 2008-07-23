@@ -1,7 +1,7 @@
 % MPTK - Matlab interface
 % Gets various information on MTPK plugins and configuration into Matlab
 % 
-% Usage :  info = mptk_getinfo_exp() 
+% Usage :  info = getmptkinfo() 
 % 
 % Output :
 % info : a structure with the information

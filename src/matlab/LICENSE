@@ -1,8 +1,7 @@
-mptkMEX, Copyright 2007, Laboratoire d'Acoustique Musicale (UPMC (Paris 6), CNRS, Ministere de la culture)
-Developed by Emmanuel Ravelli,
-ravelli@lam.jussieu.fr
-Adapted to MPTK by Benjamin roy,
+mptk4matlab, Copyright 2008, INRIA.
+Developped by Gilles Gonon, Benjamin Roy, Remi Gribonval
 broy@irisa.fr
+remi.gribonval@irisa.fr
 
 Reference:
 You can redistribute it and/or modify it
