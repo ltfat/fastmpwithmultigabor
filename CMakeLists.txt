@@ -156,19 +156,16 @@ SET(MPTK_DEFAULT_MIXER_FILENAME  mixer/mix_58_mixer.txt)
 SET(MPTK_DEFAULT_ANYWAVEDICT_FILENAME dictionary/dic_anywave.xml)
 SET(MPTK_DEFAULT_ANYWAVETABLE_FILENAME wavetable/defaultWaveTable.xml)
 SET(MPTK_DEFAULT_ANYWAVETABLE_DATA_FILENAME wavetable/defaultWaveTableData.bin)
+SET(MPTK_DEFAULT_DICT_LIST_INSTALL_PATH dictionary)
+SET(MPTK_DEFAULT_ANYWAVETABLE_INSTALL_PATH wavetable)
+SET(MPTK_DEFAULT_ANYWAVEDICT_INSTALL_PATH dictionary)
 
 # Copied default files
 FOREACH(default DICT MIXER ANYWAVETABLE_DATA)
 	SET(MPTK_DEFAULT_${default}_FILE          ${MPTK_REFERENCE_PATH}/${MPTK_DEFAULT_${default}_FILENAME})
 	SET(MPTK_DEFAULT_${default}_FILE_INSTALL  ${MPTK_REFERENCE_PATH_INSTALL}/${MPTK_DEFAULT_${default}_FILENAME})
 	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/${MPTK_DEFAULT_${default}_FILENAME} ${MPTK_DEFAULT_${default}_FILE} COPYONLY)
-ENDFOREACH(default)
-
-# Generated default files
-FOREACH(default DICT_LIST ANYWAVETABLE ANYWAVEDICT)
-	SET(MPTK_DEFAULT_${default}_FILE          ${MPTK_REFERENCE_PATH}/${MPTK_DEFAULT_${default}_FILENAME})
-	SET(MPTK_DEFAULT_${default}_FILE_INSTALL  ${MPTK_REFERENCE_PATH_INSTALL}/${MPTK_DEFAULT_${default}_FILENAME})
-	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/${MPTK_DEFAULT_${default}_FILENAME}.in ${MPTK_DEFAULT_${default}_FILE} @ONLY)
+	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/${MPTK_DEFAULT_${default}_FILENAME}  ${MPTK_BINARY_DIR}/install/bin/reference/${MPTK_DEFAULT_${default}_FILENAME} COPYONLY)
 ENDFOREACH(default)
 
 # EXAMPLE REFERENCE FILES
@@ -179,22 +176,24 @@ FOREACH(example BOOK SIGNAL)
 	SET(MPTK_EXAMPLE_${example}_FILE          ${MPTK_REFERENCE_PATH}/${MPTK_EXAMPLE_${example}_FILENAME})
 	SET(MPTK_EXAMPLE_${example}_FILE_INSTALL  ${MPTK_REFERENCE_PATH_INSTALL}/${MPTK_EXAMPLE_${example}_FILENAME})
 	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/${MPTK_EXAMPLE_${example}_FILENAME} ${MPTK_EXAMPLE_${example}_FILE} COPYONLY)
+	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/${MPTK_EXAMPLE_${example}_FILENAME}  ${MPTK_BINARY_DIR}/install/bin/reference/${MPTK_EXAMPLE_${example}_FILENAME} COPYONLY)
 ENDFOREACH(example)
 
-CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/${MPTK_DEFAULT_DICT_FILENAME} ${MPTK_BINARY_DIR}/bin/reference/tmp/${MPTK_DEFAULT_DICT_FILENAME} COPYONLY)
+# Generated default files
+FOREACH(default DICT_LIST ANYWAVETABLE ANYWAVEDICT)
+	SET(MPTK_DEFAULT_${default}_FILE          ${MPTK_REFERENCE_PATH}/${MPTK_DEFAULT_${default}_FILENAME})
+	SET(MPTK_DEFAULT_${default}_FILE_INSTALL  ${MPTK_REFERENCE_PATH_INSTALL}/${MPTK_DEFAULT_${default}_FILENAME})
+	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/${MPTK_DEFAULT_${default}_FILENAME}.in ${MPTK_DEFAULT_${default}_FILE} @ONLY)
+	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/${MPTK_DEFAULT_${default}_FILENAME}.install ${MPTK_BINARY_DIR}/install/bin/reference/${MPTK_DEFAULT_${default}_FILENAME} @ONLY)
+ENDFOREACH(default)
+
+
 
 # TEST FILES, redundant with defaults ?
 SET(MPTK_ANYWAVE_TEST_TABLE_BIN ${MPTK_REFERENCE_PATH}/signal/anywave_table_data.bin)
 SET(MPTK_ANYWAVE_TEST_TABLE ${MPTK_REFERENCE_PATH}/dictionary/anywave_table.xml)
 SET(MPTK_ANYWAVE_TEST_TABLE_BIN ${MPTK_REFERENCE_PATH}/signal/anywave_table_data.bin)
 
-IF(BUILD_MULTITHREAD) 
-SET(MP_EXECUTABLE mpd_multithread)
-SET(MPDEMIX_EXECUTABLE mpd_demix_multithread)
-ELSE(BUILD_MULTITHREAD)
-SET(MP_EXECUTABLE mpd)
-SET(MPDEMIX_EXECUTABLE mpd_demix)
-ENDIF(BUILD_MULTITHREAD) 
 
 # Depending on compiler+IDE (Make/Xcode/Visual), need to specify postfix for build type
 #--------------------------------------------------------------------------------------
@@ -203,11 +202,11 @@ IF( CMAKE_CXX_COMPILER STREQUAL "cl")
     IF (CMAKE_CONFIGURATION_TYPE MATCHES Debug)
     # Case of debug mode
     SET(MPTK_LIB_DIR ${MPTK_BINARY_DIR}/lib/debug)
-    SET(MPTK_LIB_DIR_INSTALL ${CMAKE_INSTALL_PREFIX}/lib/debug)
+    SET(MPTK_LIB_DIR_INSTALL ${CMAKE_INSTALL_PREFIX}/lib)
     ELSE (CMAKE_CONFIGURATION_TYPE MATCHES Debug)
     # Case of release mode
     SET(MPTK_LIB_DIR ${MPTK_BINARY_DIR}/lib/release)
-    SET(MPTK_LIB_DIR_INSTALL ${CMAKE_INSTALL_PREFIX}/lib/release)
+    SET(MPTK_LIB_DIR_INSTALL ${CMAKE_INSTALL_PREFIX}/lib)
     ENDIF (CMAKE_CONFIGURATION_TYPE MATCHES Debug)
 ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
 # Case of Xcode
@@ -235,9 +234,6 @@ ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
 # setting path configuration file
 CONFIGURE_FILE(${MPTK_SOURCE_DIR}/path.xml.in ${MPTK_BINARY_DIR}/bin/path.xml @ONLY)
 CONFIGURE_FILE(${MPTK_SOURCE_DIR}/path.xml.install ${MPTK_BINARY_DIR}/path.xml @ONLY)
-
-
-
 
 #-----------------------------------------------------------------------------
 # setting bin path
@@ -340,6 +336,9 @@ ADD_SUBDIRECTORY(${MPTK_SOURCE_DIR}/doc)
 ENDIF(BUILD_DOCUMENTATION)
 ADD_SUBDIRECTORY( src)
 
+INSTALL(DIRECTORY ${MPTK_BINARY_DIR}/install/bin/reference DESTINATION bin)
+INSTALL(FILES ${MPTK_BINARY_DIR}/install/include/mptk.h DESTINATION include)
+
 #-----------------------------------------------------------------------------
 ## CPACK RULES
 INCLUDE(InstallRequiredSystemLibraries)
@@ -403,8 +402,8 @@ SET(CPACK_GENERATOR "TGZ")
   SET(CPACK_NSIS_URL_INFO_ABOUT "http:\\\\\\\\http://www.irisa.fr/metiss/home_html-fr")
   SET(CPACK_NSIS_CONTACT "matchingpursuite@irisa.fr")
 SET(CPACK_NSIS_MODIFY_PATH ON)
-INSTALL(FILES "${MPTK_SOURCE_DIR}/README" DESTINATION /)
-INSTALL(FILES  "${MPTK_SOURCE_DIR}/COPYING" DESTINATION /)
+INSTALL(FILES "${MPTK_SOURCE_DIR}/README" DESTINATION .)
+INSTALL(FILES  "${MPTK_SOURCE_DIR}/COPYING" DESTINATION .)
 ELSE(WIN32 AND NOT LINUX)
 SET(CPACK_GENERATOR "TGZ")
 ENDIF(WIN32 AND NOT LINUX)
@@ -438,22 +437,14 @@ SET(CMAKE_CXX_FLAGS "-fprofile-arcs -ftest-coverage  ${CMAKE_CXX_FLAGS}")
 ADD_TEST(FFT, ${MPTK_BINARY_DIR}/bin/test_fft)
 ADD_TEST(PARABOLIC_REGRESSION, ${MPTK_BINARY_DIR}/bin/test_parabolic_regression)
 ADD_TEST(BEHAVIOUR_IN_NOISE, ${MPTK_BINARY_DIR}/bin/test_behaviour_in_noise)
-IF(BUILD_MULTITHREAD)
-ADD_TEST(MPD, ${MPTK_BINARY_DIR}/bin/mpd_multithread -C ${MPTK_BINARY_DIR}/bin/path.xml -D ${MPTK_DEFAULT_DICT_FILE} -n 10 -q ${MPTK_REFERENCE_PATH}/signal/glockenspiel.wav ${MPTK_REFERENCE_PATH}/signal/test.bin)
-ADD_TEST(MPDANYWAVE, ${MPTK_BINARY_DIR}/bin/mpd_multithread -C ${MPTK_BINARY_DIR}/bin/path.xml -D ${MPTK_REFERENCE_PATH}/dictionary/dic_anywave.xml -n 10 -q ${MPTK_REFERENCE_PATH}/signal/anywave_signal.wav ${MPTK_REFERENCE_PATH}/signal/test_anywave.bin)
-ELSE(BUILD_MULTITHREAD)
 ADD_TEST(MPD, ${MPTK_BINARY_DIR}/bin/mpd -C ${MPTK_BINARY_DIR}/bin/path.xml -D ${MPTK_DEFAULT_DICT_FILE} -n 10 -q ${MPTK_REFERENCE_PATH}/signal/glockenspiel.wav ${MPTK_REFERENCE_PATH}/signal/test.bin)
 ADD_TEST(MPDANYWAVE, ${MPTK_BINARY_DIR}/bin/mpd -C ${MPTK_BINARY_DIR}/bin/path.xml -D ${MPTK_REFERENCE_PATH}/dictionary/dic_anywave.xml -n 10 -q ${MPTK_REFERENCE_PATH}/signal/anywave_signal.wav ${MPTK_REFERENCE_PATH}/signal/test_anywave.bin)
-ENDIF(BUILD_MULTITHREAD)
 ADD_TEST(MPR, ${MPTK_BINARY_DIR}/bin/mpr -C ${MPTK_BINARY_DIR}/bin/path.xml ${MPTK_REFERENCE_PATH}/signal/test.bin ${MPTK_REFERENCE_PATH}/signal/test.wav)
 ADD_TEST(MPF, ${MPTK_BINARY_DIR}/bin/mpf -C ${MPTK_BINARY_DIR}/bin/path.xml --Freq=[0:110] --len=[0:256] ${MPTK_REFERENCE_PATH}/signal/test.bin ${MPTK_REFERENCE_PATH}/signal/booktestYes.bin ${MPTK_REFERENCE_PATH}/signal/booktestNo.bin)
 ADD_TEST(TEST_MP, ${MPTK_BINARY_DIR}/bin/test_mp)
 ADD_TEST(ANYWAVE, ${MPTK_BINARY_DIR}/bin/test_anywave ${MPTK_REFERENCE_PATH}/signal/anywave_signal.wav ${MPTK_REFERENCE_PATH}/dictionary/anywave_table.xml ${MPTK_REFERENCE_PATH}/dictionary/dico_test_anywave.xml)
-IF(BUILD_MULTITHREAD)
-ADD_TEST(MPD_DEMIX, ${MPTK_BINARY_DIR}/bin/mpd_demix_multithread -C ${MPTK_BINARY_DIR}/bin/path.xml -D ${MPTK_DEFAULT_DICT_LIST_FILE} -M ${MPTK_REFERENCE_PATH}/mixer/mix_58_mixer.txt -n 10 -q ${MPTK_REFERENCE_PATH}/signal/mix_58_stereo.wav ${MPTK_REFERENCE_PATH}/signal/test_demix.bin)
-ELSE(BUILD_MULTITHREAD)
 ADD_TEST(MPD_DEMIX, ${MPTK_BINARY_DIR}/bin/mpd_demix -C ${MPTK_BINARY_DIR}/bin/path.xml -D ${MPTK_DEFAULT_DICT_LIST_FILE} -M ${MPTK_REFERENCE_PATH}/mixer/mix_58_mixer.txt -n 10 -q ${MPTK_REFERENCE_PATH}/signal/mix_58_stereo.wav ${MPTK_REFERENCE_PATH}/signal/test_demix.bin)
-ENDIF(BUILD_MULTITHREAD)
+
 
 #ADD_TEST(Test1, ${MPTK_DIR}/bin/Testmptk)
 ENDIF(BUILD_TESTING)
