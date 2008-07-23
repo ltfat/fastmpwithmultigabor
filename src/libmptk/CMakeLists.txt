@@ -57,7 +57,7 @@ SET(HEADER_FILE
 #------------------------------------------------
 #Find or generate the MPTK shared header (the one for end-user)
  FIND_FILE(MPTK_SHARED_HEADER mptk.h
-           PATHS ${MPTK_BINARY_DIR}/include/
+           PATHS ${MPTK_BINARY_DIR}/install/include/
              NO_CMAKE_ENVIRONMENT_PATH
              NO_CMAKE_PATH
              NO_SYSTEM_ENVIRONMENT_PATH
@@ -65,30 +65,27 @@ SET(HEADER_FILE
 IF(BUILD_SHARED_LIBS)
 IF(NOT MPTK_SHARED_HEADER)
 FILE(READ ${MPTK_SOURCE_DIR}/src/libmptk/mptk.h.shared.cmake INIT)
-FILE(WRITE ${MPTK_BINARY_DIR}/include/mptk.h "${INIT}")
-FILE(APPEND ${MPTK_BINARY_DIR}/include/mptk.h "/* * * * * * * * * * * * * * * * * * * * * * *\n")
-FILE(APPEND ${MPTK_BINARY_DIR}/include/mptk.h "${AUTHORS}")
-FILE(APPEND ${MPTK_BINARY_DIR}/include/mptk.h "* * * * * * * * * * * * * * * * * * * * * * */\n")
-FILE(APPEND ${MPTK_BINARY_DIR}/include/mptk.h "#ifndef __mptk_h_\n")
-FILE(APPEND ${MPTK_BINARY_DIR}/include/mptk.h "#define __mptk_h_\n")
+FILE(WRITE ${MPTK_BINARY_DIR}/install/include/mptk.h "${INIT}")
+FILE(APPEND ${MPTK_BINARY_DIR}/install/include/mptk.h "/* * * * * * * * * * * * * * * * * * * * * * *\n")
+FILE(APPEND ${MPTK_BINARY_DIR}/install/include/mptk.h "${AUTHORS}")
+FILE(APPEND ${MPTK_BINARY_DIR}/install/include/mptk.h "* * * * * * * * * * * * * * * * * * * * * * */\n")
+FILE(APPEND ${MPTK_BINARY_DIR}/install/include/mptk.h "#ifndef __mptk_h_\n")
+FILE(APPEND ${MPTK_BINARY_DIR}/install/include/mptk.h "#define __mptk_h_\n")
 FOREACH(HEADER ${HEADER_FILE})
 FILE(READ ${HEADER} BUFFER)
-FILE(APPEND ${MPTK_BINARY_DIR}/include/mptk.h  "${BUFFER}" )
+FILE(APPEND ${MPTK_BINARY_DIR}/install/include/mptk.h  "${BUFFER}" )
 ENDFOREACH(HEADER)
 FILE(READ ${CMAKE_SOURCE_DIR}/src/libmptk/mp_pthreads_barrier.h BUFFER)
-FILE(APPEND ${MPTK_BINARY_DIR}/include/mptk.h  "${BUFFER}" )
+FILE(APPEND ${MPTK_BINARY_DIR}/install/include/mptk.h  "${BUFFER}" )
 FILE(READ ${CMAKE_SOURCE_DIR}/mp_system.h BUFFER)
-FILE(APPEND ${MPTK_BINARY_DIR}/include/mptk.h  "${BUFFER}" )
-FILE(APPEND ${MPTK_BINARY_DIR}/include/mptk.h "#endif /* __mptk_h_ */\n" )
+FILE(APPEND ${MPTK_BINARY_DIR}/install/include/mptk.h  "${BUFFER}" )
+FILE(APPEND ${MPTK_BINARY_DIR}/install/include/mptk.h "#endif /* __mptk_h_ */\n" )
 SET(MPTK_SHARED_HEADER TRUE INTERNAL)
 ENDIF(NOT MPTK_SHARED_HEADER)
 ENDIF(BUILD_SHARED_LIBS)
 #Place this header file in the include directory of the build directory
 
 CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/libmptk/mptk.h.cmake ${MPTK_BINARY_DIR}/src/libmptk/mptk.h)
-IF(NOT MPTK_SHARED_HEADER)
-INSTALL(FILES ${MPTK_BINARY_DIR}/include/mptk.h DESTINATION include)
-ENDIF(NOT MPTK_SHARED_HEADER)
 # 
 
 #------------------------------------------------
