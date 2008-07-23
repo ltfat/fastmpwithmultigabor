@@ -129,7 +129,7 @@ quitTutorial = 0;
 while (0==quitTutorial)
      tutorialName = input(...
 ['Please choose which tutorial you want to run:\n'...
- '(0 or Q): Quit tutorials\n'...
+ '(0 or q): Quit tutorials\n'...
  '(1): Dictionaries, how to create them and use them\n'...
  '(2): Books, which store sparse representations how to process them, visualise them, etc\n'...
  '(3): Running Matching Pursuit\n'...
@@ -138,7 +138,7 @@ while (0==quitTutorial)
  '(6): Demixing pursuit (in preparation)\n'
 ],'s');
      switch tutorialName
-   case '0','Q' % Quit
+   case '0','q' % Quit
      quitTutorial = 1;
    case '1'			
 %%%
@@ -214,7 +214,9 @@ disp('There is also an experimental interface to play with books.')
 disp('You can try to play with bookedit(book).');
 disp('(press enter to continue)');pause;
     bookedit(book);
-disp('(press enter to finish Books tutorial)');pause;
+disp('Don''t hesitate to have a look at the code of bookedit to understand the current structure of books¯.');
+disp('However, keep in mind that the structure of books will certainly change in the next verstion of MPTK4Matlab!');
+disp('(press enter to continue)');pause;disp('(press enter to finish Books tutorial)');pause;
    case '3' % Matching Pursuit
 disp('To run Matching Pursuit, simply use the mpdecomp command');
 disp('For example, let us load a signal and decompose it using the default dictionary');

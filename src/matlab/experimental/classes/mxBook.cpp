@@ -208,7 +208,7 @@ void mxAtoms::parseAtom(MP_Atom_c *atom) {
 //! Fill a given 'atom' structure at index 'a' with parameters
 mxArray * mxAtoms::outputMxStruct(mxArray * atom, unsigned int a) {
   char * func = "mxAtoms::outputMxStruct";
-  mp_info_msg(func," - Fill atom Structure for type [%s]\n",typeLen.c_str()); 
+  mp_debug_msg(func," - Fill atom Structure for type [%s]\n",typeLen.c_str()); 
   // Create atom Structure              
   mwSize dims[2] = {1, 2};
   mxArray *par;
@@ -225,7 +225,7 @@ mxArray * mxAtoms::outputMxStruct(mxArray * atom, unsigned int a) {
   map <string, mxArray *>::iterator miter;
   for ( miter = params.begin(); miter != params.end(); miter++ )
     {
-      mp_info_msg(func,"   - \"%s\" added\n",miter->first.c_str());
+      mp_debug_msg(func,"   - \"%s\" added\n",miter->first.c_str());
       p = mxAddField(par,miter->first.c_str());
       mxSetFieldByNumber(par,0, p, miter->second);
     } // End of atom parameters definition
@@ -280,7 +280,7 @@ mxBook::mxBook(MP_Book_c *mpbook) {
 
   // Fill header info 
   mxArray *mxTmp;
-  mxTmp = mxCreateString("0.2 (gonon)");
+  mxTmp = mxCreateString("0.1");
   mxSetField(mexbook,0, "format", mxTmp);
   mxTmp = mxCreateDoubleScalar((double) numAtoms); //! numAtoms
   mxSetField(mexbook, 0, "numAtoms", mxTmp);
@@ -296,7 +296,7 @@ mxBook::mxBook(MP_Book_c *mpbook) {
   unsigned int indexSize = 4+numChans;
   mxIndex = mxCreateDoubleMatrix((mwSize)indexSize,(mwSize)numAtoms, mxREAL); //! mxIndex contains (1: Atom number, 2: type index, 3: atom index, 4: Atom selected, 4+chan: atom pos of channel chan)
     
-  mp_info_msg(func,"Counting atom types in book : \n");
+  mp_debug_msg(func,"Counting atom types in book : \n");
     
   // Some declarations
   map <string, mxAtoms *> atomStats;       //! Map <atom type , nb of occurence>
@@ -313,7 +313,7 @@ mxBook::mxBook(MP_Book_c *mpbook) {
 
     // If aType is a new type, register it in maps
     if ( atomStats.find(aType) == atomStats.end() ) {
-      mp_info_msg(func,"Registering new atom type [%s]\n",aType.c_str());
+      mp_debug_msg(func,"Registering new atom type [%s]\n",aType.c_str());
       atomStats[aType] = new mxAtoms(aType,numChans);
     }
         
@@ -335,7 +335,7 @@ mxBook::mxBook(MP_Book_c *mpbook) {
     
  
   /* Matlab console info */
-  mp_info_msg(func, "found %d different atom types\n",atomStats.size());
+  mp_debug_msg(func, "found %d different atom types\n",atomStats.size());
     
   /* Init Atom structure
    *  atom.type = string
@@ -350,14 +350,14 @@ mxBook::mxBook(MP_Book_c *mpbook) {
   unsigned int t = 0;  //! Index of type used for mxAtoms constructors
   for ( miter = atomStats.begin(); miter != atomStats.end(); ++miter )
     {
-      mp_info_msg(func," - atom [%s] :  %ld occurences\n",miter->first.c_str(), miter->second->nAtom);
+      mp_debug_msg(func," - atom [%s] :  %ld occurences\n",miter->first.c_str(), miter->second->nAtom);
       miter->second->allocParams(miter->second->nAtom, numChans);
       miter->second->typeIdx = t;  //! Set type index according to the map iterator
       t++; //! increment type index
     }
 
     
-  mp_info_msg(func,"Load each atom\n");
+  mp_debug_msg(func,"Load each atom\n");
 
   /* Parse Atoms parameters */
   for ( n=0 ; n<numAtoms ; n++ ) {
@@ -370,7 +370,7 @@ mxBook::mxBook(MP_Book_c *mpbook) {
       atomStats[aType]->parseAtom(mpbook->atom[n]);
       *( mxGetPr(mxIndex) + n*indexSize + 1 ) = (double) ( atomStats[aType]->typeIdx + 1); //! Type index
     } else {
-      mp_info_msg(func,"Atom [%ld] was not recognized\n",n);
+      mp_error_msg(func,"Atom [%ld] was not recognized\n",n);
     }
   }
     
@@ -379,11 +379,11 @@ mxBook::mxBook(MP_Book_c *mpbook) {
   const char *atomFieldNames[] = {"type","params"};
   atom = mxCreateStructMatrix((mwSize)1,(mwSize)(atomStats.size()),numAtomFieldNames,atomFieldNames);
     
-  mp_info_msg(func,"Creating output structure\n");
+  mp_debug_msg(func,"Creating output structure\n");
   n = 0;
   for ( miter = atomStats.begin(); miter != atomStats.end(); ++miter )
     {
-      mp_info_msg(func," - atom [%s] \n",miter->second->type.c_str());
+      mp_debug_msg(func," - atom [%s] \n",miter->second->type.c_str());
       miter->second->outputMxStruct(atom,n);
       n++;
     } // End of atom parameters definition
@@ -444,7 +444,7 @@ MP_Atom_c * mxBook::getMP_Atom(unsigned long int atomIdx) {
 	  delete newAtom;
 	  return( NULL );
 	}
-  // mp_info_msg(func," -- atom index %ld [%s]\n",atomIdx,aType.c_str());
+  mp_debug_msg(func," -- atom index %ld [%s]\n",atomIdx,aType.c_str());
   
   /** Retrieve pointer for common parameters to all atoms (pos, len, amp) */
   mxArray *mxpos, *mxamp, *mxlen;
@@ -700,7 +700,7 @@ MP_Book_c * mxBook::Book_MEX_2_MPTK() {
   for (a=0;a<nAtom;a++) {
     if (*(mxGetPr(mxIndex) + a*indexSize + 3) != 0.0 ) {
       //! add_atom
-      // mp_info_msg(func," - Adding Atom [%ld] to book :",a);
+      mp_debug_msg(func," - Adding Atom [%ld] to book :",a);
       MP_Atom_c * mpAtom;      
       if ( (mpAtom = this->getMP_Atom(a)) == NULL ) {
 	mp_error_msg(func," getMP_Atom returend NULL while adding Atom [%ld] to book :",a);
