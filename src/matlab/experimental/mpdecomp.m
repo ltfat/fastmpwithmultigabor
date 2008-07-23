@@ -14,7 +14,7 @@
 % residual  : the residual obtained after the iterations
 % decay     : a numIter x 1 vector with the energy of the residual after each iteration
 % 
-% See also : sigread, sigwrite, bookread, bookwrite, bookrecons, dictread, dictwrite
+% See also : sigread, sigwrite, bookread, bookwrite, mprecons, dictread, dictwrite
 %
 % Author : 
 % Remi Gribonval (IRISA, Rennes, France), July 2008

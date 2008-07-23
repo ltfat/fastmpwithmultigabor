@@ -200,10 +200,10 @@ disp('(press enter to continue)');pause;
     figure(2);bookover(book,sig);
 disp('It is also possible to reconstruct a signal from the book. Let us');
 disp('see what the corresponding time-frequency plot gives');
-disp('         sigrec = bookrecons_exp(book)');
+disp('         sigrec = mprecons(book)');
 disp('         figure(3);bookover(book,sigrec)');
 disp('(press enter to continue)');pause;
-    sigrec = bookrecons_exp(book);
+    sigrec = mprecons(book);
     figure(3);bookover(book,sigrec);
 disp('Let us now compare the original signal with the reconstructed one')
 disp('(press enter to continue)');pause;

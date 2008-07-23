@@ -1,4 +1,4 @@
-function dictcreate_gui(op)
+function varargout = dictcreate_gui(op)
 % 
 %  Build a dictionary for MPTK using graphical tools
 %  usage : dict = dictcreate_gui();
@@ -235,6 +235,9 @@ switch(op)
     case 100 %%%%% QUIT
         clear H_PANEL H_CHOICE H_SET H_PARAM
         close(figDict);
+	if(nargout>0) 
+	  varargout{1} = dict;
+	end
         return;
     case 90 %%%%% CLEAR DICTIONARY
         dict.block = {};
@@ -275,18 +278,15 @@ switch(op)
             name      = get(H_PARAM(i).name,'String');
             value      = get(H_PARAM(i).value,'String');
             usedefault = get(H_PARAM(i).default,'value');
-            if(usedefault && length(value)>0)
-                warningMsg = ['Please choose between using the default value and setting a specific value for parameter "' name '".'];
-                break;
-            elseif((~usedefault) && (length(value)==0))
-                continue;
-            else
-               if usedefault
-                  value = blockinfo(blockNum).parameters(i).default;
-               end
-                
-               newblock.(name) = value;
+	    % Each parameter must have been specified as either the default or a user chose value
+            if((~usedefault) && (length(value)==0))
+	        warningMsg = ['Please fill in parameter "' name '".'];
+		break;
+	    end
+	    if usedefault
+              value = blockinfo(blockNum).parameters(i).default;
             end
+            newblock.(name) = value;
         end
         % If everything is OK, validate the block and add it if OK
         if length(warningMsg)==0
@@ -423,7 +423,6 @@ switch(op)
                      'Units','normalized', ...
                      'BackgroundColor',fgcolor,...
                      'String','Choose a file',...
-                     'Value',1,...
                      'Position',paramFillPos,...
                      'Callback','dictcreate_gui(25)'); % choose wavetable file name
              else

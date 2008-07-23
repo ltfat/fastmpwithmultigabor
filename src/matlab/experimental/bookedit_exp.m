@@ -21,7 +21,7 @@ function varargout = bookedit_exp( book, channel, bwfactor )
 %    color is proportional to the atom's amplitudes,
 %    mapped to the current colormap and the current caxis.
 %
-%    See also bookread, bookwrite, bookrecons_exp and
+%    See also bookread, bookwrite, mprecons and
 %    the patch handle graphics properties.
 %
 
@@ -747,7 +747,7 @@ set(figH,'UserData',data)
             disp('There are no selected atoms for reconstruction')
         else
 %            signal = mpReconstruct(book);
-            signal = bookrecons_exp(book);
+            signal = mprecons(book);
             if (~isempty(signal))
                 soundsc(signal,book.sampleRate);
 		if(exist('PlotSoundJava'))
