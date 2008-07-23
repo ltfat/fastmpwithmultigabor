@@ -227,8 +227,6 @@ FOREACH(target dictread dictwrite sigread sigwrite bookread bookwrite)
 		     ${target}.cpp 
 		     mptk4matlab)
 
-#   ADD_EXECUTABLE(${target}.${MEX_EXTENSION} ${MPTK_MATLAB_SRC_DIR}/${target}.cpp)
-
    ## ======> What is the use of this line ?
    SET_TARGET_PROPERTIES(matlab_${target} PROPERTIES GENERATED true )
 
@@ -247,6 +245,35 @@ FOREACH(target dictread dictwrite sigread sigwrite bookread bookwrite)
     INSTALL(FILES ${MPTK_MATLAB_OUTPUT_DIR}/${target}.${MEX_EXTENSION} ${MPTK_MATLAB_OUTPUT_DIR}/${target}.m
             DESTINATION ${MPTK_MATLAB_INSTALL_DIR})
 ENDFOREACH(target)
+
+#Install mandatory dll for windows
+IF( CMAKE_CXX_COMPILER STREQUAL "cl")   
+IF(BUILD_DEBUG)          
+#=== Copy the dll in the bin folder===           
+                 ADD_CUSTOM_COMMAND (
+                        TARGET mptk4matlab
+                        POST_BUILD
+                        COMMAND ${CMAKE_COMMAND}
+                        ARGS -E copy "${MPTK_BINARY_DIR}/lib/debug/mptk.dll" 
+"${MPTK_MATLAB_OUTPUT_DIR}/mptk.dll")
+       
+           
+ELSE(BUILD_DEBUG)     
+#=== Copy the dll in the bin folder===       
+                 ADD_CUSTOM_COMMAND (
+                        TARGET mptk4matlab
+                        POST_BUILD
+                        COMMAND ${CMAKE_COMMAND}
+                        ARGS -E copy "${MPTK_BINARY_DIR}/lib/release/mptk.dll" 
+"${MPTK_MATLAB_OUTPUT_DIR}/mptk.dll"
+       
+       )        
+ENDIF(BUILD_DEBUG) 
+     INSTALL(FILES ${MPTK_MATLAB_OUTPUT_DIR}/mptk.dll ${MPTK_MATLAB_OUTPUT_DIR}/libmptk4matlab.dll
+            DESTINATION ${MPTK_MATLAB_INSTALL_DIR})                               
+
+
+ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
 
 ############################################
 #                  -4-
