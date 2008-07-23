@@ -4,7 +4,7 @@
 /*                                                                            */
 /*                        Matching Pursuit Library                            */
 /*                                                                            */
-/* Rémi Gribonval                                                             */
+/* RÃˆmi Gribonval                                                             */
 /* Sacha Krstulovic                                                           */
 /* Sylvain Lesage                                             Thu Nov 03 2005 */
 /* -------------------------------------------------------------------------- */
@@ -185,12 +185,12 @@ int MP_Anywave_Hilbert_Atom_Plugin_c::init_parts(void)
 
 int MP_Anywave_Hilbert_Atom_Plugin_c::init_tables( void )
 {
-
+  char *func = "MP_Anywave_Hilbert_Atom_c::init_tables()";
   char* str;
 
   if ( ( str = (char*) malloc( MP_MAX_STR_LEN * sizeof(char) ) ) == NULL )
     {
-      mp_error_msg( "MP_Anywave_Hilbert_Atom_c::init_tables()","The string str cannot be allocated.\n" );
+      mp_error_msg( func,"The string str cannot be allocated.\n" );
       return(1);
     }
 
@@ -235,7 +235,7 @@ int MP_Anywave_Hilbert_Atom_Plugin_c::init_tables( void )
 int MP_Anywave_Hilbert_Atom_Plugin_c::read( FILE *fid,
                                      const char mode )
 {
-
+ char *func = "MP_Anywave_Hilbert_Atom_c::read";
   double fidParam;
   unsigned short int readChanIdx, chanIdx;
   MP_Real_t* pParam;
@@ -245,13 +245,13 @@ int MP_Anywave_Hilbert_Atom_Plugin_c::read( FILE *fid,
   /* Go up one level */
   if ( MP_Anywave_Atom_Plugin_c::read( fid, mode ) )
     {
-      mp_error_msg( "MP_Anywave_Hilbert_Atom_c::init_tables()", "Allocation of Anywave Hilbert atom failed at the Anywave atom level.\n" );
+      mp_error_msg( func, "Allocation of Anywave Hilbert atom failed at the Anywave atom level.\n" );
       return( 1 );
     }
 
   if ( ( str = (char*) malloc( MP_MAX_STR_LEN * sizeof(char) ) ) == NULL )
     {
-      mp_error_msg( "MP_Anywave_Hilbert_Atom_c::init_tables()","The string str cannot be allocated.\n" );
+      mp_error_msg( func,"The string str cannot be allocated.\n" );
       return(1);
     }
 
@@ -556,8 +556,9 @@ int MP_Anywave_Hilbert_Atom_Plugin_c::has_field( int field )
 
 MP_Real_t MP_Anywave_Hilbert_Atom_Plugin_c::get_field( int field , int chanIdx )
 {
-
+	char *func =  "MP_Anywave_Hilbert_Atom_c::get_field";
   MP_Real_t x;
+  mp_debug_msg(func,"Entering\n");
 
   if ( MP_Anywave_Atom_Plugin_c::has_field( field ) ) return (MP_Anywave_Atom_Plugin_c::get_field(field,chanIdx));
   else switch (field)
@@ -575,9 +576,11 @@ MP_Real_t MP_Anywave_Hilbert_Atom_Plugin_c::get_field( int field , int chanIdx )
         x = (MP_Real_t)(hilbertPart[chanIdx]);
         break;
       default:
-        mp_error_msg( "MP_Anywave_Hilbert_Atom_c::get_field","Unknown field. Returning ZERO." );
+        mp_error_msg( func,"Unknown field %d in atom of type %s. Returning ZERO.\n", field, type_name());
         x = 0.0;
       }
+	    mp_debug_msg(func,"Entering\n");
+
   return( x );
 }
 

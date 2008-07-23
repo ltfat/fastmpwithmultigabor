@@ -4,7 +4,7 @@
 /*                                                                            */
 /*                        Matching Pursuit Library                            */
 /*                                                                            */
-/* Rémi Gribonval                                                             */
+/* RÃˆmi Gribonval                                                             */
 /* Sacha Krstulovic                                                           */
 /* Sylvain Lesage                                             Thu Nov 03 2005 */
 /* -------------------------------------------------------------------------- */
@@ -488,9 +488,9 @@ int MP_Anywave_Atom_Plugin_c::has_field( int field )
 
 MP_Real_t MP_Anywave_Atom_Plugin_c::get_field( int field , MP_Chan_t chanIdx )
 {
-
+  char * func = "MP_Anywave_Atom_c::get_field";
   MP_Real_t x;
-
+  mp_debug_msg(func,"Entering\n");
   if ( MP_Atom_c::has_field( field ) ) return (MP_Atom_c::get_field(field,chanIdx));
   else switch (field)
       {
@@ -501,9 +501,10 @@ MP_Real_t MP_Anywave_Atom_Plugin_c::get_field( int field , MP_Chan_t chanIdx )
         x = (MP_Real_t)(anywaveIdx);
         break;
       default:
-        mp_error_msg( "MP_Anywave_Atom_c::get_field","Unknown field. Returning ZERO." );
+        mp_error_msg(func ,"Unknown field %d in atom of type %s. Returning ZERO.\n", field,type_name());
         x = 0.0;
       }
+  mp_debug_msg(func,"Leaving\n");
   return( x );
 }
 

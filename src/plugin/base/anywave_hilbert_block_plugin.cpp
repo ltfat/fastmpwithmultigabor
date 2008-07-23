@@ -242,12 +242,12 @@ return (0);
 
 void MP_Anywave_Hilbert_Block_Plugin_c::init_tables( void )
 {
-
+  char *func = "MP_Anywave_Hilbert_Atom_c::init_tables()";
   char* str;
 
   if ( ( str = (char*) malloc( MP_MAX_STR_LEN * sizeof(char) ) ) == NULL )
     {
-      mp_error_msg( "MP_Anywave_Hilbert_Atom_c::init_tables()","The string str cannot be allocated.\n" );
+      mp_error_msg( func,"The string str cannot be allocated.\n" );
     }
 
   /* create the real table if needed */
