@@ -23,7 +23,7 @@ ENDIF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
 #------------------------------------------------
 # Build mdp executable
 # 
-SET(MPD_EXE_SOURCES
+SET(mpd_EXE_SOURCES
     ${UTILS_SOURCE_DIR}/mpd.cpp
     ${UTILS_SOURCE_DIR}/getopt.c
     ${UTILS_SOURCE_DIR}/getopt1.c
@@ -33,7 +33,7 @@ SET(MPD_EXE_SOURCES
 #------------------------------------------------
 # Build mdp_demix executable
 #
-SET(MPD_DEMIX_EXE_SOURCES 
+SET(mpd_demix_EXE_SOURCES 
     ${UTILS_SOURCE_DIR}/mpd_demix.cpp
     ${UTILS_SOURCE_DIR}/getopt.c
     ${UTILS_SOURCE_DIR}/getopt1.c
@@ -43,7 +43,7 @@ SET(MPD_DEMIX_EXE_SOURCES
 #------------------------------------------------
 # Build mdr executable
 #
-SET(MPR_EXE_SOURCES 
+SET(mpr_EXE_SOURCES 
 
     ${UTILS_SOURCE_DIR}/mpr.cpp
     ${UTILS_SOURCE_DIR}/getopt.c
@@ -54,7 +54,7 @@ SET(MPR_EXE_SOURCES
 #------------------------------------------------
 # Build mpf executable
 #
-  SET(MPF_EXE_SOURCES
+  SET(mpf_EXE_SOURCES
     ${UTILS_SOURCE_DIR}/mpf.cpp
     ${UTILS_SOURCE_DIR}/getopt.c
     ${UTILS_SOURCE_DIR}/getopt1.c
@@ -64,7 +64,7 @@ SET(MPR_EXE_SOURCES
 #------------------------------------------------
 # Build mpcat executable
 #
-  SET(MPCAT_EXE_SOURCES
+  SET(mpcat_EXE_SOURCES
     ${UTILS_SOURCE_DIR}/mpcat.cpp
     ${UTILS_SOURCE_DIR}/getopt.c
     ${UTILS_SOURCE_DIR}/getopt1.c
@@ -74,7 +74,7 @@ SET(MPR_EXE_SOURCES
 #------------------------------------------------
 # Build mpview executable
 #
-  SET(MPVIEW_EXE_SOURCES
+  SET(mpview_EXE_SOURCES
     ${UTILS_SOURCE_DIR}/mpview.cpp
     ${UTILS_SOURCE_DIR}/getopt.c
     ${UTILS_SOURCE_DIR}/getopt1.c
@@ -82,7 +82,7 @@ SET(MPR_EXE_SOURCES
     ${MPTK_BINARY_DIR}/src/libmptk/mptk.h
       )
       
-FOREACH(target MPD MPD_DEMIX MPR MPF MPCAT MPVIEW)
+FOREACH(target mpd mpd_demix mpr mpf mpcat mpview)
        ADD_EXECUTABLE(${target} ${${target}_EXE_SOURCES})
       SET_TARGET_PROPERTIES(${target} PROPERTIES
 			    COMPILE_FLAGS "${SHARED_FLAGS} ${EXECUTABLE_COMPILE_FLAGS}")
@@ -152,7 +152,7 @@ IF(BUILD_DEBUG)
                         TARGET mpd
                         POST_BUILD
                         COMMAND ${CMAKE_COMMAND}
-                        ARGS -E copy "${MPTK_BINARY_DIR}/lib/mptk.dll" 
+                        ARGS -E copy "${MPTK_BINARY_DIR}/lib/debug/mptk.dll" 
 "${MPTK_BINARY_DIR}/bin/debug/mptk.dll")
        
            
@@ -183,7 +183,7 @@ ELSE(BUILD_DEBUG)
                         TARGET mpd
                         POST_BUILD
                         COMMAND ${CMAKE_COMMAND}
-                        ARGS -E copy "${MPTK_BINARY_DIR}/lib/mptk.dll" 
+                        ARGS -E copy "${MPTK_BINARY_DIR}/lib/release/mptk.dll" 
 "${MPTK_BINARY_DIR}/bin/release/mptk.dll"
        
        )        
