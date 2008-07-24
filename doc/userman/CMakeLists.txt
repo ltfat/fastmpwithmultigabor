@@ -72,6 +72,10 @@ ENDIF(BIBTEX_COMPILER)
       DEPENDS   ${MPTK_BINARY_DIR}/doc/userman/userman.ps
       COMMENT   "ps2pdf"
     )
+    
+ADD_CUSTOM_TARGET(userman_LaTeXDocument ALL echo
+      DEPENDS   ${MPTK_BINARY_DIR}/doc/userman/userman.pdf
+    )
 INSTALL(FILES ${MPTK_BINARY_DIR}/doc/userman/userman.pdf DESTINATION doc)
     ENDIF(PS2PDF_CONVERTER)
   ENDIF(DVIPS_CONVERTER)
