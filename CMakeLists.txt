@@ -339,6 +339,32 @@ ADD_SUBDIRECTORY( src)
 INSTALL(DIRECTORY ${MPTK_BINARY_DIR}/install/bin/reference DESTINATION bin)
 INSTALL(FILES ${MPTK_BINARY_DIR}/install/include/mptk.h DESTINATION include)
 
+# Packaging using CPack:
+
+# For Unix Makefiles / MinGW Makefiles: Generates standard UNIX makefiles:
+# A hierarchy of UNIX makefiles is generated into the build tree.
+# Any standard UNIX-style make program can build the project through the default make target.
+# A "install" target is provided. For example "make install" or "mingw32-make install"
+# Use "package" target for a binary distribution. For example "make package" or "mingw32-make package"
+# Use "package_source" target for a source distribution. For example "make package_source" or "mingw32-make package_source"
+
+# For Visual Studio and XCode project files
+# A hierarchy of target is generated into the build tree and displayed in the IDE 
+# Project provides "INSTALL" and "PACKAGE" target 
+
+#In order to make a release:
+#Make a tag with the number of the release
+#Use Unix make to make a source release with command "make package_source"
+#Upload the archive on the INRIA GForge MPTK project using the files admin page
+#Add release in the corresponding categories MPTK with Add files page
+#Filling the various required informations and validate the release
+#Download the release and test if build correctly
+#Make a binary relesase using Visual Studio using target "PACKAGE"
+#Upload the archive on the INRIA GForge MPTK project using the files admin page
+#Add release in the corresponding categories MPTK_win with Add files page
+#Filling the various required informations and validate the release
+#Download the release and test if build correctly
+
 #-----------------------------------------------------------------------------
 ## CPACK RULES
 INCLUDE(InstallRequiredSystemLibraries)
@@ -417,8 +443,7 @@ SET(CPACK_SOURCE_IGNORE_FILES "/www/;/CVS//;.*~;/.svn/;.cdtprojects;.project;/.s
 SET(CPACK_SOURCE_STRIP_FILES "")
 INCLUDE(CPack)
 
-# Use "make package" command for a binary distribution.
-# Use "make package_source" command for a source distribution 
+
 
 # EXPERIMENTAL RPM BUILD
 #IF(BUILD_RPM)
@@ -427,6 +452,18 @@ INCLUDE(CPack)
 #  RPMTools_ADD_RPM_TARGETS(${PROJECT_NAME})
 #ENDIF(RPMTools_FOUND)
 #ENDIF(BUILD_RPM)
+
+#Testing with CTest
+#CTest is a testing tool distributed as a part of CMake.
+#To allow test the CMake variable BUILD_TESTING has to be set to ON
+#A simple way to submit Experimental dashboard is:
+#ctest -D Experimental
+#To show what targets are available, run:
+#ctest -D Help
+#
+#Results are by default displayed on the INRIA dash server:
+#http://cdash.inria.fr/CDash/index.php?project=MPTK
+#The "CTestConfig.cmake" file in the toplevel source directory set the dashboard preferences.
 
 IF(BUILD_TESTING)
 ENABLE_TESTING()
@@ -445,6 +482,7 @@ ADD_TEST(TEST_MP, ${MPTK_BINARY_DIR}/bin/test_mp)
 ADD_TEST(ANYWAVE, ${MPTK_BINARY_DIR}/bin/test_anywave ${MPTK_REFERENCE_PATH}/signal/anywave_signal.wav ${MPTK_REFERENCE_PATH}/dictionary/anywave_table.xml ${MPTK_REFERENCE_PATH}/dictionary/dico_test_anywave.xml)
 ADD_TEST(MPD_DEMIX, ${MPTK_BINARY_DIR}/bin/mpd_demix -C ${MPTK_BINARY_DIR}/bin/path.xml -D ${MPTK_DEFAULT_DICT_LIST_FILE} -M ${MPTK_REFERENCE_PATH}/mixer/mix_58_mixer.txt -n 10 -q ${MPTK_REFERENCE_PATH}/signal/mix_58_stereo.wav ${MPTK_REFERENCE_PATH}/signal/test_demix.bin)
 
+#You can add tests in the project corresponding to the test executable SimpleTest file using ADD_TEST command:
+#ADD_TEST(SimpleTest ${MPTK_BINARY_DIR}/bin/SimpleTest Hello)
 
-#ADD_TEST(Test1, ${MPTK_DIR}/bin/Testmptk)
 ENDIF(BUILD_TESTING)
