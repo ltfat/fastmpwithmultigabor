@@ -8,9 +8,6 @@ The main MEX implementations include
 -this toolbox has been tested with the version 0.5.6 of MPTK. 
 
 WARNING: MPTK must be installed !!
-And matlab search path variable as to be set with the mptk lib directory:
-for instance "C:\Program Files\MPTK\lib\release" for Windows OS,
-or "usr/local/lib" for Linux OS like system
 
 On all platforms, the utilities need an environment variable called MPTK_CONFIG_FILENAME to be set with the path 
 of the path.xml file located in the bin directory.
@@ -31,4 +28,13 @@ SET MPTK_CONFIG_FILENAME=path_to_MPTK/bin/path.xml
 for example SET MPTK_CONFIG_FILENAME=C:/Program Files/MPTK/bin/path.xml 
 To check if the environment variable is correctly set you can use the ECHO command:
 ECHO %MPTK_CONFIG_FILENAME%
+
+
+And matlab search path variable has to be set with the mptk bin directory:
+for instance "C:\Program Files\MPTK\bin" for Windows OS,
+alternatively the PATH environment variable may be set with "C:\Program Files\MPTK\bin"
+Lauch a command line and use the SET command:
+for example SET PATH=C:\Program Files\MPTK\bin 
+To check if the environment variable is correctly set you can use the ECHO command:
+ECHO %PATH%
 
