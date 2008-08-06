@@ -490,7 +490,7 @@ MP_Real_t MP_Anywave_Atom_Plugin_c::get_field( int field , MP_Chan_t chanIdx )
 {
   char * func = "MP_Anywave_Atom_c::get_field";
   MP_Real_t x;
-  mp_debug_msg(func,"Entering\n");
+  mp_debug_msg(MP_DEBUG_FUNC_ENTER, func,"Entering\n");
   if ( MP_Atom_c::has_field( field ) ) return (MP_Atom_c::get_field(field,chanIdx));
   else switch (field)
       {
@@ -504,7 +504,7 @@ MP_Real_t MP_Anywave_Atom_Plugin_c::get_field( int field , MP_Chan_t chanIdx )
         mp_error_msg(func ,"Unknown field %d in atom of type %s. Returning ZERO.\n", field,type_name());
         x = 0.0;
       }
-  mp_debug_msg(func,"Leaving\n");
+  mp_debug_msg(MP_DEBUG_FUNC_EXIT, func,"Leaving\n");
   return( x );
 }
 

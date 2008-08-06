@@ -436,7 +436,7 @@ int MP_Anywave_Hilbert_Atom_Plugin_c::info()
 
   unsigned short int chanIdx = 0;
   int nChar = 0;
-  nChar += mp_info_msg( "ANYWAVE HILBERT ATOM", "[%d] channel(s)\n", numChans );
+  nChar += mp_info_msg("ANYWAVE HILBERT ATOM", "[%d] channel(s)\n", numChans );
 
   nChar += mp_info_msg( "           |-", "\tFilename %s\tfilterIdx %li\n",
                         anywaveTable->tableFileName, anywaveIdx );
@@ -558,7 +558,7 @@ MP_Real_t MP_Anywave_Hilbert_Atom_Plugin_c::get_field( int field , int chanIdx )
 {
 	char *func =  "MP_Anywave_Hilbert_Atom_c::get_field";
   MP_Real_t x;
-  mp_debug_msg(func,"Entering\n");
+  mp_debug_msg(MP_DEBUG_FUNC_ENTER, func,"Entering\n");
 
   if ( MP_Anywave_Atom_Plugin_c::has_field( field ) ) return (MP_Anywave_Atom_Plugin_c::get_field(field,chanIdx));
   else switch (field)
@@ -579,7 +579,7 @@ MP_Real_t MP_Anywave_Hilbert_Atom_Plugin_c::get_field( int field , int chanIdx )
         mp_error_msg( func,"Unknown field %d in atom of type %s. Returning ZERO.\n", field, type_name());
         x = 0.0;
       }
-	    mp_debug_msg(func,"Entering\n");
+  mp_debug_msg(MP_DEBUG_FUNC_EXIT, func,"Entering\n");
 
   return( x );
 }
