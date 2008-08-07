@@ -43,6 +43,7 @@
 
 #include "mptk.h"
 #include "mp_system.h"
+#include <fstream>
 
 /** A generic byte_swapping function */
 inline void mp_swap( void *buf, size_t s, size_t n ) {
@@ -271,16 +272,20 @@ unsigned long int MP_Var_Array_c<TYPE>::save_to_text( const char* fName ) {
 template <class TYPE>
 unsigned long int MP_Var_Array_c<TYPE>::save_ui_to_text( const char* fName ) {
 
-  FILE *fid;
+  //FILE *fid;
+  ofstream fid(fName);
   unsigned long int i;
-  if ( (fid = fopen( fName, "w" )) == NULL ) {
+  //if ( (fid = fopen( fName, "w" )) == NULL ) {
+  if(!fid.is_open()){
     mp_error_msg( "MP_Var_Array_c::save(fName)",
 		  "Failed to open the file [%s] for writing.\n",
 		  fName );
     return( 0 );
   }
-  for ( i = 0 ; i< nElem; i++) fprintf (fid, "Iteration %lu Source [%lu]\n",i, elem[i]);
-  fclose( fid );
+  for ( i = 0 ; i< nElem; i++) //fprintf (fid, "Iteration %lu Source [%lu]\n",i, elem[i]);
+    fid << "Iteration " << i << " Source [" << elem[i] << "]\n";
+  //fclose( fid );
+  fid.close();
   return( i );
 }
 /* Specify the MP_Var_Array template for double */

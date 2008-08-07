@@ -207,14 +207,17 @@ int MP_Dict_c::parse_xml_file(TiXmlDocument doc){
   node = hdl.FirstChild("dict").FirstChild("blockproperties").ToNode();
   if (node != NULL)
     {
-      for ( node ; node != NULL; node = node->NextSibling("blockproperties"))
-
-        if (!parse_property(node,propertyMap))
-          {
-            mp_error_msg( func, "Error while processing properties for block.\n");
-            delete(propertyMap);
-            return  0;
-          }
+      while (node != NULL)
+	{
+	  
+	  if (!parse_property(node,propertyMap))
+	    {
+	      mp_error_msg( func, "Error while processing properties for block.\n");
+	      delete(propertyMap);
+	      return  0;
+	    }
+	  node = node->NextSibling("blockproperties");
+	}
     }
       else
   {
@@ -228,15 +231,17 @@ int MP_Dict_c::parse_xml_file(TiXmlDocument doc){
 
   if (node != NULL)
     {
-      for ( node ; node != NULL; node = node->NextSibling("block"))
-        {count= 0;
-         count = parse_block(node,propertyMap);
-        finalcount += count;
-         if (0 == count )
+      while(node != NULL)
+        {
+	  count= 0;
+	  count = parse_block(node,propertyMap);
+	  finalcount += count;
+	  if (0 == count )
             {
-              mp_error_msg( func, "Error while processing block.processing the remaining block\n");
+              mp_error_msg( func, 
+			    "Error while processing block.processing the remaining block\n");
             } 
-       
+	  node = node->NextSibling("block");
         }
     }
   else
@@ -444,11 +449,11 @@ bool MP_Dict_c::parse_property(TiXmlNode * pParent, map<string, PropertiesMap, m
           localParameterMap = map<string, string, mp_ltstring> ((*setPropertyMap)[pParent->ToElement()->Attribute("refines")]);
 
           TiXmlElement *item = pParent->FirstChildElement("param");
-
-          for (item; item !=0; item = item->NextSiblingElement())
+          while(item !=0)
             {      
             	/*Refined the map with new values*/     	
             	localParameterMap[item->Attribute("name")] = item->Attribute("value");
+		item = item->NextSiblingElement();
             }
         }
       else
@@ -459,11 +464,11 @@ bool MP_Dict_c::parse_property(TiXmlNode * pParent, map<string, PropertiesMap, m
           
           
           TiXmlElement *item = pParent->FirstChildElement("param");
-
-          for (item; item !=0; item = item->NextSiblingElement())
+          while(item !=0)
             {      
             	/*Put values in the map*/     	
             	localParameterMap[item->Attribute("name")] = item->Attribute("value");
+		item = item->NextSiblingElement();
             }
           
         }
@@ -473,9 +478,11 @@ bool MP_Dict_c::parse_property(TiXmlNode * pParent, map<string, PropertiesMap, m
     {
       TiXmlElement *item = pParent->FirstChildElement("param");
       localParameterMap = map<string, string, mp_ltstring>();
-      for (item; item !=0; item = item->NextSiblingElement())
+      while (item !=0)
         {
-          localParameterMap.insert(pair<string, string>(item->Attribute("name"), item->Attribute("value")));
+          localParameterMap.insert(pair<string, string>(item->Attribute("name"),
+							item->Attribute("value")));
+	  item = item->NextSiblingElement();
         }
 
     }
@@ -581,10 +588,10 @@ int MP_Dict_c::parse_block(TiXmlNode * pParent, map<string, PropertiesMap, mp_lt
   param = pParent->FirstChildElement("param");
   if (param!=0)
     {
-
-      for (param ; param!=0 ; param = param->NextSiblingElement("param"))
+      while (param!=0) 
         {
           (*blockMap)[param->Attribute("name")]= param->Attribute("value");
+	  param = param->NextSiblingElement("param");
         }
 
     }
@@ -592,15 +599,16 @@ int MP_Dict_c::parse_block(TiXmlNode * pParent, map<string, PropertiesMap, mp_lt
   varParam = pParent->FirstChildElement("varparam");
   if (varParam!=0)
     {
-      for ( varParam; varParam !=0; varParam = varParam->NextSiblingElement("varparam") )
+      while(varParam !=0)
         {
           if (varParam->Attribute("name")!= 0)
             {
               list<string> paramList;
               properties = varParam->FirstChildElement("var");
-              for ( properties ; properties != 0; properties = properties->NextSiblingElement("var"))
+	      while(properties != 0)
                 {
                   paramList.push_back(properties->GetText());
+		  properties = properties->NextSiblingElement("var");
                 }
               varParamMap[varParam->Attribute("name")] = paramList;
             }
@@ -610,7 +618,7 @@ int MP_Dict_c::parse_block(TiXmlNode * pParent, map<string, PropertiesMap, mp_lt
               delete(blockMap);
               return 0;
             }
-
+	  varParam = varParam->NextSiblingElement("varparam");
         }
 
       /* Parse recursivly the list of parameters to create all the block */

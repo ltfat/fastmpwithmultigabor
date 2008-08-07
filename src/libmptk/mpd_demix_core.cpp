@@ -208,7 +208,7 @@ std::vector<MP_Dict_c*>* MP_Mpd_demix_Core_c::change_dict( std::vector<MP_Dict_c
 bool MP_Mpd_demix_Core_c::plug_approximant( std::vector<MP_Signal_c*> *setApproxArray )
 {
 
-  const char* func = "plug_approximant( std::vector<MP_Signal_c*> *approxArray )";
+  //const char* func = "plug_approximant( std::vector<MP_Signal_c*> *approxArray )";
 
   if (setApproxArray && setApproxArray->size() == mixer->numSources){ approxArray = setApproxArray;
 

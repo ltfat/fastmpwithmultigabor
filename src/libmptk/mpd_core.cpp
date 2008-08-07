@@ -73,7 +73,7 @@ MP_Mpd_Core_c* MP_Mpd_Core_c::create( MP_Signal_c *setSignal, MP_Book_c *setBook
     mp_error_msg( func, "Failed to create a new mpd core.\n" );
     return( NULL );
   }
-    /* Plug the book */
+  /* Plug the book */
   newCore->book = setBook;
 
   /* Plug the signal */
@@ -95,29 +95,29 @@ MP_Mpd_Core_c* MP_Mpd_Core_c::create( MP_Signal_c *setSignal, MP_Book_c *setBook
     mp_error_msg( func, "Failed to create a new mpd core.\n" );
     return( NULL );}
     
-    if ( setDict ) newCore->change_dict(setDict);
-    else {
+  if ( setDict ) newCore->change_dict(setDict);
+  else {
     mp_error_msg( func, "Could not use a NULL dictionary.\n" );
     return( NULL );}
  
-    return( newCore );
+  return( newCore );
 }
 
 MP_Mpd_Core_c* MP_Mpd_Core_c::create( MP_Signal_c *setSignal, MP_Book_c *setBook, MP_Signal_c* setApproximant )
 {
- const char* func = "MP_Mpd_Core_c::init(3 args)";
+  const char* func = "MP_Mpd_Core_c::init(3 args)";
   MP_Mpd_Core_c* newCore;
   newCore = MP_Mpd_Core_c::create( setSignal, setBook );
   if ( newCore == NULL ) {
     mp_error_msg( func, "Failed to create a new mpd core.\n" );
     return( NULL );}
     
-    if ( setApproximant ) newCore->plug_approximant(setApproximant);
-    else {
+  if ( setApproximant ) newCore->plug_approximant(setApproximant);
+  else {
     mp_error_msg( func, "Could not use a NULL approximant.\n" );
     return( NULL );}
     
-    return( newCore );
+  return( newCore );
 }
 
 
@@ -126,21 +126,21 @@ MP_Mpd_Core_c* MP_Mpd_Core_c::create( MP_Signal_c *setSignal, MP_Book_c *setBook
 /* NULL constructor */
 MP_Mpd_Core_c::MP_Mpd_Core_c() {
 	
-	/* File names */
-    bookFileName  =  NULL;
-    approxFileName   = NULL;
+  /* File names */
+  bookFileName  =  NULL;
+  approxFileName   = NULL;
   
-	/* Manipulated objects */
-	dict = NULL;
-    book = NULL;
-    approximant = NULL;
+  /* Manipulated objects */
+  dict = NULL;
+  book = NULL;
+  approximant = NULL;
 }
 
 /**************/
 /* Destructor */
 MP_Mpd_Core_c::~MP_Mpd_Core_c() {
-	if (bookFileName) free(bookFileName);
-	if (approxFileName) free(approxFileName);
+  if (bookFileName) free(bookFileName);
+  if (approxFileName) free(approxFileName);
 }
 
 
@@ -155,18 +155,18 @@ MP_Dict_c* MP_Mpd_Core_c::change_dict( MP_Dict_c *setDict ) {
   const char* func = "MP_Mpd_Core_c::change_dict( MP_Dict_c * )";
   
   MP_Dict_c* oldDict = dict;
- if ( setDict->signal == NULL ) {
-  /* If there was a non-NULL dictionary before, detach the residual
-     to avoid its destruction: */
-  if ( oldDict ) residual = oldDict->detach_signal();
+  if ( setDict->signal == NULL ) {
+    /* If there was a non-NULL dictionary before, detach the residual
+       to avoid its destruction: */
+    if ( oldDict ) residual = oldDict->detach_signal();
 
-  /* Set the new dictionary: */
-   dict = setDict;
+    /* Set the new dictionary: */
+    dict = setDict;
    
-  /* Plug dictionary to signal: */
-  plug_dict_to_signal();
+    /* Plug dictionary to signal: */
+    plug_dict_to_signal();
   
-  return( oldDict );}
+    return( oldDict );}
   
   else{ mp_error_msg( func, "Could not set a dictionary with a pluged signal.\n" );
     return( NULL );}
@@ -174,13 +174,13 @@ MP_Dict_c* MP_Mpd_Core_c::change_dict( MP_Dict_c *setDict ) {
 
 void MP_Mpd_Core_c::plug_dict_to_signal(){
 	
-	const char* func = "MP_Mpd_Core_c::plug_dict_to_signal()";
-/* If the new dictionary is not NULL, replug the residual: */
+  const char* func = "MP_Mpd_Core_c::plug_dict_to_signal()";
+  /* If the new dictionary is not NULL, replug the residual: */
   if ( dict ) { 
-  	if (residual){ 
-  		dict->plug_signal( residual );
-  		} else mp_error_msg( func, "Could not plug a dictionary with a null signal.\n" );
-  	} else mp_error_msg( func, "Could not plug a null dictionary .\n" );
+    if (residual){ 
+      dict->plug_signal( residual );
+    } else mp_error_msg( func, "Could not plug a dictionary with a null signal.\n" );
+  } else mp_error_msg( func, "Could not plug a null dictionary .\n" );
 
   /* Note:
      - if a NULL dictionary is given, the residual is kept alive
@@ -193,29 +193,29 @@ void MP_Mpd_Core_c::plug_dict_to_signal(){
 
 
 void MP_Mpd_Core_c::init_dict(){
-dict = MP_Dict_c::init();
+  dict = MP_Dict_c::init();
 }
 int MP_Mpd_Core_c::add_default_block_to_dict( const char* blockName ){
-	if (NULL!= dict) return dict->add_default_block(blockName);
-	else return 0;
+  if (NULL!= dict) return dict->add_default_block(blockName);
+  else return 0;
 }
 /********************/
 /* Plug approximant */
 
-  void MP_Mpd_Core_c::plug_approximant( MP_Signal_c *setApproximant  ) {
+void MP_Mpd_Core_c::plug_approximant( MP_Signal_c *setApproximant  ) {
   
   const char* func = "Toggle_approximant";
   
-  	if ( book ){
+  if ( book ){
     approximant = setApproximant;
     if ( approximant == NULL ) {
       mp_error_msg( func, "Failed to create an approximant in the mpd core."
 		    " Returning NULL.\n" );
-     } else 
-  // Rebuild from the book 
-    book->substract_add( NULL, approximant, NULL );
-  	}
- }
+    } else 
+      // Rebuild from the book 
+      book->substract_add( NULL, approximant, NULL );
+  }
+}
   
 /***************************/
 /* OTHER METHODS           */
@@ -229,40 +229,40 @@ void MP_Mpd_Core_c::save_result() {
 
   /* - Save the book: */
   if(bookFileName)
-  {
-  	if ( (strcmp( bookFileName, "-" ) != 0) )
-   {
-    book->print( bookFileName, MP_BINARY);
-    if ( verbose ) { if (numIter >0 ) mp_info_msg( func, "At iteration [%lu] : saved the book to file [%s].\n", numIter, bookFileName );  
-    else mp_info_msg( func, "Saved the book to file [%s]...\n", bookFileName ); 
-                   }  
-   }
-  }
+    {
+      if ( (strcmp( bookFileName, "-" ) != 0) )
+	{
+	  book->print( bookFileName, MP_BINARY);
+	  if ( verbose ) { if (numIter >0 ) mp_info_msg( func, "At iteration [%lu] : saved the book to file [%s].\n", numIter, bookFileName );  
+	    else mp_info_msg( func, "Saved the book to file [%s]...\n", bookFileName ); 
+	  }  
+	}
+    }
   /* - Save the approximant: */
   if ( approxFileName && approximant ) {
     if (approximant->wavwrite( approxFileName ) == 0 ) {
-    mp_error_msg( func, "Can't write approximant signal to file [%s].\n", approxFileName );
-   } else
+      mp_error_msg( func, "Can't write approximant signal to file [%s].\n", approxFileName );
+    } else
     
-    if ( verbose ){ if (numIter >0 ) mp_info_msg( func, "At iteration [%lu] : saved the approximant to file [%s].\n", numIter , approxFileName );
-    else {mp_info_msg( func, "Saved the approximant signal to file [%s]...\n", approxFileName );
-    mp_info_msg( func, "The resulting signal has [%lu] samples in [%d] channels, with sample rate [%d]Hz.\n",
-	    book->numSamples, book->numChans, book->sampleRate );
+      if ( verbose ){ if (numIter >0 ) mp_info_msg( func, "At iteration [%lu] : saved the approximant to file [%s].\n", numIter , approxFileName );
+	else {mp_info_msg( func, "Saved the approximant signal to file [%s]...\n", approxFileName );
+	  mp_info_msg( func, "The resulting signal has [%lu] samples in [%d] channels, with sample rate [%d]Hz.\n",
+		       book->numSamples, book->numChans, book->sampleRate );
     
-    }
+	}
     
-    }
+      }
   }
 
   /* - Save the residual: */
   if ( resFileName ) {
-   if ( residual->wavwrite( resFileName ) == 0 ) {
-    mp_error_msg( func, "Can't write residual signal to file [%s].\n", resFileName );
-   } else
-  	if ( verbose ) {if (numIter >0 ) mp_info_msg( func, "At iteration [%lu] : saved the residual signal to file [%s].\n", numIter , resFileName );
+    if ( residual->wavwrite( resFileName ) == 0 ) {
+      mp_error_msg( func, "Can't write residual signal to file [%s].\n", resFileName );
+    } else
+      if ( verbose ) {if (numIter >0 ) mp_info_msg( func, "At iteration [%lu] : saved the residual signal to file [%s].\n", numIter , resFileName );
   	else mp_info_msg( func, "Saved the residual signal to file [%s]...\n", resFileName );
   	
-  	}
+      }
   	
   }
   /* - the decay: */
@@ -331,36 +331,36 @@ unsigned short int MP_Mpd_Core_c::step() {
   }
   /*if ( (residualEnergyBefore - residualEnergy) < 5e-4 ) {
     mp_warning_msg( func, "At iteration [%lu]: the energy decreases very slowly !"
-		    " Before: [%g] Now: [%g] Diff: [%g]\n",
-		    numIter, residualEnergyBefore, residualEnergy, residualEnergyBefore - residualEnergy );
+    " Before: [%g] Now: [%g] Diff: [%g]\n",
+    numIter, residualEnergyBefore, residualEnergy, residualEnergyBefore - residualEnergy );
     mp_warning_msg( func, "Last atom found is sent to stderr.\n" );
     book->atom[book->numAtoms-1]->info( stderr );*/
-    /* BORK BORK BORK */
-    /* Export the considered signal portion */
-    /* RES */
-    /* MP_Signal_c *exportSig = MP_Signal_c::init( dict->signal, book->atom[book->numAtoms-1]->support[0] );
-    if ( exportSig != NULL ) exportSig->dump_to_double_file( "res.dbl" );
-    fprintf( stderr, "Exported [%hu] channels from support p[%lu]l[%lu] to file [res.dbl].\n",
-	     exportSig->numChans,
-	     book->atom[book->numAtoms-1]->support[0].pos,  book->atom[book->numAtoms-1]->support[0].len );*/
-    /* ATOM */
-    /*MP_Signal_c *atomSig = MP_Signal_c::init( book->atom[book->numAtoms-1], dict->signal->sampleRate );
+  /* BORK BORK BORK */
+  /* Export the considered signal portion */
+  /* RES */
+  /* MP_Signal_c *exportSig = MP_Signal_c::init( dict->signal, book->atom[book->numAtoms-1]->support[0] );
+     if ( exportSig != NULL ) exportSig->dump_to_double_file( "res.dbl" );
+     fprintf( stderr, "Exported [%hu] channels from support p[%lu]l[%lu] to file [res.dbl].\n",
+     exportSig->numChans,
+     book->atom[book->numAtoms-1]->support[0].pos,  book->atom[book->numAtoms-1]->support[0].len );*/
+  /* ATOM */
+  /*MP_Signal_c *atomSig = MP_Signal_c::init( book->atom[book->numAtoms-1], dict->signal->sampleRate );
     if ( atomSig != NULL ) atomSig->dump_to_double_file( "atom.dbl" );
     fprintf( stderr, "Exported [%hu] channels from atom of length [%lu] to file [atom.dbl].\n",
     atomSig->numChans, atomSig->numSamples );*/
-    /* SUM */
-    /*unsigned long int i;
+  /* SUM */
+  /*unsigned long int i;
     for ( i = 0; i < (exportSig->numSamples*exportSig->numChans); i++ ) {
-      exportSig->storage[i] = exportSig->storage[i] + atomSig->storage[i];
+    exportSig->storage[i] = exportSig->storage[i] + atomSig->storage[i];
     }
     exportSig->dump_to_double_file( "bad_signal.dbl" );
     exportSig->wavwrite( "bad_signal.wav" );
     fprintf( stderr, "Exported [%hu] channels from support p[%lu]l[%lu] to file [bad_signal.dbl].\n",
-	     exportSig->numChans,
-	     book->atom[book->numAtoms-1]->support[0].pos,  book->atom[book->numAtoms-1]->support[0].len );
+    exportSig->numChans,
+    book->atom[book->numAtoms-1]->support[0].pos,  book->atom[book->numAtoms-1]->support[0].len );
     fflush( stderr );
     exit( 0 );*/
-    /* \BORK BORK BORK */
+  /* \BORK BORK BORK */
   /*}*/
 
   mp_debug_msg( MP_DEBUG_MPD_LOOP, func, "EXITING iteration [%lu]/[%lu].\n", numIter, stopAfterIter );
@@ -376,15 +376,15 @@ unsigned short int MP_Mpd_Core_c::step() {
 /**********************************/
 /* Check if some objects are null */
 MP_Bool_t MP_Mpd_Core_c::can_step( void ) {
-	 const char* func = "can_step";
+  const char* func = "can_step";
   /* Check that all of dict, book and signal are not NULL */
   if (dict  &&  book) {
-  if (dict->signal) return true;
-  else { mp_error_msg( func,"book or dict are not set .\n"); 
-  	return false;}
+    if (dict->signal) return true;
+    else { mp_error_msg( func,"book or dict are not set .\n"); 
+      return false;}
   }
   else { mp_error_msg( func,"dict has no signal plugged .\n"); 
-  	return false;}
+    return false;}
 }
 
 
@@ -395,10 +395,10 @@ void MP_Mpd_Core_c::info_conditions( void )
   const char* func = "Conditions";
 
   if ( useStopAfterIter ) mp_info_msg( func, "This run will perform [%lu] iterations, using [%lu] atoms.\n",
-                                         stopAfterIter, dict->num_atoms() );
+				       stopAfterIter, dict->num_atoms() );
   if ( useStopAfterSnr ) mp_info_msg( func, "This run will iterate until the SNR goes above [%g], using [%lu] atoms.\n",
-                                        10*log10( stopAfterSnr ), dict->num_atoms() );
-   if ( bookFileName ) {  
+				      10*log10( stopAfterSnr ), dict->num_atoms() );
+  if ( bookFileName ) {  
     if ( strcmp( bookFileName, "-" ) == 0 ) mp_info_msg( func, "The resulting book will be written"
 							 " to the standard output [%s].\n", bookFileName );
     else mp_info_msg( func, "The resulting book will be written to book file [%s].\n", bookFileName );
@@ -423,9 +423,9 @@ void MP_Mpd_Core_c::info_result( void )
 }
 
 void MP_Mpd_Core_c::set_save_hit( const unsigned long int setSaveHit,
-                   const char* setBookFileName,   
-                   const char* setResFileName,
-                   const char* setDecayFileName )
+				  const char* setBookFileName,   
+				  const char* setResFileName,
+				  const char* setDecayFileName )
 {
   const char* func = "set_save_hit";
   char* newBookFileName = NULL;
@@ -435,57 +435,57 @@ void MP_Mpd_Core_c::set_save_hit( const unsigned long int setSaveHit,
   if (setSaveHit>0)saveHit = setSaveHit;
   if (setSaveHit>0)nextSaveHit = numIter + setSaveHit;
   
- /*reallocate memory and copy name */
- if (setBookFileName && strlen(setBookFileName) > 1 ) {
-  newBookFileName = (char*) realloc((void *)bookFileName  , ((strlen(setBookFileName)+1 ) * sizeof(char)));
-  if ( newBookFileName == NULL )
-  {
-                  mp_error_msg( func,"Failed to re-allocate book file name to store book [%s] .\n",
-                           setBookFileName );                 
-                }
-                else bookFileName = newBookFileName;
-  strcpy(bookFileName, setBookFileName);
-   }
+  /*reallocate memory and copy name */
+  if (setBookFileName && strlen(setBookFileName) > 1 ) {
+    newBookFileName = (char*) realloc((void *)bookFileName  , ((strlen(setBookFileName)+1 ) * sizeof(char)));
+    if ( newBookFileName == NULL )
+      {
+	mp_error_msg( func,"Failed to re-allocate book file name to store book [%s] .\n",
+		      setBookFileName );                 
+      }
+    else bookFileName = newBookFileName;
+    strcpy(bookFileName, setBookFileName);
+  }
  
   if ( setResFileName && strlen(setResFileName) > 1 ){ 
-  newResFileName = (char*) realloc((void *)resFileName  , ((strlen(setResFileName)+1 ) * sizeof(char)));
-  if ( newResFileName == NULL )
-  {
-                  mp_error_msg( func,"Failed to re-allocate residual file name to store residual [%s] .\n",
-                           setResFileName);                 
-                }
-                else resFileName = newResFileName;
-  strcpy(resFileName, setResFileName); }
+    newResFileName = (char*) realloc((void *)resFileName  , ((strlen(setResFileName)+1 ) * sizeof(char)));
+    if ( newResFileName == NULL )
+      {
+	mp_error_msg( func,"Failed to re-allocate residual file name to store residual [%s] .\n",
+		      setResFileName);                 
+      }
+    else resFileName = newResFileName;
+    strcpy(resFileName, setResFileName); }
   
   if ( setDecayFileName && strlen(setDecayFileName)> 1 ){
-  newDecayFileName = (char*) realloc((void *)decayFileName  , ((strlen(setDecayFileName)+1 ) * sizeof(char)));
-  if ( newDecayFileName == NULL )
-  {
-                  mp_error_msg( func,"Failed to re-allocate residual file name to store residual [%s] .\n",
-                           setDecayFileName);                 
-                }
-                else decayFileName = newDecayFileName;
-  strcpy(decayFileName, setDecayFileName); 
-  useDecay = MP_TRUE;
+    newDecayFileName = (char*) realloc((void *)decayFileName  , ((strlen(setDecayFileName)+1 ) * sizeof(char)));
+    if ( newDecayFileName == NULL )
+      {
+	mp_error_msg( func,"Failed to re-allocate residual file name to store residual [%s] .\n",
+		      setDecayFileName);                 
+      }
+    else decayFileName = newDecayFileName;
+    strcpy(decayFileName, setDecayFileName); 
+    useDecay = MP_TRUE;
   }
  
 }
 
 void MP_Mpd_Core_c::addCustomBlockToDictionary(map<string, string, mp_ltstring>* setPropertyMap){
-dict->create_block(dict->signal , setPropertyMap);
+  dict->create_block(dict->signal , setPropertyMap);
 }
 
 bool MP_Mpd_Core_c::save_dict( const char* dictName ){
-if (dict) { dict->print(dictName);
-            return true;
-} else return false;
+  if (dict) { dict->print(dictName);
+    return true;
+  } else return false;
 }
 
 void MP_Mpd_Core_c::get_filter_lengths(vector<unsigned long int> * filterLengthsVector){
-if (dict && filterLengthsVector->size() == dict->numBlocks) { 
+  if (dict && filterLengthsVector->size() == dict->numBlocks) { 
 	
-for ( unsigned int i= 0; i < dict->numBlocks; i++) {
-filterLengthsVector->at(i)= dict->block[i]->filterLen;
-}     
-} 
+    for ( unsigned int i= 0; i < dict->numBlocks; i++) {
+      filterLengthsVector->at(i)= dict->block[i]->filterLen;
+    }     
+  } 
 }

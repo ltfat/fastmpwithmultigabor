@@ -432,8 +432,11 @@ MPTK_LIB_EXPORT size_t mp_progress_msg( FILE *fid, const char *funcName, const c
 #ifndef NDEBUG
 MPTK_LIB_EXPORT size_t mp_debug_msg( const unsigned long int msgType, const char *funcName, const char *format, ... );
 #else
-#define mp_debug_msg
-//( A, B, C, ... ) (void)(0)
+inline size_t mp_debug_msg ( const unsigned long int msgType,
+			   const char* funcName,
+			   const char* format, ... ){
+  return 0;
+}
 #endif
 
 /** \brief Pretty-printing of the libmptk debug messages to a specific stream
