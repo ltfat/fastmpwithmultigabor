@@ -323,11 +323,15 @@ INCLUDE(${MPTK_SOURCE_DIR}/CMake/CMakeGenerateMPTKHeader.cmake)
 #-----------------------------------------------------------------------------
 ## STARTING WITH SUBFOLDERS
 # Include src folder to compiling proccess
-ADD_SUBDIRECTORY(${MPTK_SOURCE_DIR}/src/libmptk)
-ADD_SUBDIRECTORY(${MPTK_SOURCE_DIR}/src/libdsp_windows)
-IF(BUILD_GUI)
-ADD_SUBDIRECTORY(${MPTK_SOURCE_DIR}/src/gui)
-ENDIF(BUILD_GUI)
+#
+# Commented includes might be included twice with recursive include of src
+#
+#
+#ADD_SUBDIRECTORY(${MPTK_SOURCE_DIR}/src/libmptk)
+#ADD_SUBDIRECTORY(${MPTK_SOURCE_DIR}/src/libdsp_windows)
+#IF(BUILD_GUI)
+#ADD_SUBDIRECTORY(${MPTK_SOURCE_DIR}/src/gui)
+#ENDIF(BUILD_GUI)
 IF(BUILD_DOCUMENTATION)
 ADD_SUBDIRECTORY(${MPTK_SOURCE_DIR}/doc)
 ENDIF(BUILD_DOCUMENTATION)
