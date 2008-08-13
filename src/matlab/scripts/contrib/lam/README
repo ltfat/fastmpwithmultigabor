@@ -13,7 +13,7 @@ Special features:
 ----------------
 * the file ~/.mptk/MPTKconfig.txt contains the default options for the MPTK commands. Example: if you write 'v = 1', all the MPTK commands will be called with the '-v' option (verbose), unless you specify the pair ,'v',0, in the function
 * to simplify function callings, the dictionary files are stored in a specific directory (by default, the 'Dict' subdirectory of the toolbox.
-* the 'GenerDict' function has been implemented to generate standard dictionary files, and the returns the name of the file.
+* the 'GenerDict' function has been implemented to generate standard dictionary files, and the returns the name of the file. WARNING: GenerDict is currently not maintained and may not remain compatible with evolving versions of MPTK. Please prefer the dictcreate_gui.m graphical interface to create dictionaries when possible.
 
 Remarks:
 -------

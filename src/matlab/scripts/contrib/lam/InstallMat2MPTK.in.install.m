@@ -36,6 +36,6 @@ fprintf(fid, 'n = 10000\n');
 
 fclose(fid);
 %MPTKLoadSettings;
-GenerDict('default.xml');
+%GenerDict('default.xml');
 
 clear fid DicoPath MPTKPath

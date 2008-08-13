@@ -171,6 +171,11 @@ end
 
 %WRITE FILE
 
+
+disp('WARNING: you are using the GenerDict.m script to generate a dictionary description file.');
+disp('WARNING: GenerDict.m is currently not maintained and may not remain compatible with evolving versions of MPTK.');
+disp('WARNING: Please prefer the dictcreate_gui.m graphical interface to create dictionaries when possible.');
+
 DicoFilePath = fullfile(DicoPath, DicoFile);
 fid = fopen(DicoFilePath, 'w');
 fprintf(fid,'<?xml version="1.0" encoding="ISO-8859-1" ?>\n');
