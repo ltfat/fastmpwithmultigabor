@@ -11,7 +11,7 @@ endif(COMMAND cmake_policy)
 ## SETTING COMPILATION OPTION
 #############################
 # Compilation of modules:
-OPTION(BUILD_GUI "Build Graphical user interface" OFF) 
+OPTION(BUILD_GUI "Build experimental Qt Graphical user interface" OFF) 
 # Enable testing:
 OPTION(BUILD_TESTING "Build Tests" OFF) 
 # Allows shard compiling:
@@ -137,9 +137,6 @@ FILE(READ ${MPTK_SOURCE_DIR}/version/packagenamefull.cmake PACKAGENAMEFULL)
 FILE(READ ${MPTK_SOURCE_DIR}/version/AUTHORS AUTHORS)
 
 #Define the target for install
-SET(BIN_HOME     ${CMAKE_INSTALL_PREFIX}/bin)
-SET(INCLUDE_HOME ${CMAKE_INSTALL_PREFIX}/include)
-SET(LIB_HOME     ${CMAKE_INSTALL_PREFIX}/lib)
 
 SET(MPTK_FTTW_WISDOM_FILE ${MPTK_BINARY_DIR}/bin/default_fftw_wisdom_file)
 SET(MPTK_FTTW_WISDOM_FILE_INSTALL ${CMAKE_INSTALL_PREFIX}/bin/default_fftw_wisdom_file)
