@@ -447,7 +447,7 @@ int MP_Mclt_Block_Plugin_c::fill_correl( MP_Real_t *reCorr, MP_Real_t *imCorr,
     MP_Real_t *sqCorr, MP_Real_t *cstCorr )
 {
 
-  const char* func = "MP_Mclt_Block_c::fill_correl(...)";
+  //const char* func = "MP_Mclt_Block_c::fill_correl(...)";
   double re,im,sq;
   int k, l;
 

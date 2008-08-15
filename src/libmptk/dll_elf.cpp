@@ -53,39 +53,42 @@ MP_Dll_Manager_c::~MP_Dll_Manager_c()
 /* Load and registrate all the dll */
 bool MP_Dll_Manager_c::load_dll()
 {
-	if ( MPTK_Env_c::get_env()->get_config_path("dll_directory")!= NULL){
-  if (MP_Dll_Manager_c::search_library(dllVectorName, MPTK_Env_c::get_env()->get_config_path("dll_directory")))
-    {
-      /* for all the shared lib */
-      for (unsigned int k = 0; k < dllVectorName->size(); k++)
-        {
-          MP_Dll_Manager_c::get_dll((*dllVectorName)[k].c_str());
-
-          if ( last_error()==0 )
-            {
-              void (*c)(void);
-              if (MP_Dll_Manager_c::get_symbol((void **)&c,"registry"))
-                {
-                  /* test if plugin has the symbol registry */
-                  if (c!= NULL)
-                    {
-                      /* Register the plugin in the concerned factory */
-                      c();
-                    }
-                  else  mp_warning_msg( "MP_Dll_Manager::load_dll","No registry function in '%s' shared library; \n",(*dllVectorName)[k].c_str());
-                }
-              else  mp_warning_msg( "MP_Dll_Manager::load_dll","No registry symbol in '%s' shared library.\n",(*dllVectorName)[k].c_str());
-            }
-          else  mp_error_msg( "MP_Dll_Manager::load_dll","Error when loading the dll: '%s' .\n ",last_error());
-        }
-      return true;
-    }
-  else
-    {
-      mp_error_msg( "MP_Dll_Manager::load_dll","No library found in '%s' .\n", MPTK_Env_c::get_env()->get_config_path("dll_directory"));
-      return false;
-    }
-} else return false;
+	const char *func = "MP_Dll_Manager::load_dll";
+	const char *directory = MPTK_Env_c::get_env()->get_config_path("dll_directory"); 
+	if (NULL!= directory){
+		mp_debug_msg( MP_DEBUG_CONSTRUCTION, func, "Plug-in localisation: [%s].\n", directory);          	
+		if (MP_Dll_Manager_c::search_library(dllVectorName,directory)) {
+			// Loop on found shared libs 
+			for (unsigned int k = 0; k < dllVectorName->size(); k++) {
+				MP_Dll_Manager_c::get_dll((*dllVectorName)[k].c_str());
+				if ( last_error()==0 ) {
+					void (*c)(void) = NULL;
+					if (MP_Dll_Manager_c::get_symbol((void **)&c,"registry")) {
+						// test if plugin has the symbol "registry"
+						if (NULL!=c) {
+							// Register the plugin in the concerned factory
+							c();
+						} else {
+							mp_warning_msg( func,"No registry function in '%s' shared library; \n",
+											(*dllVectorName)[k].c_str());
+						}
+					} else  {
+						mp_warning_msg( func,"No registry symbol in '%s' shared library.\n",
+										(*dllVectorName)[k].c_str());
+					}
+				} else {
+					mp_error_msg( func,"Error when loading the dll: '%s' .\n ",last_error());
+				}
+			} // End loop on found shared libraries
+			return true;
+		} else { // Else if search_library
+			mp_error_msg( func,"No library found in '%s' .\n",directory);
+			return false;
+		}
+	} else {
+		mp_error_msg( func,"Problem with config path 'dll_directory' not found in  config file.\n");
+		return false;
+	}
 }
 /*****************************/
 /* Get the symbol in the dll */
@@ -103,7 +106,7 @@ bool MP_Dll_Manager_c::get_symbol(void **v, const char *symbol_name )
         return false;
     }
   else
-    {
+    { // Should we set *v = NULL here ?
       return false;
     }
 }

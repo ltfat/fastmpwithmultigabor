@@ -113,8 +113,9 @@ MP_Dict_c* MP_Dict_c::init( void )
 /* NULL constructor */
 MP_Dict_c::MP_Dict_c()
 {
+  const char* func = "MP_Dict_c::MP_Dict_c()";
 
-  mp_debug_msg( MP_DEBUG_CONSTRUCTION, "MP_Dict_c::MP_Dict_c()",
+  mp_debug_msg( MP_DEBUG_CONSTRUCTION, func,
                 "Constructing dict...\n" );
 
   signal = NULL;
@@ -128,7 +129,7 @@ threads = NULL;
 tasks = NULL;
 bar = NULL;
 #endif
-  mp_debug_msg( MP_DEBUG_CONSTRUCTION, "MP_Dict_c::MP_Dict_c()",
+  mp_debug_msg( MP_DEBUG_CONSTRUCTION, func,
                 "Done.\n" );
 }
 
@@ -140,7 +141,7 @@ MP_Dict_c::~MP_Dict_c()
 
   unsigned int i;
   const char* func = "MP_Dict_c::~MP_Dict_c()";
-  mp_debug_msg( MP_DEBUG_DESTRUCTION, "MP_Dict_c::~MP_Dict_c()",
+  mp_debug_msg( MP_DEBUG_DESTRUCTION, func,
                 "Deleting dict...\n" );
 
   if ( (sigMode == MP_DICT_INTERNAL_SIGNAL) && ( signal != NULL ) ) delete signal;
@@ -181,7 +182,7 @@ MP_Dict_c::~MP_Dict_c()
 #else
 #endif
   if ( touch ) free( touch );
-  mp_debug_msg( MP_DEBUG_DESTRUCTION, "MP_Dict_c::~MP_Dict_c()",
+  mp_debug_msg( MP_DEBUG_DESTRUCTION, func,
                 "Done.\n" );
 }
 

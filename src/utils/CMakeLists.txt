@@ -16,7 +16,10 @@ ELSE( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
 IF( CMAKE_CXX_COMPILER STREQUAL "cl")
     SET(EXECUTABLE_COMPILE_FLAGS "")
 ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
-    SET(EXECUTABLE_COMPILE_FLAGS  "-rdynamic -Wno-deprecated")
+# Removed the -Wno-deprecated to remove a Warning on Mac (gcc 4.0.1) about
+# -Wno-deprecated being meaningless for C-code, only meaningful for C++/ObjC++
+#    SET(EXECUTABLE_COMPILE_FLAGS  "-rdynamic -Wno-deprecated")
+    SET(EXECUTABLE_COMPILE_FLAGS  "-rdynamic")
 ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
 ENDIF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" ) 
 

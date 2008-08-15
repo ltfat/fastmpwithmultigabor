@@ -4,7 +4,7 @@
 /*                                                                            */
 /*                        Matching Pursuit Library                            */
 /*                                                                            */
-/* Rémi Gribonval                                                             */
+/* RÃˆmi Gribonval                                                             */
 /* Sacha Krstulovic                                           Mon Feb 21 2005 */
 /* -------------------------------------------------------------------------- */
 /*                                                                            */
@@ -619,13 +619,14 @@ void MP_FFTW_Interface_c::exec_complex_inverse_without_window( MP_Real_t *re, MP
 bool MP_FFT_Interface_c::init_fft_library_config()
 {
 #ifdef USE_FFTW3
-
+  const char * func =  "MP_FFT_Interface_c::init_fft_library_config()";
   int wisdom_status;
   FILE * wisdomFile = NULL;
 
   /* Check if file path is defined in env variable */
-  if (MPTK_Env_c::get_env()->get_config_path("fftw_wisdomfile")!= NULL)
-    wisdomFile= fopen(MPTK_Env_c::get_env()->get_config_path("fftw_wisdomfile"),"r");
+  const char *filename = MPTK_Env_c::get_env()->get_config_path("fftw_wisdomfile");
+  if (NULL != filename)
+    wisdomFile= fopen(filename,"r");
   /* Check if file exists */
   if (wisdomFile!=NULL)
     {
@@ -635,8 +636,7 @@ bool MP_FFT_Interface_c::init_fft_library_config()
       /* Check if wisdom file is well formed */
       if (wisdom_status==0)
         {
-          mp_error_msg( "MP_FFT_Interface_c::init_fft_library_config()",
-                        "wisdom file is ill formed\n");
+          mp_error_msg( func, "wisdom file is ill formed\n");
           /* Close the file anyway */
           fclose(wisdomFile);
           return false;
@@ -650,11 +650,10 @@ bool MP_FFT_Interface_c::init_fft_library_config()
 
     }
    
-  else{  mp_warning_msg( "MP_FFT_Interface_c::init_fft_library_config()",
-                        "fftw wisdom file with path %s  doesn't exist. It will be created.\n", MPTK_Env_c::get_env()->get_config_path("fftw_wisdomfile"));
+  else{  
+    mp_warning_msg( func,"fftw wisdom file with path %s  doesn't exist. It will be created.\n", filename);
   	return false;
-  	
-  	}
+	}
 #else
 
   return false;
@@ -671,8 +670,9 @@ bool MP_FFT_Interface_c::save_fft_library_config()
   FILE * wisdomFile = NULL;
   /* Check if fftw wisdom file has to be saved
    * and if the load of this files  succeed when init the fft library config */
-  if (MPTK_Env_c::get_env()->get_config_path("fftw_wisdomfile")!= NULL && !MPTK_Env_c::get_env()->get_fftw_wisdom_loaded() )
-    wisdomFile = fopen(MPTK_Env_c::get_env()->get_config_path("fftw_wisdomfile"),"w");
+   const char *filename = MPTK_Env_c::get_env()->get_config_path("fftw_wisdomfile");
+  if (NULL!=filename && !MPTK_Env_c::get_env()->get_fftw_wisdom_loaded() )
+    wisdomFile = fopen(filename,"w");
   /* Check if file exists or if the files could be created */
   if (wisdomFile!=NULL)
     {

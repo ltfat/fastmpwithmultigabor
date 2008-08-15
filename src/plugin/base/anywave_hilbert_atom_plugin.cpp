@@ -112,7 +112,7 @@ MP_Anywave_Hilbert_Atom_Plugin_c::MP_Anywave_Hilbert_Atom_Plugin_c( void )
 int MP_Anywave_Hilbert_Atom_Plugin_c::alloc_hilbert_atom_param( const MP_Chan_t setNumChans )
 {
 
-  const char* func = "MP_Anywave_Hilbert_Atom_c::alloc_hilbert_atom_param(numChans)";
+ // const char* func = "MP_Anywave_Hilbert_Atom_c::alloc_hilbert_atom_param(numChans)";
 
   if ( init_parts() )
     {

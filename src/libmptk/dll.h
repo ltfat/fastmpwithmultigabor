@@ -122,10 +122,12 @@ class MP_Dll_Manager_c
     /** \brief Method load the symbol with sym_name name
     *   \param void ** handle on the symbol of library, NULL if open failed
     *   \param sym_name : name of the symbol to load
+	*   \return true if sym_name was found, in which case *v != NULL; false otherwise
     */   
-    bool get_symbol( void **, const char *sym_name );
+    bool get_symbol( void ** v, const char *sym_name );
     
-    /** \brief Method to load all dll contained in the path directory */
+    /** \brief Method to load all dll contained in the path directory 
+	*/
     bool load_dll();
        
     /** \brief Methode to get the dll type, for concerned  */
@@ -134,9 +136,11 @@ class MP_Dll_Manager_c
     /** \brief Method to get the last error  */
     const char *last_error();
     
-    /** \brief Method to search all the dynamic load library in the path directory
+    /** \brief Method to search all the dynamic load library in the path directory, 
+	* except libmptk and libmptk4matlab
     *   \param lib_names :vector to store the name of the found DLL
     *   \param path : path of the directory where the DLL are
+	*   \return false if it found no .dll/.dylib/.so library at all, true otherwise
     */
     bool search_library(vector<string> * lib_names, const char * path);
     

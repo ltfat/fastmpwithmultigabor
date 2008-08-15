@@ -4,7 +4,7 @@
 /*                                                                            */
 /*                        Matching Pursuit Library                            */
 /*                                                                            */
-/* Rémi Gribonval                                                             */
+/* RÃˆmi Gribonval                                                             */
 /* Sacha Krstulovic                                           Mon Feb 21 2005 */
 /* -------------------------------------------------------------------------- */
 /*                                                                            */
@@ -50,6 +50,7 @@ MP_Abstract_Mixer_c* MP_Abstract_Mixer_c::creator( FILE * mixerFID )
 {
 
   const char* func = "MP_Abstract_Mixer_c::init(char *mixerFileName)";
+  mp_debug_msg( MP_DEBUG_FUNC_ENTER, func, "Entering.\n" );
 
   MP_Mixer_c* mixer = NULL;
 
@@ -63,6 +64,7 @@ MP_Abstract_Mixer_c* MP_Abstract_Mixer_c::creator( FILE * mixerFID )
 
   //if ( !strcmp(type,"linear") )
   mixer = (MP_Mixer_c*) MP_Mixer_c::creator(mixerFID);
+  mp_debug_msg( MP_DEBUG_FUNC_EXIT, func, "Leaving.\n" );
   return mixer;
   //else
   // {

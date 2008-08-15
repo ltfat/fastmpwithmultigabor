@@ -599,7 +599,7 @@ int MP_Mdst_Block_Plugin_c::alloc_energy( MP_Real_t **atomEnergy )
 int MP_Mdst_Block_Plugin_c::fill_energy( MP_Real_t *atomEnergy )
 {
 
-  const char* func = "MP_mdst_Block_c::fill_energy(...)";
+  // const char* func = "MP_mdst_Block_c::fill_energy(...)";
   double e;
   int k,l;
 

@@ -4,7 +4,7 @@
 /*                                                                            */
 /*                        Matching Pursuit Library                            */
 /*                                                                            */
-/* Rémi Gribonval                                                             */
+/* RÃˆmi Gribonval                                                             */
 /* Sacha Krstulovic                                           Mon Feb 21 2005 */
 /* -------------------------------------------------------------------------- */
 /*                                                                            */
@@ -65,13 +65,13 @@ MP_Win_Server_c::MP_Win_Server_c( void ) {
 /**************/
 /* destructor */
 MP_Win_Server_c::~MP_Win_Server_c() {
-
-  mp_debug_msg( MP_DEBUG_DESTRUCTION, "MP_Win_Server_c::~MP_Win_Server_c()",
+  const char *func = "MP_Win_Server_c::~MP_Win_Server_c()";
+  mp_debug_msg( MP_DEBUG_DESTRUCTION, func,
 		"Destroying the window server...\n" );
 
   release();
 
-  mp_debug_msg( MP_DEBUG_DESTRUCTION, "MP_Win_Server_c::~MP_Win_Server_c()",
+  mp_debug_msg( MP_DEBUG_DESTRUCTION, func,
 		"Done.\n" );
 }
 
@@ -82,9 +82,8 @@ MP_Win_Server_c::~MP_Win_Server_c() {
 /* Memory release */
 void MP_Win_Server_c::release( void ) {
    const char* func = "MP_Win_Server_c::release()";
-#ifndef NDEBUG
    mp_debug_msg( MP_DEBUG_FUNC_ENTER, func, "Entering.\n" );
-#endif
+
   unsigned short int i;
   unsigned long int n;
 
@@ -106,9 +105,7 @@ void MP_Win_Server_c::release( void ) {
     maxNumberOf[i] = 0;
 
   }
-#ifndef NDEBUG
   mp_debug_msg( MP_DEBUG_FUNC_EXIT, func, "Exiting.\n" );
-#endif
 }
 
 /* Window service */

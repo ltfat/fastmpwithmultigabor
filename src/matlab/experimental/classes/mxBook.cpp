@@ -123,9 +123,9 @@ void mxAtoms::allocParams(unsigned long int nA,unsigned int nC) {
             
 //! Read an atom and store values in params mxArrays
 void mxAtoms::parseAtom(MP_Atom_c *atom) {
-  unsigned int c,h,nP;
-              char * func = "mxAtoms:parseAtom";  
-  mp_debug_msg(func,"entering %s\n",type.c_str());
+  unsigned int c,h,nP=0;
+  char * func = "mxAtoms:parseAtom";  
+  mp_debug_msg(MP_DEBUG_FUNC_ENTER,func,"entering %s\n",type.c_str());
   /* CHANNEL INDEPENDENT PARAMETERS */
   /* ATOM Specific parameters */
   // Anywave atoms
@@ -147,32 +147,32 @@ void mxAtoms::parseAtom(MP_Atom_c *atom) {
     *(mxGetPr( params["hilbertTableIdx"]) + curIdx ) = (double) catom->get_field(MP_HILBERT_TABLE_IDX_PROP,0);
 //    *(mxGetPr( params["anywaveHilbertTable"]) + curIdx ) = (double) 0.0; //! FAKE VALUE - NOT DONE
   }
-  // Atoms that use a analysis window
+  // Atoms that use an analysis window
   else if (type=="mdct" || type=="mdst" || type=="gabor" || type=="mclt" || type=="harmonic") {
     *(mxGetPr( params["freq"]) + curIdx ) = (double) atom->get_field(MP_FREQ_PROP,0);
     *(mxGetPr( params["windowtype"]) + curIdx ) = (double) atom->get_field(MP_WINDOW_TYPE_PROP,0);
     *(mxGetPr( params["windowoption"]) + curIdx ) = (double) atom->get_field(MP_WINDOW_OPTION_PROP,0);
-    // Chirped atoms
+    // Atoms that can be chirped
     if (type=="gabor" || type=="mclt" || type=="harmonic") {
       *(mxGetPr( params["chirp"]) + curIdx ) = (double) atom->get_field(MP_CHIRP_PROP,0);
       // Harmonic atoms
       if (type=="harmonic") {
-	nP = (unsigned int) atom->get_field(MP_NUMPARTIALS_PROP,0);
-	*(mxGetPr( params["numPartials"]) + curIdx ) = (double) nP;
-	/* Allocate params field with numPartials if necessary */
-	if (params.find("harmonicity") == params.end()) {
-	  params["harmonicity"] = mxCreateDoubleMatrix(nAtom, nP, mxREAL);
-	  mwSize dims[3] = {nAtom,nP,nChannel};
-	  params["partialAmp"] = mxCreateNumericArray(3, dims, mxDOUBLE_CLASS, mxREAL);   //! channel dependent
-	  params["partialPhase"] = mxCreateNumericArray(3, dims, mxDOUBLE_CLASS, mxREAL); //! channel dependent
-	}
-	// Read harmonicity values
-	for (h=0;h<nP;h++) {
-	  *( mxGetPr(params["harmonicity"]) + h*nAtom + curIdx ) = (double) atom->get_field(MP_HARMONICITY_PROP,h);
-	}
-      }
-    }
-  }
+		nP = (unsigned int) atom->get_field(MP_NUMPARTIALS_PROP,0);
+		*(mxGetPr( params["numPartials"]) + curIdx ) = (double) nP;
+		/*Allocate params field with numPartials if necessary */
+		if (params.find("harmonicity") == params.end()) {
+			params["harmonicity"] = mxCreateDoubleMatrix(nAtom, nP, mxREAL);
+			mwSize dims[3] = {nAtom,nP,nChannel};
+			params["partialAmp"] = mxCreateNumericArray(3, dims, mxDOUBLE_CLASS, mxREAL);   //! channel dependent
+			params["partialPhase"] = mxCreateNumericArray(3, dims, mxDOUBLE_CLASS, mxREAL); //! channel dependent
+		}
+		// Read harmonicity values
+		for (h=0;h<nP;h++) {
+			*( mxGetPr(params["harmonicity"]) + h*nAtom + curIdx ) = (double) atom->get_field(MP_HARMONICITY_PROP,h);
+		} // End loop on harmonicity values
+      } // End if(type=="harmonic")
+    } // End if(type=="gabor" || type=="mclt" || type=="harmonic")
+  } // End if (type=="mdct" || type=="mdst" || type=="gabor" || type=="mclt" || type=="harmonic")
                                         
   /* CHANNEL DEPENDENT PARAMETERS */
   for (c=0;c<nChannel;c++) {
@@ -208,7 +208,7 @@ void mxAtoms::parseAtom(MP_Atom_c *atom) {
 //! Fill a given 'atom' structure at index 'a' with parameters
 mxArray * mxAtoms::outputMxStruct(mxArray * atom, unsigned int a) {
   char * func = "mxAtoms::outputMxStruct";
-  mp_debug_msg(func," - Fill atom Structure for type [%s]\n",typeLen.c_str()); 
+  mp_debug_msg(MP_DEBUG_ABUNDANT,func," - Fill atom Structure for type [%s]\n",typeLen.c_str()); 
   // Create atom Structure              
   mwSize dims[2] = {1, 2};
   mxArray *par;
@@ -225,7 +225,7 @@ mxArray * mxAtoms::outputMxStruct(mxArray * atom, unsigned int a) {
   map <string, mxArray *>::iterator miter;
   for ( miter = params.begin(); miter != params.end(); miter++ )
     {
-      mp_debug_msg(func,"   - \"%s\" added\n",miter->first.c_str());
+      mp_debug_msg(MP_DEBUG_ABUNDANT,func,"   - \"%s\" added\n",miter->first.c_str());
       p = mxAddField(par,miter->first.c_str());
       mxSetFieldByNumber(par,0, p, miter->second);
     } // End of atom parameters definition
@@ -296,7 +296,7 @@ mxBook::mxBook(MP_Book_c *mpbook) {
   unsigned int indexSize = 4+numChans;
   mxIndex = mxCreateDoubleMatrix((mwSize)indexSize,(mwSize)numAtoms, mxREAL); //! mxIndex contains (1: Atom number, 2: type index, 3: atom index, 4: Atom selected, 4+chan: atom pos of channel chan)
     
-  mp_debug_msg(func,"Counting atom types in book : \n");
+  mp_debug_msg(MP_DEBUG_GENERAL,func,"Counting atom types in book : \n");
     
   // Some declarations
   map <string, mxAtoms *> atomStats;       //! Map <atom type , nb of occurence>
@@ -313,7 +313,7 @@ mxBook::mxBook(MP_Book_c *mpbook) {
 
     // If aType is a new type, register it in maps
     if ( atomStats.find(aType) == atomStats.end() ) {
-      mp_debug_msg(func,"Registering new atom type [%s]\n",aType.c_str());
+      mp_debug_msg(MP_DEBUG_ABUNDANT,func,"Registering new atom type [%s]\n",aType.c_str());
       atomStats[aType] = new mxAtoms(aType,numChans);
     }
         
@@ -335,7 +335,7 @@ mxBook::mxBook(MP_Book_c *mpbook) {
     
  
   /* Matlab console info */
-  mp_debug_msg(func, "found %d different atom types\n",atomStats.size());
+  mp_debug_msg(MP_DEBUG_GENERAL,func, "found %d different atom types\n",atomStats.size());
     
   /* Init Atom structure
    *  atom.type = string
@@ -350,14 +350,14 @@ mxBook::mxBook(MP_Book_c *mpbook) {
   unsigned int t = 0;  //! Index of type used for mxAtoms constructors
   for ( miter = atomStats.begin(); miter != atomStats.end(); ++miter )
     {
-      mp_debug_msg(func," - atom [%s] :  %ld occurences\n",miter->first.c_str(), miter->second->nAtom);
+      mp_debug_msg(MP_DEBUG_SPARSE,func," - atom [%s] :  %ld occurences\n",miter->first.c_str(), miter->second->nAtom);
       miter->second->allocParams(miter->second->nAtom, numChans);
       miter->second->typeIdx = t;  //! Set type index according to the map iterator
       t++; //! increment type index
     }
 
     
-  mp_debug_msg(func,"Load each atom\n");
+  mp_debug_msg(MP_DEBUG_GENERAL,func,"Load each atom\n");
 
   /* Parse Atoms parameters */
   for ( n=0 ; n<numAtoms ; n++ ) {
@@ -379,11 +379,11 @@ mxBook::mxBook(MP_Book_c *mpbook) {
   const char *atomFieldNames[] = {"type","params"};
   atom = mxCreateStructMatrix((mwSize)1,(mwSize)(atomStats.size()),numAtomFieldNames,atomFieldNames);
     
-  mp_debug_msg(func,"Creating output structure\n");
+  mp_debug_msg(MP_DEBUG_GENERAL,func,"Creating output structure\n");
   n = 0;
   for ( miter = atomStats.begin(); miter != atomStats.end(); ++miter )
     {
-      mp_debug_msg(func," - atom [%s] \n",miter->second->type.c_str());
+      mp_debug_msg(MP_DEBUG_SPARSE,func," - atom [%s] \n",miter->second->type.c_str());
       miter->second->outputMxStruct(atom,n);
       n++;
     } // End of atom parameters definition
@@ -444,7 +444,7 @@ MP_Atom_c * mxBook::getMP_Atom(unsigned long int atomIdx) {
 	  delete newAtom;
 	  return( NULL );
 	}
-  mp_debug_msg(func," -- atom index %ld [%s]\n",atomIdx,aType.c_str());
+  mp_debug_msg(MP_DEBUG_SPARSE,func," -- atom index %ld [%s]\n",atomIdx,aType.c_str());
   
   /** Retrieve pointer for common parameters to all atoms (pos, len, amp) */
   mxArray *mxpos, *mxamp, *mxlen;
@@ -672,7 +672,7 @@ MP_Atom_c * mxBook::getMP_Atom(unsigned long int atomIdx) {
 MP_Book_c * mxBook::Book_MEX_2_MPTK() {
     char * func = "mxBook::Book_MEX_2_MPTK";
   MP_Book_c * mpBook;
-  mxArray *mxTmp,*atoms,*mxIndex;
+  mxArray *mxTmp,*mxIndex;
   MP_Chan_t numChans;
   int sampleRate;
   unsigned long int nAtom,numSamples,a,nAtomAdded;
@@ -700,7 +700,7 @@ MP_Book_c * mxBook::Book_MEX_2_MPTK() {
   for (a=0;a<nAtom;a++) {
     if (*(mxGetPr(mxIndex) + a*indexSize + 3) != 0.0 ) {
       //! add_atom
-      mp_debug_msg(func," - Adding Atom [%ld] to book :",a);
+      mp_debug_msg(MP_DEBUG_ABUNDANT,func," - Adding Atom [%ld] to book :",a);
       MP_Atom_c * mpAtom;      
       if ( (mpAtom = this->getMP_Atom(a)) == NULL ) {
 	mp_error_msg(func," getMP_Atom returend NULL while adding Atom [%ld] to book :",a);
