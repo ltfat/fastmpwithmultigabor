@@ -43,7 +43,7 @@ void FoundMPTK4Matlab(void)
 
 /* The function to be called at the beginning of each mex file */
 void InitMPTK4Matlab(const char *functionName) {
-  /* Register the display function */
+  /* Register the display functions */
   /* We could set a flag variable to do it only once */
     MPTK_Server_c::get_msg_server()->register_display_function("info_message_display", &msgfunc);
     MPTK_Server_c::get_msg_server()->register_display_function("error_message_display", &msgfunc);
@@ -51,15 +51,15 @@ void InitMPTK4Matlab(const char *functionName) {
     MPTK_Server_c::get_msg_server()->register_display_function("progress_message_display", &msgfunc);
     MPTK_Server_c::get_msg_server()->register_display_function("debug_message_display", &msgfunc);
 	
-    /* Load the MPTK environment if not loaded */
-    if (!MPTK_Env_c::get_env()->get_environment_loaded()) {
-      if (MPTK_Env_c::get_env()->load_environment("")==false) {
-	mexPrintf("%s error -- could not load the MPTK environment.\n",functionName);
-	mexPrintf("The most common reason is a missing or erroneous MPTK_CONFIG_FILENAME variable.\n");
-	mexPrintf("This environment variable can be set by typing\n");
-	mexPrintf("     'setenv('MPTK_CONFIG_FILENAME','<path to configuration file.xml>')");
-	mexPrintf(" from the Matlab command line\n");
-	mexErrMsgTxt("Aborting");
-      }
+    /* Load the MPTK environment if needed */
+    if (! (MPTK_Env_c::get_env()->get_environment_loaded()) ) {
+		if(! (MPTK_Env_c::get_env()->load_environment(NULL)) ) {
+			mexPrintf("%s error -- could not load the MPTK environment.\n",functionName);
+			mexPrintf("The most common reason is a missing or erroneous MPTK_CONFIG_FILENAME variable.\n");
+			mexPrintf("This environment variable can be set by typing\n");
+			mexPrintf("     'setenv('MPTK_CONFIG_FILENAME','<path to configuration file.xml>')");
+			mexPrintf(" from the Matlab command line\n");
+			mexErrMsgTxt("Aborting");
+		}
     }
 }

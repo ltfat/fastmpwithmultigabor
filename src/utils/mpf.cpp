@@ -4,7 +4,7 @@
 /*                                                                            */
 /*                        Matching Pursuit Utilities                          */
 /*                                                                            */
-/* Rémi Gribonval                                                             */
+/* RÃˆmi Gribonval                                                             */
 /* Sacha Krstulovic                                                           */
 /* Sylvain Lesage                                             Mon Feb 21 2005 */
 /* -------------------------------------------------------------------------- */
@@ -57,7 +57,7 @@ char* func = "mpf";
 #define ERR_SWITCH     3
 #define ERR_WRITE      4
 #define ERR_MALLOC     5
-
+#define ERR_LOADENV    6
 
 /********************/
 /* Global variables */
@@ -129,18 +129,18 @@ void usage( void ) {
   fprintf( stdout, "     If no output files are given, the atoms are just counted and their number is reported in stderr.\n" );
   fprintf( stdout, " \n" );
   fprintf( stdout, "     One or more of the following switches:\n" );
-  fprintf( stderr, "     --index=[min:max]    / -i [min:max] : keep the atoms ordered from min to max in the book\n");
-  fprintf( stderr, "     --length=[min:max]   / -l [min:max] : keep a specific range of atom lengths (in number of samples)\n");
-  fprintf( stderr, "     --Length=[min:max]   / -L [min:max] : keep a specific range of atom lengths (in seconds)\n");
-  fprintf( stderr, "     --position=[min:max] / -p [min:max] : keep a specific range of atom positions (in number of samples)\n");
-  fprintf( stderr, "     --Position=[min:max] / -P [min:max] : keep a specific range of atom positions (in seconds)\n");
-  fprintf( stderr, "     --freq=[min:max]     / -f [min:max] : keep a specific frequency range (in normalized values between 0 and 0.5)\n");
-  fprintf( stderr, "     --Freq=[min:max]     / -F [min:max] : keep a specific frequency range (in Hz)\n");
-  fprintf( stderr, "     --amp=[min:max]      / -a [min:max] : keep a specific range of amplitudes\n");
-  fprintf( stderr, "     --chirp=[min:max]    / -c [min:max] : keep a specific range of chirp factors\n");
-  fprintf( stderr, "     The intervals can exclude the min or max value by using reverted braces,\n" );
+  fprintf( stdout, "     --index=[min:max]    / -i [min:max] : keep the atoms ordered from min to max in the book\n");
+  fprintf( stdout, "     --length=[min:max]   / -l [min:max] : keep a specific range of atom lengths (in number of samples)\n");
+  fprintf( stdout, "     --Length=[min:max]   / -L [min:max] : keep a specific range of atom lengths (in seconds)\n");
+  fprintf( stdout, "     --position=[min:max] / -p [min:max] : keep a specific range of atom positions (in number of samples)\n");
+  fprintf( stdout, "     --Position=[min:max] / -P [min:max] : keep a specific range of atom positions (in seconds)\n");
+  fprintf( stdout, "     --freq=[min:max]     / -f [min:max] : keep a specific frequency range (in normalized values between 0 and 0.5)\n");
+  fprintf( stdout, "     --Freq=[min:max]     / -F [min:max] : keep a specific frequency range (in Hz)\n");
+  fprintf( stdout, "     --amp=[min:max]      / -a [min:max] : keep a specific range of amplitudes\n");
+  fprintf( stdout, "     --chirp=[min:max]    / -c [min:max] : keep a specific range of chirp factors\n");
+  fprintf( stdout, "     The intervals can exclude the min or max value by using reverted braces,\n" );
   fprintf( stdout, "     e.g. ]min:max] will exclude the min value.\n");
-  fprintf( stderr, "     The intervals can be negated with prepending the '^' character, e.g. ^[min:max].\n" );
+  fprintf( stdout, "     The intervals can be negated with prepending the '^' character, e.g. ^[min:max].\n" );
   fprintf( stdout, " \n" );
   fprintf( stdout, "     --type=gabor|harmonic|dirac|anywave / -t gabor|harmonic|dirac|anywave : test the atom type.\n" );
   fprintf( stdout, "     (The chirp type is not provided: a chirp atom is a gabor atom with a non-null chirp rate.)\n" );
@@ -175,7 +175,7 @@ void usage( void ) {
 /**************************************************/
 /* Local parsing of a [min:max] interval */
 int parse_interval( char* arg, MP_Real_t* min, MP_Real_t* max, char* includeMin, char* includeMax, char* negate ) {
-
+  const char *func = "mpf:parse_interval";
   double val;
   char* p;
   char* ep;
@@ -190,26 +190,26 @@ int parse_interval( char* arg, MP_Real_t* min, MP_Real_t* max, char* includeMin,
   case '[': *includeMin = MP_TRUE;  break;
   case ']': *includeMin = MP_FALSE; break;
   default:
-    fprintf( stderr, "mpf error -- Missing '[' or ']' character at the beginning of the interval (%s, pointing at %s).", arg, p );
+    mp_error_msg( func, "Missing '[' or ']' character at the beginning of the interval (%s, pointing at %s).", arg, p );
     return( 1 );
   }
   /* Get the min value */
   p++; val = strtod( p, &ep );
   if ( p == ep ) {
-    fprintf( stderr, "mpf error -- Could not read a min value in the interval (%s, pointing at %s).", arg, p );
+    mp_error_msg( func,"Could not read a min value in the interval (%s, pointing at %s).", arg, p );
     return( 1 );
   }
   else *min = (MP_Real_t)( val );
   /* Check the middle ':' */
   p = ep;
   if ( *p != ':' ) {
-    fprintf( stderr, "mpf error -- Missing ':' character between min and max in the interval (%s, pointing at %s).", arg, p );
+    mp_error_msg( func, "Missing ':' character between min and max in the interval (%s, pointing at %s).", arg, p );
     return( 1 );
   }
   /* Get the max value */
   p++; val = strtod( p, &ep );
   if ( p == ep ) {
-    fprintf( stderr, "mpf error -- Could not read a min value in the interval (%s, pointing at %s).", arg, p );
+    mp_error_msg( func, "Could not read a min value in the interval (%s, pointing at %s).", arg, p );
     return( 1 );
   }
   else *max = (MP_Real_t)( val );
@@ -524,7 +524,7 @@ int parse_args(int argc, char **argv) {
 
   /* Check if some file names are following the options */
   if ( (argc-optind) < 1 ) {
-    fprintf(stderr, "mpf error -- You must indicate a file name (or - for stdin) for an input book file.\n");
+    mp_error_msg(func, "mpf error -- You must indicate a file name (or - for stdin) for an input book file.\n");
     return( ERR_ARG );
   }
 
@@ -550,21 +550,21 @@ int parse_args(int argc, char **argv) {
 
   /* Can't have two times the same property different units */
   if ( MPF_USE_LCF && MPF_USE_UCF ) {
-    fprintf(stderr, "mpf error -- Choose either one of --freq=/-f or --Freq=/-F.\n");
+    mp_error_msg(func, "Choose either one of --freq=/-f or --Freq=/-F.\n");
     return( ERR_ARG );
   }
   if ( MPF_USE_LCL && MPF_USE_UCL ) {
-    fprintf(stderr, "mpf error -- Choose either one of --length=/-l or --Length=/-l.\n");
+    mp_error_msg(func, "Choose either one of --length=/-l or --Length=/-l.\n");
     return( ERR_ARG );
   }
   if ( MPF_USE_LCP && MPF_USE_UCP ) {
-    fprintf(stderr, "mpf error -- Choose either one of --position=/-p or --Position=/-P.\n");
+    mp_error_msg(func, "Choose either one of --position=/-p or --Position=/-P.\n");
     return( ERR_ARG );
   }
 
   /* Can't have quiet AND verbose (make up your mind, dude !) */
   if ( MPF_QUIET && MPF_VERBOSE ) {
-    fprintf(stderr, "mpf error -- Choose either one of --quiet or --verbose.\n");
+    mp_error_msg(func, "Choose either one of --quiet or --verbose.\n");
     return( ERR_ARG );
   }
 
@@ -631,8 +631,24 @@ int main( int argc, char **argv ) {
       exit( ERR_ARG );
   }
   
-  /* Load Mptk environnement */
-  MPTK_Env_c::get_env()->load_environment(configFileName);
+  /* Load the MPTK environment */
+  if(! (MPTK_Env_c::get_env()->load_environment(configFileName)) ) {
+	if (! (MPTK_Env_c::get_env()->get_environment_loaded()) ) {
+		mp_error_msg(func,"Could not load the MPTK environment.\n");
+		mp_info_msg(func,"The most common reason is a missing or erroneous MPTK_CONFIG_FILENAME variable.\n");
+		mp_info_msg("","The MPTK environment can be specified either by:\n");
+		mp_info_msg("","  a) setting the MPTK_CONFIG_FILENAME environment variable\n");
+		mp_info_msg("","     using e.g. 'setenv MPTK_CONFIG_FILENAME <path_to_config_file.xml>'\n");
+		mp_info_msg("","     in a shell terminal, or\n");
+		mp_info_msg("","     'setenv('MPTK_CONFIG_FILENAME','<path to configuration file.xml>')\n");
+		mp_info_msg("","      from the Matlab command line\n");
+		mp_info_msg("","  b) using the -C <path_to_configfile.xml> option in many MPTK command line utilities.\n");
+		exit(ERR_LOADENV);
+		}
+    }
+
+  
+  
   
   /* Load the book */
   if ( !strcmp( bookInName, "-" ) ) book = MP_Book_c::create( stdin );
@@ -646,8 +662,7 @@ int main( int argc, char **argv ) {
   	book = MP_Book_c::create( fid );}
   	
   	if ( book == NULL ) {
-      fprintf( stderr, "mpr error -- Can't create a new book.\n" );
-      fflush( stderr );
+      mp_error_msg( func, "Can't create a new book.\n" );
       return( ERR_BOOK );
   }
 
@@ -667,7 +682,7 @@ int main( int argc, char **argv ) {
 
   /* Allocate the mask */
   if ( (mask = MP_Mask_c::init( book->numAtoms )) == NULL ) {
-    fprintf( stderr, "mpf error -- Can't create a new mask with [%lu] elements.\n", book->numAtoms );
+    mp_error_msg(func,"Can't create a new mask with [%lu] elements.\n", book->numAtoms );
     return( ERR_MALLOC );
   }
   
@@ -687,9 +702,9 @@ int main( int argc, char **argv ) {
   }
 
   /* Report */
-  if ( !MPF_QUIET ) fprintf( stderr, "mpf msg -- Out of the [%lu] original atoms, [%lu] atoms satisfy the required properties.\n",
+  if ( !MPF_QUIET ) mp_info_msg( func, "Out of the [%lu] original atoms, [%lu] atoms satisfy the required properties.\n",
 			     book->numAtoms, numPositive );
-  if ( !MPF_QUIET ) fprintf( stderr, "mpf msg -- Out of the [%lu] original atoms, [%lu] atoms DO NOT satisfy the required properties.\n",
+  if ( !MPF_QUIET ) mp_info_msg( func,"Out of the [%lu] original atoms, [%lu] atoms DO NOT satisfy the required properties.\n",
 			     book->numAtoms, book->numAtoms - numPositive );
 
   /* Write the YES book */
@@ -697,11 +712,11 @@ int main( int argc, char **argv ) {
     if ( !strcmp( bookYesName, "-" ) ) {
       n = book->print( stdout, MP_TEXT, mask );
       fflush( stdout );
-      if ( MPF_VERBOSE ) fprintf( stderr, "mpf msg -- [%lu] atoms were written to stdout.\n", n );
+      if ( MPF_VERBOSE ) mp_info_msg( func, "[%lu] atoms were written to stdout.\n", n );
     }
     else {
       n = book->print( bookYesName, MP_BINARY, mask );
-      if ( MPF_VERBOSE ) fprintf( stderr, "mpf msg -- [%lu] atoms were written to file [%s].\n", n, bookYesName );
+      if ( MPF_VERBOSE ) mp_info_msg( func, "[%lu] atoms were written to file [%s].\n", n, bookYesName );
     }
   }
 
@@ -713,7 +728,7 @@ int main( int argc, char **argv ) {
     /* Write the book */
     n = book->print( bookNoName, MP_BINARY, mask );
     /* Report */
-    if ( MPF_VERBOSE ) fprintf( stderr, "mpf msg -- [%lu] atoms were written to file [%s].\n", n, bookNoName );
+    if ( MPF_VERBOSE ) mp_info_msg( func, "[%lu] atoms were written to file [%s].\n", n, bookNoName );
   }
 
   /* Clean the house */

@@ -4,7 +4,7 @@
 /*                                                                            */
 /*                        Matching Pursuit Utilities                          */
 /*                                                                            */
-/* Rémi Gribonval                                                             */
+/* RÃˆmi Gribonval                                                             */
 /* Sacha Krstulovic                                           Mon Feb 21 2005 */
 /* -------------------------------------------------------------------------- */
 /*                                                                            */
@@ -59,6 +59,7 @@ char* func = "mpr";
 #define ERR_SIG        4
 #define ERR_BUILD      5
 #define ERR_WRITE      6
+#define ERR_LOADENV    7
 
 /********************/
 /* Global variables */
@@ -272,8 +273,21 @@ int main( int argc, char **argv ) {
       exit( ERR_ARG );
   }
 
-  /* Load Mptk environnement */
-  MPTK_Env_c::get_env()->load_environment(configFileName);
+  /* Load the MPTK environment */
+  if(! (MPTK_Env_c::get_env()->load_environment(configFileName)) ) {
+	if (! (MPTK_Env_c::get_env()->get_environment_loaded()) ) {
+		mp_error_msg(func,"Could not load the MPTK environment.\n");
+		mp_info_msg(func,"The most common reason is a missing or erroneous MPTK_CONFIG_FILENAME variable.\n");
+		mp_info_msg("","The MPTK environment can be specified either by:\n");
+		mp_info_msg("","  a) setting the MPTK_CONFIG_FILENAME environment variable\n");
+		mp_info_msg("","     using e.g. 'setenv MPTK_CONFIG_FILENAME <path_to_config_file.xml>'\n");
+		mp_info_msg("","     in a shell terminal, or\n");
+		mp_info_msg("","     'setenv('MPTK_CONFIG_FILENAME','<path to configuration file.xml>')\n");
+		mp_info_msg("","      from the Matlab command line\n");
+		mp_info_msg("","  b) using the -C <path_to_configfile.xml> option in many MPTK command line utilities.\n");
+		exit(ERR_LOADENV);
+		}
+    }
   
   /* Report */
   if ( !MPR_QUIET ) {
