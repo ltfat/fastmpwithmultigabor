@@ -205,6 +205,13 @@ SET_TARGET_PROPERTIES(mptk4matlab PROPERTIES
     TARGET_LINK_LIBRARIES(mptk4matlab  mptk ${MATLAB_LIBRARIES} ${MATLAB_MEX_LIBRARY}) 
     ADD_DEPENDENCIES(mptk4matlab mptk) 
 
+INSTALL(TARGETS
+  mptk4matlab 
+ LIBRARY DESTINATION lib
+ ARCHIVE DESTINATION lib
+ RUNTIME DESTINATION lib
+)
+
 # List of mex files to be compiled and installed
 FOREACH(target getmptkinfo dictread dictwrite sigread sigwrite bookread bookwrite mprecons mpdecomp)
    ADD_CUSTOM_TARGET(matlab_${target} 
@@ -223,7 +230,7 @@ FOREACH(target getmptkinfo dictread dictwrite sigread sigwrite bookread bookwrit
     OUTPUT ${MPTK_MATLAB_OUTPUT_DIR}/${target}.${MEX_EXTENSION}
     POST_BUILD
     COMMAND   ${MEX_COMPILER} -v
-    ARGS      -O -DHAVE_FFTW3 -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${MPTK_SOURCE_DIR}/src/tinyxml/ -I/usr/include/ -I${MPTK_SOURCE_DIR} -I${MPTK_SOURCE_DIR}/src/libdsp_windows/ -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${FFTW3_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/ -I${MPTK_MATLAB_SRC_DIR}/classes/ -I${MPTK_MATLAB_SRC_DIR}/experimental/classes/ -I${MPTK_SOURCE_DIR}/src/plugin/base/ -I${MPTK_SOURCE_DIR}/src/plugin/contrib/lam/ ${MPTK_MATLAB_SRC_DIR}/${target}.cpp -L${MPTK_LIB_DIR} -lmptk -lmptk4matlab
+    ARGS      -O -DHAVE_FFTW3 -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${MPTK_SOURCE_DIR}/src/tinyxml/ -I/usr/include/ -I${MPTK_SOURCE_DIR} -I${MPTK_SOURCE_DIR}/src/libdsp_windows/ -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${FFTW3_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/ -I${MPTK_MATLAB_SRC_DIR}/classes/ -I${MPTK_MATLAB_SRC_DIR}/experimental/classes/ -I${MPTK_SOURCE_DIR}/src/plugin/base/ -I${MPTK_SOURCE_DIR}/src/plugin/contrib/lam/ ${MPTK_MATLAB_SRC_DIR}/${target}.cpp  -lmptk -lmptk4matlab
     COMMENT   "MEX")
 
     # Copy the MEX-wrapper

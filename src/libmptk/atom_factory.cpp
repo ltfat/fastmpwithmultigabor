@@ -101,21 +101,27 @@ MP_Atom_c*(*MP_Atom_Factory_c::get_atom_creator( const char* atomName ))(FILE *f
 /* Register new empty Atom create function in the hash map */
 void MP_Atom_Factory_c::register_new_atom(const char* nameplug, MP_Atom_c*(*createAtomFunctionPointer)(FILE *fid, const char mode))
 {
-
+  const char *func = "MP_Atom_Factory_c::register_new_atom()";
   if  (NULL == MP_Atom_Factory_c::get_atom_factory()->atom[nameplug])
     {
+        mp_debug_msg( MP_DEBUG_CONSTRUCTION, func, "Registering atom [%s].\n",nameplug );
       MP_Atom_Factory_c::get_atom_factory()->atom[nameplug] = createAtomFunctionPointer;
-    }
+    } else {
+    mp_debug_msg( MP_DEBUG_CONSTRUCTION, func, "Warning: trying to register atom [%s] which is already registered.\n",nameplug );
+  }
 }
 
 /* Register new Atom create function in the hash map */
 void MP_Atom_Factory_c::register_new_atom_empty(const char* nameplug, MP_Atom_c*(*createEmptyAtomFunctionPointer)( void ))
 {
-
+  const char *func = "MP_Atom_Factory_c::register_new_atom_empty()";
   if  (NULL == MP_Atom_Factory_c::get_atom_factory()->atom_empty[nameplug])
     {
+        mp_debug_msg( MP_DEBUG_CONSTRUCTION, func, "Registering atom [%s].\n",nameplug );
       MP_Atom_Factory_c::get_atom_factory()->atom_empty[nameplug] = createEmptyAtomFunctionPointer;
-    }
+    }else {
+    mp_debug_msg( MP_DEBUG_CONSTRUCTION, func, "Warning: trying to register atom [%s] which is already registered.\n",nameplug );
+  }
 }
 
 

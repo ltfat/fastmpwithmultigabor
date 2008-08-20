@@ -731,8 +731,11 @@ MP_Real_t MP_Gabor_Atom_Plugin_c::get_field( int field, MP_Chan_t chanIdx )
 
 DLL_EXPORT void registry(void)
 {
+  const char *func = "registry (gabor_atom_plugin.cpp)";
+  mp_debug_msg( MP_DEBUG_FUNC_ENTER, func, "Entering\n" );
   MP_Atom_Factory_c::get_atom_factory()->register_new_atom_empty("gabor",&MP_Gabor_Atom_Plugin_c::gabor_atom_create_empty);
   MP_Atom_Factory_c::get_atom_factory()->register_new_atom("gabor",&MP_Gabor_Atom_Plugin_c::create);
   MP_Atom_Factory_c::get_atom_factory()->register_new_atom_empty("harmonic",&MP_Harmonic_Atom_Plugin_c::harmonic_atom_create_empty);
   MP_Atom_Factory_c::get_atom_factory()->register_new_atom("harmonic",&MP_Harmonic_Atom_Plugin_c::create);
+  mp_debug_msg( MP_DEBUG_FUNC_EXIT, func, "Leaving\n" );
 }

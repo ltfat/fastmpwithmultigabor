@@ -43,6 +43,7 @@ void FoundMPTK4Matlab(void)
 
 /* The function to be called at the beginning of each mex file */
 void InitMPTK4Matlab(const char *functionName) {
+  const char *func = "InitMPTK4Matlab";
   /* Register the display functions */
   /* We could set a flag variable to do it only once */
     MPTK_Server_c::get_msg_server()->register_display_function("info_message_display", &msgfunc);
@@ -53,7 +54,9 @@ void InitMPTK4Matlab(const char *functionName) {
 	
     /* Load the MPTK environment if needed */
     if (! (MPTK_Env_c::get_env()->get_environment_loaded()) ) {
+      mp_debug_msg(MP_DEBUG_GENERAL,func,"The environment is not loaded, trying to load it ...\n");
 		if(! (MPTK_Env_c::get_env()->load_environment(NULL)) ) {
+      mp_debug_msg(MP_DEBUG_GENERAL,func," Could not load it!\n");
 			mexPrintf("%s error -- could not load the MPTK environment.\n",functionName);
 			mexPrintf("The most common reason is a missing or erroneous MPTK_CONFIG_FILENAME variable.\n");
 			mexPrintf("This environment variable can be set by typing\n");
@@ -61,5 +64,7 @@ void InitMPTK4Matlab(const char *functionName) {
 			mexPrintf(" from the Matlab command line\n");
 			mexErrMsgTxt("Aborting");
 		}
+      mp_debug_msg(MP_DEBUG_GENERAL,func," OK!\n");
     }
+    mp_debug_msg(MP_DEBUG_GENERAL,func," The environment is now loaded\n");
 }

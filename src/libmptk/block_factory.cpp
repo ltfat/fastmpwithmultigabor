@@ -89,12 +89,15 @@ void (*fillBlockMapDefaultFunctionPointer)(map< string, string, mp_ltstring> * p
 	
   if ((NULL!=blockName)&&(NULL == MP_Block_Factory_c::get_block_factory()->block[blockName]))
     {
+        mp_debug_msg( MP_DEBUG_CONSTRUCTION, func, "Registering block [%s].\n",blockName );
       MP_Block_Factory_c::block[blockName] = createBlockFunctionPointer;
       MP_Block_Factory_c::blockType[blockName] = fillBlockMapTypeFunctionPointer;
       MP_Block_Factory_c::blockInfo[blockName] = fillBlockMapInfoFunctionPointer;
       MP_Block_Factory_c::blockDefault[blockName]= fillBlockMapDefaultFunctionPointer;
     }
-	
+  else {
+    mp_debug_msg( MP_DEBUG_CONSTRUCTION, func, "Warning: trying to register block [%s] which is NULL or already registered.\n",blockName );
+  }
 	// Checks that all maps have the same number of elements
 	{
 		map<string, string, mp_ltstring>* defaultMap  = new map<string, string, mp_ltstring>();

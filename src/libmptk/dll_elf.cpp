@@ -59,15 +59,20 @@ bool MP_Dll_Manager_c::load_dll()
 		mp_debug_msg( MP_DEBUG_CONSTRUCTION, func, "Plug-in localisation: [%s].\n", directory);          	
 		if (MP_Dll_Manager_c::search_library(dllVectorName,directory)) {
 			// Loop on found shared libs 
+		  mp_debug_msg( MP_DEBUG_CONSTRUCTION, func, "Found %d plug-ins.\n", dllVectorName->size());	
 			for (unsigned int k = 0; k < dllVectorName->size(); k++) {
+			  const char *plugin = (*dllVectorName)[k].c_str();
+			        mp_debug_msg( MP_DEBUG_CONSTRUCTION, func, "Trying to load plug-in: [%s].\n",plugin );
 				MP_Dll_Manager_c::get_dll((*dllVectorName)[k].c_str());
 				if ( last_error()==0 ) {
 					void (*c)(void) = NULL;
+			        mp_debug_msg( MP_DEBUG_CONSTRUCTION, func, "Trying to retrieve registry function.\n");
 					if (MP_Dll_Manager_c::get_symbol((void **)&c,"registry")) {
 						// test if plugin has the symbol "registry"
 						if (NULL!=c) {
-							// Register the plugin in the concerned factory
-							c();
+						  // Register the plugin in the concerned factory
+						  mp_debug_msg( MP_DEBUG_CONSTRUCTION, func, "Executing registry function %p.\n", c);
+						  c();
 						} else {
 							mp_warning_msg( func,"No registry function in '%s' shared library; \n",
 											(*dllVectorName)[k].c_str());
