@@ -53,10 +53,45 @@ int main( int argc, char ** argv ) {
   double precision = 0;
   char *p;
   
+  /*Parse parameters*/
+  /*Parse parameters*/
+
+  if (argc == 2)
+    {
+      /*Default value */
+      numIter = 10;
+      precision = 0.0001;
+    }
+  else
+    {
+      if (argc == 4)
+        {
+          numIter= strtoul(argv[2], &p, 0);
+          if ( (p == argv[2]) || (*p != 0) )
+            {
+              mp_error_msg( func, "Failed to convert argument [%s] to a unsigned long int value.\n",
+                            argv[2] );
+              return( -1 );
+            }
+          precision = strtod(argv[3], &p);
+          if ( (p == argv[3]) || (*p != 0) )
+            {
+              mp_error_msg( func, "Failed to convert argument [%s] to a unsigned long int value.\n",
+                            argv[3] );
+              return( -1 );
+            }
+         
+        }
+      else{ mp_error_msg( func, "Bad Number of arguments, test_mp require configFile as first argument, and optional (number of iteration and precision) as argument in unsigned long int and double.\n");
+    return( -1 );}
+    }
+
   
+  char *configFile = argv[1];
+
   /* Set environement */
   /* Load the MPTK environment */
-  if(! (MPTK_Env_c::get_env()->load_environment(configFileName)) ) {
+  if(! (MPTK_Env_c::get_env()->load_environment(configFile)) ) {
 	if (! (MPTK_Env_c::get_env()->get_environment_loaded()) ) {
 		mp_error_msg(func,"Could not load the MPTK environment.\n");
 		mp_info_msg(func,"The most common reason is a missing or erroneous MPTK_CONFIG_FILENAME variable.\n");
@@ -72,43 +107,18 @@ int main( int argc, char ** argv ) {
     }
   
   
-  /*Parse parameters*/
-  /*Parse parameters*/
 
-  if (argc == 1)
-    {
-      /*Default value */
-      numIter = 10;
-      precision = 0.0001;
-    }
-  else
-    {
-      if (argc == 3)
-        {
-          numIter= strtoul(argv[1], &p, 0);
-          if ( (p == argv[1]) || (*p != 0) )
-            {
-              mp_error_msg( func, "Failed to convert argument [%s] to a unsigned long int value.\n",
-                            argv[1] );
-              return( -1 );
-            }
-          precision = strtod(argv[2], &p);
-          if ( (p == argv[1]) || (*p != 0) )
-            {
-              mp_error_msg( func, "Failed to convert argument [%s] to a unsigned long int value.\n",
-                            argv[1] );
-              return( -1 );
-            }
-         
-        }
-      else{ mp_error_msg( func, "Bad Number of arguments, test_mp require number of iteration and precision as argument in unsigned long int and double.\n");
-    return( -1 );}
-    }
 
-  
+
+
     /*************************/
+  const char *refdir = MPTK_Env_c::get_env()->get_config_path("reference");
+  if(NULL==refdir) {
+    mp_error_msg(func,"Cannot retrieve reference directory\n");
+    exit(-1);
+  }
   /* Read signal form file */
-  strAppDirectory = MPTK_Env_c::get_env()->get_config_path("reference");
+  strAppDirectory = string(refdir);
   strAppDirectory += "/signal/glockenspiel.wav";
   sigref = MP_Signal_c::init( strAppDirectory.c_str() );
   sigtest = MP_Signal_c::init( strAppDirectory.c_str() );
@@ -124,8 +134,7 @@ int main( int argc, char ** argv ) {
   
   /**************************/
   /* Build a new dictionary */
-  
-  strAppDirectory = MPTK_Env_c::get_env()->get_config_path("reference");
+  strAppDirectory = string(refdir);
   strAppDirectory += "/dictionary/dico_test.xml";
   
   dico = MP_Dict_c::init( strAppDirectory.c_str());

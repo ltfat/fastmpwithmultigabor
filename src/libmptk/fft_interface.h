@@ -54,9 +54,6 @@
  */
 #define MP_MAGNITUDE_IS_SQUARED
 
-/** \brief The tolerance for inexact energy preservation in FFT \sa test()*/
-#define MP_FFT_TEST_PRECISION 1e-15
-
 /* Inheritance graph: all the interfaces inherit from
    the generic interface (MP_FFT_Interface_c):
 

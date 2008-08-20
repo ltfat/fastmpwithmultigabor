@@ -139,11 +139,18 @@ SET(BUILDVERSION \"${BUILDVERSION_MAJOR}.${BUILDVERSION_MINOR}.${BUILDVERSION_PA
 
 #Define the target for install
 
-SET(MPTK_FTTW_WISDOM_FILE ${MPTK_BINARY_DIR}/mptk/default_fftw_wisdom_file)
-SET(MPTK_FTTW_WISDOM_FILE_INSTALL ${CMAKE_INSTALL_PREFIX}/mptk/default_fftw_wisdom_file)
+SET(MPTK_FFTW_WISDOM_FILE ${MPTK_BINARY_DIR}/mptk/default_fftw_wisdom_file)
+SET(MPTK_FFTW_WISDOM_FILE_INSTALL ${CMAKE_INSTALL_PREFIX}/mptk/default_fftw_wisdom_file)
 SET(MPTK_REFERENCE_PATH ${MPTK_BINARY_DIR}/mptk/reference)
 SET(MPTK_REFERENCE_PATH_INSTALL ${CMAKE_INSTALL_PREFIX}/mptk/reference)
 
+IF(UNIX)
+SET(MPTK_TMP_PATH /tmp)
+ELSE(UNIX)
+IF(WIN32)
+SET(MPTK_TMP_PATH C:\Temp)
+ENDIF(WIN32)
+ENDIF(UNIX)
 #
 # DEFAULT REFERENCE FILES
 #
@@ -169,11 +176,14 @@ ENDFOREACH(default)
 # EXAMPLE REFERENCE FILES
 SET(MPTK_EXAMPLE_BOOK_FILENAME book/exampleBook.bin)
 SET(MPTK_EXAMPLE_SIGNAL_FILENAME signal/glockenspiel.wav)
+SET(MPTK_EXAMPLE_STEREOSIGNAL_FILENAME signal/mix_58_stereo.wav)
 
-FOREACH(example BOOK SIGNAL)
+FOREACH(example BOOK SIGNAL STEREOSIGNAL)
 	SET(MPTK_EXAMPLE_${example}_FILE          ${MPTK_REFERENCE_PATH}/${MPTK_EXAMPLE_${example}_FILENAME})
 	SET(MPTK_EXAMPLE_${example}_FILE_INSTALL  ${MPTK_REFERENCE_PATH_INSTALL}/${MPTK_EXAMPLE_${example}_FILENAME})
+	# Copy in the build directory
 	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/${MPTK_EXAMPLE_${example}_FILENAME} ${MPTK_EXAMPLE_${example}_FILE} COPYONLY)
+	# Copy in the pre-install directory
 	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/${MPTK_EXAMPLE_${example}_FILENAME}  ${MPTK_BINARY_DIR}/install/mptk/reference/${MPTK_EXAMPLE_${example}_FILENAME} COPYONLY)
 ENDFOREACH(example)
 
@@ -184,14 +194,6 @@ FOREACH(default DICT_LIST ANYWAVETABLE ANYWAVEDICT)
 	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/${MPTK_DEFAULT_${default}_FILENAME}.in ${MPTK_DEFAULT_${default}_FILE} @ONLY)
 	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/${MPTK_DEFAULT_${default}_FILENAME}.install ${MPTK_BINARY_DIR}/install/mptk/reference/${MPTK_DEFAULT_${default}_FILENAME} @ONLY)
 ENDFOREACH(default)
-
-
-
-# TEST FILES, redundant with defaults ?
-SET(MPTK_ANYWAVE_TEST_TABLE_BIN ${MPTK_REFERENCE_PATH}/signal/anywave_table_data.bin)
-SET(MPTK_ANYWAVE_TEST_TABLE ${MPTK_REFERENCE_PATH}/dictionary/anywave_table.xml)
-SET(MPTK_ANYWAVE_TEST_TABLE_BIN ${MPTK_REFERENCE_PATH}/signal/anywave_table_data.bin)
-
 
 # Depending on compiler+IDE (Make/Xcode/Visual), need to specify postfix for build type
 #--------------------------------------------------------------------------------------
@@ -277,15 +279,10 @@ INCLUDE_DIRECTORIES(/usr/include
 					${MPTK_BINARY_DIR} 
 					${PTHREAD_INCLUDE_DIR} 
 					${LIBMPTK_INCLUDE_DIR}  
-					${PORTAUDIO_INCLUDE_DIR} 
 					${MPTK_BINARY_DIR}/src/libmptk/ 
 					${LIBDSP_INCLUDE_DIR} 
 					${FFTW3_INCLUDE_DIR} 
 					${SNDFILE_INCLUDE_DIR} 
-					${wxWidgets_INCLUDE_DIRS} 
-					${MPTK_BINARY_DIR}/src/gui/Qt 
-					${QT_INCLUDE_DIR} 
-					${QT_INCLUDE_PATH}
 					)
 #-----------------------------------------------------------------------------
 ##Platform configuration tests.
@@ -328,11 +325,6 @@ INCLUDE(${MPTK_SOURCE_DIR}/CMake/CMakeGenerateMPTKHeader.cmake)
 # Commented includes might be included twice with recursive include of src
 #
 #
-#ADD_SUBDIRECTORY(${MPTK_SOURCE_DIR}/src/libmptk)
-#ADD_SUBDIRECTORY(${MPTK_SOURCE_DIR}/src/libdsp_windows)
-#IF(BUILD_GUI)
-#ADD_SUBDIRECTORY(${MPTK_SOURCE_DIR}/src/gui)
-#ENDIF(BUILD_GUI)
 IF(BUILD_DOCUMENTATION)
 ADD_SUBDIRECTORY(${MPTK_SOURCE_DIR}/doc)
 ENDIF(BUILD_DOCUMENTATION)
@@ -474,16 +466,16 @@ INCLUDE(CTest)
 INCLUDE(CTestConfig.cmake)
 # TEST with CTest:
 SET(CMAKE_CXX_FLAGS "-fprofile-arcs -ftest-coverage  ${CMAKE_CXX_FLAGS}") 
-ADD_TEST(FFT, ${MPTK_BINARY_DIR}/bin/test_fft)
+ADD_TEST(FFT, ${MPTK_BINARY_DIR}/bin/test_fft ${MPTK_BINARY_DIR}/mptk/path.xml)
 ADD_TEST(PARABOLIC_REGRESSION, ${MPTK_BINARY_DIR}/bin/test_parabolic_regression)
-ADD_TEST(BEHAVIOUR_IN_NOISE, ${MPTK_BINARY_DIR}/bin/test_behaviour_in_noise)
-ADD_TEST(MPD, ${MPTK_BINARY_DIR}/bin/mpd -C ${MPTK_BINARY_DIR}/bin/path.xml -D ${MPTK_DEFAULT_DICT_FILE} -n 10 -q ${MPTK_REFERENCE_PATH}/signal/glockenspiel.wav ${MPTK_REFERENCE_PATH}/signal/test.bin)
-ADD_TEST(MPDANYWAVE, ${MPTK_BINARY_DIR}/bin/mpd -C ${MPTK_BINARY_DIR}/bin/path.xml -D ${MPTK_REFERENCE_PATH}/dictionary/dic_anywave.xml -n 10 -q ${MPTK_REFERENCE_PATH}/signal/anywave_signal.wav ${MPTK_REFERENCE_PATH}/signal/test_anywave.bin)
-ADD_TEST(MPR, ${MPTK_BINARY_DIR}/bin/mpr -C ${MPTK_BINARY_DIR}/bin/path.xml ${MPTK_REFERENCE_PATH}/signal/test.bin ${MPTK_REFERENCE_PATH}/signal/test.wav)
-ADD_TEST(MPF, ${MPTK_BINARY_DIR}/bin/mpf -C ${MPTK_BINARY_DIR}/bin/path.xml --Freq=[0:110] --len=[0:256] ${MPTK_REFERENCE_PATH}/signal/test.bin ${MPTK_REFERENCE_PATH}/signal/booktestYes.bin ${MPTK_REFERENCE_PATH}/signal/booktestNo.bin)
-ADD_TEST(TEST_MP, ${MPTK_BINARY_DIR}/bin/test_mp)
-ADD_TEST(ANYWAVE, ${MPTK_BINARY_DIR}/bin/test_anywave ${MPTK_REFERENCE_PATH}/signal/anywave_signal.wav ${MPTK_REFERENCE_PATH}/dictionary/anywave_table.xml ${MPTK_REFERENCE_PATH}/dictionary/dico_test_anywave.xml)
-ADD_TEST(MPD_DEMIX, ${MPTK_BINARY_DIR}/bin/mpd_demix -C ${MPTK_BINARY_DIR}/bin/path.xml -D ${MPTK_DEFAULT_DICT_LIST_FILE} -M ${MPTK_REFERENCE_PATH}/mixer/mix_58_mixer.txt -n 10 -q ${MPTK_REFERENCE_PATH}/signal/mix_58_stereo.wav ${MPTK_REFERENCE_PATH}/signal/test_demix.bin)
+ADD_TEST(BEHAVIOUR_IN_NOISE, ${MPTK_BINARY_DIR}/bin/test_behaviour_in_noise  ${MPTK_BINARY_DIR}/mptk/path.xml)
+ADD_TEST(MPD, ${MPTK_BINARY_DIR}/bin/mpd -C ${MPTK_BINARY_DIR}/mptk/path.xml -D ${MPTK_DEFAULT_DICT_FILE} -n 10 -q ${MPTK_REFERENCE_PATH}/signal/glockenspiel.wav ${MPTK_TMP_PATH}/test_mpd.bin)
+ADD_TEST(MPDANYWAVE, ${MPTK_BINARY_DIR}/bin/mpd -C ${MPTK_BINARY_DIR}/mptk/path.xml -D ${MPTK_DEFAULT_ANYWAVEDICT_FILE} -n 10 -q ${MPTK_REFERENCE_PATH}/signal/anywave_signal.wav ${MPTK_TMP_PATH}/test_mpdanywave.bin)
+ADD_TEST(MPR, ${MPTK_BINARY_DIR}/bin/mpr -C ${MPTK_BINARY_DIR}/mptk/path.xml ${MPTK_EXAMPLE_BOOK_FILE} ${MPTK_TMP_PATH}/test_mpr.wav)
+ADD_TEST(MPF, ${MPTK_BINARY_DIR}/bin/mpf -C ${MPTK_BINARY_DIR}/mptk/path.xml --Freq=[0:110] --len=[0:256] ${MPTK_EXAMPLE_BOOK_FILE} ${MPTK_TMP_PATH}/test_mpf_bookYes.bin ${MPTK_TMP_PATH}/test_mpf_bookNo.bin)
+ADD_TEST(TEST_MP, ${MPTK_BINARY_DIR}/bin/test_mp  ${MPTK_BINARY_DIR}/mptk/path.xml)
+ADD_TEST(ANYWAVE, ${MPTK_BINARY_DIR}/bin/test_anywave ${MPTK_REFERENCE_PATH}/signal/anywave_signal.wav ${MPTK_DEFAULT_ANYWAVETABLE_FILE} ${MPTK_DEFAULT_ANYWAVEDICT_FILE})
+ADD_TEST(MPD_DEMIX, ${MPTK_BINARY_DIR}/bin/mpd_demix -C ${MPTK_BINARY_DIR}/mptk/path.xml -D ${MPTK_DEFAULT_DICT_LIST_FILE} -M ${MPTK_DEFAULT_MIXER_FILE} -n 10 -q ${MPTK_EXAMPLE_STEREOSIGNAL_FILE} ${MPTK_TMP_PATH}/test_demix.bin)
 
 #You can add tests in the project corresponding to the test executable SimpleTest file using ADD_TEST command:
 #ADD_TEST(SimpleTest ${MPTK_BINARY_DIR}/bin/SimpleTest Hello)

@@ -53,39 +53,38 @@
 
 int main(int argc, char ** argv)
 {
-  double presicion = 0.0;
+  double precision = 0.0;
   char *p;
-  char* func = "test_fft";
+  const char* func = "test_fft";
 
-  if (argc == 1) presicion = MP_FFT_TEST_PRECISION;
-  else
-    {
-      if (argc == 2)
-        {
-          presicion = strtod(argv[1], &p);
-          if ( (p == argv[1]) || (*p != 0) )
-            {
-              mp_error_msg( func, "Failed to convert argument [%s] to a double value.\n",
-                            argv[1] );
-              return( -1 );
-            }
-        }
-      else mp_error_msg( func, "Bad Number of arguments, test_fft require precision as argument in double.\n"
-                         );
+  if (argc == 2) 
+    precision = MP_FFT_TEST_PRECISION;
+  else {
+    if (argc == 3) {
+      precision = strtod(argv[2], &p);
+      if ( (p == argv[2]) || (*p != 0) ) {
+	mp_error_msg( func, "Failed to convert argument [%s] to a double value.\n",
+		      argv[2] );
+	exit( -1 );
+      }
     }
+    else {
+      mp_error_msg( func, "Bad Number of arguments %d, test_fft require configFile as first argument and precision as second argument in double.\n",argc);
+      exit(-1);
+      }
+  }
 
-
+  char *configFile = argv[1];
   MP_Real_t in[MAX_SIZE];
   MP_Real_t   mag_out[OUT_SIZE];
   FILE *fid;
   unsigned long int i;
-  const char *configFileName = NULL;
-  std::string strAppDirectory;
+  std::string strInFile,strOutFile;
   bool testpassed= true;
   mp_info_msg( func, "--------------------------------------\n" );
   mp_info_msg( func, "TEST FFT - TESTING FFT FUNCTIONALITIES\n" );
   mp_info_msg( func, "--------------------------------------\n" );
-  mp_info_msg( func, "Test FFT with [%g] double precision.\n",presicion);
+  mp_info_msg( func, "Test FFT with [%g] double precision.\n",precision);
 
   /* Creates the signal */
   for (i=0; i < MAX_SIZE; i++)
@@ -93,54 +92,55 @@ int main(int argc, char ** argv)
       in[i] = ( MP_Real_t) rand();
     }
 
-  if ( MP_FFT_Interface_c::test(presicion,2,DSP_RECTANGLE_WIN, 0.0, in) ==1 )testpassed= false;
-  if ( MP_FFT_Interface_c::test(presicion,4,DSP_RECTANGLE_WIN, 0.0, in) ==1 )testpassed= false;
-  if ( MP_FFT_Interface_c::test(presicion,8,DSP_RECTANGLE_WIN, 0.0,in) ==1 )testpassed= false;
-  if ( MP_FFT_Interface_c::test(presicion,16,DSP_RECTANGLE_WIN, 0.0,in) ==1 )testpassed= false;
-  if ( MP_FFT_Interface_c::test(presicion,32,DSP_RECTANGLE_WIN, 0.0,in) ==1 )testpassed= false;
-  if ( MP_FFT_Interface_c::test(presicion,64,DSP_RECTANGLE_WIN, 0.0,in) ==1 )testpassed= false;
-  if ( MP_FFT_Interface_c::test(presicion,128,DSP_RECTANGLE_WIN, 0.0,in) ==1 )testpassed= false;
-  if ( MP_FFT_Interface_c::test(presicion,256,DSP_RECTANGLE_WIN, 0.0,in) ==1 )testpassed= false;
-  if ( MP_FFT_Interface_c::test(presicion,512,DSP_RECTANGLE_WIN, 0.0,in) ==1 )testpassed= false;
-  if ( MP_FFT_Interface_c::test(presicion,1024,DSP_RECTANGLE_WIN, 0.0,in) ==1 )testpassed= false;
-  if ( MP_FFT_Interface_c::test(presicion,2048,DSP_RECTANGLE_WIN, 0.0,in) ==1 )testpassed= false;
-  if ( MP_FFT_Interface_c::test(presicion,4096,DSP_RECTANGLE_WIN, 0.0,in) ==1 )testpassed= false;
-  if ( MP_FFT_Interface_c::test(presicion,8192,DSP_RECTANGLE_WIN, 0.0,in) ==1 )testpassed= false;
+  if ( MP_FFT_Interface_c::test(precision,2,DSP_RECTANGLE_WIN, 0.0, in) ==1 )testpassed= false;
+  if ( MP_FFT_Interface_c::test(precision,4,DSP_RECTANGLE_WIN, 0.0, in) ==1 )testpassed= false;
+  if ( MP_FFT_Interface_c::test(precision,8,DSP_RECTANGLE_WIN, 0.0,in) ==1 )testpassed= false;
+  if ( MP_FFT_Interface_c::test(precision,16,DSP_RECTANGLE_WIN, 0.0,in) ==1 )testpassed= false;
+  if ( MP_FFT_Interface_c::test(precision,32,DSP_RECTANGLE_WIN, 0.0,in) ==1 )testpassed= false;
+  if ( MP_FFT_Interface_c::test(precision,64,DSP_RECTANGLE_WIN, 0.0,in) ==1 )testpassed= false;
+  if ( MP_FFT_Interface_c::test(precision,128,DSP_RECTANGLE_WIN, 0.0,in) ==1 )testpassed= false;
+  if ( MP_FFT_Interface_c::test(precision,256,DSP_RECTANGLE_WIN, 0.0,in) ==1 )testpassed= false;
+  if ( MP_FFT_Interface_c::test(precision,512,DSP_RECTANGLE_WIN, 0.0,in) ==1 )testpassed= false;
+  if ( MP_FFT_Interface_c::test(precision,1024,DSP_RECTANGLE_WIN, 0.0,in) ==1 )testpassed= false;
+  if ( MP_FFT_Interface_c::test(precision,2048,DSP_RECTANGLE_WIN, 0.0,in) ==1 )testpassed= false;
+  if ( MP_FFT_Interface_c::test(precision,4096,DSP_RECTANGLE_WIN, 0.0,in) ==1 )testpassed= false;
+  if ( MP_FFT_Interface_c::test(precision,8192,DSP_RECTANGLE_WIN, 0.0,in) ==1 )testpassed= false;
 
-  if ( MP_FFT_Interface_c::test(presicion,2,DSP_HAMMING_WIN, 0.0, in) ==1 )testpassed= false;
-  if ( MP_FFT_Interface_c::test(presicion,4,DSP_HAMMING_WIN, 0.0, in) ==1 )testpassed= false;
-  if ( MP_FFT_Interface_c::test(presicion,8,DSP_HAMMING_WIN, 0.0,in) ==1 )testpassed= false;
-  if ( MP_FFT_Interface_c::test(presicion,16,DSP_HAMMING_WIN, 0.0,in) ==1 )testpassed= false;
-  if ( MP_FFT_Interface_c::test(presicion,32,DSP_HAMMING_WIN, 0.0,in) ==1 )testpassed= false;
-  if ( MP_FFT_Interface_c::test(presicion,64,DSP_HAMMING_WIN, 0.0,in) ==1 )testpassed= false;
-  if ( MP_FFT_Interface_c::test(presicion,128,DSP_HAMMING_WIN, 0.0,in) ==1 )testpassed= false;
-  if ( MP_FFT_Interface_c::test(presicion,256,DSP_HAMMING_WIN, 0.0,in) ==1 )testpassed= false;
-  if ( MP_FFT_Interface_c::test(presicion,512,DSP_HAMMING_WIN, 0.0,in) ==1 )testpassed= false;
-  if ( MP_FFT_Interface_c::test(presicion,1024,DSP_HAMMING_WIN, 0.0,in) ==1 )testpassed= false;
-  if ( MP_FFT_Interface_c::test(presicion,2048,DSP_HAMMING_WIN, 0.0,in) ==1 )testpassed= false;
-  if ( MP_FFT_Interface_c::test(presicion,4096,DSP_HAMMING_WIN, 0.0,in) ==1 )testpassed= false;
-  if ( MP_FFT_Interface_c::test(presicion,8192,DSP_HAMMING_WIN, 0.0,in) ==1 )testpassed= false;
+  if ( MP_FFT_Interface_c::test(precision,2,DSP_HAMMING_WIN, 0.0, in) ==1 )testpassed= false;
+  if ( MP_FFT_Interface_c::test(precision,4,DSP_HAMMING_WIN, 0.0, in) ==1 )testpassed= false;
+  if ( MP_FFT_Interface_c::test(precision,8,DSP_HAMMING_WIN, 0.0,in) ==1 )testpassed= false;
+  if ( MP_FFT_Interface_c::test(precision,16,DSP_HAMMING_WIN, 0.0,in) ==1 )testpassed= false;
+  if ( MP_FFT_Interface_c::test(precision,32,DSP_HAMMING_WIN, 0.0,in) ==1 )testpassed= false;
+  if ( MP_FFT_Interface_c::test(precision,64,DSP_HAMMING_WIN, 0.0,in) ==1 )testpassed= false;
+  if ( MP_FFT_Interface_c::test(precision,128,DSP_HAMMING_WIN, 0.0,in) ==1 )testpassed= false;
+  if ( MP_FFT_Interface_c::test(precision,256,DSP_HAMMING_WIN, 0.0,in) ==1 )testpassed= false;
+  if ( MP_FFT_Interface_c::test(precision,512,DSP_HAMMING_WIN, 0.0,in) ==1 )testpassed= false;
+  if ( MP_FFT_Interface_c::test(precision,1024,DSP_HAMMING_WIN, 0.0,in) ==1 )testpassed= false;
+  if ( MP_FFT_Interface_c::test(precision,2048,DSP_HAMMING_WIN, 0.0,in) ==1 )testpassed= false;
+  if ( MP_FFT_Interface_c::test(precision,4096,DSP_HAMMING_WIN, 0.0,in) ==1 )testpassed= false;
+  if ( MP_FFT_Interface_c::test(precision,8192,DSP_HAMMING_WIN, 0.0,in) ==1 )testpassed= false;
 
-  if ( MP_FFT_Interface_c::test(presicion,2,DSP_EXPONENTIAL_WIN, 0.0, in) ==1 )testpassed= false;
-  if ( MP_FFT_Interface_c::test(presicion,4,DSP_EXPONENTIAL_WIN, 0.0, in) ==1 )testpassed= false;
-  if ( MP_FFT_Interface_c::test(presicion,8,DSP_EXPONENTIAL_WIN, 0.0,in) ==1 )testpassed= false;
-  if ( MP_FFT_Interface_c::test(presicion,16,DSP_EXPONENTIAL_WIN, 0.0,in) ==1 )testpassed= false;
-  if ( MP_FFT_Interface_c::test(presicion,32,DSP_EXPONENTIAL_WIN, 0.0,in) ==1 )testpassed= false;
-  if ( MP_FFT_Interface_c::test(presicion,64,DSP_EXPONENTIAL_WIN, 0.0,in) ==1 )testpassed= false;
-  if ( MP_FFT_Interface_c::test(presicion,128,DSP_EXPONENTIAL_WIN, 0.0,in) ==1 )testpassed= false;
-  if ( MP_FFT_Interface_c::test(presicion,256,DSP_EXPONENTIAL_WIN, 0.0,in) ==1 )testpassed= false;
-  if ( MP_FFT_Interface_c::test(presicion,512,DSP_EXPONENTIAL_WIN, 0.0,in) ==1 )testpassed= false;
-  if ( MP_FFT_Interface_c::test(presicion,1024,DSP_EXPONENTIAL_WIN, 0.0,in) ==1 )testpassed= false;
-  if ( MP_FFT_Interface_c::test(presicion,2048,DSP_EXPONENTIAL_WIN, 0.0,in) ==1 )testpassed= false;
-  if ( MP_FFT_Interface_c::test(presicion,4096,DSP_EXPONENTIAL_WIN, 0.0,in) ==1 )testpassed= false;
-  if ( MP_FFT_Interface_c::test(presicion,8192,DSP_EXPONENTIAL_WIN, 0.0,in) ==1 )testpassed= false;
+  if ( MP_FFT_Interface_c::test(precision,2,DSP_EXPONENTIAL_WIN, 0.0, in) ==1 )testpassed= false;
+  if ( MP_FFT_Interface_c::test(precision,4,DSP_EXPONENTIAL_WIN, 0.0, in) ==1 )testpassed= false;
+  if ( MP_FFT_Interface_c::test(precision,8,DSP_EXPONENTIAL_WIN, 0.0,in) ==1 )testpassed= false;
+  if ( MP_FFT_Interface_c::test(precision,16,DSP_EXPONENTIAL_WIN, 0.0,in) ==1 )testpassed= false;
+  if ( MP_FFT_Interface_c::test(precision,32,DSP_EXPONENTIAL_WIN, 0.0,in) ==1 )testpassed= false;
+  if ( MP_FFT_Interface_c::test(precision,64,DSP_EXPONENTIAL_WIN, 0.0,in) ==1 )testpassed= false;
+  if ( MP_FFT_Interface_c::test(precision,128,DSP_EXPONENTIAL_WIN, 0.0,in) ==1 )testpassed= false;
+  if ( MP_FFT_Interface_c::test(precision,256,DSP_EXPONENTIAL_WIN, 0.0,in) ==1 )testpassed= false;
+  if ( MP_FFT_Interface_c::test(precision,512,DSP_EXPONENTIAL_WIN, 0.0,in) ==1 )testpassed= false;
+  if ( MP_FFT_Interface_c::test(precision,1024,DSP_EXPONENTIAL_WIN, 0.0,in) ==1 )testpassed= false;
+  if ( MP_FFT_Interface_c::test(precision,2048,DSP_EXPONENTIAL_WIN, 0.0,in) ==1 )testpassed= false;
+  if ( MP_FFT_Interface_c::test(precision,4096,DSP_EXPONENTIAL_WIN, 0.0,in) ==1 )testpassed= false;
+  if ( MP_FFT_Interface_c::test(precision,8192,DSP_EXPONENTIAL_WIN, 0.0,in) ==1 )testpassed= false;
 
 
   /* Load the MPTK environment */
-  if(! (MPTK_Env_c::get_env()->load_environment(configFileName)) ) {
+  if(! (MPTK_Env_c::get_env()->load_environment(configFile)) ) {
 	if (! (MPTK_Env_c::get_env()->get_environment_loaded()) ) {
 		mp_error_msg(func,"Could not load the MPTK environment.\n");
 		mp_info_msg(func,"The most common reason is a missing or erroneous MPTK_CONFIG_FILENAME variable.\n");
+		mp_info_msg(func,"The current value is MPTK_CONFIG_FILENAME = [%s].\n",MPTK_Env_c::get_env()->get_configuration_file());
 		mp_info_msg("","The MPTK environment can be specified either by:\n");
 		mp_info_msg("","  a) setting the MPTK_CONFIG_FILENAME environment variable\n");
 		mp_info_msg("","     using e.g. 'setenv MPTK_CONFIG_FILENAME <path_to_config_file.xml>'\n");
@@ -152,6 +152,18 @@ int main(int argc, char ** argv)
 		}
     }
 
+  /* Retrieve reference/tmp directory */
+  const char *refdir = MPTK_Env_c::get_env()->get_config_path("reference");
+  if(NULL==refdir) {
+    mp_error_msg(func,"Cannot retrieve reference directory\n");
+    exit(-1);
+  } 
+  const char *tmpdir = MPTK_Env_c::get_env()->get_config_path("tmp");
+  if(NULL==tmpdir) {
+    mp_error_msg(func,"Cannot retrieve tmp directory\n");
+    exit(-1);
+  } 
+  
   /*
    * 1/ FFT computation with internally computed window 
    */
@@ -162,22 +174,23 @@ int main(int argc, char ** argv)
     myFFT->exec_mag( in, mag_out );
 
     /* Output to files */
-    strAppDirectory = MPTK_Env_c::get_env()->get_config_path("reference");
-    strAppDirectory += "/signal/window_out.dbl";
-    if ( ( fid = fopen(strAppDirectory.c_str(),"w") ) == NULL )
+    strOutFile = string(tmpdir);
+    strOutFile += "/window_out.dbl";
+    if ( ( fid = fopen(strOutFile.c_str(),"w") ) == NULL )
       {
         mp_error_msg( func, "Can't open file [%s] in write mode.\n",
-                      "signal/window_out.dbl" );
+                      strOutFile.c_str() );
         exit(-1);
       }
     mp_fwrite( myFFT->window, sizeof(Dsp_Win_t), WIN_SIZE, fid );
     fclose(fid);
-    strAppDirectory = MPTK_Env_c::get_env()->get_config_path("reference");
-    strAppDirectory += "/signal/magnitude_out.dbl";
-    if ( ( fid = fopen(strAppDirectory.c_str(),"w") ) == NULL )
+    
+    strOutFile = string(tmpdir);
+    strOutFile += "/magnitude_out.dbl";
+    if ( ( fid = fopen(strOutFile.c_str(),"w") ) == NULL )
       {
         mp_error_msg( func, "Can't open file [%s] in write mode.\n",
-                      "signal/magnitude_out.dbl" );
+                      strOutFile.c_str() );
         exit(-1);
       }
     mp_fwrite( mag_out, sizeof(MP_Real_t), OUT_SIZE, fid );
@@ -201,30 +214,30 @@ int main(int argc, char ** argv)
     MP_FFT_Interface_c * fft = MP_FFT_Interface_c::init( 256, DSP_HAMMING_WIN, 0.0, 512 );
     if (fft != NULL)
       {
-        strAppDirectory = MPTK_Env_c::get_env()->get_config_path("reference");
-        strAppDirectory += "/signal/2_cosines.flt";
-        if ( ( fid = fopen(strAppDirectory.c_str(),"r") ) == NULL )
+        strInFile = string(refdir);
+        strInFile += "/signal/2_cosines.flt";
+        if ( ( fid = fopen(strInFile.c_str(),"r") ) == NULL )
           {
             mp_error_msg( func, "Can't open file [%s] in read mode.\n",
-                          "signal/2_cosines.flt" );
+                          strInFile.c_str() );
             exit(-1);
           }
         mp_fread( buffer, sizeof(float), 256, fid );
         fclose(fid);
         fft->exec_mag( buffer, magbuf);
-        strAppDirectory = MPTK_Env_c::get_env()->get_config_path("reference");
-        strAppDirectory += "/signal/out_two_peaks.dbl";
-        if ( ( fid = fopen(strAppDirectory.c_str(),"w") ) == NULL )
+        strOutFile = string(tmpdir);
+        strOutFile += "/out_two_peaks.dbl";
+        if ( ( fid = fopen(strOutFile.c_str(),"w") ) == NULL )
           {
             mp_error_msg( func, "Can't open file [%s] in write mode.\n",
-                          "signal/out_two_peaks.dbl" );
+                          strOutFile.c_str() );
             exit(-1);
           }
         mp_fwrite( magbuf, sizeof(MP_Real_t), 512, fid );
         fclose(fid);
         mp_info_msg( func,"A FFT of the first [%d] samples of the signal in file [%s]\n"
                      "was computed with a [%d] points Hamming window and stored in file [%s]\n",
-                     256,"signals/2_cosines.flt",256,"signals/out_two_peaks.dbl");
+                     256,strInFile.c_str(),256,strOutFile.c_str());
         delete fft;
       }
 
@@ -245,12 +258,12 @@ int main(int argc, char ** argv)
         return(-1);
       }
     mp_info_msg( func,"Testing FFT on huge windows \n");
-    strAppDirectory = MPTK_Env_c::get_env()->get_config_path("reference");
-    strAppDirectory += "/signal/2_cosines.flt";
-    if ( ( fid = fopen(strAppDirectory.c_str(),"r") ) == NULL )
+    strInFile = string(refdir);
+    strInFile += "/signal/2_cosines.flt";
+    if ( ( fid = fopen(strInFile.c_str(),"r") ) == NULL )
       {
         mp_error_msg( func, "Can't open file [%s] in read mode.\n",
-                      "signal/2_cosines.flt" );
+                      strInFile.c_str() );
         exit(-1);
       }
     mp_fread( buffer, sizeof(float), 8192, fid );
@@ -260,20 +273,19 @@ int main(int argc, char ** argv)
     if (fft != NULL)
       {
         fft->exec_mag( buffer, magbuf);
-        strAppDirectory = MPTK_Env_c::get_env()->get_config_path("reference");
-        strAppDirectory += "/signal/out_two_peaks_whole.dbl";
-        if ( ( fid = fopen(strAppDirectory.c_str(),"w") ) == NULL )
+        strOutFile = string(tmpdir);
+        strOutFile += "/out_two_peaks_whole.dbl";
+        if ( ( fid = fopen(strOutFile.c_str(),"w") ) == NULL )
           {
             mp_error_msg( func, "Can't open file [%s] in write mode.\n",
-                          "signals/out_two_peaks_whole.dbl" );
+                          strOutFile.c_str() );
             exit(-1);
           }
         mp_fwrite( magbuf, sizeof(MP_Real_t), 512, fid );
         fclose(fid);
         mp_info_msg( func,"The first [%d] points of a FFT of the whole signal in file [%s]\n"
                      "was computed with a [%d] points Hamming window and stored in file [%s]\n",
-                     512,"signals/2_cosines.flt",8192,"signals/out_two_peaks_whole.dbl");
-        
+                     512,strInFile.c_str(),8192,strOutFile.c_str());
       }
     else
       {

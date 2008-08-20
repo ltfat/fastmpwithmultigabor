@@ -39,22 +39,26 @@ ENDIF(LINUX)
 ####
 #### Copy necessary files
 ####
-CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/dictionary/dic_gabor_two_scales.xml ${MPTK_BINARY_DIR}/bin/reference/dictionary/dic_gabor_two_scales.xml
-                 COPYONLY)
-CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/tests/signals/dico_test.xml ${MPTK_BINARY_DIR}/bin/reference/dictionary/dico_test.xml
-                 COPYONLY)
-CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/signal/glockenspiel.wav ${MPTK_BINARY_DIR}/bin/reference/signal/glockenspiel.wav
-                 COPYONLY)
-CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/tests/signals/2_cosines.flt ${MPTK_BINARY_DIR}/bin/reference/signal/2_cosines.flt
-                 COPYONLY)     
-CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/tests/signals/anywave_signal.wav ${MPTK_BINARY_DIR}/bin/reference/signal/anywave_signal.wav
-                 COPYONLY)               
-CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/tests/signals/anywave_table.bin ${MPTK_BINARY_DIR}/bin/reference/dictionary/anywave_table.xml @ONLY)                 
-CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/tests/signals/anywave_table_data.bin ${MPTK_BINARY_DIR}/bin/reference/signal/anywave_table_data.bin
-                 COPYONLY)    
-CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/mixer/mix_58_mixer.txt ${MPTK_BINARY_DIR}/bin/reference/mixer/mix_58_mixer.txt
-                 COPYONLY)                             
-CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/tests/signals/mix_58_stereo.wav ${MPTK_BINARY_DIR}/bin/reference/signal/mix_58_stereo.wav
-                 COPYONLY)
 
+SET(MPTK_ANYWAVE_TEST_TABLE_BIN ${MPTK_REFERENCE_PATH}/signal/anywave_table_data.bin)
+
+
+CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/tests/signals/anywave_signal.wav ${MPTK_REFERENCE_PATH}/signal/anywave_signal.wav
+                 COPYONLY)               
+# File used for test_mp
+CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/tests/signals/dico_test.xml ${MPTK_REFERENCE_PATH}/dictionary/dico_test.xml
+                 COPYONLY)
+INSTALL(FILES
+	${MPTK_REFERENCE_PATH}/dictionary/dico_test.xml
+	DESTINATION
+	mptk/reference/dictionary)
+
+
+# File used for test_fft
+CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/tests/signals/2_cosines.flt ${MPTK_REFERENCE_PATH}/signal/2_cosines.flt
+                 COPYONLY)     
+INSTALL(FILES
+	${MPTK_REFERENCE_PATH}/signal/2_cosines.flt
+	DESTINATION
+	mptk/reference/signal)
 

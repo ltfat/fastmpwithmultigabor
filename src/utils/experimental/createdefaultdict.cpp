@@ -61,7 +61,7 @@ int main(int argc, char **argv)
     }
   
   /* Load the MPTK environment */
-  if(! (MPTK_Env_c::get_env()->load_environment(configFileName)) ) {
+  if(! (MPTK_Env_c::get_env()->load_environment(NULL)) ) {
 	if (! (MPTK_Env_c::get_env()->get_environment_loaded()) ) {
 		mp_error_msg(func,"Could not load the MPTK environment.\n");
 		mp_info_msg(func,"The most common reason is a missing or erroneous MPTK_CONFIG_FILENAME variable.\n");

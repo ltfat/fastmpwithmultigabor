@@ -77,7 +77,7 @@ int nrhs, const mxArray *prhs[]) {
 	mexPrintf("Testing the MPTK progress_message_display functions\n");
 	mp_progress_msg(func,"test succesfull %d\n",3);
 	mexPrintf("Testing the MPTK debug_message_display functions (should not display if compiled in release mode)\n");
-	mp_debug_msg(func,"test succesfull %d\n",4);
+	mp_debug_msg(MP_DEBUG_GENERAL,func,"test succesfull %d\n",4);
 	mexPrintf("Now checking if the MPTK environment is loaded\n");
     /* Load the MPTK environment if not loaded */
     if (!MPTK_Env_c::get_env()->get_environment_loaded())

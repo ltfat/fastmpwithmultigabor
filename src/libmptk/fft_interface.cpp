@@ -292,14 +292,14 @@ int MP_FFT_Interface_c::test( const double presicion,
   tmp = fabsf((energy2/(setWindowSize*energy1))-1);
   if ( tmp < presicion )
     {
-      mp_info_msg( "MP_FFT_Interface_c::test()","FFT size [%ld] energy in/out = 1+/-%g OK\n",
+      mp_info_msg( "MP_FFT_Interface_c::test()","SUCCESS for FFT size [%ld] energy in/out = 1+/-%g\n",
              setWindowSize,tmp);
       return(0);
     }
   else
     {
      mp_error_msg( "MP_FFT_Interface_c::test()",
-                        "FFT size [%ld] energy |in/out-1|= %g > %g!!!\n",
+                        "FAILURE for FFT size [%ld] energy |in/out-1|= %g > %g\n",
              setWindowSize, tmp, presicion);
       return(1);
     }

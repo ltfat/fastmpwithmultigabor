@@ -693,30 +693,27 @@ void MainWindow::on_radioButtonVerboseDemix_toggled()
 void MainWindow::on_btnOpenDefaultSig_clicked()
 {
   std::string strAppDirectory;
-  if (!guiCallBackDemo->coreInit())
-    {
-
-      strAppDirectory = MPTK_Env_c::get_env()->get_config_path("reference");
-      if (strAppDirectory.size()>0) {
+  if (!guiCallBackDemo->coreInit()) {
+    const char *tmp = MPTK_Env_c::get_env()->get_config_path("reference");
+    if(NULL!=tmp) {
+      strAppDirectory = string(tmp);
+    }
+    if (NULL!=tmp && strAppDirectory.size()>0) {
       strAppDirectory += "/signal/glockenspiel.wav";
       FILE *fp = fopen (strAppDirectory.c_str(), "r");
-      if (fp == NULL)
-        {
-          /* no files*/
-          dialog->errorMessage("Cannot open signal file\n Please open a signal file");
-        }
-      else
-        {
-          /* files */
-          fclose(fp);
-          labelOriginalSignalDemo->setText(QString(strAppDirectory.c_str()));
-          guiCallBackDemo->initMpdCore(QString(strAppDirectory.c_str()), "");
-        }
-
-
+      if (fp == NULL)  {
+	/* no files*/
+	dialog->errorMessage("Cannot open signal file\n Please open a signal file");
+      } else {
+	/* files */
+	fclose(fp);
+	labelOriginalSignalDemo->setText(QString(strAppDirectory.c_str()));
+	guiCallBackDemo->initMpdCore(QString(strAppDirectory.c_str()), "");
+      }
+      
     } else dialog->errorMessage("Cannot find the reference files path\n Please open a signal file");
       
-      }
+  }
 }
 
 void MainWindow::on_btnValidateDefautlDict_clicked()
@@ -728,9 +725,11 @@ void MainWindow::on_btnValidateDefautlDict_clicked()
   char buf3[32];
   if (guiCallBackDemo->coreInit() && !dictOpenDemo)
     {
-
-      strAppDirectory = MPTK_Env_c::get_env()->get_config_path("reference");
-      if (strAppDirectory.size()>0) {
+      const char *tmp = MPTK_Env_c::get_env()->get_config_path("reference");
+      if(NULL!=tmp) {
+	strAppDirectory = string(tmp);
+      }
+      if (NULL!=tmp && strAppDirectory.size()>0) {
       strAppDirectory += "/dictionary/dic_gabor_two_scales.xml";
       FILE *fp = fopen (strAppDirectory.c_str(), "r");
       if (fp == NULL)
@@ -763,9 +762,11 @@ void MainWindow::on_btnValidateDefautlDict_clicked()
 void MainWindow::on_btnOpenDefaultMixerDemix_clicked(){
    std::string strAppDirectory;
 
-
-      strAppDirectory = MPTK_Env_c::get_env()->get_config_path("reference");
-      if (strAppDirectory.size()>0) {
+    const char *tmp = MPTK_Env_c::get_env()->get_config_path("reference");
+    if(NULL!=tmp) {
+      strAppDirectory = string(tmp);
+    }
+    if (NULL!=tmp && strAppDirectory.size()>0) {
       strAppDirectory += "/mixer/mix_58_mixer.txt";
       FILE *fp = fopen (strAppDirectory.c_str(), "r");
       if (fp == NULL)
@@ -796,32 +797,34 @@ void MainWindow::on_btnOpenDefaultSigDemix_clicked(){
   std::string strAppDirectory;
     if (guiCallBackDemix->mixer != NULL)
     {
-    	
-      strAppDirectory = MPTK_Env_c::get_env()->get_config_path("reference");
-      if (strAppDirectory.size()>0) {
-      strAppDirectory += "/signal/mix_58_stereo.wav";
-      FILE *fp = fopen (strAppDirectory.c_str(), "r");
-      if (fp == NULL)
-        {
-          /* no files*/
-          dialog->errorMessage("Cannot open signal file\n Please open a signal file");
-        }
-      else
-        {
-          /* files */
-          fclose(fp);
-           if (! guiCallBackDemix->openSignal(QString(strAppDirectory.c_str())) == SIGNAL_OPENED) dialog->errorMessage("Failed to open original signal file");
-          guiCallBackDemix->setBookArray();
-          guiCallBackDemix->initMpdDemixCore();
-          guiCallBackDemix->plugApprox();
-          labelOriginalSignalDemix->setText(strAppDirectory.c_str());
-        }
-
-
-    } else dialog->errorMessage("Cannot find the reference files path\n Please open a signal file");
-
-        } else dialog->errorMessage("Open a mixer file");
-
+      const char *tmp = MPTK_Env_c::get_env()->get_config_path("reference");
+      if(NULL!=tmp) {
+	strAppDirectory = string(tmp);
+      }
+      if (NULL!=tmp && strAppDirectory.size()>0) {
+	strAppDirectory += "/signal/mix_58_stereo.wav";
+	FILE *fp = fopen (strAppDirectory.c_str(), "r");
+	if (fp == NULL)
+	  {
+	    /* no files*/
+	    dialog->errorMessage("Cannot open signal file\n Please open a signal file");
+	  }
+	else
+	  {
+	    /* files */
+	    fclose(fp);
+	    if (! guiCallBackDemix->openSignal(QString(strAppDirectory.c_str())) == SIGNAL_OPENED) dialog->errorMessage("Failed to open original signal file");
+	    guiCallBackDemix->setBookArray();
+	    guiCallBackDemix->initMpdDemixCore();
+	    guiCallBackDemix->plugApprox();
+	    labelOriginalSignalDemix->setText(strAppDirectory.c_str());
+	  }
+	
+	
+      } else dialog->errorMessage("Cannot find the reference files path\n Please open a signal file");
+      
+    } else dialog->errorMessage("Open a mixer file");
+    
 
 }
 void MainWindow::on_btnValidateCustomDict_clicked()

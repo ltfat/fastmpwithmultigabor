@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <configpath>
 	<path name="dll_directory" path="@CMAKE_INSTALL_PREFIX@/mptk/plugins" />
-	<path name="fftw_wisdomfile" path="@MPTK_FTTW_WISDOM_FILE_INSTALL@"/>
+	<path name="fftw_wisdomfile" path="@MPTK_FFTW_WISDOM_FILE_INSTALL@"/>
 	<path name="reference" path="@MPTK_REFERENCE_PATH_INSTALL@"/>
+	<path name="tmp" path="@MPTK_TMP_PATH@"/>
 	<path name="defaultDict" path="@MPTK_DEFAULT_DICT_FILE_INSTALL@"/>
 	<path name="defaultAnyWaveDict" path="@MPTK_DEFAULT_ANYWAVEDICT_FILE_INSTALL@"/>
 	<path name="defaultAnyWaveTable" path="@MPTK_DEFAULT_ANYWAVETABLE_FILE_INSTALL@"/>

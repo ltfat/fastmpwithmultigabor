@@ -547,10 +547,10 @@ end
 
 function isvalid = validateblock(block)
 mptkinfo = getmptkinfo;
-if ~exist([mptkinfo.path.reference '/tmp/'],'dir');
-   mkdir(mptkinfo.path.reference,'tmp');
+if ~exist(mptkinfo.path.tmp,'dir');
+   mkdir(mptkinfo.path.tmp);
 end
-filename = [mptkinfo.path.reference '/tmp/tmpdict.xml'];
+filename = [mptkinfo.path.tmp '/tmpdict.xml'];
 tmpdict.block{1} = block;
 isvalid = dictwrite(tmpdict,filename);
 

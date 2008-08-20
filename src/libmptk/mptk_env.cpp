@@ -272,18 +272,36 @@ bool MPTK_Env_c::load_environment(const char * name )
 			
 	/* Load plugins */ 
 	if (dll->load_dll()) {
-		mp_debug_msg( MP_DEBUG_CONSTRUCTION, func, "Load successfully the following Block type: \n" );
-		vector< string >* nameVector = new vector< string >();
-		MP_Block_Factory_c::get_block_factory()->get_registered_block_name( nameVector );
-		for (unsigned int i= 0; i < nameVector->size(); i++) {
-			mp_debug_msg( MP_DEBUG_CONSTRUCTION, func, "%s block.\n",nameVector->at(i).c_str()  );
-		}
-		delete(nameVector);
+	  vector< string >* blockNameVector = new vector< string >();
+	  MP_Block_Factory_c::get_block_factory()->get_registered_block_name( blockNameVector );
+	  if(0==blockNameVector->size()) {
+	    mp_error_msg( func, "No block type was loaded\n" );
+	    delete blockNameVector;
+	    return false;
+	  }
+	  vector< string >* atomNameVector = new vector< string >();
+	  MP_Atom_Factory_c::get_atom_factory()->get_registered_atom_name( atomNameVector );
+	  if(0==atomNameVector->size()) {
+	    mp_error_msg( func, "No atom type was loaded\n" );
+	    delete atomNameVector;
+	    return false;
+	  }
+
+	  mp_debug_msg( MP_DEBUG_CONSTRUCTION, func, "Load successfully the following Block type: \n" );
+	  for (unsigned int i= 0; i < blockNameVector->size(); i++) {
+	    mp_debug_msg( MP_DEBUG_CONSTRUCTION, func, "%s block.\n",blockNameVector->at(i).c_str()  );
+	  }
+	  delete(blockNameVector);
+	  mp_debug_msg( MP_DEBUG_CONSTRUCTION, func, "Load successfully the following Atom type: \n" );
+	  for (unsigned int i= 0; i < atomNameVector->size(); i++) {
+	    mp_debug_msg( MP_DEBUG_CONSTRUCTION, func, "%s atom.\n",atomNameVector->at(i).c_str()  );
+	  }
+	  delete(atomNameVector);
 	} else {
-		mp_error_msg(func, "Failed to load any plugin\n"); 
-		mp_info_msg(func, "The most common reason is an ill-formed configuration file %s\n",path);
-		mp_info_msg(func, "The XML file %s should define 'dll_directory' to be a path where the plugins for MPTK are available\n");  
-		return false;
+	  mp_error_msg(func, "Failed to load any plugin\n"); 
+	  mp_info_msg(func, "The most common reason is an ill-formed configuration file %s\n",path);
+	  mp_info_msg(func, "The XML file %s should define 'dll_directory' to be a path where the plugins for MPTK are available\n");  
+	  return false;
 	}
 	/* Load FFT wisdom file */ 
 	if (MP_FFT_Interface_c::init_fft_library_config()) 

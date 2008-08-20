@@ -42,7 +42,6 @@ int main( int argc, char ** argv )
 {
   /* Data */
   char* func = "test behaviour in noise";
-  char* configFileName = NULL;
   std::vector<MP_Mpd_Core_c*> *coreArray;
   std::vector<MP_Dict_c*> *dictArray;
   std::vector<MP_Signal_c*> *approxArray;
@@ -53,6 +52,38 @@ int main( int argc, char ** argv )
   char *p;
   std::vector<MP_Book_c*> *book ;
 
+  /*Parse parameters*/
+
+  if (argc == 2)
+    {
+      /*Default value */
+      numIter = 10;
+      numTestSignals = 1;
+    }
+  else
+    {
+      if (argc == 4)
+        {
+          numIter= strtoul(argv[2], &p, 0);
+          if ( (p == argv[2]) || (*p != 0) )
+            {
+              mp_error_msg( func, "Failed to convert argument [%s] to a unsigned long int value.\n",
+                            argv[2] );
+              return( -1 );
+            }
+          numTestSignals = strtoul(argv[3], &p, 0);
+          if ( (p == argv[3]) || (*p != 0) )
+            {
+              mp_error_msg( func, "Failed to convert argument [%s] to a unsigned long int value.\n",
+                            argv[3] );
+              return( -1 );
+            }
+          mp_info_msg( func, "Test behavior in noise with [%i] ierations on [%i] signals.\n" ,numIter, numTestSignals );
+        }
+      else mp_error_msg( func, "Bad Number of arguments, test_behaviour_in_noise require confiFile as first argument, and optional (number of iteration and number of testing signals) as argument in unsigned long int.\n"
+                         );
+    }
+  const char *configFileName = argv[1];
   /* Load the MPTK environment */
   if(! (MPTK_Env_c::get_env()->load_environment(configFileName)) ) {
 	if (! (MPTK_Env_c::get_env()->get_environment_loaded()) ) {
@@ -81,40 +112,6 @@ int main( int argc, char ** argv )
     {
       if (strcmp(nameBlockVector->at(n).c_str(),"anywavehilbert")==0)nameBlockVector->erase(nameBlockVector->begin() +n);
     }
-
-  /*Parse parameters*/
-
-  if (argc == 1)
-    {
-      /*Default value */
-      numIter = 10;
-      numTestSignals = 1;
-    }
-  else
-    {
-      if (argc == 3)
-        {
-          numIter= strtoul(argv[1], &p, 0);
-          if ( (p == argv[1]) || (*p != 0) )
-            {
-              mp_error_msg( func, "Failed to convert argument [%s] to a unsigned long int value.\n",
-                            argv[1] );
-              return( -1 );
-            }
-          numTestSignals = strtoul(argv[2], &p, 0);
-          if ( (p == argv[1]) || (*p != 0) )
-            {
-              mp_error_msg( func, "Failed to convert argument [%s] to a unsigned long int value.\n",
-                            argv[1] );
-              return( -1 );
-            }
-          mp_info_msg( func, "Test behavior in noise with [%i] ierations on [%i] signals.\n" ,numIter, numTestSignals );
-        }
-      else mp_error_msg( func, "Bad Number of arguments, test_behaviour_in_noise require number of iteration and number of testing signals as argument in unsigned long int.\n"
-                         );
-    }
-
-
 
 
   /***********************/

@@ -70,13 +70,13 @@ int main( int argc, char **argv ) {
 
   bool serverOK;
   bool tableOK;
-  bool atomOK;
-  bool blockOK;
+  //  bool atomOK;
+  //  bool blockOK;
   bool dictOK;
 
   if (argc != 4) {
     usage();
-    return(0);
+    return(-1);
   }
 
   signalFileName = argv[1];
@@ -105,16 +105,16 @@ int main( int argc, char **argv ) {
   } else {
     fprintf(stderr, "\nTEST MP_Anywave_Table_c  : ERROR" );
   }
-  if (atomOK) {
-    fprintf(stderr, "\nTEST MP_Anywave_Atom_c   : OK" );
-  } else {
-    fprintf(stderr, "\nTEST MP_Anywave_Atom_c   : ERROR" );
-  }
-  if (blockOK) {
-    fprintf(stderr, "\nTEST MP_Anywave_Block_c  : OK" );
-  } else {
-    fprintf(stderr, "\nTEST MP_Anywave_Block_c  : ERROR" );
-  }
+  //  if (atomOK) {
+  //    fprintf(stderr, "\nTEST MP_Anywave_Atom_c   : OK" );
+  //  } else {
+  //    fprintf(stderr, "\nTEST MP_Anywave_Atom_c   : ERROR" );
+  //  }
+  //  if (blockOK) {
+  //    fprintf(stderr, "\nTEST MP_Anywave_Block_c  : OK" );
+  //  } else {
+  //    fprintf(stderr, "\nTEST MP_Anywave_Block_c  : ERROR" );
+  //  }
   if (dictOK) {
     fprintf(stderr, "\nTEST MP_Anywave_Dict_c   : OK" );
   } else {
@@ -122,6 +122,10 @@ int main( int argc, char **argv ) {
   }
 
   fprintf(stderr, "\n");
-
-  return( 0 );
+  
+  if (!serverOK || !tableOK || !dictOK) {
+    return (-1);
+  } else {
+    return( 0 );
+  }
 }

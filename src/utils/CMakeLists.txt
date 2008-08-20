@@ -99,7 +99,7 @@ IF(BUILD_EXPERIMENTAL)
 #------------------------------------------------
 # Build mppitch executable
 #
-  SET(MPPITCH_EXE_SOURCES
+  SET(mppitch_EXE_SOURCES
     ${UTILS_SOURCE_DIR}/experimental/mppitch.cpp
     ${UTILS_SOURCE_DIR}/getopt.c
     ${UTILS_SOURCE_DIR}/getopt1.c
@@ -109,7 +109,7 @@ IF(BUILD_EXPERIMENTAL)
 #------------------------------------------------
 # Build create default dict executable
 #
-  SET(CREATEDEFAULTDICT_EXE_SOURCES
+  SET(createdefaultdict_EXE_SOURCES
     ${UTILS_SOURCE_DIR}/experimental/createdefaultdict.cpp
     ${UTILS_SOURCE_DIR}/getopt.c
     ${UTILS_SOURCE_DIR}/getopt1.c
@@ -117,7 +117,7 @@ IF(BUILD_EXPERIMENTAL)
     ${MPTK_BINARY_DIR}/src/libmptk/mptk.h
       )
 
-FOREACH(target MPPITCH CREATEDEFAULTDICT)
+FOREACH(target mppitch createdefaultdict)
        ADD_EXECUTABLE(${target} ${${target}_EXE_SOURCES})
       SET_TARGET_PROPERTIES(${target} PROPERTIES
 			    COMPILE_FLAGS "${SHARED_FLAGS} ${EXECUTABLE_COMPILE_FLAGS}")

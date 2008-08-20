@@ -19,15 +19,6 @@ ELSE(MINGW_LIBRARY_FILE)
   MESSAGE(STATUS "mingw32.dll library not found !!")
 ENDIF(MINGW_LIBRARY_FILE)  
 ENDIF(MINGW)
-# copyfiles for demo:
-CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/dictionary/dic_gabor_two_scales.xml ${MPTK_BINARY_DIR}/bin/reference/dictionary/dic_gabor_two_scales.xml
-                 COPYONLY) 
-CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/signal/glockenspiel.wav ${MPTK_BINARY_DIR}/bin/reference/signal/glockenspiel.wav
-                 COPYONLY) 
-CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/signal/mix_58_stereo.wav ${MPTK_BINARY_DIR}/bin/reference/signal/mix_58_stereo.wav
-                 COPYONLY)
-CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/mixer/mix_58_mixer.txt ${MPTK_BINARY_DIR}/bin/reference/mixer/mix_58_mixer.txt
-                 COPYONLY) 
 
 # the variable "qtproject_SRCS" contains all .cpp files of this project
 IF(WIN32)
@@ -100,7 +91,13 @@ QT4_ADD_RESOURCES(qtproject_RCC_SRCS ${qtproject_RCCS})
 	
 ADD_DEFINITIONS(-DQT_NO_DEBUG)
 
-
+INCLUDE_DIRECTORIES(
+	${PORTAUDIO_INCLUDE_DIR} 
+	${wxWidgets_INCLUDE_DIRS} 
+	${MPTK_BINARY_DIR}/src/gui/Qt 
+	${QT_INCLUDE_DIR} 
+	${QT_INCLUDE_PATH}
+	)
 
 
 IF(WIN32)
@@ -151,13 +148,4 @@ ENDIF(WIN32)
 INSTALL(TARGETS
 MPTK-GUI RUNTIME DESTINATION bin
 )
-INSTALL(FILES
-${MPTK_BINARY_DIR}/bin/reference/dictionary/dic_gabor_two_scales.xml DESTINATION bin/reference/dictionary)
-INSTALL(FILES
-${MPTK_BINARY_DIR}/bin/reference/signal/glockenspiel.wav ${MPTK_BINARY_DIR}/bin/reference/signal/mix_58_stereo.wav DESTINATION bin/reference/signal)
-INSTALL(FILES
-${MPTK_BINARY_DIR}/bin/reference/mixer/mix_58_mixer.txt DESTINATION bin/reference/mixer)
-
-
-
 
