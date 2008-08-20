@@ -141,8 +141,8 @@ MESSAGE("MATLAB_ENG_LIBRARY: path to libeng.lib                = ${MATLAB_ENG_LI
 # Set source and output path
 ###########
 SET(MPTK_MATLAB_SRC_DIR ${MPTK_SOURCE_DIR}/src/matlab)
-SET(MPTK_MATLAB_OUTPUT_DIR ${MPTK_BINARY_DIR}/src/matlab)
-SET(MPTK_MATLAB_INSTALL_DIR matlab)
+SET(MPTK_MATLAB_OUTPUT_DIR ${MPTK_BINARY_DIR}/mptk/matlab)
+SET(MPTK_MATLAB_INSTALL_DIR mptk/matlab)
 
 ############################################
 #                  -2-
@@ -156,10 +156,10 @@ INSTALL(FILES ${MPTK_MATLAB_OUTPUT_DIR}/README
 
 # Getting started script
 FOREACH(file GettingStarted.m)
-    SET(MPTK_CONFIG_FILENAME ${MPTK_BINARY_DIR}/bin/path.xml)
+    SET(MPTK_CONFIG_FILENAME ${MPTK_BINARY_DIR}/mptk/path.xml)
     CONFIGURE_FILE(${MPTK_MATLAB_SRC_DIR}/${file}.in ${MPTK_MATLAB_OUTPUT_DIR}/${file}
                   @ONLY)
-    SET(MPTK_CONFIG_FILENAME ${CMAKE_INSTALL_PREFIX}/bin/path.xml)
+    SET(MPTK_CONFIG_FILENAME ${CMAKE_INSTALL_PREFIX}/mptk/path.xml)
     CONFIGURE_FILE(${MPTK_MATLAB_SRC_DIR}/${file}.in ${MPTK_MATLAB_OUTPUT_DIR}/for_install_only/${file}
                    @ONLY)     
     INSTALL(FILES ${MPTK_MATLAB_OUTPUT_DIR}/for_install_only/${file}

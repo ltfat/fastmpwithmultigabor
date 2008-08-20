@@ -8,6 +8,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.4)
 if(COMMAND cmake_policy)
       cmake_policy(SET CMP0002 OLD)
 endif(COMMAND cmake_policy)
+
 ## SETTING COMPILATION OPTION
 #############################
 # Compilation of modules:
@@ -131,17 +132,17 @@ IF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
 ENDIF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
 
 #Set  BUILDVERSION, PACKAGENAME, PACKAGENAMEFULL and AUTHORS according to text files in /version
-FILE(READ ${MPTK_SOURCE_DIR}/version/buildversion.cmake BUILDVERSION)
-FILE(READ ${MPTK_SOURCE_DIR}/version/packagename.cmake PACKAGENAME)
-FILE(READ ${MPTK_SOURCE_DIR}/version/packagenamefull.cmake PACKAGENAMEFULL)
+
+INCLUDE(${MPTK_SOURCE_DIR}/version/buildversion.cmake)
 FILE(READ ${MPTK_SOURCE_DIR}/version/AUTHORS AUTHORS)
+SET(BUILDVERSION \"${BUILDVERSION_MAJOR}.${BUILDVERSION_MINOR}.${BUILDVERSION_PATCH}\")
 
 #Define the target for install
 
-SET(MPTK_FTTW_WISDOM_FILE ${MPTK_BINARY_DIR}/bin/default_fftw_wisdom_file)
-SET(MPTK_FTTW_WISDOM_FILE_INSTALL ${CMAKE_INSTALL_PREFIX}/bin/default_fftw_wisdom_file)
-SET(MPTK_REFERENCE_PATH ${MPTK_BINARY_DIR}/bin/reference)
-SET(MPTK_REFERENCE_PATH_INSTALL ${CMAKE_INSTALL_PREFIX}/bin/reference)
+SET(MPTK_FTTW_WISDOM_FILE ${MPTK_BINARY_DIR}/mptk/default_fftw_wisdom_file)
+SET(MPTK_FTTW_WISDOM_FILE_INSTALL ${CMAKE_INSTALL_PREFIX}/mptk/default_fftw_wisdom_file)
+SET(MPTK_REFERENCE_PATH ${MPTK_BINARY_DIR}/mptk/reference)
+SET(MPTK_REFERENCE_PATH_INSTALL ${CMAKE_INSTALL_PREFIX}/mptk/reference)
 
 #
 # DEFAULT REFERENCE FILES
@@ -162,7 +163,7 @@ FOREACH(default DICT MIXER ANYWAVETABLE_DATA)
 	SET(MPTK_DEFAULT_${default}_FILE          ${MPTK_REFERENCE_PATH}/${MPTK_DEFAULT_${default}_FILENAME})
 	SET(MPTK_DEFAULT_${default}_FILE_INSTALL  ${MPTK_REFERENCE_PATH_INSTALL}/${MPTK_DEFAULT_${default}_FILENAME})
 	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/${MPTK_DEFAULT_${default}_FILENAME} ${MPTK_DEFAULT_${default}_FILE} COPYONLY)
-	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/${MPTK_DEFAULT_${default}_FILENAME}  ${MPTK_BINARY_DIR}/install/bin/reference/${MPTK_DEFAULT_${default}_FILENAME} COPYONLY)
+	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/${MPTK_DEFAULT_${default}_FILENAME}  ${MPTK_BINARY_DIR}/install/mptk/reference/${MPTK_DEFAULT_${default}_FILENAME} COPYONLY)
 ENDFOREACH(default)
 
 # EXAMPLE REFERENCE FILES
@@ -173,7 +174,7 @@ FOREACH(example BOOK SIGNAL)
 	SET(MPTK_EXAMPLE_${example}_FILE          ${MPTK_REFERENCE_PATH}/${MPTK_EXAMPLE_${example}_FILENAME})
 	SET(MPTK_EXAMPLE_${example}_FILE_INSTALL  ${MPTK_REFERENCE_PATH_INSTALL}/${MPTK_EXAMPLE_${example}_FILENAME})
 	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/${MPTK_EXAMPLE_${example}_FILENAME} ${MPTK_EXAMPLE_${example}_FILE} COPYONLY)
-	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/${MPTK_EXAMPLE_${example}_FILENAME}  ${MPTK_BINARY_DIR}/install/bin/reference/${MPTK_EXAMPLE_${example}_FILENAME} COPYONLY)
+	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/${MPTK_EXAMPLE_${example}_FILENAME}  ${MPTK_BINARY_DIR}/install/mptk/reference/${MPTK_EXAMPLE_${example}_FILENAME} COPYONLY)
 ENDFOREACH(example)
 
 # Generated default files
@@ -181,7 +182,7 @@ FOREACH(default DICT_LIST ANYWAVETABLE ANYWAVEDICT)
 	SET(MPTK_DEFAULT_${default}_FILE          ${MPTK_REFERENCE_PATH}/${MPTK_DEFAULT_${default}_FILENAME})
 	SET(MPTK_DEFAULT_${default}_FILE_INSTALL  ${MPTK_REFERENCE_PATH_INSTALL}/${MPTK_DEFAULT_${default}_FILENAME})
 	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/${MPTK_DEFAULT_${default}_FILENAME}.in ${MPTK_DEFAULT_${default}_FILE} @ONLY)
-	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/${MPTK_DEFAULT_${default}_FILENAME}.install ${MPTK_BINARY_DIR}/install/bin/reference/${MPTK_DEFAULT_${default}_FILENAME} @ONLY)
+	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/${MPTK_DEFAULT_${default}_FILENAME}.install ${MPTK_BINARY_DIR}/install/mptk/reference/${MPTK_DEFAULT_${default}_FILENAME} @ONLY)
 ENDFOREACH(default)
 
 
@@ -229,7 +230,7 @@ ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
 
 # ----------------------------------------------------------------------------
 # setting path configuration file
-CONFIGURE_FILE(${MPTK_SOURCE_DIR}/path.xml.in ${MPTK_BINARY_DIR}/bin/path.xml @ONLY)
+CONFIGURE_FILE(${MPTK_SOURCE_DIR}/path.xml.in ${MPTK_BINARY_DIR}/mptk/path.xml @ONLY)
 CONFIGURE_FILE(${MPTK_SOURCE_DIR}/path.xml.install ${MPTK_BINARY_DIR}/path.xml @ONLY)
 
 #-----------------------------------------------------------------------------
@@ -337,7 +338,7 @@ ADD_SUBDIRECTORY(${MPTK_SOURCE_DIR}/doc)
 ENDIF(BUILD_DOCUMENTATION)
 ADD_SUBDIRECTORY( src)
 
-INSTALL(DIRECTORY ${MPTK_BINARY_DIR}/install/bin/reference DESTINATION bin)
+INSTALL(DIRECTORY ${MPTK_BINARY_DIR}/install/mptk/reference DESTINATION mptk)
 INSTALL(FILES ${MPTK_BINARY_DIR}/install/include/mptk.h DESTINATION include)
 
 # Packaging using CPack:
@@ -354,6 +355,7 @@ INSTALL(FILES ${MPTK_BINARY_DIR}/install/include/mptk.h DESTINATION include)
 # Project provides "INSTALL" and "PACKAGE" target 
 
 #In order to make a release:
+#Set the release number in this file
 #Make a tag with the number of the release
 #Use Unix make to make a source release with command "make package_source"
 #Upload the archive on the INRIA GForge MPTK project using the files admin page
@@ -372,10 +374,10 @@ INCLUDE(InstallRequiredSystemLibraries)
 SET(CPACK_PACKAGE_NAME "MPTK")
 SET(CPACK_PACKAGE_VENDOR "METISS Project IRISA")
 SET(CPACK_CMAKE_GENERATOR ${CMAKE_GENERATOR})
-SET(CPACK_PACKAGE_VERSION "0.5.6")
-SET(CPACK_PACKAGE_VERSION_MAJOR "0")
-SET(CPACK_PACKAGE_VERSION_MINOR "5")
-SET(CPACK_PACKAGE_VERSION_PATCH "6")
+SET(CPACK_PACKAGE_VERSION ${BUILDVERSION})
+SET(CPACK_PACKAGE_VERSION_MAJOR "${BUILDVERSION_MAJOR}")
+SET(CPACK_PACKAGE_VERSION_MINOR "${BUILDVERSION_MINOR}")
+SET(CPACK_PACKAGE_VERSION_PATCH "${BUILDVERSION_PATCH}")
 IF(LINUX)
 IF(APPLE)
 IF(CMAKE_OSX_ARCHITECTURES MATCHES i386)

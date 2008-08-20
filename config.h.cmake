@@ -97,7 +97,7 @@
 #define PACKAGE_TARNAME ${BUILDNAME}
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION ${BUILDVERSION}
+/* #define PACKAGE_VERSION ${BUILDVERSION} */
 
 /* The size of a `double', as computed by sizeof. */
 #cmakedefine SIZEOF_DOUBLE ${SIZEOF_DOUBLE}
