@@ -176,6 +176,30 @@ bool MPTK_Env_c::get_environment_loaded(){
 
 }
 
+bool MPTK_Env_c::load_environment_if_needed(const char * name) 
+{
+  const char *func = "MPTK_Env_c::load_environment_if_needed()";
+  if (environment_loaded) {
+    return true;
+  } else {
+    if (!load_environment(name)) {
+      mp_error_msg(func,"Could not load the MPTK environment.\n");
+      mp_info_msg(func,"The most common reason is a missing or erroneous MPTK_CONFIG_FILENAME variable.\n");
+      mp_info_msg(func,"The current value is MPTK_CONFIG_FILENAME = [%s].\n",MPTK_Env_c::get_env()->get_configuration_file());
+      mp_info_msg("","The MPTK environment can be specified either by:\n");
+      mp_info_msg("","  a) setting the MPTK_CONFIG_FILENAME environment variable\n");
+      mp_info_msg("","     using e.g. 'setenv MPTK_CONFIG_FILENAME <path_to_config_file.xml>'\n");
+      mp_info_msg("","     in a shell terminal, or\n");
+      mp_info_msg("","     'setenv('MPTK_CONFIG_FILENAME','<path to configuration file.xml>')\n");
+      mp_info_msg("","      from the Matlab command line\n");
+      mp_info_msg("","  b) using the -C <path_to_configfile.xml> option in many MPTK command line utilities.\n");
+      return false;
+    } else {
+      return true;
+    }
+  }
+}
+
 /* Load Mptk environnement and initialize all the utility class instance */
 bool MPTK_Env_c::load_environment(const char * name )
 {
@@ -193,10 +217,11 @@ bool MPTK_Env_c::load_environment(const char * name )
 		// If no argument is provided, try the default configuration file  ... 
 
 		if (NULL== get_configuration_file() ) { // ... if it does not exist either, miserably fail
-			mp_error_msg(func, "couldn't load the MPTK environment\n");
-			mp_info_msg("","The MPTK environment can be specified either by:\n");
+			mp_error_msg(func, "couldn't retrieve the name of the MPTK environment configuration file\n");
+			mp_info_msg("","This name can be specified either by:\n");
 			mp_info_msg("","  a) setting the MPTK_CONFIG_FILENAME environment variable, using e.g. 'setenv MPTK_CONFIG_FILENAME <path_to_config_file.xml>')\n");
 			mp_info_msg("","  b) using the -C <path_to_configfile.xml> option in many MPTK command line utilities.\n");
+			mp_info_msg("","In a standard installation of MPTK, <path_to_config_file.xml> is /usr/local/mptk/path.xml\n");
 			environment_loaded = false;
 			return false;
 		} 
@@ -217,7 +242,7 @@ bool MPTK_Env_c::load_environment(const char * name )
 	TiXmlDocument configFile(path);		
 	if (!configFile.LoadFile()) {
 		/* Try to load the file, and check success */
-		mp_error_msg( func, "Could not load the xml file: %s , description: %s .\n",
+		mp_error_msg( func, "Could not load the xml config file : %s , description: %s .\n",
 					path, configFile.ErrorDesc() );
 		return false;
 	} 
@@ -275,14 +300,16 @@ bool MPTK_Env_c::load_environment(const char * name )
 	  vector< string >* blockNameVector = new vector< string >();
 	  MP_Block_Factory_c::get_block_factory()->get_registered_block_name( blockNameVector );
 	  if(0==blockNameVector->size()) {
-	    mp_error_msg( func, "No block type was loaded\n" );
+	    mp_error_msg( func, "No block type was loaded, even though plugins were found in the dll_directory specified by the configuration file\n" );
+	    mp_info_msg("","The most common reason is a configuration file which does not match the installed version of MPTK\n");
 	    delete blockNameVector;
 	    return false;
 	  }
 	  vector< string >* atomNameVector = new vector< string >();
 	  MP_Atom_Factory_c::get_atom_factory()->get_registered_atom_name( atomNameVector );
 	  if(0==atomNameVector->size()) {
-	    mp_error_msg( func, "No atom type was loaded\n" );
+	    mp_error_msg( func, "No atom type was loaded, even though plugins were found in the dll_directory specified by the configuration file\n" );
+	    mp_info_msg("","The most common reason is a configuration file which does not match the installed version of MPTK\n");
 	    delete atomNameVector;
 	    return false;
 	  }

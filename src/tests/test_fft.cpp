@@ -136,21 +136,9 @@ int main(int argc, char ** argv)
 
 
   /* Load the MPTK environment */
-  if(! (MPTK_Env_c::get_env()->load_environment(configFile)) ) {
-	if (! (MPTK_Env_c::get_env()->get_environment_loaded()) ) {
-		mp_error_msg(func,"Could not load the MPTK environment.\n");
-		mp_info_msg(func,"The most common reason is a missing or erroneous MPTK_CONFIG_FILENAME variable.\n");
-		mp_info_msg(func,"The current value is MPTK_CONFIG_FILENAME = [%s].\n",MPTK_Env_c::get_env()->get_configuration_file());
-		mp_info_msg("","The MPTK environment can be specified either by:\n");
-		mp_info_msg("","  a) setting the MPTK_CONFIG_FILENAME environment variable\n");
-		mp_info_msg("","     using e.g. 'setenv MPTK_CONFIG_FILENAME <path_to_config_file.xml>'\n");
-		mp_info_msg("","     in a shell terminal, or\n");
-		mp_info_msg("","     'setenv('MPTK_CONFIG_FILENAME','<path to configuration file.xml>')\n");
-		mp_info_msg("","      from the Matlab command line\n");
-		mp_info_msg("","  b) using the -C <path_to_configfile.xml> option in many MPTK command line utilities.\n");
-		exit(-1);
-		}
-    }
+  if(! (MPTK_Env_c::get_env()->load_environment_if_needed(configFile)) ) {
+    exit(-1);
+  }
 
   /* Retrieve reference/tmp directory */
   const char *refdir = MPTK_Env_c::get_env()->get_config_path("reference");

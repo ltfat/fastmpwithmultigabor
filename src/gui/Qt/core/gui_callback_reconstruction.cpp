@@ -41,7 +41,7 @@ MP_Gui_Callback_Reconstruct_c * MP_Gui_Callback_Reconstruct_c::guiCallbackRecons
 
 MP_Gui_Callback_Reconstruct_c::MP_Gui_Callback_Reconstruct_c()
 {
-  if (!MPTK_Env_c::get_env()->get_environment_loaded())MPTK_Env_c::get_env()->load_environment("");
+  MPTK_Env_c::get_env()->load_environment_if_needed(NULL);
   reconstruct = NULL;
   audio = NULL;
   approximant = NULL;

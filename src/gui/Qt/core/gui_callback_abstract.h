@@ -111,7 +111,7 @@ class MP_Gui_Callback_Abstract_c: public QThread
     /** \brief Public constructor  */
     MP_Gui_Callback_Abstract_c()
     {
-      if (!MPTK_Env_c::get_env()->get_environment_loaded())MPTK_Env_c::get_env()->load_environment("");
+      MPTK_Env_c::get_env()->load_environment_if_needed(NULL);
       mpd_Core = NULL;
       mpd_Demix_Core = NULL;
       signal = NULL;

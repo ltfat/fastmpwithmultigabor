@@ -139,10 +139,21 @@ STL_EXT_NM::hash_map<const char*,const char*,CSTRING_HASHER> configPath;
    MPTK_LIB_EXPORT bool set_env(string filename);
 
     /** \brief Method to load MPTK environnement
-     * \param name the name of xml file containing the environment informations, use an empty string to rely on default name given by \f get_configuration_file()
+     * \param name the name of xml file containing the environment informations, use an empty string or NULL to rely on default name given by \f get_configuration_file()
 	 * \return true if the environment was not already loaded and the loading was successful, false otherwise 
     */
     MPTK_LIB_EXPORT bool load_environment(const char * name);
+
+    /** \brief Method to load MPTK environnement if not already loaded
+     * \param name the name of xml file containing the environment informations,
+     *        use an empty string or NULL to rely on default name given by 
+     *        \f get_configuration_file()
+     * \return true if the environment was already loaded 
+     *              or if it was not but the loading was successful, 
+     *         false otherwise (and appropriate error messages are given) 
+    */
+    MPTK_LIB_EXPORT bool load_environment_if_needed(const char * name);
+
 
     /** \brief Method to get the name of the configuration file via environnement variable 
     */

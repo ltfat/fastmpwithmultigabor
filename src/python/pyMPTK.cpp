@@ -26,7 +26,7 @@ static PyObject *
 book_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
 	/* Load the MPTK environment if not loaded */
-  if (!MPTK_Env_c::get_env()->get_environment_loaded())MPTK_Env_c::get_env()->load_environment("");
+  MPTK_Env_c::get_env()->load_environment_if_needed("");
 	book *self;
 
 	self = (book *)type->tp_alloc(type, 0);
