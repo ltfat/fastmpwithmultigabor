@@ -1,11 +1,10 @@
 /******************************************************************************/
 /*                                                                            */
-/*                               dll_win32.cpp                                */
+/*                               dll_elf.cpp                                  */
 /*                                                                            */
 /*                        Matching Pursuit Utilities                          */
 /*                                                                            */
-/* RÈmi Gribonval                                                             */
-/* Sacha Krstulovic                                           Mon Feb 21 2005 */
+/* Roy Benjamin                                               Mon Feb 21 2007 */
 /* -------------------------------------------------------------------------- */
 /*                                                                            */
 /*  Copyright (C) 2005 IRISA                                                  */
@@ -133,6 +132,7 @@ bool MP_Dll_Manager_c::get_symbol( void **v, const char *sym_name )
     {
       *v = (void*)GetProcAddress(h, sym_name);
       if (v != NULL) // Note by Remi, August 15th 2008 : shouldn't this rather be if (NULL!= *v) ?
+                     // note by benjamin September 1st 2008 :  GetProcAddress try to obtain the address of an exported function from DLL, the value of this address in memory has to be different from NULL        
         return true;
       else
         {
