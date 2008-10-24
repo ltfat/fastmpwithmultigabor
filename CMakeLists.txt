@@ -267,11 +267,9 @@ INCLUDE( ${MPTK_SOURCE_DIR}/CMake/FindExternalLibs.cmake )
 
 #Set option for building and linking:
 #Set directories for linker
-LINK_DIRECTORIES( ${MPTK_SOURCE_DIR}/src/libmptk 
-                  ${PTHREAD_LIBRARY_FILE} 
+LINK_DIRECTORIES( ${PTHREAD_LIBRARY_FILE} 
                   ${SNDFILE_LIBRARY_FILE} 
-                  ${FFTW3_LIBRARY_FILE} 
-                  ${wxWidgets_LIBRARY_DIRS} )
+                  ${FFTW3_LIBRARY_FILE} )
 #set the include directories paths for building
 INCLUDE_DIRECTORIES(/usr/include 
 					${MPTK_SOURCE_DIR} 
