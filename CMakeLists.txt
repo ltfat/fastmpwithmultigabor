@@ -252,11 +252,6 @@ ENDIF(LIBRARY_OUTPUT_PATH)
 ## FINDING EXTERNAL LIBRARIES
 #############################
 # Setting path to libraries and modules for apps
-SET(LIBMPTK_INCLUDE_DIR  ${MPTK_SOURCE_DIR}/src/libmptk )
-SET(PORTAUDIO_INCLUDE_DIR  ${MPTK_SOURCE_DIR}/src/gui/portaudio_v18_1/pa_common
-			               ${MPTK_SOURCE_DIR}/src/gui/portaudio_v18_1/pablio/
-			               ${MPTK_SOURCE_DIR}/src/gui/portaudio_v18_1/pa_win_ds
-			               )
 SET(LIBDSP_INCLUDE_DIR  ${MPTK_SOURCE_DIR}/src/libdsp_windows)
 SET(UTILS_SOURCE_DIR ${MPTK_SOURCE_DIR}/src/utils )
 SET(GUI_SOURCE_DIR ${MPTK_SOURCE_DIR}/src/gui )
@@ -272,16 +267,16 @@ LINK_DIRECTORIES( ${PTHREAD_LIBRARY_FILE}
                   ${FFTW3_LIBRARY_FILE} )
 #set the include directories paths for building
 INCLUDE_DIRECTORIES(/usr/include 
-					${MPTK_SOURCE_DIR} 
-					${MPTK_SOURCE_DIR}/src/tinyxml 
-					${MPTK_BINARY_DIR} 
-					${PTHREAD_INCLUDE_DIR} 
-					${LIBMPTK_INCLUDE_DIR}  
-					${MPTK_BINARY_DIR}/src/libmptk/ 
-					${LIBDSP_INCLUDE_DIR} 
-					${FFTW3_INCLUDE_DIR} 
-					${SNDFILE_INCLUDE_DIR} 
-					)
+		${MPTK_SOURCE_DIR}               # TO INCLUDE mp_system.h
+   		${MPTK_SOURCE_DIR}/src/tinyxml   # TO INCLUDE TinyXML code
+		${MPTK_BINARY_DIR}               # TO INCLUDE config.h
+		${PTHREAD_INCLUDE_DIR}		# AUTOMATICALLY CREATED IN FindPThread
+		${MPTK_SOURCE_DIR}/src/libmptk
+		${MPTK_BINARY_DIR}/src/libmptk/ # TO INCLUDE regression_constant.h and mptk.h, automatically generated 
+		${LIBDSP_INCLUDE_DIR} 
+		${FFTW3_INCLUDE_DIR} 
+		${SNDFILE_INCLUDE_DIR} 
+		)
 #-----------------------------------------------------------------------------
 ##Platform configuration tests.
 #############################

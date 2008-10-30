@@ -220,17 +220,31 @@ FOREACH(target getmptkinfo dictread dictwrite sigread sigwrite bookread bookwrit
 		     ${MPTK_MATLAB_OUTPUT_DIR}/${target}.${MEX_EXTENSION} 
 		     ${MPTK_MATLAB_SRC_DIR}/${target}.cpp 
 		     mptk4matlab)
-
+ 
    ## ======> What is the use of this line ?
    SET_TARGET_PROPERTIES(matlab_${target} PROPERTIES GENERATED true )
 
    # Command to generate the MEX-binary
+   IF(APPLE)
+   ADD_CUSTOM_COMMAND(
+    OUTPUT ${MPTK_MATLAB_OUTPUT_DIR}/${target}.${MEX_EXTENSION}
+    POST_BUILD
+    COMMAND   ${MEX_COMPILER} -v
+    ARGS      -O -DHAVE_FFTW3 -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${MPTK_SOURCE_DIR}/src/tinyxml/ -I/usr/include/ -I${MPTK_SOURCE_DIR} -I${MPTK_SOURCE_DIR}/src/libdsp_windows/ -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${FFTW3_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/ -I${MPTK_MATLAB_SRC_DIR}/classes/ -I${MPTK_MATLAB_SRC_DIR}/experimental/classes/ -I${MPTK_SOURCE_DIR}/src/plugin/base/ -I${MPTK_SOURCE_DIR}/src/plugin/contrib/lam/ -outdir ${MPTK_MATLAB_OUTPUT_DIR} ${MPTK_MATLAB_SRC_DIR}/${target}.cpp  -L${LIBRARY_OUTPUT_PATH} -lmptk -lmptk4matlab
+# FOR SAFETY, SHOULD USE FLAG -headerpad_max_install_names
+    COMMAND   install_name_tool -change ARGS ${LIBRARY_OUTPUT_PATH}/libmptk4matlab.dylib libmptk4matlab.dylib ${MPTK_MATLAB_OUTPUT_DIR}/${target}.${MEX_EXTENSION}
+    COMMAND   install_name_tool -change ARGS ${LIBRARY_OUTPUT_PATH}/libmptk.dylib libmptk.dylib ${MPTK_MATLAB_OUTPUT_DIR}/${target}.${MEX_EXTENSION}
+    COMMENT   "MEX")
+
+   ELSE(APPLE)
    ADD_CUSTOM_COMMAND(
     OUTPUT ${MPTK_MATLAB_OUTPUT_DIR}/${target}.${MEX_EXTENSION}
     POST_BUILD
     COMMAND   ${MEX_COMPILER} -v
     ARGS      -O -DHAVE_FFTW3 -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${MPTK_SOURCE_DIR}/src/tinyxml/ -I/usr/include/ -I${MPTK_SOURCE_DIR} -I${MPTK_SOURCE_DIR}/src/libdsp_windows/ -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${FFTW3_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/ -I${MPTK_MATLAB_SRC_DIR}/classes/ -I${MPTK_MATLAB_SRC_DIR}/experimental/classes/ -I${MPTK_SOURCE_DIR}/src/plugin/base/ -I${MPTK_SOURCE_DIR}/src/plugin/contrib/lam/ -outdir ${MPTK_MATLAB_OUTPUT_DIR} ${MPTK_MATLAB_SRC_DIR}/${target}.cpp  -L${LIBRARY_OUTPUT_PATH} -lmptk -lmptk4matlab
     COMMENT   "MEX")
+
+   ENDIF(APPLE)
 
     # Copy the MEX-wrapper
     CONFIGURE_FILE(${MPTK_MATLAB_SRC_DIR}/${target}.m ${MPTK_MATLAB_OUTPUT_DIR}/${target}.m

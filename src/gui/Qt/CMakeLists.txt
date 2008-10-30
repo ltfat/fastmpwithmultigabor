@@ -92,7 +92,9 @@ QT4_ADD_RESOURCES(qtproject_RCC_SRCS ${qtproject_RCCS})
 ADD_DEFINITIONS(-DQT_NO_DEBUG)
 
 INCLUDE_DIRECTORIES(
-	${PORTAUDIO_INCLUDE_DIR} 
+	${MPTK_SOURCE_DIR}/src/gui/portaudio_v18_1/pa_common
+	${MPTK_SOURCE_DIR}/src/gui/portaudio_v18_1/pablio/
+	${MPTK_SOURCE_DIR}/src/gui/portaudio_v18_1/pa_win_ds
 	${wxWidgets_INCLUDE_DIRS} 
 	${MPTK_BINARY_DIR}/src/gui/Qt 
 	${QT_INCLUDE_DIR} 

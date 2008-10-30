@@ -300,7 +300,7 @@ bool MPTK_Env_c::load_environment(const char * name )
 	  vector< string >* blockNameVector = new vector< string >();
 	  MP_Block_Factory_c::get_block_factory()->get_registered_block_name( blockNameVector );
 	  if(0==blockNameVector->size()) {
-	    mp_error_msg( func, "No block type was loaded, even though plugins were found in the dll_directory specified by the configuration file\n" );
+	    mp_error_msg( func, "No block type was loaded, even though plugins were found in the dll_directory '%s' specified by the configuration file '%s'\n", MPTK_Env_c::get_env()->get_config_path("dll_directory") , path);
 	    mp_info_msg("","The most common reason is a configuration file which does not match the installed version of MPTK\n");
 	    delete blockNameVector;
 	    return false;
