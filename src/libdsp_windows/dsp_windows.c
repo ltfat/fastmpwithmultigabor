@@ -63,6 +63,9 @@ unsigned long int make_window( Dsp_Win_t *out,
   unsigned long int FoFLimit;
   double factor;
   double sumvalue = 0.0;
+  double freq_normalizer; /* gammawindow: maps sample position to frequency */
+  double filterorder;     /* gammawindow: the filter order */
+  double damping;         /* gammawindow: the bandwith/damping/lambda */
   Dsp_Win_t *p1, *p2; /** The address of two points of the window,
 			  symmetrically located around its center,
 			  used to build only half of it when it is symmetric */
@@ -383,6 +386,37 @@ unsigned long int make_window( Dsp_Win_t *out,
     }
     break;
 
+  /* Gamma function window */
+   case DSP_GAMMA_WIN:
+      if (optional > 0)                                 /* do we have standard mapping? */
+      {
+         filterorder = trunc(optional);                 /* filterorder = integer part */
+         damping     = (optional - filterorder) * 10000;/* damping = (fractional part)*10000 */
+      }
+      else if (optional < 0)
+      {
+         filterorder = trunc(optional);                 
+         damping     = (optional - filterorder) * -10000;/* damping = (fractional part)*10000 */
+         filterorder /= -100;                            /* filterorder = (integer part)/-100 */
+      }
+      else
+      {
+         damping     = DSP_GAMMA_DEFAULT_DAMPING;
+         filterorder = DSP_GAMMA_DEFAULT_FILTERORDER;
+      }
+		
+      freq_normalizer  = (double)1/16000;                  /* TODO: Think of intelligent solution not to need to know the fs */
+  
+      /* Locate the center point (= the first maximum of the window) */
+      centerPoint = (int)( ((double)(filterorder-1))/damping)/freq_normalizer;  // at (filterorder-1)/damping
+        
+      for ( i = 0; i < length; i++ )
+      {
+         newPoint = pow(i*freq_normalizer,filterorder-1)*exp(-damping*i*freq_normalizer);
+         *(out+i) = (Dsp_Win_t)newPoint;
+         energy += ( newPoint * newPoint );
+      }	
+      break;
 
     /* Unknown window */
   default:
@@ -422,6 +456,7 @@ unsigned char window_type_is_ok(const unsigned char type) {
   case DSP_EXPONENTIAL_WIN :
   case DSP_FOF_WIN :
   case DSP_KBD_WIN :
+  case DSP_GAMMA_WIN :
     return(type);
     break;
   default :
@@ -449,6 +484,7 @@ unsigned char window_needs_option(const unsigned char type) {
   case DSP_GAUSS_WIN :
   case DSP_EXPONENTIAL_WIN :
   case DSP_KBD_WIN :
+  case DSP_GAMMA_WIN :
     return(0==0);
     break;
     /* An unknown window doesn't need anything: */
@@ -485,6 +521,8 @@ unsigned char window_type(const char * name) {
     return DSP_FOF_WIN;
   else if (!strcmp(name,"kbd"))
     return DSP_KBD_WIN;
+  else if (!strcmp(name,"gamma"))
+    return DSP_GAMMA_WIN;
   else 
     return DSP_UNKNOWN_WIN;
 }
@@ -530,6 +568,9 @@ char * window_name(const unsigned char type) {
     break;
   case DSP_KBD_WIN :
     return("kbd");
+    break;
+  case DSP_GAMMA_WIN :
+    return("gamma");
     break;
   default :
     return(NULL);

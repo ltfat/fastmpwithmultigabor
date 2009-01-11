@@ -184,6 +184,25 @@
 */
 #define DSP_PBCOSINE_WIN      13
 
+/** \brief A gamma function window
+  * It is \b asymmetric, and the \a filterorder and the damping parameter is packed into the optional argument. 
+  * The standard mapping is indicated with an argument > 0 and is defined as:
+  * filterorder = integer part, damping = (fractional part)*1000
+  * e.g. 4.00714 -> damping = 7.14 and filterorder = 4
+  * To be able to use noninteger filterorder a special mapping possible using a negative parameter:
+  * filterorder = (integer part)/-100 and  damping = (fractional part)*1000
+  * e.g. -425.00714 -> damping = 7.14 and filterorder = 4.25
+  *
+  * f$\lambda\f$ damping factor, \f$n\f$ filterorder 
+  * 
+  * \f[
+  * w[n] \propto n^{c-1}e^{-\lambda n}
+  * \f]
+  **/
+#define DSP_GAMMA_WIN 13
+#define DSP_GAMMA_DEFAULT_FILTERORDER 4
+#define DSP_GAMMA_DEFAULT_DAMPING 850
+
 /** \brief A special type of windows.
  * It is \b reserved for future use with windows that do not necessarily
  * have an analytic expression.
