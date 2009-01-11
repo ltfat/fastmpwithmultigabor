@@ -199,7 +199,7 @@
   * w[n] \propto n^{c-1}e^{-\lambda n}
   * \f]
   **/
-#define DSP_GAMMA_WIN 13
+#define DSP_GAMMA_WIN 14
 #define DSP_GAMMA_DEFAULT_FILTERORDER 4
 #define DSP_GAMMA_DEFAULT_DAMPING 850
 
