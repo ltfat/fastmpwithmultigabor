@@ -36,9 +36,9 @@
  */
 
 #include <mptk.h>
-#include "getopt.h"
-#include <time.h>
-#include <sys/time.h>
+#include "../getopt.h"
+//#include <time.h>
+//#include <sys/time.h>
 #include "../plugin/base/gabor_atom_plugin.h"
 #include "../plugin/base/harmonic_atom_plugin.h"
 

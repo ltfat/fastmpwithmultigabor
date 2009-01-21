@@ -390,13 +390,21 @@ unsigned long int make_window( Dsp_Win_t *out,
    case DSP_GAMMA_WIN:
       if (optional > 0)                                 /* do we have standard mapping? */
       {
-         filterorder = trunc(optional);                 /* filterorder = integer part */
+         filterorder = floor(optional);                 /* filterorder = integer part */
+         if (fabs(optional - ceil(optional)) < (optional - filterorder) )    /* Quick replace of trunc() function  for MSVC */
+         {
+           filterorder = ceil(optional);
+         }
          damping     = (optional - filterorder) * 10000;/* damping = (fractional part)*10000 */
       }
       else if (optional < 0)
       {
-         filterorder = trunc(optional);                 
-         damping     = (optional - filterorder) * -10000;/* damping = (fractional part)*10000 */
+         filterorder = floor(optional);
+         if (fabs(optional - ceil(optional)) < fabs(optional - filterorder) )    /* Quick replace of trunc() function  for MSVC */
+         {
+           filterorder = ceil(optional);
+         }
+        damping     = (optional - filterorder) * -10000;/* damping = (fractional part)*10000 */
          filterorder /= -100;                            /* filterorder = (integer part)/-100 */
       }
       else

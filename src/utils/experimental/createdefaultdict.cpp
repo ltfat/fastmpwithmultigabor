@@ -95,7 +95,7 @@ int main(int argc, char **argv)
   // Create a default bloc for each block type and display info about it
   for (unsigned int i= 0; i < nameVector->size(); i++)
     {
-      if (strcmp(nameVector->at(i).c_str(),"anywavehilbert") and strcmp(nameVector->at(i).c_str(),"anywave")){
+      if (strcmp(nameVector->at(i).c_str(),"anywavehilbert") && strcmp(nameVector->at(i).c_str(),"anywave")){
 	cout << "Try to create a default block for type: [" << nameVector->at(i) << "] ... ";
 	myDict->add_default_block(nameVector->at(i).c_str());
 	cout << " OK" << endl;
