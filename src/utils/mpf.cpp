@@ -613,115 +613,122 @@ int test_satisfaction( int k, unsigned long int n, MP_Atom_c* atom ) {
 /* MAIN                                           */
 /**************************************************/
 int main( int argc, char **argv ) {
-
-  MP_Book_c *book;
-  int decision = MP_TRUE;
-  unsigned long int numPositive = 0;
-  FILE *fid;
-
-  unsigned long int n; /* loop variable for atoms */
-  int k;
-  MP_Mask_c* mask = NULL;
-  
-  /* Parse the command line */
-  if ( argc == 1 ) usage();
-  if ( parse_args( argc, argv ) ) {
-      mp_error_msg( func, "Please check the syntax of your command line."
-                    " (Use --help to get some help.)\n" );
-      exit( ERR_ARG );
-  }
-  
-  /* Load the MPTK environment */
-  if(! (MPTK_Env_c::get_env()->load_environment_if_needed(configFileName)) ) {
-    exit(ERR_LOADENV);
-  }
-  
-  /* Load the book */
-  if ( !strcmp( bookInName, "-" ) ) book = MP_Book_c::create( stdin );
-  else {         fid = fopen(bookInName,"rb");
-  if ( fid == NULL )
-    {
-      mp_error_msg( "Open book",
-                    "Could not open file %s to read a dictionary\n",
-                    bookInName );    }                 
-  	
+	
+	MP_Book_c *book;
+	int decision = MP_TRUE;
+	unsigned long int numPositive = 0;
+	FILE *fid;
+	
+	unsigned long int n; /* loop variable for atoms */
+	int k;
+	MP_Mask_c* maskYes = NULL;
+	MP_Mask_c* maskNo = NULL;
+	
+	/* Parse the command line */
+	if ( argc == 1 ) usage();
+	if ( parse_args( argc, argv ) ) {
+		mp_error_msg( func, "Please check the syntax of your command line."
+					 " (Use --help to get some help.)\n" );
+		exit( ERR_ARG );
+	}
+	
+	/* Load the MPTK environment */
+	if(! (MPTK_Env_c::get_env()->load_environment_if_needed(configFileName)) ) {
+		exit(ERR_LOADENV);
+	}
+	
+	/* Load the book */
+	if ( !strcmp( bookInName, "-" ) ) book = MP_Book_c::create( stdin );
+	else {         fid = fopen(bookInName,"rb");
+		if ( fid == NULL )
+		{
+			mp_error_msg( "Open book",
+						 "Could not open file %s to read a dictionary\n",
+						 bookInName );    }                 
+		
   	book = MP_Book_c::create( fid );}
   	
   	if ( book == NULL ) {
-      mp_error_msg( func, "Can't create a new book.\n" );
-      return( ERR_BOOK );
-  }
-
-  /* Rectify the min/max if asking for non-normed values */
-  if ( MPF_USE_UCF && MPF_USE[MP_FREQ_PROP] ) {
-    MPF_MIN[MP_FREQ_PROP] = MPF_MIN[MP_FREQ_PROP]/book->sampleRate;
-    MPF_MAX[MP_FREQ_PROP] = MPF_MAX[MP_FREQ_PROP]/book->sampleRate;
-  }
-  if ( MPF_USE_UCL && MPF_USE[MP_LEN_PROP] ) {
-    MPF_MIN[MP_LEN_PROP] = MPF_MIN[MP_LEN_PROP]*book->sampleRate;
-    MPF_MAX[MP_LEN_PROP] = MPF_MAX[MP_LEN_PROP]*book->sampleRate;
-  }
-  if ( MPF_USE_UCP && MPF_USE[MP_POS_PROP] ) {
-    MPF_MIN[MP_POS_PROP] = MPF_MIN[MP_POS_PROP]*book->sampleRate;
-    MPF_MAX[MP_POS_PROP] = MPF_MAX[MP_POS_PROP]*book->sampleRate;
-  }
-
-  /* Allocate the mask */
-  if ( (mask = MP_Mask_c::init( book->numAtoms )) == NULL ) {
-    mp_error_msg(func,"Can't create a new mask with [%lu] elements.\n", book->numAtoms );
-    return( ERR_MALLOC );
-  }
-  
-  /* Fill the mask */
-  for (n = 0; n < book->numAtoms; n++) {
-    /* Reset the decision for the current atom */
-    decision = MP_TRUE;
-    /* Test the atom type */
-    if (MPF_TEST_TYPE) decision = ( !strcmp( MPF_TEST_TYPE, book->atom[n]->type_name() ) );
-    /* Browse the properties */
-    for ( k = 0; ( (k <= MP_NUM_PROPS) && decision ); k++ ) {
-      if ( MPF_USE[k] ) decision = ( decision && test_satisfaction( k, n, book->atom[n] ) );
-    }
-    /* Fill the mask */
-    mask->sieve[n] = decision;
-    if ( decision ) numPositive++;
-  }
-
-  /* Report */
-  if ( !MPF_QUIET ) mp_info_msg( func, "Out of the [%lu] original atoms, [%lu] atoms satisfy the required properties.\n",
-			     book->numAtoms, numPositive );
-  if ( !MPF_QUIET ) mp_info_msg( func,"Out of the [%lu] original atoms, [%lu] atoms DO NOT satisfy the required properties.\n",
-			     book->numAtoms, book->numAtoms - numPositive );
-
-  /* Write the YES book */
-  if ( bookYesName ) {
-    if ( !strcmp( bookYesName, "-" ) ) {
-      n = book->print( stdout, MP_TEXT, mask );
-      fflush( stdout );
-      if ( MPF_VERBOSE ) mp_info_msg( func, "[%lu] atoms were written to stdout.\n", n );
-    }
-    else {
-      n = book->print( bookYesName, MP_BINARY, mask );
-      if ( MPF_VERBOSE ) mp_info_msg( func, "[%lu] atoms were written to file [%s].\n", n, bookYesName );
-    }
-  }
-
-  /* Write the NO book */
-  if ( bookNoName ) {
-    /* Revert the mask */
-    //for (n = 0; n < book->numAtoms; n++) mask[n] = !(mask[n]);
-    *mask = !(*mask);
-    /* Write the book */
-    n = book->print( bookNoName, MP_BINARY, mask );
-    /* Report */
-    if ( MPF_VERBOSE ) mp_info_msg( func, "[%lu] atoms were written to file [%s].\n", n, bookNoName );
-  }
-
-  /* Clean the house */
-  delete( book );
-  delete( mask );
-  /* Release Mptk environnement */
-  MPTK_Env_c::get_env()->release_environment();
-
-  return( 0 );
+		mp_error_msg( func, "Can't create a new book.\n" );
+		return( ERR_BOOK );
+	}
+	
+	/* Rectify the min/max if asking for non-normed values */
+	if ( MPF_USE_UCF && MPF_USE[MP_FREQ_PROP] ) {
+		MPF_MIN[MP_FREQ_PROP] = MPF_MIN[MP_FREQ_PROP]/book->sampleRate;
+		MPF_MAX[MP_FREQ_PROP] = MPF_MAX[MP_FREQ_PROP]/book->sampleRate;
+	}
+	if ( MPF_USE_UCL && MPF_USE[MP_LEN_PROP] ) {
+		MPF_MIN[MP_LEN_PROP] = MPF_MIN[MP_LEN_PROP]*book->sampleRate;
+		MPF_MAX[MP_LEN_PROP] = MPF_MAX[MP_LEN_PROP]*book->sampleRate;
+	}
+	if ( MPF_USE_UCP && MPF_USE[MP_POS_PROP] ) {
+		MPF_MIN[MP_POS_PROP] = MPF_MIN[MP_POS_PROP]*book->sampleRate;
+		MPF_MAX[MP_POS_PROP] = MPF_MAX[MP_POS_PROP]*book->sampleRate;
+	}
+	
+	/* Allocate the mask */
+	if ( (maskYes = MP_Mask_c::init( book->numAtoms )) == NULL ) {
+		mp_error_msg(func,"Can't create a new mask with [%lu] elements.\n", book->numAtoms );
+		return( ERR_MALLOC );
+	}
+	if ( (maskNo = MP_Mask_c::init( book->numAtoms )) == NULL ) {
+		mp_error_msg(func,"Can't create a new mask with [%lu] elements.\n", book->numAtoms );
+		return( ERR_MALLOC );
+	}
+	
+	/* Fill the mask */
+	for (n = 0; n < book->numAtoms; n++) {
+		/* Reset the decision for the current atom */
+		decision = MP_TRUE;
+		/* Test the atom type */
+		if (MPF_TEST_TYPE) decision = ( !strcmp( MPF_TEST_TYPE, book->atom[n]->type_name() ) );
+		/* Browse the properties */
+		for ( k = 0; ( (k <= MP_NUM_PROPS) && decision ); k++ ) {
+			if ( MPF_USE[k] ) decision = ( decision && test_satisfaction( k, n, book->atom[n] ) );
+		}
+		/* Fill the mask */
+		maskYes->sieve[n] = decision;
+		maskNo->sieve[n] = !decision;
+		if ( decision ) numPositive++;
+	}
+	
+	/* Report */
+	if ( !MPF_QUIET ) mp_info_msg( func, "Out of the [%lu] original atoms, [%lu] atoms satisfy the required properties.\n",
+								  book->numAtoms, numPositive );
+	if ( !MPF_QUIET ) mp_info_msg( func,"Out of the [%lu] original atoms, [%lu] atoms DO NOT satisfy the required properties.\n",
+								  book->numAtoms, book->numAtoms - numPositive );
+	
+	/* Write the YES book */
+	if ( bookYesName ) {
+		if ( !strcmp( bookYesName, "-" ) ) {
+			n = book->print( stdout, MP_TEXT, maskYes );
+			fflush( stdout );
+			if ( MPF_VERBOSE ) mp_info_msg( func, "[%lu] atoms were written to stdout.\n", n );
+		}
+		else {
+			n = book->print( bookYesName, MP_BINARY, maskYes );
+			if ( MPF_VERBOSE ) mp_info_msg( func, "[%lu] atoms were written to file [%s].\n", n, bookYesName );
+		}
+	}
+	
+	/* Write the NO book */
+	if ( bookNoName ) {
+		/* Revert the mask */
+		//for (n = 0; n < book->numAtoms; n++) mask[n] = !(mask[n]);
+		//*mask = !(*mask);
+		/* Write the book */
+		n = book->print( bookNoName, MP_BINARY, maskNo );
+		/* Report */
+		if ( MPF_VERBOSE ) mp_info_msg( func, "[%lu] atoms were written to file [%s].\n", n, bookNoName );
+	}
+	
+	/* Clean the house */
+	delete( book );
+	delete( maskYes );
+	delete( maskNo );
+	/* Release Mptk environnement */
+	MPTK_Env_c::get_env()->release_environment();
+	
+	return( 0 );
 }

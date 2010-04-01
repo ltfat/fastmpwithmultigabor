@@ -1,43 +1,38 @@
 # Locate sndFile library and include paths
 
 IF(UNIX)
-  IF(APPLE)
-    FIND_PATH(SNDFILE_INCLUDE_DIR sndfile.h
-      /usr/local/include
-       ${MPTK_USER_INCLUDE_PATH}
-      /usr/include/ 
-      )
-     FIND_LIBRARY(SNDFILE_LIBRARY_FILE sndfile
-       /usr/local/lib
-      $ENV{LD_LIBRARY_PATH}
-      ${MPTK_USER_LIB_PATH}
-      /usr/lib
-      )
-  ELSE(APPLE)
-    FIND_PATH(SNDFILE_INCLUDE_DIR sndfile.h
-      /usr/local/include
-       ${MPTK_USER_INCLUDE_PATH}
-      /usr/include/ 
-      )
-
-    FIND_LIBRARY(SNDFILE_LIBRARY_FILE sndfile
-      /usr/local/lib
-      $ENV{LD_LIBRARY_PATH}
-      ${MPTK_USER_LIB_PATH}
-      /usr/lib
-      )
-  ENDIF(APPLE)
+	IF(APPLE)
+		FIND_PATH(SNDFILE_INCLUDE_DIR sndfile.h
+		/usr/local/include
+		${MPTK_USER_INCLUDE_PATH}
+		/usr/include/ 
+		)
+		FIND_LIBRARY(SNDFILE_LIBRARY_FILE sndfile
+		/usr/local/lib
+		$ENV{LD_LIBRARY_PATH}
+		${MPTK_USER_LIB_PATH}
+		/usr/lib
+		)
+	ELSE(APPLE)
+		FIND_PATH(SNDFILE_INCLUDE_DIR sndfile.h
+		/usr/local/include
+		${MPTK_USER_INCLUDE_PATH}
+		/usr/include/ 
+		)
+		FIND_LIBRARY(SNDFILE_LIBRARY_FILE sndfile
+		/usr/local/lib
+		$ENV{LD_LIBRARY_PATH}
+		${MPTK_USER_LIB_PATH}
+		/usr/lib
+		)
+	ENDIF(APPLE)
 ELSE(UNIX)
-  
-  IF(WIN32)
-    FIND_PATH(SNDFILE_INCLUDE_DIR sndfile.h
-    $ENV{INCLUDE}
-      )
-    FIND_LIBRARY(SNDFILE_LIBRARY_FILE libsndfile-1
-    $ENV{SystemDrive}/WINDOWS/system32
-    $ENV{LIB}
-      )
-  ENDIF(WIN32)
+	IF(WIN32)
+		SET(RELATIVE_INCLUDE_PATH extras/windows/include)
+		SET(RELATIVE_LIBRARY_PATH extras/windows/lib)
+		FIND_PATH(SNDFILE_INCLUDE_DIR sndfile.h ${MPTK_SOURCE_DIR}/${RELATIVE_INCLUDE_PATH})
+		FIND_LIBRARY(SNDFILE_LIBRARY_FILE sndfile-1 ${MPTK_SOURCE_DIR}/${RELATIVE_LIBRARY_PATH})
+	ENDIF(WIN32)
 ENDIF(UNIX)
 
 SET (SNDFILE_INCLUDE_FOUND 0)

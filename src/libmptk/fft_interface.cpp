@@ -625,6 +625,7 @@ bool MP_FFT_Interface_c::init_fft_library_config()
 
   /* Check if file path is defined in env variable */
   const char *filename = MPTK_Env_c::get_env()->get_config_path("fftw_wisdomfile");
+	
   if (NULL != filename)
     wisdomFile= fopen(filename,"r");
   /* Check if file exists */

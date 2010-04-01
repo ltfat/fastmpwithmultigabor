@@ -122,16 +122,18 @@ MP_Mpd_demix_Core_c* MP_Mpd_demix_Core_c::create( MP_Signal_c *signal, MP_Mixer_
 MP_Mpd_demix_Core_c::MP_Mpd_demix_Core_c()
 {
   /* Manipulated objects */
-  dictArray = NULL;
-  bookArray = NULL;
-  mixer = NULL;
-  maxAtom  = NULL;
-  maxAmp = 0;
-  amp = NULL;
-  maxSrc = 0;
-  srcSeqFileName = NULL;
-  bookFileName = NULL;
-  approxFileNames = NULL;
+	dictArray = NULL;
+	bookArray = NULL;
+	approxArray = NULL;
+	mixer = NULL;
+	maxAtom  = NULL;
+	maxAmp = 0;
+	amp = NULL;
+	maxSrc = 0;
+	srcSeqFileName = NULL;
+	bookFileName = NULL;
+	bookFileNames = NULL;
+	approxFileNames = NULL;
 }
 
 /**************/

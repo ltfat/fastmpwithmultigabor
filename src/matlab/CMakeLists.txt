@@ -22,108 +22,83 @@ endif(COMMAND cmake_policy)
 ############################################
 IF(BUILD_MATLAB_MEX_FILES OR BUILD_MATLAB_MEX_FILES_EXPERIMENTAL)
 
-# Test if we are in in X86_64 and then set the -fPIC compil tag
-IF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
- ADD_DEFINITIONS(-fPIC)
-ENDIF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" ) 
-
-#In case of 64 bits plateform we have to compil with -fPIC flag
-#
-IF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
-IF( CMAKE_CXX_COMPILER STREQUAL "cl")
-    SET(MPTK4MATLAB_COMPILE_FLAGS " -fPIC")
-ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
-    SET(MPTK4MATLAB_COMPILE_FLAGS " -Wno-deprecated -fPIC")
-ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
-ELSE( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" ) 
-IF( CMAKE_CXX_COMPILER STREQUAL "cl")
-    SET(MPTK4MATLAB_COMPILE_FLAGS "")
-ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
-    SET(MPTK4MATLAB_COMPILE_FLAGS " -Wno-deprecated")
-ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
-ENDIF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" ) 
+	# Test if we are in in X86_64 and then set the -fPIC compil tag
+	IF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
+ 		ADD_DEFINITIONS(-fPIC)
+	ENDIF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" ) 
+	#In case of 64 bits plateform we have to compil with -fPIC flag
+	IF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
+		IF( CMAKE_CXX_COMPILER STREQUAL "cl")
+    			SET(MPTK4MATLAB_COMPILE_FLAGS " -fPIC")
+		ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
+    			SET(MPTK4MATLAB_COMPILE_FLAGS " -Wno-deprecated -fPIC")
+		ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
+	ELSE( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" ) 
+		IF( CMAKE_CXX_COMPILER STREQUAL "cl")
+    			SET(MPTK4MATLAB_COMPILE_FLAGS "")
+		ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
+    			SET(MPTK4MATLAB_COMPILE_FLAGS " -Wno-deprecated")
+		ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
+	ENDIF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" ) 
 
 
+	# Set a few variables and the MEX file compiler
+	#  MATLAB_INCLUDE_DIR: include path for mex.h, engine.h
+	#  MATLAB_LIBRARIES:   required libraries: libmex, etc
+	#  MATLAB_MEX_LIBRARY: path to libmex.lib
+	#  MATLAB_MX_LIBRARY:  path to libmx.lib
+	#  MATLAB_ENG_LIBRARY: path to libeng.lib
+	#  MEX_COMPILER
 
-# Set a few variables and the MEX file compiler
-#  MATLAB_INCLUDE_DIR: include path for mex.h, engine.h
-#  MATLAB_LIBRARIES:   required libraries: libmex, etc
-#  MATLAB_MEX_LIBRARY: path to libmex.lib
-#  MATLAB_MX_LIBRARY:  path to libmx.lib
-#  MATLAB_ENG_LIBRARY: path to libeng.lib
-#  MEX_COMPILER
+	# SET MEX files extension (we could use the mexext program)
+	# and find MEX compiler
+	IF(UNIX)
+		IF(APPLE)
+			IF(CMAKE_OSX_ARCHITECTURES MATCHES i386)
+   				SET(MEX_EXTENSION mexmaci)
+			ELSE(CMAKE_OSX_ARCHITECTURES MATCHES i386)
+   				SET(MEX_EXTENSION mexmac)
+			ENDIF(CMAKE_OSX_ARCHITECTURES MATCHES i386)
 
-# SET MEX files extension (we could use the mexext program)
-# and find MEX compiler
-IF(UNIX)
-IF(APPLE)
-# For MacOS, need to determine Intel/PPC architecture
-IF(CMAKE_OSX_ARCHITECTURES MATCHES i386)
-   SET(MEX_EXTENSION mexmaci)
-ELSE(CMAKE_OSX_ARCHITECTURES MATCHES i386)
-   SET(MEX_EXTENSION mexmac)
-ENDIF(CMAKE_OSX_ARCHITECTURES MATCHES i386)
-   SET(MATLAB_ROOT 
-   /Applications/MATLAB_R2008a/
-   /Applications/MATLAB_R2007b/
-   /Applications/MATLAB_R2007a/
-   /Applications/MATLAB74/
-    )
-   FIND_PROGRAM(MEX_COMPILER mex PATH 
-   /Applications/MATLAB_R2008a/bin/
-   /Applications/MATLAB_R2007b/bin/
-   /Applications/MATLAB_R2007a/bin/
-   /Applications/MATLAB74/bin/
-   NO_DEFAULT_PATH)
-   FIND_PATH(MATLAB_INCLUDE_DIR
-   "mex.h"
-   /Applications/MATLAB_R2008a/extern/include/
-   /Applications/MATLAB_R2007b/extern/include/
-   /Applications/MATLAB_R2007a/extern/include/
-   /Applications/MATLAB74/extern/include/
-   NO_DEFAULT_PATH)
-   FIND_LIBRARY(MATLAB_MEX_LIBRARY mex 
-   /Applications/MATLAB_R2008a/bin/maci/
-   /Applications/MATLAB_R2007b/bin/maci/
-   /Applications/MATLAB_R2007a/bin/maci/
-   /Applications/MATLAB74/bin/maci/
-   NO_DEFAULT_PATH)
-   FIND_LIBRARY(MATLAB_MX_LIBRARY mx 
-   /Applications/MATLAB_R2008a/bin/maci/
-   /Applications/MATLAB_R2007b/bin/maci/
-   /Applications/MATLAB_R2007a/bin/maci/
-   /Applications/MATLAB74/bin/maci/
-   NO_DEFAULT_PATH)
-   FIND_LIBRARY(MATLAB_ENG_LIBRARY eng 
-   /Applications/MATLAB_R2008a/bin/maci/
-   /Applications/MATLAB_R2007b/bin/maci/
-   /Applications/MATLAB_R2007a/bin/maci/
-   /Applications/MATLAB74/bin/maci/
-   NO_DEFAULT_PATH)
-   SET(MATLAB_LIBRARIES
-   ${MATLAB_MEX_LIBRARY}
-   ${MATLAB_MX_LIBRARY}
-   ${MATLAB_ENG_LIBRARY}
-   )   
-ELSE(APPLE)
-   SET(MEX_EXTENSION mexglx)
-   INCLUDE(FindMatlab)
-   FIND_PROGRAM(MEX_COMPILER mex)
-ENDIF(APPLE)
+			SET(LIB_REPOSITORY maci)
+			SET(MATLAB_INSTALL_REPOSITORY /Applications/*/bin)
+		ELSE(APPLE)
+			SET(LIB_REPOSITORY glnx86)
+			SET(MEX_EXTENSION mexglx)
+			SET(MATLAB_INSTALL_REPOSITORY /opt/*/bin /soft/*/bin)
+		ENDIF(APPLE)
+	ELSE(UNIX)
+		IF(WIN32) 
+			IF( CMAKE_CXX_COMPILER STREQUAL "cl")
+				SET(LIB_REPOSITORY win32)
+				SET(MEX_EXTENSION mexw32)
+				SET(EXECUTABLE_EXTENSION .bat)
+				SET(MATLAB_INSTALL_REPOSITORY C:/Program Files/MATLAB)
+				MESSAGE("Please select Visual Studio as the mex compiler. From within Matlab, type the command line 'mex -setup' and choose Visual Studio in the list.")
+			ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
+   				MESSAGE("Matlab Mex files are only supported by MS Visual Studio")
+			ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
+		ENDIF(WIN32)
+	ENDIF(UNIX)
 
-ELSE(UNIX)
-IF(WIN32) 
-IF( CMAKE_CXX_COMPILER STREQUAL "cl")
-   INCLUDE(FindMatlab)
-   SET(MEX_EXTENSION mexw32)
-   FIND_PROGRAM(MEX_COMPILER mex)
-   INCLUDE_DIRECTORIES(${MATLAB_INCLUDE_DIR})
-   MESSAGE("Please select Visual Studio as the mex compiler. From within Matlab, type the command line 'mex -setup' and choose Visual Studio in the list.")
-ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
-   MESSAGE("Matlab Mex files are only supported by MS Visual Studio")
-ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
-ENDIF(WIN32)
-ENDIF(UNIX)
+	# Retrieve mexext install directory (in order to retrieve Matlab install directory)
+	FIND_PROGRAM(MATLAB_MEXEXT mexext${EXECUTABLE_EXTENSION} PATH ${MATLAB_INSTALL_REPOSITORY} NO_DEFAULT_PATH)
+	# Retrieve Matlab program bin directory
+	GET_FILENAME_COMPONENT(MATLAB_BIN_REPOSITORY ${MATLAB_MEXEXT} PATH)
+	# Retrieve Matlab mex compiler include directory
+	FIND_PROGRAM(MEX_COMPILER mex${EXECUTABLE_EXTENSION} "${MATLAB_BIN_REPOSITORY}/../bin/" NO_DEFAULT_PATH) 
+	# Retrieve Matlab include directory
+	FIND_PATH(MATLAB_INCLUDE_DIR "mex.h" "${MATLAB_BIN_REPOSITORY}/../extern/include/" NO_DEFAULT_PATH)
+	IF(WIN32)
+		SET(MATLAB_INCLUDE_DIR \"${MATLAB_INCLUDE_DIR}\")
+	ENDIF(WIN32)
+	# Retrieve Matlab include directories
+	FIND_LIBRARY(MATLAB_MEX_LIBRARY "mex" "${MATLAB_BIN_REPOSITORY}/../bin/${LIB_REPOSITORY}/" NO_DEFAULT_PATH)
+	FIND_LIBRARY(MATLAB_MX_LIBRARY "mx" "${MATLAB_BIN_REPOSITORY}/../bin/${LIB_REPOSITORY}/" NO_DEFAULT_PATH)
+	FIND_LIBRARY(MATLAB_ENG_LIBRARY "eng" "${MATLAB_BIN_REPOSITORY}/../bin/${LIB_REPOSITORY}/" NO_DEFAULT_PATH)
+
+	SET(MATLAB_LIBRARIES ${MATLAB_MEX_LIBRARY} ${MATLAB_MX_LIBRARY} ${MATLAB_ENG_LIBRARY})   
+
 ENDIF(BUILD_MATLAB_MEX_FILES OR BUILD_MATLAB_MEX_FILES_EXPERIMENTAL)
 
 #MESSAGE("MEX_COMPILER:                                         = ${MEX_COMPILER}")
@@ -196,7 +171,11 @@ classes/mexSignal.cpp
 experimental/classes/mxBook.h
 experimental/classes/mxBook.cpp)
 
-ADD_LIBRARY(mptk4matlab SHARED ${MPTK4MATLAB_SOURCES})
+IF(UNIX)
+	ADD_LIBRARY(mptk4matlab STATIC ${MPTK4MATLAB_SOURCES})
+ELSE(UNIX)
+	ADD_LIBRARY(mptk4matlab SHARED ${MPTK4MATLAB_SOURCES})
+ENDIF(UNIX)
 
 SET_TARGET_PROPERTIES(mptk4matlab PROPERTIES
 		      COMPILE_FLAGS " -DC_BUILDING_mptk4matlab ${SHARED_FLAGS} ${MPTK4MATLAB_COMPILE_FLAGS} -I${MATLAB_INCLUDE_DIR} -I${MPTK_SOURCE_DIR}/src/plugin/base/ -I${MPTK_SOURCE_DIR}/src/plugin/contrib/lam/"
@@ -237,14 +216,21 @@ FOREACH(target getmptkinfo dictread dictwrite sigread sigwrite bookread bookwrit
     COMMENT   "MEX")
 
    ELSE(APPLE)
-   ADD_CUSTOM_COMMAND(
-    OUTPUT ${MPTK_MATLAB_OUTPUT_DIR}/${target}.${MEX_EXTENSION}
-    POST_BUILD
-    COMMAND   ${MEX_COMPILER} -v
-    ARGS      -O -DHAVE_FFTW3 -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${MPTK_SOURCE_DIR}/src/tinyxml/ -I/usr/include/ -I${MPTK_SOURCE_DIR} -I${MPTK_SOURCE_DIR}/src/libdsp_windows/ -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${FFTW3_INCLUDE_DIR} -I${PTHREAD_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/ -I${MPTK_MATLAB_SRC_DIR}/classes/ -I${MPTK_MATLAB_SRC_DIR}/experimental/classes/ -I${MPTK_SOURCE_DIR}/src/plugin/base/ -I${MPTK_SOURCE_DIR}/src/plugin/contrib/lam/ -L${LIBRARY_OUTPUT_PATH} -L${MPTK_LIB_DIR} -outdir ${MPTK_MATLAB_OUTPUT_DIR} ${MPTK_MATLAB_SRC_DIR}/${target}.cpp -lmptk -lmptk4matlab
-    COMMENT   "MEX")
-
-
+      IF(BUILD_DEBUG)
+          ADD_CUSTOM_COMMAND(
+          OUTPUT ${MPTK_MATLAB_OUTPUT_DIR}/${target}.${MEX_EXTENSION}
+          POST_BUILD
+          COMMAND   ${MEX_COMPILER} -v -g
+          ARGS      -O -DHAVE_FFTW3 -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${MPTK_SOURCE_DIR}/src/tinyxml/ -I/usr/include/ -I${MPTK_SOURCE_DIR} -I${MPTK_SOURCE_DIR}/src/libdsp_windows/ -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${FFTW3_INCLUDE_DIR} -I${PTHREAD_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/ -I${MPTK_MATLAB_SRC_DIR}/classes/ -I${MPTK_MATLAB_SRC_DIR}/experimental/classes/ -I${MPTK_SOURCE_DIR}/src/plugin/base/ -I${MPTK_SOURCE_DIR}/src/plugin/contrib/lam/ -L${LIBRARY_OUTPUT_PATH} -L${MPTK_LIB_DIR} -outdir ${MPTK_MATLAB_OUTPUT_DIR} ${MPTK_MATLAB_SRC_DIR}/${target}.cpp -lmptk -lmptk4matlab
+          COMMENT   "MEX")
+      ELSE(BUILD_DEBUG)
+          ADD_CUSTOM_COMMAND(
+          OUTPUT ${MPTK_MATLAB_OUTPUT_DIR}/${target}.${MEX_EXTENSION}
+          POST_BUILD
+          COMMAND   ${MEX_COMPILER} -v
+          ARGS      -O -DHAVE_FFTW3 -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${MPTK_SOURCE_DIR}/src/tinyxml/ -I/usr/include/ -I${MPTK_SOURCE_DIR} -I${MPTK_SOURCE_DIR}/src/libdsp_windows/ -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${FFTW3_INCLUDE_DIR} -I${PTHREAD_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/ -I${MPTK_MATLAB_SRC_DIR}/classes/ -I${MPTK_MATLAB_SRC_DIR}/experimental/classes/ -I${MPTK_SOURCE_DIR}/src/plugin/base/ -I${MPTK_SOURCE_DIR}/src/plugin/contrib/lam/ -L${LIBRARY_OUTPUT_PATH} -L${MPTK_LIB_DIR} -outdir ${MPTK_MATLAB_OUTPUT_DIR} ${MPTK_MATLAB_SRC_DIR}/${target}.cpp -lmptk -lmptk4matlab
+          COMMENT   "MEX")
+      ENDIF(BUILD_DEBUG)
    ENDIF(APPLE)
 
     # Copy the MEX-wrapper
@@ -293,8 +279,8 @@ ELSE(BUILD_DEBUG) # Release
   )
 ENDIF(BUILD_DEBUG)
  # Removed ${MPTK_MATLAB_OUTPUT_DIR}/mptk.dll because installer can't find it ...
- INSTALL(FILES  ${MPTK_MATLAB_OUTPUT_DIR}/libmptk4matlab.dll
-          DESTINATION ${MPTK_MATLAB_INSTALL_DIR})
+ INSTALL(FILES  ${MPTK_MATLAB_OUTPUT_DIR}/libmptk4matlab.dll DESTINATION ${MPTK_MATLAB_INSTALL_DIR})
+ INSTALL(FILES  ${MPTK_MATLAB_OUTPUT_DIR}/mptk.dll DESTINATION ${MPTK_MATLAB_INSTALL_DIR})
 
 ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
 

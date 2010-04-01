@@ -6,11 +6,10 @@
 # Finding fftw3
 INCLUDE (${MPTK_SOURCE_DIR}/CMake/FindFFTW3.cmake)
 IF(NOT FFTW3_INCLUDE_FOUND)
-  MESSAGE(STATUS "Please set FFTW3_INCLUDE_DIR or code using FFTW3 will not be compiled")
+	MESSAGE(STATUS "Please set FFTW3_INCLUDE_DIR or code using FFTW3 will not be compiled")
 ENDIF(NOT FFTW3_INCLUDE_FOUND)
-INCLUDE (${MPTK_SOURCE_DIR}/CMake/FindFFTW3.cmake)
 IF(NOT FFTW3_LIB_FOUND)
-  MESSAGE(STATUS "Please set FFTW3_LIBRARY_FILE or code using FFTW3 will not be compiled")
+	MESSAGE(STATUS "Please set FFTW3_LIBRARY_FILE or code using FFTW3 will not be compiled")
 ENDIF(NOT FFTW3_LIB_FOUND)
 #------------------------------------------------
 # Finding sndfile
