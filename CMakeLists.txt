@@ -204,29 +204,26 @@ ENDFOREACH(default)
 # Case of Visual Studio 
 IF( CMAKE_CXX_COMPILER STREQUAL "cl")
     IF (BUILD_DEBUG)
-    # Case of debug mode
-    SET(MPTK_LIB_DIR ${MPTK_BINARY_DIR}/lib/debug)
-    SET(MPTK_LIB_DIR_INSTALL ${CMAKE_INSTALL_PREFIX}/lib)
+	# Case of debug mode
+	SET(MPTK_LIB_DIR ${MPTK_BINARY_DIR}/lib/debug)
+	SET(MPTK_LIB_DIR_INSTALL ${CMAKE_INSTALL_PREFIX}/lib)
     ELSE (BUILD_DEBUG)
-    # Case of release mode
-    SET(MPTK_LIB_DIR ${MPTK_BINARY_DIR}/lib/release)
-    SET(MPTK_LIB_DIR_INSTALL ${CMAKE_INSTALL_PREFIX}/lib)
+    	# Case of release mode
+    	SET(MPTK_LIB_DIR ${MPTK_BINARY_DIR}/lib/release)
+    	SET(MPTK_LIB_DIR_INSTALL ${CMAKE_INSTALL_PREFIX}/lib)
     ENDIF (BUILD_DEBUG)
 ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
 # Case of Xcode
 IF( CMAKE_GENERATOR STREQUAL "Xcode")
     # We would like to select a single build mode, would we ?
     # or to select it dynamically there is the CMAKE_CFG_INTDIR stuff
-    IF (CMAKE_CONFIGURATION_TYPE MATCHES Debug)
-    SET(MPTK_LIB_DIR ${MPTK_BINARY_DIR}/lib/Debug)
-    SET(MPTK_LIB_DIR_INSTALL ${CMAKE_INSTALL_PREFIX}/lib)
-    ELSE (CMAKE_CONFIGURATION_TYPE MATCHES Debug)
-    MESSAGE("CMAKE_CONFIGURATION_TYPE is <${CMAKE_CONFIGURATION_TYPE}>")
-    SET(MPTK_LIB_DIR ${MPTK_BINARY_DIR}/lib/Release)
-    SET(MPTK_LIB_DIR_INSTALL ${CMAKE_INSTALL_PREFIX}/lib)
-    ENDIF (CMAKE_CONFIGURATION_TYPE MATCHES Debug)
-    MESSAGE("Generator is " ${CMAKE_GENERATOR})
-    MESSAGE("lib dir is " ${MPTK_LIB_DIR})
+    IF (BUILD_DEBUG)
+    	SET(MPTK_LIB_DIR ${MPTK_BINARY_DIR}/lib/Debug)
+    	SET(MPTK_LIB_DIR_INSTALL ${CMAKE_INSTALL_PREFIX}/lib)
+    ELSE (BUILD_DEBUG)
+    	SET(MPTK_LIB_DIR ${MPTK_BINARY_DIR}/lib/Release)
+    	SET(MPTK_LIB_DIR_INSTALL ${CMAKE_INSTALL_PREFIX}/lib)
+    ENDIF (BUILD_DEBUG)
 ELSE( CMAKE_GENERATOR STREQUAL "Xcode")
 # Generic case
       SET(MPTK_LIB_DIR ${MPTK_BINARY_DIR}/lib)
@@ -400,7 +397,6 @@ SET(CPACK_PACKAGE_DESCRIPTION_FILE "${MPTK_SOURCE_DIR}/README")
 SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Matching Pursuit Tool Kit")
 SET(CPACK_RESOURCE_FILE_LICENSE "${MPTK_SOURCE_DIR}/COPYING")
 SET(CPACK_RESOURCE_FILE_README "${MPTK_SOURCE_DIR}/README")
-SET(CPACK_RESOURCE_FILE_WELCOME "${MPTK_SOURCE_DIR}/INSTALL")
 
 
 #BINARY DISTRIBUTION:
@@ -409,24 +405,25 @@ SET(CPACK_INSTALL_CMAKE_PROJECTS "${MPTK_BINARY_DIR};MPTK;ALL;/")
 SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Matching Pursuit Tool Kit")
 SET(CPACK_SOURCE_PACKAGE_FILE_NAME "${MPTK-CPACK_PACKAGE_VERSION}")
 SET(CPACK_IGNORE_FILES "/CMake/;/CMakeFiles/;/_CPack_Packages/;/src/;/bin/make_regression_constants;/install_manifest_/;.*~;/www/;/CVS//;/.svn/;.cdtprojects;.project;/.settings/")
-
-IF(WIN32 AND NOT LINUX)
-SET(CPACK_GENERATOR "TGZ")
-  # NSIS not used yet, cause of a bug with suitable ZIP programme
-  # There is a bug in NSI that does not handle full unix paths properly. Make
-  # sure there is at least one set of four (4) backlasshes.
-  SET(CPACK_PACKAGE_ICON "${CMake_SOURCE_DIR}/Utilities/Release\\\\InstallIcon.bmp")
-  SET(CPACK_NSIS_DISPLAY_NAME "MPTK")
-  SET(CPACK_NSIS_HELP_LINK "http:\\\\\\\\www.irisa.fr/metiss/home_html-fr")
-  SET(CPACK_NSIS_URL_INFO_ABOUT "http:\\\\\\\\http://www.irisa.fr/metiss/home_html-fr")
-  SET(CPACK_NSIS_CONTACT "matchingpursuite@irisa.fr")
-SET(CPACK_NSIS_MODIFY_PATH ON)
-INSTALL(FILES "${MPTK_SOURCE_DIR}/README" DESTINATION .)
-INSTALL(FILES  "${MPTK_SOURCE_DIR}/COPYING" DESTINATION .)
-ELSE(WIN32 AND NOT LINUX)
-SET(CPACK_GENERATOR "TGZ")
-ENDIF(WIN32 AND NOT LINUX)
 SET(CPACK_STRIP_FILES "")
+
+IF(WIN32)
+	SET(CPACK_GENERATOR "TGZ")
+	# NSIS not used yet, cause of a bug with suitable ZIP programme
+	# There is a bug in NSI that does not handle full unix paths properly. Make
+	# sure there is at least one set of four (4) backlasshes.
+	SET(CPACK_PACKAGE_ICON "${CMake_SOURCE_DIR}/Utilities/Release\\\\InstallIcon.bmp")
+	SET(CPACK_NSIS_DISPLAY_NAME "MPTK")
+	SET(CPACK_NSIS_HELP_LINK "http:\\\\\\\\www.irisa.fr/metiss/home_html-fr")
+	SET(CPACK_NSIS_URL_INFO_ABOUT "http:\\\\\\\\http://www.irisa.fr/metiss/home_html-fr")
+	SET(CPACK_NSIS_CONTACT "matchingpursuite@irisa.fr")
+	SET(CPACK_NSIS_MODIFY_PATH ON)
+	INSTALL(FILES "${MPTK_SOURCE_DIR}/README" DESTINATION .)
+	INSTALL(FILES  "${MPTK_SOURCE_DIR}/COPYING" DESTINATION .)
+ELSE(WIN32)
+	INSTALL(FILES "${MPTK_SOURCE_DIR}/Package/install.sh" PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_WRITE GROUP_EXECUTE WORLD_READ WORLD_WRITE WORLD_EXECUTE DESTINATION .)
+	SET(CPACK_GENERATOR "TGZ")
+ENDIF(WIN32)
 
 # SOURCE DISTRIBUTION:
 SET(CPACK_SOURCE_GENERATOR "TGZ")
