@@ -408,11 +408,11 @@ SET(CPACK_IGNORE_FILES "/CMake/;/CMakeFiles/;/_CPack_Packages/;/src/;/bin/make_r
 SET(CPACK_STRIP_FILES "")
 
 IF(WIN32)
-	SET(CPACK_GENERATOR "TGZ")
+	SET(CPACK_GENERATOR "NSIS")
 	# NSIS not used yet, cause of a bug with suitable ZIP programme
 	# There is a bug in NSI that does not handle full unix paths properly. Make
 	# sure there is at least one set of four (4) backlasshes.
-	SET(CPACK_PACKAGE_ICON "${CMake_SOURCE_DIR}/Utilities/Release\\\\InstallIcon.bmp")
+	# SET(CPACK_PACKAGE_ICON "${CMake_SOURCE_DIR}/Utilities/Release\\\\InstallIcon.bmp")
 	SET(CPACK_NSIS_DISPLAY_NAME "MPTK")
 	SET(CPACK_NSIS_HELP_LINK "http:\\\\\\\\www.irisa.fr/metiss/home_html-fr")
 	SET(CPACK_NSIS_URL_INFO_ABOUT "http:\\\\\\\\http://www.irisa.fr/metiss/home_html-fr")
