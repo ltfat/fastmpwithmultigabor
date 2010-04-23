@@ -49,68 +49,9 @@ IF(BUILD_MATLAB_MEX_FILES OR BUILD_MATLAB_MEX_FILES_EXPERIMENTAL)
 	#  MATLAB_MX_LIBRARY:  path to libmx.lib
 	#  MATLAB_ENG_LIBRARY: path to libeng.lib
 	#  MEX_COMPILER
-
-	# SET MEX files extension (we could use the mexext program)
-	# and find MEX compiler
-	IF(UNIX)
-		IF(APPLE)
-			IF(CMAKE_OSX_ARCHITECTURES MATCHES i386)
-   				SET(MEX_EXTENSION mexmaci)
-			ELSE(CMAKE_OSX_ARCHITECTURES MATCHES i386)
-   				SET(MEX_EXTENSION mexmac)
-			ENDIF(CMAKE_OSX_ARCHITECTURES MATCHES i386)
-
-			SET(LIB_REPOSITORY maci)
-			SET(MATLAB_INSTALL_REPOSITORY /Applications/*/bin)
-		ELSE(APPLE)
-			SET(LIB_REPOSITORY glnx86)
-			SET(MEX_EXTENSION mexglx)
-			SET(MATLAB_INSTALL_REPOSITORY /opt/*/bin /soft/*/bin)
-		ENDIF(APPLE)
-	ELSE(UNIX)
-		IF(WIN32) 
-			IF( CMAKE_CXX_COMPILER STREQUAL "cl")
-				SET(LIB_REPOSITORY ../extern/lib/win32/microsoft)
-				SET(MEX_EXTENSION mexw32)
-				SET(EXECUTABLE_EXTENSION .bat)
-				SET(MATLAB_INSTALL_REPOSITORY "C:/Program Files/MATLAB/*/bin")
-				MESSAGE("Please select Visual Studio as the mex compiler. From within Matlab, type the command line 'mex -setup' and choose Visual Studio in the list.")
-			ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
-   				MESSAGE("Matlab Mex files are only supported by MS Visual Studio")
-			ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
-		ENDIF(WIN32)
-	ENDIF(UNIX)
-
-	# Retrieve mexext install directory (in order to retrieve Matlab install directory)
-	FIND_PROGRAM(MATLAB_MEXEXT mexext${EXECUTABLE_EXTENSION} PATH ${MATLAB_INSTALL_REPOSITORY} NO_DEFAULT_PATH)
-	# Retrieve Matlab program bin directory
-	GET_FILENAME_COMPONENT(MATLAB_BIN_REPOSITORY ${MATLAB_MEXEXT} PATH)
-	# Retrieve Matlab mex compiler include directory
-	FIND_PROGRAM(MEX_COMPILER mex${EXECUTABLE_EXTENSION} "${MATLAB_BIN_REPOSITORY}/../bin/" NO_DEFAULT_PATH) 
-	# Retrieve Matlab include directory
-	FIND_PATH(MATLAB_INCLUDE_DIR "mex.h" "${MATLAB_BIN_REPOSITORY}/../extern/include/" NO_DEFAULT_PATH)
-	IF(WIN32)
-		SET(MATLAB_INCLUDE_DIR \"${MATLAB_INCLUDE_DIR}\")
-	ENDIF(WIN32)
-	# Retrieve Matlab include directories
-	FIND_LIBRARY(MATLAB_MEX_LIBRARY "mex" "${MATLAB_BIN_REPOSITORY}/../bin/${LIB_REPOSITORY}/" NO_DEFAULT_PATH)
-	FIND_LIBRARY(MATLAB_MX_LIBRARY "mx" "${MATLAB_BIN_REPOSITORY}/../bin/${LIB_REPOSITORY}/" NO_DEFAULT_PATH)
-	FIND_LIBRARY(MATLAB_ENG_LIBRARY "eng" "${MATLAB_BIN_REPOSITORY}/../bin/${LIB_REPOSITORY}/" NO_DEFAULT_PATH)
-
-	SET(MATLAB_LIBRARIES ${MATLAB_MEX_LIBRARY} ${MATLAB_MX_LIBRARY} ${MATLAB_ENG_LIBRARY})   
+	INCLUDE(${MPTK_SOURCE_DIR}/CMake/FindMatlab.cmake)
 
 ENDIF(BUILD_MATLAB_MEX_FILES OR BUILD_MATLAB_MEX_FILES_EXPERIMENTAL)
-
-#MESSAGE("MEX_COMPILER:                                         = ${MEX_COMPILER}")
-#MESSAGE("MATLAB_INCLUDE_DIR: include path for mex.h, engine.h = ${MATLAB_INCLUDE_DIR}")
-#MESSAGE("MATLAB_LIBRARIES: required libraries : libmex, etc    = ${MATLAB_LIBRARIES}")
-#MESSAGE("MATLAB_MEX_LIBRARY: path to libmex.lib                = ${MATLAB_MEX_LIBRARY}")
-#MESSAGE("MATLAB_MX_LIBRARY:  path to libmx.lib                 = ${MATLAB_MX_LIBRARY}")
-#MESSAGE("MATLAB_ENG_LIBRARY: path to libeng.lib                = ${MATLAB_ENG_LIBRARY}")
-
-
-
-
 
 ############
 # Set source and output path
