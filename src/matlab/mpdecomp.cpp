@@ -209,5 +209,5 @@ mexEvalString("pause(.001);"); // to dump string and flush
   delete signal;
   delete dict;
   delete book;
-  delete mpdCore;
+  //delete mpdCore;
 }
