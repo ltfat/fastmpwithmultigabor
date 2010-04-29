@@ -652,7 +652,11 @@ bool MP_FFT_Interface_c::init_fft_library_config()
     }
    
   else{  
-    mp_warning_msg( func,"fftw wisdom file with path %s  doesn't exist. It will be created.\n", filename);
+    mp_warning_msg( func, "fftw wisdom file with path %s  doesn't exist.\n", filename);
+    mp_warning_msg( func, "It will be created.\n");
+    mp_warning_msg( func, "NB: An fftw wisdom file allows MPTK to run slighty faster,\n");
+    mp_warning_msg( func, "    however its absence is otherwise harmless.\n");
+    mp_warning_msg( func, "    YOU CAN SAFELY IGNORE THIS WARNING MESSAGE.\n");
   	return false;
 	}
 #else

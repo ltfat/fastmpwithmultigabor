@@ -56,7 +56,7 @@ void InitMPTK4Matlab(const char *functionName) {
     if (! (MPTK_Env_c::get_env()->get_environment_loaded()) ) {
       mp_debug_msg(MP_DEBUG_GENERAL,func,"The environment is not loaded, trying to load it ...\n");
 		if(! (MPTK_Env_c::get_env()->load_environment(NULL)) ) {
-      mp_debug_msg(MP_DEBUG_GENERAL,func," Could not load it!\n");
+      mp_debug_msg(MP_DEBUG_GENERAL,func," Could not load the environment!\n");
       mexPrintf("%s error -- could not load the MPTK environment.\n",functionName);
       mexPrintf("The most common reason is a missing or erroneous MPTK_CONFIG_FILENAME variable.\n");
       mexPrintf("This environment variable can be set by typing\n");

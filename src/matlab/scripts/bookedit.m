@@ -1,17 +1,17 @@
-function varargout = bookedit_exp( book, channel, bwfactor )
-%function BOOKEDIT_EXP Interface for plotting and editing a Matching Pursuit book
+function varargout = bookedit( book, channel, bwfactor )
+%function BOOKEDIT Interface for plotting and editing a Matching Pursuit book
 %
-%    BOOKEDIT_EXP 
+%    BOOKEDIT 
 %    with no arguments asks the user for a MPTK binary book file and plot
 %    You can set a '.mat' variable called 'MPTKdir.mat' containing 
 %    the full path to your book directory:
 %       bookdir = '/my/path/to/mptk/book/';
 %       save 'MPTKdir.mat' bookdir
 %
-%    BOOKEDIT_EXP('mptkBook.bin')
+%    BOOKEDIT('mptkBook.bin')
 %    with a string to a book load the book 
 %
-%    BOOKEDIT_EXP( book, chan ) Read bookplots the channel number chan
+%    BOOKEDIT( book, chan ) Read bookplots the channel number chan
 %    of a MPTK book structure in the current axes.
 %    If book is a string, it is understood as a filename and
 %    the book is read from the corresponding file. Books

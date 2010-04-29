@@ -1,0 +1,46 @@
+This file describes a roadmap to improve the Matlab interface to MPTK
+
+1- Objectives
+2- Current status and pitfalls
+3- Propositions
+
+1- Objectives
+
+The goal of the Matlab interface to MPTK is 
+-to benefit from Matlab graphics and user interfaces for creating dictionaries or navigating and manipulating sparse representations (books)
+-to help Matlab users exploit the possibilities of MPTK in a familiar environment
+
+
+2- Current status
+
+Several contributors have so far created elements for a Matlab interface. Many of these contributions provide powerful tools that let the user navigate in books or run decompositions, but the keyword here is 'compatibility' : all these contributions are essentially incompatible with each other. In addition, several will be broken as soon as MPTK changes the way it stores book data in files, which will happen sooner or later
+
+
+We need
+- common Matlab structure formats 
+- generic calls through Mex files to the C++ MPTK API to read and write files
+
+In addition, a tutorial M-file showing the main possibilities would be welcome
+
+
+bookread(filename) % script or MEX ?
+	   bookread_deprecated
+% Missing : bookread.m
+	   bookplot
+	   bookover
+	   mpcat.m
+	   mpd.m
+	   mpd_demix.m
+	   mpf.m
+bookread_exp(filename)
+	   bookedit_exp.m
+
+bookwrite(book,filename)%
+	bookwrite_deprecated.m
+	bookwrite.m
+	mpcat.m
+	mpf.m
+	mpr.m
+bookwrite_exp(book.filename)
+	bookwrite_exp.m
+	bookedit_exp.m 
