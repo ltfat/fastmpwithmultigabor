@@ -23,109 +23,58 @@ ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
 ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
 ENDIF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" ) 
 
+	
 #------------------------------------------------
-# Build mdp executable
-# 
-SET(mpd_EXE_SOURCES
-    ${UTILS_SOURCE_DIR}/mpd.cpp
-    ${UTILS_SOURCE_DIR}/getopt.c
+# Build getopt.a library
+SET(GETOPT_SOURCES
+	${UTILS_SOURCE_DIR}/getopt.c
     ${UTILS_SOURCE_DIR}/getopt1.c
-    ${UTILS_SOURCE_DIR}/getopt.h
-    ${MPTK_BINARY_DIR}/src/libmptk/mptk.h
-  )
-#------------------------------------------------
-# Build mdp_demix executable
-#
-SET(mpd_demix_EXE_SOURCES 
-    ${UTILS_SOURCE_DIR}/mpd_demix.cpp
-    ${UTILS_SOURCE_DIR}/getopt.c
-    ${UTILS_SOURCE_DIR}/getopt1.c
-    ${UTILS_SOURCE_DIR}/getopt.h
-    ${MPTK_BINARY_DIR}/src/libmptk/mptk.h
-      )
-#------------------------------------------------
-# Build mdr executable
-#
-SET(mpr_EXE_SOURCES 
+    ${UTILS_SOURCE_DIR}/getopt.h )
+ADD_LIBRARY(getopt STATIC ${GETOPT_SOURCES})
+SET_TARGET_PROPERTIES(getopt PROPERTIES
+	COMPILE_FLAGS "${SHARED_FLAGS} ${EXECUTABLE_COMPILE_FLAGS}"
+	PREFIX ""
+	OUTPUT_NAME "libgetopt" )
 
-    ${UTILS_SOURCE_DIR}/mpr.cpp
-    ${UTILS_SOURCE_DIR}/getopt.c
-    ${UTILS_SOURCE_DIR}/getopt1.c
-    ${UTILS_SOURCE_DIR}/getopt.h
-    ${MPTK_BINARY_DIR}/src/libmptk/mptk.h
-      )
 #------------------------------------------------
-# Build mpf executable
-#
-  SET(mpf_EXE_SOURCES
-    ${UTILS_SOURCE_DIR}/mpf.cpp
-    ${UTILS_SOURCE_DIR}/getopt.c
-    ${UTILS_SOURCE_DIR}/getopt1.c
-    ${UTILS_SOURCE_DIR}/getopt.h
-    ${MPTK_BINARY_DIR}/src/libmptk/mptk.h
-      )
-#------------------------------------------------
-# Build mpcat executable
-#
-  SET(mpcat_EXE_SOURCES
-    ${UTILS_SOURCE_DIR}/mpcat.cpp
-    ${UTILS_SOURCE_DIR}/getopt.c
-    ${UTILS_SOURCE_DIR}/getopt1.c
-    ${UTILS_SOURCE_DIR}/getopt.h
-    ${MPTK_BINARY_DIR}/src/libmptk/mptk.h
-      )
-#------------------------------------------------
-# Build mpview executable
-#
-  SET(mpview_EXE_SOURCES
-    ${UTILS_SOURCE_DIR}/mpview.cpp
-    ${UTILS_SOURCE_DIR}/getopt.c
-    ${UTILS_SOURCE_DIR}/getopt1.c
-    ${UTILS_SOURCE_DIR}/getopt.h
-    ${MPTK_BINARY_DIR}/src/libmptk/mptk.h
-      )
-      
+# Build main executables      
 FOREACH(target mpd mpd_demix mpr mpf mpcat mpview)
-       ADD_EXECUTABLE(${target} ${${target}_EXE_SOURCES})
-      SET_TARGET_PROPERTIES(${target} PROPERTIES
+	SET(${target}_EXE_SOURCES
+    ${UTILS_SOURCE_DIR}/${target}.cpp
+#    ${UTILS_SOURCE_DIR}/getopt.c
+#    ${UTILS_SOURCE_DIR}/getopt1.c
+#    ${UTILS_SOURCE_DIR}/getopt.h
+    ${MPTK_BINARY_DIR}/src/libmptk/mptk.h	
+	)
+	ADD_EXECUTABLE(${target} ${${target}_EXE_SOURCES})
+	SET_TARGET_PROPERTIES(${target} PROPERTIES
 			    COMPILE_FLAGS "${SHARED_FLAGS} ${EXECUTABLE_COMPILE_FLAGS}")
-      TARGET_LINK_LIBRARIES(${target} mptk dsp_windows ${PTHREAD_LIBRARY_FILE} ${SNDFILE_LIBRARY_FILE} ${FFTW3_LIBRARY_FILE})
-      INSTALL(
-      TARGETS ${target}
-      RUNTIME DESTINATION bin
-      )
+	TARGET_LINK_LIBRARIES(${target} mptk dsp_windows getopt )
+	# ${PTHREAD_LIBRARY_FILE} ${SNDFILE_LIBRARY_FILE} ${FFTW3_LIBRARY_FILE})
+	INSTALL(
+		TARGETS ${target}
+		RUNTIME DESTINATION bin
+	)
 ENDFOREACH(target)
-IF(BUILD_EXPERIMENTAL)
-#------------------------------------------------
-# Build mppitch executable
-#
-  SET(mppitch_EXE_SOURCES
-    ${UTILS_SOURCE_DIR}/experimental/mppitch.cpp
-    ${UTILS_SOURCE_DIR}/getopt.c
-    ${UTILS_SOURCE_DIR}/getopt1.c
-    ${UTILS_SOURCE_DIR}/getopt.h
-    ${MPTK_BINARY_DIR}/src/libmptk/mptk.h
-      )
-#------------------------------------------------
-# Build create default dict executable
-#
-  SET(createdefaultdict_EXE_SOURCES
-    ${UTILS_SOURCE_DIR}/experimental/createdefaultdict.cpp
-    ${UTILS_SOURCE_DIR}/getopt.c
-    ${UTILS_SOURCE_DIR}/getopt1.c
-    ${UTILS_SOURCE_DIR}/getopt.h
-    ${MPTK_BINARY_DIR}/src/libmptk/mptk.h
-      )
 
+IF(BUILD_EXPERIMENTAL)
+# Build experimental targets
 FOREACH(target mppitch createdefaultdict)
-       ADD_EXECUTABLE(${target} ${${target}_EXE_SOURCES})
-      SET_TARGET_PROPERTIES(${target} PROPERTIES
+	SET(${target}_EXE_SOURCES
+    ${UTILS_SOURCE_DIR}/experimental/${target}.cpp
+    ${UTILS_SOURCE_DIR}/getopt.c
+    ${UTILS_SOURCE_DIR}/getopt1.c
+    ${UTILS_SOURCE_DIR}/getopt.h
+    ${MPTK_BINARY_DIR}/src/libmptk/mptk.h	
+	)
+	ADD_EXECUTABLE(${target} ${${target}_EXE_SOURCES})
+	SET_TARGET_PROPERTIES(${target} PROPERTIES
 			    COMPILE_FLAGS "${SHARED_FLAGS} ${EXECUTABLE_COMPILE_FLAGS}")
-      TARGET_LINK_LIBRARIES(${target} mptk dsp_windows ${PTHREAD_LIBRARY_FILE} ${SNDFILE_LIBRARY_FILE} ${FFTW3_LIBRARY_FILE})
+	TARGET_LINK_LIBRARIES(${target} mptk dsp_windows ${PTHREAD_LIBRARY_FILE} ${SNDFILE_LIBRARY_FILE} ${FFTW3_LIBRARY_FILE})
 ENDFOREACH(target)
 ENDIF(BUILD_EXPERIMENTAL)
 
-#For win32 and plateform and MINGW build command, copy the dll files in the build dir
+#For win32 and platforms and MINGW build command, copy the dll files in the build dir
 IF (WIN32)
   IF( CMAKE_CXX_COMPILER STREQUAL "cl")
     IF(BUILD_DEBUG)          

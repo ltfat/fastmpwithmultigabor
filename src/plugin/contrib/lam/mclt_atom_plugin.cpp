@@ -321,7 +321,7 @@ int MP_Mclt_Atom_Plugin_c::write( FILE *fid, const char mode )
 
 /*************/
 /* Type name */
-char * MP_Mclt_Atom_Plugin_c::type_name(void)
+const char * MP_Mclt_Atom_Plugin_c::type_name(void)
 {
   return ("mclt");
 }

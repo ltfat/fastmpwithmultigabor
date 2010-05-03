@@ -41,16 +41,16 @@
 int main( int argc, char ** argv )
 {
   /* Data */
-  char* func = "test behaviour in noise";
-  std::vector<MP_Mpd_Core_c*> *coreArray;
-  std::vector<MP_Dict_c*> *dictArray;
-  std::vector<MP_Signal_c*> *approxArray;
-  std::vector< string >* nameBlockVector;
+  const char* func = "test behaviour in noise";
+  std::vector<MP_Mpd_Core_c*> *coreArray=NULL;
+  std::vector<MP_Dict_c*> *dictArray=NULL;
+  std::vector<MP_Signal_c*> *approxArray=NULL;
+  std::vector< string >* nameBlockVector=NULL;
   nameBlockVector = new vector< string >();
   unsigned int numIter = 0;
   unsigned int numTestSignals = 0;
   char *p;
-  std::vector<MP_Book_c*> *book ;
+  std::vector<MP_Book_c*> *book =NULL;
 
   /*Parse parameters*/
 
@@ -130,7 +130,7 @@ int main( int argc, char ** argv )
           /* Fill the signal with noise of energy 1.0 */
           approxArray->at(n)->fill_noise( 1.0 );
         }
-      for (int n=0; n < nameBlockVector->size(); n++)
+      for (unsigned int n=0; n < nameBlockVector->size(); n++)
         {
           book->at(n) = MP_Book_c::create(1, 3072, SAMPLE_RATE );
           if (book->at(n)==NULL)

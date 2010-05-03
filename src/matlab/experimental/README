@@ -25,9 +25,9 @@ The different classes are defined in subdirectory "classes/":
 
     The main interface methods are :
    - Export matlab book structure to MP_Book_c class:
-     MP_Book_c * Book_MEX_2_MPTK();
-   - Export matlab book structure to MP_Book_c class
-     void MP_BookWrite(string fileName, const char mode);
+     MP_Book_c * mp_book_from_mxBook();
+   - Export matlab book structure from MP_Book_c class
+     mxArray *mp_mxBook_from_book();
 
 See 'doc/readme-Development.txt' for more informations.
 

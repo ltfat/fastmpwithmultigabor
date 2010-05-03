@@ -199,7 +199,7 @@ public:
   /** \brief returns the type of the atom : "anywave"
    * \return the string "anywave"
    **/
-  virtual char * type_name(void);
+  virtual const char * type_name(void);
 
   /** \brief Print the details of the anywave atom to the stream
    * \param fid the stream
@@ -273,7 +273,7 @@ public:
    *
    * \return true for success, and false for failure
    **/
-  static bool read_filename_txt( char* line, char* pattern, char* str);
+  static bool read_filename_txt( const char* line, const char* pattern, char* str);
 
   /** \brief Read the string containing the filename in the stream, and copy it to str
    *

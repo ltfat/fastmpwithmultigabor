@@ -11,18 +11,14 @@ endif(COMMAND cmake_policy)
 
 ## SETTING COMPILATION OPTION
 #############################
-# Compilation of modules:
-OPTION(BUILD_GUI "Build experimental Qt Graphical user interface" OFF) 
-# Enable testing:
-OPTION(BUILD_TESTING "Build Tests" OFF) 
-# Allows shard compiling:
-OPTION(BUILD_SHARED_LIBS "Build shared libraries." ON)
-#Allows generating the doc:
-OPTION(BUILD_DOCUMENTATION "Generating the doxygen documentation." OFF)
-#Allows generating the doc for GUI:
-OPTION(BUILD_DOCUMENTATION_GUI "Generating the doxygen documentation for GUI." OFF)
 # Allows building executable:
 OPTION(BUILD_EXECUTABLE "Build executable." ON)
+# Allows building of shared libraries:
+OPTION(BUILD_SHARED_LIBS "Build shared libraries." ON)
+# Enable testing:
+OPTION(BUILD_TESTING "Build Tests" ON) 
+#Allows generating the doc:
+OPTION(BUILD_DOCUMENTATION "Generating the doxygen documentation." OFF)
 # Allows multithreading:
 OPTION(BUILD_MULTITHREAD "Enable multithread." OFF)
 # Allows verbose:
@@ -42,6 +38,10 @@ SET(BUILD_RPM OFF)
 #OPTION(BUILD_RPM "Allows build RPM experimental feature." OFF)
 IF(UNIX)
 OPTION(INSTALL_MAT2MPTK "Install Mat2MPTK toolkit" OFF)
+# Compilation of modules:
+OPTION(BUILD_GUI "Build experimental Qt Graphical user interface" OFF) 
+#Allows generating the doc for GUI:
+OPTION(BUILD_DOCUMENTATION_GUI "Generating the doxygen documentation for GUI." OFF)
 ENDIF(UNIX)
 #You can reference the special $ENV{} variable to get environment values
 #like any other CMake variable.
@@ -264,9 +264,9 @@ INCLUDE( ${MPTK_SOURCE_DIR}/CMake/FindExternalLibs.cmake )
 
 #Set option for building and linking:
 #Set directories for linker
-LINK_DIRECTORIES( ${PTHREAD_LIBRARY_FILE} 
-                  ${SNDFILE_LIBRARY_FILE} 
-                  ${FFTW3_LIBRARY_FILE} )
+LINK_DIRECTORIES( ${PTHREAD_LIBRARY_PATH} 
+                  ${SNDFILE_LIBRARY_PATH} 
+                  ${FFTW3_LIBRARY_PATH} )
 #set the include directories paths for building
 INCLUDE_DIRECTORIES(/usr/include 
 		${MPTK_SOURCE_DIR}               # TO INCLUDE mp_system.h

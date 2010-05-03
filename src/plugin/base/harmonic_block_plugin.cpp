@@ -517,7 +517,7 @@ MP_Harmonic_Block_Plugin_c::~MP_Harmonic_Block_Plugin_c()
 
 /********/
 /* Type */
-char* MP_Harmonic_Block_Plugin_c::type_name()
+const char* MP_Harmonic_Block_Plugin_c::type_name()
 {
   return ("harmonic");
 }

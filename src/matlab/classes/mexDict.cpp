@@ -28,7 +28,7 @@
 
 mxArray * mp_create_mxDict_from_dict(MP_Dict_c *dict)
 {
-  char *func = "mp_create_mxDict_from_dict";
+  const char *func = "mp_create_mxDict_from_dict";
   
   // Case of a NULL input
   if(NULL==dict) {
@@ -100,7 +100,7 @@ mxArray * mp_create_mxDict_from_dict(MP_Dict_c *dict)
 
 MP_Dict_c * mp_create_dict_from_mxDict(const mxArray *mxDict)
 {
-  char *func = "mp_create_dict_from_mxDict";
+  const char *func = "mp_create_dict_from_mxDict";
   MP_Dict_c *dict = NULL;
 
   if (NULL==mxDict) {

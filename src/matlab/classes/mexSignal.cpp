@@ -1,7 +1,7 @@
 #include "mptk4matlab.h"
 
 mxArray *mp_create_mxSignal_from_signal(MP_Signal_c *signal) {
-  char *func = "mp_create_mxSignal_from_signal()";
+  const char *func = "mp_create_mxSignal_from_signal()";
 
   // Checking input
   if(NULL==signal) {
@@ -33,7 +33,7 @@ mxArray *mp_create_mxSignal_from_signal(MP_Signal_c *signal) {
 }
 
 MP_Signal_c *mp_create_signal_from_mxSignal(const mxArray *mxSignal) {
-  char *func = "mp_create_signal_from_mxSignal()";
+  const char *func = "mp_create_signal_from_mxSignal()";
 
   // Checking input
   if(NULL==mxSignal) {

@@ -216,7 +216,7 @@ MP_Atom_c::~MP_Atom_c() {
 /***************************/
 
 int MP_Atom_c::write( FILE *fid, const char mode ) {
-  char * func = "MP_Atom_c::write";
+  const char * func = "MP_Atom_c::write";
   MP_Chan_t i;
   int nItem = 0;
   
@@ -263,7 +263,7 @@ int MP_Atom_c::write( FILE *fid, const char mode ) {
 
 /***************/
 /* Name output */
-char * MP_Atom_c::type_name( void ) {
+const char * MP_Atom_c::type_name( void ) {
   return ("base_atom_class");
 }
 
@@ -456,7 +456,7 @@ void* MP_Atom_c::Add_Worker::run(void* a)
 
 /* Add_Worker constructor if MULTITHREAD mode On */
 MP_Atom_c::Add_Worker::Add_Worker() : result (0.0, 0.0) {	
-  char *func = "MP_Atom_c::AddWorker::AddWorker()";
+  const char *func = "MP_Atom_c::AddWorker::AddWorker()";
   pthread_t thread_id ;
   
   /* create synchronization primitives and worker thread */

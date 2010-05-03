@@ -1,6 +1,7 @@
 # CMakeLists.txt managing the Matlab files in
 # src/matlab
 # src/matlab/scripts
+# src/matlab/scripts/experimental
 # src/matlab/scripts/contrib
 # src/matlab/scripts/contrib/lam
 # src/matlab/experimental
@@ -84,8 +85,8 @@ ENDFOREACH(file)
 
 
 # SCRIPT FILES
-# List of script files to be copied and installed
-FOREACH(scriptfile bookover.m bookplot.m mpview.m bookedit.m dictcreate_gui.m  MPtoolbaricons.mat create_synthetic_data.m savetable.m )
+# List of stable script files to be copied and installed
+FOREACH(scriptfile bookover.m bookplot.m mpview.m bookedit.m dictcreate_gui.m  MPtoolbaricons.mat)
    # Copy the script
    CONFIGURE_FILE(${MPTK_MATLAB_SRC_DIR}/scripts/${scriptfile} ${MPTK_MATLAB_OUTPUT_DIR}/${scriptfile}
                   COPYONLY)
@@ -93,6 +94,20 @@ FOREACH(scriptfile bookover.m bookplot.m mpview.m bookedit.m dictcreate_gui.m  M
    INSTALL(FILES ${MPTK_MATLAB_OUTPUT_DIR}/${scriptfile}
            DESTINATION ${MPTK_MATLAB_INSTALL_DIR})
 ENDFOREACH(scriptfile)
+
+IF(BUILD_MATLAB_MEX_FILES_EXPERIMENTAL)
+# List of experimental script files to be copied and installed
+FOREACH(scriptfile createrandomdictionary.m create_synthetic_data.m savetable.m tableread.m test_anywave.m test_mpd_demix.m)
+   # Copy the script
+   CONFIGURE_FILE(${MPTK_MATLAB_SRC_DIR}/scripts/experimental/${scriptfile} ${MPTK_MATLAB_OUTPUT_DIR}/${scriptfile}
+                  COPYONLY)
+   # Set rule to install it
+   INSTALL(FILES ${MPTK_MATLAB_OUTPUT_DIR}/${scriptfile}
+           DESTINATION ${MPTK_MATLAB_INSTALL_DIR})
+ENDFOREACH(scriptfile)
+
+ENDIF(BUILD_MATLAB_MEX_FILES_EXPERIMENTAL)
+
 
 
 ############################################
@@ -113,7 +128,8 @@ experimental/classes/mxBook.h
 experimental/classes/mxBook.cpp)
 
 IF(UNIX)
-	ADD_LIBRARY(mptk4matlab STATIC ${MPTK4MATLAB_SOURCES})
+#	ADD_LIBRARY(mptk4matlab STATIC ${MPTK4MATLAB_SOURCES})
+	ADD_LIBRARY(mptk4matlab SHARED ${MPTK4MATLAB_SOURCES})
 ELSE(UNIX)
 	ADD_LIBRARY(mptk4matlab SHARED ${MPTK4MATLAB_SOURCES})
 ENDIF(UNIX)
@@ -243,7 +259,7 @@ ELSE(BUILD_MATLAB_MEX_FILES AND MEX_COMPILER)
 # List of script files to be copied and installed as cheap replacements to MEX-files
 FOREACH(scriptfile  dictread.m dictwrite.m bookread.m bookwrite.m)
    # Copy the script
-   CONFIGURE_FILE(${MPTK_MATLAB_SRC_DIR}/scripts/${scriptfile} ${MPTK_MATLAB_OUTPUT_DIR}/${scriptfile}
+   CONFIGURE_FILE(${MPTK_MATLAB_SRC_DIR}/scripts/obsolete/${scriptfile} ${MPTK_MATLAB_OUTPUT_DIR}/${scriptfile}
                  COPYONLY)
    # Set rule to install it
    INSTALL(FILES ${MPTK_MATLAB_OUTPUT_DIR}/${scriptfile}
@@ -263,7 +279,7 @@ IF(BUILD_MATLAB_MEX_FILES_EXPERIMENTAL)
 IF(MEX_COMPILER)
 
 # List of mex files to be compiled
-FOREACH(target mextest loadenv_exp releaseenv_exp)
+FOREACH(target mextest)
    ADD_CUSTOM_TARGET(matlab_${target} 
                      ALL echo
                      DEPENDS 

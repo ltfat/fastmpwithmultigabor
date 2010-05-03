@@ -28,29 +28,14 @@ The mex functions bookread/bookwrite(_exp) are thus simplified:
  - Use the mxBook class constructor and method to parse MPTK and MATLAB book
 
 The different classes are defined in subdirectory "classes/":
- - Class mxAtoms (defined in mxBook.h and mxBook.cpp) :
+ - Class atomGroup (defined in mxBook.h and mxBook.cpp) :
  --------------------------------------------------------
      class for parsing MP_Atom and filling mex structure of atoms per type
-     (used by mxBook for importing MP_Book )
+     (used by functions for exporting / importing MP_Book )
 
- The matlab 'atom' structure contains the following fields:
+ The matlab 'book.atom' structure contains the following fields:
      - type : string
      - params: structure of atoms parameters arrays, whose field are type dependent
-
- - Class mxBook (defined in mxBook.h and mxBook.cpp) :
- -------------------------------------------------------
-     class for interfacing MP_Book_c with matlab structure
-     As the atoms in MPTK have parameters dependent to their type
-     the matlab 'book' structure store the atom parameters per type of atom.
-
-    Constructors allows to construct a matlab book from a (MP_Book_c *) use for loading a binary book file
-    Or to use a matlab book structure
-
-    The main interface methods are :
-   - Export matlab book structure to MP_Book_c class:
-     MP_Book_c * Book_MEX_2_MPTK();
-
-   - See mxBook.h and mxBook.cpp
 
 -----------------------------------------
 2. THE MATLAB BOOK STRUCTURE DEFINITION
@@ -76,7 +61,7 @@ The matlab 'book' structure contains the following fields:
          1: Atom number in book (1 to numAtoms)
          2: Atom type
          3: Atom number in atom(type) structure
-         4: Atom selected or not (used for saving part of a book)
+         4: Atom selected or not (used for saving part of a book) [NB: it may be better to remove this from the index sin ce this is a mask, not an index]
          4+channel: Atom position for channel 'channel' (1 to numChans)
     - atom:  [1 x Ntype struct]
          +- type : string

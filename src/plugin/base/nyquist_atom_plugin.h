@@ -117,7 +117,7 @@ public:
   /***************************/
   /* OTHER METHODS           */
   /***************************/
-  virtual char * type_name(void);
+  virtual const char * type_name(void);
 
   virtual int info( FILE *fid );
   virtual int info();

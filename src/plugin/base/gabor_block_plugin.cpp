@@ -494,7 +494,7 @@ MP_Gabor_Block_Plugin_c::~MP_Gabor_Block_Plugin_c()
 
 /********/
 /* Type */
-char * MP_Gabor_Block_Plugin_c::type_name()
+const char * MP_Gabor_Block_Plugin_c::type_name()
 {
   return ("gabor");
 }

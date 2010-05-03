@@ -38,16 +38,12 @@
 #include <mptk.h>
 
 int main( int argc, char ** argv ) {
-  char* func = "test_mp";
+  const char* func = "test_mp";
   std::string strAppDirectory;
   MP_Signal_c *sigref = NULL;
   MP_Signal_c *sigtest = NULL;
-  unsigned long int check;
   MP_Dict_c *dico = NULL;
   MP_Book_c *book;
-  int i;
-  unsigned long int frameIdx, freqIdx;
-  char str[1024];
   MP_Mpd_Core_c *mpdCore = NULL;
   unsigned int numIter = 0;
   double precision = 0;

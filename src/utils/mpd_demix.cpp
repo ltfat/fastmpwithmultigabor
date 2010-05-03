@@ -42,9 +42,9 @@
 #include "mp_system.h"
 #include "getopt.h"
 
-char* func = "mpd_demix";
+const char* func = "mpd_demix";
 
-static char *cvsid = "$Revision: 1112 $";
+static const char *cvsid = "$Revision: 1112 $";
 /********************/
 /* Global constants */
 /********************/

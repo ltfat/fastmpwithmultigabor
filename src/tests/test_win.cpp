@@ -46,7 +46,7 @@
 #define MP_PI    3.14159265358979323846
 //#define LW_Win_t float
 #define LW_Win_t double
-char* func = "test_windows";
+const char* func = "test_windows";
 double theGaussianSigma2 = 0.02;  
 void LWGauss(LW_Win_t *window,unsigned long int size)
 {

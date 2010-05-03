@@ -116,7 +116,7 @@ public:
 public:
 
   /* Type ouptut */
-  virtual char *type_name( void );
+  virtual const char *type_name( void );
 
   /* Readable text dump */
   virtual int info( FILE* fid );

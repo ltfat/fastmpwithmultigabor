@@ -76,7 +76,7 @@ MP_Anywave_Table_c::MP_Anywave_Table_c( void )
 /* fileName constructor */
 MP_Anywave_Table_c::MP_Anywave_Table_c( char* fileName )
 {
-	char * func = "MP_Anywave_Table_c::MP_Anywave_Table_c";
+	const char * func = "MP_Anywave_Table_c::MP_Anywave_Table_c";
   set_null();
   if (set_table_file_name( fileName ) == NULL)
     {

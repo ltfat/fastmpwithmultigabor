@@ -352,7 +352,7 @@ int MP_Anywave_Atom_Plugin_c::write( FILE *fid, const char mode )
 
 /*************/
 /* Type name */
-char * MP_Anywave_Atom_Plugin_c::type_name(void)
+const char * MP_Anywave_Atom_Plugin_c::type_name(void)
 {
   return ("anywave");
 }
@@ -488,7 +488,7 @@ int MP_Anywave_Atom_Plugin_c::has_field( int field )
 
 MP_Real_t MP_Anywave_Atom_Plugin_c::get_field( int field , MP_Chan_t chanIdx )
 {
-  char * func = "MP_Anywave_Atom_c::get_field";
+  const char * func = "MP_Anywave_Atom_c::get_field";
   MP_Real_t x;
   mp_debug_msg(MP_DEBUG_FUNC_ENTER, func,"Entering\n");
   if ( MP_Atom_c::has_field( field ) ) return (MP_Atom_c::get_field(field,chanIdx));
@@ -508,7 +508,7 @@ MP_Real_t MP_Anywave_Atom_Plugin_c::get_field( int field , MP_Chan_t chanIdx )
   return( x );
 }
 
-bool MP_Anywave_Atom_Plugin_c::read_filename_txt( char* line, char* pattern, char* outputStr)
+bool MP_Anywave_Atom_Plugin_c::read_filename_txt( const char* line, const char* pattern, char* outputStr)
 {
   char* pch;
   char tempStr[MP_MAX_STR_LEN];

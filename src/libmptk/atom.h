@@ -180,7 +180,7 @@ public :
   /** \brief Get the type of the atom as a string
    *
    * \return the type as a string */
-  MPTK_LIB_EXPORT virtual char* type_name( void );
+  MPTK_LIB_EXPORT virtual const char* type_name( void );
 
   /** \brief Substract /add the atom's multichannel waveform from / to a multichannel signal
    * \param sigSub signal from which the atom waveform is to be removed

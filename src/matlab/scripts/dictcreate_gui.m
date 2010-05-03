@@ -1,7 +1,7 @@
-function varargout = dictcreate_gui(op)
+function dictcreate_gui(op)
 % 
 %  Build a dictionary for MPTK using graphical tools
-%  usage : dict = dictcreate_gui();
+%  usage : dictcreate_gui;
 %
 
 % Possible actions

@@ -40,9 +40,9 @@
 #include "mp_system.h"
 #include "getopt.h"
 
-static char *cvsid = "$Revision: 1112 $";
+static const char *cvsid = "$Revision: 1112 $";
 
-char* func = "mpr";
+const char* func = "mpr";
 
 /********************/
 /* Global constants */

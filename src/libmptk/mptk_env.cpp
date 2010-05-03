@@ -139,7 +139,7 @@ const char * MPTK_Env_c::get_config_path(const char* name)
 
 /* fill a vector with the name of the atoms registred in atom factory */
 void MPTK_Env_c::get_registered_path_name( vector< string >* nameVector ){
-  char *func = "MPTK_Env_c::get_registered_path_name";
+  const char *func = "MPTK_Env_c::get_registered_path_name";
   STL_EXT_NM::hash_map<const char*,const char*,CSTRING_HASHER>::iterator iter;
   if (NULL==nameVector) {
     mp_error_msg(func, "nameVector is NULL!");

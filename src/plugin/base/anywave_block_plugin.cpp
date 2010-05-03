@@ -310,7 +310,7 @@ MP_Anywave_Block_Plugin_c::~MP_Anywave_Block_Plugin_c()
 
 /********/
 /* Type */
-char* MP_Anywave_Block_Plugin_c::type_name()
+const char* MP_Anywave_Block_Plugin_c::type_name()
 {
   return ("anywave");
 }

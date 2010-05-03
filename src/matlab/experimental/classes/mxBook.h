@@ -51,17 +51,18 @@
 
 /**
  *
- *  Class mxAtoms :
+ *  Class atomGroup :
  *    class for parsing MP_Atom and filling mex structure of atoms per type
- *    (used by mxBook for importing MP_Book )
+ *    (used for converting between MP_Book and MEX book structure )
  *
- *  The matlab 'atom' structure contains the following fields:
+ *  The matlab 'mxAtomGroup' structure contains the following fields:
  *    - type : string
  *    - params: structure of atoms parameters arrays, whose field are type dependent
  *
  */
 
-class mxAtoms {
+class atomGroup {
+
  private:
   unsigned long int curIdx; //! Current index for filling parameters vectors
 
@@ -74,43 +75,51 @@ class mxAtoms {
   unsigned long int nAtom;  //! Number of atoms of this type
   unsigned int nChannel;    //! Number of channels
 
+
   mxArray * atom;           //! Atom mex structure
   map <string, mxArray *> params; //! param name, param value
 
   /** Class methods */
 
   /** CONSTRUCTORS */
-  mxAtoms(); //! Default constructor
-  //! Constructor with no allocation of params mxArray
-  mxAtoms(string t, unsigned int nC);
+	//! Constructor with no allocation of params mxArray
+  atomGroup(string t, unsigned int nC);
   
-  //! Constructor with correct allocation of params mxArray
-  mxAtoms(string t, unsigned int tI, unsigned long int nA, unsigned int nC);
-
   /** DESCTRUCTOR */
-  virtual ~mxAtoms();
+  virtual ~atomGroup();
 
   /** OTHER METHODS */
   //! Allocate Atom matlab memory for each parameters
   void allocParams(unsigned long int nA,unsigned int nC);            
 
   //! Read an atom and store values in params mxArrays
-  void parseAtom(MP_Atom_c *atom);
+  void append(MP_Atom_c *atom);
 
   //! Fill a given 'atom' structure at index 'a' with parameters
   mxArray * outputMxStruct(mxArray * atom, unsigned int a);
 
 };
 
+// In preparation ...
+// Collection = map of groups + index (e.g. sorted book)
+// Group = type (string) + map <param name, param vector<A>>
+/* class atomCollection {
+	private:
+		map<string, atomGroup *> atomGroups;
+		map <string, atomGroup *>::iterator miter;
+	public:
+		void atomCollection();
+		void append(MP_Atom_c *atom);
+		unsigned int get_typeIdx(typeLen);
+} */
 
 /**
  *
- *  Class mxBook :
- *    class for interfacing MP_Book_c with matlab structure
  *    As the atoms in MPTK have parameters dependent to their type
  *    the matlab 'book' structure store the atom parameters per type of atom.
  *   
  *  The matlab 'book' structure contains the following fields:
+ *    - format   : indicating which data format
  *    - numAtoms : number of atoms in book
  *    - numChans : number of channel in book 
  *    - numSamples : number of samples covered by the reconstructed book
@@ -127,33 +136,6 @@ class mxAtoms {
  *
  */
 
-// Class for interfacing MP_Book_c with matlab structure
-class mxBook {
- private:
-   MP_Chan_t numChans;             //! Number of channels
-  unsigned long int numAtoms;    //! Number of atoms in book
-
- public:
-  // Members
-  mxArray * mexbook;
-
-  /** CONSTRUCTORS */
-  //! Construct book from matlab structure
-  MPTK_LIB_EXPORT  mxBook(const mxArray * mxbook);
-  //! Construct book from MP_Book_c pointer
-  MPTK_LIB_EXPORT mxBook(MP_Book_c * mpbook); 
-  
-  /** DESTRUCTOR */
-  MPTK_LIB_EXPORT virtual ~mxBook();
-
-  /** OTHER METHODS */
-
-  /** Get MP_Atom from mx book structure */
-  MPTK_LIB_EXPORT MP_Atom_c * getMP_Atom(unsigned long int index);
-  /** Export matlab book structure to MP_Book_c class */
-  MPTK_LIB_EXPORT MP_Book_c * Book_MEX_2_MPTK();
- 
-};
 
 
 
@@ -164,7 +146,7 @@ class mxBook {
 MPTK_LIB_EXPORT extern mxArray *mp_create_mxBook_from_book(MP_Book_c *book);
 
 /** \brief Converts a Matlab structure to a MP_Book_c object
- * \param mxBook the Matlab structre
+ * \param mxBook the Matlab structure
  * \return the created MTPK object, NULL in case of problem
  */
 MPTK_LIB_EXPORT extern MP_Book_c *mp_create_book_from_mxBook(const mxArray *mxBook);

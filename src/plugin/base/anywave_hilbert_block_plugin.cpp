@@ -242,7 +242,7 @@ return (0);
 
 void MP_Anywave_Hilbert_Block_Plugin_c::init_tables( void )
 {
-  char *func = "MP_Anywave_Hilbert_Atom_c::init_tables()";
+  const char *func = "MP_Anywave_Hilbert_Atom_c::init_tables()";
   char* str;
 
   if ( ( str = (char*) malloc( MP_MAX_STR_LEN * sizeof(char) ) ) == NULL )
@@ -357,7 +357,7 @@ MP_Anywave_Hilbert_Block_Plugin_c::~MP_Anywave_Hilbert_Block_Plugin_c()
 
 /********/
 /* Type */
-char* MP_Anywave_Hilbert_Block_Plugin_c::type_name()
+const char* MP_Anywave_Hilbert_Block_Plugin_c::type_name()
 {
   return("anywavehilbert");
 }

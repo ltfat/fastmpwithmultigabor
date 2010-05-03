@@ -40,7 +40,7 @@
 int main( void ) {
 
   FILE *fid;
-  char* func = "test_messaging";
+  const char* func = "test_messaging";
   mp_info_msg( func, "---------------------------------------------\n" );
   mp_info_msg( func, "TEST - TESTING MPTK MESSAGING FUNCTIONALITIES\n" );
   mp_info_msg( func, "---------------------------------------------\n" );

@@ -38,9 +38,9 @@
 #include <mptk.h>
 #include "getopt.h"
 
-static char *cvsid = "$Revision: 1145 $";
+static const char *cvsid = "$Revision: 1145 $";
 
-char* func = "mpd";
+const char* func = "mpd";
 
 
 

@@ -170,7 +170,7 @@ protected:
   /** \brief Gives the type of block
    *  \return the string "anywave"
    **/
-  virtual char *type_name( void );
+  virtual const char *type_name( void );
   
   /** \brief Readable text dump 
    * \param fid the stream where to print the info

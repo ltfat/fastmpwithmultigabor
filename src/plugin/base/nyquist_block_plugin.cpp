@@ -280,7 +280,7 @@ MP_Nyquist_Block_Plugin_c::~MP_Nyquist_Block_Plugin_c()
 
 /********/
 /* Type */
-char* MP_Nyquist_Block_Plugin_c::type_name()
+const char* MP_Nyquist_Block_Plugin_c::type_name()
 {
   return ("nyquist");
 }

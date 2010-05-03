@@ -255,7 +255,7 @@ unsigned long int MP_Anywave_Server_c::add( MP_Anywave_Table_c* table ){
 
 /* Add waveform tables from file */
 unsigned long int MP_Anywave_Server_c::add( char* filename ){
-  char * func =  "MP_Anywave_Server_c::add(char *)";
+  const char * func =  "MP_Anywave_Server_c::add(char *)";
   /* Check if the table already exists in the tables array */
   unsigned long int n = 0;
   MP_Anywave_Table_c** ptrTable = NULL;

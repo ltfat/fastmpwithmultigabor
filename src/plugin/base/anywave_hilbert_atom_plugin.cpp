@@ -185,7 +185,7 @@ int MP_Anywave_Hilbert_Atom_Plugin_c::init_parts(void)
 
 int MP_Anywave_Hilbert_Atom_Plugin_c::init_tables( void )
 {
-  char *func = "MP_Anywave_Hilbert_Atom_c::init_tables()";
+  const char *func = "MP_Anywave_Hilbert_Atom_c::init_tables()";
   char* str;
 
   if ( ( str = (char*) malloc( MP_MAX_STR_LEN * sizeof(char) ) ) == NULL )
@@ -235,7 +235,7 @@ int MP_Anywave_Hilbert_Atom_Plugin_c::init_tables( void )
 int MP_Anywave_Hilbert_Atom_Plugin_c::read( FILE *fid,
                                      const char mode )
 {
- char *func = "MP_Anywave_Hilbert_Atom_c::read";
+ const char *func = "MP_Anywave_Hilbert_Atom_c::read";
   double fidParam;
   unsigned short int readChanIdx, chanIdx;
   MP_Real_t* pParam;
@@ -424,7 +424,7 @@ int MP_Anywave_Hilbert_Atom_Plugin_c::write( FILE *fid, const char mode )
 
 /*************/
 /* Type name */
-char * MP_Anywave_Hilbert_Atom_Plugin_c::type_name(void)
+const char * MP_Anywave_Hilbert_Atom_Plugin_c::type_name(void)
 {
   return("anywavehilbert");
 }
@@ -556,7 +556,7 @@ int MP_Anywave_Hilbert_Atom_Plugin_c::has_field( int field )
 
 MP_Real_t MP_Anywave_Hilbert_Atom_Plugin_c::get_field( int field , int chanIdx )
 {
-	char *func =  "MP_Anywave_Hilbert_Atom_c::get_field";
+	const char *func =  "MP_Anywave_Hilbert_Atom_c::get_field";
   MP_Real_t x;
   mp_debug_msg(MP_DEBUG_FUNC_ENTER, func,"Entering\n");
 

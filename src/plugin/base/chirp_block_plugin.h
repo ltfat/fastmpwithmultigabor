@@ -210,7 +210,7 @@ class MP_Chirp_Block_Plugin_c:public MP_Gabor_Block_Plugin_c
   public:
 
     /* Type ouptut */
-    virtual char *type_name( void );
+    virtual const char *type_name( void );
 
     /* Readable text dump */
     virtual int info( FILE* fid );

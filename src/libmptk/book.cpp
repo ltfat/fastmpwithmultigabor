@@ -719,7 +719,7 @@ unsigned long int MP_Book_c::substract_add( MP_Signal_c *sigSub, MP_Signal_c *si
 /***********************************************/
 /* Build the sum of (some) atoms into a signal */
 unsigned long int MP_Book_c::build_waveform( MP_Signal_c *sig, MP_Mask_c* mask ) {
-  char *func = "MP_Book_c::build_waveform";
+  const char *func = "MP_Book_c::build_waveform";
   unsigned long int i;
   unsigned long int n = 0;
   

@@ -142,7 +142,7 @@ public:
   /** \brief Get the type of the block as a string
    *
    * \return the type as a string */
-  MPTK_LIB_EXPORT virtual char * type_name( void ) = 0;
+  MPTK_LIB_EXPORT virtual const char * type_name( void ) = 0;
   /** \brief Send a brief information about the block to a stream
    * \param fid A writeable block
    * \return The number of written characters.

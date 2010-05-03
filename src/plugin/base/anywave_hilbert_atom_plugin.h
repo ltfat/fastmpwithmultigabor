@@ -180,7 +180,7 @@ class MP_Anywave_Hilbert_Atom_Plugin_c: public MP_Anywave_Atom_Plugin_c {
   /** \brief returns the type of the atom : "anywavehilbert"
    * \return the string "anywavehilbert"
    **/
-  virtual char * type_name(void);
+  virtual const char * type_name(void);
 
   /** \brief Print the details of the anywave hilbert atom to the stream
    **/
