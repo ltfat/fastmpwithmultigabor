@@ -1,0 +1,138 @@
+#!/bin/bash
+ 
+# Every night, each entry following '#PIPOL' is passed as argument to
+# a pipol-sub command:
+
+# There is two ways to make a reservation via pipol-sub:
+# --> Add a line per image with the following syntaxe:
+# '#PIPOL esn amd64-linux-debian-testing.dd none 2:00 --silent --user'
+#  (1)    (2) (3)                           (4)  (5)  (6)      (7)
+     
+# (1) comment token known by pipol
+# (2) a reservation as soon as possible (at night, reservations are starting at 20h30)
+# (3) the system image
+# (4) none as we do not want a particular host
+# (5) the reservation is for two hours
+# (6) do not send reservation emails
+# (7) run as user (You can only run the script as root for the Windows Images).
+
+# Use entries only if you need them!
+
+# --> The second way is to use pipol-sub shortcut:
+# '#PIPOL debian 2:00 --root`
+#  (1)         (2)       (3)    (4)
+
+# (1)  Comment token known by pipol
+# (2)  The string to matched with. 
+#	   In this example the line will reserve and deploy all the Debian images.
+#        For example, the line: #PIPOL linux 2:00 --root will reserve and deploy all the linux images.
+#        For more informations, please read the documentation: http://pipol.inrialpes.fr/documentation/manual/user-manual/user-manual.html#ex-cutions-en-batch-mode-simplifi
+# (3)  The reservation is for two hours
+# (4)  Some options, please read the documentation for more details
+
+
+
+# Reservation for all the images: linux, windows and mac
+
+#PIPOL linux 2:00 
+
+#Don't forget the --root option for windows, cygwin is a single-user system:
+#PIPOL windows 2:00 --root
+
+#PIPOL mac 2:00
+
+
+# 1) You have to get your sources from somewhere.
+
+# On the gforge, this is done with a anonymous reader or with an
+# expect script or with a 'password less' ssh key.
+
+# This example does not show this process as it is not a gforge
+# project, we simply copy the sources files from your Home Dir
+
+# We assume you have unpacked the sources under
+# <YourPipolHome>/src/PipolHelloWorld 
+
+# We are under $PIPOL_WDIR, user writable
+
+# this should be replaced by 
+# svn checkout svn+ssh://you@scm.gforge.inria.fr/svn/YourProject 
+cp -r $PIPOL_HOMEDIR/src/PipolHelloWorld-1.0.0-Source .
+
+# 2) the build 
+mkdir build
+cd build; { 
+    ## 2.1) configuration
+    cmake -DCMAKE_INSTALL_PREFIX=/usr $PIPOL_WDIR/PipolHelloWorld-1.0.0-Source
+    make NightlyUpdate
+    make NightlyConfigure
+
+
+    ## 2.2) build
+    make NightlyBuild
+
+    ## 2.3) test
+    make NightlyTest
+
+    ## 2.4) submission on a dashboard
+    make NightlySubmit
+
+    ## 2.4) packaging: PIPOL_CPACK_G and PIPOL_PACK_EXT are set by PIPOL
+    cpack -G $PIPOL_CPACK_G .
+}; cd -
+
+# 3) with cmake test results can be seen on 
+# http://cdash.inria.fr/CDash/index.php?project=Pipol
+
+# 4) you have to upload the packages somewhere
+# on the gforge this is possible with gforge_cli, a SOAP php5 script
+
+
+# 5) To use Microsoft Compilers, you need to execute some commands line:
+# You can't use those compilers trought a password-less SSH connection. Please read the documentation to get more informations.
+
+#Setting Windows environment. You can choose an other compiler if you want. This example use a Visual Studio compiler for Windows
+if [ "$PIPOL_IMAGE" == "amd64-windows-server-2003-64bits.dd.gz" ]; then
+	PIPOL_WIN_COMPILER="Visual Studio 8 2005"
+	PIPOL_COMPILER_VERSION=8
+else 
+	PIPOL_WIN_COMPILER="Visual Studio 9 2008"
+	PIPOL_COMPILER_VERSION=9.0
+fi
+
+
+
+
+case $PIPOL_IMAGE in
+	*-windows-*)
+
+		cd build
+
+		#Cleaning the project
+		rm -Rf ./*
+
+		#Making VISUAL project with cmake 2.6: don't forget to complete the line with your own sources path
+		/cygdrive/c/CMake\ 2.6/bin/cmake.exe -G "$PIPOL_WIN_COMPILER" C:/cygwin/$PIPOL_WDIR/PipolHelloWorld-1.0.0-Source
+
+		#Setting environment
+		/cygdrive/c/Program\ Files\ \(x86\)/Microsoft\ Visual\ Studio\ $PIPOL_COMPILER_VERSION/Common7/Tools/vsvars32.bat	
+
+		/cygdrive/c/Program\ Files\ \(x86\)/Microsoft\ Visual\ Studio\ $PIPOL_COMPILER_VERSION/VC/vcpackages/vcbuild.exe /CLEAN 
+
+		#Project build
+		/cygdrive/c/Program\ Files\ \(x86\)/Microsoft\ Visual\ Studio\ $PIPOL_COMPILER_VERSION/VC/vcpackages/vcbuild.exe HELLO.sln 
+
+		#CDASH submision
+		/cygdrive/c/CMake\ 2.6/bin/ctest.exe -D "Nightly" 
+
+		#To make a Windows Package Installer
+		/cygdrive/c/CMake\ 2.6/bin/cpack.exe -G "NSIS" 
+
+		#and then you can save the package
+	
+	;;
+	*)
+	;;
+esac
+
+
