@@ -328,9 +328,9 @@ ADD_SUBDIRECTORY( src)
 INSTALL(DIRECTORY ${MPTK_BINARY_DIR}/install/mptk/reference DESTINATION mptk)
 INSTALL(FILES ${MPTK_BINARY_DIR}/install/include/mptk.h DESTINATION include)
 
-#-----------------------------------------------------------------------------
+##############################################################################
 # Packaging using CPack:
-
+##############################################################################
 # For Unix Makefiles / MinGW Makefiles: Generates standard UNIX makefiles:
 # A hierarchy of UNIX makefiles is generated into the build tree.
 # Any standard UNIX-style make program can build the project through the default make target.
@@ -356,8 +356,8 @@ INSTALL(FILES ${MPTK_BINARY_DIR}/install/include/mptk.h DESTINATION include)
 #Filling the various required informations and validate the release
 #Download the release and test if build correctly
 
+# CPACK RULES
 #-----------------------------------------------------------------------------
-## CPACK RULES
 INCLUDE(InstallRequiredSystemLibraries)
 SET(CPACK_SET_DESTDIR "ON")
 SET(CPACK_PACKAGE_RELOCATABLE "FALSE")
@@ -380,8 +380,8 @@ SET(CPACK_RESOURCE_FILE_README "${MPTK_SOURCE_DIR}/src/utils/readme.txt")
 INSTALL(FILES "${MPTK_SOURCE_DIR}/README.txt" DESTINATION mptk)
 INSTALL(FILES "${MPTK_SOURCE_DIR}/COPYING.txt" DESTINATION mptk)
 
-#BINARY DISTRIBUTION:
-
+# BINARY DISTRIBUTION:
+#-----------------------------------------------------------------------------
 SET(CPACK_INSTALL_CMAKE_PROJECTS "${MPTK_BINARY_DIR};MPTK;ALL;/")
 SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Matching Pursuit Tool Kit")
 SET(CPACK_SOURCE_PACKAGE_FILE_NAME "${MPTK-CPACK_PACKAGE_VERSION}")
@@ -417,7 +417,33 @@ ENDIF(WIN32)
 INCLUDE(CPack)
 
 
+##############################################################################
+# Dash server testing :
+##############################################################################
+IF(BUILD_TESTING AND DASH_TESTING)
+	INCLUDE(Cmake/Pipol.cmake)
+	IF(PIPOL_IMAGE)
+		SET(BUILDNAME "CMAKE-MptkBuild-${CMAKE_GENERATOR}-${CMAKE_CXX_COMPILER}-${PIPOL_IMAGE_NAME}")
+		SET(SITE "${PIPOL_SITE}")
+	ELSE(PIPOL_IMAGE)
+		SET(BUILDNAME "CMAKE-MptkBuild-${CMAKE_GENERATOR}-${CMAKE_CXX_COMPILER}-${CMAKE_SYSTEM_NAME}")
+	ENDIF(PIPOL_IMAGE)
+
+	# Pipol rc and nightly files are installed under $HOME/.pipol
+	FILE(GLOB rc_files  "${MPTK_SOURCE_DIR}/.pipol/rc*")
+	FOREACH(_f ${rc_files})
+  		INSTALL(FILES ${_f} DESTINATION "$ENV{HOME}/.pipol/")
+	ENDFOREACH(_f ${rc_files})
+
+	FILE(GLOB nightly_files ${MPTK_SOURCE_DIR}/.pipol/nightly/[^.]*)
+	FOREACH(_f ${nightly_files})
+		INSTALL(FILES ${_f} DESTINATION "$ENV{HOME}/.pipol/nightly/")
+	ENDFOREACH(_f ${nightly_files})
+ENDIF(BUILD_TESTING AND DASH_TESTING)
+
+##############################################################################
 #Testing with CTest
+##############################################################################
 #CTest is a testing tool distributed as a part of CMake.
 #To allow test the CMake variable BUILD_TESTING has to be set to ON
 #A simple way to submit Experimental dashboard is:
@@ -430,23 +456,19 @@ INCLUDE(CPack)
 #The "CTestConfig.cmake" file in the toplevel source directory set the dashboard preferences.
 
 IF(BUILD_TESTING)
-ENABLE_TESTING()
-INCLUDE(CTest)
-INCLUDE(CTestConfig.cmake)
-# TEST with CTest:
-SET(CMAKE_CXX_FLAGS "-fprofile-arcs -ftest-coverage  ${CMAKE_CXX_FLAGS}") 
-ADD_TEST(FFT, ${MPTK_BINARY_DIR}/bin/test_fft ${MPTK_BINARY_DIR}/mptk/path.xml)
-ADD_TEST(PARABOLIC_REGRESSION, ${MPTK_BINARY_DIR}/bin/test_parabolic_regression)
-ADD_TEST(BEHAVIOUR_IN_NOISE, ${MPTK_BINARY_DIR}/bin/test_behaviour_in_noise  ${MPTK_BINARY_DIR}/mptk/path.xml)
-ADD_TEST(MPD, ${MPTK_BINARY_DIR}/bin/mpd -C ${MPTK_BINARY_DIR}/mptk/path.xml -D ${MPTK_DEFAULT_DICT_FILE} -n 10 -q ${MPTK_REFERENCE_PATH}/signal/glockenspiel.wav ${MPTK_TMP_PATH}/test_mpd.bin)
-ADD_TEST(MPDANYWAVE, ${MPTK_BINARY_DIR}/bin/mpd -C ${MPTK_BINARY_DIR}/mptk/path.xml -D ${MPTK_DEFAULT_ANYWAVEDICT_FILE} -n 10 -q ${MPTK_REFERENCE_PATH}/signal/anywave_signal.wav ${MPTK_TMP_PATH}/test_mpdanywave.bin)
-ADD_TEST(MPR, ${MPTK_BINARY_DIR}/bin/mpr -C ${MPTK_BINARY_DIR}/mptk/path.xml ${MPTK_EXAMPLE_BOOK_FILE} ${MPTK_TMP_PATH}/test_mpr.wav)
-ADD_TEST(MPF, ${MPTK_BINARY_DIR}/bin/mpf -C ${MPTK_BINARY_DIR}/mptk/path.xml --Freq=[0:110] --len=[0:256] ${MPTK_EXAMPLE_BOOK_FILE} ${MPTK_TMP_PATH}/test_mpf_bookYes.bin ${MPTK_TMP_PATH}/test_mpf_bookNo.bin)
-ADD_TEST(TEST_MP, ${MPTK_BINARY_DIR}/bin/test_mp  ${MPTK_BINARY_DIR}/mptk/path.xml)
-ADD_TEST(ANYWAVE, ${MPTK_BINARY_DIR}/bin/test_anywave ${MPTK_REFERENCE_PATH}/signal/anywave_signal.wav ${MPTK_DEFAULT_ANYWAVETABLE_FILE} ${MPTK_DEFAULT_ANYWAVEDICT_FILE})
-ADD_TEST(MPD_DEMIX, ${MPTK_BINARY_DIR}/bin/mpd_demix -C ${MPTK_BINARY_DIR}/mptk/path.xml -D ${MPTK_DEFAULT_DICT_LIST_FILE} -M ${MPTK_DEFAULT_MIXER_FILE} -n 10 -q ${MPTK_EXAMPLE_STEREOSIGNAL_FILE} ${MPTK_TMP_PATH}/test_demix.bin)
-
-#You can add tests in the project corresponding to the test executable SimpleTest file using ADD_TEST command:
-#ADD_TEST(SimpleTest ${MPTK_BINARY_DIR}/bin/SimpleTest Hello)
-
+	ENABLE_TESTING()
+	INCLUDE(CTest)
+	INCLUDE(CTestConfig.cmake)
+	# TEST with CTest:
+	SET(CMAKE_CXX_FLAGS "-fprofile-arcs -ftest-coverage  ${CMAKE_CXX_FLAGS}") 
+	ADD_TEST(FFT, ${MPTK_BINARY_DIR}/bin/test_fft ${MPTK_BINARY_DIR}/mptk/path.xml)
+	ADD_TEST(PARABOLIC_REGRESSION, ${MPTK_BINARY_DIR}/bin/test_parabolic_regression)
+	ADD_TEST(BEHAVIOUR_IN_NOISE, ${MPTK_BINARY_DIR}/bin/test_behaviour_in_noise  ${MPTK_BINARY_DIR}/mptk/path.xml)
+	ADD_TEST(MPD, ${MPTK_BINARY_DIR}/bin/mpd -C ${MPTK_BINARY_DIR}/mptk/path.xml -D ${MPTK_DEFAULT_DICT_FILE} -n 10 -q ${MPTK_REFERENCE_PATH}/signal/glockenspiel.wav ${MPTK_TMP_PATH}/test_mpd.bin)
+	ADD_TEST(MPDANYWAVE, ${MPTK_BINARY_DIR}/bin/mpd -C ${MPTK_BINARY_DIR}/mptk/path.xml -D ${MPTK_DEFAULT_ANYWAVEDICT_FILE} -n 10 -q ${MPTK_REFERENCE_PATH}/signal/anywave_signal.wav ${MPTK_TMP_PATH}/test_mpdanywave.bin)
+	ADD_TEST(MPR, ${MPTK_BINARY_DIR}/bin/mpr -C ${MPTK_BINARY_DIR}/mptk/path.xml ${MPTK_EXAMPLE_BOOK_FILE} ${MPTK_TMP_PATH}/test_mpr.wav)
+	ADD_TEST(MPF, ${MPTK_BINARY_DIR}/bin/mpf -C ${MPTK_BINARY_DIR}/mptk/path.xml --Freq=[0:110] --len=[0:256] ${MPTK_EXAMPLE_BOOK_FILE} ${MPTK_TMP_PATH}/test_mpf_bookYes.bin ${MPTK_TMP_PATH}/test_mpf_bookNo.bin)
+	ADD_TEST(TEST_MP, ${MPTK_BINARY_DIR}/bin/test_mp  ${MPTK_BINARY_DIR}/mptk/path.xml)
+	ADD_TEST(ANYWAVE, ${MPTK_BINARY_DIR}/bin/test_anywave ${MPTK_REFERENCE_PATH}/signal/anywave_signal.wav ${MPTK_DEFAULT_ANYWAVETABLE_FILE} ${MPTK_DEFAULT_ANYWAVEDICT_FILE})
+	ADD_TEST(MPD_DEMIX, ${MPTK_BINARY_DIR}/bin/mpd_demix -C ${MPTK_BINARY_DIR}/mptk/path.xml -D ${MPTK_DEFAULT_DICT_LIST_FILE} -M ${MPTK_DEFAULT_MIXER_FILE} -n 10 -q ${MPTK_EXAMPLE_STEREOSIGNAL_FILE} ${MPTK_TMP_PATH}/test_demix.bin)
 ENDIF(BUILD_TESTING)

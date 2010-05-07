@@ -1,0 +1,35 @@
+#!/bin/bash
+
+### rc.mac --- 
+## 
+## Author: Ronan Le Boulch
+## Copyright (C) 2008 - Ronan Le Boulch, Inria.
+## Created: Fri May 7 09:56:25 2010 (+0100)
+## Version: $Id$
+## Last-Updated: Fri May 7 09:56:25 2010 (+0100)
+##           By: rleboulc
+##     Update #: 1
+######################################################################
+## 
+### Commentary: 
+## 
+######################################################################
+## 
+### Change log:
+## 
+######################################################################
+
+## #################################################################
+## Get required version of cmake (required for cpack)
+## #################################################################
+curl -O http://www.cmake.org/files/v2.8/cmake-2.8.1-Darwin-universal.dmg
+hdiutil attach cmake-2.8.1-Darwin-universal.dmg
+installer -pkg /Volumes/cmake-2.8.1-Darwin-universal/cmake-2.8.1-Darwin-universal.pkg -target /Applications
+hdiutil detach /Volumes/cmake-2.8.1-Darwin-universal
+rm cmake-2.8.1-Darwin-universal.dmg
+
+## #################################################################
+## MPTK dependencies
+## #################################################################
+port install -y -qq libsndfile1-dev
+port install -y -qq libfftw3-dev
