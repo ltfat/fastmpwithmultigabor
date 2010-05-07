@@ -11,7 +11,7 @@ case $PIPOL_IMAGE in
 	
 		# 1) You have to get your sources from somewhere.
 		cd $home
-		svn checkout svn+ssh://rleboulc@scm.gforge.inria.fr/svn/mptk/trunk MPTK_Source
+		svn checkout --username rleboulc https://scm.gforge.inria.fr/svn/mptk/trunk MPTK_Source
 		
 		# 2) Creation of the Build directory 
 		if [ -d "MPTK_Build" ]
