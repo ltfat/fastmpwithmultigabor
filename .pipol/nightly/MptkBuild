@@ -5,14 +5,14 @@
 #PIPOL windows 1:00 --root
 #PIPOL mac 1:00
 
+# 1) You have to get your sources from somewhere.
+cd $PIPOL_WDIR
+echo "Voilà le chemin PIPOL_WDIR : $PIPOL_WDIR"
+svn checkout svn+ssh://rleboulc@scm.gforge.inria.fr/svn/mptk/trunk MPTK_Source
+		
 case $PIPOL_IMAGE in
 	*-mac-* | *-linux-*)
 	
-		# 1) You have to get your sources from somewhere.
-		cd $PIPOL_WDIR
-		echo "Voilà le chemin PIPOL_WDIR : $PIPOL_WDIR"
-		svn checkout --username rleboulc https://scm.gforge.inria.fr/svn/mptk/trunk MPTK_Source
-		
 		# 2) Creation of the Build directory 
 		if [ -d "MPTK_Build" ] then
 		  echo "Le dossier MPTK_Build existe déjà..."
@@ -26,7 +26,7 @@ case $PIPOL_IMAGE in
 		# 3) the build 
 		cd MPTK_Build; { 
 		    ## 3.1) configuration
-		    cmake -DDASH_TESTING=ON ../MPTK_Source
+		    cmake -DDASH_TESTING=ON $PIPOL_WDIR/MPTK_Source
 		    make NightlyUpdate
 		    make NightlyConfigure
 		
@@ -43,31 +43,44 @@ case $PIPOL_IMAGE in
 		    cpack
 		}; cd -
 	;;
+
 	*-windows-*)
 
 		#Cleaning the project
 		rm -Rf ./*
+		if [ -e "/cygdrive/c/CMake 2.8/bin/cmake.exe" ]; then
+			VERSION="2.8"
+		else
+			VERSION="2.6"
+		fi
 
-		if [ "$PIPOL_IMAGE" == "amd64-windows-server-2003-64bits.dd.gz" ]; then
-        	PIPOL_WIN_COMPILER="Visual Studio 8 2005"
-       		PIPOL_COMPILER_VERSION=8
-		else 
-        	PIPOL_WIN_COMPILER="Visual Studio 9 2008"
-        	PIPOL_COMPILER_VERSION=9.0
+		if [ "$PIPOL_IMAGE" == "*-windows-server-2003-*" ]; then
+			PIPOL_WIN_COMPILER="Visual Studio 8 2005"
+			PIPOL_COMPILER_VERSION=8
+			MSVC_PATH="/cygdrive/c/Program Files (x86)/Microsoft Visual Studio $PIPOL_COMPILER_VERSION"
+		elif [ "$PIPOL_IMAGE" == "*-windows-server-2008-*" ]; then
+			PIPOL_WIN_COMPILER="Visual Studio 9 2008"
+			PIPOL_COMPILER_VERSION=9.0
+			MSVC_PATH="/cygdrive/c/Program Files (x86)/Microsoft Visual Studio $PIPOL_COMPILER_VERSION"	
+		elif [ "$PIPOL_IMAGE" == "*-windows-xp-*" ]; then
+			PIPOL_WIN_COMPILER="Visual Studio 8 2005"
+            PIPOL_COMPILER_VERSION=8
+			MSVC_PATH="/cygdrive/c/Program Files/Microsoft Visual Studio $PIPOL_COMPILER_VERSION"
 		fi
 
 		mkdir MPTK_Build 
 		cd MPTK_Build
-		#Making VISUAL project with cmake 2.6: don't forget to complete the line with your own sources path
-		/cygdrive/c/CMake\ 2.8/bin/cmake.exe -G "$PIPOL_WIN_COMPILER" C:/MPTK_Source
+		#Making VISUAL project with cmake 2.6 - 2.8
+		/cygdrive/c/CMake\ $VERSION/bin/cmake.exe -G "$PIPOL_WIN_COMPILER" $PIPOL_WDIR/MPTK_Source
 
 		#Setting environment
-		/cygdrive/c/Program\ Files\ \(x86\)/Microsoft\ Visual\ Studio\ $PIPOL_COMPILER_VERSION/Common7/Tools/vsvars32.bat	
+		$MSVC_PATH/Common7/Tools/vsvars32.bat	
 
-		/cygdrive/c/Program\ Files\ \(x86\)/Microsoft\ Visual\ Studio\ $PIPOL_COMPILER_VERSION/VC/vcpackages/vcbuild.exe /CLEAN 
+		#Cleaning the project
+		$MSVC_PATH/VC/vcpackages/vcbuild.exe /CLEAN 
 
 		#Project build
-		/cygdrive/c/Program\ Files\ \(x86\)/Microsoft\ Visual\ Studio\ $PIPOL_COMPILER_VERSION/VC/vcpackages/vcbuild.exe MPTK.sln 
+		$MSVC_PATH/VC/vcpackages/vcbuild.exe MPTK.sln 
 
 		#CDASH submision
 		/cygdrive/c/CMake\ 2.8/bin/ctest.exe -D "Nightly" 
