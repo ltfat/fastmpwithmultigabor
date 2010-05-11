@@ -416,31 +416,6 @@ ELSE(WIN32)
 ENDIF(WIN32)
 INCLUDE(CPack)
 
-
-##############################################################################
-# Dash server testing :
-##############################################################################
-IF(BUILD_TESTING AND DASH_TESTING)
-	INCLUDE(Cmake/Pipol.cmake)
-	IF(PIPOL_IMAGE)
-		SET(BUILDNAME "CMAKE-MptkBuild-${CMAKE_GENERATOR}-${CMAKE_CXX_COMPILER}-${PIPOL_IMAGE_NAME}")
-		SET(SITE "${PIPOL_SITE}")
-	ELSE(PIPOL_IMAGE)
-		SET(BUILDNAME "CMAKE-MptkBuild-${CMAKE_GENERATOR}-${CMAKE_CXX_COMPILER}-${CMAKE_SYSTEM_NAME}")
-	ENDIF(PIPOL_IMAGE)
-
-	# Pipol rc and nightly files are installed under $HOME/.pipol
-	FILE(GLOB rc_files  "${MPTK_SOURCE_DIR}/.pipol/rc*")
-	FOREACH(_f ${rc_files})
-  		INSTALL(FILES ${_f} DESTINATION "$ENV{HOME}/.pipol/")
-	ENDFOREACH(_f ${rc_files})
-
-	FILE(GLOB nightly_files ${MPTK_SOURCE_DIR}/.pipol/nightly/[^.]*)
-	FOREACH(_f ${nightly_files})
-		INSTALL(FILES ${_f} DESTINATION "$ENV{HOME}/.pipol/nightly/")
-	ENDFOREACH(_f ${nightly_files})
-ENDIF(BUILD_TESTING AND DASH_TESTING)
-
 ##############################################################################
 #Testing with CTest
 ##############################################################################
@@ -472,3 +447,29 @@ IF(BUILD_TESTING)
 	ADD_TEST(ANYWAVE, ${MPTK_BINARY_DIR}/bin/test_anywave ${MPTK_REFERENCE_PATH}/signal/anywave_signal.wav ${MPTK_DEFAULT_ANYWAVETABLE_FILE} ${MPTK_DEFAULT_ANYWAVEDICT_FILE})
 	ADD_TEST(MPD_DEMIX, ${MPTK_BINARY_DIR}/bin/mpd_demix -C ${MPTK_BINARY_DIR}/mptk/path.xml -D ${MPTK_DEFAULT_DICT_LIST_FILE} -M ${MPTK_DEFAULT_MIXER_FILE} -n 10 -q ${MPTK_EXAMPLE_STEREOSIGNAL_FILE} ${MPTK_TMP_PATH}/test_demix.bin)
 ENDIF(BUILD_TESTING)
+
+##############################################################################
+# Dash server testing :
+##############################################################################
+IF(BUILD_TESTING AND DASH_TESTING)
+	INCLUDE(Cmake/Pipol.cmake)
+	IF(PIPOL_IMAGE)
+		SET(BUILDNAME "CMAKE-MptkBuild-${CMAKE_GENERATOR}-${CMAKE_CXX_COMPILER}-${PIPOL_IMAGE_NAME}")
+		SET(SITE "${PIPOL_SITE}")
+	ELSE(PIPOL_IMAGE)
+		SET(BUILDNAME "CMAKE-MptkBuild-${CMAKE_GENERATOR}-${CMAKE_CXX_COMPILER}-${CMAKE_SYSTEM_NAME}")
+	ENDIF(PIPOL_IMAGE)
+
+	# Pipol rc and nightly files are installed under $HOME/.pipol
+	FILE(GLOB rc_files  "${MPTK_SOURCE_DIR}/.pipol/rc*")
+	FOREACH(_f ${rc_files})
+  		INSTALL(FILES ${_f} DESTINATION "$ENV{HOME}/.pipol/")
+	ENDFOREACH(_f ${rc_files})
+
+	FILE(GLOB nightly_files ${MPTK_SOURCE_DIR}/.pipol/nightly/[^.]*)
+	FOREACH(_f ${nightly_files})
+		INSTALL(FILES ${_f} DESTINATION "$ENV{HOME}/.pipol/nightly/")
+	ENDFOREACH(_f ${nightly_files})
+ENDIF(BUILD_TESTING AND DASH_TESTING)
+
+
