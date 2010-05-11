@@ -5,7 +5,6 @@
 #PIPOL windows 1:00 --root
 #PIPOL mac 1:00
 
-echo "Voilà la variable PIPOL_IMAGE : <$PIPOL_IMAGE>"
 case $PIPOL_IMAGE in
 	*-mac-* | *-linux-*)
 	
@@ -14,8 +13,7 @@ case $PIPOL_IMAGE in
 		svn checkout --username rleboulc https://scm.gforge.inria.fr/svn/mptk/trunk MPTK_Source
 		
 		# 2) Creation of the Build directory 
-		if [ -d "MPTK_Build" ]
-		then
+		if [ -d "MPTK_Build" ] then
 		  echo "Le dossier MPTK_Build existe déjà..."
 		else
 		  echo "Le fichier MPTK_Build n'existe pas."
