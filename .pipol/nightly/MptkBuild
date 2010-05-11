@@ -9,7 +9,8 @@ case $PIPOL_IMAGE in
 	*-mac-* | *-linux-*)
 	
 		# 1) You have to get your sources from somewhere.
-		cd $home
+		cd $PIPOL_WDIR
+		echo "Voilà le chemin PIPOL_WDIR : $PIPOL_WDIR"
 		svn checkout --username rleboulc https://scm.gforge.inria.fr/svn/mptk/trunk MPTK_Source
 		
 		# 2) Creation of the Build directory 
