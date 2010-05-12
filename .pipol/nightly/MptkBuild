@@ -14,7 +14,7 @@ case $PIPOL_IMAGE in
 	*-mac-* | *-linux-*)
 	
 		# 2) Creation of the Build directory 
-		if [ -d "MPTK_Build" ] then
+		if [ -d "MPTK_Build" ]; then
 		  echo "Le dossier MPTK_Build existe déjà..."
 		else
 		  echo "Le fichier MPTK_Build n'existe pas."
