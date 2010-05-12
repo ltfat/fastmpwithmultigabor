@@ -46,7 +46,7 @@ case $PIPOL_IMAGE in
 
 	*-windows-*)
 
-		#Cleaning the project
+		#2) Cleaning the project
 		rm -Rf ./*
 		if [ -e "/cygdrive/c/CMake 2.8/bin/cmake.exe" ]; then
 			VERSION="2.8"

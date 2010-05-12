@@ -27,6 +27,11 @@ hdiutil attach cmake-2.8.1-Darwin-universal.dmg
 installer -pkg /Volumes/cmake-2.8.1-Darwin-universal/cmake-2.8.1-Darwin-universal.pkg -target /Applications
 hdiutil detach /Volumes/cmake-2.8.1-Darwin-universal
 rm cmake-2.8.1-Darwin-universal.dmg
+ln -s /Applications/CMake 2.8-1.app/Contents/bin/cmake /usr/bin/cmake
+ln -s /Applications/CMake 2.8-1.app/Contents/bin/ccmake /usr/bin/ccmake
+ln -s /Applications/CMake 2.8-1.app/Contents/bin/ctest /usr/bin/ctest
+ln -s /Applications/CMake 2.8-1.app/Contents/bin/cpack /usr/bin/cpack
+
 
 ## #################################################################
 ## MPTK dependencies
