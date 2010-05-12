@@ -39,4 +39,13 @@ fi
 ## #################################################################
 fink selfupdate
 fink -y -q install libsndfile1-dev
-fink -y -q install fftw3
+
+## #################################################################
+## MPTK fftw3 dependencies
+## #################################################################
+curl -O http://www.fftw.org/fftw-3.2.2.tar.gz
+tar xf fftw-3.2.2.tar.gz
+cd fftw-3.2.2
+./configure --enable-shared
+make
+sudo make install
