@@ -39,4 +39,4 @@ fi
 ## #################################################################
 fink selfupdate
 fink -y -q install libsndfile1-dev
-fink -y -q install libfftw3-dev
+fink -y -q install fftw3
