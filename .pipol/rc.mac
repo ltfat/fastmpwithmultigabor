@@ -38,5 +38,5 @@ fi
 ## MPTK dependencies
 ## #################################################################
 fink selfupdate
-fink install -y -q libsndfile1-dev
-fink install -y -q libfftw3-dev
+fink -y -q install libsndfile1-dev
+fink -y -q install libfftw3-dev
