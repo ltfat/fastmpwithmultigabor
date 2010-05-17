@@ -7,7 +7,6 @@
 
 # 1) You have to get your sources from somewhere.
 cd $PIPOL_WDIR
-echo "Voilà le chemin PIPOL_WDIR : $PIPOL_WDIR"
 svn checkout svn+ssh://rleboulc@scm.gforge.inria.fr/svn/mptk/trunk MPTK_Source
 		
 case $PIPOL_IMAGE in
@@ -46,8 +45,6 @@ case $PIPOL_IMAGE in
 
 	*-windows-*)
 
-		#2) Cleaning the project
-		rm -Rf ./*
 		if [ -e "/cygdrive/c/CMake 2.8/bin/cmake.exe" ]; then
 			VERSION="2.8"
 		else
@@ -73,6 +70,8 @@ case $PIPOL_IMAGE in
 			*)
 			;;
 
+		#2) Cleaning the project
+		rm -Rf ./MPTK_Build
 		mkdir MPTK_Build 
 		cd MPTK_Build
 		#Making VISUAL project with cmake 2.6 - 2.8
