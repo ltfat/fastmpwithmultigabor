@@ -23,8 +23,16 @@
 ## Get required version of cmake (required for cpack)
 ## #################################################################
 
-wget http://www.cmake.org/files/v2.8/cmake-2.8.1-Linux-i386.sh
-sh cmake-2.8.1-Linux-i386.sh --prefix=/usr --exclude-subdir
+if [ "`cmake --version`" != "cmake version 2.8.1" ]; then
+	wget http://www.cmake.org/files/v2.8/cmake-2.8.1-Linux-i386.sh
+	WHICH=`which cmake`
+	if [ "$WHICH" != "" ]; then 
+		sh cmake-2.8.1-Linux-i386.sh --prefix=$WHICH/../.. --exclude-subdir
+	else
+		sh cmake-2.8.1-Linux-i386.sh --prefix=/usr/local --exclude-subdir
+	fi	
+	rm cmake-2.8.1-Linux-i386.sh
+fi
 
 ## #################################################################
 ## MPTK dependencies
