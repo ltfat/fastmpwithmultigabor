@@ -69,7 +69,7 @@ case $PIPOL_IMAGE in
 			;;
 			*)
 			;;
-
+		esac
 		#2) Cleaning the project
 		rm -Rf ./MPTK_Build
 		mkdir MPTK_Build 
