@@ -51,5 +51,6 @@ cd fftw-3.2.2
 ./configure --enable-shared
 make
 sudo make install
+cd ..
 rm fftw-3.2.2.tar.gz
 rm fftw-3.2.2
