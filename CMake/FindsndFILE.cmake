@@ -3,27 +3,23 @@
 IF(UNIX)
 	IF(APPLE)
 		FIND_PATH(SNDFILE_INCLUDE_DIR sndfile.h
+		/usr/include
 		/usr/local/include
-		${MPTK_USER_INCLUDE_PATH}
-		/usr/include/ 
+		/sw/include
 		)
 		FIND_LIBRARY(SNDFILE_LIBRARY_FILE sndfile
-		/usr/local/lib
-		$ENV{LD_LIBRARY_PATH}
-		${MPTK_USER_LIB_PATH}
 		/usr/lib
+		/usr/local/lib
+		/sw/lib
 		)
 	ELSE(APPLE)
 		FIND_PATH(SNDFILE_INCLUDE_DIR sndfile.h
+		/usr/include
 		/usr/local/include
-		${MPTK_USER_INCLUDE_PATH}
-		/usr/include/ 
 		)
 		FIND_LIBRARY(SNDFILE_LIBRARY_FILE sndfile
-		/usr/local/lib
-		$ENV{LD_LIBRARY_PATH}
-		${MPTK_USER_LIB_PATH}
 		/usr/lib
+		/usr/local/lib
 		)
 	ENDIF(APPLE)
 ELSE(UNIX)
