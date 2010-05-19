@@ -3,25 +3,23 @@
 IF(UNIX)
   IF(APPLE)
     FIND_PATH(PTHREAD_INCLUDE_DIR pthread.h
+      /usr/include
       /usr/local/include
-      ${MPTK_USER_INCLUDE_PATH}
-       /usr/include
+      /sw/include
       )
     FIND_LIBRARY(PTHREAD_LIBRARY_FILE pthread
-      /usr/local/lib
       /usr/lib
-      $ENV{LD_LIBRARY_PATH}
+      /usr/local/lib
+      /sw/lib
       )
   ELSE(APPLE)
     FIND_PATH(PTHREAD_INCLUDE_DIR pthread.h
-      /usr/local/include
-      ${MPTK_USER_INCLUDE_PATH}
       /usr/include
+      /usr/local/include
       )
     FIND_LIBRARY(PTHREAD_LIBRARY_FILE pthread
-      /usr/local/lib
-       $ENV{LD_LIBRARY_PATH}
       /usr/lib
+      /usr/local/lib
       )
   ENDIF(APPLE)
 ELSE(UNIX)

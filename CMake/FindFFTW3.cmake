@@ -3,24 +3,24 @@
 IF(UNIX)
 	IF(APPLE)
 		FIND_PATH(FFTW3_INCLUDE_DIR fftw3.h
+		/usr/include
 		/usr/local/include
-		${MPTK_USER_INCLUDE_PATH}
-		/usr/include)
+		/sw/include
+		)
 		FIND_LIBRARY(FFTW3_LIBRARY_FILE NAMES libfftw3.a
-		/usr/local/lib
 		/usr/lib
-		$ENV{LD_LIBRARY_PATH}
-		${MPTK_USER_LIB_PATH})
+		/usr/local/lib
+		/sw/lib
+		)
 	ELSE(APPLE)
 		FIND_PATH(FFTW3_INCLUDE_DIR fftw3.h
+		/usr/include
 		/usr/local/include
-		${MPTK_USER_INCLUDE_PATH}
-		/usr/include)
+		)
 		FIND_LIBRARY(FFTW3_LIBRARY_FILE NAMES libfftw3.a
+		/usr/lib
 		/usr/local/lib
-		$ENV{LD_LIBRARY_PATH}
-		${MPTK_USER_LIB_PATH}  
-		/usr/lib)
+		)
 	ENDIF(APPLE)
 ELSE(UNIX)
 	IF(WIN32)
