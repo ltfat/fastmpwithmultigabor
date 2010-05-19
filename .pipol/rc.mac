@@ -23,8 +23,10 @@
 ## Get required version of cmake (required for cpack)
 ## #################################################################
 if [ "`cmake --version`" != "cmake version 2.8.1" ]; then
+	echo "---------------------------------------------------"
 	echo "Cmake n'existe pas ou sa version n'est pas 2.8.1..."
 	echo "Installation de cmake..."
+	echo "---------------------------------------------------"
 	curl -O http://www.cmake.org/files/v2.8/cmake-2.8.1-Darwin-universal.dmg
 	hdiutil attach cmake-2.8.1-Darwin-universal.dmg
 	sudo installer -pkg /Volumes/cmake-2.8.1-Darwin-universal/cmake-2.8.1-Darwin-universal.pkg -target /Applications
@@ -34,17 +36,27 @@ if [ "`cmake --version`" != "cmake version 2.8.1" ]; then
 	sudo ln -sf /Applications/CMake\ 2.8-1.app/Contents/bin/ccmake /usr/bin/ccmake
 	sudo ln -sf /Applications/CMake\ 2.8-1.app/Contents/bin/ctest /usr/bin/ctest
 	sudo ln -sf /Applications/CMake\ 2.8-1.app/Contents/bin/cpack /usr/bin/cpack
+else
+	echo "---------------------------------------------------"
+	echo "Cmake existe et sa version est 2.8.1..."
+	echo "---------------------------------------------------"
 fi
 
 ## #################################################################
 ## MPTK libsndfile1 dependencies
 ## #################################################################
+echo "---------------------------------------------------"
+echo "Installation de la librairie libsndfile..."
+echo "---------------------------------------------------"
 fink selfupdate
 fink -y -q install libsndfile1-dev
 
 ## #################################################################
 ## MPTK fftw3 dependencies
 ## #################################################################
+echo "---------------------------------------------------"
+echo "Installation de la librairie fftw3..."
+echo "---------------------------------------------------"
 curl -O http://www.fftw.org/fftw-3.2.2.tar.gz
 tar xf fftw-3.2.2.tar.gz
 cd fftw-3.2.2
@@ -53,4 +65,4 @@ make
 sudo make install
 cd ..
 rm fftw-3.2.2.tar.gz
-rm fftw-3.2.2
+rm -r fftw-3.2.2

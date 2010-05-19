@@ -24,6 +24,10 @@
 ## #################################################################
 
 if [ "`cmake --version`" != "cmake version 2.8.1" ]; then
+	echo "---------------------------------------------------"
+	echo "Cmake n'existe pas ou sa version n'est pas 2.8.1..."
+	echo "Installation de cmake..."
+	echo "---------------------------------------------------"
 	wget http://www.cmake.org/files/v2.8/cmake-2.8.1-Linux-i386.sh
 	WHICH=`which cmake`
 	if [ "$WHICH" != "" ]; then 
@@ -32,10 +36,20 @@ if [ "`cmake --version`" != "cmake version 2.8.1" ]; then
 		sh cmake-2.8.1-Linux-i386.sh --prefix=/usr/local --exclude-subdir
 	fi	
 	rm cmake-2.8.1-Linux-i386.sh
+else
+	echo "---------------------------------------------------"
+	echo "Cmake existe et sa version est 2.8.1..."
+	echo "---------------------------------------------------"
 fi
 
 ## #################################################################
 ## MPTK dependencies
 ## #################################################################
+echo "---------------------------------------------------"
+echo "Installation de la librairie libsndfile..."
+echo "---------------------------------------------------"
 yum install -y -qq libsndfile1-dev
+echo "---------------------------------------------------"
+echo "Installation de la librairie fftw3..."
+echo "---------------------------------------------------"
 yum install -y -qq libfftw3-dev
