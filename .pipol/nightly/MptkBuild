@@ -55,17 +55,17 @@ case $PIPOL_IMAGE in
 			*-windows-server-2003-*)
 			PIPOL_WIN_COMPILER="Visual Studio 8 2005"
 			PIPOL_COMPILER_VERSION=8
-			MSVC_PATH="/cygdrive/c/Program\ Files (x86)/Microsoft\ Visual\ Studio\ $PIPOL_COMPILER_VERSION"
+			MSVC_PATH="/cygdrive/c/Program Files (x86)/Microsoft Visual Studio $PIPOL_COMPILER_VERSION"
 			;;
 			*-windows-server-2008-*)
 			PIPOL_WIN_COMPILER="Visual Studio 9 2008"
 			PIPOL_COMPILER_VERSION=9.0
-			MSVC_PATH="/cygdrive/c/Program\ Files (x86)/Microsoft\ Visual\ Studio\ $PIPOL_COMPILER_VERSION"	
+			MSVC_PATH="/cygdrive/c/Program Files (x86)/Microsoft Visual Studio $PIPOL_COMPILER_VERSION"	
 			;;
 			*-windows-xp-*)
 			PIPOL_WIN_COMPILER="Visual Studio 8 2005"
             PIPOL_COMPILER_VERSION=8
-			MSVC_PATH="/cygdrive/c/Program\ Files/Microsoft\ Visual\ Studio\ $PIPOL_COMPILER_VERSION"
+			MSVC_PATH="/cygdrive/c/Program Files/Microsoft Visual Studio $PIPOL_COMPILER_VERSION"
 			;;
 			*)
 			;;
