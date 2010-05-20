@@ -46,6 +46,7 @@
 #define __mp_types_h_
 
 #include <stdlib.h>
+#include <stdint.h>
 #include <string>
 
 using namespace std;
@@ -68,9 +69,9 @@ typedef float  MP_Tfmap_t;  /* Type of the Tfmap data */
 typedef struct {            
   /** \brief sample index of the first sample of the support (starting at zero)
    */
-  unsigned long int pos;
+  uint32_t pos;
   /** \brief number of samples in the support (zero if the support is empty) */
-  unsigned long int len;
+  uint32_t len;
 } MP_Support_t;
 
  /** \brief Struct use compare key in the hash map for block parameter */ 

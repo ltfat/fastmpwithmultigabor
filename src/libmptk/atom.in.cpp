@@ -171,8 +171,8 @@ int MP_Atom_c::read( FILE *fid, const char mode ) {
   case MP_BINARY:
     /* Support */
     for ( i=0, nItem = 0; i<numChans; i++ ) {
-      nItem += mp_fread( &(support[i].pos), sizeof(unsigned long int), 1, fid );
-      nItem += mp_fread( &(support[i].len), sizeof(unsigned long int), 1, fid );
+      nItem += mp_fread( &(support[i].pos), sizeof(uint32_t), 1, fid );
+      nItem += mp_fread( &(support[i].len), sizeof(uint32_t), 1, fid );
     }
     /* Amp */
     if ( mp_fread( amp,   sizeof(MP_Real_t), numChans, fid ) != (size_t)numChans ) {
