@@ -48,8 +48,11 @@ fi
 echo "---------------------------------------------------"
 echo "Installation de la librairie libsndfile..."
 echo "---------------------------------------------------"
-fink selfupdate
-fink -y -q install libsndfile1-dev
+FINKPATH=`which fink`
+if [ "$FINKPATH" != "" ]; then 
+	sudo $FINKPATH selfupdate
+	sudo $FINKPATH -y -q install libsndfile1-dev
+fi
 
 ## #################################################################
 ## MPTK fftw3 dependencies

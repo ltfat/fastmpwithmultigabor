@@ -29,9 +29,9 @@ if [ "`cmake --version`" != "cmake version 2.8.1" ]; then
 	echo "Installation de cmake..."
 	echo "---------------------------------------------------"
 	wget http://www.cmake.org/files/v2.8/cmake-2.8.1-Linux-i386.sh
-	WHICH=`which cmake`
-	if [ "$WHICH" != "" ]; then 
-		sh cmake-2.8.1-Linux-i386.sh --prefix=$WHICH/../.. --exclude-subdir
+	CMAKEPATH=`which cmake`
+	if [ "$CMAKEPATH" != "" ]; then 
+		sh cmake-2.8.1-Linux-i386.sh --prefix=$CMAKEPATH/../.. --exclude-subdir
 	else
 		sh cmake-2.8.1-Linux-i386.sh --prefix=/usr/local --exclude-subdir
 	fi	
