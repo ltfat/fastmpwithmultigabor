@@ -46,11 +46,22 @@ fi
 ## MPTK libsndfile1 dependencies
 ## #################################################################
 echo "---------------------------------------------------"
-echo "Installation de la librairie libsndfile..."
+echo "Mise à jour de MacPort..."
 echo "---------------------------------------------------"
 PORTPATH=`which port`
 if [ "$PORTPATH" != "" ]; then 
 	sudo $PORTPATH selfupdate
+fi
+
+
+## #################################################################
+## MPTK libsndfile1 dependencies
+## #################################################################
+echo "---------------------------------------------------"
+echo "Installation de la librairie libsndfile..."
+echo "---------------------------------------------------"
+PORTPATH=`which port`
+if [ "$PORTPATH" != "" ]; then 
 	sudo $PORTPATH install libsndfile
 fi
 
@@ -62,6 +73,5 @@ echo "Installation de la librairie fftw3..."
 echo "---------------------------------------------------"
 PORTPATH=`which port`
 if [ "$PORTPATH" != "" ]; then 
-	sudo $PORTPATH selfupdate
 	sudo $PORTPATH install fftw-3
 fi
