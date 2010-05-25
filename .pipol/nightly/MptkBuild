@@ -75,7 +75,7 @@ case $PIPOL_IMAGE in
 		mkdir MPTK_Build 
 		cd MPTK_Build
 		#Making VISUAL project with cmake 2.6 - 2.8
-		/cygdrive/c/CMake\ $VERSION/bin/cmake.exe -G "$PIPOL_WIN_COMPILER" $PIPOL_WDIR/MPTK_Source
+		/cygdrive/c/CMake\ $VERSION/bin/cmake.exe -G "$PIPOL_WIN_COMPILER" ./../MPTK_Source
 
 		#Setting environment
 		$MSVC_PATH/Common7/Tools/vsvars32.bat	
