@@ -6,11 +6,13 @@ IF(UNIX)
       /usr/include
       /usr/local/include
       /sw/include
+      /opt/local/include
       )
     FIND_LIBRARY(PTHREAD_LIBRARY_FILE pthread
       /usr/lib
       /usr/local/lib
       /sw/lib
+      /opt/local/lib
       )
   ELSE(APPLE)
     FIND_PATH(PTHREAD_INCLUDE_DIR pthread.h

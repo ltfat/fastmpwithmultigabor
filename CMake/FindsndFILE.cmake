@@ -6,11 +6,13 @@ IF(UNIX)
 		/usr/include
 		/usr/local/include
 		/sw/include
+		/opt/local/include
 		)
 		FIND_LIBRARY(SNDFILE_LIBRARY_FILE sndfile
 		/usr/lib
 		/usr/local/lib
 		/sw/lib
+		/opt/local/lib
 		)
 	ELSE(APPLE)
 		FIND_PATH(SNDFILE_INCLUDE_DIR sndfile.h

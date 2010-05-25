@@ -6,11 +6,13 @@ IF(UNIX)
 		/usr/include
 		/usr/local/include
 		/sw/include
+		/opt/local/include
 		)
 		FIND_LIBRARY(FFTW3_LIBRARY_FILE NAMES libfftw3.a
 		/usr/lib
 		/usr/local/lib
 		/sw/lib
+		/opt/local/lib
 		)
 	ELSE(APPLE)
 		FIND_PATH(FFTW3_INCLUDE_DIR fftw3.h
