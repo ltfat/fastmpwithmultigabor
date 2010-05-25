@@ -48,10 +48,10 @@ fi
 echo "---------------------------------------------------"
 echo "Installation de la librairie libsndfile..."
 echo "---------------------------------------------------"
-FINKPATH=`which fink`
-if [ "$FINKPATH" != "" ]; then 
-	sudo $FINKPATH selfupdate
-	sudo $FINKPATH -y -q install libsndfile1-dev
+PORTPATH=`which port`
+if [ "$PORTPATH" != "" ]; then 
+	sudo $PORTPATH selfupdate
+	sudo $PORTPATH install libsndfile
 fi
 
 ## #################################################################
@@ -60,12 +60,8 @@ fi
 echo "---------------------------------------------------"
 echo "Installation de la librairie fftw3..."
 echo "---------------------------------------------------"
-curl -O http://www.fftw.org/fftw-3.2.2.tar.gz
-tar xf fftw-3.2.2.tar.gz
-cd fftw-3.2.2
-./configure --enable-shared
-make
-sudo make install
-cd ..
-rm fftw-3.2.2.tar.gz
-rm -r fftw-3.2.2
+PORTPATH=`which port`
+if [ "$PORTPATH" != "" ]; then 
+	sudo $PORTPATH selfupdate
+	sudo $PORTPATH install fftw-3
+fi
