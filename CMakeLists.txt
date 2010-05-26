@@ -204,18 +204,12 @@ ENDFOREACH(default)
 #--------------------------------------------------------------------------------------
 # Case of Visual Studio 
 IF( CMAKE_CXX_COMPILER STREQUAL "cl")
-    IF (BUILD_DEBUG)
 	# Case of debug mode
 	SET(MPTK_LIB_DIR ${MPTK_BINARY_DIR}/lib/debug)
 	SET(MPTK_LIB_DIR_INSTALL ${CMAKE_INSTALL_PREFIX}/lib)
-    ELSE (BUILD_DEBUG)
-    	# Case of release mode
-    	SET(MPTK_LIB_DIR ${MPTK_BINARY_DIR}/lib/release)
-    	SET(MPTK_LIB_DIR_INSTALL ${CMAKE_INSTALL_PREFIX}/lib)
-    ENDIF (BUILD_DEBUG)
 ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
-# Case of Xcode
-IF( CMAKE_GENERATOR STREQUAL "Xcode")
+  # Case of Xcode
+  IF( CMAKE_GENERATOR STREQUAL "Xcode")
     # We would like to select a single build mode, would we ?
     # or to select it dynamically there is the CMAKE_CFG_INTDIR stuff
     IF (BUILD_DEBUG)
@@ -225,11 +219,11 @@ IF( CMAKE_GENERATOR STREQUAL "Xcode")
     	SET(MPTK_LIB_DIR ${MPTK_BINARY_DIR}/lib/Release)
     	SET(MPTK_LIB_DIR_INSTALL ${CMAKE_INSTALL_PREFIX}/lib)
     ENDIF (BUILD_DEBUG)
-ELSE( CMAKE_GENERATOR STREQUAL "Xcode")
-# Generic case
-      SET(MPTK_LIB_DIR ${MPTK_BINARY_DIR}/lib)
-      SET(MPTK_LIB_DIR_INSTALL ${CMAKE_INSTALL_PREFIX}/lib)
-      ENDIF(CMAKE_GENERATOR STREQUAL "Xcode") 
+  ELSE( CMAKE_GENERATOR STREQUAL "Xcode")
+    # Generic case
+    SET(MPTK_LIB_DIR ${MPTK_BINARY_DIR}/lib)
+    SET(MPTK_LIB_DIR_INSTALL ${CMAKE_INSTALL_PREFIX}/lib)
+  ENDIF(CMAKE_GENERATOR STREQUAL "Xcode") 
 ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
 
 # ----------------------------------------------------------------------------
@@ -459,17 +453,6 @@ IF(BUILD_TESTING AND DASH_TESTING)
 	ELSE(PIPOL_IMAGE)
 		SET(BUILDNAME "CMAKE-MptkBuild-${CMAKE_GENERATOR}-${CMAKE_CXX_COMPILER}-${CMAKE_SYSTEM_NAME}")
 	ENDIF(PIPOL_IMAGE)
-
-	# Pipol rc and nightly files are installed under $HOME/.pipol
-	FILE(GLOB rc_files  "${MPTK_SOURCE_DIR}/.pipol/rc*")
-	FOREACH(_f ${rc_files})
-  		INSTALL(FILES ${_f} DESTINATION "$ENV{HOME}/.pipol/")
-	ENDFOREACH(_f ${rc_files})
-
-	FILE(GLOB nightly_files ${MPTK_SOURCE_DIR}/.pipol/nightly/[^.]*)
-	FOREACH(_f ${nightly_files})
-		INSTALL(FILES ${_f} DESTINATION "$ENV{HOME}/.pipol/nightly/")
-	ENDFOREACH(_f ${nightly_files})
 ENDIF(BUILD_TESTING AND DASH_TESTING)
 
 
