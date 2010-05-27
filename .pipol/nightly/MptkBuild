@@ -45,12 +45,17 @@ case $PIPOL_IMAGE in
 
 	*-windows-*)
 
+		#2) Creation of temporary repertory  
+		mkdir /cygdrive/c/Temp
+		
+		#3) Detectioon of cmake version 
 		if [ -e "/cygdrive/c/CMake 2.8/bin/cmake.exe" ]; then
 			VERSION="2.8"
 		else
 			VERSION="2.6"
 		fi
 
+		#4) Setting Pipol environment variables depending the OS image 
 		case $PIPOL_IMAGE in
 			*-windows-server-2003-*)
 			PIPOL_WIN_COMPILER="Visual Studio 8 2005"
@@ -70,10 +75,12 @@ case $PIPOL_IMAGE in
 			*)
 			;;
 		esac
-		#2) Cleaning the project
+		
+		#5) Cleaning the projet
 		rm -Rf ./MPTK_Build
 		mkdir MPTK_Build 
 		cd MPTK_Build
+		
 		#Making VISUAL project with cmake 2.6 - 2.8
 		/cygdrive/c/CMake\ $VERSION/bin/cmake.exe -DDASH_TESTING=ON -G "$PIPOL_WIN_COMPILER" ./../MPTK_Source
 
