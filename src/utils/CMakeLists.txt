@@ -77,6 +77,7 @@ ENDIF(BUILD_EXPERIMENTAL)
 #For win32 and platforms and MINGW build command, copy the dll files in the build dir
 IF (WIN32)
   IF( CMAKE_CXX_COMPILER STREQUAL "cl")
+    IF(BUILD_DEBUG)          
       #=== Copy the dll in the bin folder===
       ADD_CUSTOM_COMMAND (
                             TARGET mpd
@@ -103,34 +104,66 @@ IF (WIN32)
                             ARGS -E copy "${MPTK_BINARY_DIR}/lib/debug/mptk.dll" 
                             "${MPTK_BINARY_DIR}/bin/debug/mptk.dll")
                       
-  ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
+    ELSE(BUILD_DEBUG)     
       #=== Copy the dll in the bin folder===
       ADD_CUSTOM_COMMAND (
                             TARGET mpd
                             POST_BUILD
                             COMMAND ${CMAKE_COMMAND}
-                            ARGS -E copy "${PTHREAD_LIBRARY_FILE}" 
-                            "${MPTK_BINARY_DIR}/bin/pthreadVC2.dll")
+                            ARGS -E copy "${PTHREAD_LIBRARY_FILE}/../pthreadVC2.dll" 
+                            "${MPTK_BINARY_DIR}/bin/release/pthreadVC2.dll")
       ADD_CUSTOM_COMMAND (
                             TARGET mpd
                             POST_BUILD
                             COMMAND ${CMAKE_COMMAND}
-                            ARGS -E copy "${FFTW3_LIBRARY_FILE}" 
-                            "${MPTK_BINARY_DIR}/bin/libfftw3-3.dll") 
+                            ARGS -E copy "${FFTW3_LIBRARY_FILE}/../libfftw3-3.dll" 
+                            "${MPTK_BINARY_DIR}/bin/release/libfftw3-3.dll") 
       ADD_CUSTOM_COMMAND (
                             TARGET mpd
                             POST_BUILD
                             COMMAND ${CMAKE_COMMAND}
-                            ARGS -E copy "${SNDFILE_LIBRARY_FILE}" 
-                            "${MPTK_BINARY_DIR}/bin/libsndfile-1.dll")              
-     ADD_CUSTOM_COMMAND (
+                            ARGS -E copy "${SNDFILE_LIBRARY_FILE}/../libsndfile-1.dll" 
+                            "${MPTK_BINARY_DIR}/bin/release/libsndfile-1.dll")              
+      ADD_CUSTOM_COMMAND (
                             TARGET mpd
                             POST_BUILD
                             COMMAND ${CMAKE_COMMAND}
-                            ARGS -E copy "${MPTK_BINARY_DIR}/lib/libmptk.dll" 
-                            "${MPTK_BINARY_DIR}/bin/libmptk.dll")          
-  ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
-ENDIF (WIN32)
+                            ARGS -E copy "${MPTK_BINARY_DIR}/lib/release/mptk.dll" 
+                            "${MPTK_BINARY_DIR}/bin/release/mptk.dll")        
+   ENDIF(BUILD_DEBUG) 
+ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
+#=== Copy the dll in the bin folder===
+                ADD_CUSTOM_COMMAND (
+                        TARGET mpd
+                        POST_BUILD
+                        COMMAND ${CMAKE_COMMAND}
+                        ARGS -E copy "${PTHREAD_LIBRARY_FILE}" 
+"${MPTK_BINARY_DIR}/bin/pthreadVC2.dll"
+        )
+                ADD_CUSTOM_COMMAND (
+                        TARGET mpd
+                        POST_BUILD
+                        COMMAND ${CMAKE_COMMAND}
+                        ARGS -E copy "${FFTW3_LIBRARY_FILE}" 
+"${MPTK_BINARY_DIR}/bin/libfftw3-3.dll"
+        ) 
+                ADD_CUSTOM_COMMAND (
+                        TARGET mpd
+                        POST_BUILD
+                        COMMAND ${CMAKE_COMMAND}
+                        ARGS -E copy "${SNDFILE_LIBRARY_FILE}" 
+"${MPTK_BINARY_DIR}/bin/libsndfile-1.dll"
+        )              
+                 ADD_CUSTOM_COMMAND (
+                        TARGET mpd
+                        POST_BUILD
+                        COMMAND ${CMAKE_COMMAND}
+                        ARGS -E copy "${MPTK_BINARY_DIR}/lib/libmptk.dll" 
+"${MPTK_BINARY_DIR}/bin/libmptk.dll"
+       
+       )          
+ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
+ ENDIF (WIN32)
 
 #------------------------------------------------
 # Define install target:
@@ -139,15 +172,24 @@ INSTALL(FILES "${MPTK_BINARY_DIR}/bin/readme.txt" DESTINATION bin)
 #Install dll in the destination folder for Win32 plateform
 IF(WIN32)
   IF( CMAKE_CXX_COMPILER STREQUAL "cl")
+    IF(BUILD_DEBUG)
       INSTALL(FILES "${MPTK_BINARY_DIR}/bin/debug/pthreadVC2.dll" DESTINATION bin)
       INSTALL(FILES "${MPTK_BINARY_DIR}/bin/debug/libfftw3-3.dll" DESTINATION bin)
       INSTALL(FILES "${MPTK_BINARY_DIR}/bin/debug/libsndfile-1.dll" DESTINATION bin)
       INSTALL(FILES "${MPTK_BINARY_DIR}/bin/debug/pthreadVC2.dll" DESTINATION mptk/matlab)
       INSTALL(FILES "${MPTK_BINARY_DIR}/bin/debug/libfftw3-3.dll" DESTINATION mptk/matlab)
       INSTALL(FILES "${MPTK_BINARY_DIR}/bin/debug/libsndfile-1.dll" DESTINATION mptk/matlab)
+    ELSE(BUILD_DEBUG)
+      INSTALL(FILES "${MPTK_BINARY_DIR}/bin/release/pthreadVC2.dll" DESTINATION bin)
+      INSTALL(FILES "${MPTK_BINARY_DIR}/bin/release/libfftw3-3.dll" DESTINATION bin)
+      INSTALL(FILES "${MPTK_BINARY_DIR}/bin/release/libsndfile-1.dll" DESTINATION bin)
+      INSTALL(FILES "${MPTK_BINARY_DIR}/bin/release/pthreadVC2.dll" DESTINATION mptk/matlab)
+      INSTALL(FILES "${MPTK_BINARY_DIR}/bin/release/libfftw3-3.dll" DESTINATION mptk/matlab)
+      INSTALL(FILES "${MPTK_BINARY_DIR}/bin/release/libsndfile-1.dll" DESTINATION mptk/matlab)
+    ENDIF(BUILD_DEBUG)
   ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
-      INSTALL(FILES "${MPTK_BINARY_DIR}/bin/pthreadVC2.dll" DESTINATION bin)
-      INSTALL(FILES "${MPTK_BINARY_DIR}/bin/libfftw3-3.dll" DESTINATION bin)
-      INSTALL(FILES "${MPTK_BINARY_DIR}/bin/libsndfile-1.dll" DESTINATION bin)
+    INSTALL(FILES "${MPTK_BINARY_DIR}/bin/pthreadVC2.dll" DESTINATION bin)
+    INSTALL(FILES "${MPTK_BINARY_DIR}/bin/libfftw3-3.dll" DESTINATION bin)
+    INSTALL(FILES "${MPTK_BINARY_DIR}/bin/libsndfile-1.dll" DESTINATION bin)
   ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
 ENDIF(WIN32)

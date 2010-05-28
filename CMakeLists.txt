@@ -204,9 +204,15 @@ ENDFOREACH(default)
 #--------------------------------------------------------------------------------------
 # Case of Visual Studio 
 IF( CMAKE_CXX_COMPILER STREQUAL "cl")
+    IF (BUILD_DEBUG)
 	# Case of debug mode
 	SET(MPTK_LIB_DIR ${MPTK_BINARY_DIR}/lib/debug)
 	SET(MPTK_LIB_DIR_INSTALL ${CMAKE_INSTALL_PREFIX}/lib)
+    ELSE (BUILD_DEBUG)
+    	# Case of release mode
+    	SET(MPTK_LIB_DIR ${MPTK_BINARY_DIR}/lib/release)
+    	SET(MPTK_LIB_DIR_INSTALL ${CMAKE_INSTALL_PREFIX}/lib)
+    ENDIF (BUILD_DEBUG)
 ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
   # Case of Xcode
   IF( CMAKE_GENERATOR STREQUAL "Xcode")

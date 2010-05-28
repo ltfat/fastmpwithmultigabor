@@ -201,6 +201,7 @@ ENDFOREACH(target)
 
 #Install mandatory dll for windows
 IF( CMAKE_CXX_COMPILER STREQUAL "cl")
+IF(BUILD_DEBUG)
   #=== Copy the dll in the bin folder===
   ADD_CUSTOM_COMMAND (
     TARGET mptk4matlab
@@ -217,9 +218,27 @@ IF( CMAKE_CXX_COMPILER STREQUAL "cl")
     COMMENT "Copying ${MPTK_BINARY_DIR}/lib/Debug/libmptk4matlab.dll to ${MPTK_MATLAB_OUTPUT_DIR}/libmptk4matlab.dll"
   )
 
- # Removed ${MPTK_MATLAB_OUTPUT_DIR}/mptk.dll because installer can't find it ...
- INSTALL(FILES  ${MPTK_MATLAB_OUTPUT_DIR}/libmptk4matlab.dll DESTINATION ${MPTK_MATLAB_INSTALL_DIR})
- INSTALL(FILES  ${MPTK_MATLAB_OUTPUT_DIR}/mptk.dll DESTINATION ${MPTK_MATLAB_INSTALL_DIR})
+ELSE(BUILD_DEBUG) # Release
+  #=== Copy the dll in the bin folder===
+  ADD_CUSTOM_COMMAND (
+        TARGET mptk4matlab
+	POST_BUILD
+	COMMAND ${CMAKE_COMMAND}
+	ARGS -E copy "${MPTK_BINARY_DIR}/lib/Release/mptk.dll" "${MPTK_MATLAB_OUTPUT_DIR}/mptk.dll"
+  	COMMENT "Copying ${MPTK_BINARY_DIR}/lib/Release/mptk.dll to ${MPTK_MATLAB_OUTPUT_DIR}/mptk.dll"
+  )
+  ADD_CUSTOM_COMMAND (
+   	TARGET mptk4matlab
+   	POST_BUILD
+   	COMMAND ${CMAKE_COMMAND}
+   	ARGS -E copy "${MPTK_BINARY_DIR}/lib/Release/libmptk4matlab.dll" "${MPTK_MATLAB_OUTPUT_DIR}/libmptk4matlab.dll"
+   	COMMENT "Copying ${MPTK_BINARY_DIR}/lib/Release/libmptk4matlab.dll to ${MPTK_MATLAB_OUTPUT_DIR}/libmptk4matlab.dll"
+  )
+ENDIF(BUILD_DEBUG)
+
+# Removed ${MPTK_MATLAB_OUTPUT_DIR}/mptk.dll because installer can't find it ...
+INSTALL(FILES  ${MPTK_MATLAB_OUTPUT_DIR}/libmptk4matlab.dll DESTINATION ${MPTK_MATLAB_INSTALL_DIR})
+INSTALL(FILES  ${MPTK_MATLAB_OUTPUT_DIR}/mptk.dll DESTINATION ${MPTK_MATLAB_INSTALL_DIR})
 
 ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
 
