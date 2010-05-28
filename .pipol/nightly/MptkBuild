@@ -91,8 +91,8 @@ case $PIPOL_IMAGE in
 		"$MSVC_PATH/VC/vcpackages/vcbuild.exe" /CLEAN 
 
 		#Project build
-		"$MSVC_PATH/VC/vcpackages/vcbuild.exe" MPTK.sln 
-
+		"$MSVC_PATH/VC/vcpackages/vcbuild.exe" MPTK.sln "Release|Win32"
+		
 		#CDASH submision
 		/cygdrive/c/CMake\ 2.8/bin/ctest.exe -D "Nightly" 
 
