@@ -87,7 +87,7 @@ IF (UNIX)
 	  "# -*- rpm-spec -*-
 Summary:        ${RPMNAME}
 Name:           ${RPMNAME}
-Version:        ${CPACK_PACKAGE_VERSION}
+Version:        ${PACKAGE_VERSION}
 Release:        1
 License:        Unknown
 Group:          Unknown
@@ -156,19 +156,16 @@ rm -rf build_tree
       ENDIF("${ARGV1}" STREQUAL "")
             
       ADD_CUSTOM_TARGET(${RPMNAME}_srpm
-ALL
 	COMMAND cpack -G TGZ --config CPackSourceConfig.cmake
 	COMMAND ${CMAKE_COMMAND} -E copy ${CPACK_SOURCE_PACKAGE_FILE_NAME}.tar.gz ${RPM_ROOTDIR}/SOURCES    
 	COMMAND ${RPMTools_RPMBUILD_EXECUTABLE} -bs --define=\"_topdir ${RPM_ROOTDIR}\" --buildroot=${RPM_ROOTDIR}/tmp ${RPM_ROOTDIR}/SPECS/${SPECFILE_NAME} 
 	)
       
       ADD_CUSTOM_TARGET(${RPMNAME}_rpm
-ALL
 	COMMAND cpack -G TGZ --config CPackSourceConfig.cmake
 	COMMAND ${CMAKE_COMMAND} -E copy ${CPACK_SOURCE_PACKAGE_FILE_NAME}.tar.gz ${RPM_ROOTDIR}/SOURCES    
 	COMMAND ${RPMTools_RPMBUILD_EXECUTABLE} -bb --define=\"_topdir ${RPM_ROOTDIR}\" --buildroot=${RPM_ROOTDIR}/tmp ${RPM_ROOTDIR}/SPECS/${SPECFILE_NAME} 
-	COMMENT "RPM build"
-)  
+	)  
     ENDMACRO(RPMTools_ADD_RPM_TARGETS)
 
   ELSE (RPMTools_RPMBUILD_FOUND)
@@ -176,3 +173,4 @@ ALL
   ENDIF (RPMTools_RPMBUILD_FOUND)  
   
 ENDIF (UNIX)
+  
