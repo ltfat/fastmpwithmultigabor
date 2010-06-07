@@ -2,17 +2,51 @@ mptk INFO -- mpd - ------------------------------------
 mptk INFO -- mpd - MPD - MATCHING PURSUIT DECOMPOSITION
 mptk INFO -- mpd - ------------------------------------
 mptk INFO -- mpd - The command line was:
-../../src/utils/mpd --verbose -s 10 -R 10 -D /udd/sacha/src/project/mptk/trunk/src/tests/signals/dico_test.xml /udd/sacha/src/project/mptk/trunk/src/tests/signals/mix_58_stereo.wav /udd/sacha/src/project/mptk/trunk/src/tests/ref/book_mix_58_stereo.bin.ref /udd/sacha/src/project/mptk/trunk/src/tests/ref/res_mix_58_stereo.wav.ref 
+/Users/rleboulc/bar/bin/mpd --verbose -s 10 -R 10 -C /Users/rleboulc/bar/mptk/path.xml -D /Users/rleboulc/bar/mptk/reference/dictionary/dico_test.xml /Users/rleboulc/MPTKSVN/mptk/trunk/src/tests/ref/res_mix_58_stereo.wav.ref current/book_mix_58_stereo.bin current/recons_mix_58_stereo.wav 
 mptk INFO -- mpd - End command line.
 mptk INFO -- mpd - Loading the dictionary...
 mptk INFO -- mpd - (In the following, spurious output of dictionary pieces would be a symptom of parsing errors.)
 mptk INFO -- mpd - The dictionary is now loaded.
 mptk INFO -- mpd - Loading the signal...
 mptk INFO -- mpd - The signal is now loaded.
-mptk INFO -- mpd - The dictionary read from file [/udd/sacha/src/project/mptk/trunk/src/tests/signals/dico_test.xml] contains [9] blocks:
-mptk INFO -- GABOR BLOCK - gauss window (window opt=0) of length [128], shifted by [32] samples,
-mptk INFO --          |- - projected on [65] frequencies;
-mptk INFO --          O- - The number of frames for this block is [597], the search tree has [4] levels.
+mptk INFO -- mpd - Try to create a new book.
+mptk INFO -- mpd - The dictionary read from file [/Users/rleboulc/bar/mptk/reference/dictionary/dico_test.xml] contains [20] blocks:
+mptk INFO -- GABOR BLOCK - gauss window (window opt=0) of length [8], shifted by [32] samples,
+mptk INFO --          |- - projected on [33] frequencies;
+mptk INFO --          O- - The number of frames for this block is [600], the search tree has [4] levels.
+mptk INFO -- GABOR BLOCK - gauss window (window opt=0) of length [8], shifted by [16] samples,
+mptk INFO --          |- - projected on [33] frequencies;
+mptk INFO --          O- - The number of frames for this block is [1200], the search tree has [4] levels.
+mptk INFO -- GABOR BLOCK - gauss window (window opt=0) of length [8], shifted by [8] samples,
+mptk INFO --          |- - projected on [33] frequencies;
+mptk INFO --          O- - The number of frames for this block is [2400], the search tree has [5] levels.
+mptk INFO -- GABOR BLOCK - gauss window (window opt=0) of length [8], shifted by [32] samples,
+mptk INFO --          |- - projected on [17] frequencies;
+mptk INFO --          O- - The number of frames for this block is [600], the search tree has [4] levels.
+mptk INFO -- GABOR BLOCK - gauss window (window opt=0) of length [8], shifted by [16] samples,
+mptk INFO --          |- - projected on [17] frequencies;
+mptk INFO --          O- - The number of frames for this block is [1200], the search tree has [4] levels.
+mptk INFO -- GABOR BLOCK - gauss window (window opt=0) of length [8], shifted by [8] samples,
+mptk INFO --          |- - projected on [17] frequencies;
+mptk INFO --          O- - The number of frames for this block is [2400], the search tree has [5] levels.
+mptk INFO -- GABOR BLOCK - gauss window (window opt=0) of length [8], shifted by [32] samples,
+mptk INFO --          |- - projected on [9] frequencies;
+mptk INFO --          O- - The number of frames for this block is [600], the search tree has [4] levels.
+mptk INFO -- GABOR BLOCK - gauss window (window opt=0) of length [8], shifted by [16] samples,
+mptk INFO --          |- - projected on [9] frequencies;
+mptk INFO --          O- - The number of frames for this block is [1200], the search tree has [4] levels.
+mptk INFO -- GABOR BLOCK - gauss window (window opt=0) of length [8], shifted by [8] samples,
+mptk INFO --          |- - projected on [9] frequencies;
+mptk INFO --          O- - The number of frames for this block is [2400], the search tree has [5] levels.
+mptk INFO -- GABOR BLOCK - gauss window (window opt=0) of length [8], shifted by [32] samples,
+mptk INFO --          |- - projected on [5] frequencies;
+mptk INFO --          O- - The number of frames for this block is [600], the search tree has [4] levels.
+mptk INFO -- GABOR BLOCK - gauss window (window opt=0) of length [8], shifted by [16] samples,
+mptk INFO --          |- - projected on [5] frequencies;
+mptk INFO --          O- - The number of frames for this block is [1200], the search tree has [4] levels.
+mptk INFO -- GABOR BLOCK - gauss window (window opt=0) of length [8], shifted by [8] samples,
+mptk INFO --          |- - projected on [5] frequencies;
+mptk INFO --          O- - The number of frames for this block is [2400], the search tree has [5] levels.
 mptk INFO -- GABOR BLOCK - gauss window (window opt=0) of length [256], shifted by [64] samples,
 mptk INFO --          |- - projected on [129] frequencies;
 mptk INFO --          O- - The number of frames for this block is [297], the search tree has [3] levels.
@@ -56,61 +90,152 @@ mptk INFO --             |- - maximum number of partials 10;
 mptk INFO --             O- - The number of frames for this block is [17], the search tree has [1] levels.
 mptk INFO -- DIRAC BLOCK - The number of frames for this block is [19200], the search tree has [6] levels.
 mptk INFO -- mpd - End of dictionary.
-mptk INFO -- mpd - The signal loaded from file [/udd/sacha/src/project/mptk/trunk/src/tests/signals/mix_58_stereo.wav] has:
-mptk INFO -- SIGNAL - [19200] samples on [2] channels; sample rate [8000]Hz; energy [1047.05].
+mptk INFO -- mpd - The signal loaded from file [/Users/rleboulc/MPTKSVN/mptk/trunk/src/tests/ref/res_mix_58_stereo.wav.ref] has:
+mptk INFO -- SIGNAL - [19200] samples on [2] channels; sample rate [8000]Hz; energy [104.401].
 mptk INFO -- mpd - -------------------------
-mptk INFO -- mpd - Starting Matching Pursuit on signal [/udd/sacha/src/project/mptk/trunk/src/tests/signals/mix_58_stereo.wav] with dictionary [/udd/sacha/src/project/mptk/trunk/src/tests/signals/dico_test.xml].
+mptk INFO -- mpd - Starting Matching Pursuit on signal [/Users/rleboulc/MPTKSVN/mptk/trunk/src/tests/ref/res_mix_58_stereo.wav.ref] with dictionary [/Users/rleboulc/bar/mptk/reference/dictionary/dico_test.xml].
 mptk INFO -- mpd - -------------------------
-mptk INFO -- Conditions - This run will iterate until the SNR goes above [10], using [256423] atoms.
-mptk INFO -- Conditions - The resulting book will be written to book file [/udd/sacha/src/project/mptk/trunk/src/tests/ref/book_mix_58_stereo.bin.ref].
-mptk INFO -- Conditions - The residual will be written to file [/udd/sacha/src/project/mptk/trunk/src/tests/ref/res_mix_58_stereo.wav.ref].
+mptk INFO -- Conditions - This run will iterate until the SNR goes above [10], using [486418] atoms.
+mptk INFO -- Conditions - The resulting book will be written to book file [current/book_mix_58_stereo.bin].
+mptk INFO -- Conditions - The residual will be written to file [current/recons_mix_58_stereo.wav].
 mptk INFO -- Conditions - The energy decay will not be saved.
-mptk INFO -- mpd - The initial signal energy is : 1047.05
+mptk INFO -- mpd - The initial signal energy is : 104.401
 mptk INFO -- mpd - STARTING TO ITERATE
-mptk PROGRESS -- At iteration - [10] : the residual energy is [829.59] and the SNR is [1.01105].
-mptk PROGRESS -- At iteration - [20] : the residual energy is [704.851] and the SNR is [1.71871].
-mptk PROGRESS -- At iteration - [30] : the residual energy is [616.386] and the SNR is [2.30116].
-mptk PROGRESS -- At iteration - [40] : the residual energy is [546.265] and the SNR is [2.82565].
-mptk PROGRESS -- At iteration - [50] : the residual energy is [494.758] and the SNR is [3.25576].
-mptk PROGRESS -- At iteration - [60] : the residual energy is [450.38] and the SNR is [3.6639].
-mptk PROGRESS -- At iteration - [70] : the residual energy is [412.047] and the SNR is [4.05022].
-mptk PROGRESS -- At iteration - [80] : the residual energy is [379.807] and the SNR is [4.40406].
-mptk PROGRESS -- At iteration - [90] : the residual energy is [352.794] and the SNR is [4.72448].
-mptk PROGRESS -- At iteration - [100] : the residual energy is [329.936] and the SNR is [5.01539].
-mptk PROGRESS -- At iteration - [110] : the residual energy is [309.504] and the SNR is [5.29302].
-mptk PROGRESS -- At iteration - [120] : the residual energy is [291.663] and the SNR is [5.55087].
-mptk PROGRESS -- At iteration - [130] : the residual energy is [275.539] and the SNR is [5.79785].
-mptk PROGRESS -- At iteration - [140] : the residual energy is [261.006] and the SNR is [6.03318].
-mptk PROGRESS -- At iteration - [150] : the residual energy is [247.689] and the SNR is [6.26062].
-mptk PROGRESS -- At iteration - [160] : the residual energy is [235.329] and the SNR is [6.48294].
-mptk PROGRESS -- At iteration - [170] : the residual energy is [224.061] and the SNR is [6.69603].
-mptk PROGRESS -- At iteration - [180] : the residual energy is [213.531] and the SNR is [6.90507].
-mptk PROGRESS -- At iteration - [190] : the residual energy is [203.605] and the SNR is [7.11181].
-mptk PROGRESS -- At iteration - [200] : the residual energy is [194.306] and the SNR is [7.31483].
-mptk PROGRESS -- At iteration - [210] : the residual energy is [185.641] and the SNR is [7.51295].
-mptk PROGRESS -- At iteration - [220] : the residual energy is [177.552] and the SNR is [7.70642].
-mptk PROGRESS -- At iteration - [230] : the residual energy is [169.685] and the SNR is [7.90325].
-mptk PROGRESS -- At iteration - [240] : the residual energy is [162.257] and the SNR is [8.09766].
-mptk PROGRESS -- At iteration - [250] : the residual energy is [155.492] and the SNR is [8.28261].
-mptk PROGRESS -- At iteration - [260] : the residual energy is [149.055] and the SNR is [8.46623].
-mptk PROGRESS -- At iteration - [270] : the residual energy is [143.025] and the SNR is [8.64557].
-mptk PROGRESS -- At iteration - [280] : the residual energy is [137.298] and the SNR is [8.82305].
-mptk PROGRESS -- At iteration - [290] : the residual energy is [131.968] and the SNR is [8.99501].
-mptk PROGRESS -- At iteration - [300] : the residual energy is [126.941] and the SNR is [9.16367].
-mptk PROGRESS -- At iteration - [310] : the residual energy is [122.258] and the SNR is [9.3269].
-mptk PROGRESS -- At iteration - [320] : the residual energy is [117.808] and the SNR is [9.48793].
-mptk PROGRESS -- At iteration - [330] : the residual energy is [113.524] and the SNR is [9.6488].
-mptk PROGRESS -- At iteration - [340] : the residual energy is [109.448] and the SNR is [9.8076].
-mptk PROGRESS -- At iteration - [350] : the residual energy is [105.552] and the SNR is [9.96502].
-mptk INFO -- Current state - The current SNR [10.0124] reached or passed the target SNR [10] in [353] iterations.
+mptk PROGRESS -- At iteration - [10] : the residual energy is [100.699] and the SNR is [0.156821].
+mptk PROGRESS -- At iteration - [20] : the residual energy is [97.1977] and the SNR is [0.310494].
+mptk PROGRESS -- At iteration - [30] : the residual energy is [93.8703] and the SNR is [0.46177].
+mptk PROGRESS -- At iteration - [40] : the residual energy is [90.7045] and the SNR is [0.610762].
+mptk PROGRESS -- At iteration - [50] : the residual energy is [87.7042] and the SNR is [0.756848].
+mptk PROGRESS -- At iteration - [60] : the residual energy is [84.8503] and the SNR is [0.900515].
+mptk PROGRESS -- At iteration - [70] : the residual energy is [82.0812] and the SNR is [1.04461].
+mptk PROGRESS -- At iteration - [80] : the residual energy is [79.5754] and the SNR is [1.17927].
+mptk PROGRESS -- At iteration - [90] : the residual energy is [77.1788] and the SNR is [1.31207].
+mptk PROGRESS -- At iteration - [100] : the residual energy is [74.9009] and the SNR is [1.44218].
+mptk PROGRESS -- At iteration - [110] : the residual energy is [72.6861] and the SNR is [1.57254].
+mptk PROGRESS -- At iteration - [120] : the residual energy is [70.7325] and the SNR is [1.69086].
+mptk PROGRESS -- At iteration - [130] : the residual energy is [68.6909] and the SNR is [1.81806].
+mptk PROGRESS -- At iteration - [140] : the residual energy is [67.09] and the SNR is [1.92047].
+mptk PROGRESS -- At iteration - [150] : the residual energy is [65.3727] and the SNR is [2.03309].
+mptk PROGRESS -- At iteration - [160] : the residual energy is [63.7018] and the SNR is [2.14553].
+mptk PROGRESS -- At iteration - [170] : the residual energy is [62.2477] and the SNR is [2.24582].
+mptk PROGRESS -- At iteration - [180] : the residual energy is [60.6645] and the SNR is [2.35771].
+mptk PROGRESS -- At iteration - [190] : the residual energy is [59.4542] and the SNR is [2.44523].
+mptk PROGRESS -- At iteration - [200] : the residual energy is [58.325] and the SNR is [2.5285].
+mptk PROGRESS -- At iteration - [210] : the residual energy is [56.8026] and the SNR is [2.64337].
+mptk PROGRESS -- At iteration - [220] : the residual energy is [55.4612] and the SNR is [2.74716].
+mptk PROGRESS -- At iteration - [230] : the residual energy is [54.3076] and the SNR is [2.83845].
+mptk PROGRESS -- At iteration - [240] : the residual energy is [53.1841] and the SNR is [2.92924].
+mptk PROGRESS -- At iteration - [250] : the residual energy is [52.0912] and the SNR is [3.01941].
+mptk PROGRESS -- At iteration - [260] : the residual energy is [51.0252] and the SNR is [3.1092].
+mptk PROGRESS -- At iteration - [270] : the residual energy is [49.9947] and the SNR is [3.19781].
+mptk PROGRESS -- At iteration - [280] : the residual energy is [48.7414] and the SNR is [3.30807].
+mptk PROGRESS -- At iteration - [290] : the residual energy is [47.8584] and the SNR is [3.38747].
+mptk PROGRESS -- At iteration - [300] : the residual energy is [46.781] and the SNR is [3.48636].
+mptk PROGRESS -- At iteration - [310] : the residual energy is [45.9563] and the SNR is [3.5636].
+mptk PROGRESS -- At iteration - [320] : the residual energy is [44.9363] and the SNR is [3.66108].
+mptk PROGRESS -- At iteration - [330] : the residual energy is [44.0447] and the SNR is [3.74812].
+mptk PROGRESS -- At iteration - [340] : the residual energy is [43.0637] and the SNR is [3.84594].
+mptk PROGRESS -- At iteration - [350] : the residual energy is [42.1089] and the SNR is [3.94332].
+mptk PROGRESS -- At iteration - [360] : the residual energy is [41.3791] and the SNR is [4.01924].
+mptk PROGRESS -- At iteration - [370] : the residual energy is [40.7627] and the SNR is [4.08442].
+mptk PROGRESS -- At iteration - [380] : the residual energy is [39.8902] and the SNR is [4.17839].
+mptk PROGRESS -- At iteration - [390] : the residual energy is [39.0403] and the SNR is [4.27192].
+mptk PROGRESS -- At iteration - [400] : the residual energy is [38.4761] and the SNR is [4.33515].
+mptk PROGRESS -- At iteration - [410] : the residual energy is [37.7664] and the SNR is [4.416].
+mptk PROGRESS -- At iteration - [420] : the residual energy is [37.0614] and the SNR is [4.49784].
+mptk PROGRESS -- At iteration - [430] : the residual energy is [36.302] and the SNR is [4.58775].
+mptk PROGRESS -- At iteration - [440] : the residual energy is [35.7903] and the SNR is [4.6494].
+mptk PROGRESS -- At iteration - [450] : the residual energy is [35.1472] and the SNR is [4.72814].
+mptk PROGRESS -- At iteration - [460] : the residual energy is [34.5166] and the SNR is [4.80677].
+mptk PROGRESS -- At iteration - [470] : the residual energy is [33.9797] and the SNR is [4.87485].
+mptk PROGRESS -- At iteration - [480] : the residual energy is [33.4487] and the SNR is [4.94326].
+mptk PROGRESS -- At iteration - [490] : the residual energy is [32.9302] and the SNR is [5.01111].
+mptk PROGRESS -- At iteration - [500] : the residual energy is [32.4227] and the SNR is [5.07856].
+mptk PROGRESS -- At iteration - [510] : the residual energy is [31.8647] and the SNR is [5.15395].
+mptk PROGRESS -- At iteration - [520] : the residual energy is [31.3165] and the SNR is [5.22932].
+mptk PROGRESS -- At iteration - [530] : the residual energy is [30.8996] and the SNR is [5.28753].
+mptk PROGRESS -- At iteration - [540] : the residual energy is [30.3719] and the SNR is [5.36233].
+mptk PROGRESS -- At iteration - [550] : the residual energy is [29.8601] and the SNR is [5.43614].
+mptk PROGRESS -- At iteration - [560] : the residual energy is [29.3567] and the SNR is [5.50998].
+mptk PROGRESS -- At iteration - [570] : the residual energy is [28.8684] and the SNR is [5.58282].
+mptk PROGRESS -- At iteration - [580] : the residual energy is [28.3875] and the SNR is [5.65579].
+mptk PROGRESS -- At iteration - [590] : the residual energy is [27.9203] and the SNR is [5.72785].
+mptk PROGRESS -- At iteration - [600] : the residual energy is [27.4062] and the SNR is [5.80857].
+mptk PROGRESS -- At iteration - [610] : the residual energy is [26.9517] and the SNR is [5.8812].
+mptk PROGRESS -- At iteration - [620] : the residual energy is [26.5064] and the SNR is [5.95355].
+mptk PROGRESS -- At iteration - [630] : the residual energy is [26.0216] and the SNR is [6.03371].
+mptk PROGRESS -- At iteration - [640] : the residual energy is [25.6466] and the SNR is [6.09675].
+mptk PROGRESS -- At iteration - [650] : the residual energy is [25.1817] and the SNR is [6.17621].
+mptk PROGRESS -- At iteration - [660] : the residual energy is [24.777] and the SNR is [6.24657].
+mptk PROGRESS -- At iteration - [670] : the residual energy is [24.3803] and the SNR is [6.31666].
+mptk PROGRESS -- At iteration - [680] : the residual energy is [23.9449] and the SNR is [6.39492].
+mptk PROGRESS -- At iteration - [690] : the residual energy is [23.4704] and the SNR is [6.48185].
+mptk PROGRESS -- At iteration - [700] : the residual energy is [23.1381] and the SNR is [6.54378].
+mptk PROGRESS -- At iteration - [710] : the residual energy is [22.8178] and the SNR is [6.60432].
+mptk PROGRESS -- At iteration - [720] : the residual energy is [22.4625] and the SNR is [6.67247].
+mptk PROGRESS -- At iteration - [730] : the residual energy is [22.115] and the SNR is [6.74018].
+mptk PROGRESS -- At iteration - [740] : the residual energy is [21.815] and the SNR is [6.7995].
+mptk PROGRESS -- At iteration - [750] : the residual energy is [21.4776] and the SNR is [6.8672].
+mptk PROGRESS -- At iteration - [760] : the residual energy is [21.11] and the SNR is [6.94217].
+mptk PROGRESS -- At iteration - [770] : the residual energy is [20.7471] and the SNR is [7.01748].
+mptk PROGRESS -- At iteration - [780] : the residual energy is [20.4622] and the SNR is [7.07753].
+mptk PROGRESS -- At iteration - [790] : the residual energy is [20.1458] and the SNR is [7.14521].
+mptk PROGRESS -- At iteration - [800] : the residual energy is [19.803] and the SNR is [7.21974].
+mptk PROGRESS -- At iteration - [810] : the residual energy is [19.5404] and the SNR is [7.27771].
+mptk PROGRESS -- At iteration - [820] : the residual energy is [19.2448] and the SNR is [7.34392].
+mptk PROGRESS -- At iteration - [830] : the residual energy is [18.924] and the SNR is [7.41692].
+mptk PROGRESS -- At iteration - [840] : the residual energy is [18.7061] and the SNR is [7.46722].
+mptk PROGRESS -- At iteration - [850] : the residual energy is [18.3622] and the SNR is [7.5478].
+mptk PROGRESS -- At iteration - [860] : the residual energy is [18.1206] and the SNR is [7.60532].
+mptk PROGRESS -- At iteration - [870] : the residual energy is [17.8538] and the SNR is [7.66974].
+mptk PROGRESS -- At iteration - [880] : the residual energy is [17.5928] and the SNR is [7.73369].
+mptk PROGRESS -- At iteration - [890] : the residual energy is [17.3055] and the SNR is [7.80522].
+mptk PROGRESS -- At iteration - [900] : the residual energy is [17.0529] and the SNR is [7.86906].
+mptk PROGRESS -- At iteration - [910] : the residual energy is [16.8053] and the SNR is [7.93258].
+mptk PROGRESS -- At iteration - [920] : the residual energy is [16.5331] and the SNR is [8.00351].
+mptk PROGRESS -- At iteration - [930] : the residual energy is [16.2381] and the SNR is [8.0817].
+mptk PROGRESS -- At iteration - [940] : the residual energy is [16.029] and the SNR is [8.13799].
+mptk PROGRESS -- At iteration - [950] : the residual energy is [15.7954] and the SNR is [8.20175].
+mptk PROGRESS -- At iteration - [960] : the residual energy is [15.5665] and the SNR is [8.26514].
+mptk PROGRESS -- At iteration - [970] : the residual energy is [15.3418] and the SNR is [8.32829].
+mptk PROGRESS -- At iteration - [980] : the residual energy is [15.1969] and the SNR is [8.36952].
+mptk PROGRESS -- At iteration - [990] : the residual energy is [14.9809] and the SNR is [8.43166].
+mptk PROGRESS -- At iteration - [1000] : the residual energy is [14.7696] and the SNR is [8.49338].
+mptk PROGRESS -- At iteration - [1010] : the residual energy is [14.5831] and the SNR is [8.54854].
+mptk PROGRESS -- At iteration - [1020] : the residual energy is [14.3786] and the SNR is [8.60988].
+mptk PROGRESS -- At iteration - [1030] : the residual energy is [14.1522] and the SNR is [8.67882].
+mptk PROGRESS -- At iteration - [1040] : the residual energy is [14.0205] and the SNR is [8.71943].
+mptk PROGRESS -- At iteration - [1050] : the residual energy is [13.8499] and the SNR is [8.77257].
+mptk PROGRESS -- At iteration - [1060] : the residual energy is [13.6815] and the SNR is [8.8257].
+mptk PROGRESS -- At iteration - [1070] : the residual energy is [13.5161] and the SNR is [8.87853].
+mptk PROGRESS -- At iteration - [1080] : the residual energy is [13.3333] and the SNR is [8.93769].
+mptk PROGRESS -- At iteration - [1090] : the residual energy is [13.1517] and the SNR is [8.99723].
+mptk PROGRESS -- At iteration - [1100] : the residual energy is [12.974] and the SNR is [9.05631].
+mptk PROGRESS -- At iteration - [1110] : the residual energy is [12.82] and the SNR is [9.10817].
+mptk PROGRESS -- At iteration - [1120] : the residual energy is [12.648] and the SNR is [9.16685].
+mptk PROGRESS -- At iteration - [1130] : the residual energy is [12.4793] and the SNR is [9.22515].
+mptk PROGRESS -- At iteration - [1140] : the residual energy is [12.2916] and the SNR is [9.29096].
+mptk PROGRESS -- At iteration - [1150] : the residual energy is [12.1474] and the SNR is [9.3422].
+mptk PROGRESS -- At iteration - [1160] : the residual energy is [11.9874] and the SNR is [9.39979].
+mptk PROGRESS -- At iteration - [1170] : the residual energy is [11.8118] and the SNR is [9.46388].
+mptk PROGRESS -- At iteration - [1180] : the residual energy is [11.6562] and the SNR is [9.52149].
+mptk PROGRESS -- At iteration - [1190] : the residual energy is [11.5036] and the SNR is [9.57872].
+mptk PROGRESS -- At iteration - [1200] : the residual energy is [11.3534] and the SNR is [9.63578].
+mptk PROGRESS -- At iteration - [1210] : the residual energy is [11.1707] and the SNR is [9.70625].
+mptk PROGRESS -- At iteration - [1220] : the residual energy is [11.0419] and the SNR is [9.75662].
+mptk PROGRESS -- At iteration - [1230] : the residual energy is [10.9489] and the SNR is [9.79333].
+mptk PROGRESS -- At iteration - [1240] : the residual energy is [10.7777] and the SNR is [9.86179].
+mptk PROGRESS -- At iteration - [1250] : the residual energy is [10.6409] and the SNR is [9.91728].
+mptk PROGRESS -- At iteration - [1260] : the residual energy is [10.5373] and the SNR is [9.95975].
+mptk INFO -- Current state - The current SNR [10.0014] reached or passed the target SNR [10] in [1268] iterations.
 mptk INFO -- mpd - ------------------------
 mptk INFO -- mpd - MATCHING PURSUIT RESULTS:
 mptk INFO -- mpd - ------------------------
-mptk INFO -- Result - [353] iterations have been performed.
-mptk INFO -- Result - ([353] atoms have been selected out of the [256423] atoms of the dictionary.)
-mptk INFO -- Result - The initial signal energy was [1047.05].
-mptk INFO -- Result - The residual energy is now [104.407].
-mptk INFO -- Result - The SNR is now [10.0124].
-mptk INFO -- Save info - At iteration [353] : saved the book.
-mptk INFO -- Save info - At iteration [353] : saved the residual.
+mptk INFO -- Result - [1268] iterations have been performed.
+mptk INFO -- Result - ([1268] atoms have been selected out of the [486418] atoms of the dictionary.)
+mptk INFO -- Result - The initial signal energy was [104.401].
+mptk INFO -- Result - The residual energy is now [10.4369].
+mptk INFO -- Result - The SNR is now [10.0014].
+mptk INFO -- Save info - At iteration [1268] : saved the book to file [current/book_mix_58_stereo.bin].
+mptk INFO -- Save info - At iteration [1268] : saved the residual signal to file [current/recons_mix_58_stereo.wav].
 mptk INFO -- mpd - Have a nice day !

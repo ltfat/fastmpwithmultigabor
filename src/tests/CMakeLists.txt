@@ -4,25 +4,22 @@
     endif(COMMAND cmake_policy)
 
 # Loop on all target tests
-FOREACH(test_target 
-        test_anywave test_fft test_messaging test_win test_parabolic_regression test_mp test_mask test_behaviour_in_noise)
-
-ADD_EXECUTABLE(${test_target} ${MPTK_SOURCE_DIR}/src/tests/${test_target}.cpp)
-#In case of 64 bits plateform we have to compil with -fPIC flag
-#
-IF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
-SET_TARGET_PROPERTIES(${test_target} PROPERTIES COMPILE_FLAGS "${SHARED_FLAGS} -rdynamic -Wno-deprecated -fPIC")
-ELSE( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" ) 
-IF(MINGW)
-SET_TARGET_PROPERTIES(${test_target} PROPERTIES COMPILE_FLAGS "${SHARED_FLAGS} -Wno-deprecated")
-ELSE(MINGW)
-SET_TARGET_PROPERTIES(${test_target} PROPERTIES COMPILE_FLAGS "${SHARED_FLAGS} -rdynamic")
-ENDIF(MINGW)
-ENDIF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" ) 
-TARGET_LINK_LIBRARIES(${test_target} mptk dsp_windows ${PTHREAD_LIBRARY_FILE} ${SNDFILE_LIBRARY_FILE} ${FFTW3_LIBRARY_FILE})
-ADD_DEPENDENCIES(${test_target} mptk)
-
+FOREACH(test_target test_anywave test_fft test_messaging test_win test_parabolic_regression test_mp test_mask test_behaviour_in_noise)
+	ADD_EXECUTABLE(${test_target} ${MPTK_SOURCE_DIR}/src/tests/${test_target}.cpp)
+	#In case of 64 bits plateform we have to compil with -fPIC flag
+	IF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
+		SET_TARGET_PROPERTIES(${test_target} PROPERTIES COMPILE_FLAGS "${SHARED_FLAGS} -rdynamic -Wno-deprecated -fPIC")
+	ELSE( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" ) 
+		IF(MINGW)
+			SET_TARGET_PROPERTIES(${test_target} PROPERTIES COMPILE_FLAGS "${SHARED_FLAGS} -Wno-deprecated")
+		ELSE(MINGW)
+			SET_TARGET_PROPERTIES(${test_target} PROPERTIES COMPILE_FLAGS "${SHARED_FLAGS} -rdynamic")
+		ENDIF(MINGW)
+	ENDIF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" ) 
+	TARGET_LINK_LIBRARIES(${test_target} mptk dsp_windows ${PTHREAD_LIBRARY_FILE} ${SNDFILE_LIBRARY_FILE} ${FFTW3_LIBRARY_FILE})
+	ADD_DEPENDENCIES(${test_target} mptk)
 ENDFOREACH(test_target)
+
 
 IF(LINUX)
 ADD_CUSTOM_COMMAND(TARGET test_messaging
@@ -36,9 +33,19 @@ ADD_CUSTOM_COMMAND(TARGET test_messaging
 ENDIF(MINGW)  
 ENDIF(LINUX)
 
-####
+#------------------------------------------------
+#Find or generate the tests scripts
+#------------------------------------------------
+FOREACH(MPTK_SCRIPTS test_mpcycle)
+	FIND_FILE(MPTK_SCRIPTS_FOUND ${MPTK_SCRIPTS}.sh PATHS ${MPTK_BINARY_DIR}/bin/script/)
+	IF(NOT MPTK_SCRIPTS_FOUND)
+		CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/tests/script/${MPTK_SCRIPTS}.sh.in ${MPTK_BINARY_DIR}/bin/script/${MPTK_SCRIPTS}.sh @ONLY)
+	ENDIF(NOT MPTK_SCRIPTS_FOUND)
+ENDFOREACH(MPTK_SCRIPTS)
+
+#------------------------------------------------
 #### Copy necessary files
-####
+#------------------------------------------------
 
 SET(MPTK_ANYWAVE_TEST_TABLE_BIN ${MPTK_REFERENCE_PATH}/signal/anywave_table_data.bin)
 
