@@ -22,23 +22,26 @@ case $PIPOL_IMAGE in
 		  echo "Fin de la création..."
 		fi
 		
-		# 3) the build 
+		# 3) Changing scripts mode
+		chmod a+x bin/script/*.sh 
+
+		# 4) the build 
 		cd MPTK_Build; { 
-		    ## 3.1) configuration
+		    ## 4.1) configuration
 		    cmake -DDASH_TESTING=ON $PIPOL_WDIR/MPTK_Source
 		    make NightlyUpdate
 		    make NightlyConfigure
 		
-		    ## 3.2) build
+		    ## 4.2) build
 		    make NightlyBuild
 		
-		    ## 3.3) test
+		    ## 4.3) test
 		    make NightlyTest
 		
-		    ## 3.4) submission on a dashboard
+		    ## 4.4) submission on a dashboard
 		    make NightlySubmit
 		
-		    ## 3.4) packaging
+		    ## 4.5) packaging
 		    cpack
 		}; cd -
 	;;
