@@ -135,7 +135,7 @@ MP_Signal_c* MP_Signal_c::init( const char *fName )
   mp_debug_msg( MP_DEBUG_FILE_IO, func, "-- end sfinfo.\n");
 
   /* Instantiate the signal */
-  newSig = MP_Signal_c::init( sfinfo.channels, sfinfo.frames, sfinfo.samplerate );
+  newSig = MP_Signal_c::init( sfinfo.channels, (unsigned long) sfinfo.frames, sfinfo.samplerate );
   if ( newSig == NULL )
     {
       mp_error_msg( func, "Failed to instantiate a new signal with parameters:"
@@ -740,7 +740,7 @@ unsigned long int MP_Signal_c::wavwrite( const char *fName )
             	else { if(frame[chan]>maxclipping)maxclipping= frame[chan]; }
             }     
           }
-        numFrames += sf_writef_double (file, frame, 1 );
+        numFrames += (unsigned long) sf_writef_double (file, frame, 1 );
       }
   }
   /* close the file */
@@ -820,7 +820,7 @@ unsigned long int MP_Signal_c::matwrite( const char *fName )
             }
             
           }
-        numFrames += sf_writef_double (file, frame, 1 );
+        numFrames += (unsigned long) sf_writef_double (file, frame, 1 );
       }
   }
   /* close the file */

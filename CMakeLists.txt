@@ -9,8 +9,9 @@ if(COMMAND cmake_policy)
       cmake_policy(SET CMP0002 OLD)
 endif(COMMAND cmake_policy)
 
-## SETTING COMPILATION OPTION
-#############################
+##############################################################################
+# Setting compilation option
+##############################################################################
 # Allows building executable:
 OPTION(BUILD_EXECUTABLE "Build executable." ON)
 # Allows building of shared libraries:
@@ -45,11 +46,10 @@ OPTION(BUILD_DOCUMENTATION_GUI "Generating the doxygen documentation for GUI." O
 ENDIF(UNIX)
 #You can reference the special $ENV{} variable to get environment values
 #like any other CMake variable.
-#-----------------------------------------------------------------------------
-## SETTING GLOBAL VARIABLES
-###########################
-# setting globlal compilation definitions
-#-----------------------------------------------------------------------------
+
+##############################################################################
+# Setting global variables
+##############################################################################
 # Choose a default CMAKE_INSTALL_PREFIX on Windows.  CMake 2.2 and
 # above already choose a good default, so force a change only if the
 # current value looks like the CMake 2.0 default.
@@ -92,39 +92,37 @@ IF(WIN32)
 ENDIF(WIN32)
 ENDIF(UNIX)
 
-# With Visual Studio 2005, Microsoft deprecates the standard C library, for
-# example fopen() and sprintf(), to non-portable functions fopen_s() and
-# sprintf_s(). These functions are considered by Microsoft more secure. This is
-# a worthwhile exercise ! The use of these deprecated functions causes a lot of
-# warnings. To suppress it, we add the _CRT_SECURE_NO_DEPRECATE preprocessor
-# definition
-IF(WIN32)
-  IF(MSVC80 OR MSVC90)
-    ADD_DEFINITIONS("-D_CRT_SECURE_NO_DEPRECATE")
-  ENDIF(MSVC80 OR MSVC90)
-ENDIF(WIN32)
-
-#Define compilation tag
+##############################################################################
+# Setting compilation tag (ADD_DEFINITIONS) :
+##############################################################################
 #Select the ADD_DEFINITIONS according to selected options
 IF( CMAKE_CXX_COMPILER STREQUAL "cl")
-# Case of Visual Studio (name of compiler is "cl")
+	# With Visual Studio 2005, Microsoft deprecates the standard C library, for
+	# example fopen() and sprintf(), to non-portable functions fopen_s() and
+	# sprintf_s(). These functions are considered by Microsoft more secure. This is
+	# a worthwhile exercise ! The use of these deprecated functions causes a lot of
+	# warnings. To suppress it, we add the _CRT_SECURE_NO_DEPRECATE preprocessor
+	# definition
+	IF(MSVC80 OR MSVC90)
+		ADD_DEFINITIONS("-D_CRT_SECURE_NO_DEPRECATE")
+	ENDIF(MSVC80 OR MSVC90)
 ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
-# Case of other compiler/environment : tags depend on build mode (debug/release
-IF(BUILD_DEBUG) 
-# Case of debug mode
-IF (BUILD_VERBOSE)
-ADD_DEFINITIONS(-g -O3 -Wall -pipe -v)
-ELSE(BUILD_VERBOSE)
-ADD_DEFINITIONS(-quiet -g -O3 -pipe)
-ENDIF(BUILD_VERBOSE)
-ELSE(BUILD_DEBUG)
-# Case of release mode
-IF (BUILD_VERBOSE)
-ADD_DEFINITIONS(-g -O3 -Wall -pipe -v -DNDEBUG)
-ELSE(BUILD_VERBOSE)
-ADD_DEFINITIONS(-g -O3 -pipe -DNDEBUG)
-ENDIF(BUILD_VERBOSE)
-ENDIF(BUILD_DEBUG)
+	# Case of other compiler/environment : tags depend on build mode (debug/release
+	IF(BUILD_DEBUG) 
+		# Case of debug mode
+		IF (BUILD_VERBOSE)
+			ADD_DEFINITIONS(-g -O3 -Wall -pipe -v)
+		ELSE(BUILD_VERBOSE)
+			ADD_DEFINITIONS(-g -O3 -quiet -pipe)
+		ENDIF(BUILD_VERBOSE)
+	ELSE(BUILD_DEBUG)
+		# Case of release mode
+		IF (BUILD_VERBOSE)
+			ADD_DEFINITIONS( -O3 -Wall -pipe -v -DNDEBUG)
+		ELSE(BUILD_VERBOSE)
+			ADD_DEFINITIONS( -O3 -quiet -pipe -DNDEBUG)
+		ENDIF(BUILD_VERBOSE)
+	ENDIF(BUILD_DEBUG)
 ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
 
 #In case of 64 bits plateform we have to compil with -fPIC flag

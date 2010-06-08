@@ -289,7 +289,7 @@ int MP_FFT_Interface_c::test( const double presicion,
   amp = fft->bufferRe[fft->numFreqs-1];
   energy2 += amp*amp;
 
-  tmp = fabsf((energy2/(setWindowSize*energy1))-1);
+  tmp = fabsf((float)energy2 /(setWindowSize*(float)(energy1))-1);
   if ( tmp < presicion )
     {
       mp_info_msg( "MP_FFT_Interface_c::test()","SUCCESS for FFT size [%ld] energy in/out = 1+/-%g\n",

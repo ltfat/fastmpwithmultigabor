@@ -37,8 +37,8 @@
 
 #include "mptk.h"
 #include "block.h"
-#include <map>
-#include <vector>
+//#include <map>
+//#include <vector>
 
 
 
@@ -57,14 +57,15 @@ class MP_Block_Factory_c
     /* DATA */
     /********/
 
+  protected:
+    /** \brief Protected pointer on MP_Block_Factory_c*/
+    static MP_Block_Factory_c * myBlockFactory;
+ 
 
   private:
     /** \brief Boolean set to true when an instance is created */
     static bool instanceFlag;
 
-    /** \brief Protected pointer on MP_Atom_Factory_c*/
-    static MP_Block_Factory_c * myBlockFactory;
- 
 
 	    /** \brief Hash map to store the block name and method to create it*/
 	STL_EXT_NM::hash_map<const char*, MP_Block_c*(*)(MP_Signal_c *s, map<string, string, mp_ltstring> *paramMap),CSTRING_HASHER> block;

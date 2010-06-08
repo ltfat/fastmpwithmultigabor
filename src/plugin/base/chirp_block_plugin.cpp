@@ -151,12 +151,13 @@ MP_Block_c* MP_Chirp_Block_Plugin_c::create( MP_Signal_c *setSignal, map<string,
   else  { mp_error_msg( func, "No parameter windowtype in the parameter map.\n" ); 
   return( NULL );
   }
-   if ( window_needs_option(windowType) && (!(*paramMap)["windowopt"].size()>0) ) {
+  if (( window_needs_option(windowType)) && (!((*paramMap)["windowopt"].size()>0)))  
+  {
       mp_error_msg( func, "Chirp"
 		    " requires a window option (the opt=\"\" attribute is probably missing"
 		    " in the relevant <window> tag). Returning a NULL block.\n");
       return( NULL );
-    } else {
+  } else {
       /*Convert windowopt*/
       windowOption=strtod((*paramMap)["windowopt"].c_str(), &convertEnd);
       if (*convertEnd != '\0')

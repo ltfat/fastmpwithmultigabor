@@ -727,7 +727,7 @@ int MP_Dict_c::parse_param_list(map<string, list<string>, mp_ltstring> setVarPar
 
 
 /* TEST */
-int MP_Dict_c::test( char* signalFileName, char* dicoFileName )
+bool MP_Dict_c::test( char* signalFileName, char* dicoFileName )
 {
 /*
   unsigned long int sampleIdx;

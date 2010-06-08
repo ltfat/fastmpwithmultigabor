@@ -438,7 +438,7 @@ bool MP_Anywave_Table_c::parse_xml_file(const char* fName)
           if
 	    (!(strcmp(param->Attribute("name"),"numChans")))
             {
-              numChans =strtol(param->Attribute("value"), &convertEnd, 10);
+              numChans =(unsigned short int) strtol(param->Attribute("value"), &convertEnd, 10);
               if (*convertEnd != '\0')
                 {
                   mp_error_msg( func, "cannot convert parameter numChans in unsigned long int.\n" );

@@ -408,7 +408,7 @@ unsigned long int make_window( Dsp_Win_t *out,
       freq_normalizer  = (double)1/16000;                  /* TODO: Think of intelligent solution not to need to know the fs */
   
       /* Locate the center point (= the first maximum of the window) */
-      centerPoint = (int)( ((double)(filterorder-1))/damping)/freq_normalizer;  // at (filterorder-1)/damping
+      centerPoint = (unsigned long)((filterorder-1.0)/damping/freq_normalizer);  // at (filterorder-1)/damping
         
       for ( i = 0; i < length; i++ )
       {

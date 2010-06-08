@@ -50,11 +50,13 @@
 
 
 #if defined(_MSC_VER)
-#define _CRT_SECURE_NO_DEPRECATE
-#include <stdio.h>
-#ifndef snprintf
-#define snprintf _snprintf
-#endif
+	#ifndef crtsecure
+		#define crtsecure _CRT_SECURE_NO_DEPRECATE
+	#endif
+	#include <stdio.h>
+	#ifndef snprintf
+		#define snprintf _snprintf
+	#endif
 #endif
 
 /*********************/

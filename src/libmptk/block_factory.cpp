@@ -69,7 +69,7 @@ MP_Block_Factory_c * MP_Block_Factory_c::get_block_factory()
 {
   if (!MP_Block_Factory_c::myBlockFactory)
     {
-      MP_Block_Factory_c::myBlockFactory = new MP_Block_Factory_c();
+      myBlockFactory = new MP_Block_Factory_c();
       MP_Block_Factory_c::instanceFlag = true;
     }
   return  MP_Block_Factory_c::myBlockFactory;

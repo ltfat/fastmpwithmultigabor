@@ -134,8 +134,8 @@ const unsigned short int MP_MIN_UNSIGNED_SHORT_INT = 0;
 const unsigned short int MP_MAX_UNSIGNED_SHORT_INT = (unsigned short int) (-1); /* 65535 */
 
 const unsigned short int MP_MAX_BITS_LONG_INT = 8*sizeof(long int) - 1; /* 31 */
-const long int MP_MIN_LONG_INT = (long int)   ( (long)(1) << MP_MAX_BITS_LONG_INT ); /*-2147483648*/
-const long int MP_MAX_LONG_INT = (long int) ( ( (long)(1) << MP_MAX_BITS_LONG_INT ) - (long)(1) ); /* 2147483647 */
+const long int MP_MIN_LONG_INT = (unsigned long int)   ( (unsigned long int)(1) << MP_MAX_BITS_LONG_INT ); /*-2147483648*/
+const long int MP_MAX_LONG_INT = (unsigned long int) ( ( (unsigned long int)(1) << MP_MAX_BITS_LONG_INT ) - (unsigned long int)(1) ); /* 2147483647 */
 
 const unsigned short int MP_MAX_BITS_UNSIGNED_LONG_INT = 8*sizeof(unsigned long int); /* 32 */
 const unsigned long int MP_MIN_UNSIGNED_LONG_INT = 0;

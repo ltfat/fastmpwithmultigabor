@@ -303,7 +303,7 @@ class MP_Dict_c
 
     /** \brief Test
      */
-    MPTK_LIB_EXPORT static int test( char* signalFileName, char* dicoFileName );
+    MPTK_LIB_EXPORT static bool test( char* signalFileName, char* dicoFileName );
 
     /** \brief Get the number of atoms of the dictionary */
     MPTK_LIB_EXPORT unsigned long int num_atoms( void );

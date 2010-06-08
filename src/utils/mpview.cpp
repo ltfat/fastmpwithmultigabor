@@ -341,7 +341,7 @@ int main( int argc, char **argv ) {
   if ( MPVIEW_VERBOSE ) fprintf( stderr, "mpview msg -- Filling the pixmap..." );
 
   char tfMapType = MP_TFMAP_SUPPORTS;
-  if (MPVIEW_TRUE==MPVIEW_WVMODE) tfMapType = MP_TFMAP_PSEUDO_WIGNER;
+  if (MPVIEW_WVMODE) tfMapType = MP_TFMAP_PSEUDO_WIGNER;
   if ( book->add_to_tfmap( tfmap, tfMapType, NULL ) == 0 ) {
     fprintf( stderr, "mpview error -- No atoms were found in the book to fill the pixmap.\n" );
     fflush( stderr );
