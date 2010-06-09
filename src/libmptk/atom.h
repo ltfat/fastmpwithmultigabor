@@ -49,7 +49,14 @@
 #include <stdio.h>
 #include <utility>
 #include <mp_pthreads_barrier.h>
-#include <inttypes.h>
+#ifdef _MSC_VER
+	#ifndef PRIu32
+		#define _SF_PREFIX "I32"
+		#define PRIu32 _SF_PREFIX "u"
+	#endif
+#else
+	#include <inttypes.h>
+#endif
 
 /***********************/
 /* CONSTANTS           */
