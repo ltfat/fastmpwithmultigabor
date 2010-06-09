@@ -143,7 +143,7 @@ int MP_Atom_c::read( FILE *fid, const char mode ) {
     /* Support */
     for ( i=0, nItem = 0; i<numChans; i++ ) {
       fscanf( fid, "\t\t<support chan=\"%hu\">", &iRead );
-      nItem += fscanf( fid, "<p>%lu</p><l>%lu</l></support>\n",
+      nItem += fscanf( fid, "<p>%u</p><l>%u</l></support>\n",
 		       &(support[i].pos), &(support[i].len) );
       if ( iRead != i ) {
 	mp_warning_msg( func, "Supports may be shuffled. "
@@ -227,7 +227,7 @@ int MP_Atom_c::write( FILE *fid, const char mode ) {
     nItem += fprintf( fid, "\t\t<par type=\"numChans\">%d</par>\n", numChans );
     /* Support */
     for ( i=0; i<numChans; i++ )
-      nItem += fprintf( fid, "\t\t<support chan=\"%u\"><p>%lu</p><l>%lu</l></support>\n",
+      nItem += fprintf( fid, "\t\t<support chan=\"%u\"><p>%u</p><l>%u</l></support>\n",
 			i, support[i].pos,support[i].len );
     /* Amp */
     for (i = 0; i<numChans; i++) {

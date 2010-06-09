@@ -49,6 +49,7 @@
 #include <stdio.h>
 #include <utility>
 #include <mp_pthreads_barrier.h>
+#include <inttypes.h>
 
 /***********************/
 /* CONSTANTS           */
