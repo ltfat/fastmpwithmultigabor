@@ -110,7 +110,7 @@ class MP_Dict_c
 
     /** \brief Struct use to pass the data and the function to the threads for parallel computation */
 
-    typedef struct ParallelConstruct
+    struct ParallelConstruct
       {
         /** \brief the block number (same than thread number)
          */
