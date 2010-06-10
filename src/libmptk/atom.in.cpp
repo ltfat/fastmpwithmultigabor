@@ -240,8 +240,8 @@ int MP_Atom_c::write( FILE *fid, const char mode ) {
     nItem += mp_fwrite( &numChans, sizeof(MP_Chan_t), 1, fid );
     /* Support */
     for ( i=0; i<numChans; i++ ) {
-      nItem += mp_fwrite( &(support[i].pos), sizeof(unsigned long int), 1, fid );
-      nItem += mp_fwrite( &(support[i].len), sizeof(unsigned long int), 1, fid );
+      nItem += mp_fwrite( &(support[i].pos), sizeof(uint32_t), 1, fid );
+      nItem += mp_fwrite( &(support[i].len), sizeof(uint32_t), 1, fid );
     }
     /* Amp */
     nItem += mp_fwrite( amp,   sizeof(MP_Real_t), numChans, fid );
