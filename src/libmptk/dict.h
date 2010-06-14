@@ -45,15 +45,9 @@
 #include "block_factory.h"
 #include "tinyxml.h"
 #include <string>
-#ifdef __MINGW32__
-#include <list.h>
-#include <map.h>
-#include <vector.h>
-#else
 #include <list>
 #include <map>
 #include <vector>
-#endif
 
 
 

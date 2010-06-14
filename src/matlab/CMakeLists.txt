@@ -127,12 +127,7 @@ classes/mexSignal.cpp
 experimental/classes/mxBook.h
 experimental/classes/mxBook.cpp)
 
-IF(UNIX)
-#	ADD_LIBRARY(mptk4matlab STATIC ${MPTK4MATLAB_SOURCES})
-	ADD_LIBRARY(mptk4matlab SHARED ${MPTK4MATLAB_SOURCES})
-ELSE(UNIX)
-	ADD_LIBRARY(mptk4matlab SHARED ${MPTK4MATLAB_SOURCES})
-ENDIF(UNIX)
+ADD_LIBRARY(mptk4matlab SHARED ${MPTK4MATLAB_SOURCES})
 
 SET_TARGET_PROPERTIES(mptk4matlab PROPERTIES
 		      COMPILE_FLAGS " -DC_BUILDING_mptk4matlab ${SHARED_FLAGS} ${MPTK4MATLAB_COMPILE_FLAGS} -I${MATLAB_INCLUDE_DIR} -I${MPTK_SOURCE_DIR}/src/plugin/base/ -I${MPTK_SOURCE_DIR}/src/plugin/contrib/lam/"

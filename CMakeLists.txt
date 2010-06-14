@@ -55,45 +55,36 @@ ENDIF(UNIX)
 # current value looks like the CMake 2.0 default.
 
 IF(UNIX)
- IF(APPLE)
-# ON APPLE
-SET(MPTK_USER_LOCAL_PATH $ENV{HOME}/local/bin)
-SET(MPTK_USER_INCLUDE_PATH $ENV{HOME}/local/include)
-SET(MPTK_USER_LIB_PATH $ENV{HOME}/local/lib)
-  ELSE(APPLE)
-# ON GENERIC UNIX SYSTEM
-SET(MPTK_USER_LOCAL_PATH $ENV{HOME}/local/bin)
-SET(MPTK_USER_INCLUDE_PATH $ENV{HOME}/local/include)
-SET(MPTK_USER_LIB_PATH $ENV{HOME}/local/lib)
-  ENDIF(APPLE)
-ELSE(UNIX)
-IF(WIN32)
-# ON WIN32
-  IF(CMAKE_INSTALL_PREFIX MATCHES "/usr/local")
-    IF("$ENV{ProgramFiles}" MATCHES "^$")
-      IF("$ENV{SystemDrive}" MATCHES "^$")
-        SET(MPTK_GENERIC_PROGRAM_FILES "C:/Program Files")
-      ELSE("$ENV{SystemDrive}" MATCHES "^$")
-        SET(MPTK_GENERIC_PROGRAM_FILES "$ENV{SystemDrive}/Program Files")
-      ENDIF("$ENV{SystemDrive}" MATCHES "^$")
-    ELSE("$ENV{ProgramFiles}" MATCHES "^$")
-      SET(MPTK_GENERIC_PROGRAM_FILES "$ENV{ProgramFiles}")
-    ENDIF("$ENV{ProgramFiles}" MATCHES "^$")
-    SET(CMAKE_INSTALL_PREFIX
-      "${MPTK_GENERIC_PROGRAM_FILES}/${PROJECT_NAME}"
-      CACHE PATH "Install path prefix, prepended onto install directories."
-      FORCE)
-    SET(MPTK_GENERIC_SYSTEM_DRIVE)
-  ENDIF(CMAKE_INSTALL_PREFIX MATCHES "/usr/local")
-  MARK_AS_ADVANCED(CLEAR CMAKE_INSTALL_PREFIX)
-  # Recherche des librairies : Suffixes ".dll" et prefixes : "lib"
-  SET(CMAKE_FIND_LIBRARY_SUFFIXES ".lib")
-  SET(CMAKE_FIND_LIBRARY_PREFIXES "lib;")
-ENDIF(WIN32)
+  SET(MPTK_USER_LOCAL_PATH $ENV{HOME}/local/bin)
+  SET(MPTK_USER_INCLUDE_PATH $ENV{HOME}/local/include)
+  SET(MPTK_USER_LIB_PATH $ENV{HOME}/local/lib)
+ ELSE(UNIX)
+  IF(WIN32)
+    IF(CMAKE_INSTALL_PREFIX MATCHES "/usr/local")
+      IF("$ENV{ProgramFiles}" MATCHES "^$")
+        IF("$ENV{SystemDrive}" MATCHES "^$")
+          SET(MPTK_GENERIC_PROGRAM_FILES "C:/Program Files")
+        ELSE("$ENV{SystemDrive}" MATCHES "^$")
+          SET(MPTK_GENERIC_PROGRAM_FILES "$ENV{SystemDrive}/Program Files")
+        ENDIF("$ENV{SystemDrive}" MATCHES "^$")
+      ELSE("$ENV{ProgramFiles}" MATCHES "^$")
+        SET(MPTK_GENERIC_PROGRAM_FILES "$ENV{ProgramFiles}")
+      ENDIF("$ENV{ProgramFiles}" MATCHES "^$")
+      SET(CMAKE_INSTALL_PREFIX
+        "${MPTK_GENERIC_PROGRAM_FILES}/${PROJECT_NAME}"
+        CACHE PATH "Install path prefix, prepended onto install directories."
+        FORCE)
+      SET(MPTK_GENERIC_SYSTEM_DRIVE)
+    ENDIF(CMAKE_INSTALL_PREFIX MATCHES "/usr/local")
+    MARK_AS_ADVANCED(CLEAR CMAKE_INSTALL_PREFIX)
+    # Recherche des librairies : Suffixes ".dll" et prefixes : "lib"
+    SET(CMAKE_FIND_LIBRARY_SUFFIXES ".lib")
+    SET(CMAKE_FIND_LIBRARY_PREFIXES "lib;")
+  ENDIF(WIN32)
 ENDIF(UNIX)
 
 ##############################################################################
-# Setting compilation tag (ADD_DEFINITIONS) :
+# Setting compilation tags :
 ##############################################################################
 #Select the ADD_DEFINITIONS according to selected options
 IF( CMAKE_CXX_COMPILER STREQUAL "cl")
@@ -111,16 +102,16 @@ ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
 	IF(BUILD_DEBUG) 
 		# Case of debug mode
 		IF (BUILD_VERBOSE)
-			ADD_DEFINITIONS(-g -O3 -Wall -pipe -v)
+			ADD_DEFINITIONS(-g -O3 -Wall -pipe -v -Wno-deprecated)
 		ELSE(BUILD_VERBOSE)
-			ADD_DEFINITIONS(-g -O3 -quiet -pipe)
+			ADD_DEFINITIONS(-g -O3 -quiet -pipe -Wno-deprecated)
 		ENDIF(BUILD_VERBOSE)
 	ELSE(BUILD_DEBUG)
 		# Case of release mode
 		IF (BUILD_VERBOSE)
-			ADD_DEFINITIONS( -O3 -Wall -pipe -v -DNDEBUG)
+			ADD_DEFINITIONS( -O3 -Wall -pipe -v -DNDEBUG -Wno-deprecated)
 		ELSE(BUILD_VERBOSE)
-			ADD_DEFINITIONS( -O3 -quiet -pipe -DNDEBUG)
+			ADD_DEFINITIONS( -O3 -quiet -pipe -DNDEBUG -Wno-deprecated)
 		ENDIF(BUILD_VERBOSE)
 	ENDIF(BUILD_DEBUG)
 ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
