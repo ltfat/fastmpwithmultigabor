@@ -99,14 +99,7 @@ void MPTK_Env_c::release_environment()
     dll = NULL;
     // Release server
 	MPTK_Server_c::get_server()->release_servers();
-	// Release de configPath   
-	while(!MPTK_Env_c::get_env()->configPath.empty()) 
-	{ 
-		iter=MPTK_Env_c::get_env()->configPath.begin(); 
-		MPTK_Env_c::get_env()->configPath.erase(iter); 
-		free((void *)iter->first); 
-		free((void *)iter->second); 
-	}
+
 if (myEnv)
       {
 	delete myEnv;
