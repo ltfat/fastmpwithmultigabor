@@ -133,11 +133,63 @@ return MP_Block_Factory_c::get_block_factory()->blockType[blockName];
 }
 
 /* get a block parameter info function registered in the hash map */
+void MP_Block_Factory_c::get_block_type_maps( const char* blockName, char **szFirstElement, char **szSecondElement ) 
+{
+	const char *func = "MP_Block_Factory_c::get_block_type_maps()";
+	int iIndex = 0;
+	map<string, string, mp_ltstring> typeMap;	
+	MP_Block_Factory_c::get_block_factory()->blockType[blockName](&typeMap);	
+	std::map<string, string, mp_ltstring>::iterator iter;
+	for(iter = typeMap.begin(); iter != typeMap.end(); ++iter)
+	{
+		szFirstElement[iIndex] = (char *)malloc(strlen(iter->first.c_str())+1);
+		strcpy(szFirstElement[iIndex],(char *)iter->first.c_str());
+		szSecondElement[iIndex] = (char *)malloc(strlen(iter->second.c_str())+1);
+		strcpy(szSecondElement[iIndex],(char *)iter->second.c_str());
+		iIndex++;
+	}
+}
+
+/* get a block parameter info function registered in the hash map */
+int MP_Block_Factory_c::get_block_type_size( const char* blockName ) 
+{
+	map<string, string, mp_ltstring> typeMap;	
+	MP_Block_Factory_c::get_block_factory()->blockType[blockName](&typeMap);	
+	return typeMap.size();
+}
+
+/* get a block parameter info function registered in the hash map */
 void (*MP_Block_Factory_c::get_block_info_map( const char* blockName )) (map< string, string, mp_ltstring>* parameterMapInfo ) 
 {
 	
 return MP_Block_Factory_c::get_block_factory()->blockInfo[blockName];
 
+}
+
+/* get a block parameter info function registered in the hash map */
+void MP_Block_Factory_c::get_block_info_maps( const char* blockName, char **szFirstElement, char **szSecondElement ) 
+{
+	const char *func = "MP_Block_Factory_c::get_block_info_maps()";
+	int iIndex = 0;
+	map<string, string, mp_ltstring> infoMap;	
+	MP_Block_Factory_c::get_block_factory()->blockInfo[blockName](&infoMap);	
+	std::map<string, string, mp_ltstring>::iterator iter;
+	for(iter = infoMap.begin(); iter != infoMap.end(); ++iter)
+	{
+		szFirstElement[iIndex] = (char *)malloc(strlen(iter->first.c_str())+1);
+		strcpy(szFirstElement[iIndex],(char *)iter->first.c_str());
+		szSecondElement[iIndex] = (char *)malloc(strlen(iter->second.c_str())+1);
+		strcpy(szSecondElement[iIndex],(char *)iter->second.c_str());
+		iIndex++;
+	}
+}
+
+/* get a block parameter info function registered in the hash map */
+int MP_Block_Factory_c::get_block_info_size( const char* blockName ) 
+{
+	map<string, string, mp_ltstring> infoMap;	
+	MP_Block_Factory_c::get_block_factory()->blockInfo[blockName](&infoMap);	
+	return infoMap.size();
 }
 
 /* get a block parameter default function registered in the hash map */
@@ -146,6 +198,32 @@ void (*MP_Block_Factory_c::get_block_default_map( const char* blockName )) (map<
 	
 return MP_Block_Factory_c::get_block_factory()->blockDefault[blockName];
 
+}
+
+/* get a block parameter info function registered in the hash map */
+void MP_Block_Factory_c::get_block_default_maps( const char* blockName, char **szFirstElement, char **szSecondElement ) 
+{
+	const char *func = "MP_Block_Factory_c::get_block_default_maps()";
+	int iIndex = 0;
+	map<string, string, mp_ltstring> defaultMap;	
+	MP_Block_Factory_c::get_block_factory()->blockDefault[blockName](&defaultMap);	
+	std::map<string, string, mp_ltstring>::iterator iter;
+	for(iter = defaultMap.begin(); iter != defaultMap.end(); ++iter)
+	{
+		szFirstElement[iIndex] = (char *)malloc(strlen(iter->first.c_str())+1);
+		strcpy(szFirstElement[iIndex],(char *)iter->first.c_str());
+		szSecondElement[iIndex] = (char *)malloc(strlen(iter->second.c_str())+1);
+		strcpy(szSecondElement[iIndex],(char *)iter->second.c_str());
+		iIndex++;
+	}
+}
+
+/* get a block parameter info function registered in the hash map */
+int MP_Block_Factory_c::get_block_default_size( const char* blockName ) 
+{
+	map<string, string, mp_ltstring> defaultMap;	
+	MP_Block_Factory_c::get_block_factory()->blockDefault[blockName](&defaultMap);	
+	return defaultMap.size();
 }
 
 /* fil a vector with the nam of the block registred in block factory */
@@ -161,3 +239,21 @@ void MP_Block_Factory_c::get_registered_block_name( vector< string >* nameVector
 	}
 }
 
+/* fil a vector with the nam of the block registred in block factory */
+void MP_Block_Factory_c::get_registered_block_names( char **blockNames ){
+	int iIndex = 0;
+	const char *func = "MP_Block_Factory_c::get_registered_block_name()";
+	STL_EXT_NM::hash_map<const char*, MP_Block_c*(*)(MP_Signal_c *s, map<string, string, mp_ltstring> *paramMap),CSTRING_HASHER>::iterator iter;
+	for( iter = MP_Block_Factory_c::block.begin(); iter != MP_Block_Factory_c::block.end(); iter++ ) {
+		if(NULL!=iter->first) {
+			blockNames[iIndex++]=(char *)iter->first;
+		} else {
+			mp_error_msg(func,"Cannot push a NULL string into nameVector\n");
+		}
+	}
+}
+
+/* Returns the size of the atom vector */
+int MP_Block_Factory_c::get_block_size( void ){
+	return MP_Block_Factory_c::block.size();
+}	 

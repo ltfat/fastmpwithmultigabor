@@ -46,6 +46,10 @@ MP_Dll_Manager_c::~MP_Dll_Manager_c()
   /* Free error string if allocated */
   LocalFree(err);
 
+	if (dllVectorName) 
+		delete dllVectorName;
+	dllVectorName = NULL;
+
   /* close the library if it isn't null */
   if (h != NULL)
     FreeLibrary(h);

@@ -127,24 +127,30 @@ class MP_Block_Factory_c
     *   \return a pointer on a method able to fill the given map< string, string, mp_ltstring> * parameterMapType
     */
     MPTK_LIB_EXPORT void(*get_block_type_map( const char* blockName )) (map< string, string, mp_ltstring> * parameterMapType);
-    
-    /** \brief Method to fill a parameter info map for blockName
+	MPTK_LIB_EXPORT void get_block_type_maps( const char* blockName, char **szFirstElement, char **szSecondElement ); 
+	MPTK_LIB_EXPORT int get_block_type_size( const char* blockName ); 
+
+	/** \brief Method to fill a parameter info map for blockName
     *   \param blockName : name of the block for which the map has to be fill
     *   \return a pointer on a method able to fill the given map< string, string, mp_ltstring> * parameterMapInfo
     */
     MPTK_LIB_EXPORT void (*get_block_info_map( const char* blockName )) (map< string, string, mp_ltstring> * parameterMapInfo);
-    
+	MPTK_LIB_EXPORT void get_block_info_maps( const char* blockName, char **szFisrtElement, char **szSecondElement ); 
+	MPTK_LIB_EXPORT int get_block_info_size( const char* blockName ); 
     /** \brief Method to fill a parameter default map for blockName
     *   \param blockName : name of the block for which the map has to be fill
     *  \return a pointer on a method able to fill the given map< string, string, mp_ltstring> * parameterMapDefault
     */
     MPTK_LIB_EXPORT void (*get_block_default_map( const char* blockName )) (map< string, string, mp_ltstring> * parameterMapDefault);
-   
+	MPTK_LIB_EXPORT	void get_block_default_maps( const char* blockName, char **szFirstElement, char **szSecondElement );
+	MPTK_LIB_EXPORT int get_block_default_size( const char* blockName ); 
     /** \brief Method to fill a vector with the name of all the blocks registred in the block factory
     *   \param nameVector : pointer on the vector which has to be fill with the name of blocks 
     */
     MPTK_LIB_EXPORT void get_registered_block_name(vector< string >* nameVector);
+	MPTK_LIB_EXPORT void get_registered_block_names( char **blockNames );
+	MPTK_LIB_EXPORT int get_block_size( void );
 
-  };
+};
 
 #endif /*BLOCK_FACTORY_H_*/

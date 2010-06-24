@@ -95,7 +95,7 @@ IF( CMAKE_CXX_COMPILER STREQUAL "cl")
 	# warnings. To suppress it, we add the _CRT_SECURE_NO_DEPRECATE preprocessor
 	# definition
 	IF(MSVC80 OR MSVC90)
-		ADD_DEFINITIONS("-D_CRT_SECURE_NO_DEPRECATE")
+      ADD_DEFINITIONS("-D_CRT_SECURE_NO_DEPRECATE")
 	ENDIF(MSVC80 OR MSVC90)
 ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
 	# Case of other compiler/environment : tags depend on build mode (debug/release
@@ -427,6 +427,7 @@ IF(BUILD_TESTING)
 	INCLUDE(CTestConfig.cmake)
 	# TEST with CTest:
 	SET(CMAKE_CXX_FLAGS "-fprofile-arcs -ftest-coverage  ${CMAKE_CXX_FLAGS}") 
+	ADD_TEST(MESSAGE, ${MPTK_BINARY_DIR}/bin/test_messaging)
 	ADD_TEST(FFT, ${MPTK_BINARY_DIR}/bin/test_fft ${MPTK_BINARY_DIR}/mptk/path.xml)
 	ADD_TEST(PARABOLIC_REGRESSION, ${MPTK_BINARY_DIR}/bin/test_parabolic_regression)
 	ADD_TEST(BEHAVIOUR_IN_NOISE, ${MPTK_BINARY_DIR}/bin/test_behaviour_in_noise  ${MPTK_BINARY_DIR}/mptk/path.xml)

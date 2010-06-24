@@ -89,6 +89,7 @@ MPTK_Env_c * MPTK_Env_c::get_env()
 void MPTK_Env_c::release_environment()
 {
   const char * func = "MPTK_Env_c::release_environment()";
+  STL_EXT_NM::hash_map<const char*,const char*,CSTRING_HASHER>::iterator iter;
   if (environment_loaded){
     if (MP_FFT_Interface_c::save_fft_library_config()) mp_debug_msg( MP_DEBUG_FILE_IO, func, "The fftw Plan is now saved.\n" );
 
@@ -96,10 +97,17 @@ void MPTK_Env_c::release_environment()
     /* delete the dll*/
     if (dll) delete(dll);
     dll = NULL;
-    /* Release server */
-    MPTK_Server_c::get_server()->release_servers();
- 
-    if (myEnv)
+    // Release server
+	MPTK_Server_c::get_server()->release_servers();
+	// Release de configPath   
+	while(!MPTK_Env_c::get_env()->configPath.empty()) 
+	{ 
+		iter=MPTK_Env_c::get_env()->configPath.begin(); 
+		MPTK_Env_c::get_env()->configPath.erase(iter); 
+		free((void *)iter->first); 
+		free((void *)iter->second); 
+	}
+if (myEnv)
       {
 	delete myEnv;
 	myEnv = NULL;
@@ -110,7 +118,6 @@ void MPTK_Env_c::release_environment()
 
 /* Set some change in the env variable if MyEnv singleton is not set*/
 bool MPTK_Env_c::set_env(string filename)
-
 {
   if (!myEnv)
     {
@@ -156,16 +163,39 @@ void MPTK_Env_c::get_registered_path_name( vector< string >* nameVector ){
     }
   }
 }
- 
+
+/* fill a vector with the name of the atoms registred in atom factory */
+void MPTK_Env_c::get_registered_path_names( char **pathNames ){
+	int iIndex = 0;
+	const char *func = "MPTK_Env_c::get_registered_path_names";
+	STL_EXT_NM::hash_map<const char*,const char*,CSTRING_HASHER>::iterator iter;
+	for( iter = MPTK_Env_c::configPath.begin(); iter != MPTK_Env_c::configPath.end(); iter++ ) 
+	{
+		if(NULL!=iter->first) 
+		{
+			pathNames[iIndex++]=(char *)iter->first;
+		}
+		else 
+		{
+			mp_error_msg(func,"Cannot push a NULL string into nameVector\n");
+		}
+	}
+}
+
+/* Returns the size of the atom vector */
+int MPTK_Env_c::get_path_size( void ){
+	return MPTK_Env_c::configPath.size();
+}	 
 
 /* Get the path of the configuration file using a env variable */
 char * MPTK_Env_c::get_configuration_file()
 {
-  char * pPath = NULL;
-  if (getenv (mptk_Config_File_Name)!=0) pPath = getenv (mptk_Config_File_Name);
-  else  mp_error_msg( "MPTK_Env_c::get_configuration_file()", "Could not find MPTK Env variable with path to config file.\n" );
-  return pPath;
+	char *pPath;
+	pPath = getenv (mptk_Config_File_Name);
+	if(pPath == NULL)
+		   mp_error_msg( "MPTK_Env_c::get_configuration_file()", "Could not find MPTK Env variable with path to config file.\n");
 
+	return pPath;
 }
 
 
@@ -194,7 +224,9 @@ bool MPTK_Env_c::load_environment_if_needed(const char * name)
       mp_info_msg("","      from the Matlab command line\n");
       mp_info_msg("","  b) using the -C <path_to_configfile.xml> option in many MPTK command line utilities.\n");
       return false;
-    } else {
+    } 
+	else 
+	{
       return true;
     }
   }
@@ -213,10 +245,12 @@ bool MPTK_Env_c::load_environment(const char * name )
 	}
 	
 	// Get the name of the configuration file
-	if(NULL==name || 0==strlen(name)) { 
+	if(NULL==name || 0==strlen(name)) 
+	{ 
 		// If no argument is provided, try the default configuration file  ... 
 
-		if (NULL== get_configuration_file() ) { // ... if it does not exist either, miserably fail
+		if (NULL== get_configuration_file()) // ... if it does not exist either, miserably fail
+		{ 
 			mp_error_msg(func, "couldn't retrieve the name of the MPTK environment configuration file\n");
 			mp_info_msg("","This name can be specified either by:\n");
 			mp_info_msg("","  a) setting the MPTK_CONFIG_FILENAME environment variable, using e.g. 'setenv MPTK_CONFIG_FILENAME <path_to_config_file.xml>')\n");
@@ -225,22 +259,25 @@ bool MPTK_Env_c::load_environment(const char * name )
 			environment_loaded = false;
 			return false;
 		} 
-		
 		strcpy(path,get_configuration_file());
-	} else {
+	} 
+	else 
+	{
 		strcpy(path,name);
 	}
 
 	// Check that the configuration file exists and is readable
 	FILE *fp = fopen (path, "r");
-	if (NULL== fp) {
+	if (NULL== fp) 
+	{
 		mp_error_msg( func, "The config file with name %s doesn't exist.\n", path);
 		return false;
 	} 
 	
 	// Try to load the XML configuration file
 	TiXmlDocument configFile(path);		
-	if (!configFile.LoadFile()) {
+	if (!configFile.LoadFile()) 
+	{
 		/* Try to load the file, and check success */
 		mp_error_msg( func, "Could not load the xml config file : %s , description: %s .\n",
 					path, configFile.ErrorDesc() );
@@ -251,13 +288,14 @@ bool MPTK_Env_c::load_environment(const char * name )
 	TiXmlHandle hdl(&configFile); 
 	/* Find the first <configpath> <path .../><configpath> entry */
 	elem = hdl.FirstChildElement("configpath").FirstChildElement("path").Element(); 
-	if (!elem) {
-		mp_error_msg( func, 
-					"the <configpath> <path .../> </configpath> node doesn't exist in file %s",									path);
+	if (!elem) 
+	{
+		mp_error_msg( func, "the <configpath> <path .../> </configpath> node doesn't exist in file %s",	path);
 		return false;
 	}
 	/* Read each node */		
-	while (elem) {
+	while (elem) 
+	{
 		/* Get the name and path */
 		std::string nameBuffer = elem->Attribute("name");
 		std::string pathBuffer = elem->Attribute("path");
@@ -268,7 +306,8 @@ bool MPTK_Env_c::load_environment(const char * name )
 			return false;
 		}
 		char *pathBufferCstr = (char *) malloc(pathBuffer.size()+1);
-		if(NULL==pathBufferCstr) {
+		if(NULL==pathBufferCstr) 
+		{
 			mp_error_msg( func, "Could not allocate pathBufferCstr");
 			return false;
 		}
@@ -276,10 +315,13 @@ bool MPTK_Env_c::load_environment(const char * name )
 		strncpy(nameBufferCstr,nameBuffer.c_str(),nameBuffer.size()+1 );
 		strncpy(pathBufferCstr,pathBuffer.c_str(),pathBuffer.size()+1 );
 		/* If the pair (name,path) does not already exist in the configPath, add it */
-		if (NULL == MPTK_Env_c::get_env()->get_config_path(nameBufferCstr)) {
+		if (NULL == MPTK_Env_c::get_env()->get_config_path(nameBufferCstr)) 
+		{
 			MPTK_Env_c::get_env()->configPath[nameBufferCstr] = pathBufferCstr;
 			mp_debug_msg(MP_DEBUG_FILE_IO,func,"Setting %s=%s\n",nameBufferCstr,pathBufferCstr);
-		} else { 				
+		} 
+		else 
+		{ 				
 		/* Otherwise generate an warning */
 			mp_warning_msg( func, 
 							"Two path variable with the same name=%s in config file\n",
@@ -296,35 +338,42 @@ bool MPTK_Env_c::load_environment(const char * name )
 	}
 			
 	/* Load plugins */ 
-	if (dll->load_dll()) {
+	if (dll->load_dll()) 
+	{
 	  vector< string >* blockNameVector = new vector< string >();
 	  MP_Block_Factory_c::get_block_factory()->get_registered_block_name( blockNameVector );
-	  if(0==blockNameVector->size()) {
+	  if(0==blockNameVector->size()) 
+	  {
 	    mp_error_msg( func, "No block type was loaded, even though plugins were found in the dll_directory '%s' specified by the configuration file '%s'\n", MPTK_Env_c::get_env()->get_config_path("dll_directory") , path);
 	    mp_info_msg("","The most common reason is a configuration file which does not match the installed version of MPTK\n");
-	    delete blockNameVector;
+	    delete blockNameVector; blockNameVector = NULL;
 	    return false;
 	  }
 	  vector< string >* atomNameVector = new vector< string >();
 	  MP_Atom_Factory_c::get_atom_factory()->get_registered_atom_name( atomNameVector );
-	  if(0==atomNameVector->size()) {
+	  if(0==atomNameVector->size()) 
+	  {
 	    mp_error_msg( func, "No atom type was loaded, even though plugins were found in the dll_directory specified by the configuration file\n" );
 	    mp_info_msg("","The most common reason is a configuration file which does not match the installed version of MPTK\n");
-	    delete atomNameVector;
+	    delete atomNameVector; atomNameVector = NULL;
 	    return false;
 	  }
 
 	  mp_debug_msg( MP_DEBUG_CONSTRUCTION, func, "Load successfully the following Block type: \n" );
-	  for (unsigned int i= 0; i < blockNameVector->size(); i++) {
+	  for (unsigned int i= 0; i < blockNameVector->size(); i++) 
+	  {
 	    mp_debug_msg( MP_DEBUG_CONSTRUCTION, func, "%s block.\n",blockNameVector->at(i).c_str()  );
 	  }
-	  delete(blockNameVector);
+	  delete(blockNameVector); blockNameVector = NULL;
 	  mp_debug_msg( MP_DEBUG_CONSTRUCTION, func, "Load successfully the following Atom type: \n" );
-	  for (unsigned int i= 0; i < atomNameVector->size(); i++) {
+	  for (unsigned int i= 0; i < atomNameVector->size(); i++) 
+	  {
 	    mp_debug_msg( MP_DEBUG_CONSTRUCTION, func, "%s atom.\n",atomNameVector->at(i).c_str()  );
 	  }
-	  delete(atomNameVector);
-	} else {
+	  delete(atomNameVector); atomNameVector = NULL;
+	} 
+	else 
+	{
 	  mp_error_msg(func, "Failed to load any plugin\n"); 
 	  mp_info_msg(func, "The most common reason is an ill-formed configuration file %s\n",path);
 	  mp_info_msg(func, "The XML file %s should define 'dll_directory' to be a path where the plugins for MPTK are available\n");  

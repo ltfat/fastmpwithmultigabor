@@ -123,7 +123,8 @@ class MP_Atom_Factory_c
     *   \param nameVector : pointer on the vector which has to be fill with the name of blocks 
     */
     MPTK_LIB_EXPORT void get_registered_atom_name(vector< string >* nameVector);
-
+	MPTK_LIB_EXPORT	void get_registered_atom_names( char **atomNames );
+	MPTK_LIB_EXPORT	int get_atom_size( void );
   };
 #endif /*ATOM_FACTORY_H_*/
 

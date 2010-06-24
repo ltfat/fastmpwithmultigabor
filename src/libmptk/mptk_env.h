@@ -173,7 +173,9 @@ STL_EXT_NM::hash_map<const char*,const char*,CSTRING_HASHER> configPath;
     *   \param nameVector : pointer on the vector which has to be fill with the name of paths
 	*/
 	MPTK_LIB_EXPORT void get_registered_path_name( vector< string >* nameVector );
-	
+	MPTK_LIB_EXPORT void get_registered_path_names( char **pathNames );
+	MPTK_LIB_EXPORT int get_path_size( void );
+
     /** \brief Method to release environnement, desallocate all variables.
     */
     MPTK_LIB_EXPORT static void release_environment();

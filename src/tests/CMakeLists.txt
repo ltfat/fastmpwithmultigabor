@@ -20,19 +20,6 @@ FOREACH(test_target test_anywave test_fft test_messaging test_win test_parabolic
 	ADD_DEPENDENCIES(${test_target} mptk)
 ENDFOREACH(test_target)
 
-
-IF(LINUX)
-ADD_CUSTOM_COMMAND(TARGET test_messaging
-                     POST_BUILD
-                     COMMAND ${MPTK_BINARY_DIR}/bin/test_messaging)
-ELSE(LINUX)
-IF(MINGW)
-ADD_CUSTOM_COMMAND(TARGET test_messaging
-                     POST_BUILD
-                  COMMAND ${MPTK_BINARY_DIR}/bin/test_messaging)
-ENDIF(MINGW)  
-ENDIF(LINUX)
-
 #------------------------------------------------
 #Find or generate the tests scripts
 #------------------------------------------------
