@@ -55,11 +55,13 @@ ENDIF(UNIX)
 # current value looks like the CMake 2.0 default.
 
 IF(UNIX)
+  SET(BATCHEXT ".sh")
   SET(MPTK_USER_LOCAL_PATH $ENV{HOME}/local/bin)
   SET(MPTK_USER_INCLUDE_PATH $ENV{HOME}/local/include)
   SET(MPTK_USER_LIB_PATH $ENV{HOME}/local/lib)
  ELSE(UNIX)
   IF(WIN32)
+    SET(BATCHEXT ".bat")
     IF(CMAKE_INSTALL_PREFIX MATCHES "/usr/local")
       IF("$ENV{ProgramFiles}" MATCHES "^$")
         IF("$ENV{SystemDrive}" MATCHES "^$")
