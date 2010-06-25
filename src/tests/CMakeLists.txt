@@ -23,10 +23,15 @@ ENDFOREACH(test_target)
 #------------------------------------------------
 #Find or generate the tests scripts
 #------------------------------------------------
+IF(WIN32)
+  SET(BATCHEXT ".bat")
+ELSE(WIN32)
+  SET(BATCHEXT ".sh")
+ENDIF(WIN32)
 FOREACH(MPTK_SCRIPTS test_mpcycle)
-	FIND_FILE(MPTK_SCRIPTS_FOUND ${MPTK_SCRIPTS}.sh PATHS ${MPTK_BINARY_DIR}/bin/script/)
+	FIND_FILE(MPTK_SCRIPTS_FOUND ${MPTK_SCRIPTS}.* PATHS ${MPTK_BINARY_DIR}/bin/script/)
 	IF(NOT MPTK_SCRIPTS_FOUND)
-		CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/tests/script/${MPTK_SCRIPTS}.sh.in ${MPTK_BINARY_DIR}/bin/script/${MPTK_SCRIPTS}.sh @ONLY)
+      CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/tests/script/${MPTK_SCRIPTS}.in ${MPTK_BINARY_DIR}/bin/script/${MPTK_SCRIPTS}${BATCHEXT} @ONLY)
 	ENDIF(NOT MPTK_SCRIPTS_FOUND)
 ENDFOREACH(MPTK_SCRIPTS)
 
