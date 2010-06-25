@@ -37,7 +37,7 @@
 ##
 
 binarypath=@MPTK_BINARY_DIR@
-binpath=@MPTK_BINARY_DIR@/bin
+binpath=@MPTK_BINARY_DIR@@MPTK_DEBUG_RELEASE@/bin
 currentpath=@MPTK_BINARY_DIR@/current
 mptkpath=@MPTK_BINARY_DIR@/mptk
 refbinpath=@MPTK_BINARY_DIR@/mptk/reference
