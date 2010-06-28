@@ -135,7 +135,6 @@ return MP_Block_Factory_c::get_block_factory()->blockType[blockName];
 /* get a block parameter info function registered in the hash map */
 void MP_Block_Factory_c::get_block_type_maps( const char* blockName, char **szFirstElement, char **szSecondElement ) 
 {
-	const char *func = "MP_Block_Factory_c::get_block_type_maps()";
 	int iIndex = 0;
 	map<string, string, mp_ltstring> typeMap;	
 	MP_Block_Factory_c::get_block_factory()->blockType[blockName](&typeMap);	
@@ -169,7 +168,6 @@ return MP_Block_Factory_c::get_block_factory()->blockInfo[blockName];
 /* get a block parameter info function registered in the hash map */
 void MP_Block_Factory_c::get_block_info_maps( const char* blockName, char **szFirstElement, char **szSecondElement ) 
 {
-	const char *func = "MP_Block_Factory_c::get_block_info_maps()";
 	int iIndex = 0;
 	map<string, string, mp_ltstring> infoMap;	
 	MP_Block_Factory_c::get_block_factory()->blockInfo[blockName](&infoMap);	
@@ -203,7 +201,6 @@ return MP_Block_Factory_c::get_block_factory()->blockDefault[blockName];
 /* get a block parameter info function registered in the hash map */
 void MP_Block_Factory_c::get_block_default_maps( const char* blockName, char **szFirstElement, char **szSecondElement ) 
 {
-	const char *func = "MP_Block_Factory_c::get_block_default_maps()";
 	int iIndex = 0;
 	map<string, string, mp_ltstring> defaultMap;	
 	MP_Block_Factory_c::get_block_factory()->blockDefault[blockName](&defaultMap);	

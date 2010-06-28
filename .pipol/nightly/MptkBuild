@@ -22,9 +22,6 @@ case $PIPOL_IMAGE in
 		  echo "Fin de la création..."
 		fi
 		
-		# 3) Changing scripts mode
-		chmod a+x bin/script/*.sh 
-
 		# 4) the build 
 		cd MPTK_Build; { 
 		    ## 4.1) configuration

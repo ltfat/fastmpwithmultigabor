@@ -127,8 +127,7 @@ void MP_Atom_Factory_c::register_new_atom_empty(const char* nameplug, MP_Atom_c*
 
 /* fill a vector with the name of the atoms registred in atom factory */
 void MP_Atom_Factory_c::get_registered_atom_name( vector< string >* nameVector ){
-	int test = 0;
-	const char * func = "MP_Atom_Factory_c::get_registered_atom_name()";
+	const char *func = "MP_Atom_Factory_c::get_registered_atom_name()";
 	STL_EXT_NM::hash_map<const char*, MP_Atom_c*(*)(void),CSTRING_HASHER>::iterator iter;
 	for( iter = MP_Atom_Factory_c::atom_empty.begin(); iter != MP_Atom_Factory_c::atom_empty.end(); iter++ ) {
 		if(NULL!=iter->first) {
@@ -143,7 +142,7 @@ void MP_Atom_Factory_c::get_registered_atom_name( vector< string >* nameVector )
 /* fill a vector with the name of the atoms registred in atom factory */
 void MP_Atom_Factory_c::get_registered_atom_names( char **atomNames ){
 	int iIndex = 0;
-	const char * func = "MP_Atom_Factory_c::get_registered_atom_names()";
+	const char *func = "MP_Atom_Factory_c::get_registered_atom_names()";
 	STL_EXT_NM::hash_map<const char*, MP_Atom_c*(*)(void),CSTRING_HASHER>::iterator iter;
 
 	for(iter = MP_Atom_Factory_c::atom_empty.begin(); iter != MP_Atom_Factory_c::atom_empty.end(); iter++) 
