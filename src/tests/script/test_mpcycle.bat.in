@@ -39,7 +39,7 @@
 
 set homepath=C:\
 set binarypath=@MPTK_BINARY_DIR@
-set binpath=@MPTK_BINARY_DIR@@MPTK_DEBUG_RELEASE@/bin
+set binpath=@MPTK_BINARY_DIR@/bin@MPTK_DEBUG_RELEASE@
 set currentpath=@MPTK_BINARY_DIR@/current
 set mptkpath=@MPTK_BINARY_DIR@/mptk
 set refbinpath=@MPTK_BINARY_DIR@/mptk/reference
