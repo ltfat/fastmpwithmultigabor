@@ -1,0 +1,186 @@
+::#!/bin/bash
+::#
+::#############################################################################
+::##                                                                         ##
+::##                               Makefile.am                               ##
+::##                                                                         ##
+::##                      Matching Pursuit Testing Suite                     ##
+::##                                                                         ##
+::## Rémi Gribonval                                                          ##
+::## Sacha Krstulovic                                        Mon Feb 21 2005 ##
+::## ----------------------------------------------------------------------- ##
+::##                                                                         ##
+::##  Copyright (C) 2005 IRISA                                               ##
+::##                                                                         ##
+::##  This program is free software; you can redistribute it and/or modify   ##
+::##  it under the terms of the GNU General Public License as published by   ##
+::##  the Free Software Foundation; either version 2, or (at your option)    ##
+::##  any later version.                                                     ##
+::##                                                                         ##
+::##  This program is distributed in the hope that it will be useful,        ##
+::##  but WITHOUT ANY WARRANTY; without even the implied warranty of         ##
+::##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          ##
+::##  GNU General Public License for more details.                           ##
+::##                                                                         ##
+::##  You should have received a copy of the GNU General Public License      ##
+::##  along with this program; if not, write to the Free Software            ##
+::##  Foundation, Inc., 59 Temple Place - Suite 330,                         ##
+::##  Boston, MA 02111-1307, USA.                                            ##
+::##                                                                         ##
+::#############################################################################
+::## 
+::## SVN log:
+::##
+::##   $Author: sacha $
+::##   $Date: 2006-02-20 16:17:29 +0100 (Mon, 20 Feb 2006) $
+::##   $Revision: 505 $
+::##
+
+binarypath=@MPTK_BINARY_DIR@
+binpath=@MPTK_BINARY_DIR@@MPTK_DEBUG_RELEASE@/bin
+currentpath=@MPTK_BINARY_DIR@/current
+mptkpath=@MPTK_BINARY_DIR@/mptk
+refbinpath=@MPTK_BINARY_DIR@/mptk/reference
+refsourcepath=@MPTK_SOURCE_DIR@/src/tests/ref
+
+diff
+fc
+
+cd %binarypath%;
+mkdir current;
+
+::#
+::# check mpd
+::#
+echo "=============================="
+echo "#                            #"
+echo "#       checking mpd         #"
+echo "#                            #"
+echo "=============================="
+
+if [ -f "$binpath/mpd" ]; then
+	echo "The executable file named mpd is located under : $binpath/mpd"
+else
+	echo "You should probably build mpd before running the tests..."
+	exit 1		
+fi
+
+echo "--------------------------------------------------"
+echo " mpd command to create a book and a log           "
+echo "--------------------------------------------------"
+
+cmd="%binpath%/mpd  --verbose -s 10 -R 10 -C %mptkpath%/path.xml -D %refbinpath%/dictionary/dico_test.xml %refsourcepath%/res_mix_58_stereo.wav.ref %currentpath%/book_mix_58_stereo.bin %currentpath%/reconst_mix_58_stereo.wav > %currentpath/log_mpd_mix_58_stereo.log 2>&1"
+echo $cmd
+eval $cmd
+
+echo "--------------------------------------------------"
+echo " diff command to differentiate the log files      "
+echo "--------------------------------------------------"
+
+diff -I 'mix_58_stereo' -I 'contains' -I 'WARNING' $currentpath/log_mpd_mix_58_stereo.log $refsourcepath/log_mpd_mix_58_stereo.ref > /dev/null 2> /dev/null
+if test $? -eq 0; then
+  echo "  mpd -- test -- The current log is similar to the reference log. Test passed successfully."
+else
+  echo "  mpd -- test ERROR -- The current log differs from the reference log."
+  echo "                       For details, execute:"
+  echo "                         diff -I 'mix_58_stereo' -I 'contains' $currentpath/log_mpd_mix_58_stereo.log $refsourcepath/log_mpd_mix_58_stereo.ref"
+  exit 1
+fi
+
+#
+# check mpr
+#
+echo "=============================="
+echo "#                            #"
+echo "#       checking mpr         #"
+echo "#                            #"
+echo "=============================="
+
+if [ -f "$binpath/mpr" ]; then
+	echo "The executable file named mpr is located under : $binpath/mpr"
+else
+	echo "You should probably build mpr before running the tests..."
+	exit 1		
+fi
+
+echo "--------------------------------------------------"
+echo " Rebuilding from the obtained book and residual   "
+echo "--------------------------------------------------"
+
+cmd="$binpath/mpr --verbose -C $mptkpath/path.xml $currentpath/book_mix_58_stereo.bin $currentpath/reconst_obt_mix_58_stereo.wav $refsourcepath/res_mix_58_stereo.wav.ref >& $currentpath/log_mpr_obt_mix_58_stereo.log;"
+echo $cmd
+eval $cmd
+
+echo "--------------------------------------------------"
+echo " diff command to differentiate the log files      "
+echo "--------------------------------------------------"
+
+diff -I 'mix_58_stereo' $currentpath/log_mpr_obt_mix_58_stereo.log $refsourcepath/log_mpr_mix_58_stereo.ref > /dev/null 2> /dev/null
+if test $? -eq 0; then
+  echo "  mpr -- test -- The current log is similar to the reference log. Test passed successfully."
+else
+  echo "  mpr -- test ERROR -- The current log differs from the reference log."
+  echo "                       For details, execute:"
+  echo "                         diff -I 'mix_58_stereo' $currentpath/log_mpr_obt_mix_58_stereo.log $refsourcepath/log_mpr_mix_58_stereo.ref"
+  exit 1
+fi
+
+echo "--------------------------------------------------"
+echo " Rebuilding from the reference book and residual  "
+echo "--------------------------------------------------"
+
+cmd="$binpath/mpr --verbose -C $mptkpath/path.xml $refsourcepath/book_mix_58_stereo.bin.ref $currentpath/reconst_ref_mix_58_stereo.wav $refsourcepath/res_mix_58_stereo.wav.ref >& $currentpath/log_mpr_ref_mix_58_stereo.log;"
+echo $cmd
+eval $cmd
+
+echo "--------------------------------------------------"
+echo " diff command to differentiate the log files      "
+echo "--------------------------------------------------"
+
+diff -I 'mix_58_stereo' $currentpath/log_mpr_ref_mix_58_stereo.log $refsourcepath/log_mpr_mix_58_stereo.ref > /dev/null 2> /dev/null
+if test $? -eq 0; then
+  echo "  mpr -- test -- The current log is similar to the reference log. Test passed successfully."
+else
+  echo "  mpr -- test ERROR -- The current log differs from the reference log."
+  echo "                       For details, execute:"
+  echo "                         diff -I 'mix_58_stereo' @abs_top_builddir@/src/tests/current/log_mpr_ref_mix_58_stereo.log $refdir/ref/log_mpr_mix_58_stereo.ref"
+  exit 1
+fi
+
+#
+# check mpf
+#
+echo "=============================="
+echo "#                            #"
+echo "#       checking mpf         #"
+echo "#                            #"
+echo "=============================="
+
+if [ -f "$binpath/mpf" ]; then
+	echo "The executable file named mpf is located under : $binpath/mpf"
+else
+	echo "You should probably build mpf before running the tests..."
+	exit 1		
+fi
+
+echo "--------------------------------------------------"
+echo " Filtering the atoms contained in the book        "
+echo "--------------------------------------------------"
+
+cmd="$binpath/mpf -C $mptkpath/path.xml --Freq=[0:110] --len=[0:256] $currentpath/book_mix_58_stereo.bin >& $currentpath/log_mpf_book_mix_58_stereo.bin.log;"
+echo $cmd
+eval $cmd
+
+echo "--------------------------------------------------"
+echo " diff command to differentiate the log files      "
+echo "--------------------------------------------------"
+
+diff -I 'WARNING' $currentpath/log_mpf_book_mix_58_stereo.bin.log $refsourcepath/log_mpf_book_mix_58_stereo.bin.ref > /dev/null 2> /dev/null
+if test $? -eq 0; then
+  echo "  mpf -- test -- The current log is similar to the reference log. Test passed successfully."
+else
+  echo "  mpf -- test ERROR -- The current log differs from the reference log."
+  echo "                       For details, execute:"
+  echo "                         diff $currentpath/log_mpf_book_mix_58_stereo.bin.log $refsourcepath/log_mpf_book_mix_58_stereo.bin.ref"
+  exit 1
+fi
