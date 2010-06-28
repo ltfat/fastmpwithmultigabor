@@ -37,7 +37,7 @@
 ::##   $Revision: 505 $
 ::##
 
-set homepath=C:/
+set homepath=C:\
 set binarypath=@MPTK_BINARY_DIR@
 set binpath=@MPTK_BINARY_DIR@/bin@MPTK_DEBUG_RELEASE@
 set currentpath=@MPTK_BINARY_DIR@/current
@@ -76,6 +76,7 @@ echo "--------------------------------------------------"
 echo " diff command to differentiate the log files      "
 echo "--------------------------------------------------"
 
+cd %homepath%
 echo "diff -I 'mix_58_stereo' -I 'contains' -I 'WARNING' %currentpath%/log_mpd_mix_58_stereo.log %refsourcepath%/log_mpd_mix_58_stereo.ref > /dev/null 2> /dev/null"
 diff -I 'mix_58_stereo' -I 'contains' -I 'WARNING' %currentpath%/log_mpd_mix_58_stereo.log %refsourcepath%/log_mpd_mix_58_stereo.ref > /dev/null 2> /dev/null
 	exit 1		
