@@ -1,3 +1,4 @@
+@echo OFF
 ::#!/bin/bash
 ::#
 ::#############################################################################
@@ -43,11 +44,8 @@ mptkpath=@MPTK_BINARY_DIR@/mptk
 refbinpath=@MPTK_BINARY_DIR@/mptk/reference
 refsourcepath=@MPTK_SOURCE_DIR@/src/tests/ref
 
-diff
-fc
-
-cd %binarypath%;
-mkdir current;
+cd %binarypath%
+mkdir current
 
 ::#
 ::# check mpd
@@ -69,9 +67,8 @@ echo "--------------------------------------------------"
 echo " mpd command to create a book and a log           "
 echo "--------------------------------------------------"
 
-cmd="%binpath%/mpd  --verbose -s 10 -R 10 -C %mptkpath%/path.xml -D %refbinpath%/dictionary/dico_test.xml %refsourcepath%/res_mix_58_stereo.wav.ref %currentpath%/book_mix_58_stereo.bin %currentpath%/reconst_mix_58_stereo.wav > %currentpath/log_mpd_mix_58_stereo.log 2>&1"
-echo $cmd
-eval $cmd
+echo "%binpath%/mpd  --verbose -s 10 -R 10 -C %mptkpath%/path.xml -D %refbinpath%/dictionary/dico_test.xml %refsourcepath%/res_mix_58_stereo.wav.ref %currentpath%/book_mix_58_stereo.bin %currentpath%/reconst_mix_58_stereo.wav > %currentpath/log_mpd_mix_58_stereo.log 2>&1"
+%binpath%/mpd  --verbose -s 10 -R 10 -C %mptkpath%/path.xml -D %refbinpath%/dictionary/dico_test.xml %refsourcepath%/res_mix_58_stereo.wav.ref %currentpath%/book_mix_58_stereo.bin %currentpath%/reconst_mix_58_stereo.wav > %currentpath/log_mpd_mix_58_stereo.log 2>&1
 
 echo "--------------------------------------------------"
 echo " diff command to differentiate the log files      "
