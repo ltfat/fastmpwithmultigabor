@@ -199,7 +199,7 @@ ENDFOREACH(default)
 IF( CMAKE_CXX_COMPILER STREQUAL "cl")
     IF (BUILD_DEBUG)
       # Case of debug mode
-      SET(MPTK_DEBUG_RELEASE "/Debug")
+      SET(MPTK_DEBUG_RELEASE "/debug")
       SET(MPTK_LIB_DIR ${MPTK_BINARY_DIR}/lib/debug)
       SET(MPTK_LIB_DIR_INSTALL ${CMAKE_INSTALL_PREFIX}/lib)
     ELSE (BUILD_DEBUG)
