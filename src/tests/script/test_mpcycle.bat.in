@@ -45,6 +45,7 @@ set refbinpath=@MPTK_BINARY_DIR@/mptk/reference
 set refsourcepath=@MPTK_SOURCE_DIR@/src/tests/ref
 
 cd %binarypath%
+echo "%binarypath%"
 mkdir current
 
 ::#
