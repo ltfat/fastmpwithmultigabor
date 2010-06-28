@@ -70,15 +70,15 @@ echo " mpd command to create a book and a log           "
 echo "--------------------------------------------------"
 
 echo "%binpath%/mpd.exe  --verbose -s 10 -R 10 -C %mptkpath%/path.xml -D %refbinpath%/dictionary/dico_test.xml %refsourcepath%/res_mix_58_stereo.wav.ref %currentpath%/book_mix_58_stereo.bin %currentpath%/reconst_mix_58_stereo.wav > %currentpath%/log_mpd_mix_58_stereo.log 2>&1"
-%binpath%/mpd.exe  --verbose -s 10 -R 10 -C %mptkpath%/path.xml -D %refbinpath%/dictionary/dico_test.xml %refsourcepath%/res_mix_58_stereo.wav.ref %currentpath%/book_mix_58_stereo.bin %currentpath%/reconst_mix_58_stereo.wav >& %currentpath%/log_mpd_mix_58_stereo.log
+%binpath%/mpd.exe  --verbose -s 10 -R 10 -C %mptkpath%/path.xml -D %refbinpath%/dictionary/dico_test.xml %refsourcepath%/res_mix_58_stereo.wav.ref %currentpath%/book_mix_58_stereo.bin %currentpath%/reconst_mix_58_stereo.wav > %currentpath%/log_mpd_mix_58_stereo.log 2>&1
 
 echo "--------------------------------------------------"
 echo " diff command to differentiate the log files      "
 echo "--------------------------------------------------"
 
-cd %homepath%
-echo "diff -I 'mix_58_stereo' -I 'contains' -I 'WARNING' %currentpath%/log_mpd_mix_58_stereo.log %refsourcepath%/log_mpd_mix_58_stereo.ref > /dev/null 2> /dev/null"
-diff -I 'mix_58_stereo' -I 'contains' -I 'WARNING' %currentpath%/log_mpd_mix_58_stereo.log %refsourcepath%/log_mpd_mix_58_stereo.ref > /dev/null 2> /dev/null
+echo "diff -I 'mix_58_stereo' -I 'contains' -I 'WARNING' %currentpath%/log_mpd_mix_58_stereo.log %refsourcepath%/log_mpd_mix_58_stereo.ref"
+diff -I 'mix_58_stereo' -I 'contains' -I 'WARNING' %currentpath%/log_mpd_mix_58_stereo.log %refsourcepath%/log_mpd_mix_58_stereo.ref
+exit 1
 if test $? -eq 0; then
   echo "  mpd -- test -- The current log is similar to the reference log. Test passed successfully."
 else
