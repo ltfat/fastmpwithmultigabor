@@ -56,12 +56,12 @@ echo "#       checking mpd         #"
 echo "#                            #"
 echo "=============================="
 
-if [ -f "$binpath/mpd" ]; then
-	echo "The executable file named mpd is located under : $binpath/mpd"
-else
+if exist "%binpath%/mpd.exe" (
+	echo "The executable file named mpd is located under : %binpath%/mpd.exe"
+) else (
 	echo "You should probably build mpd before running the tests..."
 	exit 1		
-fi
+)
 
 echo "--------------------------------------------------"
 echo " mpd command to create a book and a log           "
