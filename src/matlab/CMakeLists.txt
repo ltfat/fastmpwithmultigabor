@@ -356,32 +356,3 @@ INSTALL(FILES ${MPTK_MATLAB_OUTPUT_DIR}/REAME_MAT2MPTK
         DESTINATION ${MPTK_MATLAB_INSTALL_DIR})
 
 ENDIF(INSTALL_MAT2MPTK)  
-
-
-#
-# Add an executable to debug Matlab from an IDE
-# 
-#IF(MEX_COMPILER)
-#SET(MATLABROOT /Applications/MATLAB_R2008a)
-# The command line should be
-#SET(MATLAB_EXE_PATH ${MATLABROOT}/bin/maci/MATLAB)
-# Launched in the directory
-#SET(MATLAB_EXE_PWD ${MPTK_MATLAB_OUTPUT_DIR})
-# The environment variables on maci
-#MATLAB ${MATLABROOT}
-#AUTOMOUNT_MAP: private ->
-#ARCH: maci
-#XKEYSYMDB: ${MATLABROOT}/X11/app-defaults/XKeysymDB
-#XAPPLRESDIR: ${MATLABROOT}/X11/app-defaults
-#MATLABPATH: ${MATLABROOT}/toolbox/local
-#DYLD_LIBRARY_PATH: ${MATLABROOT}/sys/os/maci:${MATLABROOT}/bin/maci:${MATLABROOT}/extern/lib/maci
-#TOOLBOX: ${MATLABROOT}/toolbox
-#MPTK_CONFIG_FILENAME : ${MPTK_BINARY_DIR}/bin/path.xml
-
-# And the arguments, although the first one seems bugged
-#-display :0.0
-#-nodesktop
-
-# ADD_EXECUTABLE(debug_matlab IMPORTED) ?????
-
-# ENDIF(MEX_COMPILER)
