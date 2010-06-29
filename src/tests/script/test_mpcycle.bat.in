@@ -75,21 +75,21 @@ echo "%binpath%/mpd.exe  --verbose -s 10 -R 10 -C %mptkpath%/path.xml -D %refbin
 echo "--------------------------------------------------"
 echo " diff command to differentiate the log files      "
 echo "--------------------------------------------------"
-
-echo "diff -I 'mix_58_stereo' -I 'contains' -I 'WARNING' %currentpath%/log_mpd_mix_58_stereo.log %refsourcepath%/log_mpd_mix_58_stereo.ref"
-diff -I 'mix_58_stereo' -I 'contains' -I 'WARNING' %currentpath%/log_mpd_mix_58_stereo.log %refsourcepath%/log_mpd_mix_58_stereo.ref
-if test $? -eq 0; then
+ 
+echo "diff -I 'mix_58_stereo' -I 'contains' -I 'WARNING' %currentpath%/log_mpd_mix_58_stereo.log %refsourcepath%/log_mpd_mix_58_stereo.ref > NUL 2> NUL"
+diff -b -I 'mix_58_stereo' -I 'contains' -I 'WARNING' %currentpath%/log_mpd_mix_58_stereo.log %refsourcepath%/log_mpd_mix_58_stereo.ref > NUL 2> NUL
+if ERRORLEVEL== 0 (
   echo "  mpd -- test -- The current log is similar to the reference log. Test passed successfully."
-else
+) else (
   echo "  mpd -- test ERROR -- The current log differs from the reference log."
   echo "                       For details, execute:"
   echo "                         diff -I 'mix_58_stereo' -I 'contains' $currentpath/log_mpd_mix_58_stereo.log $refsourcepath/log_mpd_mix_58_stereo.ref"
   exit 1
-fi
+)
 
-#
-# check mpr
-#
+::#
+::# check mpr
+::#
 echo "=============================="
 echo "#                            #"
 echo "#       checking mpr         #"
@@ -115,7 +115,7 @@ echo "--------------------------------------------------"
 echo " diff command to differentiate the log files      "
 echo "--------------------------------------------------"
 
-diff -I 'mix_58_stereo' $currentpath/log_mpr_obt_mix_58_stereo.log $refsourcepath/log_mpr_mix_58_stereo.ref > /dev/null 2> /dev/null
+diff -b -I 'mix_58_stereo' $currentpath/log_mpr_obt_mix_58_stereo.log $refsourcepath/log_mpr_mix_58_stereo.ref > /dev/null 2> /dev/null
 if test $? -eq 0; then
   echo "  mpr -- test -- The current log is similar to the reference log. Test passed successfully."
 else
@@ -137,7 +137,7 @@ echo "--------------------------------------------------"
 echo " diff command to differentiate the log files      "
 echo "--------------------------------------------------"
 
-diff -I 'mix_58_stereo' $currentpath/log_mpr_ref_mix_58_stereo.log $refsourcepath/log_mpr_mix_58_stereo.ref > /dev/null 2> /dev/null
+diff -b -I 'mix_58_stereo' $currentpath/log_mpr_ref_mix_58_stereo.log $refsourcepath/log_mpr_mix_58_stereo.ref > /dev/null 2> /dev/null
 if test $? -eq 0; then
   echo "  mpr -- test -- The current log is similar to the reference log. Test passed successfully."
 else
@@ -175,7 +175,7 @@ echo "--------------------------------------------------"
 echo " diff command to differentiate the log files      "
 echo "--------------------------------------------------"
 
-diff -I 'WARNING' $currentpath/log_mpf_book_mix_58_stereo.bin.log $refsourcepath/log_mpf_book_mix_58_stereo.bin.ref > /dev/null 2> /dev/null
+diff -b -I 'WARNING' $currentpath/log_mpf_book_mix_58_stereo.bin.log $refsourcepath/log_mpf_book_mix_58_stereo.bin.ref > /dev/null 2> /dev/null
 if test $? -eq 0; then
   echo "  mpf -- test -- The current log is similar to the reference log. Test passed successfully."
 else
