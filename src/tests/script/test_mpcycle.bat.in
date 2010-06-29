@@ -76,9 +76,8 @@ echo "--------------------------------------------------"
 echo " diff command to differentiate the log files      "
 echo "--------------------------------------------------"
 
-echo "diff /I 'mix_58_stereo' /I 'contains' /I 'WARNING' %currentpath%/log_mpd_mix_58_stereo.log %refsourcepath%/log_mpd_mix_58_stereo.ref"
-diff /I 'mix_58_stereo' /I 'contains' /I 'WARNING' %currentpath%/log_mpd_mix_58_stereo.log %refsourcepath%/log_mpd_mix_58_stereo.ref
-exit 1
+echo "diff -I 'mix_58_stereo' -I 'contains' -I 'WARNING' %currentpath%/log_mpd_mix_58_stereo.log %refsourcepath%/log_mpd_mix_58_stereo.ref"
+diff -I 'mix_58_stereo' -I 'contains' -I 'WARNING' %currentpath%/log_mpd_mix_58_stereo.log %refsourcepath%/log_mpd_mix_58_stereo.ref
 if test $? -eq 0; then
   echo "  mpd -- test -- The current log is similar to the reference log. Test passed successfully."
 else
