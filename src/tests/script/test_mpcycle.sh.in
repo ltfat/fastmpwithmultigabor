@@ -140,7 +140,7 @@ if test $? -eq 0; then
 else
   echo "  mpr -- test ERROR -- The current log differs from the reference log."
   echo "                       For details, execute:"
-  echo "                         diff -I 'mix_58_stereo' @abs_top_builddir@/src/tests/current/log_mpr_ref_mix_58_stereo.log $refdir/ref/log_mpr_mix_58_stereo.ref"
+  echo "                         diff -I 'mix_58_stereo' $currentpath/log_mpr_ref_mix_58_stereo.log $refsourcepath/log_mpr_mix_58_stereo.ref"
   exit 1
 fi
 

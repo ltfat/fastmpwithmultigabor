@@ -76,14 +76,13 @@ echo "--------------------------------------------------"
 echo " diff command to differentiate the log files      "
 echo "--------------------------------------------------"
  
-echo "diff -I 'mix_58_stereo' -I 'contains' -I 'WARNING' %currentpath%/log_mpd_mix_58_stereo.log %refsourcepath%/log_mpd_mix_58_stereo.ref > NUL 2> NUL"
 diff -b -I 'mix_58_stereo' -I 'contains' -I 'WARNING' %currentpath%/log_mpd_mix_58_stereo.log %refsourcepath%/log_mpd_mix_58_stereo.ref > NUL 2> NUL
 if ERRORLEVEL== 0 (
   echo "  mpd -- test -- The current log is similar to the reference log. Test passed successfully."
 ) else (
   echo "  mpd -- test ERROR -- The current log differs from the reference log."
   echo "                       For details, execute:"
-  echo "                         diff -I 'mix_58_stereo' -I 'contains' $currentpath/log_mpd_mix_58_stereo.log $refsourcepath/log_mpd_mix_58_stereo.ref"
+  echo "                         diff -b -I 'mix_58_stereo' -I 'contains' %currentpath%/log_mpd_mix_58_stereo.log %refsourcepath%/log_mpd_mix_58_stereo.ref"
   exit 1
 )
 
@@ -96,91 +95,88 @@ echo "#       checking mpr         #"
 echo "#                            #"
 echo "=============================="
 
-if [ -f "$binpath/mpr" ]; then
-	echo "The executable file named mpr is located under : $binpath/mpr"
-else
+if exist "%binpath%/mpr.exe" (
+	echo "The executable file named mpr is located under : %binpath%/mpr.exe"
+) else (
 	echo "You should probably build mpr before running the tests..."
 	exit 1		
-fi
+)
 
 echo "--------------------------------------------------"
 echo " Rebuilding from the obtained book and residual   "
 echo "--------------------------------------------------"
 
-cmd="$binpath/mpr --verbose -C $mptkpath/path.xml $currentpath/book_mix_58_stereo.bin $currentpath/reconst_obt_mix_58_stereo.wav $refsourcepath/res_mix_58_stereo.wav.ref >& $currentpath/log_mpr_obt_mix_58_stereo.log;"
-echo $cmd
-eval $cmd
+echo "%binpath%/mpr.exe --verbose -C %mptkpath%/path.xml %currentpath%/book_mix_58_stereo.bin %currentpath%/reconst_obt_mix_58_stereo.wav %refsourcepath%/res_mix_58_stereo.wav.ref > %currentpath%/log_mpr_obt_mix_58_stereo.log 2>&1"
+%binpath%/mpr.exe --verbose -C %mptkpath%/path.xml %currentpath%/book_mix_58_stereo.bin %currentpath%/reconst_obt_mix_58_stereo.wav %refsourcepath%/res_mix_58_stereo.wav.ref > %currentpath%/log_mpr_obt_mix_58_stereo.log 2>&1
 
 echo "--------------------------------------------------"
 echo " diff command to differentiate the log files      "
 echo "--------------------------------------------------"
 
-diff -b -I 'mix_58_stereo' $currentpath/log_mpr_obt_mix_58_stereo.log $refsourcepath/log_mpr_mix_58_stereo.ref > /dev/null 2> /dev/null
-if test $? -eq 0; then
+diff -b -I 'mix_58_stereo' %currentpath%/log_mpr_obt_mix_58_stereo.log %refsourcepath%/log_mpr_mix_58_stereo.ref > NUL 2> NUL
+if ERRORLEVEL== 0 (
   echo "  mpr -- test -- The current log is similar to the reference log. Test passed successfully."
-else
+) else (
   echo "  mpr -- test ERROR -- The current log differs from the reference log."
   echo "                       For details, execute:"
-  echo "                         diff -I 'mix_58_stereo' $currentpath/log_mpr_obt_mix_58_stereo.log $refsourcepath/log_mpr_mix_58_stereo.ref"
+  echo "                         diff -b -I 'mix_58_stereo' %currentpath%/log_mpr_obt_mix_58_stereo.log %refsourcepath%/log_mpr_mix_58_stereo.ref"
   exit 1
-fi
+)
 
 echo "--------------------------------------------------"
 echo " Rebuilding from the reference book and residual  "
 echo "--------------------------------------------------"
 
-cmd="$binpath/mpr --verbose -C $mptkpath/path.xml $refsourcepath/book_mix_58_stereo.bin.ref $currentpath/reconst_ref_mix_58_stereo.wav $refsourcepath/res_mix_58_stereo.wav.ref >& $currentpath/log_mpr_ref_mix_58_stereo.log;"
-echo $cmd
-eval $cmd
+echo "%binpath%/mpr.exe --verbose -C %mptkpath%/path.xml %refsourcepath%/book_mix_58_stereo.bin.ref %currentpath%/reconst_ref_mix_58_stereo.wav %refsourcepath%/res_mix_58_stereo.wav.ref > %currentpath%/log_mpr_ref_mix_58_stereo.log 2>&1"
+%binpath%/mpr.exe --verbose -C %mptkpath%/path.xml %refsourcepath%/book_mix_58_stereo.bin.ref %currentpath%/reconst_ref_mix_58_stereo.wav %refsourcepath%/res_mix_58_stereo.wav.ref > %currentpath%/log_mpr_ref_mix_58_stereo.log 2>&1
 
 echo "--------------------------------------------------"
 echo " diff command to differentiate the log files      "
 echo "--------------------------------------------------"
 
-diff -b -I 'mix_58_stereo' $currentpath/log_mpr_ref_mix_58_stereo.log $refsourcepath/log_mpr_mix_58_stereo.ref > /dev/null 2> /dev/null
-if test $? -eq 0; then
+diff -b -I 'mix_58_stereo' %currentpath%/log_mpr_ref_mix_58_stereo.log %refsourcepath%/log_mpr_mix_58_stereo.ref > NUL 2> NUL
+if ERRORLEVEL== 0 (
   echo "  mpr -- test -- The current log is similar to the reference log. Test passed successfully."
-else
+) else (
   echo "  mpr -- test ERROR -- The current log differs from the reference log."
   echo "                       For details, execute:"
-  echo "                         diff -I 'mix_58_stereo' @abs_top_builddir@/src/tests/current/log_mpr_ref_mix_58_stereo.log $refdir/ref/log_mpr_mix_58_stereo.ref"
+  echo "                         diff -b -I 'mix_58_stereo' %currentpath%/log_mpr_ref_mix_58_stereo.log %refsourcepath%/log_mpr_mix_58_stereo.ref"
   exit 1
-fi
+)
 
-#
-# check mpf
-#
+::#
+::# check mpf
+::#
 echo "=============================="
 echo "#                            #"
 echo "#       checking mpf         #"
 echo "#                            #"
 echo "=============================="
 
-if [ -f "$binpath/mpf" ]; then
-	echo "The executable file named mpf is located under : $binpath/mpf"
-else
+if exist "%binpath%/mpf.exe" (
+	echo "The executable file named mpf is located under : %binpath%/mpf.exe"
+) else (
 	echo "You should probably build mpf before running the tests..."
 	exit 1		
-fi
+)
 
 echo "--------------------------------------------------"
 echo " Filtering the atoms contained in the book        "
 echo "--------------------------------------------------"
 
-cmd="$binpath/mpf -C $mptkpath/path.xml --Freq=[0:110] --len=[0:256] $currentpath/book_mix_58_stereo.bin >& $currentpath/log_mpf_book_mix_58_stereo.bin.log;"
-echo $cmd
-eval $cmd
+echo "%binpath%/mpf.exe -C %mptkpath%/path.xml --Freq=[0:110] --len=[0:256] %currentpath%/book_mix_58_stereo.bin > %currentpath%/log_mpf_book_mix_58_stereo.bin.log 2>&1"
+%binpath%/mpf.exe -C %mptkpath%/path.xml --Freq=[0:110] --len=[0:256] %currentpath%/book_mix_58_stereo.bin > %currentpath%/log_mpf_book_mix_58_stereo.bin.log 2>&1
 
 echo "--------------------------------------------------"
 echo " diff command to differentiate the log files      "
 echo "--------------------------------------------------"
 
-diff -b -I 'WARNING' $currentpath/log_mpf_book_mix_58_stereo.bin.log $refsourcepath/log_mpf_book_mix_58_stereo.bin.ref > /dev/null 2> /dev/null
-if test $? -eq 0; then
+diff -b -I 'WARNING' %currentpath%/log_mpf_book_mix_58_stereo.bin.log %refsourcepath%/log_mpf_book_mix_58_stereo.bin.ref > NUL 2> NUL
+if ERRORLEVEL== 0 (
   echo "  mpf -- test -- The current log is similar to the reference log. Test passed successfully."
-else
+) else (
   echo "  mpf -- test ERROR -- The current log differs from the reference log."
   echo "                       For details, execute:"
-  echo "                         diff $currentpath/log_mpf_book_mix_58_stereo.bin.log $refsourcepath/log_mpf_book_mix_58_stereo.bin.ref"
+  echo "                         diff -b %currentpath%/log_mpf_book_mix_58_stereo.bin.log %refsourcepath%/log_mpf_book_mix_58_stereo.bin.ref"
   exit 1
-fi
+)
