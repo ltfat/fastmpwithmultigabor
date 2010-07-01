@@ -102,6 +102,7 @@ int MP_Atom_c::read( FILE *fid, const char mode ) {
 
   const char* func = "MP_Atom_c::read(fid,mode)";
   unsigned long int nItem = 0;
+  unsigned long int ret = 0;
   char str[MP_MAX_STR_LEN];
   double fidAmp;
   MP_Chan_t i, iRead;
@@ -142,14 +143,18 @@ int MP_Atom_c::read( FILE *fid, const char mode ) {
   case MP_TEXT:
     /* Support */
     for ( i=0, nItem = 0; i<numChans; i++ ) {
-      fscanf( fid, "\t\t<support chan=\"%hu\">", &iRead );
-      nItem += fscanf( fid, "<p>%u</p><l>%u</l></support>\n",
-		       &(support[i].pos), &(support[i].len) );
-      if ( iRead != i ) {
-	mp_warning_msg( func, "Supports may be shuffled. "
-			"(Index \"%u\" read where \"%u\" was expected).\n",
-			iRead, i );
+      if (fscanf( fid, "\t\t<support chan=\"%hu\">", &iRead ) == 1)
+      {
+      	nItem += fscanf( fid, "<p>%u</p><l>%u</l></support>\n", &(support[i].pos), &(support[i].len) );
+      	if ( iRead != i ) 
+      	{
+			mp_warning_msg( func, "Supports may be shuffled. ""(Index \"%u\" read where \"%u\" was expected).\n", iRead, i );
+      	}
       }
+      else
+      {
+			mp_error_msg( func, "Cannot scan the channel number %i", numChans );
+      }     
     }
     /* Amp */
     for (i = 0; i<numChans; i++) {

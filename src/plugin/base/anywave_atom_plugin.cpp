@@ -534,12 +534,23 @@ bool MP_Anywave_Atom_Plugin_c::read_filename_txt( const char* line, const char* 
 
 bool MP_Anywave_Atom_Plugin_c::read_filename_bin( FILE* fid, char* outputStr)
 {
-
-  size_t numChar;
-  fread(&numChar, sizeof(unsigned long int), 1, fid );
-  fread(outputStr, sizeof(char), numChar, fid);
-  outputStr[numChar-1] = '\0';
-  return(true);
+	const char * func = "MP_Anywave_Atom_c::read_filename_bin";
+	size_t numChar;
+	size_t ret;	
+	ret = fread(&numChar, sizeof(unsigned long int), 1, fid );
+	if (ret != 1) 
+	{
+		mp_error_msg(func ,"Reading error. The file has not been reading correctly. Waited for 1 and get %i.\n", ret);
+		return(false);
+	}
+	ret = fread(outputStr, sizeof(char), numChar, fid);
+	if (ret != numChar) 
+	{
+		mp_error_msg(func ,"Reading error. The file has not been reading correctly. Waited for %i and get %i.\n", numChar, ret);
+		return(false);
+	}
+	outputStr[numChar-1] = '\0';
+	return(true);
 }
 
 
