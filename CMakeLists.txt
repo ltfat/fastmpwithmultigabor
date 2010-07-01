@@ -27,7 +27,7 @@ OPTION(BUILD_VERBOSE "Enable verbose option when compile (-v)." ON)
 # Allows MPTK Debug:
 OPTION(BUILD_DEBUG "Enable MPTK Debug mode." OFF)
 # Allows Matlab MEX files :
-OPTION(BUILD_MATLAB_MEX_FILES "Enable building Matlab MEX files." OFF)
+OPTION(BUILD_MATLAB_MEX_FILES "Enable building Matlab MEX files." ON)
 # Allows build python extension :
 OPTION(BUILD_PYTHON_FILES "Enable building python files." OFF)
 # Allows build experimental feature :
@@ -35,8 +35,6 @@ OPTION(BUILD_EXPERIMENTAL "Enable building experimental files." OFF)
 # Allows build experimental feature :
 OPTION(BUILD_MATLAB_MEX_FILES_EXPERIMENTAL "Enable building Matlab experimental MEX files." OFF)
 # Allows build RPM experimental feature :
-SET(BUILD_RPM OFF)
-#OPTION(BUILD_RPM "Allows build RPM experimental feature." OFF)
 IF(UNIX)
 OPTION(INSTALL_MAT2MPTK "Install Mat2MPTK toolkit" OFF)
 # Compilation of modules:
