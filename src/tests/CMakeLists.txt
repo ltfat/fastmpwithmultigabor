@@ -30,10 +30,13 @@ FOREACH(MPTK_SCRIPTS test_mpcycle)
 	ENDIF(NOT MPTK_SCRIPTS_FOUND)
 ENDFOREACH(MPTK_SCRIPTS)
 
+# Hide the variable MPTK_SCRIPTS_FOUND
+MARK_AS_ADVANCED(MPTK_SCRIPTS_FOUND)
+
+
 #------------------------------------------------
 #### Copy necessary files
 #------------------------------------------------
-
 SET(MPTK_ANYWAVE_TEST_TABLE_BIN ${MPTK_REFERENCE_PATH}/signal/anywave_table_data.bin)
 
 

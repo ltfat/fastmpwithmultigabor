@@ -102,7 +102,6 @@ int MP_Atom_c::read( FILE *fid, const char mode ) {
 
   const char* func = "MP_Atom_c::read(fid,mode)";
   unsigned long int nItem = 0;
-  unsigned long int ret = 0;
   char str[MP_MAX_STR_LEN];
   double fidAmp;
   MP_Chan_t i, iRead;

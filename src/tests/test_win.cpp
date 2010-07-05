@@ -222,38 +222,46 @@ int Test3(unsigned long int length,unsigned char windowType)
     return (-1);
   }
 
-  fid = fopen( filename, "w" );
-  fwrite( lwwin, sizeof(LW_Win_t), length, fid );
-  fclose(fid);
+	fid = fopen( filename, "w" );
+	if (fwrite( lwwin, sizeof(LW_Win_t), length, fid ) != length) {
+		printf("Error : Bad number of lines written with fwrite \n");
+		return (-1);
+	}
+	fclose(fid);
 
-  retval = make_window( out, length-1, windowType, optional);
-  printf("lw\t\tmplib\t\tdiff\n");
-  printf("%g\t\t%g\n",(double)lwwin[0],(double)0.0);
-  for (i= 0; i < length-1; i++) {
-    /*    out[i] -= lwwin[i+1];*/
-    if((double)lwwin[i+1]-(double)out[i]!=0) return(-1);
-    else printf("%g\t%g\t%g\n",(double)lwwin[i+1],(double)out[i],(double)lwwin[i+1]-(double)out[i]);
-  }
-  return (0);
+	retval = make_window( out, length-1, windowType, optional);
+	printf("lw\t\tmplib\t\tdiff\n");
+	printf("%g\t\t%g\n",(double)lwwin[0],(double)0.0);
+	for (i= 0; i < length-1; i++) 
+	{
+		/*    out[i] -= lwwin[i+1];*/
+		if((double)lwwin[i+1]-(double)out[i]!=0) 
+			return(-1);
+		else 
+			printf("%g\t%g\t%g\n",(double)lwwin[i+1],(double)out[i],(double)lwwin[i+1]-(double)out[i]);
+	}
+	return (0);
 }
 
 int Test4(void)
 {
-  Dsp_Win_t out[TEST_WIN_LENGTH];
-  unsigned long int retval;
-  FILE *fid;
+	Dsp_Win_t out[TEST_WIN_LENGTH];
+	unsigned long int retval;
+	FILE *fid;
 
-  printf("Test 4 : generate a more or less arbitrary window\n");
-  retval = make_window( out, TEST_WIN_LENGTH, DSP_FOF_WIN, 0.0 );
+	printf("Test 4 : generate a more or less arbitrary window\n");
+	retval = make_window( out, TEST_WIN_LENGTH, DSP_FOF_WIN, 0.0 );
 
-  fid = fopen( "window_test.out", "w" );
-  fwrite( out, sizeof(Dsp_Win_t), TEST_WIN_LENGTH, fid );
-  fclose(fid);
+	fid = fopen( "window_test.out", "w" );
+	if( fwrite( out, sizeof(Dsp_Win_t), TEST_WIN_LENGTH, fid ) != TEST_WIN_LENGTH) 
+	{
+		printf("Error : Bad number of lines written with fwrite \n");
+		return (-1);
+	}
+	fclose(fid);
 
-  printf("%d points output to window_test.out . Center location is [%lu].\n",
-	 TEST_WIN_LENGTH, retval );
-	 
- return (0);
+	printf("%d points output to window_test.out . Center location is [%lu].\n", TEST_WIN_LENGTH, retval );
+	return (0);
 }
 
 

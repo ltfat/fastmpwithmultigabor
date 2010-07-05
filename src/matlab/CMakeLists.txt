@@ -49,7 +49,7 @@ IF(BUILD_MATLAB_MEX_FILES OR BUILD_MATLAB_MEX_FILES_EXPERIMENTAL)
 	#  MATLAB_MEX_LIBRARY: path to libmex.lib
 	#  MATLAB_MX_LIBRARY:  path to libmx.lib
 	#  MATLAB_ENG_LIBRARY: path to libeng.lib
-	#  MEX_COMPILER
+	#  MATLAB_MEX_COMPILER
 	INCLUDE(${MPTK_SOURCE_DIR}/CMake/FindMatlab.cmake)
 
 ENDIF(BUILD_MATLAB_MEX_FILES OR BUILD_MATLAB_MEX_FILES_EXPERIMENTAL)
@@ -116,7 +116,7 @@ ENDIF(BUILD_MATLAB_MEX_FILES_EXPERIMENTAL)
 # ... and if possible!
 ############################################
 
-IF(BUILD_MATLAB_MEX_FILES AND MEX_COMPILER)   
+IF(BUILD_MATLAB_MEX_FILES AND MATLAB_MEX_COMPILER)   
 
 # mptk4matlab library:
 SET(MPTK4MATLAB_SOURCES
@@ -160,7 +160,7 @@ FOREACH(target getmptkinfo dictread dictwrite sigread sigwrite bookread bookwrit
    ADD_CUSTOM_COMMAND(
     OUTPUT ${MPTK_MATLAB_OUTPUT_DIR}/${target}.${MEX_EXTENSION}
     POST_BUILD
-    COMMAND   ${MEX_COMPILER} -v
+    COMMAND   ${MATLAB_MEX_COMPILER} -v
     ARGS      -O -DHAVE_FFTW3 -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${MPTK_SOURCE_DIR}/src/tinyxml/ -I/usr/include/ -I${MPTK_SOURCE_DIR} -I${MPTK_SOURCE_DIR}/src/libdsp_windows/ -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${FFTW3_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/ -I${MPTK_MATLAB_SRC_DIR}/classes/ -I${MPTK_MATLAB_SRC_DIR}/experimental/classes/ -I${MPTK_SOURCE_DIR}/src/plugin/base/ -I${MPTK_SOURCE_DIR}/src/plugin/contrib/lam/ -outdir ${MPTK_MATLAB_OUTPUT_DIR} ${MPTK_MATLAB_SRC_DIR}/${target}.cpp  -L${LIBRARY_OUTPUT_PATH} -lmptk -lmptk4matlab
    # FOR SAFETY, SHOULD USE FLAG -headerpad_max_install_names
    COMMAND   install_name_tool -change ARGS ${LIBRARY_OUTPUT_PATH}/libmptk4matlab.dylib libmptk4matlab.dylib ${MPTK_MATLAB_OUTPUT_DIR}/${target}.${MEX_EXTENSION}
@@ -172,14 +172,14 @@ FOREACH(target getmptkinfo dictread dictwrite sigread sigwrite bookread bookwrit
           ADD_CUSTOM_COMMAND(
           OUTPUT ${MPTK_MATLAB_OUTPUT_DIR}/${target}.${MEX_EXTENSION}
           POST_BUILD
-          COMMAND   ${MEX_COMPILER} -v -g
+          COMMAND   ${MATLAB_MEX_COMPILER} -v -g
           ARGS      -O -DHAVE_FFTW3 -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${MPTK_SOURCE_DIR}/src/tinyxml/ -I/usr/include/ -I${MPTK_SOURCE_DIR} -I${MPTK_SOURCE_DIR}/src/libdsp_windows/ -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${FFTW3_INCLUDE_DIR} -I${PTHREAD_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/ -I${MPTK_MATLAB_SRC_DIR}/classes/ -I${MPTK_MATLAB_SRC_DIR}/experimental/classes/ -I${MPTK_SOURCE_DIR}/src/plugin/base/ -I${MPTK_SOURCE_DIR}/src/plugin/contrib/lam/ -L${LIBRARY_OUTPUT_PATH} -L${MPTK_LIB_DIR} -outdir ${MPTK_MATLAB_OUTPUT_DIR} ${MPTK_MATLAB_SRC_DIR}/${target}.cpp -lmptk -lmptk4matlab
           COMMENT   "MEX")
       ELSE(BUILD_DEBUG)
           ADD_CUSTOM_COMMAND(
           OUTPUT ${MPTK_MATLAB_OUTPUT_DIR}/${target}.${MEX_EXTENSION}
           POST_BUILD
-          COMMAND   ${MEX_COMPILER} -v
+          COMMAND   ${MATLAB_MEX_COMPILER} -v
           ARGS      -O -DHAVE_FFTW3 -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${MPTK_SOURCE_DIR}/src/tinyxml/ -I/usr/include/ -I${MPTK_SOURCE_DIR} -I${MPTK_SOURCE_DIR}/src/libdsp_windows/ -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${FFTW3_INCLUDE_DIR} -I${PTHREAD_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/ -I${MPTK_MATLAB_SRC_DIR}/classes/ -I${MPTK_MATLAB_SRC_DIR}/experimental/classes/ -I${MPTK_SOURCE_DIR}/src/plugin/base/ -I${MPTK_SOURCE_DIR}/src/plugin/contrib/lam/ -L${LIBRARY_OUTPUT_PATH} -L${MPTK_LIB_DIR} -outdir ${MPTK_MATLAB_OUTPUT_DIR} ${MPTK_MATLAB_SRC_DIR}/${target}.cpp -lmptk -lmptk4matlab
           COMMENT   "MEX")
       ENDIF(BUILD_DEBUG)
@@ -242,11 +242,10 @@ ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
 # Install poor man's replacement to stable
 # MEX files, only if the MEX ones are not.
 ############################################
-ELSE(BUILD_MATLAB_MEX_FILES AND MEX_COMPILER)   
+ELSE(BUILD_MATLAB_MEX_FILES AND MATLAB_MEX_COMPILER)   
   # If no MEX compiler is found, or MEX files were not wanted just copy the scripts
   IF (BUILD_MATLAB_MEX_FILES)
-    MESSAGE("MEX compiler not found, please set the path to Mex compiler or Matlab Mex files will not be compiled" )
-    MESSAGE("Please note that on Microsoft Windows platform, only Visual Studio supports Matlab Mex compiler" )
+    MESSAGE("Error : Matlab MEX compiler is not found, please set the path to Mex compiler or Matlab Mex files will not be compiled" )
   ENDIF (BUILD_MATLAB_MEX_FILES)
 
   MESSAGE("Warning: Matlab scripts implementing 'poor man' versions of MEX-files will be installed, unless you set BUILD_MATLAB_MEX_FILES to ON.")
@@ -262,7 +261,7 @@ FOREACH(scriptfile  dictread.m dictwrite.m bookread.m bookwrite.m)
            DESTINATION ${MPTK_MATLAB_INSTALL_DIR})
 ENDFOREACH(scriptfile)
 
-ENDIF(BUILD_MATLAB_MEX_FILES AND MEX_COMPILER)   
+ENDIF(BUILD_MATLAB_MEX_FILES AND MATLAB_MEX_COMPILER)   
 
 ############################################
 #                  -4-
@@ -272,7 +271,7 @@ ENDIF(BUILD_MATLAB_MEX_FILES AND MEX_COMPILER)
 IF(BUILD_MATLAB_MEX_FILES_EXPERIMENTAL)
 
 # The MEX files and the files that depend on them ... if possible
-IF(MEX_COMPILER)
+IF(MATLAB_MEX_COMPILER)
 
 # List of mex files to be compiled
 FOREACH(target mextest)
@@ -290,7 +289,7 @@ FOREACH(target mextest)
    ADD_CUSTOM_COMMAND(
    OUTPUT ${MPTK_MATLAB_OUTPUT_DIR}/${target}.${MEX_EXTENSION}
    POST_BUILD
-   COMMAND   ${MEX_COMPILER} -v
+   COMMAND   ${MATLAB_MEX_COMPILER} -v
    ARGS      -O -DHAVE_FFTW3 -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${MPTK_SOURCE_DIR}/src/tinyxml/ -I/usr/include/ -I${MPTK_SOURCE_DIR} -I${MPTK_SOURCE_DIR}/src/libdsp_windows/ -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${MPTK_MATLAB_SRC_DIR}/experimental/classes/ -I${MPTK_MATLAB_SRC_DIR}/classes/ -I${FFTW3_INCLUDE_DIR} -I${PTHREAD_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/  -I${MPTK_SOURCE_DIR}/src/plugin/base/ -I${MPTK_SOURCE_DIR}/src/plugin/contrib/lam/ -outdir ${MPTK_MATLAB_OUTPUT_DIR} ${MPTK_MATLAB_SRC_DIR}/experimental/${target}.cpp  -L${LIBRARY_OUTPUT_PATH} -L${MPTK_LIB_DIR} -lmptk -lmptk4matlab
    COMMENT   "MEX")
 
@@ -315,9 +314,9 @@ CONFIGURE_FILE(${MPTK_MATLAB_SRC_DIR}/experimental/README ${MPTK_MATLAB_OUTPUT_D
                  COPYONLY) 
   INSTALL(FILES ${MPTK_MATLAB_OUTPUT_DIR}/README_EXP
           DESTINATION ${MPTK_MATLAB_INSTALL_DIR})
-ELSE(MEX_COMPILER) 
+ELSE(MATLAB_MEX_COMPILER) 
     MESSAGE("MEX compiler not found, please set the path to Mex compiler or Matlab Mex experimental files will not be compiled" )
-ENDIF(MEX_COMPILER)
+ENDIF(MATLAB_MEX_COMPILER)
 ENDIF(BUILD_MATLAB_MEX_FILES_EXPERIMENTAL)
 
 ############################################
