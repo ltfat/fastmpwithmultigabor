@@ -95,7 +95,7 @@ IF( CMAKE_CXX_COMPILER STREQUAL "cl")
 	# warnings. To suppress it, we add the _CRT_SECURE_NO_DEPRECATE preprocessor
 	# definition
 	IF(MSVC80 OR MSVC90)
-      ADD_DEFINITIONS("-D_CRT_SECURE_NO_DEPRECATE")
+      ADD_DEFINITIONS("-D_CRT_SECURE_NO_DEPRECATE -D_CRT_SECURE_NO_WARNINGS")
 	ENDIF(MSVC80 OR MSVC90)
 ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
 	# Case of other compiler/environment : tags depend on build mode (debug/release
