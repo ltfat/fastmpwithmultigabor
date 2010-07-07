@@ -66,8 +66,10 @@ bool MP_Dll_Manager_c::load_dll()
 				MP_Dll_Manager_c::get_dll((*dllVectorName)[k].c_str());
 				if ( last_error()==0 ) {
 					void (*c)(void) = NULL;
-			        mp_debug_msg( MP_DEBUG_CONSTRUCTION, func, "Trying to retrieve registry function.\n");
-					if (MP_Dll_Manager_c::get_symbol((void **)&c,"registry")) {
+					void *t=NULL;
+					mp_debug_msg( MP_DEBUG_CONSTRUCTION, func, "Trying to retrieve registry function.\n");
+					if (MP_Dll_Manager_c::get_symbol((void **)&t,"registry")) {
+						c=(void (*)(void)) t;
 						// test if plugin has the symbol "registry"
 						if (NULL!=c) {
 						  // Register the plugin in the concerned factory
