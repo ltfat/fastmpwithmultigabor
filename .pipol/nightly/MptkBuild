@@ -64,13 +64,13 @@ case $PIPOL_IMAGE in
 		/cygdrive/c/CMake\ $VERSION/bin/cmake.exe -DDASH_TESTING=ON -G "$PIPOL_WIN_COMPILER" ./../MPTK_Source
 
 		#Setting environment
-	    "$MSVC_PATH/Common7/Tools/vsvars32.bat"
+	    $MSVC_PATH/Common7/Tools/vsvars32.bat
 
 		#Cleaning the project
-		"$VCBUILD" /CLEAN
+		$VCBUILD /CLEAN
 
 		#Project build
-		"$VCBUILD" MPTK.sln "Release|Win32"
+		$VCBUILD MPTK.sln "Release|Win32"
 		
 		#CDASH submision
 		/cygdrive/c/CMake\ $VERSION/bin/ctest.exe -D "Nightly" 
