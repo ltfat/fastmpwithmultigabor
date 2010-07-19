@@ -55,37 +55,7 @@ case $PIPOL_IMAGE in
 			VERSION="2.6"
 		fi
 
-		#4) Setting Pipol environment variables depending the OS image 
-		case $PIPOL_IMAGE in
-			*windows-7*)
-			PIPOL_WIN_COMPILER="Visual Studio 10"
-			PIPOL_COMPILER_VERSION=10.0
-			SETENV_PATH="/cygdrive/c/Program Files (x86)/Microsoft Visual Studio $PIPOL_COMPILER_VERSION/Common7/Tools/vsvars32.bat"
-			BUILD_PATH="/cygdrive/c/Program Files (x86)/Microsoft Visual Studio $PIPOL_COMPILER_VERSION/Common7/IDE/devenv.com"
-			;;
-			*windows-server-2003*)
-			PIPOL_WIN_COMPILER="Visual Studio 8 2005"
-			PIPOL_COMPILER_VERSION=8
-			SETENV_PATH="/cygdrive/c/Program Files (x86)/Microsoft Visual Studio $PIPOL_COMPILER_VERSION/Common7/Tools/vsvars32.bat"
-			BUILD_PATH="/cygdrive/c/Program Files (x86)/Microsoft Visual Studio $PIPOL_COMPILER_VERSION/VC/vcpackages/vcbuild.exe"
-			;;
-			*windows-server-2008*)
-			PIPOL_WIN_COMPILER="Visual Studio 9 2008"
-			PIPOL_COMPILER_VERSION=9.0
-			SETENV_PATH="/cygdrive/c/Program Files (x86)/Microsoft Visual Studio $PIPOL_COMPILER_VERSION/Common7/Tools/vsvars32.bat"
-			BUILD_PATH="/cygdrive/c/Program Files (x86)/Microsoft Visual Studio $PIPOL_COMPILER_VERSION/VC/vcpackages/vcbuild.exe"
-			;;
-			*windows-xp*)
-			PIPOL_WIN_COMPILER="Visual Studio 8 2005"
-            PIPOL_COMPILER_VERSION=8
-			SETENV_PATH="/cygdrive/c/Program Files (x86)/Microsoft Visual Studio $PIPOL_COMPILER_VERSION/Common7/Tools/vsvars32.bat"
-			BUILD_PATH="/cygdrive/c/Program Files (x86)/Microsoft Visual Studio $PIPOL_COMPILER_VERSION/VC/vcpackages/vcbuild.exe"
-			;;
-			*)
-			;;
-		esac
-		
-		#5) Cleaning the projet
+		#4) Cleaning the projet
 		rm -Rf ./MPTK_Build
 		mkdir MPTK_Build 
 		cd MPTK_Build
@@ -94,13 +64,13 @@ case $PIPOL_IMAGE in
 		/cygdrive/c/CMake\ $VERSION/bin/cmake.exe -DDASH_TESTING=ON -G "$PIPOL_WIN_COMPILER" ./../MPTK_Source
 
 		#Setting environment
-		SETENV_PATH
+	    "$MSVC_PATH/Common7/Tools/vsvars32.bat"
 
 		#Cleaning the project
-		BUILD_PATH /CLEAN
+		"$VCBUILD" /CLEAN
 
 		#Project build
-		BUILD_PATH MPTK.sln "Release|Win32"
+		"$VCBUILD" MPTK.sln "Release|Win32"
 		
 		#CDASH submision
 		/cygdrive/c/CMake\ $VERSION/bin/ctest.exe -D "Nightly" 
