@@ -70,7 +70,7 @@ case $PIPOL_IMAGE in
 		"$VCBUILD" MPTK.sln /Clean
 
 		#Project build
-		"$VCBUILD" MPTK.sln "Release|Win32"
+		"$VCBUILD" MPTK.sln /Build "Release|Win32"
 		
 		#CDASH submision
 		/cygdrive/c/CMake\ $VERSION/bin/ctest.exe -D "Nightly" 
