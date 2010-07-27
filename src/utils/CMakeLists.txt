@@ -24,7 +24,6 @@ ENDIF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
 #------------------------------------------------
 # Build getopt library
 #------------------------------------------------
-IF(WIN32)
 	SET(GETOPT_SOURCES
 		${UTILS_SOURCE_DIR}/getopt.c
 	    	${UTILS_SOURCE_DIR}/getopt1.c
@@ -34,7 +33,7 @@ IF(WIN32)
 		COMPILE_FLAGS "${EXECUTABLE_C_COMPILE_FLAGS}"
 		PREFIX ""
 		OUTPUT_NAME "libgetopt" )
-ENDIF(WIN32)
+
 #------------------------------------------------
 # Build main executables      
 #------------------------------------------------
@@ -44,11 +43,7 @@ FOREACH(target mpd mpd_demix mpr mpf mpcat mpview)
     		${MPTK_BINARY_DIR}/src/libmptk/mptk.h )
 	ADD_EXECUTABLE(${target} ${${target}_EXE_SOURCES})
 	SET_TARGET_PROPERTIES(${target} PROPERTIES COMPILE_FLAGS "${EXECUTABLE_CXX_COMPILE_FLAGS}")
-	IF(WIN32)
 		TARGET_LINK_LIBRARIES(${target} mptk dsp_windows getopt)
-	ELSE(WIN32)
-		TARGET_LINK_LIBRARIES(${target} mptk dsp_windows)
-	ENDIF(WIN32)
 	INSTALL(
 		TARGETS ${target}
 		RUNTIME DESTINATION bin)
@@ -65,11 +60,7 @@ IF(BUILD_EXPERIMENTAL)
 			${MPTK_BINARY_DIR}/src/libmptk/mptk.h)
 		ADD_EXECUTABLE(${target} ${${target}_EXE_SOURCES})
 		SET_TARGET_PROPERTIES(${target} PROPERTIES COMPILE_FLAGS "${EXECUTABLE_CXX_COMPILE_FLAGS}")
-		IF(WIN32)
 			TARGET_LINK_LIBRARIES(${target} mptk dsp_windows getopt ${PTHREAD_LIBRARY_FILE} ${SNDFILE_LIBRARY_FILE} ${FFTW3_LIBRARY_FILE})
-		ELSE(WIN32)
-			TARGET_LINK_LIBRARIES(${target} mptk dsp_windows ${PTHREAD_LIBRARY_FILE} ${SNDFILE_LIBRARY_FILE} ${FFTW3_LIBRARY_FILE})
-		ENDIF(WIN32)
 	ENDFOREACH(target)
 ENDIF(BUILD_EXPERIMENTAL)
 
