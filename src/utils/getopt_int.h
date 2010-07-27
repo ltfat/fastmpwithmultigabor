@@ -20,7 +20,7 @@
 #ifndef _GETOPT_INT_H
 #define _GETOPT_INT_H	1
 
-extern int _getopt_internal (int ___argc, char **___argv,
+extern int _getopt_internal (int ___argc, char * const *___argv,
 			     const char *__shortopts,
 		             const struct option *__longopts, int *__longind,
 			     int __long_only, int __posixly_correct);
@@ -111,7 +111,7 @@ struct _getopt_data
    default values and to clear the initialization flag.  */
 #define _GETOPT_DATA_INITIALIZER	{ 1, 1 }
 
-extern int _getopt_internal_r (int ___argc, char **___argv,
+extern int _getopt_internal_r (int ___argc, char * const *___argv,
 			       const char *__shortopts,
 			       const struct option *__longopts, int *__longind,
 			       int __long_only, int __posixly_correct,

@@ -250,7 +250,7 @@ exchange (char **argv, struct _getopt_data *d)
 /* Initialize the internal data when the first call is made.  */
 
 static const char *
-_getopt_initialize (int argc, char **argv, const char *optstring,
+_getopt_initialize (int argc, char * const *argv, const char *optstring,
 		    int posixly_correct, struct _getopt_data *d)
 {
   /* Start processing options with ARGV-element 1 (since ARGV-element 0
@@ -369,7 +369,7 @@ _getopt_initialize (int argc, char **argv, const char *optstring,
    environment variable were set.  */
 
 int
-_getopt_internal_r (int argc, char **argv, const char *optstring,
+_getopt_internal_r (int argc, char * const *argv, const char *optstring,
 		    const struct option *longopts, int *longind,
 		    int long_only, int posixly_correct, struct _getopt_data *d)
 {
@@ -1135,7 +1135,7 @@ _getopt_internal_r (int argc, char **argv, const char *optstring,
 }
 
 int
-_getopt_internal (int argc, char **argv, const char *optstring,
+_getopt_internal (int argc, char * const *argv, const char *optstring,
 		  const struct option *longopts, int *longind,
 		  int long_only, int posixly_correct)
 {
@@ -1165,7 +1165,7 @@ enum { POSIXLY_CORRECT = 1 };
 int
 getopt (int argc, char *const *argv, const char *optstring)
 {
-  return _getopt_internal (argc, (char **) argv, optstring, NULL, NULL, 0,
+  return _getopt_internal (argc, argv, optstring, NULL, NULL, 0,
 			   POSIXLY_CORRECT);
 }
 
