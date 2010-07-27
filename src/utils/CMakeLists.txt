@@ -24,9 +24,6 @@ ENDIF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
 #------------------------------------------------
 # Build getopt library
 #------------------------------------------------
-# Construct getopt.h library
-CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/utils/getopt.in.h ${MPTK_SOURCE_DIR}/src/utils/getopt.h)
-
 SET(GETOPT_SOURCES
 	${UTILS_SOURCE_DIR}/getopt.c
     	${UTILS_SOURCE_DIR}/getopt1.c
