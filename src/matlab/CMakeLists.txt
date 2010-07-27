@@ -244,9 +244,6 @@ ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
 ############################################
 ELSE(BUILD_MATLAB_MEX_FILES AND MATLAB_MEX_COMPILER)   
   # If no MEX compiler is found, or MEX files were not wanted just copy the scripts
-  IF (BUILD_MATLAB_MEX_FILES)
-    MESSAGE("Error : Matlab MEX compiler is not found, please set the path to Mex compiler or Matlab Mex files will not be compiled" )
-  ENDIF (BUILD_MATLAB_MEX_FILES)
 
   MESSAGE("Warning: Matlab scripts implementing 'poor man' versions of MEX-files will be installed, unless you set BUILD_MATLAB_MEX_FILES to ON.")
   MESSAGE("Warning: They may not be maintained and compatible with evolving MPTK data formats.")
