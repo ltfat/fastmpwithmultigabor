@@ -90,7 +90,7 @@ class atomGroup {
 
   /** OTHER METHODS */
   //! Allocate Atom matlab memory for each parameters
-  void allocParams(unsigned long int nA,unsigned int nC);            
+  void allocParams(unsigned long int nA,MP_Atom_c*);
 
   //! Read an atom and store values in params mxArrays
   void append(MP_Atom_c *atom);

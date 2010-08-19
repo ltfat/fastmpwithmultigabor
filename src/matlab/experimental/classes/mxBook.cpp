@@ -59,52 +59,55 @@ atomGroup::~atomGroup()
 /** OTHER MEMBER FUNCTIONS */
 
 //! Allocate Atom matlab memory for each parameters
-void atomGroup::allocParams(unsigned long int nA,unsigned int nC) {
+void atomGroup::allocParams(unsigned long int nA, MP_Atom_c* example) {
   // Create param container according to atom type
   // Default params Fieds
   //( OK for sType=="nyquist" || sType=="constant" || sType=="dirac" )
+  MP_Chan_t nC = example->numChans;
+
   params["amp"] = mxCreateDoubleMatrix(nA, nC, mxREAL);
   params["pos"] = mxCreateDoubleMatrix(nA, nC, mxREAL);
   params["len"] = mxCreateDoubleMatrix(nA, nC, mxREAL);
                 
   // Add atom specific field to structure
   // Anywave atoms
-  if (type=="anywave") {
-    params["anywaveIdx"] = mxCreateDoubleMatrix(nA,1, mxREAL);   //! BAD VALUE TO FIX
-    params["tableIdx"] = mxCreateDoubleMatrix(nA, 1, mxREAL);     //! BAD VALUE TO FIX
+  if(example->has_field(MP_ANYWAVE_IDX_PROP))
+	  params["anywaveIdx"] = mxCreateDoubleMatrix(nA,1, mxREAL);   //! BAD VALUE TO FIX
+  if(example->has_field(MP_TABLE_IDX_PROP))
+	  params["tableIdx"] = mxCreateDoubleMatrix(nA, 1, mxREAL);     //! BAD VALUE TO FIX
  //   params["anywaveTable"] = mxCreateDoubleMatrix(nA, 1, mxREAL); //! BAD VALUE TO FIX
-  }
   // Anywave hilbert atoms
-  else if (type=="anywavehilbert") {
-    params["anywaveIdx"] = mxCreateDoubleMatrix(nA,1, mxREAL);   //! BAD VALUE TO FIX
-    params["tableIdx"] = mxCreateDoubleMatrix(nA, 1, mxREAL);     //! BAD VALUE TO FIX
  //   params["anywaveTable"] = mxCreateDoubleMatrix(nA, 1, mxREAL); //! BAD VALUE TO FIX
+  if(example->has_field(MP_REAL_TABLE_IDX_PROP))
     params["realTableIdx"] = mxCreateDoubleMatrix(nA, 1, mxREAL);       //! BAD VALUE TO FIX
  //   params["anywaveRealTable"] = mxCreateDoubleMatrix(nA, 1, mxREAL);   //! BAD VALUE TO FIX
+  if(example->has_field(MP_HILBERT_TABLE_IDX_PROP))
     params["hilbertTableIdx"] = mxCreateDoubleMatrix(nA, 1, mxREAL);    //! BAD VALUE TO FIX
  //   params["anywaveHilbertTable"] = mxCreateDoubleMatrix(nA,1, mxREAL); //! BAD VALUE TO FIX
-    params["realPart"] = mxCreateDoubleMatrix(nA, nC, mxREAL);           //! BAD VALUE TO FIX
+  if(example->has_field(MP_REAL_PART_PROP))
+	  params["realPart"] = mxCreateDoubleMatrix(nA, nC, mxREAL);           //! BAD VALUE TO FIX
+  if(example->has_field(MP_HILBERT_PART_PROP))
     params["hilbertPart"] = mxCreateDoubleMatrix(nA, nC, mxREAL);        //! BAD VALUE TO FIX
-  }
+
   // Atoms that use a analysis window
-  else if (type=="mdct" || type=="mdst" || type=="gabor" || type=="mclt" || type=="harmonic") {
+  if(example->has_field(MP_FREQ_PROP))
     params["freq"] = mxCreateDoubleMatrix(nA, 1, mxREAL);
+  if(example->has_field(MP_WINDOW_TYPE_PROP))
     params["windowtype"] = mxCreateDoubleMatrix(nA, 1, mxREAL);
+  if(example->has_field(MP_WINDOW_OPTION_PROP))
     params["windowoption"] = mxCreateDoubleMatrix(nA, 1, mxREAL);
     // Chirped atoms
-    if (type=="gabor" || type=="mclt" || type=="harmonic") {
-      params["chirp"] = mxCreateDoubleMatrix(nA, 1, mxREAL);
-      params["phase"] = mxCreateDoubleMatrix(nA, nC, mxREAL);
+  if(example->has_field(MP_CHIRP_PROP))
+    params["chirp"] = mxCreateDoubleMatrix(nA, 1, mxREAL);
+  if(example->has_field(MP_PHASE_PROP))
+    params["phase"] = mxCreateDoubleMatrix(nA, nC, mxREAL);
       // Harmonic atoms
-      if (type=="harmonic") {
+  if(example->has_field(MP_NUMPARTIALS_PROP))
 	params["numPartials"] = mxCreateDoubleMatrix(nA, 1, mxREAL);
 	// The following parameters can only be allocated when reading for the first time numPartials ... 
 	//params["harmonicity"] = mxCreateDoubleMatrix(nA, nC, mxREAL);
 	//params["partialAmp"] = mxCreateDoubleMatrix(nA, nC, mxREAL);
 	//params["partialPhase"] = mxCreateDoubleMatrix(nA, nC, mxREAL);
-      }
-    }
-  }
 }
             
 //! Read an atom and store values in params mxArrays
@@ -583,6 +586,8 @@ mxArray *mp_create_mxBook_from_book(MP_Book_c *book) {
 	// Some declarations
 	map <string, atomGroup *> atomStats;       //! Map <atom type , nb of occurence>
 	map <string, atomGroup *>::iterator miter; //! and a iterator on it
+	map <string, MP_Atom_c *> firstOc;       //! Map <atom type , first occurence>
+	map <string, MP_Atom_c *>::iterator fiter; //! and a iterator on it
 	mxArray *mxAtom;
 	unsigned long int n;
 
@@ -596,6 +601,7 @@ mxArray *mp_create_mxBook_from_book(MP_Book_c *book) {
 		if ( atomStats.find(aType) == atomStats.end() ) {
 			mp_debug_msg(MP_DEBUG_ABUNDANT,func,"Registering new atom type [%s]\n",aType.c_str());
 			atomStats[aType] = new atomGroup(aType,book->numChans);
+			firstOc[aType] = book->atom[n];
 		}
         atomStats[aType]->nAtom++; //! Increment atom count 
 		//! Fill book index info for this atom
@@ -625,10 +631,10 @@ mxArray *mp_create_mxBook_from_book(MP_Book_c *book) {
 	/** Allocate structure params for the different type of atoms
 	 *  and set the correct type index */
 	unsigned int t = 0;  //! Index of type used for atomGroup constructors
-	for ( miter = atomStats.begin(); miter != atomStats.end(); ++miter )
+	for ( miter = atomStats.begin(), fiter = firstOc.begin(); miter != atomStats.end(); ++miter, ++fiter )
     {
 		mp_debug_msg(MP_DEBUG_SPARSE,func," - atom [%s] :  %ld occurences\n",miter->first.c_str(), miter->second->nAtom);
-		miter->second->allocParams(miter->second->nAtom, book->numChans);
+		miter->second->allocParams(miter->second->nAtom, fiter->second);
 		miter->second->typeIdx = t;  //! Set type index according to the map iterator
 		t++; //! increment type index
     }
