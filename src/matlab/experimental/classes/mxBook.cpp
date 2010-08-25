@@ -60,137 +60,101 @@ atomGroup::~atomGroup()
 
 //! Allocate Atom matlab memory for each parameters
 void atomGroup::allocParams(unsigned long int nA, MP_Atom_c* example) {
-  // Create param container according to atom type
-  // Default params Fieds
-  //( OK for sType=="nyquist" || sType=="constant" || sType=="dirac" )
-  MP_Chan_t nC = example->numChans;
+	int 		iIndexMono = 0;
+	int 		iIndexMulti = 0;
+	// Create param container according to atom type
+	// Default params Fieds
+	MP_Chan_t nC = example->numChans;
 
-  params["amp"] = mxCreateDoubleMatrix(nA, nC, mxREAL);
-  params["pos"] = mxCreateDoubleMatrix(nA, nC, mxREAL);
-  params["len"] = mxCreateDoubleMatrix(nA, nC, mxREAL);
-                
-  // Add atom specific field to structure
-  // Anywave atoms
-  if(example->has_field(MP_ANYWAVE_IDX_PROP))
-	  params["anywaveIdx"] = mxCreateDoubleMatrix(nA,1, mxREAL);   //! BAD VALUE TO FIX
-  if(example->has_field(MP_TABLE_IDX_PROP))
-	  params["tableIdx"] = mxCreateDoubleMatrix(nA, 1, mxREAL);     //! BAD VALUE TO FIX
- //   params["anywaveTable"] = mxCreateDoubleMatrix(nA, 1, mxREAL); //! BAD VALUE TO FIX
-  // Anywave hilbert atoms
- //   params["anywaveTable"] = mxCreateDoubleMatrix(nA, 1, mxREAL); //! BAD VALUE TO FIX
-  if(example->has_field(MP_REAL_TABLE_IDX_PROP))
-    params["realTableIdx"] = mxCreateDoubleMatrix(nA, 1, mxREAL);       //! BAD VALUE TO FIX
- //   params["anywaveRealTable"] = mxCreateDoubleMatrix(nA, 1, mxREAL);   //! BAD VALUE TO FIX
-  if(example->has_field(MP_HILBERT_TABLE_IDX_PROP))
-    params["hilbertTableIdx"] = mxCreateDoubleMatrix(nA, 1, mxREAL);    //! BAD VALUE TO FIX
- //   params["anywaveHilbertTable"] = mxCreateDoubleMatrix(nA,1, mxREAL); //! BAD VALUE TO FIX
-  if(example->has_field(MP_REAL_PART_PROP))
-	  params["realPart"] = mxCreateDoubleMatrix(nA, nC, mxREAL);           //! BAD VALUE TO FIX
-  if(example->has_field(MP_HILBERT_PART_PROP))
-    params["hilbertPart"] = mxCreateDoubleMatrix(nA, nC, mxREAL);        //! BAD VALUE TO FIX
-
-  // Atoms that use a analysis window
-  if(example->has_field(MP_FREQ_PROP))
-    params["freq"] = mxCreateDoubleMatrix(nA, 1, mxREAL);
-  if(example->has_field(MP_WINDOW_TYPE_PROP))
-    params["windowtype"] = mxCreateDoubleMatrix(nA, 1, mxREAL);
-  if(example->has_field(MP_WINDOW_OPTION_PROP))
-    params["windowoption"] = mxCreateDoubleMatrix(nA, 1, mxREAL);
-    // Chirped atoms
-  if(example->has_field(MP_CHIRP_PROP))
-    params["chirp"] = mxCreateDoubleMatrix(nA, 1, mxREAL);
-  if(example->has_field(MP_PHASE_PROP))
-    params["phase"] = mxCreateDoubleMatrix(nA, nC, mxREAL);
-      // Harmonic atoms
-  if(example->has_field(MP_NUMPARTIALS_PROP))
-	params["numPartials"] = mxCreateDoubleMatrix(nA, 1, mxREAL);
-	// The following parameters can only be allocated when reading for the first time numPartials ... 
-	//params["harmonicity"] = mxCreateDoubleMatrix(nA, nC, mxREAL);
-	//params["partialAmp"] = mxCreateDoubleMatrix(nA, nC, mxREAL);
-	//params["partialPhase"] = mxCreateDoubleMatrix(nA, nC, mxREAL);
+	// Multichannels loop
+	for(iIndexMulti = MP_NUM_MULTI_BEGININDEX_PROPS; iIndexMulti < MP_NUM_MULTI_BEGININDEX_PROPS + MP_NUM_MULTI_PROPS; iIndexMulti++)
+	{
+		if(example->has_field(iIndexMulti))
+			params[atomMultiField[iIndexMulti - MP_NUM_MULTI_BEGININDEX_PROPS]] = mxCreateDoubleMatrix(nA, nC, mxREAL);
+	}
+	// Monochannels loop
+	for(iIndexMono = MP_NUM_MONO_BEGININDEX_PROPS; iIndexMono < MP_NUM_MONO_BEGININDEX_PROPS + MP_NUM_MONO_PROPS; iIndexMono++)
+	{
+		if(example->has_field(iIndexMono))
+			params[atomMonoField[iIndexMono - MP_NUM_MONO_BEGININDEX_PROPS]] = mxCreateDoubleMatrix(nA, 1, mxREAL);
+	}
 }
             
 //! Read an atom and store values in params mxArrays
 void atomGroup::append(MP_Atom_c *atom) {
-  unsigned int c,h,nP=0;
-  const char * func = "atomGroup:append";  
-  mp_debug_msg(MP_DEBUG_FUNC_ENTER,func,"entering %s\n",type.c_str());
-  /* CHANNEL INDEPENDENT PARAMETERS */
-  /* ATOM Specific parameters */
-  // Anywave atoms
-  if (type=="anywave") {
-    //MP_Anywave_Atom_Plugin_c * catom = (MP_Anywave_Atom_Plugin_c *) atom;
-    *(mxGetPr( params["anywaveIdx"]) + curIdx ) = (double) atom->get_field(MP_ANYWAVE_IDX_PROP,0);
-    *(mxGetPr( params["tableIdx"]) + curIdx ) = (double) atom->get_field(MP_TABLE_IDX_PROP,0);
-  //  *(mxGetPr( params["anywaveTable"]) + curIdx ) = (double) 0.0; //! FAKE VALUE - NOT DONE
-  }
-  // Anywave hilbert atoms
-  else if (type=="anywavehilbert") {
-	//MP_Atom_c *catom = atom;
-    MP_Anywave_Hilbert_Atom_Plugin_c * catom = (MP_Anywave_Hilbert_Atom_Plugin_c *) atom;
-    *(mxGetPr( params["anywaveIdx"]) + curIdx ) = (double) catom->get_field(MP_ANYWAVE_IDX_PROP,0);
-    *(mxGetPr( params["tableIdx"]) + curIdx ) = (double) catom->get_field(MP_TABLE_IDX_PROP,0);
-  //  *(mxGetPr( params["anywaveTable"]) + curIdx ) = (double) 0.0; //! FAKE VALUE - NOT DONE
-    *(mxGetPr( params["realTableIdx"]) + curIdx ) = (double) catom->get_field(MP_REAL_TABLE_IDX_PROP,0);
-//    *(mxGetPr( params["anywaveRealTable"]) + curIdx ) = (double) 0.0;    //! FAKE VALUE - NOT DONE
-    *(mxGetPr( params["hilbertTableIdx"]) + curIdx ) = (double) catom->get_field(MP_HILBERT_TABLE_IDX_PROP,0);
-//    *(mxGetPr( params["anywaveHilbertTable"]) + curIdx ) = (double) 0.0; //! FAKE VALUE - NOT DONE
-  }
-  // Atoms that use an analysis window
-  else if (type=="mdct" || type=="mdst" || type=="gabor" || type=="mclt" || type=="harmonic") {
-    *(mxGetPr( params["freq"]) + curIdx ) = (double) atom->get_field(MP_FREQ_PROP,0);
-    *(mxGetPr( params["windowtype"]) + curIdx ) = (double) atom->get_field(MP_WINDOW_TYPE_PROP,0);
-    *(mxGetPr( params["windowoption"]) + curIdx ) = (double) atom->get_field(MP_WINDOW_OPTION_PROP,0);
-    // Atoms that can be chirped
-    if (type=="gabor" || type=="mclt" || type=="harmonic") {
-      *(mxGetPr( params["chirp"]) + curIdx ) = (double) atom->get_field(MP_CHIRP_PROP,0);
-      // Harmonic atoms
-      if (type=="harmonic") {
-		nP = (unsigned int) atom->get_field(MP_NUMPARTIALS_PROP,0);
-		*(mxGetPr( params["numPartials"]) + curIdx ) = (double) nP;
-		/*Allocate params field with numPartials if necessary */
-		if (params.find("harmonicity") == params.end()) {
-			params["harmonicity"] = mxCreateDoubleMatrix(nAtom, nP, mxREAL);
-			mwSize dims[3] = {nAtom,nP,nChannel};
-			params["partialAmp"] = mxCreateNumericArray(3, dims, mxDOUBLE_CLASS, mxREAL);   //! channel dependent
-			params["partialPhase"] = mxCreateNumericArray(3, dims, mxDOUBLE_CLASS, mxREAL); //! channel dependent
+	unsigned int iIndexChannel = 0,iIndex = 0,iNumPartial = 0, iIndexMono = 0, iIndexMulti = 0, iIndexOthers = 0;
+	const char * func = "atomGroup:append";
+	mp_debug_msg(MP_DEBUG_FUNC_ENTER,func,"entering %s\n",type.c_str());
+
+	// MonoChannels
+	for(iIndexMono = MP_NUM_MONO_BEGININDEX_PROPS; iIndexMono < MP_NUM_MONO_BEGININDEX_PROPS + MP_NUM_MONO_PROPS; iIndexMono++)
+	{
+		if(atom->has_field(iIndexMono))
+		{
+			if(iIndexMono == MP_NUMPARTIALS_PROP)
+			{
+				iNumPartial = (unsigned int) atom->get_field(iIndexMono,0);
+				*(mxGetPr( params[atomMonoField[iIndexMono - MP_NUM_MONO_BEGININDEX_PROPS]]) + curIdx ) = (double) iNumPartial;
+			}
+			else
+				*(mxGetPr( params[atomMonoField[iIndexMono - MP_NUM_MONO_BEGININDEX_PROPS]]) + curIdx ) = (double) atom->get_field(iIndexMono,0);
 		}
-		// Read harmonicity values
-		for (h=0;h<nP;h++) {
-			*( mxGetPr(params["harmonicity"]) + h*nAtom + curIdx ) = (double) atom->get_field(MP_HARMONICITY_PROP,h);
-		} // End loop on harmonicity values
-      } // End if(type=="harmonic")
-    } // End if(type=="gabor" || type=="mclt" || type=="harmonic")
-  } // End if (type=="mdct" || type=="mdst" || type=="gabor" || type=="mclt" || type=="harmonic")
-                                        
-  /* CHANNEL DEPENDENT PARAMETERS */
-  for (c=0;c<nChannel;c++) {
-    /* ATOM Common parameters */
-    *(mxGetPr( params["amp"]) + c*nAtom + curIdx ) = (double) atom->amp[c];
-    *(mxGetPr( params["pos"]) + c*nAtom + curIdx ) = (double) atom->support[c].pos;
-    *(mxGetPr( params["len"]) + c*nAtom + curIdx ) = (double) atom->support[c].len;
-    /* ATOM Specific parameters */
-    if (type=="anywavehilbert") {
- 	//MP_Atom_c *catom = atom;
-    MP_Anywave_Hilbert_Atom_Plugin_c * catom = (MP_Anywave_Hilbert_Atom_Plugin_c *) atom;
-     *(mxGetPr( params["realPart"]) + c*nAtom + curIdx ) = (double) catom->get_field(MP_REAL_PART_PROP,c);
-      *(mxGetPr( params["hilbertPart"]) + c*nAtom + curIdx ) = (double) catom->get_field(MP_HILBERT_PART_PROP,c);
-    }
-    // Atoms that have phase information
-    // WAS // if (type=="mdct" || type=="mdst" || type=="gabor" || type=="mclt" || type=="harmonic") {
-    else if (type=="gabor" || type=="mclt" || type=="harmonic") {
-      *(mxGetPr( params["phase"]) + c*nAtom + curIdx ) = (double) atom->get_field(MP_PHASE_PROP,c);
-      // Harmonic atoms
-      if (type=="harmonic") {
-	// Read Partial amp/phase info
-	for (h=0;h<nP;h++) {
-	  /* !! CHECK THESE VALUES */    *(mxGetPr( params["partialAmp"]) + c*(nAtom*nP) + h*nAtom + curIdx ) = (double) atom->get_field(MP_PARTIAL_AMP_PROP,h*nChannel+c);
-	  /* !! CHECK THESE VALUES */    *(mxGetPr( params["partialPhase"])+ c*(nAtom*nP) + h*nAtom + curIdx ) = (double) atom->get_field(MP_PARTIAL_PHASE_PROP,h*nChannel+c);
 	}
-      }
-    }
-  }          
-  curIdx++; //! Go to next index
+
+	//Harmonicity which allocate params field with numPartials if necessary
+	if (params.find(atomOthersField[MP_HARMONICITY_PROP - MP_NUM_OTHERS_BEGININDEX_PROPS]) == params.end())
+	{
+		if(atom->has_field(MP_HARMONICITY_PROP))
+			params[atomOthersField[MP_HARMONICITY_PROP - MP_NUM_OTHERS_BEGININDEX_PROPS]] = mxCreateDoubleMatrix(nAtom, iNumPartial, mxREAL);
+		mwSize dims[3] = {nAtom, iNumPartial, nChannel};
+		if(atom->has_field(MP_PARTIAL_AMP_PROP))
+			params[atomOthersField[MP_PARTIAL_AMP_PROP - MP_NUM_OTHERS_BEGININDEX_PROPS]] = mxCreateNumericArray(3, dims, mxDOUBLE_CLASS, mxREAL);   //! channel dependent
+		if(atom->has_field(MP_PARTIAL_PHASE_PROP))
+			params[atomOthersField[MP_PARTIAL_PHASE_PROP - MP_NUM_OTHERS_BEGININDEX_PROPS]] = mxCreateNumericArray(3, dims, mxDOUBLE_CLASS, mxREAL); //! channel dependent
+		// Read harmonicity values
+		for (iIndex = 0 ; iIndex < iNumPartial ; iIndex++)
+		{
+			if(atom->has_field(MP_HARMONICITY_PROP))
+				*( mxGetPr(params[atomOthersField[MP_HARMONICITY_PROP - MP_NUM_OTHERS_BEGININDEX_PROPS]]) + iIndex*nAtom + curIdx ) = (double) atom->get_field(MP_HARMONICITY_PROP,iIndex);
+		}
+	}
+
+	// MultiChannels
+	for (iIndexChannel = 0 ; iIndexChannel < nChannel ; iIndexChannel++)
+	{
+		for(iIndexMulti = MP_NUM_MULTI_BEGININDEX_PROPS; iIndexMulti < MP_NUM_MULTI_BEGININDEX_PROPS + MP_NUM_MULTI_PROPS; iIndexMulti++)
+		{
+			if(iIndexMulti == MP_AMP_PROP || iIndexMulti == MP_POS_PROP || iIndexMulti == MP_LEN_PROP)
+			{
+				if(atom->has_field(MP_AMP_PROP))
+					*(mxGetPr( params[atomMultiField[MP_AMP_PROP - MP_NUM_MULTI_BEGININDEX_PROPS]]) + iIndexChannel*nAtom + curIdx ) = (double) atom->amp[iIndexChannel];
+				if(atom->has_field(MP_POS_PROP))
+					*(mxGetPr( params[atomMultiField[MP_POS_PROP - MP_NUM_MULTI_BEGININDEX_PROPS]]) + iIndexChannel*nAtom + curIdx ) = (double) atom->support[iIndexChannel].pos;
+				if(atom->has_field(MP_LEN_PROP))
+					*(mxGetPr( params[atomMultiField[MP_LEN_PROP - MP_NUM_MULTI_BEGININDEX_PROPS]]) + iIndexChannel*nAtom + curIdx ) = (double) atom->support[iIndexChannel].len;
+			}
+			else
+			{
+				if(atom->has_field(iIndexMulti))
+					*(mxGetPr( params[atomMultiField[iIndexMulti - MP_NUM_MULTI_BEGININDEX_PROPS]]) + iIndexChannel*nAtom + curIdx ) = (double) atom->get_field(iIndexMulti,iIndexChannel);
+			}
+		}
+
+		for(iIndexOthers = MP_NUM_OTHERS_BEGININDEX_PROPS; iIndexOthers < MP_NUM_OTHERS_BEGININDEX_PROPS + MP_NUM_OTHERS_PROPS; iIndexOthers++)
+		{
+			if(iIndexOthers == MP_PARTIAL_AMP_PROP || iIndexOthers == MP_PARTIAL_PHASE_PROP)
+			{
+				// Read Partial amp/phase info
+				for (iIndex = 0 ; iIndex < iNumPartial ;iIndex++)
+				{
+					// !! CHECK THESE VALUES
+					if(atom->has_field(iIndexOthers))
+						*(mxGetPr( params[atomOthersField[iIndexOthers - MP_NUM_OTHERS_BEGININDEX_PROPS]]) + iIndexChannel*(nAtom*iNumPartial) + iIndex*nAtom + curIdx ) = (double) atom->get_field(iIndexOthers,iIndex*nChannel+iIndexChannel);
+				}
+			}
+		}
+	}
+	curIdx++; //! Go to next index
 }
             
 
