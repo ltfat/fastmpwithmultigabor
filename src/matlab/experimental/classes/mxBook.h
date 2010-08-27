@@ -1,3 +1,4 @@
+/** Declaration of atomField names in relation with #defines in atom.h */
 /******************************************************************************/
 /*                                                                            */
 /*                  	    mxBook.h                                          */
