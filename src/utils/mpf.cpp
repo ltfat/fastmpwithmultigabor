@@ -694,7 +694,7 @@ int main( int argc, char **argv ) {
 	}
 	
 	/* Report */
-	if ( !MPF_QUIET ) mp_info_msg( func, "Out of the [%lu] original atoms, [%lu] atoms satisfy the required properties.\n",
+	if ( !MPF_QUIET ) mp_info_msg( func, "\nOut of the [%lu] original atoms, [%lu] atoms satisfy the required properties.\n",
 								  book->numAtoms, numPositive );
 	if ( !MPF_QUIET ) mp_info_msg( func,"Out of the [%lu] original atoms, [%lu] atoms DO NOT satisfy the required properties.\n",
 								  book->numAtoms, book->numAtoms - numPositive );
