@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<dict>
+<libVersion>0.2</libVersion>
+		<blockproperties name="KBD-WINDOW">
+			<param name="windowtype" value="kbd"/>
+                       <param name="windowopt" value="5"/>
+	        <param name="windowopt" value="0"/>
+	    </blockproperties>	
+		  <block uses="KBD-WINDOW">
+			<param name="type" value="mdct"/>	
+			<param name="windowLen" value="128"/>
+	    </block>
+		  <block uses="KBD-WINDOW">
+			<param name="type" value="mdct"/>	
+			<param name="windowLen" value="16384"/>
+	    </block>
+</dict>
+
