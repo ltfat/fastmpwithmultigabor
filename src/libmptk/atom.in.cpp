@@ -757,7 +757,7 @@ int MP_Atom_c::satisfies(int field, int test, MP_Real_t val,
     return (has);
   } else {
     if (has == MP_FALSE) {
-      mp_warning_msg(func, "Unknown field. Returning TRUE.");
+      mp_warning_msg(func, "Unknown field. Returning TRUE.\n");
       return (MP_TRUE);
     } else {
       x = (MP_Real_t) get_field(field, chanIdx);
@@ -773,7 +773,7 @@ int MP_Atom_c::satisfies(int field, int test, MP_Real_t val,
       case MP_INFER:
 	return (x < val);
       default:
-	mp_warning_msg(func, "Unknown test. Returning TRUE.");
+	mp_warning_msg(func, "Unknown test. Returning TRUE.\n");
 	return (MP_TRUE);
       }
     }
