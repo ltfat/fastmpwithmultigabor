@@ -46,7 +46,7 @@
 /* FACTORY METHOD          */
 /***************************/
 
-MP_Abstract_Mixer_c* MP_Abstract_Mixer_c::creator( FILE * mixerFID )
+/*MP_Abstract_Mixer_c* MP_Abstract_Mixer_c::creator( FILE * mixerFID )
 {
 
   const char* func = "MP_Abstract_Mixer_c::init(char *mixerFileName)";
@@ -63,7 +63,7 @@ MP_Abstract_Mixer_c* MP_Abstract_Mixer_c::creator( FILE * mixerFID )
   //else
 
   //if ( !strcmp(type,"linear") )
-  //mixer = (MP_Mixer_c*) MP_Mixer_c::creator(mixerFID);
+  mixer = (MP_Mixer_c*) MP_Mixer_c::creator(mixerFID);
   mp_debug_msg( MP_DEBUG_FUNC_EXIT, func, "Leaving.\n" );
   return mixer;
   //else
@@ -73,7 +73,7 @@ MP_Abstract_Mixer_c* MP_Abstract_Mixer_c::creator( FILE * mixerFID )
   //}
 
 }
-
+*/
 int MP_Abstract_Mixer_c::read( FILE * mixerFID ){
 return 0;
 }

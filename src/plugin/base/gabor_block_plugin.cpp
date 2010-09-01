@@ -156,13 +156,12 @@ MP_Block_c* MP_Gabor_Block_Plugin_c::create( MP_Signal_c *setSignal, map<string,
       return( NULL );
     }
     
-  if (( window_needs_option(windowType)) && (!((*paramMap)["windowopt"].size()>0)))
-  {
-	  mp_error_msg( func, "Gabor or harmonic block "
+ if ( window_needs_option(windowType) && (!(*paramMap)["windowopt"].size()>0) ) {
+      mp_error_msg( func, "Gabor or harmonic block "
 		    " requires a window option (the opt=\"\" attribute is probably missing"
 		    " in the relevant <window> tag). Returning a NULL block.\n" );
       return( NULL );
-  } else {
+    } else {
       /*Convert windowopt*/
       windowOption=strtod((*paramMap)["windowopt"].c_str(), &convertEnd);
       if (*convertEnd != '\0')

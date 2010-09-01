@@ -127,6 +127,10 @@ public:
   /***************************/
   /* OTHER METHODS           */
   /***************************/
+  
+  //MPTK_LIB_EXPORT virtual map<string, string, mp_ltstring>* get_block_param( void );
+  MPTK_LIB_EXPORT virtual MP_Atom_Param_c* get_atom_param( void )const;
+  
   virtual const char * type_name( void );
 
   virtual int info( FILE *fid );

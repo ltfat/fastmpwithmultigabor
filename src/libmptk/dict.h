@@ -93,6 +93,10 @@ class MP_Dict_c
      * what it was when the blocks were last updated 
      */
     MP_Support_t* touch;
+    
+    /** \brief Length of the longest atom of the dictionary
+     */
+    unsigned long int maxFilterLen;
 
     /** \brief Map use to pass the block creation properties */
 
@@ -379,6 +383,14 @@ class MP_Dict_c
      * \return The value of the maximum inner product
      */
     MPTK_LIB_EXPORT MP_Real_t update( void );
+    
+    /** \brief Compute all the inner products which need to be updated and finds the max.
+     * Keep track of some of them in the sub-book.
+     *
+     * Side-effect : blockWithMaxIP is updated.
+     * \return The value of the maximum inner product
+     */
+    MPTK_LIB_EXPORT MP_Real_t update (GP_Block_Book_c*);
 
     /** \brief Compute all the inner products and finds the max
      *
@@ -392,8 +404,8 @@ class MP_Dict_c
      *
      * \param atom a pointer to (or an array of) reference to the returned atom(s)
      * \return the number of extracted atom */
-    MPTK_LIB_EXPORT  unsigned int create_max_atom( MP_Atom_c** atom );
-
+    MPTK_LIB_EXPORT unsigned int create_max_atom( MP_Atom_c** atom );
+    MPTK_LIB_EXPORT unsigned int create_max_gp_atom( MP_Atom_c** atom );
 
     /** \brief Perform one matching pursuit iteration (update the blocks, find the max,
      * create the atom and append it to the book, and substract it from the analyzed signal).

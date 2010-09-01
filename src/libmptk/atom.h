@@ -144,11 +144,20 @@ public:
    *
    * Example : the amplitude on the first channel is amp[0] */
   MP_Real_t *amp;
+  /** \brief The correlation of the atom with the current residual on each channel.
+     *
+     * Used by Gradient Pursuit */
+  MP_Real_t *corr;
   /** \brief The maximum reach of the atom, in number of samples
    *
    * It is essentially used for efficiency
    */
   unsigned long int numSamples;
+  /** \brief Index of the block that produced the atom
+     *
+     * Used by Gradient Pursuit
+     */
+  unsigned int blockIdx;
 
   /***********/
   /* METHODS */
@@ -193,6 +202,18 @@ public:
   /***************************/
 
 public :
+ 
+  /** \brief Get the atom position to use with sorted books
+   * 
+   * \return the position */
+   
+   MPTK_LIB_EXPORT virtual unsigned long int get_pos( void )const;
+   
+  /** \brief Get the identifying parameters of the atom inside a block to use with sorted books
+   * 
+   * \return a pointer to a map containing the parameters */
+    
+   MPTK_LIB_EXPORT virtual MP_Atom_Param_c* get_atom_param( void )const;
 
   /** \brief Get the type of the atom as a string
    *

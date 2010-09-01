@@ -37,7 +37,7 @@ ENDIF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
 #------------------------------------------------
 # Build main executables      
 #------------------------------------------------
-FOREACH(target mpd mpd_demix mpr mpf mpcat mpview)
+FOREACH(target mpd mpd_demix mpr mpf mpcat mpview gpd)
 	SET(${target}_EXE_SOURCES
     		${UTILS_SOURCE_DIR}/${target}.cpp
     		${MPTK_BINARY_DIR}/src/libmptk/mptk.h )

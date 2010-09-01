@@ -110,10 +110,45 @@
 #include "tfmap.h"
 # endif
 
+#cmakedefine HAVE_MPTK_ATOM_PARAM_H 1
+# ifdef HAVE_MPTK_ATOM_PARAM_H
+#include "atom_param.h"
+# endif
+
+#cmakedefine HAVE_MPTK_FREQ_ATOM_PARAM_H 1
+# ifdef HAVE_MPTK_FREQ_ATOM_PARAM_H
+#include "freq_atom_param.h"
+# endif
+
 #cmakedefine HAVE_MPTK_ATOM_H 1
 # ifdef HAVE_MPTK_ATOM_H
 #include "atom.h"
-# endif                 
+# endif  
+
+#cmakedefine HAVE_MPTK_GP_BOOK_H 1
+# ifdef HAVE_MPTK_GP_BOOK_H
+#include "gp_book.h"
+# endif     
+
+  #cmakedefine HAVE_MPTK_GP_POS_RANGE_SUB_BOOK_H 1
+# ifdef HAVE_MPTK_GP_POS_RANGE_SUB_BOOK_H
+#include "gp_pos_range_sub_book.h"
+# endif
+
+#cmakedefine HAVE_MPTK_GP_PARAM_BOOK_H 1
+# ifdef HAVE_MPTK_GP_PARAM_BOOK_H
+#include "gp_param_book.h"
+# endif
+
+#cmakedefine HAVE_MPTK_GP_POS_BOOK_H 1
+# ifdef HAVE_MPTK_GP_POS_BOOK_H
+#include "gp_pos_book.h"
+# endif
+
+#cmakedefine HAVE_MPTK_GP_BLOCK_BOOK_H 1
+# ifdef HAVE_MPTK_GP_BLOCK_BOOK_H
+#include "gp_block_book.h"
+# endif       
 
 #cmakedefine HAVE_MPTK_BLOCK_H 1
 # ifdef HAVE_MPTK_BLOCK_H
@@ -198,6 +233,16 @@
 #cmakedefine HAVE_MPTK_MP_HASH_CONTAINER_HEADER_H 1
 # ifdef HAVE_MPTK_MP_HASH_CONTAINER_HEADER_H
 #include "mp_hash_container_header.h"
+# endif
+
+#cmakedefine HAVE_MPTK_DOUBLE_INDEX_BOOK_H 1
+# ifdef HAVE_MPTK_DOUBLE_INDEX_BOOK_H
+#include "double_index_book.h"
+# endif
+
+#cmakedefine HAVE_MPTK_GPD_CORE_H 1
+# ifdef HAVE_MPTK_GPD_CORE_H
+#include "gpd_core.h"
 # endif
 
 #endif /* __mptk_h_ */

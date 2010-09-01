@@ -579,6 +579,121 @@ MP_Support_t MP_Block_c::update_ip( const MP_Support_t *touch )
   return( frameSupport );
 }
 
+MP_Support_t MP_Block_c::update_ip( const MP_Support_t *touch, GP_Pos_Book_c* book )
+{
+
+#ifndef NDEBUG
+  const char* func = "MP_Block_c::update_ip( touch, book )";
+#endif
+
+  unsigned long int fromFrame; /* first frameIdx to be touched, included */
+  unsigned long int toFrame;   /* last  frameIdx to be touched, INCLUDED */
+  unsigned long int tmpFromFrame, tmpToFrame;
+  unsigned long int fromSample;
+  unsigned long int toSample;
+
+  int chanIdx;
+  unsigned long int frameIdx;
+  MP_Real_t maxCorr;
+  unsigned long int maxFilterIdx;
+
+  MP_Support_t frameSupport;
+  unsigned long int pos=1;
+  GP_Param_Book_c* subBook;
+  
+  if (!book)
+    return update_ip(touch);
+
+  assert( s != NULL );
+
+  /*---------------------------*/
+  /* Computes the interval [fromFrame,toFrame] where
+     the frames need an IP+maxCorr update
+    
+     WARNING: toFrame is INCLUDED. See the LOOP below.
+
+     THIS IS CRITICAL CODE. MODIFY WITH CARE.
+  */
+
+  /* -- If touch is NULL, we ask for a full update: */
+  if ( touch == NULL )
+    {
+      fromFrame = 0;
+      toFrame   = numFrames - 1;
+    }
+  /* -- If touch is not NULL, we specify a touched support: */
+  else
+    {
+      /* Initialize fromFrame and toFrame using the support on channel 0 */
+      if (blockOffset>touch[0].pos)
+        {
+          fromSample = 0;
+        }
+      else
+        {
+          fromSample = touch[0].pos-blockOffset;
+        }
+      fromFrame = len2numFrames( fromSample, filterLen, filterShift );
+
+      toSample = ( fromSample + touch[0].len - 1 );
+      toFrame  = toSample / filterShift ;
+      if ( toFrame >= numFrames )  toFrame = numFrames - 1;
+      /* Adjust fromFrame and toFrame with respect to supports on the subsequent channels */
+      for ( chanIdx = 1; chanIdx < s->numChans; chanIdx++ )
+        {
+          if (blockOffset>touch[chanIdx].pos)
+            {
+              fromSample = 0;
+            }
+          else
+            {
+              fromSample = touch[chanIdx].pos-blockOffset;
+            }
+          tmpFromFrame = len2numFrames( fromSample, filterLen, filterShift );
+          if ( tmpFromFrame < fromFrame ) fromFrame = tmpFromFrame;
+
+          toSample = ( fromSample + touch[chanIdx].len - 1 );
+          tmpToFrame  = toSample / filterShift ;
+          if ( tmpToFrame >= numFrames )  tmpToFrame = numFrames - 1;
+          if ( tmpToFrame > toFrame ) toFrame = tmpToFrame;
+        }
+    }
+  /*---------------------------*/
+
+
+#ifndef NDEBUG
+  mp_debug_msg( MP_DEBUG_MP_ITERATIONS, func,"Updating frames from %lu to %lu / %lu.\n",
+                fromFrame, toFrame, numFrames );
+#endif
+
+  /*---------------------------*/
+  /* LOOP : Browse the frames which need an update. */
+  for ( frameIdx = fromFrame; frameIdx <= toFrame; frameIdx++ )
+    {
+
+      pos = frameIdx*filterShift + blockOffset;
+      subBook = book->get_sub_book(pos);
+      update_frame(frameIdx, &maxCorr, &maxFilterIdx, subBook);
+
+      /* Register the maxCorr value for the current frame */
+      maxIPValueInFrame[frameIdx] = maxCorr;
+      maxIPIdxInFrame[frameIdx]   = maxFilterIdx;
+
+#ifndef NDEBUG
+      mp_debug_msg( MP_DEBUG_MP_ITERATIONS, func,"In frame %lu, maxcorr is"
+                    " %g at position %lu.\n",
+                    frameIdx, maxCorr, maxFilterIdx );
+#endif
+
+    } /* end foreach frame */
+
+
+  /* Return a mono-channel support */
+  frameSupport.pos = fromFrame;
+  frameSupport.len = toFrame - fromFrame + 1;
+
+  return( frameSupport );
+}
 
 /********************************/
 /* Number of atoms in the block */
@@ -594,3 +709,9 @@ unsigned long int MP_Block_c::num_atoms(void)
   return ( parameterMap );
 }
 
+void MP_Block_c::update_frame( unsigned long int frameIdx, 
+                                       MP_Real_t *maxCorr, 
+                                       unsigned long int *maxFilterIdx,
+                                       GP_Param_Book_c* touchBook){
+   update_frame(frameIdx, maxCorr, maxFilterIdx);
+}

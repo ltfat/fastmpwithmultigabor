@@ -70,7 +70,7 @@ class MP_Abstract_Mixer_c
     /***************************/
     /* FACTORY METHOD          */
     /***************************/
-    static MP_Abstract_Mixer_c* creator (FILE *mixerFID);
+    //static MP_Abstract_Mixer_c* creator (FILE *mixerFID);
     
     /***************************/
     /* CONSTRUCTORS/DESTRUCTOR */

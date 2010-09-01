@@ -163,6 +163,9 @@ public:
    * \return a support indicating which frames have been touched by the inner products' update 
    * \remark Pass touch == NULL to force a full update. */
   MPTK_LIB_EXPORT virtual MP_Support_t update_ip( const MP_Support_t *touch );
+  
+  MPTK_LIB_EXPORT virtual MP_Support_t update_ip( const MP_Support_t *touch, GP_Pos_Book_c* );
+  
 
   /** \brief update the inner products of a given frame and return the correlation
    * \a maxCorr and index in the frame \a maxFilterIdx of the maximally correlated
@@ -179,6 +182,11 @@ public:
   MPTK_LIB_EXPORT virtual void update_frame( unsigned long int frameIdx, 
 			     MP_Real_t *maxCorr, 
 			     unsigned long int *maxFilterIdx ) = 0; 
+                 
+  MPTK_LIB_EXPORT virtual void update_frame( unsigned long int frameIdx, 
+                 MP_Real_t *maxCorr, 
+                 unsigned long int *maxFilterIdx,
+                 GP_Param_Book_c* );
 
   /** \brief find the location of the maximum inner product (max IP)
    * \param frameSupport a support indicating which frames have been touched

@@ -124,6 +124,7 @@ MP_Dict_c::MP_Dict_c()
   block = NULL;
   blockWithMaxIP = UINT_MAX;
   touch = NULL;
+  maxFilterLen = 0;
 #ifdef MULTITHREAD
 threads = NULL;
 tasks = NULL;
@@ -300,6 +301,8 @@ int MP_Dict_c::add_block( MP_Block_c *newBlock )
           block = tmp;
           block[numBlocks] = newBlock;
           numBlocks++;
+          if (maxFilterLen < newBlock->filterLen)
+            maxFilterLen = newBlock->filterLen;
         }
       return( 1 );
 
@@ -1107,6 +1110,29 @@ MP_Real_t MP_Dict_c::update( void )
 
   return ( tempMax );
 }
+
+MP_Real_t MP_Dict_c::update( GP_Book_c* touchBook )
+{
+
+  unsigned int k;
+  MP_Real_t tempMax = -1.0;
+  /* Loach the parallel computation: */
+  parallel_computing(val);
+
+  for ( k=0; k<numBlocks; k++)
+    {
+      /* Recompute and locate in the threads output tab the max inner product within a block */
+      if ( val[k] > tempMax )
+        {
+          tempMax = val[k];
+          blockWithMaxIP = k;
+        }
+      /* Locate the max inner product across the blocks */
+    }
+
+  return ( tempMax );
+}
+
 #else
 /************************************/
 /* Update of all the inner products which need to be updated, according to the 'touch' field */
@@ -1134,8 +1160,33 @@ MP_Real_t MP_Dict_c::update( void )
 
   return ( tempMax );
 }
-#endif
 
+MP_Real_t MP_Dict_c::update( GP_Block_Book_c* touchBook )
+{
+
+  unsigned int i;
+  MP_Real_t tempMax = -1.0;
+  MP_Real_t val;
+  MP_Support_t frameSupport;
+
+  for ( i=0; i<numBlocks; i++)
+    {
+      /* Recompute the inner products */
+      frameSupport = block[i]->update_ip( touch, touchBook->get_sub_book(i) );
+      /* Recompute and locate the max inner product within a block */
+      val = block[i]->update_max( frameSupport );
+      /* Locate the max inner product across the blocks */
+      if ( val > tempMax )
+        {
+          tempMax = val;
+          blockWithMaxIP = i;
+        }
+    }
+
+  return ( tempMax );
+}
+
+#endif
 
 void MP_Dict_c::parallel_computing(volatile MP_Real_t* val)
 {
@@ -1199,6 +1250,39 @@ unsigned int MP_Dict_c::create_max_atom( MP_Atom_c** atom )
                     blockWithMaxIP );
       return( 0 );
     }
+
+  return( numAtoms );
+}
+
+unsigned int MP_Dict_c::create_max_gp_atom( MP_Atom_c** atom )
+{
+    const char* func = "MP_Dict_c::create_max_atom(**atom)";
+  unsigned long int frameIdx;
+  unsigned long int filterIdx;
+  unsigned int numAtoms;
+
+  /* 1) select the best atom of the best block */
+  frameIdx =  block[blockWithMaxIP]->maxIPFrameIdx;
+  filterIdx = block[blockWithMaxIP]->maxIPIdxInFrame[frameIdx];
+
+  mp_debug_msg( MP_DEBUG_MP_ITERATIONS, func,
+                "Found max atom in block [%lu], at frame [%lu], with filterIdx [%lu].\n",
+                blockWithMaxIP, frameIdx, filterIdx );
+
+  /* 2) create it using the method of the block */
+  numAtoms = block[blockWithMaxIP]->create_atom( atom, frameIdx, filterIdx );
+  if ( numAtoms == 0 )
+    {
+      mp_error_msg( func, "Failed to create the max atom from block[%ul].\n",
+                    blockWithMaxIP );
+      return( 0 );
+    }
+
+  for (MP_Chan_t c=0;c<(*atom)->numChans;c++){
+	  (*atom)->corr[c] = (*atom)->amp[c];
+	  (*atom)->amp[c] = 0;
+  }
+  (*atom)->blockIdx=blockWithMaxIP;
 
   return( numAtoms );
 }

@@ -247,7 +247,7 @@ class MP_Anywave_Hilbert_Atom_Plugin_c: public MP_Anywave_Atom_Plugin_c {
    *
    * \return the value of the field on the specified channel
    **/
-  virtual MP_Real_t get_field( int field , MP_Chan_t chanIdx );
+  virtual MP_Real_t get_field( int field , int chanIdx );
 
 };
 

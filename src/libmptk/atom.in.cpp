@@ -55,10 +55,12 @@
 /* Void constructor */
 MP_Atom_c::MP_Atom_c( void ) {
   numChans = 0;
-  support  = NULL;
+  support = NULL;
   numSamples = 0;
   amp = NULL;
+  corr = NULL;
   totalChanLen = 0;
+  blockIdx = 0;
 }
 
 
@@ -66,7 +68,7 @@ MP_Atom_c::MP_Atom_c( void ) {
 /* Internal allocation */
 int MP_Atom_c::alloc_atom_param( const MP_Chan_t setNumChans ) {
 
-  const char* func = "MP_Atom_c::alloc_atom_param(numChans)";
+  const char *func = "MP_Atom_c::alloc_atom_param(numChans)";
   /* Check the allocation size */
   if ((double)MP_MAX_SIZE_T / (double)setNumChans / (double)sizeof(MP_Real_t) <= 1.0) {
     mp_error_msg( func, "numChans [%lu] x sizeof(MP_Real_t) [%lu]"
@@ -93,14 +95,20 @@ int MP_Atom_c::alloc_atom_param( const MP_Chan_t setNumChans ) {
     return( 1 );
   }
 
-  return( 0 );
+  /* Allocate the corr array */
+   if ((corr = (MP_Real_t *) calloc(numChans, sizeof(MP_Real_t))) == NULL) {
+	  mp_warning_msg(func, "Failed to allocate the corr array for a new atom;"
+		   " corr stays NULL.\n");
+	  return (1);
+	}
+  return (0);
 }
 
 /********************/
 /* File reader      */
 int MP_Atom_c::read( FILE *fid, const char mode ) {
 
-  const char* func = "MP_Atom_c::read(fid,mode)";
+  const char *func = "MP_Atom_c::read(fid,mode)";
   unsigned long int nItem = 0;
   char str[MP_MAX_STR_LEN];
   double fidAmp;
@@ -212,6 +220,7 @@ int MP_Atom_c::read( FILE *fid, const char mode ) {
 MP_Atom_c::~MP_Atom_c() {
   if (support) free(support);
   if (amp) free(amp);
+  if (corr) free(corr);
 }
 
 
@@ -252,18 +261,33 @@ int MP_Atom_c::write( FILE *fid, const char mode ) {
     break;
 
   default:
-    mp_warning_msg( func, "Unknown write mode. No output written.\n" );
+    mp_warning_msg(func, "Unknown write mode. No output written.\n");
     nItem = 0;
     break;
   }
 
-  return( nItem );
+  return (nItem);
 }
 
 
 /***************************/
 /* OTHER METHODS           */
 /***************************/
+
+/* Get the atom position to use with sorted books */
+   
+unsigned long int MP_Atom_c::get_pos( void )const{
+    return support[0].pos;
+}
+   
+/** Get the identifying parameters of the atom inside a block to use with sorted books
+   */
+    
+MP_Atom_Param_c* MP_Atom_c::get_atom_param( void )const{
+    const char* funcName = "MP_Atom_c::get_atom_param( void )";
+    mp_warning_msg (funcName, "this method has not been implemented for the child atom class");
+    return NULL;
+}
 
 /***************/
 /* Name output */
@@ -276,11 +300,11 @@ const char * MP_Atom_c::type_name( void ) {
 /* Substract / add an atom via Add_Worker from / to signals. */
 void MP_Atom_c::substract_add( MP_Signal_c *sigSub, MP_Signal_c *sigAdd ) {
 
-  const char* func = "MP_Atom_c::substract_add(...)";
+  const char *func = "MP_Atom_c::substract_add(...)";
 
   // Will initialize allocated_totalChanLen with the first value with which this function is called
   static unsigned long int allocated_totalChanLen = 0;
-  static MP_Real_t* totalBuffer=NULL;
+  static MP_Real_t *totalBuffer=NULL;
 
   // Check that the addition / substraction can take place :
   // the signal and atom should have the same number of channels 
@@ -297,33 +321,31 @@ void MP_Atom_c::substract_add( MP_Signal_c *sigSub, MP_Signal_c *sigAdd ) {
 
 
   // (Re)allocating
-  if (NULL==totalBuffer || allocated_totalChanLen != totalChanLen) {
-    if (NULL!=totalBuffer) {
-      free(totalBuffer) ;
+  if (NULL == totalBuffer || allocated_totalChanLen != totalChanLen) {
+    if (NULL != totalBuffer) {
+      free(totalBuffer);
       totalBuffer = NULL;
       allocated_totalChanLen = 0;
-    } 
+    }
     totalBuffer = (MP_Real_t*) malloc (totalChanLen*sizeof(MP_Real_t)) ;
     if(NULL==totalBuffer) {
       mp_error_msg(func,"Could not allocate buffer. Returning without any addition or subtraction.\n" );
       return;
     }
-    allocated_totalChanLen = totalChanLen ; 
+    allocated_totalChanLen = totalChanLen;
   }
-
   // build the atom waveform 
-  build_waveform( totalBuffer );
+  build_waveform(totalBuffer);
 
   MP_Real_t *sigIn = NULL;
   MP_Chan_t chanIdx;
   unsigned int t;
-  std::pair< double, double> addSigEnergy ;
+  std::pair < double, double >addSigEnergy;
   double sigEBefAdd = 0.0;
   double sigEAftAdd = 0.0;
   double sigEBefSub = 0.0;
   double sigEAftSub = 0.0;
   double sigVal;
-  
   MP_Real_t *atomIn;
   MP_Real_t *ps;
   MP_Real_t *pa;
@@ -367,9 +389,9 @@ void MP_Atom_c::substract_add( MP_Signal_c *sigSub, MP_Signal_c *sigAdd ) {
       }
 
     } /* end SUBTRACT */ 
-    addSigEnergy = get_add_worker()->wait() ; 
-    sigEBefAdd = addSigEnergy.first ;
-    sigEAftAdd = addSigEnergy.second ;
+    addSigEnergy = get_add_worker()->wait();
+    sigEBefAdd = addSigEnergy.first;
+    sigEAftAdd = addSigEnergy.second;
 
     /* Go to the next channel */
     atomIn += len;
@@ -384,66 +406,62 @@ void MP_Atom_c::substract_add( MP_Signal_c *sigSub, MP_Signal_c *sigAdd ) {
 
 /*************************************************/
 /* add an atom via Add_Worker from / to signals. */
+/*************************************************/
 std::pair< double, double> MP_Atom_c::add(MP_Signal_c * sigAdd, 
-										  unsigned long int pos, 
-										  unsigned long int len,
-										  MP_Chan_t chanIdx,
-										  MP_Real_t * atomIn) {
-    
-    unsigned long int tmpLen ;
-    MP_Real_t * sigIn ;
-    unsigned int t;
-    MP_Real_t *ps;
-    MP_Real_t *pa;
-    double sigVal ;
-    double sigEBefAdd = 0.0;
-    double sigEAftAdd = 0.0;
-    
-    /* ADD the atomic waveform to the second signal */
-    if ( (sigAdd) && (pos < sigAdd->numSamples) ) {
-
-      /* Avoid to write outside of the signal array */
-      //assert( (pos + len) <= sigAdd->numSamples );
-      tmpLen = sigAdd->numSamples - pos;
-      tmpLen = ( len < tmpLen ? len : tmpLen ); /* min( len, tmpLen ) */
-
-      /* Seek the right location in the signal */
-      sigIn  = sigAdd->channel[chanIdx] + pos;
-
-      /* Waveform ADDITION */
-      for ( t = 0,   ps = sigIn, pa = atomIn;
-	    t < tmpLen;
-	    t++,     ps++,       pa++ ) {
-	/* Dereference the signal value */
-	sigVal   = (double)(*ps);
-	/* Accumulate the energy before the addition */
-	sigEBefAdd += (sigVal*sigVal);
-	/* Add the atom sample to the signal sample */
-	sigVal   = sigVal + *pa;
-	/* Accumulate the energy after the addition */
-	sigEAftAdd += (sigVal*sigVal);
-	/* Record the new signal sample value */
-	*ps = (MP_Real_t)(sigVal);
-      }
-
-    } /* end ADD */
-    
-	return std::pair< double, double>(sigEBefAdd,sigEAftAdd);
+                                            unsigned long int pos, 
+                                            unsigned long int len,
+                                            MP_Chan_t chanIdx,
+                                            MP_Real_t * atomIn) {
+  unsigned long int tmpLen ;
+  MP_Real_t * sigIn ;
+  unsigned int t;
+  MP_Real_t *ps;
+  MP_Real_t *pa;
+  double sigVal ;
+  double sigEBefAdd = 0.0;
+  double sigEAftAdd = 0.0;
+  
+  // ADD the atomic waveform to the second signal
+  if ( (sigAdd) && (pos < sigAdd->numSamples) ) 
+  {
+    // Avoid to write outside of the signal array
+    tmpLen = sigAdd->numSamples - pos;
+    tmpLen = ( len < tmpLen ? len : tmpLen ); // min( len, tmpLen )
+    // Seek the right location in the signal
+    sigIn  = sigAdd->channel[chanIdx] + pos;
+    // Waveform ADDITION
+    for ( t = 0,   ps = sigIn, pa = atomIn;t < tmpLen;t++,ps++,pa++ ) 
+    {
+      // Dereference the signal value
+      sigVal   = (double)(*ps);
+      // Accumulate the energy before the addition
+      sigEBefAdd += (sigVal*sigVal);
+      // Add the atom sample to the signal sample
+      sigVal   = sigVal + *pa;
+      // Accumulate the energy after the addition
+      sigEAftAdd += (sigVal*sigVal);
+      // Record the new signal sample value
+      *ps = (MP_Real_t)(sigVal);
     }
+  } // end ADD
+  return std::pair< double, double>(sigEBefAdd,sigEAftAdd);
+}
     
+/*****************************************************/
 /* Create a singleton of MP_Atom_c::Add_Worker class */
+/*****************************************************/
 MP_Atom_c::Add_Worker * MP_Atom_c::get_add_worker() {
 	if (!myAddWorker) {
 		MP_Atom_c::myAddWorker = new MP_Atom_c::Add_Worker() ;
 	} 
-	return myAddWorker ;
+	return myAddWorker;
 }
 
 /*Initialise pointer to the MP_Atom_c::Add_Worker instance */
 MP_Atom_c::Add_Worker * MP_Atom_c::myAddWorker = NULL ;
 
-#ifdef MULTITHREAD 
-  
+#ifdef MULTITHREAD
+
 /* run method for Add_Worker if MULTITHREAD mode On */	
 /* This is a static function to run the threads and pass the object context via the self pointer */
 void* MP_Atom_c::Add_Worker::run(void* a)
@@ -475,8 +493,8 @@ MP_Atom_c::Add_Worker::Add_Worker() : result (0.0, 0.0) {
   
   pthread_attr_t attr;  
   pthread_attr_init(&attr);
-  pthread_attr_setdetachstate(&attr,PTHREAD_CREATE_JOINABLE);
-  task->exit = false ;
+  pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+  task->exit = false;
   /*Create the threads*/
   if (pthread_create(&thread_id, NULL, &run, this) )
     { 
@@ -558,7 +576,7 @@ MP_Atom_c::Add_Worker::Add_Worker() : result (0.0, 0.0) {
 void MP_Atom_c::substract_add_var_amp( MP_Real_t *amp, MP_Chan_t numAmps,
 				       MP_Signal_c *sigSub, MP_Signal_c *sigAdd ) {
 
-  const char* func = "MP_Atom_c::substract_add_var_amp(...)";
+  const char *func = "MP_Atom_c::substract_add_var_amp(...)";
   MP_Real_t *sigIn;
   MP_Chan_t chanIdx;
   unsigned int t;
@@ -570,7 +588,7 @@ void MP_Atom_c::substract_add_var_amp( MP_Real_t *amp, MP_Chan_t numAmps,
   
   static unsigned long int allocated_totalChanLen = 0;
   static unsigned long int allocated_numAmps = 0;
-  static MP_Real_t* totalBuffer=0;
+  static MP_Real_t *totalBuffer = 0;
     if (!totalBuffer|| allocated_totalChanLen != totalChanLen || allocated_numAmps != numAmps ) {
 	  if (totalBuffer) free(totalBuffer) ;
 	  	  allocated_totalChanLen = totalChanLen ; 
@@ -604,7 +622,7 @@ void MP_Atom_c::substract_add_var_amp( MP_Real_t *amp, MP_Chan_t numAmps,
 		  " Returning without any addition or subtraction.\n" );
     return;
   }
-
+    
   /* Dereference the atom support once and for all */
   len = support[0].len;
   pos = support[0].pos;
@@ -612,169 +630,184 @@ void MP_Atom_c::substract_add_var_amp( MP_Real_t *amp, MP_Chan_t numAmps,
   /* build the atom waveform "template", in the first segment of the buffer */
   build_waveform( totalBuffer );
   /* Replicate the template and multiply it with the various amplitudes,
-     in the segments that come after the first one */
-  for ( chanIdx = 1; chanIdx < numAmps; chanIdx++ ) {
+   * in the segments that come after the first one */
+  for (chanIdx = 0; chanIdx < numAmps; chanIdx++) {
     sigVal = amp[chanIdx];
-    for ( t = 0, pa = totalBuffer, ps = (totalBuffer + len*chanIdx);
-	  t < len;
-	  t++,   pa++,             ps++ ) {
+    //mp_progress_msg("substract_add_var_amp", "corr = %lf\n", sigVal);
+    for (t = 1, pa = totalBuffer, ps = (totalBuffer + len * chanIdx);
+	 t < len; t++, pa++, ps++) {
       (*ps) = sigVal * (*pa);
     }
   }
   /* - Then, correct the amplitude of the initial template */
   sigVal = amp[0];
-  for ( t = 0, pa = totalBuffer; t < len; t++,   pa++ ) {
-    (*pa) = sigVal * (*pa);  
+  for (t = 0, pa = totalBuffer; t < len; t++, pa++) {
+    (*pa) = sigVal * (*pa);
   }
-  
+    
   /* loop on channels, seeking the right location in the totalBuffer */
-  for ( chanIdx = 0 , atomIn = totalBuffer; chanIdx < numAmps; chanIdx++ ) {
-
+  chanIdx = 0;
+  atomIn = totalBuffer;
+  while (chanIdx < numAmps) {
+    
     /* SUBTRACT the atomic waveform from the first signal */
-    if ( (sigSub) && (pos < sigSub->numSamples) ) {
-
+    if ((sigSub) && (pos < sigSub->numSamples)) {
+        
       /* Avoid to write outside of the signal array */
-      //assert( (pos + len) <= sigSub->numSamples );
+      // assert( (pos + len) <= sigSub->numSamples );
       tmpLen = sigSub->numSamples - pos;
-      tmpLen = ( len < tmpLen ? len : tmpLen ); /* min( len, tmpLen ) */
-
+      tmpLen = (len < tmpLen ? len : tmpLen);	/* min( len,
+						 * tmpLen ) */
+            
       /* Seek the right location in the signal */
-      sigIn  = sigSub->channel[chanIdx] + pos;
-
+      sigIn = sigSub->channel[chanIdx] + pos;
+            
       /* Waveform SUBTRACTION */
-      for ( t = 0,   ps = sigIn, pa = atomIn;
-	    t < tmpLen;
-	    t++,     ps++,       pa++ ) {
-	/* Dereference the signal value */
-	sigVal   = (double)(*ps);
-	/* Accumulate the energy before the subtraction */
-	sigEBefSub += (sigVal*sigVal);
-	/* Subtract the atom sample from the signal sample */
-	sigVal   = sigVal - *pa;
-	/* Accumulate the energy after the subtraction */
-	sigEAftSub += (sigVal*sigVal);
-	/* Record the new signal sample value */
-	*ps = (MP_Real_t)(sigVal);
-      }
-
-    } /* end SUBTRACT */
+      for (t = 0, ps = sigIn, pa = atomIn; t < tmpLen;
+	       t++, ps++, pa++) {
+        /* Dereference the signal value */
+        sigVal = (double) (*ps);
+        /* Accumulate the energy before the subtraction */
+        sigEBefSub += (sigVal * sigVal);
+        /* Subtract the atom sample from the signal sample */
+        sigVal = sigVal - *pa;
+        /* Accumulate the energy after the subtraction */
+        sigEAftSub += (sigVal * sigVal);
+        /* Record the new signal sample value */
+        *ps = (MP_Real_t) (sigVal);
+      }       
+    }			/* end SUBTRACT */
     
     /* ADD the atomic waveform to the second signal */
-    if ( (sigAdd) && (pos < sigAdd->numSamples) ) {
-
+    if ((sigAdd) && (pos < sigAdd->numSamples)) {
+        
       /* Avoid to write outside of the signal array */
-      //assert( (pos + len) <= sigAdd->numSamples );
+      // assert( (pos + len) <= sigAdd->numSamples );
       tmpLen = sigAdd->numSamples - pos;
-      tmpLen = ( len < tmpLen ? len : tmpLen ); /* min( len, tmpLen ) */
-
+      tmpLen = (len < tmpLen ? len : tmpLen);	/* min( len,
+        					 * tmpLen ) */
+        
       /* Seek the right location in the signal */
-      sigIn  = sigAdd->channel[chanIdx] + pos;
-
+      sigIn = sigAdd->channel[chanIdx] + pos;
+        
       /* Waveform ADDITION */
-      for ( t = 0,   ps = sigIn, pa = atomIn;
-	    t < len;
-	    t++,     ps++,       pa++ ) {
-	/* Dereference the signal value */
-	sigVal   = (double)(*ps);
-	/* Accumulate the energy before the subtraction */
-	sigEBefAdd += (sigVal*sigVal);
-	/* Add the atom sample to the signal sample */
-	sigVal   = sigVal + *pa;
-	/* Accumulate the energy after the subtraction */
-	sigEAftAdd += (sigVal*sigVal);
-	/* Record the new signal sample value */
-	*ps = (MP_Real_t)(sigVal);
+      for (t = 0, ps = sigIn, pa = atomIn; t < len; t++, ps++, pa++) {
+        /* Dereference the signal value */
+        sigVal = (double) (*ps);
+        /* Accumulate the energy before the subtraction */
+        sigEBefAdd += (sigVal * sigVal);
+        /* Add the atom sample to the signal sample */
+        sigVal = sigVal + *pa;
+        /* Accumulate the energy after the subtraction */
+        sigEAftAdd += (sigVal * sigVal);
+        /* Record the new signal sample value */
+        *ps = (MP_Real_t) (sigVal);
       }
-
-    } /* end ADD */
-
+    }/* end ADD */
     /* Go to the next channel */
     atomIn += len;
-
-  } /* end for chanIdx */
-
-  /* Update the energies of the signals */
-  if ( sigSub ) sigSub->energy = sigSub->energy - sigEBefSub + sigEAftSub;
-  if ( sigAdd ) sigAdd->energy = sigAdd->energy - sigEBefAdd + sigEAftAdd;
+    chanIdx++;
+  }				/* end for chanIdx */
+    
+  /*
+   * Update the energies of the signals 
+   */
+  if (sigSub)
+    sigSub->energy = sigSub->energy - sigEBefSub + sigEAftSub;
+  if (sigAdd)
+    sigAdd->energy = sigAdd->energy - sigEBefAdd + sigEAftAdd;
 
 }
 
 
 /***********************************************************************/
-/* Sorting function which characterizes various properties of the atom,
-   across all channels */
-int MP_Atom_c::satisfies( int field, int test, MP_Real_t val ) {
-  
+/*
+ * Sorting function which characterizes various properties of the atom,
+ * across all channels 
+ */
+int
+MP_Atom_c::satisfies(int field, int test, MP_Real_t val)
+{
+
   MP_Chan_t chanIdx;
   int retVal = MP_TRUE;
-  
-  for ( chanIdx = 0; chanIdx < numChans; chanIdx++ ) {
-    retVal = ( retVal && satisfies( field, test, val, chanIdx ) );
+
+  for (chanIdx = 0; chanIdx < numChans; chanIdx++) {
+    retVal = (retVal && satisfies(field, test, val, chanIdx));
   }
-  
-  return( retVal );
+
+  return (retVal);
 }
 
 
 /***********************************************************************/
-/* Sorting function which characterizes various properties of the atom,
-   along one channel */
-int MP_Atom_c::satisfies( int field, int test, MP_Real_t val, MP_Chan_t chanIdx ) {
-  
-  const char* func = "MP_Atom_c::satisfies(...)";
+/*
+ * Sorting function which characterizes various properties of the atom,
+ * along one channel 
+ */
+int MP_Atom_c::satisfies(int field, int test, MP_Real_t val,
+		     MP_Chan_t chanIdx)
+{
+
+  const char *func = "MP_Atom_c::satisfies(...)";
   MP_Real_t x;
-  int has = has_field ( field );
-  
-  if ( test == MP_HAS ){
-    return ( has );
-  }
-  else {
-    if ( has == MP_FALSE ) {
-      mp_warning_msg( func, "Unknown field. Returning TRUE.\n" );
-      return( MP_TRUE );
+  int has = has_field(field);
+
+  if (test == MP_HAS) {
+    return (has);
+  } else {
+    if (has == MP_FALSE) {
+      mp_warning_msg(func, "Unknown field. Returning TRUE.");
+      return (MP_TRUE);
     } else {
-      x = (MP_Real_t) get_field( field , chanIdx);
-      switch ( test ) {
+      x = (MP_Real_t) get_field(field, chanIdx);
+      switch (test) {
       case MP_SUPER:
-	return( x > val );
+	return (x > val);
       case MP_SUPEQ:
-	return( x >= val );
+	return (x >= val);
       case MP_EQ:
-	return( x == val );
+	return (x == val);
       case MP_INFEQ:
-	return( x <= val );
+	return (x <= val);
       case MP_INFER:
-	return( x < val );
-      default :
-	mp_warning_msg( func, "Unknown test. Returning TRUE." );
-	return( MP_TRUE );
+	return (x < val);
+      default:
+	mp_warning_msg(func, "Unknown test. Returning TRUE.");
+	return (MP_TRUE);
       }
     }
   }
 }
 
-int MP_Atom_c::has_field( int field ) {
+int MP_Atom_c::has_field(int field)
+{
   switch (field) {
-  case MP_LEN_PROP :   return( MP_TRUE );
-  case MP_POS_PROP :   return( MP_TRUE );
-  case MP_AMP_PROP :   return( MP_TRUE );
-  default : return( MP_FALSE );
+  case MP_LEN_PROP:
+    return (MP_TRUE);
+  case MP_POS_PROP:
+    return (MP_TRUE);
+  case MP_AMP_PROP:
+    return (MP_TRUE);
+  default:
+    return (MP_FALSE);
   }
 }
 
-MP_Real_t MP_Atom_c::get_field( int field , MP_Chan_t chanIdx ) {
+MP_Real_t MP_Atom_c::get_field(int field, MP_Chan_t chanIdx)
+{
   MP_Real_t x;
   switch (field) {
-  case MP_LEN_PROP :
+  case MP_LEN_PROP:
     x = (MP_Real_t)(support[chanIdx].len);
     break;
-  case MP_POS_PROP :
+  case MP_POS_PROP:
     x = (MP_Real_t)(support[chanIdx].pos);
     break;
-  case MP_AMP_PROP :
+  case MP_AMP_PROP:
     x = amp[chanIdx];
     break;
-  default :
+  default:
     x = (MP_Real_t)0.0;
   }
   return(x);

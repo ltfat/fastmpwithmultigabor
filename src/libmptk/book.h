@@ -96,7 +96,7 @@ public:
   MPTK_LIB_EXPORT static MP_Book_c* create();
   MPTK_LIB_EXPORT static MP_Book_c* create(MP_Chan_t numChans, unsigned long int numSamples, int sampleRate );
   MPTK_LIB_EXPORT static MP_Book_c* create( FILE *fid );
-private:
+protected:
   /* NULL constructor */
   MP_Book_c();
 

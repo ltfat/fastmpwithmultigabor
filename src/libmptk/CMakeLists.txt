@@ -35,10 +35,13 @@ SET(HEADER_FILE
 	${CMAKE_SOURCE_DIR}/src/libmptk/regression.h        
 	${CMAKE_SOURCE_DIR}/src/libmptk/mp_signal.h         
 	${CMAKE_SOURCE_DIR}/src/libmptk/tfmap.h             
+	${CMAKE_SOURCE_DIR}/src/libmptk/atom_param.h
+	${CMAKE_SOURCE_DIR}/src/libmptk/freq_atom_param.h
 	${CMAKE_SOURCE_DIR}/src/libmptk/atom.h
 	${CMAKE_SOURCE_DIR}/src/libmptk/block.h     
 	${CMAKE_SOURCE_DIR}/src/libmptk/mask.h              
 	${CMAKE_SOURCE_DIR}/src/libmptk/book.h 
+	${CMAKE_SOURCE_DIR}/src/libmptk/gp_book.h
 	${CMAKE_SOURCE_DIR}/src/libmptk/dict.h       
 	${CMAKE_SOURCE_DIR}/src/libmptk/anywave_table.h
 	${CMAKE_SOURCE_DIR}/src/libmptk/anywave_server.h    
@@ -52,6 +55,12 @@ SET(HEADER_FILE
 	${CMAKE_SOURCE_DIR}/src/libmptk/mpd_demix_core.h
 	${CMAKE_SOURCE_DIR}/src/libmptk/mptk_env.h
 	${CMAKE_SOURCE_DIR}/src/libmptk/mp_hash_container_header.h
+	${CMAKE_SOURCE_DIR}/src/libmptk/gp_param_book.h
+	${CMAKE_SOURCE_DIR}/src/libmptk/gp_pos_book.h
+	${CMAKE_SOURCE_DIR}/src/libmptk/gp_block_book.h
+	${CMAKE_SOURCE_DIR}/src/libmptk/gp_pos_range_sub_book.h	
+	${CMAKE_SOURCE_DIR}/src/libmptk/double_index_book.h	
+	${CMAKE_SOURCE_DIR}/src/libmptk/gpd_core.h	
 	)
 #
 #------------------------------------------------
@@ -108,6 +117,8 @@ MACRO(GET_MPTK_LIB_CPPSOURCE out)
 	${CMAKE_SOURCE_DIR}/src/libmptk/convolution.cpp
 	${CMAKE_SOURCE_DIR}/src/libmptk/atom_factory.cpp
 	${CMAKE_SOURCE_DIR}/src/libmptk/block_factory.cpp
+	${CMAKE_SOURCE_DIR}/src/libmptk/atom_param.cpp
+	${CMAKE_SOURCE_DIR}/src/libmptk/gp_book.cpp
 	${MPTK_BINARY_DIR}/src/libmptk/dict.cpp
 	${CMAKE_SOURCE_DIR}/src/libmptk/mask.cpp
 	${CMAKE_SOURCE_DIR}/src/libmptk/book.cpp
@@ -116,7 +127,15 @@ MACRO(GET_MPTK_LIB_CPPSOURCE out)
 	${CMAKE_SOURCE_DIR}/src/libmptk/mpd_core.cpp
 	${CMAKE_SOURCE_DIR}/src/libmptk/mpd_demix_core.cpp
 	${CMAKE_SOURCE_DIR}/src/libmptk/mptk_env.cpp
-  )
+	${CMAKE_SOURCE_DIR}/src/libmptk/gp_param_book.cpp
+	${CMAKE_SOURCE_DIR}/src/libmptk/gp_pos_book.cpp
+	${CMAKE_SOURCE_DIR}/src/libmptk/gp_block_book.cpp
+	${CMAKE_SOURCE_DIR}/src/libmptk/gp_pos_range_sub_book.cpp
+	${CMAKE_SOURCE_DIR}/src/libmptk/double_index_book.cpp
+  	${CMAKE_SOURCE_DIR}/src/libmptk/gpd_core.cpp
+	${CMAKE_SOURCE_DIR}/src/libmptk/freq_atom_param.cpp
+	)
+
 ENDMACRO(GET_MPTK_LIB_CPPSOURCE)
 
 #------------------------------------------------

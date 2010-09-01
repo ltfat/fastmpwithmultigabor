@@ -112,7 +112,7 @@ MP_Block_c* MP_Mdct_Block_Plugin_c::create( MP_Signal_c *setSignal, map<string, 
       return( NULL );
     }
 
-  if (( window_needs_option(windowType)) && (!((*paramMap)["windowopt"].size()>0)))
+  if ( window_needs_option(windowType) && (!(*paramMap)["windowopt"].size()>0) )
     {
       mp_error_msg( func, "Mclt block "
                     " requires a window option (the opt=\"\" attribute is probably missing"
@@ -468,6 +468,110 @@ void MP_Mdct_Block_Plugin_c::update_frame(unsigned long int frameIdx,
   *maxFilterIdx = maxIdx;
 }
 
+/********************************************/
+/* Frame-based update of the inner products */
+void MP_Mdct_Block_Plugin_c::update_frame(unsigned long int frameIdx,
+    MP_Real_t *maxCorr,
+    unsigned long int *maxFilterIdx,
+    GP_Param_Book_c* touchBook)
+{
+  unsigned long int inShift;
+  unsigned long int i;
+
+  MP_Real_t *in;
+  MP_Real_t *magPtr;
+
+  double sum;
+  double max;
+  unsigned long int maxIdx;
+  MP_Real_t freq;
+
+  int chanIdx;
+  int numChans;
+
+  double energy;
+
+  unsigned int j;
+  
+  GP_Param_Book_Iterator_c iter;
+  if (!touchBook)
+    return update_frame(frameIdx, maxCorr, maxFilterIdx);
+  iter = touchBook->begin();
+  //cerr << "touchBook.begin() = " << endl;
+  //iter->info(stderr);
+
+  assert( s != NULL );
+  numChans = s->numChans;
+  assert( mag != NULL );
+
+  inShift = frameIdx*filterShift + blockOffset;
+
+  /*----*/
+  /* Fill the mag array: */
+  for ( chanIdx = 0, magPtr = mag;    /* <- for each channel */
+        chanIdx < numChans;
+        chanIdx++,   magPtr += numFreqs )
+    {
+
+      assert( s->channel[chanIdx] != NULL );
+
+      /* Hook the signal and the inner products to the fft */
+      in  = s->channel[chanIdx] + inShift;
+
+      /* Compute the energy */
+      MP_Mclt_Abstract_Block_Plugin_c::compute_transform( in );
+      for ( j = 0 ; j < numFreqs ; j++ )
+        {
+          energy = mcltOutRe[j] * mcltOutRe[j] / atomEnergy[j];
+          *(magPtr+j) = (MP_Real_t)(energy);
+          if (iter!= touchBook->end()){
+             if ( filterLen == fftSize ){
+                freq  = (MP_Real_t)( (double)(j + 0.5 ) / (double)(fft->fftSize) );
+             }
+            else{
+                freq  = (MP_Real_t)( (double)(j) / (double)(fft->fftSize) );
+            }
+            if (freq == iter->get_field(MP_FREQ_PROP, chanIdx)){
+                iter->corr[chanIdx] = mcltOutRe[j]/sqrt(atomEnergy[j]);
+                //cerr << "Updating correlations for atom" << endl;
+                //iter->info(stderr);
+                //cerr << "corr = " << iter->corr[chanIdx] << endl;
+                ++iter;
+            } 
+          }
+        }
+    } /* end foreach channel */
+  /*----*/
+
+  /*----*/
+  /* Make the sum and find the maxcorr: */
+  /* --Element 0: */
+  /* - make the sum */
+  sum = (double)(*(mag));                     /* <- channel 0      */
+  for ( chanIdx = 1, magPtr = mag+numFreqs; /* <- other channels */
+        chanIdx < numChans;
+        chanIdx++,   magPtr += numFreqs )   sum += (double)(*(magPtr));
+  /* - init the max */
+  max = sum;
+  maxIdx = 0;
+  /* -- Following elements: */
+  for ( i = 1; i<numFreqs; i++)
+    {
+      /* - make the sum */
+      sum = (double)(*(mag+i));                     /* <- channel 0      */
+      for ( chanIdx = 1, magPtr = mag+numFreqs+i; /* <- other channels */
+            chanIdx < numChans;
+            chanIdx++,   magPtr += numFreqs ) sum += (double)(*(magPtr));
+      /* - update the max */
+      if ( sum > max )
+        {
+          max = sum;
+          maxIdx = i;
+        }
+    }
+  *maxCorr = (MP_Real_t)max;
+  *maxFilterIdx = maxIdx;
+}
 
 /***************************************/
 /* Output of the ith atom of the block */

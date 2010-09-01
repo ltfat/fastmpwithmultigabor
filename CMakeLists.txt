@@ -148,20 +148,22 @@ ENDIF(UNIX)
 # DEFAULT REFERENCE FILES
 # --------------------------
 SET(MPTK_DEFAULT_DICT_FILENAME dictionary/dic_gabor_two_scales.xml)
+SET(MPTK_DEFAULT_MDCTDICT_FILENAME dictionary/dic_mdct_two_scales.xml)
 SET(MPTK_DEFAULT_MIXER_FILENAME  mixer/mix_58_mixer.txt)
 SET(MPTK_DEFAULT_ANYWAVETABLE_DATA_FILENAME wavetable/defaultWaveTableData.bin)
+SET(MPTK_DEFAULT_DICT_LIST_INSTALL_PATH dictionary)
+SET(MPTK_DEFAULT_ANYWAVETABLE_INSTALL_PATH wavetable)
+SET(MPTK_DEFAULT_ANYWAVEDICT_INSTALL_PATH dictionary)
 
 # Copied default files
-FOREACH(default DICT MIXER ANYWAVETABLE_DATA)
+FOREACH(default DICT MDCTDICT MIXER ANYWAVETABLE_DATA)
 	SET(MPTK_DEFAULT_${default}_FILE          ${MPTK_REFERENCE_PATH}/${MPTK_DEFAULT_${default}_FILENAME})
 	SET(MPTK_DEFAULT_${default}_FILE_INSTALL  ${MPTK_REFERENCE_PATH_INSTALL}/${MPTK_DEFAULT_${default}_FILENAME})
 	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/${MPTK_DEFAULT_${default}_FILENAME} ${MPTK_DEFAULT_${default}_FILE} COPYONLY)
 	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/${MPTK_DEFAULT_${default}_FILENAME}  ${MPTK_BINARY_DIR}/install/mptk/reference/${MPTK_DEFAULT_${default}_FILENAME} COPYONLY)
 ENDFOREACH(default)
 
-# --------------------------
 # EXAMPLE REFERENCE FILES
-# --------------------------
 SET(MPTK_EXAMPLE_BOOK_FILENAME book/exampleBook.bin)
 SET(MPTK_EXAMPLE_SIGNAL_FILENAME signal/glockenspiel.wav)
 SET(MPTK_EXAMPLE_STEREOSIGNAL_FILENAME signal/mix_58_stereo.wav)
@@ -438,7 +440,7 @@ IF(BUILD_TESTING)
 	ADD_TEST(TEST_MP, ${MPTK_BINARY_DIR}/bin/test_mp  ${MPTK_BINARY_DIR}/mptk/path.xml)
 	ADD_TEST(ANYWAVE, ${MPTK_BINARY_DIR}/bin/test_anywave ${MPTK_REFERENCE_PATH}/signal/anywave_signal.wav ${MPTK_DEFAULT_ANYWAVETABLE_FILE} ${MPTK_DEFAULT_ANYWAVEDICT_FILE})
 	ADD_TEST(MPD_DEMIX, ${MPTK_BINARY_DIR}/bin/mpd_demix -C ${MPTK_BINARY_DIR}/mptk/path.xml -D ${MPTK_DEFAULT_DICT_LIST_FILE} -M ${MPTK_DEFAULT_MIXER_FILE} -n 10 ${MPTK_EXAMPLE_STEREOSIGNAL_FILE} ${MPTK_TMP_PATH}/test_demix.bin)
-	ADD_TEST(SCRIPT1, ${MPTK_BINARY_DIR}/bin/script/test_mpcycle${BATCHEXT})
+	ADD_TEST(GPD, ${MPTK_BINARY_DIR}/bin/gpd -C ${MPTK_BINARY_DIR}/mptk/path.xml -D ${MPTK_DEFAULT_MDCTDICT_FILE} -n 10 -q ${MPTK_REFERENCE_PATH}/signal/glockenspiel.wav ${MPTK_TMP_PATH}/test_gpd.bin)
 ENDIF(BUILD_TESTING)
 
 ##############################################################################
