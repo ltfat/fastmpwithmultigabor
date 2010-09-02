@@ -67,7 +67,7 @@ case $PIPOL_IMAGE in
 	    "$MSVC_PATH/Common7/Tools/vsvars32.bat"
 
 		#Cleaning the project
-		"$VCBUILD" MPTK.sln /Clean
+		"$VCBUILD" MPTK.sln /Clean "Release|Win32"
 
 		#Project build
 		"$VCBUILD" MPTK.sln /Build "Release|Win32"
