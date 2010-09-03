@@ -150,6 +150,8 @@ public:
   MPTK_LIB_EXPORT MP_Var_Array_c( void ) { elem = NULL; nElem = maxNElem = 0; blockSize = MP_VAR_ARRAY_DEFAULT_BLOCK_SIZE; }
   MPTK_LIB_EXPORT MP_Var_Array_c( unsigned long int setBlockSize ) { elem = NULL; nElem = maxNElem = 0; blockSize = setBlockSize; }
   MPTK_LIB_EXPORT ~MP_Var_Array_c() { if ( elem ) free( elem ); }
+
+  MPTK_LIB_EXPORT MP_Var_Array_c& operator=(const MP_Var_Array_c& cSource);
   MPTK_LIB_EXPORT int append( TYPE newElem );
   MPTK_LIB_EXPORT unsigned long int save_ui_to_text ( const char* fName );
   MPTK_LIB_EXPORT unsigned long int save ( const char* fName );

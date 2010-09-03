@@ -215,11 +215,14 @@ char* deblank( char *str ) {
 template <class TYPE>
 int MP_Var_Array_c<TYPE>::append( TYPE newElem ) {
 
-  if ( nElem == maxNElem ) {
+  if ( nElem == maxNElem ) 
+  {
     TYPE* tmp;
     tmp = (TYPE*) realloc( elem, (maxNElem+blockSize)*sizeof(TYPE) );
-    if ( tmp == NULL ) return( 0 );
-    else {
+    if ( tmp == NULL ) 
+		return( 0 );
+    else 
+	{
       elem = tmp;
       memset( elem+maxNElem, 0, blockSize*sizeof( TYPE ) );
       maxNElem += blockSize;
@@ -229,6 +232,30 @@ int MP_Var_Array_c<TYPE>::append( TYPE newElem ) {
   nElem++;
 
   return( 1 );
+}
+
+// Assignment operator
+template <class TYPE>
+MP_Var_Array_c<TYPE>& MP_Var_Array_c<TYPE>::operator=(const MP_Var_Array_c<TYPE>& cSource){
+    TYPE* tmp;
+    // check for self-assignment
+    if (this == &cSource)
+        return *this;
+	// First we need to copy the elements
+	nElem = cSource.nElem;
+	maxNElem = cSource.maxNElem;
+	blockSize = cSource.blockSize;
+	// Second we need to allocate memory for our copy
+	tmp = (TYPE*) malloc((maxNElem+blockSize)*sizeof(TYPE));
+	if(tmp == NULL)
+		throw bad_alloc();
+    // Third we need to deallocate any value that elem is holding!
+    free(elem);
+    // allocate memory for our copy
+	elem = tmp;
+	// Copy the parameter the newly allocated memory
+	memcpy(elem, cSource.elem, nElem*sizeof(TYPE));
+	return *this;
 }
 
 /* Save function for the MP_Var_Array_c class */

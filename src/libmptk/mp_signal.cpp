@@ -1114,21 +1114,28 @@ MP_Real_t MP_Signal_c::deemp( double coeff )
 /* Assignment operator          */
 MP_Signal_c& MP_Signal_c::operator=( const MP_Signal_c& from )
 {
+	MP_Chan_t chanIdx;
 
-  mp_debug_msg( MP_DEBUG_FUNC_ENTER, "MP_Signal_c::operator=()", "Assigning a signal...\n" );
-
-  /* If every allocation went OK, copy the data */
-  if ( init( from.numChans, from.numSamples, from.sampleRate ) )
+	mp_debug_msg( MP_DEBUG_FUNC_ENTER, "MP_Signal_c::operator=()", "Assigning a signal...\n" );
+	/* If every allocation went OK, copy the data */
+	if ( this->init_parameters( from.numChans, from.numSamples, from.sampleRate ) == 0)
     {
-      memcpy( storage, from.storage, numChans*numSamples*sizeof(MP_Real_t) );
+		memcpy( storage, from.storage, numChans*numSamples*sizeof(MP_Real_t) );
+		/* Copy the relevant support */
+		for ( chanIdx = 0; chanIdx < numChans; chanIdx++ )
+			memcpy( channel[chanIdx], from.channel[chanIdx], numChans*sizeof(MP_Real_t) );
     }
+	else
+		throw bad_alloc();
 
-  /* Copy the energy */
-  energy = from.energy;
-
-  mp_debug_msg( MP_DEBUG_FUNC_EXIT, "MP_Signal_c::operator=()", "Assignment done.\n" );
-
-  return( *this );
+	// Copy the other parameters
+	energy = from.energy;
+	sampleRate = from.sampleRate;
+	clipping = from.clipping;
+	maxclipping = from.maxclipping;
+	
+	mp_debug_msg( MP_DEBUG_FUNC_EXIT, "MP_Signal_c::operator=()", "Assignment done.\n" );
+	return( *this );
 }
 
 
@@ -1185,9 +1192,7 @@ MP_Bool_t MP_Signal_c::diff( const MP_Signal_c& s1, double precision )
   /* Browse until different sample values are found */
   for ( chanIdx = 0; chanIdx < numChans; chanIdx++ )
     {
-      for ( i = 0;
-            (i < numSamples);
-            i++ ) { 
+      for ( i = 0;(i < numSamples); i++ ) { 
       /* And check where the loop stopped: */
       if ( ( (channel[chanIdx][i]- s1.channel[chanIdx][i])*(channel[chanIdx][i]- s1.channel[chanIdx][i]) >= precision*precision ) ){
       	mp_warning_msg( "MP_Signal_c::diff", "diff in sample :[%i]\n",i );
