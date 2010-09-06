@@ -40,9 +40,9 @@
 #include "getopt.h"
 
 
-static char *cvsid = "$Revision: 1145 $";
+static const char *cvsid = "$Revision: 1145 $";
 
-char* func = "gpd";
+const char* func = "gpd";
 
 
 

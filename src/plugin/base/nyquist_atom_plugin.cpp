@@ -240,12 +240,10 @@ int MP_Nyquist_Atom_Plugin_c::add_to_tfmap( MP_TF_Map_c *tfmap, const char /* tf
 int MP_Nyquist_Atom_Plugin_c::has_field( int field )
 {
 
-  if ( MP_Atom_c::has_field( field ) ) return (MP_TRUE);
-  else switch (field)
-      {
-      default:
-        return( MP_FALSE );
-      }
+  if ( MP_Atom_c::has_field( field ) ) 
+	  return (MP_TRUE);
+  else 
+	  return(MP_FALSE);
 }
 
 MP_Real_t MP_Nyquist_Atom_Plugin_c::get_field( int field , MP_Chan_t chanIdx )
@@ -253,12 +251,10 @@ MP_Real_t MP_Nyquist_Atom_Plugin_c::get_field( int field , MP_Chan_t chanIdx )
 
   MP_Real_t x;
 
-  if ( MP_Atom_c::has_field( field ) ) return (MP_Atom_c::get_field(field,chanIdx));
-  else switch (field)
-      {
-      default:
-        x = 0.0;
-      }
+  if ( MP_Atom_c::has_field( field ) ) 
+	  return (MP_Atom_c::get_field(field,chanIdx));
+  else 
+	  x = 0.0;
   return( x );
 }
 

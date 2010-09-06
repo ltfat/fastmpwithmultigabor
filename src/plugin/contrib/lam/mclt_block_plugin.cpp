@@ -111,7 +111,7 @@ MP_Block_c* MP_Mclt_Block_Plugin_c::create( MP_Signal_c *setSignal, map<string, 
       return( NULL );
     }
 
-  if ( window_needs_option(windowType) && (!(*paramMap)["windowopt"].size()>0) )
+  if ( window_needs_option(windowType) && ((*paramMap)["windowopt"].size() == 0) )
     {
       mp_error_msg( func, "Mclt block "
                     " requires a window option (the opt=\"\" attribute is probably missing"

@@ -91,36 +91,26 @@ int GP_Param_Book_c::append(MP_Atom_c* atom){
   
   if (!atom){
     cerr << "GP_Param_Book_c::append NULL atom" << endl;
-    return 0;
+    return false;
   }
-  
-  if (blockIdx != atom->blockIdx){
-    delete param;
+  if (blockIdx != atom->blockIdx)
     return 0;
-    //mp_error_msg("Cannot add atom to sub-book with different block index\n");
-  }
-  if (pos != atom->get_pos()){
-    delete param;
+  if (pos != atom->get_pos())
     return 0;
-    //mp_error_msg("Cannot add atom to sub-book with different position\n");
-  }
 
   param = atom->get_atom_param();
   if (!param){
     cerr << "GP_Param_Book_c::append NULL param" << endl;
     return 0;
   }
-  //cerr << "param->freq ==" << (dynamic_cast<MP_Freq_Atom_Param_c*>(param))->freq << endl;
 
   previous = find(param);
   if (previous!=paramBookMap::end()){
-    //cerr << "GP_Param_Book_c::append existing atom" << endl;
     previous->second->info(stderr);
     delete param;
     return 1;
   }
   res = insert(pair<MP_Atom_Param_c*, MP_Atom_c*>(param, atom));
-  //cerr << "GP_Param_Book_c::append succesfull" << endl;
   return res.second;
 }
 

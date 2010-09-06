@@ -155,7 +155,7 @@ MP_Block_c* MP_Harmonic_Block_Plugin_c::create( MP_Signal_c *setSignal, map<stri
       mp_error_msg( func, "No parameter windowtype in the parameter map.\n" );
       return( NULL );
     } 
-     if ( window_needs_option(windowType) && (!(*paramMap)["windowopt"].size()>0) ) {
+     if ( window_needs_option(windowType) && ((*paramMap)["windowopt"].size() == 0) ) {
       mp_error_msg( func, "Gabor or harmonic block"
 		    " requires a window option (the opt=\"\" attribute is probably missing"
 		    " in the relevant <window> tag). Returning a NULL block.\n" );

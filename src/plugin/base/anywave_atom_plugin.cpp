@@ -534,11 +534,20 @@ bool MP_Anywave_Atom_Plugin_c::read_filename_txt( const char* line, const char* 
 
 bool MP_Anywave_Atom_Plugin_c::read_filename_bin( FILE* fid, char* outputStr)
 {
-
-  size_t numChar;
-  fread(&numChar, sizeof(unsigned long int), 1, fid );
-  fread(outputStr, sizeof(char), numChar, fid);
-  outputStr[numChar-1] = '\0';
+	const char * func = "MP_Anywave_Atom_Plugin_c::read_filename_bin";
+	size_t numChar;
+	
+	if (fread(&numChar, sizeof(unsigned long int), 1, fid ) != 1)
+	{
+		mp_error_msg( func, "Failed to read the number of characters of the binary filename.\n");
+		return(false);
+	}
+	if(fread(outputStr, sizeof(char), numChar, fid) != numChar)
+	{
+		mp_error_msg( func, "Failed to read the output string of the binary filename.\n");
+		return(false);
+	}
+	outputStr[numChar-1] = '\0';
   return(true);
 }
 

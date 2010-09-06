@@ -250,10 +250,7 @@ GP_Pos_Book_Iterator_c& GP_Pos_Book_Iterator_c::go_to_next_block(void){
 bool GP_Pos_Book_Iterator_c::operator == (const GP_Book_Iterator_c& arg)const{
     if (typeid(*this) != typeid(arg))
         return false;
-  return (book == (dynamic_cast<const GP_Pos_Book_Iterator_c&>(arg)).book) &&
-  ( (posIter == book->posBookMap::end() && (dynamic_cast<const GP_Pos_Book_Iterator_c&>(arg)).posIter == book->posBookMap::end()) ||
-    (posIter == (dynamic_cast<const GP_Pos_Book_Iterator_c&>(arg)).posIter) && 
-    (paramIter == (dynamic_cast<const GP_Pos_Book_Iterator_c&>(arg)).paramIter));
+  return (book == (dynamic_cast < const GP_Pos_Book_Iterator_c&>(arg)).book) && ((posIter == book->posBookMap::end() && (dynamic_cast < const GP_Pos_Book_Iterator_c&>(arg)).posIter == book->posBookMap::end()) || ((posIter == (dynamic_cast<const GP_Pos_Book_Iterator_c&>(arg)).posIter) && (paramIter == (dynamic_cast<const GP_Pos_Book_Iterator_c&>(arg)).paramIter)));
 }
 
 GP_Pos_Book_Iterator_c* GP_Pos_Book_Iterator_c::copy(void)const{
