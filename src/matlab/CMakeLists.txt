@@ -66,44 +66,34 @@ SET(MPTK_MATLAB_INSTALL_DIR mptk/matlab)
 # Main script files, always installed
 ############################################
 # README file
-CONFIGURE_FILE(${MPTK_MATLAB_SRC_DIR}/README ${MPTK_MATLAB_OUTPUT_DIR}/README  
-               COPYONLY)           
-INSTALL(FILES ${MPTK_MATLAB_OUTPUT_DIR}/README 
-        DESTINATION ${MPTK_MATLAB_INSTALL_DIR})
+CONFIGURE_FILE(${MPTK_MATLAB_SRC_DIR}/README ${MPTK_MATLAB_OUTPUT_DIR}/README COPYONLY)           
+INSTALL(FILES ${MPTK_MATLAB_OUTPUT_DIR}/README DESTINATION ${MPTK_MATLAB_INSTALL_DIR})
 
 # Getting started script
 FOREACH(file GettingStarted.m)
     SET(MPTK_CONFIG_FILENAME ${MPTK_BINARY_DIR}/mptk/path.xml)
-    CONFIGURE_FILE(${MPTK_MATLAB_SRC_DIR}/${file}.in ${MPTK_MATLAB_OUTPUT_DIR}/${file}
-                  @ONLY)
+    CONFIGURE_FILE(${MPTK_MATLAB_SRC_DIR}/${file}.in ${MPTK_MATLAB_OUTPUT_DIR}/${file} @ONLY)
     SET(MPTK_CONFIG_FILENAME ${CMAKE_INSTALL_PREFIX}/mptk/path.xml)
-    CONFIGURE_FILE(${MPTK_MATLAB_SRC_DIR}/${file}.in ${MPTK_MATLAB_OUTPUT_DIR}/for_install_only/${file}
-                   @ONLY)     
-    INSTALL(FILES ${MPTK_MATLAB_OUTPUT_DIR}/for_install_only/${file}
-            DESTINATION ${MPTK_MATLAB_INSTALL_DIR})
+    CONFIGURE_FILE(${MPTK_MATLAB_SRC_DIR}/${file}.in ${MPTK_MATLAB_OUTPUT_DIR}/for_install_only/${file} @ONLY)     
+    INSTALL(FILES ${MPTK_MATLAB_OUTPUT_DIR}/for_install_only/${file} DESTINATION ${MPTK_MATLAB_INSTALL_DIR})
 ENDFOREACH(file)
-
 
 # SCRIPT FILES
 # List of stable script files to be copied and installed
 FOREACH(scriptfile bookover.m bookplot.m mpview.m bookedit.m dictcreate_gui.m  MPtoolbaricons.mat)
    # Copy the script
-   CONFIGURE_FILE(${MPTK_MATLAB_SRC_DIR}/scripts/${scriptfile} ${MPTK_MATLAB_OUTPUT_DIR}/${scriptfile}
-                  COPYONLY)
+   CONFIGURE_FILE(${MPTK_MATLAB_SRC_DIR}/scripts/${scriptfile} ${MPTK_MATLAB_OUTPUT_DIR}/${scriptfile} COPYONLY)
    # Set rule to install it
-   INSTALL(FILES ${MPTK_MATLAB_OUTPUT_DIR}/${scriptfile}
-           DESTINATION ${MPTK_MATLAB_INSTALL_DIR})
+   INSTALL(FILES ${MPTK_MATLAB_OUTPUT_DIR}/${scriptfile} DESTINATION ${MPTK_MATLAB_INSTALL_DIR})
 ENDFOREACH(scriptfile)
 
 IF(BUILD_MATLAB_MEX_FILES_EXPERIMENTAL)
 # List of experimental script files to be copied and installed
 FOREACH(scriptfile createrandomdictionary.m create_synthetic_data.m savetable.m tableread.m test_anywave.m test_mpd_demix.m)
    # Copy the script
-   CONFIGURE_FILE(${MPTK_MATLAB_SRC_DIR}/scripts/experimental/${scriptfile} ${MPTK_MATLAB_OUTPUT_DIR}/${scriptfile}
-                  COPYONLY)
+   CONFIGURE_FILE(${MPTK_MATLAB_SRC_DIR}/scripts/experimental/${scriptfile} ${MPTK_MATLAB_OUTPUT_DIR}/${scriptfile} COPYONLY)
    # Set rule to install it
-   INSTALL(FILES ${MPTK_MATLAB_OUTPUT_DIR}/${scriptfile}
-           DESTINATION ${MPTK_MATLAB_INSTALL_DIR})
+   INSTALL(FILES ${MPTK_MATLAB_OUTPUT_DIR}/${scriptfile} DESTINATION ${MPTK_MATLAB_INSTALL_DIR})
 ENDFOREACH(scriptfile)
 
 ENDIF(BUILD_MATLAB_MEX_FILES_EXPERIMENTAL)
@@ -130,11 +120,11 @@ experimental/classes/mxBook.cpp)
 ADD_LIBRARY(mptk4matlab SHARED ${MPTK4MATLAB_SOURCES})
 
 SET_TARGET_PROPERTIES(mptk4matlab PROPERTIES
-		      COMPILE_FLAGS " -DC_BUILDING_mptk4matlab ${SHARED_FLAGS} ${MPTK4MATLAB_COMPILE_FLAGS} -I${MATLAB_INCLUDE_DIR} -I${MPTK_SOURCE_DIR}/src/plugin/base/ -I${MPTK_SOURCE_DIR}/src/plugin/contrib/lam/"
+		      COMPILE_FLAGS " -DC_BUILDING_mptk4matlab ${CMAKE_SHARED_LINKER_FLAGS} -I${MATLAB_INCLUDE_DIR} -I${MPTK_SOURCE_DIR}/src/plugin/base/ -I${MPTK_SOURCE_DIR}/src/plugin/contrib/lam/"
                       PREFIX ""
                       OUTPUT_NAME "libmptk4matlab"
                       )
-TARGET_LINK_LIBRARIES(mptk4matlab  mptk ${MATLAB_LIBRARIES} ${MATLAB_MEX_LIBRARY})
+TARGET_LINK_LIBRARIES(mptk4matlab mptk ${MATLAB_LIBRARIES} ${MATLAB_MEX_LIBRARY})
 ADD_DEPENDENCIES(mptk4matlab mptk)
 INSTALL(TARGETS
   mptk4matlab
@@ -147,13 +137,13 @@ INSTALL(TARGETS
 FOREACH(target getmptkinfo dictread dictwrite sigread sigwrite bookread bookwrite mprecons mpdecomp)
    ADD_CUSTOM_TARGET(matlab_${target} 
    	             ALL echo
-                     DEPENDS  
-		     ${MPTK_MATLAB_OUTPUT_DIR}/${target}.${MEX_EXTENSION} 
-		     ${MPTK_MATLAB_SRC_DIR}/${target}.cpp 
+                     DEPENDS
+		     ${MPTK_MATLAB_OUTPUT_DIR}/${target}.${MEX_EXTENSION}
+		     ${MPTK_MATLAB_SRC_DIR}/${target}.cpp
 		     mptk4matlab)
  
    ## ======> What is the use of this line ?
-   SET_TARGET_PROPERTIES(matlab_${target} PROPERTIES GENERATED true )
+   SET_TARGET_PROPERTIES(matlab_${target} PROPERTIES GENERATED true COMPILE_FLAGS "-DC_BUILDING_MPTK ${CMAKE_SHARED_LINKER_FLAGS}")
 
    # Command to generate the MEX-binary
    IF(APPLE)
