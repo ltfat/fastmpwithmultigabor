@@ -29,8 +29,6 @@ SET(LIBMEX "mex")
 SET(LIBMX "mx")
 SET(LIBENG "eng")
 
-MESSAGE("<<<<<<<< ${CMAKE_SIZEOF_VOID_P} >>>>>>>>>>>>")
-
 IF(UNIX)
 	IF(APPLE)
 		FILE(GLOB MATLAB_PATHS "/Applications/MATLAB_*" "/netshare/none/matlab-*")
@@ -77,6 +75,7 @@ IF(UNIX)
 		ENDIF(NOT MATLAB_ROOT)
 		IF(CMAKE_SIZEOF_VOID_P MATCHES "4")
   			# 32 bits OS
+  			MESSAGE("<<<<<<<<< >>>>>>>>>>>")
 			SET(MATLAB_LIBRARIES_PATHS "${MATLAB_ROOT}/bin/glnx86")
 			SET(MEX_EXTENSION mexglx)
 		ELSE(CMAKE_SIZEOF_VOID_P MATCHES "4")
