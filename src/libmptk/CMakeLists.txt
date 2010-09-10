@@ -149,37 +149,6 @@ SET_SOURCE_FILES_PROPERTIES(
   PROPERTIES GENERATED true
 )
 #
-#------------------------------------------------
-#Create the library in dynamic format:
-IF(WIN32)
-	IF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
-		IF( CMAKE_CXX_COMPILER STREQUAL "cl")
-			SET(CMAKE_SHARED_LINKER_FLAGS "-fPIC ")
-		ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
-			SET(CMAKE_SHARED_LINKER_FLAGS "-fPIC -Wl,--export-all-symbols,--enable-auto-import,--enable-runtime-pseudo-reloc -Wno-deprecated")
-		ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
-	ELSE( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
-		IF( CMAKE_CXX_COMPILER STREQUAL "cl")
-			SET(CMAKE_SHARED_LINKER_FLAGS "")
-		ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
-			SET(CMAKE_SHARED_LINKER_FLAGS "-Wl,--export-all-symbols,--enable-auto-import,--enable-runtime-pseudo-reloc  -Wno-deprecated")
-		ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
-	ENDIF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
-ELSE(WIN32)
-	IF(APPLE)
-		IF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
-			SET(CMAKE_SHARED_LINKER_FLAGS "-fPIC -single_module -Wno-deprecated") 
-		ELSE( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
-			SET(CMAKE_SHARED_LINKER_FLAGS "-single_module -Wno-deprecated") 
-		ENDIF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
-	ELSE(APPLE)
-		IF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
-			SET(CMAKE_SHARED_LINKER_FLAGS "-fPIC -Wl,--export-dynamic -Wno-deprecated")
-		ELSE( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
-			SET(CMAKE_SHARED_LINKER_FLAGS " -Wl,--export-dynamic -Wno-deprecated")
-		ENDIF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
-	ENDIF(APPLE)
-ENDIF(WIN32)
 
 ADD_LIBRARY(mptk SHARED ${MPTK_LIB_CPPSOURCE})
 #In case of 64 bits plateform we have to compil with -fPIC flag
