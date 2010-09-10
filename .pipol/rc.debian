@@ -53,3 +53,8 @@ echo "---------------------------------------------------"
 echo "Installation de la librairie fftw3..."
 echo "---------------------------------------------------"
 apt-get install -y -qq libfftw3-dev
+echo "---------------------------------------------------"
+echo "Installation de la librairie rpm..."
+echo "---------------------------------------------------"
+apt-get install -y -qq rpm
+
