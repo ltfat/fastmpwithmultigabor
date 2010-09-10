@@ -60,24 +60,16 @@ atomGroup::~atomGroup()
 
 //! Allocate Atom matlab memory for each parameters
 void atomGroup::allocParams(unsigned long int nA, MP_Atom_c* example) {
-	int 		iIndexMono = 0;
-	int 		iIndexMulti = 0;
+	int 		iIndex = 0;
 	// Create param container according to atom type
-	// Default params Fieds
 	MP_Chan_t nC = example->numChans;
 
-	// Multichannels loop
-	for(iIndexMulti = MP_NUM_MULTI_BEGININDEX_PROPS; iIndexMulti < MP_NUM_MULTI_BEGININDEX_PROPS + MP_NUM_MULTI_PROPS; iIndexMulti++)
-	{
-		if(example->has_field(iIndexMulti))
-			params[atomMultiField[iIndexMulti - MP_NUM_MULTI_BEGININDEX_PROPS]] = mxCreateDoubleMatrix(nA, nC, mxREAL);
-	}
-	// Monochannels loop
-	for(iIndexMono = MP_NUM_MONO_BEGININDEX_PROPS; iIndexMono < MP_NUM_MONO_BEGININDEX_PROPS + MP_NUM_MONO_PROPS; iIndexMono++)
-	{
-		if(example->has_field(iIndexMono))
-			params[atomMonoField[iIndexMono - MP_NUM_MONO_BEGININDEX_PROPS]] = mxCreateDoubleMatrix(nA, 1, mxREAL);
-	}
+	for(iIndex = MP_NUM_MONO_BEGININDEX_PROPS; iIndex < MP_NUM_OTHERS_BEGININDEX_PROPS; iIndex++)
+	 {
+		 if(example->has_field(iIndex))
+			 params[atomField[iIndex]] = mxCreateDoubleMatrix(nA, nC, mxREAL);
+	 }
+
 }
             
 //! Read an atom and store values in params mxArrays
@@ -87,60 +79,60 @@ void atomGroup::append(MP_Atom_c *atom) {
 	mp_debug_msg(MP_DEBUG_FUNC_ENTER,func,"entering %s\n",type.c_str());
 
 	// MonoChannels
-	for(iIndexMono = MP_NUM_MONO_BEGININDEX_PROPS; iIndexMono < MP_NUM_MONO_BEGININDEX_PROPS + MP_NUM_MONO_PROPS; iIndexMono++)
+	for(iIndexMono = MP_NUM_MONO_BEGININDEX_PROPS; iIndexMono < MP_NUM_MULTI_BEGININDEX_PROPS; iIndexMono++)
 	{
 		if(atom->has_field(iIndexMono))
 		{
 			if(iIndexMono == MP_NUMPARTIALS_PROP)
 			{
 				iNumPartial = (unsigned int) atom->get_field(iIndexMono,0);
-				*(mxGetPr( params[atomMonoField[iIndexMono - MP_NUM_MONO_BEGININDEX_PROPS]]) + curIdx ) = (double) iNumPartial;
+				*(mxGetPr( params[atomField[iIndexMono]]) + curIdx ) = (double) iNumPartial;
 			}
 			else
-				*(mxGetPr( params[atomMonoField[iIndexMono - MP_NUM_MONO_BEGININDEX_PROPS]]) + curIdx ) = (double) atom->get_field(iIndexMono,0);
+				*(mxGetPr( params[atomField[iIndexMono]]) + curIdx ) = (double) atom->get_field(iIndexMono,0);
 		}
 	}
-
+	 
 	//Harmonicity which allocate params field with numPartials if necessary
-	if (params.find(atomOthersField[MP_HARMONICITY_PROP - MP_NUM_OTHERS_BEGININDEX_PROPS]) == params.end())
+	if (params.find(atomField[MP_HARMONICITY_PROP]) == params.end())
 	{
 		if(atom->has_field(MP_HARMONICITY_PROP))
-			params[atomOthersField[MP_HARMONICITY_PROP - MP_NUM_OTHERS_BEGININDEX_PROPS]] = mxCreateDoubleMatrix(nAtom, iNumPartial, mxREAL);
+			params[atomField[MP_HARMONICITY_PROP]] = mxCreateDoubleMatrix(nAtom, iNumPartial, mxREAL);
 		mwSize dims[3] = {nAtom, iNumPartial, nChannel};
 		if(atom->has_field(MP_PARTIAL_AMP_PROP))
-			params[atomOthersField[MP_PARTIAL_AMP_PROP - MP_NUM_OTHERS_BEGININDEX_PROPS]] = mxCreateNumericArray(3, dims, mxDOUBLE_CLASS, mxREAL);   //! channel dependent
+			params[atomField[MP_PARTIAL_AMP_PROP]] = mxCreateNumericArray(3, dims, mxDOUBLE_CLASS, mxREAL);   //! channel dependent
 		if(atom->has_field(MP_PARTIAL_PHASE_PROP))
-			params[atomOthersField[MP_PARTIAL_PHASE_PROP - MP_NUM_OTHERS_BEGININDEX_PROPS]] = mxCreateNumericArray(3, dims, mxDOUBLE_CLASS, mxREAL); //! channel dependent
+			params[atomField[MP_PARTIAL_PHASE_PROP]] = mxCreateNumericArray(3, dims, mxDOUBLE_CLASS, mxREAL); //! channel dependent
 		// Read harmonicity values
 		for (iIndex = 0 ; iIndex < iNumPartial ; iIndex++)
 		{
 			if(atom->has_field(MP_HARMONICITY_PROP))
-				*( mxGetPr(params[atomOthersField[MP_HARMONICITY_PROP - MP_NUM_OTHERS_BEGININDEX_PROPS]]) + iIndex*nAtom + curIdx ) = (double) atom->get_field(MP_HARMONICITY_PROP,iIndex);
+				*( mxGetPr(params[atomField[MP_HARMONICITY_PROP]]) + iIndex*nAtom + curIdx ) = (double) atom->get_field(MP_HARMONICITY_PROP,iIndex);
 		}
 	}
-
+	
 	// MultiChannels
 	for (iIndexChannel = 0 ; iIndexChannel < nChannel ; iIndexChannel++)
 	{
-		for(iIndexMulti = MP_NUM_MULTI_BEGININDEX_PROPS; iIndexMulti < MP_NUM_MULTI_BEGININDEX_PROPS + MP_NUM_MULTI_PROPS; iIndexMulti++)
+		for(iIndexMulti = MP_NUM_MULTI_BEGININDEX_PROPS; iIndexMulti < MP_NUM_OTHERS_BEGININDEX_PROPS; iIndexMulti++)
 		{
 			if(iIndexMulti == MP_AMP_PROP || iIndexMulti == MP_POS_PROP || iIndexMulti == MP_LEN_PROP)
 			{
 				if(atom->has_field(MP_AMP_PROP))
-					*(mxGetPr( params[atomMultiField[MP_AMP_PROP - MP_NUM_MULTI_BEGININDEX_PROPS]]) + iIndexChannel*nAtom + curIdx ) = (double) atom->amp[iIndexChannel];
+					*(mxGetPr( params[atomField[MP_AMP_PROP]]) + iIndexChannel*nAtom + curIdx ) = (double) atom->amp[iIndexChannel];
 				if(atom->has_field(MP_POS_PROP))
-					*(mxGetPr( params[atomMultiField[MP_POS_PROP - MP_NUM_MULTI_BEGININDEX_PROPS]]) + iIndexChannel*nAtom + curIdx ) = (double) atom->support[iIndexChannel].pos;
+					*(mxGetPr( params[atomField[MP_POS_PROP]]) + iIndexChannel*nAtom + curIdx ) = (double) atom->support[iIndexChannel].pos;
 				if(atom->has_field(MP_LEN_PROP))
-					*(mxGetPr( params[atomMultiField[MP_LEN_PROP - MP_NUM_MULTI_BEGININDEX_PROPS]]) + iIndexChannel*nAtom + curIdx ) = (double) atom->support[iIndexChannel].len;
+					*(mxGetPr( params[atomField[MP_LEN_PROP]]) + iIndexChannel*nAtom + curIdx ) = (double) atom->support[iIndexChannel].len;
 			}
 			else
 			{
 				if(atom->has_field(iIndexMulti))
-					*(mxGetPr( params[atomMultiField[iIndexMulti - MP_NUM_MULTI_BEGININDEX_PROPS]]) + iIndexChannel*nAtom + curIdx ) = (double) atom->get_field(iIndexMulti,iIndexChannel);
+					*(mxGetPr( params[atomField[iIndexMulti]]) + iIndexChannel*nAtom + curIdx ) = (double) atom->get_field(iIndexMulti,iIndexChannel);
 			}
 		}
 
-		for(iIndexOthers = MP_NUM_OTHERS_BEGININDEX_PROPS; iIndexOthers < MP_NUM_OTHERS_BEGININDEX_PROPS + MP_NUM_OTHERS_PROPS; iIndexOthers++)
+		for(iIndexOthers = MP_NUM_OTHERS_BEGININDEX_PROPS; iIndexOthers < MP_NUM_PROPS; iIndexOthers++)
 		{
 			if(iIndexOthers == MP_PARTIAL_AMP_PROP || iIndexOthers == MP_PARTIAL_PHASE_PROP)
 			{
@@ -149,7 +141,7 @@ void atomGroup::append(MP_Atom_c *atom) {
 				{
 					// !! CHECK THESE VALUES
 					if(atom->has_field(iIndexOthers))
-						*(mxGetPr( params[atomOthersField[iIndexOthers - MP_NUM_OTHERS_BEGININDEX_PROPS]]) + iIndexChannel*(nAtom*iNumPartial) + iIndex*nAtom + curIdx ) = (double) atom->get_field(iIndexOthers,iIndex*nChannel+iIndexChannel);
+						*(mxGetPr( params[atomField[iIndexOthers]]) + iIndexChannel*(nAtom*iNumPartial) + iIndex*nAtom + curIdx ) = (double) atom->get_field(iIndexOthers,iIndex*nChannel+iIndexChannel);
 				}
 			}
 		}

@@ -51,9 +51,9 @@
 #include <sstream>
 
 /** Declaration of atomField names in relation with #defines in atom.h */
-static const char *atomMultiField[] =		{"len","pos","amp","realPart","hilbertPart","phase"};
-static const char *atomMonoField[] =		{"freq","chirp","tableIdx","anywaveIdx","realTableIdx","hilbertTableIdx","windowtype","windowoption","numPartial"};
-static const char *atomOthersField[] =		{"anywaveTable","anywaveRealTable","anywaveHilbertTable","harmonicity","partialAmp","partialPhase"};
+static const char *atomField[] =	{"len","pos","amp","realPart","hilbertPart","phase",
+									"freq","chirp","tableIdx","anywaveIdx","realTableIdx","hilbertTableIdx","windowtype","windowoption","numPartial",
+									"anywaveTable","anywaveRealTable","anywaveHilbertTable","harmonicity","partialAmp","partialPhase"};
 
 /**
  *

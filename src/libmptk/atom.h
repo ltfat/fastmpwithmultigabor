@@ -62,39 +62,39 @@
 /* CONSTANTS           */
 /***********************/
 
-/* some type of properties for atom->satisfies() */
-// Multichannels
-#define MP_LEN_PROP						0 /** Length in samples \sa MP_Atom_c::satisfies()*/
-#define MP_POS_PROP						1 /** Position in samples \sa MP_Atom_c::satisfies()*/
-#define MP_AMP_PROP						2 /** Amplitude \sa MP_Atom_c::satisfies()*/
-#define MP_REAL_PART_PROP				3 /** Part of the amplitude due to the real waveform \sa MP_Anywave_Hilbert_Atom_c::satisfies()*/
-#define MP_HILBERT_PART_PROP			4 /** Part of the amplitude due to the hilbert waveform \sa MP_Anywave_Hilbert_Atom_c::satisfies()*/
-#define MP_PHASE_PROP					5 /** Phase in radians \sa MP_Atom_c::satisfies()*/
-// Monochannels
-#define MP_FREQ_PROP					6 /** Normalized frequency, between 0 and 0.5 \sa MP_Atom_c::satisfies() */
-#define MP_CHIRP_PROP					7 /** Chirp factor \sa MP_Atom_c::satisfies() */
-#define MP_TABLE_IDX_PROP				8 /** Index of the wave table in the wave server \sa MP_Atom_c::satisfies()*/
-#define MP_ANYWAVE_IDX_PROP				9 /** Index of the wave in the wave table \sa MP_Atom_c::satisfies() */
-#define MP_REAL_TABLE_IDX_PROP			10 /** Index of the wave table in the wave server \sa MP_Anywave_Hilbert_Atom_c::satisfies()*/
-#define MP_HILBERT_TABLE_IDX_PROP		11 /** Index of the wave table in the wave server \sa MP_Anywave_Hilbert_Atom_c::satisfies()*/
-#define MP_WINDOW_TYPE_PROP				12 /** Window type index \sa MP_Atom_c::satisfies() */
-#define MP_WINDOW_OPTION_PROP			13 /** Window option for specific types \sa MP_Atom_c::satisfies() */
-#define MP_NUMPARTIALS_PROP				14 /** Number of partials for Harmonic atoms \sa MP_Atom_c::satisfies() */
-// Not used for Matlab but MPTK
-#define MP_ANYWAVE_TABLE_PROP			15 /** Pointer to the waveTable containing the waveform \sa MP_Atom_c::satisfies() */
-#define MP_ANYWAVE_REAL_TABLE_PROP		16 /** Pointer to the waveTable containing the waveform \sa MP_Anywave_Hilbert_Atom_c::satisfies() */
-#define MP_ANYWAVE_HILBERT_TABLE_PROP	17 /** Pointer to the waveTable containing the waveform \sa MP_Anywave_Hilbert_Atom_c::satisfies() */
-#define MP_HARMONICITY_PROP				18 /** Harmonicity for Harmonic atoms \sa MP_Atom_c::satisfies() */
-#define MP_PARTIAL_AMP_PROP				19 /** Partial amplitude for harmonic atoms \sa MP_Atom_c::satisfies() */
-#define MP_PARTIAL_PHASE_PROP			20 /** Partial amplitude for harmonic atoms \sa MP_Atom_c::satisfies() */
+enum UsageChannels {
+ 	// Multichannels
+	MP_LEN_PROP,					/** Length in samples \sa MP_Atom_c::satisfies()*/
+	MP_POS_PROP,					/** Position in samples \sa MP_Atom_c::satisfies()*/
+	MP_AMP_PROP,					/** Amplitude \sa MP_Atom_c::satisfies()*/
+	MP_REAL_PART_PROP,				/** Part of the amplitude due to the real waveform \sa MP_Anywave_Hilbert_Atom_c::satisfies()*/
+	MP_HILBERT_PART_PROP,			/** Part of the amplitude due to the hilbert waveform \sa MP_Anywave_Hilbert_Atom_c::satisfies()*/
+	MP_PHASE_PROP,					/** Phase in radians \sa MP_Atom_c::satisfies()*/
+	// Monochannels
+	MP_FREQ_PROP,					/** Normalized frequency, between 0 and 0.5 \sa MP_Atom_c::satisfies() */
+	MP_CHIRP_PROP,					/** Chirp factor \sa MP_Atom_c::satisfies() */
+	MP_TABLE_IDX_PROP,				/** Index of the wave table in the wave server \sa MP_Atom_c::satisfies()*/
+	MP_ANYWAVE_IDX_PROP,			/** Index of the wave in the wave table \sa MP_Atom_c::satisfies() */
+	MP_REAL_TABLE_IDX_PROP,			/** Index of the wave table in the wave server \sa MP_Anywave_Hilbert_Atom_c::satisfies()*/
+	MP_HILBERT_TABLE_IDX_PROP,		/** Index of the wave table in the wave server \sa MP_Anywave_Hilbert_Atom_c::satisfies()*/
+	MP_WINDOW_TYPE_PROP,			/** Window type index \sa MP_Atom_c::satisfies() */
+	MP_WINDOW_OPTION_PROP,			/** Window option for specific types \sa MP_Atom_c::satisfies() */
+	MP_NUMPARTIALS_PROP,			/** Number of partials for Harmonic atoms \sa MP_Atom_c::satisfies() */
+	// Others channels
+	MP_ANYWAVE_TABLE_PROP,			/** Pointer to the waveTable containing the waveform \sa MP_Atom_c::satisfies() */
+	MP_ANYWAVE_REAL_TABLE_PROP,		/** Pointer to the waveTable containing the waveform \sa MP_Anywave_Hilbert_Atom_c::satisfies() */
+	MP_ANYWAVE_HILBERT_TABLE_PROP,	/** Pointer to the waveTable containing the waveform \sa MP_Anywave_Hilbert_Atom_c::satisfies() */
+	MP_HARMONICITY_PROP,			/** Harmonicity for Harmonic atoms \sa MP_Atom_c::satisfies() */
+	MP_PARTIAL_AMP_PROP,			/** Partial amplitude for harmonic atoms \sa MP_Atom_c::satisfies() */
+	MP_PARTIAL_PHASE_PROP,			/** Partial amplitude for harmonic atoms \sa MP_Atom_c::satisfies() */
+	// DO NOT MODIFY : IT IS USED TO COUNT
+	MP_NUM_PROPS					
 
-#define MP_NUM_MULTI_BEGININDEX_PROPS		0
-#define MP_NUM_MULTI_PROPS					6
-#define MP_NUM_MONO_BEGININDEX_PROPS		6
-#define MP_NUM_MONO_PROPS					9
+};
+
+#define MP_NUM_MONO_BEGININDEX_PROPS		0
+#define MP_NUM_MULTI_BEGININDEX_PROPS		9
 #define MP_NUM_OTHERS_BEGININDEX_PROPS		15
-#define MP_NUM_OTHERS_PROPS					6
-#define MP_NUM_PROPS						MP_NUM_MULTI_PROPS+MP_NUM_MONO_PROPS+MP_NUM_OTHERS_PROPS
 
 /* some test types for atom->satisfies() */
 #define MP_SUPER 1 /** x >  val \todo document this \sa MP_Atom_c::satisfies() */
