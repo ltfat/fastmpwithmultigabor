@@ -8,7 +8,7 @@ IF(UNIX)
 		/sw/include
 		/opt/local/include
 		)
-		FIND_LIBRARY(FFTW3_LIBRARY_FILE NAMES libfftw3.a
+		FIND_LIBRARY(FFTW3_LIBRARY_FILE NAMES fftw3
 		/usr/lib
 		/usr/local/lib
 		/sw/lib
@@ -19,7 +19,7 @@ IF(UNIX)
 		/usr/include
 		/usr/local/include
 		)
-		FIND_LIBRARY(FFTW3_LIBRARY_FILE NAMES libfftw3.a
+		FIND_LIBRARY(FFTW3_LIBRARY_FILE NAMES fftw3
 		/usr/lib
 		/usr/local/lib
 		)
