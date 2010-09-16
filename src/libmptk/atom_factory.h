@@ -64,9 +64,9 @@ class MP_Atom_Factory_c
     static bool instanceFlag;
  
 	  /** \brief Hash map to store the atom name and the file creation atom method pointer */
-	STL_EXT_NM::hash_map<const char*, MP_Atom_c*(*)(FILE *fid, const char mode),CSTRING_HASHER> atom;
+	map<const char*, MP_Atom_c*(*)(FILE *fid, const char mode),mp_ltstring> atom;
     /** \brief Hash map to store the atom name and the empty atom method pointer */
-	STL_EXT_NM::hash_map<const char*, MP_Atom_c*(*)(void),CSTRING_HASHER> atom_empty;
+	map<const char*, MP_Atom_c*(*)(void),mp_ltstring> atom_empty;
 
 
 

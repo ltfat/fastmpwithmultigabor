@@ -94,7 +94,7 @@ public:
     static bool environment_loaded;
 
    /** \brief Hash map to store the atom name and the file creation atom method pointer */
-STL_EXT_NM::hash_map<const char*,const char*,CSTRING_HASHER> configPath;
+	map<const char*,const char*,mp_ltstring> configPath;
 
     /***********/
     /* METHODS */

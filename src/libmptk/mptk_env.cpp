@@ -64,7 +64,6 @@ int bufferSize = 3;
 /* NULL constructor */
 MPTK_Env_c::MPTK_Env_c()
 {
-  //configPath = STL_EXT_NM::hash_map<const char*,const char*,mycomp>(1);
 }
 
 /**************/
@@ -89,7 +88,6 @@ MPTK_Env_c * MPTK_Env_c::get_env()
 void MPTK_Env_c::release_environment()
 {
   const char * func = "MPTK_Env_c::release_environment()";
-  STL_EXT_NM::hash_map<const char*,const char*,CSTRING_HASHER>::iterator iter;
   if (environment_loaded){
     if (MP_FFT_Interface_c::save_fft_library_config()) mp_debug_msg( MP_DEBUG_FILE_IO, func, "The fftw Plan is now saved.\n" );
 
@@ -128,7 +126,7 @@ bool MPTK_Env_c::set_env(string filename)
 
 const char * MPTK_Env_c::get_config_path(const char* name)
 {
-  STL_EXT_NM::hash_map<const char*,const char*,CSTRING_HASHER>::iterator iter;
+  map<const char*,const char*,mp_ltstring>::iterator iter;
   // Test if the name exists, because we don't want to add it (by default configPath[name] adds name if it does not yet exist) 
   iter= MPTK_Env_c::get_env()->configPath.find(name);
   if(iter==MPTK_Env_c::get_env()->configPath.end()) 
@@ -140,7 +138,7 @@ const char * MPTK_Env_c::get_config_path(const char* name)
 /* fill a vector with the name of the atoms registred in atom factory */
 void MPTK_Env_c::get_registered_path_name( vector< string >* nameVector ){
   const char *func = "MPTK_Env_c::get_registered_path_name";
-  STL_EXT_NM::hash_map<const char*,const char*,CSTRING_HASHER>::iterator iter;
+  map<const char*,const char*,mp_ltstring>::iterator iter;
   if (NULL==nameVector) {
     mp_error_msg(func, "nameVector is NULL!");
   }
@@ -161,7 +159,7 @@ void MPTK_Env_c::get_registered_path_name( vector< string >* nameVector ){
 void MPTK_Env_c::get_registered_path_names( char **pathNames ){
 	int iIndex = 0;
 	const char *func = "MPTK_Env_c::get_registered_path_names";
-	STL_EXT_NM::hash_map<const char*,const char*,CSTRING_HASHER>::iterator iter;
+	map<const char*,const char*,mp_ltstring>::iterator iter;
 	for( iter = MPTK_Env_c::configPath.begin(); iter != MPTK_Env_c::configPath.end(); iter++ ) 
 	{
 		if(NULL!=iter->first) 

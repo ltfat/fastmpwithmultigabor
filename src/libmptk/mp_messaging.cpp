@@ -90,8 +90,6 @@ MP_Msg_Server_c::MP_Msg_Server_c( void ) {
   maxStackSize = 0;
 
 
-  //hash_map<const char*,void(*)(char * message),mycomp> displayFunction ;
-
 #ifndef NDEBUG
   cerr << MP_LIB_STR_PREFIX << " DEBUG -- MP_Msg_Server_c -- Exiting the messaging server constructor.\n" << flush;
 #endif

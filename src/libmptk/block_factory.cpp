@@ -226,7 +226,7 @@ int MP_Block_Factory_c::get_block_default_size( const char* blockName )
 /* fil a vector with the nam of the block registred in block factory */
 void MP_Block_Factory_c::get_registered_block_name( vector< string >* nameVector ){
 	const char *func = "MP_Block_Factory_c::get_registered_block_name()";
-	STL_EXT_NM::hash_map<const char*, MP_Block_c*(*)(MP_Signal_c *s, map<string, string, mp_ltstring> *paramMap),CSTRING_HASHER>::iterator iter;
+	map<const char*, MP_Block_c*(*)(MP_Signal_c *s, map<string, string, mp_ltstring> *paramMap),mp_ltstring>::iterator iter;
 	for( iter = MP_Block_Factory_c::block.begin(); iter != MP_Block_Factory_c::block.end(); iter++ ) {
 		if(NULL!=iter->first) {
 			nameVector->push_back(string(iter->first));
@@ -240,7 +240,7 @@ void MP_Block_Factory_c::get_registered_block_name( vector< string >* nameVector
 void MP_Block_Factory_c::get_registered_block_names( char **blockNames ){
 	int iIndex = 0;
 	const char *func = "MP_Block_Factory_c::get_registered_block_name()";
-	STL_EXT_NM::hash_map<const char*, MP_Block_c*(*)(MP_Signal_c *s, map<string, string, mp_ltstring> *paramMap),CSTRING_HASHER>::iterator iter;
+	map<const char*, MP_Block_c*(*)(MP_Signal_c *s, map<string, string, mp_ltstring> *paramMap),mp_ltstring>::iterator iter;
 	for( iter = MP_Block_Factory_c::block.begin(); iter != MP_Block_Factory_c::block.end(); iter++ ) {
 		if(NULL!=iter->first) {
 			blockNames[iIndex++]=(char *)iter->first;

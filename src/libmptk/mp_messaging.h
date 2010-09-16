@@ -45,9 +45,7 @@
 #define __mp_messaging_h_
 
 #include "mp_system.h"
-
-#include "mp_hash_container_header.h"
-
+#include <map>
 
 #if defined(_MSC_VER)
 	#ifndef crtsecure
@@ -139,7 +137,7 @@ class MP_Msg_Server_c
     static MP_Msg_Server_c * myMsgServer;
      public:
      
-STL_EXT_NM::hash_map<const char*,void(*)(char * message),CSTRING_HASHER> displayFunction;
+	  map<const char*,void(*)(char * message),mp_ltstring> displayFunction;
 
     /** \brief A default buffer, to store the current message string. */
     char *stdBuff;

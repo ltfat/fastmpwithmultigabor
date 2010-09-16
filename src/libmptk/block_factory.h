@@ -68,13 +68,13 @@ class MP_Block_Factory_c
 
 
 	    /** \brief Hash map to store the block name and method to create it*/
-	STL_EXT_NM::hash_map<const char*, MP_Block_c*(*)(MP_Signal_c *s, map<string, string, mp_ltstring> *paramMap),CSTRING_HASHER> block;
+	map<const char*, MP_Block_c*(*)(MP_Signal_c *s, map<string, string, mp_ltstring> *paramMap),mp_ltstring> block;
     /** \brief Hash map to store the block parameter type map */
-	STL_EXT_NM::hash_map<const char*, void (*)(map< string, string, mp_ltstring> * parameterMapType),CSTRING_HASHER> blockType;
+	map<const char*, void (*)(map< string, string, mp_ltstring> * parameterMapType),mp_ltstring> blockType;
     /** \brief Hash map to store the block parameter info map */
-	STL_EXT_NM::hash_map<const char*, void (*)(map< string, string, mp_ltstring> * parameterMapInfo),CSTRING_HASHER> blockInfo;
+	map<const char*, void (*)(map< string, string, mp_ltstring> * parameterMapInfo),mp_ltstring> blockInfo;
     /** \brief Hash map to store the block parameter default map */
-	STL_EXT_NM::hash_map<const char*, void (*)(map< string, string, mp_ltstring> * parameterMapDefault),CSTRING_HASHER> blockDefault;
+	map<const char*, void (*)(map< string, string, mp_ltstring> * parameterMapDefault),mp_ltstring> blockDefault;
 
 
     /***********/
