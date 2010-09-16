@@ -18,7 +18,7 @@ class GP_Book_Iterator_c{
   MPTK_LIB_EXPORT virtual MP_Atom_c& operator *(void)=0;
   MPTK_LIB_EXPORT virtual MP_Atom_c* operator ->(void)=0;
 
-  MPTK_LIB_EXPORT virtual void print_book(){cout << "print_book: wrong call" << endl;}
+  MPTK_LIB_EXPORT virtual void print_book(){}
 
   /* virtual comparison operators. This implementation 
    * will only be called if the run-time types of the 
