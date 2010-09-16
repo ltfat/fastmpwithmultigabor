@@ -230,11 +230,6 @@
 #include "mp_pthreads_barrier.h"
 # endif
 
-#cmakedefine HAVE_MPTK_MP_HASH_CONTAINER_HEADER_H 1
-# ifdef HAVE_MPTK_MP_HASH_CONTAINER_HEADER_H
-#include "mp_hash_container_header.h"
-# endif
-
 #cmakedefine HAVE_MPTK_DOUBLE_INDEX_BOOK_H 1
 # ifdef HAVE_MPTK_DOUBLE_INDEX_BOOK_H
 #include "double_index_book.h"
