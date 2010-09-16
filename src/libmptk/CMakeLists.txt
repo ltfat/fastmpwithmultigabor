@@ -54,7 +54,6 @@ SET(HEADER_FILE
 	${CMAKE_SOURCE_DIR}/src/libmptk/mpd_core.h
 	${CMAKE_SOURCE_DIR}/src/libmptk/mpd_demix_core.h
 	${CMAKE_SOURCE_DIR}/src/libmptk/mptk_env.h
-	${CMAKE_SOURCE_DIR}/src/libmptk/mp_hash_container_header.h
 	${CMAKE_SOURCE_DIR}/src/libmptk/gp_param_book.h
 	${CMAKE_SOURCE_DIR}/src/libmptk/gp_pos_book.h
 	${CMAKE_SOURCE_DIR}/src/libmptk/gp_block_book.h
