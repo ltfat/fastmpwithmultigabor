@@ -22,27 +22,6 @@ endif(COMMAND cmake_policy)
 # If yes, we need to find the compiler, etc.
 ############################################
 IF(BUILD_MATLAB_MEX_FILES OR BUILD_MATLAB_MEX_FILES_EXPERIMENTAL)
-
-	# Test if we are in in X86_64 and then set the -fPIC compil tag
-	IF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
- 		ADD_DEFINITIONS(-fPIC)
-	ENDIF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" ) 
-	#In case of 64 bits plateform we have to compil with -fPIC flag
-	IF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
-		IF( CMAKE_CXX_COMPILER STREQUAL "cl")
-    			SET(MPTK4MATLAB_COMPILE_FLAGS " -fPIC")
-		ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
-    			SET(MPTK4MATLAB_COMPILE_FLAGS " -Wno-deprecated -fPIC")
-		ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
-	ELSE( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" ) 
-		IF( CMAKE_CXX_COMPILER STREQUAL "cl")
-    			SET(MPTK4MATLAB_COMPILE_FLAGS "")
-		ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
-    			SET(MPTK4MATLAB_COMPILE_FLAGS " -Wno-deprecated")
-		ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
-	ENDIF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" ) 
-
-
 	# Set a few variables and the MEX file compiler
 	#  MATLAB_INCLUDE_DIR: include path for mex.h, engine.h
 	#  MATLAB_LIBRARIES:   required libraries: libmex, etc
@@ -51,18 +30,18 @@ IF(BUILD_MATLAB_MEX_FILES OR BUILD_MATLAB_MEX_FILES_EXPERIMENTAL)
 	#  MATLAB_ENG_LIBRARY: path to libeng.lib
 	#  MATLAB_MEX_COMPILER
 	INCLUDE(${MPTK_SOURCE_DIR}/CMake/FindMatlab.cmake)
-
 ENDIF(BUILD_MATLAB_MEX_FILES OR BUILD_MATLAB_MEX_FILES_EXPERIMENTAL)
 
-############
+#############################
+#            -2-
 # Set source and output path
-###########
+#############################
 SET(MPTK_MATLAB_SRC_DIR ${MPTK_SOURCE_DIR}/src/matlab)
 SET(MPTK_MATLAB_OUTPUT_DIR ${MPTK_BINARY_DIR}/mptk/matlab)
 SET(MPTK_MATLAB_INSTALL_DIR mptk/matlab)
 
 ############################################
-#                  -2-
+#                  -3-
 # Main script files, always installed
 ############################################
 # README file
@@ -101,7 +80,7 @@ ENDIF(BUILD_MATLAB_MEX_FILES_EXPERIMENTAL)
 
 
 ############################################
-#                  -3-
+#                  -4-
 # Build the stable MEX files if requested
 # ... and if possible!
 ############################################
@@ -120,7 +99,7 @@ experimental/classes/mxBook.cpp)
 ADD_LIBRARY(mptk4matlab SHARED ${MPTK4MATLAB_SOURCES})
 
 SET_TARGET_PROPERTIES(mptk4matlab PROPERTIES
-		      COMPILE_FLAGS " -DC_BUILDING_mptk4matlab ${CMAKE_SHARED_LINKER_FLAGS} -I${MATLAB_INCLUDE_DIR} -I${MPTK_SOURCE_DIR}/src/plugin/base/ -I${MPTK_SOURCE_DIR}/src/plugin/contrib/lam/"
+		      COMPILE_FLAGS " -DC_BUILDING_mptk4matlab ${CMAKE_CXX_FLAGS} -I${MATLAB_INCLUDE_DIR} -I${MPTK_SOURCE_DIR}/src/plugin/base/ -I${MPTK_SOURCE_DIR}/src/plugin/contrib/lam/"
                       PREFIX ""
                       OUTPUT_NAME "libmptk4matlab"
                       )
@@ -143,7 +122,7 @@ FOREACH(target getmptkinfo dictread dictwrite sigread sigwrite bookread bookwrit
 		     mptk4matlab)
  
    ## ======> What is the use of this line ?
-   SET_TARGET_PROPERTIES(matlab_${target} PROPERTIES GENERATED true COMPILE_FLAGS "-DC_BUILDING_MPTK ${CMAKE_SHARED_LINKER_FLAGS}")
+   SET_TARGET_PROPERTIES(matlab_${target} PROPERTIES GENERATED true)
 
    # Command to generate the MEX-binary
    IF(APPLE)
@@ -228,7 +207,7 @@ INSTALL(FILES  ${MPTK_MATLAB_OUTPUT_DIR}/mptk.dll DESTINATION ${MPTK_MATLAB_INST
 ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
 
 ############################################
-#                  -4-
+#                  -5-
 # Install poor man's replacement to stable
 # MEX files, only if the MEX ones are not.
 ############################################
@@ -251,7 +230,7 @@ ELSE(BUILD_MATLAB_MEX_FILES AND MATLAB_MEX_COMPILER)
 ENDIF(BUILD_MATLAB_MEX_FILES AND MATLAB_MEX_COMPILER)   
 
 ############################################
-#                  -4-
+#                  -6-
 # Matlab experimental files, if requested
 ############################################
 
@@ -307,7 +286,7 @@ ENDIF(MATLAB_MEX_COMPILER)
 ENDIF(BUILD_MATLAB_MEX_FILES_EXPERIMENTAL)
 
 ############################################
-#                  -5-
+#                  -7-
 # Mat2MPTK, if requested
 ############################################
 # If we are asked to install Mat2MPTK 

@@ -57,6 +57,8 @@ IF(UNIX)
   SET(MPTK_USER_LOCAL_PATH $ENV{HOME}/local/bin)
   SET(MPTK_USER_INCLUDE_PATH $ENV{HOME}/local/include)
   SET(MPTK_USER_LIB_PATH $ENV{HOME}/local/lib)
+  MESSAGE("<<<<<<<<<< ${CMAKE_FIND_LIBRARY_SUFFIXES} >>>>>>>>>> ")
+  MESSAGE("<<<<<<<<<< ${CMAKE_FIND_LIBRARY_PREFIXES} >>>>>>>>>> ")
  ELSE(UNIX)
   IF(WIN32)
     SET(BATCHEXT ".bat")
@@ -84,40 +86,35 @@ IF(UNIX)
 ENDIF(UNIX)
 
 ##############################################################################
-# Setting the linker flags in dynamic format:
+# Setting the compilation flags in dynamic format:
 ##############################################################################
 IF(WIN32)
 	IF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
-		IF( CMAKE_CXX_COMPILER STREQUAL "cl")
-			SET(CMAKE_SHARED_LINKER_FLAGS "-fPIC ")
-		ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
-			SET(CMAKE_SHARED_LINKER_FLAGS "-fPIC -Wl,--export-all-symbols,--enable-auto-import,--enable-runtime-pseudo-reloc -Wno-deprecated")
-		ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
+		SET(CMAKE_CXX_COMPILER "${CMAKE_CXX_FLAGS} -fPIC ")
+		SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
 	ELSE( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
-		IF( CMAKE_CXX_COMPILER STREQUAL "cl")
-			SET(CMAKE_SHARED_LINKER_FLAGS "")
-		ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
-			SET(CMAKE_SHARED_LINKER_FLAGS "-Wl,--export-all-symbols,--enable-auto-import,--enable-runtime-pseudo-reloc  -Wno-deprecated")
-		ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
+			SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 	ENDIF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
 ELSE(WIN32)
 	IF(APPLE)
-		IF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
-			SET(CMAKE_SHARED_LINKER_FLAGS "-fPIC -single_module -Wno-deprecated") 
-		ELSE( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
-			SET(CMAKE_SHARED_LINKER_FLAGS "-single_module -Wno-deprecated") 
-		ENDIF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
+		IF(CMAKE_SYSTEM_PROCESSOR STREQUAL "ia64" OR CMAKE_SYSTEM_PROCESSOR STREQUAL  "x86_64")
+			SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -single_module") 
+			SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
+		ELSE(CMAKE_SYSTEM_PROCESSOR STREQUAL "ia64" OR CMAKE_SYSTEM_PROCESSOR STREQUAL  "x86_64")
+			SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -single_module") 
+		ENDIF(CMAKE_SYSTEM_PROCESSOR STREQUAL "ia64" OR CMAKE_SYSTEM_PROCESSOR STREQUAL  "x86_64")
 	ELSE(APPLE)
-		IF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
-			SET(CMAKE_SHARED_LINKER_FLAGS "-fPIC -Wl,--export-dynamic -Wno-deprecated")
-		ELSE( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
-			SET(CMAKE_SHARED_LINKER_FLAGS " -Wl,--export-dynamic -Wno-deprecated")
-		ENDIF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
+		IF(CMAKE_SYSTEM_PROCESSOR STREQUAL "ia64" OR CMAKE_SYSTEM_PROCESSOR STREQUAL  "x86_64")
+			SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -Wl,--export-dynamic")
+		ELSE(CMAKE_SYSTEM_PROCESSOR STREQUAL "ia64" OR CMAKE_SYSTEM_PROCESSOR STREQUAL  "x86_64")
+			SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,--export-dynamic")
+		ENDIF(CMAKE_SYSTEM_PROCESSOR STREQUAL "ia64" OR CMAKE_SYSTEM_PROCESSOR STREQUAL  "x86_64")
 	ENDIF(APPLE)
 ENDIF(WIN32)
 
+
 ##############################################################################
-# Setting compilation tags :
+# Setting compilation options :
 ##############################################################################
 #Select the ADD_DEFINITIONS according to selected options
 IF( CMAKE_CXX_COMPILER STREQUAL "cl")
@@ -146,13 +143,6 @@ ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
 		ENDIF(BUILD_VERBOSE)
 	ENDIF(BUILD_DEBUG)
 ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
-
-#In case of 64 bits plateform we have to compil with -fPIC flag
-IF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
-    SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
-    ADD_DEFINITIONS(-fPIC)
-ENDIF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
 
 #Set  BUILDVERSION, PACKAGENAME, PACKAGENAMEFULL and AUTHORS according to text files in /version
 
