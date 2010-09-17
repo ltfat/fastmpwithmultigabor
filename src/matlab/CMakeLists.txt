@@ -103,7 +103,8 @@ SET_TARGET_PROPERTIES(mptk4matlab PROPERTIES
                       PREFIX ""
                       OUTPUT_NAME "libmptk4matlab"
                       )
-TARGET_LINK_LIBRARIES(mptk4matlab mptk ${MATLAB_LIBRARIES} ${MATLAB_MEX_LIBRARY})
+TARGET_LINK_LIBRARIES(mptk4matlab mptk ${MATLAB_LIBRARIES})
+MESSAGE("<<<<<<<<<!!!! ${MATLAB_LIBRARIES}  !!!!>>>>>>>>>>>>")
 ADD_DEPENDENCIES(mptk4matlab mptk)
 INSTALL(TARGETS
   mptk4matlab
