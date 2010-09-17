@@ -11,26 +11,45 @@
 
 typedef map<string,string,mp_ltstring> atom_map;
 
+/** \brief Abstract base class of indiviudal atom parameters. Used as key by the GP_Param_Book_c class.
+ */
+
 class MP_Atom_Param_c{
     
  protected:
   
+  /** \brief Empty constructor
+   */
   MP_Atom_Param_c(){}
 
  public:
 
-  MPTK_LIB_EXPORT virtual atom_map get_map();
-  MPTK_LIB_EXPORT virtual vector<string> get_param_names();
+ /** \brief export the parameters as a map<string,string> for conversion to other formats
+  */
+  MPTK_LIB_EXPORT virtual atom_map get_map()const=0;
+  /** \brief export the name of the parameters as a vector<string>. The elements of this vector are the keys of the paramater map
+   */ 
+  MPTK_LIB_EXPORT virtual vector<string> get_param_names()const=0;
 
+/** \brief Empty destructor
+ */
   MPTK_LIB_EXPORT virtual ~MP_Atom_Param_c(){}
 
-  MPTK_LIB_EXPORT virtual bool operator<(const MP_Atom_Param_c&) const;
-  MPTK_LIB_EXPORT virtual bool operator>(const MP_Atom_Param_c&) const;
-  MPTK_LIB_EXPORT virtual bool operator==(const MP_Atom_Param_c&) const;
-  MPTK_LIB_EXPORT virtual bool operator!=(const MP_Atom_Param_c&) const;
+/** \brief comparison operators
+ */
+  MPTK_LIB_EXPORT virtual bool operator<(const MP_Atom_Param_c&) const=0;
+  MPTK_LIB_EXPORT virtual bool operator>(const MP_Atom_Param_c&) const=0;
+  MPTK_LIB_EXPORT virtual bool operator==(const MP_Atom_Param_c&) const=0;
+  MPTK_LIB_EXPORT virtual bool operator!=(const MP_Atom_Param_c&) const=0;
   
+  /** \brief comparison functor between two MP_Atom_Param_c*.
+   * The GP_Param_Book_c class accepts MP_Atom_Param_c* as keys to allow polymorphism,
+   * and this functor orders the keys accorded to the pointed values, not the pointers themselves.
+   */ 
   class less{
     public:
+    /** \brief call operator that implements the comparison between pointed values
+     */
      MPTK_LIB_EXPORT bool operator()(const MP_Atom_Param_c*, const MP_Atom_Param_c*) const;
   }; 
 };
