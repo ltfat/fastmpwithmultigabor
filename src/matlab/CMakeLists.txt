@@ -124,40 +124,34 @@ FOREACH(target getmptkinfo dictread dictwrite sigread sigwrite bookread bookwrit
    ## ======> What is the use of this line ?
    SET_TARGET_PROPERTIES(matlab_${target} PROPERTIES GENERATED true)
 
-   # Command to generate the MEX-binary
-   IF(UNIX)
-		IF(BUILD_DEBUG)
+	# Command to generate the MEX-binary
+	IF(UNIX)
+		IF(APPLE)
 			ADD_CUSTOM_COMMAND(
 			OUTPUT ${MPTK_MATLAB_OUTPUT_DIR}/${target}.${MEX_EXTENSION}
 			POST_BUILD
-			COMMAND   ${MATLAB_MEX_COMPILER} -v -g
+			COMMAND   ${MATLAB_MEX_COMPILER} ${MATLAB_COMPILATION}
 			ARGS      -O -DHAVE_FFTW3 -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${MPTK_SOURCE_DIR}/src/tinyxml/ -I/usr/include/ -I${MPTK_SOURCE_DIR} -I${MPTK_SOURCE_DIR}/src/libdsp_windows/ -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${FFTW3_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/ -I${MPTK_MATLAB_SRC_DIR}/classes/ -I${MPTK_MATLAB_SRC_DIR}/experimental/classes/ -I${MPTK_SOURCE_DIR}/src/plugin/base/ -I${MPTK_SOURCE_DIR}/src/plugin/contrib/lam/ -outdir ${MPTK_MATLAB_OUTPUT_DIR} ${MPTK_MATLAB_SRC_DIR}/${target}.cpp  -L${LIBRARY_OUTPUT_PATH} -lmptk -lmptk4matlab
+   # FOR SAFETY, SHOULD USE FLAG -headerpad_max_install_names
+			COMMAND   install_name_tool -change ARGS ${LIBRARY_OUTPUT_PATH}/libmptk4matlab.dylib libmptk4matlab.dylib ${MPTK_MATLAB_OUTPUT_DIR}/${target}.${MEX_EXTENSION}
+			COMMAND   install_name_tool -change ARGS ${LIBRARY_OUTPUT_PATH}/libmptk.dylib libmptk.dylib ${MPTK_MATLAB_OUTPUT_DIR}/${target}.${MEX_EXTENSION}
 			COMMENT   "MEX")
-		ELSE(BUILD_DEBUG)
+		ELSE(APPLE)
 			ADD_CUSTOM_COMMAND(
 			OUTPUT ${MPTK_MATLAB_OUTPUT_DIR}/${target}.${MEX_EXTENSION}
 			POST_BUILD
-			COMMAND   ${MATLAB_MEX_COMPILER} -v
+			COMMAND   ${MATLAB_MEX_COMPILER} ${MATLAB_COMPILATION}
 			ARGS      -O -DHAVE_FFTW3 -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${MPTK_SOURCE_DIR}/src/tinyxml/ -I/usr/include/ -I${MPTK_SOURCE_DIR} -I${MPTK_SOURCE_DIR}/src/libdsp_windows/ -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${FFTW3_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/ -I${MPTK_MATLAB_SRC_DIR}/classes/ -I${MPTK_MATLAB_SRC_DIR}/experimental/classes/ -I${MPTK_SOURCE_DIR}/src/plugin/base/ -I${MPTK_SOURCE_DIR}/src/plugin/contrib/lam/ -outdir ${MPTK_MATLAB_OUTPUT_DIR} ${MPTK_MATLAB_SRC_DIR}/${target}.cpp  -L${LIBRARY_OUTPUT_PATH} -lmptk -lmptk4matlab
+   # FOR SAFETY, SHOULD USE FLAG -headerpad_max_install_names
 			COMMENT   "MEX")
-		ENDIF(BUILD_DEBUG)
-
-   ELSE(UNIX)
-      IF(BUILD_DEBUG)
+		ENDIF(APPLE)
+	ELSE(UNIX)
           ADD_CUSTOM_COMMAND(
           OUTPUT ${MPTK_MATLAB_OUTPUT_DIR}/${target}.${MEX_EXTENSION}
           POST_BUILD
-          COMMAND   ${MATLAB_MEX_COMPILER} -v -g
-          ARGS      -O -DHAVE_FFTW3 -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${MPTK_SOURCE_DIR}/src/tinyxml/ -I/usr/include/ -I${MPTK_SOURCE_DIR} -I${MPTK_SOURCE_DIR}/src/libdsp_windows/ -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${FFTW3_INCLUDE_DIR} -I${PTHREAD_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/ -I${MPTK_MATLAB_SRC_DIR}/classes/ -I${MPTK_MATLAB_SRC_DIR}/experimental/classes/ -I${MPTK_SOURCE_DIR}/src/plugin/base/ -I${MPTK_SOURCE_DIR}/src/plugin/contrib/lam/ -L${LIBRARY_OUTPUT_PATH} -L${MPTK_LIB_DIR} -outdir ${MPTK_MATLAB_OUTPUT_DIR} ${MPTK_MATLAB_SRC_DIR}/${target}.cpp -lmptk -lmptk4matlab
+          COMMAND   ${MATLAB_MEX_COMPILER} ${MATLAB_COMPILATION}
+          ARGS      -O -DHAVE_FFTW3 -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${MPTK_SOURCE_DIR}/src/tinyxml/ -I${MPTK_SOURCE_DIR} -I${MPTK_SOURCE_DIR}/src/libdsp_windows/ -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${FFTW3_INCLUDE_DIR} -I${PTHREAD_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/ -I${MPTK_MATLAB_SRC_DIR}/classes/ -I${MPTK_MATLAB_SRC_DIR}/experimental/classes/ -I${MPTK_SOURCE_DIR}/src/plugin/base/ -I${MPTK_SOURCE_DIR}/src/plugin/contrib/lam/ -L${LIBRARY_OUTPUT_PATH} -L${MPTK_LIB_DIR} -outdir ${MPTK_MATLAB_OUTPUT_DIR} ${MPTK_MATLAB_SRC_DIR}/${target}.cpp -lmptk -lmptk4matlab
           COMMENT   "MEX")
-      ELSE(BUILD_DEBUG)
-          ADD_CUSTOM_COMMAND(
-          OUTPUT ${MPTK_MATLAB_OUTPUT_DIR}/${target}.${MEX_EXTENSION}
-          POST_BUILD
-          COMMAND   ${MATLAB_MEX_COMPILER} -v
-          ARGS      -O -DHAVE_FFTW3 -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${MPTK_SOURCE_DIR}/src/tinyxml/ -I/usr/include/ -I${MPTK_SOURCE_DIR} -I${MPTK_SOURCE_DIR}/src/libdsp_windows/ -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${FFTW3_INCLUDE_DIR} -I${PTHREAD_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/ -I${MPTK_MATLAB_SRC_DIR}/classes/ -I${MPTK_MATLAB_SRC_DIR}/experimental/classes/ -I${MPTK_SOURCE_DIR}/src/plugin/base/ -I${MPTK_SOURCE_DIR}/src/plugin/contrib/lam/ -L${LIBRARY_OUTPUT_PATH} -L${MPTK_LIB_DIR} -outdir ${MPTK_MATLAB_OUTPUT_DIR} ${MPTK_MATLAB_SRC_DIR}/${target}.cpp -lmptk -lmptk4matlab
-          COMMENT   "MEX")
-      ENDIF(BUILD_DEBUG)
    ENDIF(UNIX)
 
     # Copy the MEX-wrapper
