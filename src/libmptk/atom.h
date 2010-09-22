@@ -242,6 +242,17 @@ public :
   MPTK_LIB_EXPORT void substract_add_var_amp( MP_Real_t *amp, MP_Chan_t numAmps, MP_Signal_c *sigSub, MP_Signal_c *sigAdd );
 
 
+  /** \brief Substract/add all the atom's monochannel waveform from / to a multichannel signal
+   *  with amplitudes proportional to its correlations with the residual.
+   *
+   * \param step: the gradient step
+   * \param sigSub signal from which the atom waveform is to be removed
+   * \param sigAdd signal to which the atom waveform is to be added
+   *
+   * \remark Passing sigSub == NULL or sigAdd == NULL skips the corresponding substraction / addition.
+   */
+ MPTK_LIB_EXPORT virtual void substract_add_grad(MP_Real_t step, MP_Signal_c* sigSub, MP_Signal_c* sigAdd);
+  
   /*****************************************************/
   /* VIRTUAL NULL METHODS, MANDATORY IN THE SUBCLASSES */
   /*****************************************************/

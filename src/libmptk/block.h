@@ -206,6 +206,19 @@ public:
 				    
  MPTK_LIB_EXPORT map< string, string, mp_ltstring> * get_block_parameters_map();
  
+ /** \brief Substract/add all the atoms in a given frame from / to a multichannel signal
+   *  with amplitudes proportional to their correlations with the residual.
+   *
+   * \param step: a book containing all atoms to substract/add
+   * \param alpha: the gradient step
+   * \param sigSub signal from which the atom waveform is to be removed
+   * \param sigAdd signal to which the atom waveform is to be added
+   *
+   * \remark Passing sigSub == NULL or sigAdd == NULL skips the corresponding substraction / addition.
+   */
+ MPTK_LIB_EXPORT virtual void substract_add_grad(GP_Param_Book_c& book, MP_Real_t step, 
+                                                 MP_Signal_c* sigSub, MP_Signal_c* sigAdd); 
+ 
 };
 
 
