@@ -3,39 +3,85 @@
 
 using namespace std;
 
-class GP_Param_Book_c;
-
 #include <map>
 
+/* \brief the map under the implementation of GP_Param_Book_c
+ */
 typedef map<MP_Atom_Param_c*, MP_Atom_c*, MP_Atom_Param_c::less> paramBookMap;
 
+/* \brief a GP_Book_c to store atoms with the same block index and position.
+ * Based on an underlying map<MP_Atom_Param_c*, MP_Atom_c*>.
+ */
 class GP_Param_Book_c;
 
-/* a GP_Book_c containing atoms all belonging to the same position of the same block.
- * Relies on a map<MP_Atom_Param_c, GP_Atom_c>
+/* \brief an iterator to browse GP_Param_Book_c
  */
-
 class GP_Param_Book_Iterator_c: public GP_Book_Iterator_c{
   
  public:
+ 
+  /* \brief browsed book
+   */
   GP_Param_Book_c* book;
+  
+  /* \brief iterator on the underlying map
+   */
   paramBookMap::iterator paramIter;
 
+  /* \brief Empty constructor
+   */
   MPTK_LIB_EXPORT GP_Param_Book_Iterator_c(void);
+  
+  /* \brief Constructor that puts the iterator at the beginning of the book
+   * \param the browsed book
+   */
   MPTK_LIB_EXPORT GP_Param_Book_Iterator_c(GP_Param_Book_c*);
+  
+  /* \brief Constructor that puts the iterator at a given position of the book
+   * \param book: the bwrosed book
+   * \param iter: the position inside the map
+   */
   MPTK_LIB_EXPORT GP_Param_Book_Iterator_c(GP_Param_Book_c*, const paramBookMap::iterator&);
 
   MPTK_LIB_EXPORT ~GP_Param_Book_Iterator_c(void);
-  
+
+  /* \brief Copy method
+   * \return: a new iterator pointing on the same atom of the same book
+   */
   MPTK_LIB_EXPORT GP_Param_Book_Iterator_c* copy()const;
   
+  /* \brief make the iterator point to the next atom
+   * \return iterator value after incrementation
+   */
   MPTK_LIB_EXPORT virtual GP_Param_Book_Iterator_c& operator ++(void);
+  
+  /* \brief make the iterator point to the first atom after the current one (included) with a position greater or equal than the parameter.
+   * \param pos: target position
+   * \return the iterator after incrementation
+   */
   MPTK_LIB_EXPORT virtual GP_Param_Book_Iterator_c& go_to_pos(unsigned long int);
+  
+  /* \brief make the iterator point to the first atom after the current one with a strictly higher block index.
+   * \return the iterator after incrementation
+   */
   MPTK_LIB_EXPORT virtual GP_Param_Book_Iterator_c& go_to_next_block(void);
 
+  /* brief Get the pointed atom
+   * \return the pointed atom
+   */
   MPTK_LIB_EXPORT MP_Atom_c& operator *(void);
+  
+  /* \brief Access operator to the members of the pointed atom
+   * \return the address of the pointed atom
+   * \remark despite its signature, this operator is binary: it requires the name of the member after the arrow.
+   * If you want to use the address of the pointed atom in an expression, use &(*iter) instead.
+   */
   MPTK_LIB_EXPORT MP_Atom_c* operator ->(void);
 
+  /* \brief Equality operator
+   * \param the other iterator to compare to
+   * \return true if both iterators point to the same atom of the same book or are both at the end of the same book, false otherwise.
+   */
   MPTK_LIB_EXPORT virtual bool operator == (const GP_Book_Iterator_c&)const;
 };
 

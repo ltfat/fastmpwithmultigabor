@@ -1,8 +1,8 @@
 #include "mptk.h"
 
-void GP_Block_Book_Iterator_c::print_book(){
-	cout << "(*iter)->book = " << book << endl;
-}
+//void GP_Block_Book_Iterator_c::print_book(){
+//	cout << "(*iter)->book = " << book << endl;
+//}
 
 GP_Block_Book_c* GP_Block_Book_c::create(){
   return new GP_Block_Book_c();

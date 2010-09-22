@@ -3,68 +3,153 @@
 
 #include <vector>
 
+/* \brief the underlying vector to the GP_Block_Book_c class
+ */
 typedef vector<GP_Pos_Book_c> blockBookVec;
 
+/* \brief a book sorting its atoms according to their block
+ */
 class GP_Block_Book_c;
 
+/* \brief an iterator to browse GP_Block_Book_c
+ */
 class GP_Block_Book_Iterator_c: public GP_Book_Iterator_c{
   
  public:
+  /* \brief book the iterator point to
+   */
   GP_Block_Book_c* book;
+  
+  /* \brief iterator to browse the underlying vector
+   */
   blockBookVec::iterator blockIter;
+  
+  /* \brief iterator to browse inside the atoms of a given block
+   */
   GP_Pos_Book_Iterator_c posIter;
 
   MPTK_LIB_EXPORT GP_Block_Book_Iterator_c(){}
+  
+  /* \brief constructor from a book
+   * \param the book to link the iterator to
+   */
   MPTK_LIB_EXPORT GP_Block_Book_Iterator_c(GP_Block_Book_c*);
+  
+  /* \brief copy constructor
+   * \param the iterator to copy
+   */
   MPTK_LIB_EXPORT GP_Block_Book_Iterator_c(const GP_Block_Book_Iterator_c&);
+  
+  /* \brief constructor that starts at the beginning of a given block
+   * \param the book to link the iterator to
+   * \param a blockBookVec::iterator that points to the block to start to
+   * \remark the blockBookVec::iterator should point in the range of the book
+   */
   MPTK_LIB_EXPORT GP_Block_Book_Iterator_c(GP_Block_Book_c*, const blockBookVec::iterator&);
   
   MPTK_LIB_EXPORT ~GP_Block_Book_Iterator_c(void);
   
+  /* \brief copy operator
+   * \return a pointer to a new iterator pointing to the same atom of the same book as *this
+   */
   MPTK_LIB_EXPORT GP_Block_Book_Iterator_c* copy()const;
   
+  /* \brief dereference operator
+   * \return reference to the pointed atom
+   */
   MPTK_LIB_EXPORT MP_Atom_c& operator *(void);
+  
+  /* \brief atom member access operator
+   */
   MPTK_LIB_EXPORT MP_Atom_c* operator ->(void);
   
+  /* \brief incrementation operator. Makes the iterator point to the next atom
+   * \return the iterator after incrementation
+   */
   MPTK_LIB_EXPORT GP_Block_Book_Iterator_c& operator ++(void);
+  
+  /* \brief go to the next atom with position greater or equal than the parameter
+   * \param target position
+   * \return the iterator after incrementation
+   */
   MPTK_LIB_EXPORT GP_Block_Book_Iterator_c& go_to_pos(unsigned long int);
+  
+  /* go to the next atom with block index strictly greter than the current one
+   * \return the iterator after incrementation
+   */
   MPTK_LIB_EXPORT GP_Block_Book_Iterator_c& go_to_next_block(void);
   
+  /* equality operator
+   * \param the iterator to compare to
+   * \return true if both iterators are at the end of the same book or point to the same atom of the same book,
+   * false otherwise
+   */
   MPTK_LIB_EXPORT bool operator == (const GP_Book_Iterator_c&)const;
-
-  MPTK_LIB_EXPORT virtual void print_book();
 };
 
 class GP_Block_Book_c:public GP_Book_c, public vector<GP_Pos_Book_c>{
 
  public:
 
+  /* \brief records of the begin and end of the book to avoid excess computations.
+   * TODO: implement the caching system
+   */
   GP_Block_Book_Iterator_c begIter, endIter;
 
-  /* NULL constructor
+  /* \brief empty constructor
    */
   MPTK_LIB_EXPORT GP_Block_Book_c();
+  
+  /* \brief construct of book with a given number of blocks
+   * \param the total number of blocks
+   */
   MPTK_LIB_EXPORT GP_Block_Book_c(unsigned int);
 
   /* Destructor
    */
   MPTK_LIB_EXPORT ~GP_Block_Book_c();
 
+  /* \brief static creation method
+   * \return a pointer to a new book
+   */
   MPTK_LIB_EXPORT static GP_Block_Book_c* create();
+  
+  /* \brief static creation method with a given number of blocks
+   * \param the total number of blocks
+   * \return pointer to the new book
+   */
   MPTK_LIB_EXPORT static GP_Block_Book_c* create(unsigned int numBlocks);
 
-  /* check if an atom is present
+  /* \brief check if an atom is present
+   * \param blockIdx: index of the block of the atom
+   * \param pos: atom position
+   * \param param: atom parameters
+   * \return: true if an atom with these indices exists in the book, false otherwise
    */
   MPTK_LIB_EXPORT virtual bool contains(unsigned int blockIdx,
 		  unsigned long int pos,
 	      MP_Atom_Param_c& param);
+          
+  /* \brief check if an atom is present
+   * \param atom: searched atom
+   * \return: true if an atom with the same indices as the parameter exists in the book, false otherwise
+   */
   MPTK_LIB_EXPORT bool contains(const MP_Atom_c&);
 
-  /* get an atom if present, NULL otherwise
+  /* \brief retrive an atom if present
+   * \param blockIdx: index of the block of the atom
+   * \param pos: atom position
+   * \param param: atom parameters
+   * \return: a pointer to the atom if present, NULL otherwise
    */
   MPTK_LIB_EXPORT virtual MP_Atom_c* get_atom(unsigned int blockIdx,
 		  unsigned long int pos,
 		  MP_Atom_Param_c& param);
+          
+  /* \brief retrive an atom if present
+   * \param atom: searched atom
+   * \return: the pointer to an atom with the same indices as the parameter if present, false otherwise
+   */
   MPTK_LIB_EXPORT MP_Atom_c* get_atom(const MP_Atom_c&);
 
 
@@ -82,27 +167,55 @@ class GP_Block_Book_c:public GP_Book_c, public vector<GP_Pos_Book_c>{
    
   MPTK_LIB_EXPORT int append( MP_Atom_c *newAtom );
 
-  /* get an index for the sub-book containing only atoms generated
-   * by a given block if it exists, NULL otherwise.
+  /* \brief get the sub-book containing only atoms generated
+   * by a given block
+   * \param the block index
+   * \return a pointer to the corresponding GP_Pos_Book_c if it exists, NULL otherwise 
    */
   MPTK_LIB_EXPORT virtual GP_Pos_Book_c* get_sub_book(unsigned int blockIdx);
+  
+  /* \brief get the sub-book containing only atoms generated
+   * by a given block, creating it if necessary
+   * \param the block index
+   * \return a pointer to the corresponding GP_Pos_Book_c. 
+   */
   MPTK_LIB_EXPORT virtual GP_Pos_Book_c* insert_sub_book(unsigned int blockIdx);
    
-  /* get an index for the sub-book containing only atoms 
-   * at a given position.
+  /* \brief get the sub-book containing only atoms generated
+   * by a given position
+   * \param target position
+   * \return a pointer to a GP_Pos_Range_Sub_Book_c restraining the book between pos and pos+1. 
    */
   MPTK_LIB_EXPORT virtual GP_Pos_Range_Sub_Book_c* get_sub_book(unsigned long int pos);
+  
+  /* \brief get the sub-book containing only atoms generated
+   * by a given position
+   * \param target position
+   * \return a pointer to a GP_Pos_Range_Sub_Book_c restraining the book between pos and pos+1. 
+   */
   MPTK_LIB_EXPORT virtual GP_Pos_Range_Sub_Book_c* insert_sub_book(unsigned long int pos);
    
-  /* get an index for the sub-book containing only atoms 
-   * between 2 given positions, included. This leaves 
-   * the neighbourhood selection strategy to the upper level.
+  /* \brief get the sub-book containing only atoms 
+   * between 2 given positions.
+   * \param minPos: lower bound (included)
+   * \param maxPos: upper bound(excluded)
+   * \return apointer to the corresponding GP_Pos_Range_Sub_Book_c
    */
   MPTK_LIB_EXPORT virtual GP_Pos_Range_Sub_Book_c* get_sub_book(unsigned long int minPos,unsigned long int maxPos);
 
+  /* \brief get an iterator pointing to the first atom
+   * \return the iterator
+   */
   MPTK_LIB_EXPORT GP_Block_Book_Iterator_c& begin();
+  
+  /* \brief get an iterator pointing after the last atom
+   * \return the iterator
+   */
   MPTK_LIB_EXPORT GP_Block_Book_Iterator_c& end();
 
+  /* \brief test if the book is empty
+   * \return true if the book contains no atoms, false otherwise
+   */
   MPTK_LIB_EXPORT bool empty();
 };
 
