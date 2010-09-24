@@ -724,12 +724,17 @@ void MP_Atom_c::substract_add_var_amp( MP_Real_t *amp, MP_Chan_t numAmps,
  * with the residual. */
 void MP_Atom_c::substract_add_grad( MP_Real_t step, MP_Signal_c *sigSub, MP_Signal_c *sigAdd ) {
     const char* func = "MP_Atom_c::substract_add_grad(...)";
-    MP_Real_t amp[numChans];
-    
+    MP_Real_t *amp = (MP_Real_t *)malloc(sizeof(MP_Real_t)*numChans);
+    if(amp == NULL) 
+	{
+      mp_error_msg(func,"Could not allocate buffer. Returning without any addition or subtraction.\n" );
+      return;
+    }
     for (int i = 0; i<numChans; i++)
         amp[i] = corr[i]*step;
     
     substract_add_var_amp(amp, numChans, sigSub, sigAdd);
+	free(amp); amp = NULL;
 }
     
 
