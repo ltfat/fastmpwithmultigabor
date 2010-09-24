@@ -1,0 +1,60 @@
+mptk INFO -- gpd - ------------------------------------
+mptk INFO -- gpd - GPD - GRADIENT PURSUIT DECOMPOSITION
+mptk INFO -- gpd - ------------------------------------
+mptk INFO -- gpd -  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+mptk INFO -- gpd -  WARNING, CONSTRUCTION WORK IN PROGRESS, GPD UNDER DEVELOPMENT
+mptk INFO -- gpd -  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+mptk INFO -- gpd - The command line was:
+gpd --verbose -s 10 -R 10 -D /usr/local/mptk/reference/dictionary/dic_mdct_two_scales.xml /usr/local/mptk/reference/signal/glockenspiel.wav book_gpd_glckenspiel.bin res_gpd_glockenspiel.wav.ref 
+mptk INFO -- gpd - End command line.
+mptk INFO -- gpd - Loading the dictionary...
+mptk INFO -- gpd - (In the following, spurious output of dictionary pieces would be a symptom of parsing errors.)
+mptk INFO -- gpd - The dictionary is now loaded.
+mptk INFO -- gpd - Loading the signal...
+mptk INFO -- gpd - The signal is now loaded.
+mptk INFO -- gpd - Try to create a new book.
+mptk INFO -- gpd - The dictionary read from file [/usr/local/mptk/reference/dictionary/dic_mdct_two_scales.xml] contains [2] blocks:
+mptk INFO -- MDCT BLOCK - kbd window (window opt=5) of length [128], shifted by [64] samples,
+mptk INFO --          |- - projected on [64] frequencies;
+mptk INFO --          O- - The number of frames for this block is [4095], the search tree has [5] levels.
+mptk INFO -- MDCT BLOCK - kbd window (window opt=5) of length [16384], shifted by [8192] samples,
+mptk INFO --          |- - projected on [8192] frequencies;
+mptk INFO --          O- - The number of frames for this block is [31], the search tree has [1] levels.
+mptk INFO -- gpd - End of dictionary.
+mptk INFO -- gpd - The signal loaded from file [/usr/local/mptk/reference/signal/glockenspiel.wav] has:
+mptk INFO -- SIGNAL - [262144] samples on [1] channels; sample rate [44100]Hz; energy [2584.65].
+mptk INFO -- gpd - -------------------------
+mptk INFO -- gpd - Starting Gradient Pursuit on signal [/usr/local/mptk/reference/signal/glockenspiel.wav] with dictionary [/usr/local/mptk/reference/dictionary/dic_mdct_two_scales.xml].
+mptk INFO -- gpd - -------------------------
+mptk INFO -- Conditions - This run will iterate until the SNR goes above [10], using [516032] atoms.
+mptk INFO -- Conditions - The resulting book will be written to book file [book_gpd_glckenspiel.bin].
+mptk INFO -- Conditions - The residual will be written to file [res_gpd_glockenspiel.wav.ref].
+mptk INFO -- Conditions - The energy decay will not be saved.
+mptk INFO -- gpd - The initial signal energy is : 2584.65
+mptk INFO -- gpd - STARTING TO ITERATE
+mptk PROGRESS -- At iteration - [10] : the residual energy is [1533.25] and the SNR is [2.26788].
+mptk PROGRESS -- At iteration - [20] : the residual energy is [1087.7] and the SNR is [3.75892].
+mptk PROGRESS -- At iteration - [30] : the residual energy is [844.545] and the SNR is [4.85779].
+mptk PROGRESS -- At iteration - [40] : the residual energy is [699.255] and the SNR is [5.67766].
+mptk PROGRESS -- At iteration - [50] : the residual energy is [603.158] and the SNR is [6.3197].
+mptk PROGRESS -- At iteration - [60] : the residual energy is [528.237] and the SNR is [6.89573].
+mptk PROGRESS -- At iteration - [70] : the residual energy is [466.946] and the SNR is [7.43135].
+mptk PROGRESS -- At iteration - [80] : the residual energy is [416.884] and the SNR is [7.92387].
+mptk PROGRESS -- At iteration - [90] : the residual energy is [379.528] and the SNR is [8.33158].
+mptk PROGRESS -- At iteration - [100] : the residual energy is [347.839] and the SNR is [8.71023].
+mptk PROGRESS -- At iteration - [110] : the residual energy is [321.398] and the SNR is [9.05359].
+mptk PROGRESS -- At iteration - [120] : the residual energy is [299.41] and the SNR is [9.36135].
+mptk PROGRESS -- At iteration - [130] : the residual energy is [280.359] and the SNR is [9.64687].
+mptk PROGRESS -- At iteration - [140] : the residual energy is [263.299] and the SNR is [9.91953].
+mptk INFO -- Current state - The current SNR [10.0218] reached or passed the target SNR [10] in [144] iterations.
+mptk INFO -- gpd - -------------------------
+mptk INFO -- gpd - Gradient PURSUIT RESULTS:
+mptk INFO -- gpd - -------------------------
+mptk INFO -- Result - [144] iterations have been performed.
+mptk INFO -- Result - ([144] atoms have been selected out of the [516032] atoms of the dictionary.)
+mptk INFO -- Result - The initial signal energy was [2584.65].
+mptk INFO -- Result - The residual energy is now [257.169].
+mptk INFO -- Result - The SNR is now [10.0218].
+mptk INFO -- Save info - At iteration [144] : saved the book to file [book_gpd_glckenspiel.bin].
+mptk INFO -- Save info - At iteration [144] : saved the residual signal to file [res_gpd_glockenspiel.wav.ref].
+mptk INFO -- gpd - Have a nice day !
