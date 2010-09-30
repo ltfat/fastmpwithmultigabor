@@ -110,6 +110,19 @@ ELSE(WIN32)
 	ENDIF(APPLE)
 ENDIF(WIN32)
 
+##############################################################################
+# Dash server testing :
+##############################################################################
+IF(BUILD_TESTING AND DASH_TESTING)
+	INCLUDE(${MPTK_SOURCE_DIR}/CMake/Pipol.cmake)
+	MESSAGE("<<<<<< ON PASSE SUR PIPOL >>>>>>>>")
+	IF(PIPOL_IMAGE)
+		SET(BUILDNAME "CMAKE-MptkBuild-${CMAKE_GENERATOR}-${CMAKE_CXX_COMPILER}-${PIPOL_IMAGE_NAME}")
+		SET(SITE "${PIPOL_SITE}")
+	ELSE(PIPOL_IMAGE)
+		SET(BUILDNAME "CMAKE-MptkBuild-${CMAKE_GENERATOR}-${CMAKE_CXX_COMPILER}-${CMAKE_SYSTEM_NAME}")
+	ENDIF(PIPOL_IMAGE)
+ENDIF(BUILD_TESTING AND DASH_TESTING)
 
 ##############################################################################
 # Setting compilation options :
@@ -468,18 +481,4 @@ IF(BUILD_TESTING)
 	ADD_TEST(SCRIPT1, ${MPTK_BINARY_DIR}/bin/script/test_mpcycle${BATCHEXT})
 	ADD_TEST(GPD, ${MPTK_BINARY_DIR}/bin/gpd -C ${MPTK_BINARY_DIR}/mptk/path.xml -D ${MPTK_DEFAULT_MDCTDICT_FILE} -n 10 -q ${MPTK_REFERENCE_PATH}/signal/glockenspiel.wav ${MPTK_TMP_PATH}/test_gpd.bin)
 ENDIF(BUILD_TESTING)
-
-##############################################################################
-# Dash server testing :
-##############################################################################
-IF(BUILD_TESTING AND DASH_TESTING)
-	INCLUDE(${MPTK_SOURCE_DIR}/CMake/Pipol.cmake)
-	IF(PIPOL_IMAGE)
-		SET(BUILDNAME "CMAKE-MptkBuild-${CMAKE_GENERATOR}-${CMAKE_CXX_COMPILER}-${PIPOL_IMAGE_NAME}")
-		SET(SITE "${PIPOL_SITE}")
-	ELSE(PIPOL_IMAGE)
-		SET(BUILDNAME "CMAKE-MptkBuild-${CMAKE_GENERATOR}-${CMAKE_CXX_COMPILER}-${CMAKE_SYSTEM_NAME}")
-	ENDIF(PIPOL_IMAGE)
-ENDIF(BUILD_TESTING AND DASH_TESTING)
-
 
