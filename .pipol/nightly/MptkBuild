@@ -2,6 +2,7 @@
  
 #PIPOL ubuntu 1:00 
 #PIPOL debian 1:00 
+#PIPOL fedora 1:00 
 #PIPOL windows 1:00 --root
 #PIPOL mac 1:00
 

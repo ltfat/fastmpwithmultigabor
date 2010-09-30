@@ -53,3 +53,8 @@ echo "---------------------------------------------------"
 echo "Installation de la librairie fftw3..."
 echo "---------------------------------------------------"
 yum install -y -qq libfftw3-dev
+echo "---------------------------------------------------"
+echo "Installation de la librairie rpm..."
+echo "---------------------------------------------------"
+yum install -y -qq rpm
+
