@@ -29,6 +29,12 @@ SET(LIBMEX "mex")
 SET(LIBMX "mx")
 SET(LIBENG "eng")
 
+IF(PIPOL)
+	MESSAGE("TEST on est dans PIPOL")
+ELSE(PIPOL)
+	MESSAGE("TEST on est po dans PIPOL")
+ENDIF(PIPOL)
+
 IF(UNIX)
 	IF(APPLE)
 		FILE(GLOB MATLAB_PATHS "/Applications/MATLAB_*" "/netshare/none/matlab-*")
