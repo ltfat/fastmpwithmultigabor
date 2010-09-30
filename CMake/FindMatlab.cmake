@@ -116,34 +116,22 @@ ELSE(UNIX)
 			"[HKEY_LOCAL_MACHINE\\SOFTWARE\\MathWorks\\MATLAB\\7.3;MATLABROOT]"
 			"[HKEY_LOCAL_MACHINE\\SOFTWARE\\MathWorks\\MATLAB\\7.2;MATLABROOT]"
 			"[HKEY_LOCAL_MACHINE\\SOFTWARE\\MathWorks\\MATLAB\\7.1;MATLABROOT]"
-			"/netshare/i386/matlab-2010a-windows/"
 		)
 		FIND_PATH(MATLAB_ROOT "license.txt" ${MATLAB_PATH} NO_DEFAULT_PATH)
-		MESSAGE("1 : Voilà MATLAB_ROOT ${MATLAB_ROOT} >><<<<>>>>")
-		MESSAGE("1 : Voilà MATLAB_PATH ${MATLAB_PATH} >><<<<>>>>")
 		IF (NOT MATLAB_ROOT)
-			MESSAGE("2 OK : Voilà MATLAB_ROOT ${MATLAB_ROOT} >><<<<>>>>")
-			MESSAGE("2 : Voilà MATLAB_PATH ${MATLAB_PATH} >><<<<>>>>")
 			SET(MATLAB_PATH
 				"[HKEY_LOCAL_MACHINE\\SOFTWARE\\MathWorks\\MATLAB\\7.0;MATLABROOT]"
 				"[HKEY_LOCAL_MACHINE\\SOFTWARE\\MathWorks\\MATLAB\\6.5;MATLABROOT]"
 	    	)
 	    FIND_PATH(MATLAB_ROOT "license.txt" ${MATLAB_PATH} NO_DEFAULT_PATH)
-			MESSAGE("3 OK : Voilà MATLAB_ROOT ${MATLAB_ROOT} >><<<<>>>>")
-			MESSAGE("3 : Voilà MATLAB_PATH ${MATLAB_PATH} >><<<<>>>>")
 			IF (MATLAB_ROOT)
-			MESSAGE("4 NOK : Voilà MATLAB_ROOT ${MATLAB_ROOT} >><<<<>>>>")
-			MESSAGE("4 : Voilà MATLAB_PATH ${MATLAB_PATH} >><<<<>>>>")
 				SET(MATLAB_OLD_WIN_MEXFILE_EXT 1 CACHE STRING "Old MEX extension for Windows")
 			ELSE (MATLAB_ROOT)
-			MESSAGE("5 OK : Voilà MATLAB_ROOT ${MATLAB_ROOT} >><<<<>>>>")
-			MESSAGE("5 : Voilà MATLAB_PATH ${MATLAB_PATH} >><<<<>>>>")
 				IF(CMAKE_CL_64)
-					SET(MATLAB_PATH "/netshare/amd64/matlab-2010a-windows")
+					SET(MATLAB_ROOT "/netshare/amd64/matlab-2010a-windows")
 				ELSE(CMAKE_CL_64)
-					SET(MATLAB_PATH "/netshare/i386/matlab-2010a-windows")
+					SET(MATLAB_ROOT "/netshare/i386/matlab-2010a-windows")
 				ENDIF(CMAKE_CL_64)
-	    		FIND_PATH(MATLAB_ROOT "license.txt" ${MATLAB_PATH})
 			MESSAGE("6 OK : Voilà MATLAB_ROOT ${MATLAB_ROOT} >><<<<>>>>")
 			MESSAGE("6 : Voilà MATLAB_PATH ${MATLAB_PATH} >><<<<>>>>")
 			ENDIF (MATLAB_ROOT)
