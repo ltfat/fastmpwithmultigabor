@@ -115,7 +115,6 @@ ENDIF(WIN32)
 ##############################################################################
 IF(BUILD_TESTING AND DASH_TESTING)
 	INCLUDE(${MPTK_SOURCE_DIR}/CMake/Pipol.cmake)
-	MESSAGE("<<<<<< ON PASSE SUR PIPOL >>>>>>>>")
 	IF(PIPOL_IMAGE)
 		SET(BUILDNAME "CMAKE-MptkBuild-${CMAKE_GENERATOR}-${CMAKE_CXX_COMPILER}-${PIPOL_IMAGE_NAME}")
 		SET(SITE "${PIPOL_SITE}")
