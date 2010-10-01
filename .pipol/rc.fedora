@@ -48,13 +48,14 @@ fi
 echo "---------------------------------------------------"
 echo "Installation de la librairie libsndfile..."
 echo "---------------------------------------------------"
-yum install -y -qq libsndfile1-dev
+yum -y -qq install libsndfile-devel
 echo "---------------------------------------------------"
 echo "Installation de la librairie fftw3..."
 echo "---------------------------------------------------"
-yum install -y -qq libfftw3-dev
+yum -y -qq install fftw-devel
+yum -y -qq install fftw-static
 echo "---------------------------------------------------"
 echo "Installation de la librairie rpm..."
 echo "---------------------------------------------------"
-yum install -y -qq rpm
+yum -y -qq install rpm
 

@@ -1,10 +1,17 @@
 #!/bin/bash
  
-#PIPOL ubuntu 1:00 
-#PIPOL debian 1:00 
+#PIPOL ubuntu-hardy 0:30 
+#PIPOL ubuntu-intrepid 0:30 
+#PIPOL ubuntu-jaunty 0:30 
+#PIPOL ubuntu-karmic 0:30 
+#PIPOL debian-lenny 0:30 
 #PIPOL fedora 1:00 
 #PIPOL windows 1:00 --root
 #PIPOL mac 1:00
+
+# La plate forme ubuntu-feisty est trop ancienne pour les bibliothèques libsndfile et libfftw
+# La plate forme debian-etch est trop ancienne pour les bibliothèques libsndfile et libfftw
+# La plate forme debian-testing ne dispose pas encore des bibliothèques libsndfile et libfftw
 
 # 1) You have to get your sources from somewhere.
 cd $PIPOL_WDIR
