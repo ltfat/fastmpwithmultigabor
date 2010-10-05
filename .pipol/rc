@@ -1,1 +1,53 @@
-#!/bin/sh
+#!/bin/bash
+
+### rc --- 
+## 
+## Author: Ronan Le Boulch
+## Copyright (C) 2008 - Ronan Le Boulch, Inria.
+## Created: Fri May 7 09:07:25 2010 (+0100)
+## Version: $Id$
+## Last-Updated: Fri May 7 09:07:25 2010 (+0100)
+##           By: rleboulc
+##     Update #: 1
+######################################################################
+## 
+### Commentary: 
+## 
+######################################################################
+## 
+### Change log:
+## 
+######################################################################
+
+## #################################################################
+## Get required version of cmake (required for cpack)
+## #################################################################
+# message d'erreur pour debian etch et ubuntu feisty qui sont trop vieilles
+# dpkg-shlibdeps: dpkg-shlibdeps: unknown option `--ignore-missing-info'
+# utilisation de cmake 2.6 obligatoire pour creer les paquets
+case $PIPOL_IMAGE in
+  *debian-etch*|*ubuntu-feisty*) cmake_version=2.6.4;;
+  *) cmake_version=2.8.3-rc1;;
+esac
+
+if [ "`cmake --version`" != "cmake version ${cmake_version}" ]; then
+	echo "---------------------------------------------------"
+	echo "Cmake n'existe pas ou sa version n'est pas ${cmake_version}..."
+	echo "Installation de cmake..."
+	echo "---------------------------------------------------"
+	wget http://www.cmake.org/files/v2.8/cmake-${cmake_version}.tar.gz
+	gunzip cmake-${cmake_version}.tar.gz
+	tar xvf cmake-${cmake_version}.tar
+	cd cmake-${cmake_version}; {
+		./bootstrap
+		make
+		sudo make install
+		date
+	}; cd -
+	rm -r cmake-${cmake_version}
+	rm cmake-${cmake_version}.tar
+else
+	echo "---------------------------------------------------"
+	echo "Cmake existe et sa version est ${cmake_version}..."
+	echo "---------------------------------------------------"
+fi

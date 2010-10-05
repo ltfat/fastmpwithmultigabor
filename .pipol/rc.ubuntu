@@ -20,30 +20,7 @@
 ######################################################################
 
 ## #################################################################
-## Get required version of cmake (required for cpack)
-## #################################################################
-
-if [ "`cmake --version`" != "cmake version 2.8.1" ]; then
-	echo "---------------------------------------------------"
-	echo "Cmake n'existe pas ou sa version n'est pas 2.8.1..."
-	echo "Installation de cmake..."
-	echo "---------------------------------------------------"
-	wget http://www.cmake.org/files/v2.8/cmake-2.8.1-Linux-i386.sh
-	CMAKEPATH=`which cmake`
-	if [ "$CMAKEPATH" != "" ]; then 
-		sh cmake-2.8.1-Linux-i386.sh --prefix=$CMAKEPATH/../.. --exclude-subdir
-	else
-		sh cmake-2.8.1-Linux-i386.sh --prefix=/usr/local --exclude-subdir
-	fi	
-	rm cmake-2.8.1-Linux-i386.sh
-else
-	echo "---------------------------------------------------"
-	echo "Cmake existe et sa version est 2.8.1..."
-	echo "---------------------------------------------------"
-fi
-
-## #################################################################
-## MPTK libsndfile1 dependencies
+## MPTK dependencies
 ## #################################################################
 echo "---------------------------------------------------"
 echo "Installation de la librairie libsndfile..."

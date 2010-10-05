@@ -20,48 +20,16 @@
 ######################################################################
 
 ## #################################################################
-## Get required version of cmake (required for cpack)
-## #################################################################
-if [ "`cmake --version`" != "cmake version 2.8.1" ]; then
-	echo "---------------------------------------------------"
-	echo "Cmake n'existe pas ou sa version n'est pas 2.8.1..."
-	echo "Installation de cmake..."
-	echo "---------------------------------------------------"
-	curl -O http://www.cmake.org/files/v2.8/cmake-2.8.1-Darwin-universal.dmg
-	hdiutil attach cmake-2.8.1-Darwin-universal.dmg
-	sudo installer -pkg /Volumes/cmake-2.8.1-Darwin-universal/cmake-2.8.1-Darwin-universal.pkg -target /Applications
-	hdiutil detach /Volumes/cmake-2.8.1-Darwin-universal
-	rm cmake-2.8.1-Darwin-universal.dmg
-	sudo ln -sf /Applications/CMake\ 2.8-1.app/Contents/bin/cmake /usr/bin/cmake
-	sudo ln -sf /Applications/CMake\ 2.8-1.app/Contents/bin/ccmake /usr/bin/ccmake
-	sudo ln -sf /Applications/CMake\ 2.8-1.app/Contents/bin/ctest /usr/bin/ctest
-	sudo ln -sf /Applications/CMake\ 2.8-1.app/Contents/bin/cpack /usr/bin/cpack
-else
-	echo "---------------------------------------------------"
-	echo "Cmake existe et sa version est 2.8.1..."
-	echo "---------------------------------------------------"
-fi
-
-## #################################################################
-## MPTK libsndfile1 dependencies
+## MPTK dependencies
 ## #################################################################
 echo "---------------------------------------------------"
 echo "Mise à jour de MacPort..."
 echo "---------------------------------------------------"
 sudo /opt/local/bin/port selfupdate
-
-
-## #################################################################
-## MPTK libsndfile1 dependencies
-## #################################################################
 echo "---------------------------------------------------"
 echo "Installation de la librairie libsndfile..."
 echo "---------------------------------------------------"
 sudo /opt/local/bin/port install libsndfile +universal
-
-## #################################################################
-## MPTK fftw3 dependencies
-## #################################################################
 echo "---------------------------------------------------"
 echo "Installation de la librairie fftw3..."
 echo "---------------------------------------------------"
