@@ -36,14 +36,13 @@ case $PIPOL_IMAGE in
 		    cmake -DDASH_TESTING=ON $PIPOL_WDIR/MPTK_Source
 		    make NightlyUpdate
 		    make NightlyConfigure
-		
 		    ## 4.2) build
 		    make NightlyBuild
-		
 		    ## 4.3) test
 		    make NightlyTest
-		
-		    ## 4.4) submission on a dashboard
+		    make NightlySubmit
+		    ## 4.3) test
+		    make NightlyMemCheck
 		    make NightlySubmit
 		
 		    ## 4.5) packaging
