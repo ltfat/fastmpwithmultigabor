@@ -719,9 +719,9 @@ void MP_Block_c::update_frame( unsigned long int frameIdx,
 /**********************************************/
 /* Substract / add a monochannel atom from / to multichannel signals with amplitude proportional to its correlation
  * with the residual. */
-void MP_Block_c::substract_add_grad( GP_Param_Book_c& book, MP_Real_t step, 
+void MP_Block_c::substract_add_grad( GP_Param_Book_c* book, MP_Real_t step, 
                                      MP_Signal_c *sigSub, MP_Signal_c *sigAdd ) {
     GP_Param_Book_Iterator_c iter;
-    for (iter = book.begin(); iter != book.end(); ++iter)
+    for (iter = book->begin(); iter != book->end(); ++iter)
         iter->substract_add_grad(step, sigSub, sigAdd);
 }

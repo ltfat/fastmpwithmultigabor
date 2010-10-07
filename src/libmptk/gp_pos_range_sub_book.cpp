@@ -170,13 +170,25 @@ GP_Pos_Range_Sub_Book_Iterator_c& GP_Pos_Range_Sub_Book_Iterator_c::go_to_next_b
   return *this;
 }
 
-  // virtual GP_Book_Iterator_c& operator --(void)=0;
+GP_Pos_Range_Sub_Book_Iterator_c& GP_Pos_Range_Sub_Book_Iterator_c::go_to_next_frame(void){
+  do{
+    iter->go_to_next_frame();
+    iter->go_to_pos(book->minPos);
+  }
+  while((*iter) != book->book->end() && (*iter)->get_pos() >= book->maxPos);
+  return *this;
+}
+
 MP_Atom_c& GP_Pos_Range_Sub_Book_Iterator_c::operator *(void){
   return *(*iter);
 }
 
 MP_Atom_c* GP_Pos_Range_Sub_Book_Iterator_c::operator ->(void){
   return &**iter;
+}
+
+GP_Param_Book_c* GP_Pos_Range_Sub_Book_Iterator_c::get_frame(void){
+    return iter->get_frame();
 }
 
 bool GP_Pos_Range_Sub_Book_Iterator_c::operator ==

@@ -174,6 +174,18 @@ void swap (GP_Pos_Book_c& book1, GP_Pos_Book_c& book2){
   book2.endIter = tmpIter;
 }
 
+void GP_Pos_Book_c::substract_add_grad(MP_Dict_c* dict, MP_Real_t step,
+                                        MP_Signal_c* sigSub, MP_Signal_c* sigAdd){
+    GP_Pos_Book_Iterator_c iter;
+    GP_Param_Book_c subBook;
+    
+    for(iter = begin(); iter != end(); ++iter){
+        iter.get_frame()->substract_add_grad(dict, step,
+                                        sigSub,  sigAdd);
+        iter.go_to_next_frame();
+    }
+}
+        
 // Iterator methods
 
 GP_Pos_Book_Iterator_c::GP_Pos_Book_Iterator_c(void){
@@ -247,6 +259,21 @@ GP_Pos_Book_Iterator_c& GP_Pos_Book_Iterator_c::go_to_next_block(void){
   return *this;
 }
 
+GP_Pos_Book_Iterator_c& GP_Pos_Book_Iterator_c::go_to_next_frame(){
+    ++posIter; // jump to a different frame
+    while (posIter != book->posBookMap::end()){
+        paramIter = posIter->second.begin();
+        if (paramIter != posIter->second.end()) // non-empty frame found
+            break;
+        
+        ++posIter;
+    }
+    
+    return *this;
+}
+        
+    
+
 bool GP_Pos_Book_Iterator_c::operator == (const GP_Book_Iterator_c& arg)const{
     if (typeid(*this) != typeid(arg))
         return false;
@@ -263,4 +290,8 @@ MP_Atom_c& GP_Pos_Book_Iterator_c::operator *(void){
 
 MP_Atom_c* GP_Pos_Book_Iterator_c::operator ->(void){
   return paramIter.paramIter->second;
+}
+
+GP_Param_Book_c* GP_Pos_Book_Iterator_c::get_frame(void){
+    return paramIter.get_frame();
 }

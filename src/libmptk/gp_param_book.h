@@ -65,6 +65,11 @@ class GP_Param_Book_Iterator_c: public GP_Book_Iterator_c{
    * \return the iterator after incrementation
    */
   MPTK_LIB_EXPORT virtual GP_Param_Book_Iterator_c& go_to_next_block(void);
+  
+  /* \brief got to the next atom that belongs to a different GP_Param_Book_c than the current one
+   * \return the iterator after incrementation
+   */
+  MPTK_LIB_EXPORT GP_Param_Book_Iterator_c& go_to_next_frame();
 
   /* brief Get the pointed atom
    * \return the pointed atom
@@ -77,6 +82,11 @@ class GP_Param_Book_Iterator_c: public GP_Book_Iterator_c{
    * If you want to use the address of the pointed atom in an expression, use &(*iter) instead.
    */
   MPTK_LIB_EXPORT MP_Atom_c* operator ->(void);
+  
+  /* \brief Get the GP_Param_Book_c containing the current atom
+   * \return a pointer to the book
+   */
+  MPTK_LIB_EXPORT GP_Param_Book_c* get_frame(void);
 
   /* \brief Equality operator
    * \param the other iterator to compare to
@@ -92,6 +102,8 @@ class GP_Param_Book_c:public GP_Book_c, public paramBookMap{
   unsigned long int pos;
 
   GP_Param_Book_Iterator_c begIter, endIter;
+  
+  MPTK_LIB_EXPORT GP_Param_Book_c(){}
 
   MPTK_LIB_EXPORT GP_Param_Book_c(unsigned int blockIdx,
           unsigned long int pos);
@@ -131,6 +143,19 @@ class GP_Param_Book_c:public GP_Book_c, public paramBookMap{
   MPTK_LIB_EXPORT GP_Param_Book_Iterator_c& end();
 
   MPTK_LIB_EXPORT GP_Param_Book_c& operator =(const GP_Param_Book_c&);
+  
+  /** \brief Substract/add all the atoms in a given frame from / to a multichannel signal
+   *  with amplitudes proportional to their correlations with the residual.
+   *
+   * \param dict: the dictionary used to interprete this book
+   * \param step: the gradient step
+   * \param sigSub signal from which the atom waveform is to be removed
+   * \param sigAdd signal to which the atom waveform is to be added
+   *
+   * \remark Passing sigSub == NULL or sigAdd == NULL skips the corresponding substraction / addition.
+   */
+ MPTK_LIB_EXPORT void substract_add_grad(MP_Dict_c* dict, MP_Real_t step, 
+                                         MP_Signal_c* sigSub, MP_Signal_c* sigAdd);
 };
 
 MPTK_LIB_EXPORT void swap(GP_Param_Book_c&, GP_Param_Book_c&);

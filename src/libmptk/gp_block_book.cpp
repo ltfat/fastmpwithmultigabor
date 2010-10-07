@@ -217,6 +217,18 @@ GP_Block_Book_Iterator_c& GP_Block_Book_Iterator_c::go_to_next_block(void){
   return *this;
 }
 
+GP_Block_Book_Iterator_c& GP_Block_Book_Iterator_c::go_to_next_frame(void){
+    posIter.go_to_next_frame();
+    while(posIter == blockIter->end()){ //next frame not found
+        ++blockIter;
+        if (blockIter == book->blockBookVec::end()) // reached the end
+            break;
+            
+        posIter = blockIter->begin();
+    }
+    return *this;
+}
+
 bool GP_Block_Book_Iterator_c::operator == (const GP_Book_Iterator_c& arg)const{
 	//cout << "GP_Block_Book_c::==" << endl;
     if (typeid(*this) != typeid(arg)){
@@ -252,4 +264,8 @@ MP_Atom_c& GP_Block_Book_Iterator_c::operator *(void){
 
 MP_Atom_c* GP_Block_Book_Iterator_c::operator ->(void){
   return posIter.paramIter.paramIter->second;
+}
+
+GP_Param_Book_c* GP_Block_Book_Iterator_c::get_frame(void){
+    return posIter.get_frame();
 }

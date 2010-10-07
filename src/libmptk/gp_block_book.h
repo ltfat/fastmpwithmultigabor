@@ -63,6 +63,11 @@ class GP_Block_Book_Iterator_c: public GP_Book_Iterator_c{
    */
   MPTK_LIB_EXPORT MP_Atom_c* operator ->(void);
   
+  /* \brief Get the GP_Param_Book_c containing the current atom
+   * \return a pointer to the book
+   */
+  MPTK_LIB_EXPORT GP_Param_Book_c* get_frame(void);
+  
   /* \brief incrementation operator. Makes the iterator point to the next atom
    * \return the iterator after incrementation
    */
@@ -73,6 +78,11 @@ class GP_Block_Book_Iterator_c: public GP_Book_Iterator_c{
    * \return the iterator after incrementation
    */
   MPTK_LIB_EXPORT GP_Block_Book_Iterator_c& go_to_pos(unsigned long int);
+  
+  /* \brief got to the next atom that belongs to a different GP_Param_Book_c than the current one
+   * \return the iterator after incrementation
+   */
+  MPTK_LIB_EXPORT GP_Block_Book_Iterator_c& go_to_next_frame();
   
   /* go to the next atom with block index strictly greter than the current one
    * \return the iterator after incrementation
@@ -217,6 +227,19 @@ class GP_Block_Book_c:public GP_Book_c, public vector<GP_Pos_Book_c>{
    * \return true if the book contains no atoms, false otherwise
    */
   MPTK_LIB_EXPORT bool empty();
+  
+  /** \brief Substract/add all the atoms in a given frame from / to a multichannel signal
+   *  with amplitudes proportional to their correlations with the residual.
+   *
+   * \param dict: the dictionary used to interprete this book
+   * \param step: the gradient step
+   * \param sigSub signal from which the atom waveform is to be removed
+   * \param sigAdd signal to which the atom waveform is to be added
+   *
+   * \remark Passing sigSub == NULL or sigAdd == NULL skips the corresponding substraction / addition.
+   */
+ //MPTK_LIB_EXPORT void substract_add_grad(MP_Dict_c* dict, MP_Real_t step, 
+ //                                        MP_Signal_c* sigSub, MP_Signal_c* sigAdd);
 };
 
 #endif /* __gp_block_book_h_ */
