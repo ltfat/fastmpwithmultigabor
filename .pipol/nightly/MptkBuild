@@ -1,13 +1,13 @@
 #!/bin/bash
  
-#PIPOL ubuntu-hardy 0:30 
-#PIPOL ubuntu-intrepid 0:30 
-#PIPOL ubuntu-jaunty 0:30 
-#PIPOL ubuntu-karmic 0:30 
-#PIPOL debian-lenny 0:30 
-#PIPOL fedora 1:00 
-#PIPOL windows 1:00 --root
-#PIPOL mac 1:00
+#PIPOL ubuntu-hardy 1:00 
+#PIPOL ubuntu-intrepid 1:00 
+#PIPOL ubuntu-jaunty 1:00 
+#PIPOL ubuntu-karmic 1:00 
+#PIPOL debian-lenny 1:00 
+#PIPOL fedora 2:00 
+#PIPOL windows 2:00 --root
+#PIPOL mac 2:00
 
 # La plate forme ubuntu-feisty est trop ancienne pour les bibliothèques libsndfile et libfftw
 # La plate forme debian-etch est trop ancienne pour les bibliothèques libsndfile et libfftw
@@ -40,9 +40,9 @@ case $PIPOL_IMAGE in
 		    make NightlyBuild
 		    ## 4.3) test
 		    make NightlyTest
-		    make NightlySubmit
-		    ## 4.3) test
+		    ## 4.4) Mem check
 		    make NightlyMemCheck
+		    ## 4.5) Submit
 		    make NightlySubmit
 		
 		    ## 4.5) packaging
