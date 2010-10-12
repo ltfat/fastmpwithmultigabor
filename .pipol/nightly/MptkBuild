@@ -5,9 +5,9 @@
 #PIPOL ubuntu-jaunty 1:00 
 #PIPOL ubuntu-karmic 1:00 
 #PIPOL debian-lenny 1:00 
-#PIPOL fedora 2:00 
-#PIPOL windows 2:00 --root
-#PIPOL mac 2:00
+#PIPOL fedora 3:00 
+#PIPOL windows 3:00 --root
+#PIPOL mac 3:00
 
 # La plate forme ubuntu-feisty est trop ancienne pour les bibliothèques libsndfile et libfftw
 # La plate forme debian-etch est trop ancienne pour les bibliothèques libsndfile et libfftw
