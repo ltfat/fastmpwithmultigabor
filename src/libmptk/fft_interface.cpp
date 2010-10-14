@@ -250,6 +250,45 @@ void MP_FFT_Interface_c::exec_complex_demod( MP_Real_t *in,
 
 }
 
+void MP_FFT_Interface_c::exec_complex_inverse_demod(MP_Real_t* re, MP_Real_t* im, 
+        MP_Real_t *demodFuncRe, MP_Real_t *demodFuncIm,
+        MP_Real_t* output){
+            
+    int t,f;
+    
+    // separate the odd and even parts
+    *bufferRe = *re;
+    *bufferIm = *im;
+    *buffer2Re = 0;
+    *buffer2Im = 0;
+    for (f = 1; f < numFreqs/2+1; f++){
+        *(bufferRe+f) = 0.5*(*(re+f)+*(re+numFreqs-f));
+        *(bufferRe+numFreqs-f) = *(bufferRe+f);
+        
+        *(bufferIm+f) = 0.5*(*(im+f)+*(im+numFreqs-f));
+        *(bufferIm+numFreqs-f) = *(bufferIm+f);
+        
+        *(buffer2Re+f) = -0.5*(*(re+f)-*(re+numFreqs-f));
+        *(buffer2Re+numFreqs-f) = -*(buffer2Re+f);
+        
+        *(buffer2Im+f) = 0.5*(*(im+f)-*(im+numFreqs-f));
+        *(buffer2Im+numFreqs-f) = -*(buffer2Im+f);
+    }
+    
+    // compute inverse fft. The real part will be in inDemodulated, the imaginary part in output
+    exec_complex_inverse(bufferRe, bufferIm, inDemodulated);
+    exec_complex_inverse(buffer2Im, buffer2Re, output);
+    
+    // modulate.
+    //WARNING: this formula is only right with unitary demodulation functions.
+    for (t=0; t<windowSize; t++)
+        *(output+t) = *(demodFuncRe+t)*(*(inDemodulated+t)) + *(demodFuncIm+t)*(*(output+t));
+}
+    
+
+         
+        
+    
 
 /*********************************/
 /*                               */

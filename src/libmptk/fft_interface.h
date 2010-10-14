@@ -130,6 +130,8 @@ class MP_FFT_Interface_c
     /** \brief A buffer of size windowSize to multiply the input signal by a demodulation function */
     MP_Real_t *inDemodulated;
 
+    MP_Real_t* reDemodulated;
+    MP_Real_t* imDemodulated;
 
     
     /***********/
@@ -259,6 +261,13 @@ class MP_FFT_Interface_c
    MPTK_LIB_EXPORT virtual void exec_complex_demod( MP_Real_t *in,
                                      MP_Real_t *demodFuncRe, MP_Real_t *demodFuncIm,
                                      MP_Real_t *re, MP_Real_t *im );
+                                     
+   /** \brief Performs the inverse fft of two input buffers and divide the result by a demodulation function
+    *  \remark the modulus of the demodulation function is assumed to be 1 for each sample. 
+    */
+   MPTK_LIB_EXPORT virtual void exec_complex_inverse_demod(MP_Real_t* re, MP_Real_t* im, 
+        MP_Real_t *demodFuncRe, MP_Real_t *demodFuncIm,
+        MP_Real_t* output);
 
     /** \brief Computes the power spectrum of an input signal buffer and puts it
      * in an output magnitude buffer.

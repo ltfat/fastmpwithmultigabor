@@ -117,6 +117,11 @@ int MP_Mclt_Abstract_Block_Plugin_c::init_parameters( const unsigned long int se
 		  " for the imaginary part of the mclt output.\n", numFreqs );
     return( 1 );
   }
+  if ( (mcltOutInv = (MP_Real_t*) calloc( setFilterLen , sizeof(MP_Real_t) )) == NULL ) {
+    mp_error_msg( func, "Failed to allocate an array of [%lu] MP_Real_t elements"
+          " for the imaginary part of the fft array.\n", setFilterLen );
+    return( 1 );
+  }
 
   /* Allocate the modulation buffers */
   if ( (preModRe = (MP_Real_t*) calloc( setFilterLen , sizeof(MP_Real_t) )) == NULL ) {
@@ -317,4 +322,16 @@ void MP_Mclt_Abstract_Block_Plugin_c::compute_transform( MP_Real_t *in ) {
 		*(mcltOutIm+i) = (*(fftRe+i)) * (*(postModIm+i)) + (*(fftIm+i)) * (*(postModRe+i));
 	}
 
+}
+
+void MP_Mclt_Abstract_Block_Plugin_c::compute_inverse_transform(MP_Real_t* inRe, MP_Real_t* inIm){
+    
+    unsigned int i;
+    
+    for ( i = 0 ; i < numFreqs ; i++ ) {
+        *(fftRe+i) = (*(inRe+i)) * (*(postModRe+i)) + (*(inIm+i)) * (*(postModIm+i));
+        *(fftIm+i) = - (*(inRe+i)) * (*(postModIm+i)) + (*(inIm+i)) * (*(postModRe+i));
+    }
+    
+    fft->exec_complex_inverse_demod (fftRe, fftIm, preModRe, preModIm, mcltOutInv);
 }
