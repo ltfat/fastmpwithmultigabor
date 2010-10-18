@@ -83,10 +83,6 @@ public:
   /* A couple of buffers to perform post-modulation on the fft output*/
   MP_Real_t *postModRe;
   MP_Real_t *postModIm;
-  
-  /* A buffer to store the result of an inverse FFT
-   */
-  MP_Real_t *mcltOutInv;
 
   /***********/
   /* METHODS */
@@ -152,7 +148,7 @@ public:
   virtual void compute_transform(MP_Real_t *in);
   
   /** \brief Compute the inverse MCLT transform */
-  virtual void compute_inverse_transform(MP_Real_t* inRe, MP_Real_t* inIm);
+  virtual void compute_inverse_transform(MP_Real_t* out);
 };
  
 

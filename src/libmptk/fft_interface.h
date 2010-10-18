@@ -129,10 +129,6 @@ class MP_FFT_Interface_c
 
     /** \brief A buffer of size windowSize to multiply the input signal by a demodulation function */
     MP_Real_t *inDemodulated;
-
-    MP_Real_t* reDemodulated;
-    MP_Real_t* imDemodulated;
-
     
     /***********/
     /* METHODS */

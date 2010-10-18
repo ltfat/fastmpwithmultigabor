@@ -196,6 +196,8 @@ public:
   unsigned int create_atom( MP_Atom_c **atom,
 			    const unsigned long int frameIdx,
 			    const unsigned long int filterIdx );
+                
+  void build_frame_waveform_corr(GP_Param_Book_c* frame, MP_Real_t* outBuffer);      
 
    /** \brief Field a map with the parameter type of the block, the creation and destruction of the map is done by the calling method 
    *

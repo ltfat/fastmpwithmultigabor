@@ -674,6 +674,36 @@ unsigned int MP_Mdct_Block_Plugin_c::create_atom( MP_Atom_c **atom,
 
 }
 
+void MP_Mdct_Block_Plugin_c::build_frame_waveform_corr(GP_Param_Book_c* frame, MP_Real_t* outBuffer){
+    GP_Param_Book_Iterator_c iter;
+    unsigned long int freqIdx;
+    MP_Mdct_Atom_Plugin_c* pointer;
+    MP_Chan_t c;
+    
+    // clean the buffers
+    memset(outBuffer, 0, sizeof(MP_Real_t)*filterLen*s->numChans);
+    memset(mcltOutRe, 0, sizeof(MP_Real_t)*numFreqs);
+    memset(mcltOutIm, 0, sizeof(MP_Real_t)*numFreqs);
+    
+    for (c = 0; c<s->numChans; c++){
+        // fill the buffers
+        for (iter = frame->begin(); iter!=frame->end(); ++iter){
+            //pointer = dynamic_cast<MP_Mdct_Atom_Plugin_c*>(&*iter);
+            // get the frequency index
+            if ( filterLen == fftSize )
+                freqIdx  = lround(iter->get_field(MP_FREQ_PROP,0)*fft->fftSize-0.5);
+            else
+                freqIdx  = lround(iter->get_field(MP_FREQ_PROP,0)*fft->fftSize);
+            
+            *(mcltOutRe+freqIdx) = (*((iter->corr)+c))*(*(atomEnergy+freqIdx));
+        }
+    
+        compute_inverse_transform(outBuffer+c*filterLen);
+    }
+}
+    
+    
+
 /*****************************************/
 /* Allocation of the atom energy	 */
 int MP_Mdct_Block_Plugin_c::alloc_energy( MP_Real_t **atomEnergy )
