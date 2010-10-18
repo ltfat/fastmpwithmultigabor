@@ -58,167 +58,142 @@ using namespace std;
  */
 class MP_Block_c {
   
-  /********/
-  /* DATA */
-  /********/
+	/********/
+	/* DATA */
+	/********/
 
-public:
-  /** \brief bond to the analyzed signal */
-  MP_Signal_c *s;
-  /* General characteristics of the atoms */
-  /** \brief common length of the atoms (== frame length) */
-  unsigned long int filterLen;
-  /** \brief sliding step between two consecutive frames (== frame shift) */
-  unsigned long int filterShift;
-  /** \brief number of atoms/filters per frame */
-  unsigned long int numFilters;
-  /** \brief global block offset : position of the first frame */
-  unsigned long int blockOffset;
-  /** \brief number of frames for each channel (determined by
-  * the size of the signal, the frame shift and the block offset) */
-  unsigned long int numFrames;
+	public:
+		/** \brief bond to the analyzed signal */
+		MP_Signal_c *s;
+		/* General characteristics of the atoms */
+		/** \brief common length of the atoms (== frame length) */
+		unsigned long int filterLen;
+		/** \brief sliding step between two consecutive frames (== frame shift) */
+		unsigned long int filterShift;
+		/** \brief number of atoms/filters per frame */
+		unsigned long int numFilters;
+		/** \brief global block offset : position of the first frame */
+		unsigned long int blockOffset;
+		/** \brief number of frames for each channel (determined by
+		* the size of the signal, the frame shift and the block offset) */
+		unsigned long int numFrames;
   
-  /* Max of inner products (in fact, max of the squared energy): */
-  /** \brief value of the max IP across all frames */
-  MP_Real_t maxIPValue;
-  /** \brief index of the frame where the max value is */
-  unsigned long int maxIPFrameIdx;
-  /** \brief max IP value for each frame */
-  MP_Real_t *maxIPValueInFrame;
-  /** \brief index of the frequency where the max IP is for each frame */
-  unsigned long int *maxIPIdxInFrame;
+		/* Max of inner products (in fact, max of the squared energy): */
+		/** \brief value of the max IP across all frames */
+		MP_Real_t maxIPValue;
+		/** \brief index of the frame where the max value is */
+		unsigned long int maxIPFrameIdx;
+		/** \brief max IP value for each frame */
+		MP_Real_t *maxIPValueInFrame;
+		/** \brief index of the frequency where the max IP is for each frame */
+		unsigned long int *maxIPIdxInFrame;
   
-  /** \brief The following variables support an arborescent search of the max IP: */
-  /** \brief Number of levels in the search tree */
-  unsigned long int numLevels;
-  /** \brief The tree structure that propagates the max value */
-  MP_Real_t **elevator;
-  /** \brief The storage space for the tree structure that propagates the max value */
-  MP_Real_t *elevSpace;
-  /** \brief The tree structure that propagates the max frame index */
-  unsigned long int **elevatorFrame;
-  /** \brief The storage space for the tree structure that propagates the max frame index */
-  unsigned long int *elevFrameSpace;
+		/** \brief The following variables support an arborescent search of the max IP: */
+		/** \brief Number of levels in the search tree */
+		unsigned long int numLevels;
+		/** \brief The tree structure that propagates the max value */
+		MP_Real_t **elevator;
+		/** \brief The storage space for the tree structure that propagates the max value */
+		MP_Real_t *elevSpace;
+		/** \brief The tree structure that propagates the max frame index */
+		unsigned long int **elevatorFrame;
+		/** \brief The storage space for the tree structure that propagates the max frame index */
+		unsigned long int *elevFrameSpace;
   
-  protected:
-  /** \brief pointer on map defining the parameter of the block */
-  map<string, string, mp_ltstring> *parameterMap;
-  /***********/
-  /* METHODS */
-  /***********/
+	protected:
+		/** \brief pointer on map defining the parameter of the block */
+		map<string, string, mp_ltstring> *parameterMap;
+		
+	/***********/
+	/* METHODS */
+	/***********/
 
-  /***************************/
-  /* CONSTRUCTORS/DESTRUCTOR */
-  /***************************/
+	/***************************/
+	/* CONSTRUCTORS/DESTRUCTOR */
+	/***************************/
 
-public:
-  /** \brief an initializer for the parameters which ARE related to the signal */
-  MPTK_LIB_EXPORT virtual int plug_signal( MP_Signal_c *setSignal );
+	public:
+		/** \brief an initializer for the parameters which ARE related to the signal */
+		MPTK_LIB_EXPORT virtual int plug_signal( MP_Signal_c *setSignal );
+		/* Destructor */
+		MPTK_LIB_EXPORT virtual ~MP_Block_c();
 
-protected:
-  /** \brief an initializer for the parameters which ARE NOT related to the signal */
-  MPTK_LIB_EXPORT virtual int init_parameters( const unsigned long int setFilterLen,
+	protected:
+		/** \brief an initializer for the parameters which ARE NOT related to the signal */
+		MPTK_LIB_EXPORT virtual int init_parameters( const unsigned long int setFilterLen,
 			       const unsigned long int setFilterShift,
 			       const unsigned long int setNumFilters, 
 			       const unsigned long int setBlockOffset);
 
-  /** \brief nullification of the signal-related parameters */
-  MPTK_LIB_EXPORT virtual void nullify_signal( void );
+		/** \brief nullification of the signal-related parameters */
+		MPTK_LIB_EXPORT virtual void nullify_signal( void );
+		/** \brief a constructor which initializes everything to zero or NULL */
+		MPTK_LIB_EXPORT MP_Block_c( void );
 
-  /** \brief a constructor which initializes everything to zero or NULL */
-  MPTK_LIB_EXPORT MP_Block_c( void );
+	/***************************/
+	/* OTHER METHODS           */
+	/***************************/
 
-public:
-  /* Destructor */
-  MPTK_LIB_EXPORT virtual ~MP_Block_c();
+	public:
+		/** \brief Get the type of the block as a string
+		 * \return the type as a string */
+		MPTK_LIB_EXPORT virtual const char * type_name( void ) = 0;
+		/** \brief Send a brief information about the block to a stream
+		 * \param fid A writeable block
+		 * \return The number of written characters.*/
+		MPTK_LIB_EXPORT virtual int info( FILE *fid ) = 0;
+		/** \brief Get the number of atoms of the block */
+		MPTK_LIB_EXPORT virtual unsigned long int num_atoms( void );
 
-
-  /***************************/
-  /* OTHER METHODS           */
-  /***************************/
-
-public:
-
-  /** \brief Get the type of the block as a string
-   *
-   * \return the type as a string */
-  MPTK_LIB_EXPORT virtual const char * type_name( void ) = 0;
-  /** \brief Send a brief information about the block to a stream
-   * \param fid A writeable block
-   * \return The number of written characters.
-   */
-  MPTK_LIB_EXPORT virtual int info( FILE *fid ) = 0;
-
-  /** \brief Get the number of atoms of the block */
-  MPTK_LIB_EXPORT virtual unsigned long int num_atoms( void );
-
-  /* Other */
-  /** \brief update the inner products with a minimum number of arithmetic operations
-   * and indicates which frames have been updated.
-   *
-   * \param touch Multi-channel support (i.e., array[s->numChans] of MP_Support_t)
-   * that identifies which part of each channel of the signal is different from what it was
-   * when the block was last updated, so as to update only the IP at places
-   * where they might have been touched.
-   * \return a support indicating which frames have been touched by the inner products' update 
-   * \remark Pass touch == NULL to force a full update. */
-  MPTK_LIB_EXPORT virtual MP_Support_t update_ip( const MP_Support_t *touch );
+		/** \brief update the inner products with a minimum number of arithmetic operations and indicates which frames have been updated.
+		 * \param touch Multi-channel support (i.e., array[s->numChans] of MP_Support_t) that identifies which part of each channel of the signal
+		 * is different from what it was when the block was last updated, so as to update only the IP at places where they might have been touched.
+		 * \return a support indicating which frames have been touched by the inner products' update 
+		 * \remark Pass touch == NULL to force a full update. */
+		MPTK_LIB_EXPORT virtual MP_Support_t update_ip( const MP_Support_t *touch );
+		MPTK_LIB_EXPORT virtual MP_Support_t update_ip( const MP_Support_t *touch, GP_Pos_Book_c* );
   
-  MPTK_LIB_EXPORT virtual MP_Support_t update_ip( const MP_Support_t *touch, GP_Pos_Book_c* );
-  
+		/** \brief update the inner products of a given frame and return the correlation
+		 * \a maxCorr and index in the frame \a maxFilterIdx of the maximally correlated atom on the frame
+		 * \param frameIdx the index of the frame used for the inner products
+		 * \param maxCorr a MP_Real_t* pointer to return the value of the maximum inner product (or maximum correlation) in this frame
+		 * \param maxFilterIdx an unsigned long int* pointer to return the index of the maximum inner product */
+		MPTK_LIB_EXPORT virtual void update_frame( unsigned long int frameIdx, MP_Real_t *maxCorr,  unsigned long int *maxFilterIdx ) = 0; 
+		MPTK_LIB_EXPORT virtual void update_frame( unsigned long int frameIdx, MP_Real_t *maxCorr,  unsigned long int *maxFilterIdx, GP_Param_Book_c* );
 
-  /** \brief update the inner products of a given frame and return the correlation
-   * \a maxCorr and index in the frame \a maxFilterIdx of the maximally correlated
-   * atom on the frame
-   *
-   * \param frameIdx the index of the frame used for the inner products
-   *
-   * \param maxCorr a MP_Real_t* pointer to return the value of the maximum
-   * inner product (or maximum correlation) in this frame
-   *
-   * \param maxFilterIdx an unsigned long int* pointer to return the index of
-   * the maximum inner product
-   */
-  MPTK_LIB_EXPORT virtual void update_frame( unsigned long int frameIdx, 
-			     MP_Real_t *maxCorr, 
-			     unsigned long int *maxFilterIdx ) = 0; 
-                 
-  MPTK_LIB_EXPORT virtual void update_frame( unsigned long int frameIdx, 
-                 MP_Real_t *maxCorr, 
-                 unsigned long int *maxFilterIdx,
-                 GP_Param_Book_c* );
+		/** \brief find the location of the maximum inner product (max IP)
+		* \param frameSupport a support indicating which frames have been touched by a previous update of the inner products */
+		MPTK_LIB_EXPORT MP_Real_t update_max( const MP_Support_t frameSupport );
 
-  /** \brief find the location of the maximum inner product (max IP)
-   * \param frameSupport a support indicating which frames have been touched
-   *  by a previous update of the inner products
-   */
-  MPTK_LIB_EXPORT MP_Real_t update_max( const MP_Support_t frameSupport );
-
-  /** \brief create a new atom corresponding to a given (frameIdx,filterIdx)
-   *
-   * \param atom a pointer to (or an array of) reference to the returned atom(s)
-   * \param frameIdx the frame coordinate of the atom
-   * \param filterIdx the position of the atom in the frame
-   * \return the number of extracted atom */  
-  MPTK_LIB_EXPORT virtual unsigned int create_atom( MP_Atom_c** atom,
-				    const unsigned long int frameIdx,
-				    const unsigned long int filterIdx ) = 0;
-				    
- MPTK_LIB_EXPORT map< string, string, mp_ltstring> * get_block_parameters_map();
+		/** \brief create a new atom corresponding to a given (frameIdx,filterIdx)
+		 * \param atom a pointer to (or an array of) reference to the returned atom(s)
+		 * \param frameIdx the frame coordinate of the atom
+		 * \param filterIdx the position of the atom in the frame
+		 * \return the number of extracted atom */  
+		MPTK_LIB_EXPORT virtual unsigned int create_atom( MP_Atom_c** atom, const unsigned long int frameIdx, const unsigned long int filterIdx ) = 0;
+		
+		MPTK_LIB_EXPORT map< string, string, mp_ltstring> * get_block_parameters_map();
  
- /** \brief Substract/add all the atoms in a given frame from / to a multichannel signal
-   *  with amplitudes proportional to their correlations with the residual.
-   *
-   * \param book: a book containing all atoms to substract/add
-   * \param step: the gradient step
-   * \param sigSub signal from which the atom waveform is to be removed
-   * \param sigAdd signal to which the atom waveform is to be added
-   *
-   * \remark Passing sigSub == NULL or sigAdd == NULL skips the corresponding substraction / addition.
-   */
- MPTK_LIB_EXPORT virtual void substract_add_grad(GP_Param_Book_c* book, MP_Real_t step, 
-                                                 MP_Signal_c* sigSub, MP_Signal_c* sigAdd); 
+		/** \brief Substract/add all the atoms in a given frame from / to a multichannel signal with amplitudes proportional to their correlations with the residual.
+		 * \param book: a book containing all atoms to substract/add
+		 * \param step: the gradient step
+		 * \param sigSub signal from which the atom waveform is to be removed
+		 * \param sigAdd signal to which the atom waveform is to be added
+		 * \remark Passing sigSub == NULL or sigAdd == NULL skips the corresponding substraction / addition. */
+		MPTK_LIB_EXPORT virtual void substract_add_grad(GP_Param_Book_c* book, MP_Real_t step, MP_Signal_c* sigSub, MP_Signal_c* sigAdd); 
  
+		/** \brief Build concatenated waveforms corresponding to each channel of an atom. 
+		 * \param outBuffer the array of size \b totalChanLen which is filled with the  concatenated waveforms of all channels. */ 
+		MPTK_LIB_EXPORT virtual void build_subbook_waveform_amp(GP_Book_c* book, MP_Real_t *outBuffer );
+		MPTK_LIB_EXPORT virtual void build_subbook_waveform_corr(GP_Book_c* book, MP_Real_t *outBuffer );
+
+		MPTK_LIB_EXPORT virtual void build_frame_waveform_amp(GP_Param_Book_c* frame, MP_Real_t *outBuffer );
+		MPTK_LIB_EXPORT virtual void build_frame_waveform_corr(GP_Param_Book_c* frame, MP_Real_t *outBuffer );
+	
+		MPTK_LIB_EXPORT virtual void build_atom_waveform_amp(MP_Atom_c *atom,MP_Real_t *outBuffer );
+		MPTK_LIB_EXPORT virtual void build_atom_waveform_corr(MP_Atom_c *atom,MP_Real_t *outBuffer );
+		MPTK_LIB_EXPORT virtual void build_atom_waveform_norm(MP_Atom_c *atom,MP_Real_t *outBuffer );
+
 };
 
 

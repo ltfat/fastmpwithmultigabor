@@ -213,7 +213,7 @@ public:
    * \remark The signal numChans, numSamples and sampleRate are set according to those of the book.
    * \remark Passing mask == NULL forces all atoms to be used.
    */
-  MPTK_LIB_EXPORT unsigned long int build_waveform( MP_Signal_c *sig, MP_Mask_c *mask );
+  //MPTK_LIB_EXPORT unsigned long int build_waveform( MP_Signal_c *sig, MP_Mask_c *mask );
 
   /** \brief Adds the sum of the pseudo Wigner-Ville distributions of some atoms to a time-frequency map 
    * \param tfmap The time-frequency map 

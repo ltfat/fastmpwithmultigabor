@@ -718,18 +718,18 @@ unsigned long int MP_Book_c::substract_add( MP_Signal_c *sigSub, MP_Signal_c *si
 
 /***********************************************/
 /* Build the sum of (some) atoms into a signal */
-unsigned long int MP_Book_c::build_waveform( MP_Signal_c *sig, MP_Mask_c* mask ) {
+/*unsigned long int MP_Book_c::build_waveform( MP_Signal_c *sig, MP_Mask_c* mask ) {
   const char *func = "MP_Book_c::build_waveform";
   unsigned long int i;
   unsigned long int n = 0;
   
-  /* check input */
+  // check input
   if (NULL==sig) {
 	mp_error_msg(func,"The signal is NULL.");
 	return 0;
   }
   
-  /* allocate the signal at the right size */
+  // allocate the signal at the right size
   if (sig->init_parameters( numChans, numSamples, sampleRate ) )
 	{
       mp_error_msg( func, "Failed to perform the internal allocations for the reconstructed signal.\n" );
@@ -737,18 +737,18 @@ unsigned long int MP_Book_c::build_waveform( MP_Signal_c *sig, MP_Mask_c* mask )
     }
 
 
-  /* add the atom waveforms */
+  // add the atom waveforms
   if (mask == NULL) {
     for (i = 0; i < numAtoms; i++) {
       atom[i]->substract_add( NULL, sig );
       n++;
-      /* #ifndef NDEBUG */
-      /* display a 'progress bar' */
-      /* fprintf( stderr, "\r%2d %%\t [%lu]\t [%lu / %lu]",
-	 (int)(100*(float)i/(float)numAtoms), n, i, numAtoms );
-	 #endif*/
-      /* TODO: make a "progress bar" generic + text function
-	 in mp_messaging.{h,cpp} */
+	// #ifndef NDEBUG
+	// display a 'progress bar'
+	// fprintf( stderr, "\r%2d %%\t [%lu]\t [%lu / %lu]",
+	//(int)(100*(float)i/(float)numAtoms), n, i, numAtoms );
+	//#endif
+	// TODO: make a "progress bar" generic + text function
+	//in mp_messaging.{h,cpp}
     }
   }
   else {
@@ -756,24 +756,24 @@ unsigned long int MP_Book_c::build_waveform( MP_Signal_c *sig, MP_Mask_c* mask )
       if ( mask->sieve[i] ) {
 	atom[i]->substract_add( NULL, sig );
 	n++;
-	/* #ifndef NDEBUG */
-	/* display a 'progress bar' */
-	/* fprintf( stderr, "\r%2d %%\t [%lu]\t [%lu / %lu]",
-	   (int)(100*(float)i/(float)numAtoms), n, i, numAtoms );
-	   #endif */
+	  // #ifndef NDEBUG
+	  // display a 'progress bar'
+	  // fprintf( stderr, "\r%2d %%\t [%lu]\t [%lu / %lu]",
+	  //   (int)(100*(float)i/(float)numAtoms), n, i, numAtoms );
+	  //   #endif
       }
     }
   }
 
-  /* #ifndef NDEBUG */
-  /* terminate the display of the 'progress bar' */
-  /* fprintf( stderr, "\r%2d %%\t [%lu]\t [%lu / %lu]\n",
-     (int)(100*(float)i/(float)numAtoms), n, i, numAtoms );
-     #endif */
+	// #ifndef NDEBUG
+	// terminate the display of the 'progress bar'
+	// fprintf( stderr, "\r%2d %%\t [%lu]\t [%lu / %lu]\n",
+	//    (int)(100*(float)i/(float)numAtoms), n, i, numAtoms );
+	//  #endif
 
   return( n );
 }
-
+*/
 /******************************************************/
 /* Adds the sum of the pseudo Wigner-Ville distributions
    of some atoms to a time-frequency map */

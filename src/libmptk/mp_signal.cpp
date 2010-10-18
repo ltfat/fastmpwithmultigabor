@@ -89,102 +89,93 @@ MP_Signal_c* MP_Signal_c::init( const int setNumChans,
 /* Factory function from file name */
 MP_Signal_c* MP_Signal_c::init( const char *fName )
 {
+	const char* func = "MP_Signal_c::init(fileName)";
+	double *frame=0;
+	SNDFILE *file;
+	SF_INFO sfinfo;
+	MP_Signal_c *newSig = NULL;
 
-  const char* func = "MP_Signal_c::init(fileName)";
-  SNDFILE *file;
-  SF_INFO sfinfo;
-  MP_Signal_c *newSig = NULL;
+	mp_debug_msg( MP_DEBUG_CONSTRUCTION, func,"Initializing a new signal from file [%s]...\n", fName );
 
-  mp_debug_msg( MP_DEBUG_CONSTRUCTION, func,
-                "Initializing a new signal from file [%s]...\n", fName );
-
-  /* open the file */
-  if ( fName == NULL )
+	/* open the file */
+	if ( fName == NULL )
     {
-      mp_error_msg( func, "Invalid file name [%s] was passed"
-                    " to a signal constructor.\n", fName );
-      return( NULL );
+		mp_error_msg( func, "Invalid file name [%s] was passed to a signal constructor.\n", fName );
+		return( NULL );
+	}
+	else
+	{
+		mp_debug_msg( MP_DEBUG_FILE_IO, func,"Doing sf_open on file [%s]...\n", fName );
+		sfinfo.format  = 0; /* -> See the libsndfile manual. */
+		file = sf_open( fName, SFM_READ, &sfinfo );
+		mp_debug_msg( MP_DEBUG_FILE_IO, func, "Done.\n" );
     }
-  else
+	
+	/* Check */
+	if ( file == NULL )
     {
-
-      mp_debug_msg( MP_DEBUG_FILE_IO, func,
-                    "Doing sf_open on file [%s]...\n", fName );
-
-      sfinfo.format  = 0; /* -> See the libsndfile manual. */
-      file = sf_open( fName, SFM_READ, &sfinfo );
-
-      mp_debug_msg( MP_DEBUG_FILE_IO, func, "Done.\n" );
-
-    }
-  /* Check */
-  if ( file == NULL )
-    {
-      mp_error_msg( func, "sf_open could not open the sound file [%s] for reading."
-                    " Returning NULL.\n", fName );
-      return( NULL );
+		mp_error_msg( func, "sf_open could not open the sound file [%s] for reading. Returning NULL.\n", fName );
+		return( NULL );
     }
 
-  mp_debug_msg( MP_DEBUG_FILE_IO, func, "sfinfo contains:\n");
-  mp_debug_msg( MP_DEBUG_FILE_IO, func, "-- srate    : %d\n", sfinfo.samplerate) ;
-  mp_debug_msg( MP_DEBUG_FILE_IO, func, "-- frames   : %d\n", (int)sfinfo.frames) ;
-  mp_debug_msg( MP_DEBUG_FILE_IO, func, "-- channels : %d\n", sfinfo.channels) ;
-  mp_debug_msg( MP_DEBUG_FILE_IO, func, "-- format   : %d\n", sfinfo.format) ;
-  mp_debug_msg( MP_DEBUG_FILE_IO, func, "-- sections : %d\n", sfinfo.sections);
-  mp_debug_msg( MP_DEBUG_FILE_IO, func, "-- seekable : %d\n", sfinfo.seekable) ;
-  mp_debug_msg( MP_DEBUG_FILE_IO, func, "-- end sfinfo.\n");
+	mp_debug_msg( MP_DEBUG_FILE_IO, func, "sfinfo contains:\n");
+	mp_debug_msg( MP_DEBUG_FILE_IO, func, "-- srate    : %d\n", sfinfo.samplerate) ;
+	mp_debug_msg( MP_DEBUG_FILE_IO, func, "-- frames   : %d\n", (int)sfinfo.frames) ;
+	mp_debug_msg( MP_DEBUG_FILE_IO, func, "-- channels : %d\n", sfinfo.channels) ;
+	mp_debug_msg( MP_DEBUG_FILE_IO, func, "-- format   : %d\n", sfinfo.format) ;
+	mp_debug_msg( MP_DEBUG_FILE_IO, func, "-- sections : %d\n", sfinfo.sections);
+	mp_debug_msg( MP_DEBUG_FILE_IO, func, "-- seekable : %d\n", sfinfo.seekable) ;
+	mp_debug_msg( MP_DEBUG_FILE_IO, func, "-- end sfinfo.\n");
 
-  /* Instantiate the signal */
-  newSig = MP_Signal_c::init( sfinfo.channels, (unsigned long) sfinfo.frames, sfinfo.samplerate );
-  if ( newSig == NULL )
-    {
-      mp_error_msg( func, "Failed to instantiate a new signal with parameters:"
-                    " numChans = %d, numFrames = %lu, sampleRate = %d.\n",
-                    sfinfo.channels, sfinfo.frames, sfinfo.samplerate );
-      return( NULL );
+	/* Instantiate the signal */
+	newSig = MP_Signal_c::init( sfinfo.channels, (unsigned long) sfinfo.frames, sfinfo.samplerate );
+	if ( newSig == NULL )
+	{
+		mp_error_msg( func, "Failed to instantiate a new signal with parameters: numChans = %d, numFrames = %lu, sampleRate = %d.\n", sfinfo.channels, sfinfo.frames, sfinfo.samplerate );
+		return( NULL );
     }
-  /* actually read the file if allocation is OK */
-  else
+	/* actually read the file if allocation is OK */
+	else
     {
+		mp_debug_msg( MP_DEBUG_FILE_IO, func, "After init, signal values are:\n");
+		mp_debug_msg( MP_DEBUG_FILE_IO, func, "-- sampleRate : %d\n",  newSig->sampleRate) ;
+		mp_debug_msg( MP_DEBUG_FILE_IO, func, "-- numChans   : %d\n",  newSig->numChans) ;
+		mp_debug_msg( MP_DEBUG_FILE_IO, func, "-- numSamples : %lu\n", newSig->numSamples) ;
+		mp_debug_msg( MP_DEBUG_FILE_IO, func, "-- end after init.\n");
 
-      mp_debug_msg( MP_DEBUG_FILE_IO, func, "After init, signal values are:\n");
-      mp_debug_msg( MP_DEBUG_FILE_IO, func, "-- sampleRate : %d\n",  newSig->sampleRate) ;
-      mp_debug_msg( MP_DEBUG_FILE_IO, func, "-- numChans   : %d\n",  newSig->numChans) ;
-      mp_debug_msg( MP_DEBUG_FILE_IO, func, "-- numSamples : %lu\n", newSig->numSamples) ;
-      mp_debug_msg( MP_DEBUG_FILE_IO, func, "-- end after init.\n");
-
-      MP_Chan_t numChans = newSig->numChans;
-         /** will initialize initial numCols and numRows with the first value with wich this function is called */
-      static unsigned long int allocated_numChans = 0;
-      //double frame[numChans];
-      double* frame=0;
-    if (!frame || allocated_numChans != numChans) {
-	  if (frame) free(frame) ;
-	  	  allocated_numChans = numChans ; 
-		  frame= (double*) malloc (allocated_numChans*sizeof(double)) ;
-  }
+		MP_Chan_t numChans = newSig->numChans;
+		/** will initialize initial numCols and numRows with the first value with wich this function is called */
+		static unsigned long int allocated_numChans = 0;
+		if (!frame || allocated_numChans != numChans) 
+		{
+			if (frame) 
+				free(frame) ;
+			allocated_numChans = numChans ; 
+			frame= (double*) malloc (allocated_numChans*sizeof(double)) ;
+		}
       
-      unsigned long int sample;
-      MP_Chan_t chanIdx;
-      MP_Real_t** chan = newSig->channel;
-      for ( sample = 0; sample < newSig->numSamples; sample++ )
+		unsigned long int sample;
+		MP_Chan_t chanIdx;
+		MP_Real_t** chan = newSig->channel;
+		for ( sample = 0; sample < newSig->numSamples; sample++ )
         { /* loop on frames           */
-          sf_readf_double ( file, frame, 1 );                       /* read one frame at a time */
-          for ( chanIdx = 0; chanIdx < numChans; chanIdx++ )
-            {         /* de-interleave it         */
-              chan[chanIdx][sample] = frame[chanIdx];
-            }
-        }
-    }
-  /* close the file */
-  sf_close(file);
+			sf_readf_double ( file, frame, 1 );                       /* read one frame at a time */
+			for ( chanIdx = 0; chanIdx < numChans; chanIdx++ )
+			{         /* de-interleave it         */
+				chan[chanIdx][sample] = frame[chanIdx];
+			}
+		}
+	}
+	
+	/* close the file */
+	sf_close(file);
 
-  /* Refresh the energy */
-  newSig->refresh_energy();
+	/* Refresh the energy */
+	newSig->refresh_energy();
+	if(frame)free(frame);
+	mp_debug_msg( MP_DEBUG_CONSTRUCTION, func, "Done.\n");
 
-  mp_debug_msg( MP_DEBUG_CONSTRUCTION, func, "Done.\n");
-
-  return( newSig );
+	return( newSig );
 }
 
 
@@ -497,8 +488,8 @@ MP_Signal_c::~MP_Signal_c()
 
   mp_debug_msg( MP_DEBUG_DESTRUCTION, "MP_Signal_c::~MP_Signal_c()", "Deleting the signal...\n");
 
-  if (storage) free(storage);
-  if (channel) free(channel);
+	if (storage) free(storage);
+	if (channel) free(channel);
 
   mp_debug_msg( MP_DEBUG_DESTRUCTION, "MP_Signal_c::~MP_Signal_c()", "Done.\n");
 
@@ -677,76 +668,84 @@ unsigned long int MP_Signal_c::dump_to_double_file( const char *fName )
 /* Writing to a wav file */
 unsigned long int MP_Signal_c::wavwrite( const char *fName )
 {
-  SNDFILE *file;
-  SF_INFO sfinfo;
-  unsigned long int numFrames = 0;
+	SNDFILE *file;
+	SF_INFO sfinfo;
+	unsigned long int numFrames = 0;
 
-  /* 1) fill in the sound file information */
-  sfinfo.samplerate = sampleRate;
-  sfinfo.frames     = numSamples;
-  sfinfo.channels   = numChans;
-  sfinfo.format     = SF_FORMAT_WAV | SF_FORMAT_PCM_16;
-  sfinfo.sections   = 0;
-  sfinfo.seekable   = 0;
+	/* 1) fill in the sound file information */
+	sfinfo.samplerate = sampleRate;
+	sfinfo.frames     = numSamples;
+	sfinfo.channels   = numChans;
+	sfinfo.format     = SF_FORMAT_WAV | SF_FORMAT_PCM_16;
+	sfinfo.sections   = 0;
+	sfinfo.seekable   = 0;
 
-  if (sf_format_check (&sfinfo)==0)
-    {
-      mp_error_msg( "MP_Signal_c::wavwrite(file)", "Bad output format\n" );
-      mp_error_msg( "MP_Signal_c::wavwrite(file)", "-- srate    : %d\n", sfinfo.samplerate) ;
-      mp_error_msg( "MP_Signal_c::wavwrite(file)", "-- frames   : %d\n", (int)sfinfo.frames) ;
-      mp_error_msg( "MP_Signal_c::wavwrite(file)", "-- channels : %d\n", sfinfo.channels) ;
-      mp_error_msg( "MP_Signal_c::wavwrite(file)", "-- format   : %d\n", sfinfo.format) ;
-      mp_error_msg( "MP_Signal_c::wavwrite(file)", "-- sections : %d\n", sfinfo.sections);
-      mp_error_msg( "MP_Signal_c::wavwrite(file)", "-- seekable : %d\n", sfinfo.seekable) ;
-      return(0);
+	if (sf_format_check (&sfinfo)==0)
+	{
+		mp_error_msg( "MP_Signal_c::wavwrite(file)", "Bad output format\n" );
+		mp_error_msg( "MP_Signal_c::wavwrite(file)", "-- srate    : %d\n", sfinfo.samplerate) ;
+		mp_error_msg( "MP_Signal_c::wavwrite(file)", "-- frames   : %d\n", (int)sfinfo.frames) ;
+		mp_error_msg( "MP_Signal_c::wavwrite(file)", "-- channels : %d\n", sfinfo.channels) ;
+		mp_error_msg( "MP_Signal_c::wavwrite(file)", "-- format   : %d\n", sfinfo.format) ;
+		mp_error_msg( "MP_Signal_c::wavwrite(file)", "-- sections : %d\n", sfinfo.sections);
+		mp_error_msg( "MP_Signal_c::wavwrite(file)", "-- seekable : %d\n", sfinfo.seekable) ;
+		return(0);
+	}
+
+	mp_debug_msg( MP_DEBUG_FILE_IO, "MP_Signal_c::wavwrite(file)", "-- srate    : %d\n", sfinfo.samplerate) ;
+	mp_debug_msg( MP_DEBUG_FILE_IO, "MP_Signal_c::wavwrite(file)", "-- frames   : %d\n", (int)sfinfo.frames) ;
+	mp_debug_msg( MP_DEBUG_FILE_IO, "MP_Signal_c::wavwrite(file)", "-- channels : %d\n", sfinfo.channels) ;
+	mp_debug_msg( MP_DEBUG_FILE_IO, "MP_Signal_c::wavwrite(file)", "-- format   : %d\n", sfinfo.format) ;
+	mp_debug_msg( MP_DEBUG_FILE_IO, "MP_Signal_c::wavwrite(file)", "-- sections : %d\n", sfinfo.sections);
+	mp_debug_msg( MP_DEBUG_FILE_IO, "MP_Signal_c::wavwrite(file)", "-- seekable : %d\n", sfinfo.seekable) ;
+
+	/* open the file */
+	file = sf_open(fName,SFM_WRITE,&sfinfo);
+	if (file == NULL)
+	{
+		mp_error_msg( "MP_Signal_c::wavwrite(file)", "Cannot open sound file %s for writing\n",fName);
+		return(0);
     }
 
-  mp_debug_msg( MP_DEBUG_FILE_IO, "MP_Signal_c::wavwrite(file)", "-- srate    : %d\n", sfinfo.samplerate) ;
-  mp_debug_msg( MP_DEBUG_FILE_IO, "MP_Signal_c::wavwrite(file)", "-- frames   : %d\n", (int)sfinfo.frames) ;
-  mp_debug_msg( MP_DEBUG_FILE_IO, "MP_Signal_c::wavwrite(file)", "-- channels : %d\n", sfinfo.channels) ;
-  mp_debug_msg( MP_DEBUG_FILE_IO, "MP_Signal_c::wavwrite(file)", "-- format   : %d\n", sfinfo.format) ;
-  mp_debug_msg( MP_DEBUG_FILE_IO, "MP_Signal_c::wavwrite(file)", "-- sections : %d\n", sfinfo.sections);
-  mp_debug_msg( MP_DEBUG_FILE_IO, "MP_Signal_c::wavwrite(file)", "-- seekable : %d\n", sfinfo.seekable) ;
-
-  /* open the file */
-  file = sf_open(fName,SFM_WRITE,&sfinfo);
-  if (file == NULL)
-    {
-      mp_error_msg( "MP_Signal_c::wavwrite(file)",
-                    " Cannot open sound file %s for writing\n",fName);
-      return(0);
-    }
-
-  /* write the file */
-  {
-   // double frame[numChans];
-  static int allocated_numChans = 0;
-  static double* frame = 0;
-    if (!frame|| allocated_numChans != numChans) {
-	  if (frame) free(frame) ;
-	  	  allocated_numChans = numChans ; 
-		  frame= (double*) malloc (allocated_numChans * sizeof(double)) ;
-  }
-    unsigned long int sample;
-    int chan;
-    for (sample=0; sample < numSamples; sample++)
-      {                     /* loop on frames                       */
-        for (chan = 0; chan < numChans; chan++)
-          {     /* interleave the channels in one frame */
-            frame[chan] = channel[chan][sample];
-             /* test if clipping may occur */
-            if (frame[chan]*frame[chan]>1) {clipping = true;
-            	if (frame[chan] < 0) { if(-frame[chan]>maxclipping)maxclipping= -frame[chan]; }
-            	else { if(frame[chan]>maxclipping)maxclipping= frame[chan]; }
-            }     
-          }
-        numFrames += (unsigned long) sf_writef_double (file, frame, 1 );
-      }
-  }
-  /* close the file */
-  sf_close(file);
-  if (clipping) mp_warning_msg( "MP_Signal_c::matwrite(file)", "value of frames are major to 1 with max value %f, clipping may occur on the reconstruct wave file.\nYou may apply a gain of %f on the imput signal\n", maxclipping, 0.99/maxclipping);
-  return(numFrames);
+	/* write the file */
+	static int allocated_numChans = 0;
+	static double *frame = 0;
+	if (!frame|| allocated_numChans != numChans) {
+		if (frame) 
+			free(frame) ;
+		allocated_numChans = numChans ; 
+		frame= (double*) malloc (allocated_numChans * sizeof(double)) ;
+	}
+	unsigned long int sample;
+	int chan;
+	for (sample=0; sample < numSamples; sample++)
+	{                     /* loop on frames                       */
+		for (chan = 0; chan < numChans; chan++)
+		{     /* interleave the channels in one frame */
+			frame[chan] = channel[chan][sample];
+			/* test if clipping may occur */
+			if (frame[chan]*frame[chan]>1) 
+			{
+				clipping = true;
+				if (frame[chan] < 0) 
+				{ 
+					if(-frame[chan]>maxclipping)
+						maxclipping= -frame[chan]; 
+				}
+				else 
+				{ 
+					if(frame[chan]>maxclipping)
+						maxclipping= frame[chan]; 
+				}
+			}     
+		}
+		numFrames += (unsigned long) sf_writef_double (file, frame, 1 );
+	}
+	/* close the file */
+	sf_close(file);
+	if (frame) free(frame) ;
+	if (clipping) mp_warning_msg( "MP_Signal_c::matwrite(file)", "value of frames are major to 1 with max value %f, clipping may occur on the reconstruct wave file.\nYou may apply a gain of %f on the imput signal\n", maxclipping, 0.99/maxclipping);
+	return(numFrames);
 }
 
 
@@ -754,79 +753,88 @@ unsigned long int MP_Signal_c::wavwrite( const char *fName )
 /* Writing to a Mat file */
 unsigned long int MP_Signal_c::matwrite( const char *fName )
 {
-  SNDFILE *file;
-  SF_INFO sfinfo;
-  unsigned long int numFrames = 0;
+	SNDFILE *file;
+	SF_INFO sfinfo;
+	unsigned long int numFrames = 0;
 
   /* 1) fill in the sound file information */
-  sfinfo.samplerate = sampleRate;
-  sfinfo.frames     = numSamples;
-  sfinfo.channels   = numChans;
-  if (sizeof(MP_Real_t)==sizeof(double))
-    sfinfo.format     = SF_FORMAT_MAT5 | SF_FORMAT_DOUBLE;
-  else
-    sfinfo.format     = SF_FORMAT_MAT5 | SF_FORMAT_FLOAT;
-  sfinfo.sections   = 0;
-  sfinfo.seekable   = 0;
+	sfinfo.samplerate = sampleRate;
+	sfinfo.frames     = numSamples;
+	sfinfo.channels   = numChans;
+	if (sizeof(MP_Real_t)==sizeof(double))
+		sfinfo.format     = SF_FORMAT_MAT5 | SF_FORMAT_DOUBLE;
+	else
+		sfinfo.format     = SF_FORMAT_MAT5 | SF_FORMAT_FLOAT;
+	sfinfo.sections   = 0;
+	sfinfo.seekable   = 0;
 
-  if (sf_format_check (&sfinfo)==0)
+	if (sf_format_check (&sfinfo)==0)
     {
-      mp_error_msg( "MP_Signal_c::matwrite(file)", "Bad output format\n");
-      mp_error_msg( "MP_Signal_c::matwrite(file)", "-- srate    : %d\n", sfinfo.samplerate) ;
-      mp_error_msg( "MP_Signal_c::matwrite(file)", "-- frames   : %d\n", (int)sfinfo.frames) ;
-      mp_error_msg( "MP_Signal_c::matwrite(file)", "-- channels : %d\n", sfinfo.channels) ;
-      mp_error_msg( "MP_Signal_c::matwrite(file)", "-- format   : %d\n", sfinfo.format) ;
-      mp_error_msg( "MP_Signal_c::matwrite(file)", "-- sections : %d\n", sfinfo.sections);
-      mp_error_msg( "MP_Signal_c::matwrite(file)", "-- seekable : %d\n", sfinfo.seekable) ;
-      return(0);
+		mp_error_msg( "MP_Signal_c::matwrite(file)", "Bad output format\n");
+		mp_error_msg( "MP_Signal_c::matwrite(file)", "-- srate    : %d\n", sfinfo.samplerate) ;
+		mp_error_msg( "MP_Signal_c::matwrite(file)", "-- frames   : %d\n", (int)sfinfo.frames) ;
+		mp_error_msg( "MP_Signal_c::matwrite(file)", "-- channels : %d\n", sfinfo.channels) ;
+		mp_error_msg( "MP_Signal_c::matwrite(file)", "-- format   : %d\n", sfinfo.format) ;
+		mp_error_msg( "MP_Signal_c::matwrite(file)", "-- sections : %d\n", sfinfo.sections);
+		mp_error_msg( "MP_Signal_c::matwrite(file)", "-- seekable : %d\n", sfinfo.seekable) ;
+		return(0);
     }
 
-  mp_debug_msg( MP_DEBUG_FILE_IO, "MP_Signal_c::matwrite(file)", "-- srate    : %d\n", sfinfo.samplerate) ;
-  mp_debug_msg( MP_DEBUG_FILE_IO, "MP_Signal_c::matwrite(file)", "-- frames   : %d\n", (int)sfinfo.frames) ;
-  mp_debug_msg( MP_DEBUG_FILE_IO, "MP_Signal_c::matwrite(file)", "-- channels : %d\n", sfinfo.channels) ;
-  mp_debug_msg( MP_DEBUG_FILE_IO, "MP_Signal_c::matwrite(file)", "-- format   : %d\n", sfinfo.format) ;
-  mp_debug_msg( MP_DEBUG_FILE_IO, "MP_Signal_c::matwrite(file)", "-- sections : %d\n", sfinfo.sections);
-  mp_debug_msg( MP_DEBUG_FILE_IO, "MP_Signal_c::matwrite(file)", "-- seekable : %d\n", sfinfo.seekable) ;
+	mp_debug_msg( MP_DEBUG_FILE_IO, "MP_Signal_c::matwrite(file)", "-- srate    : %d\n", sfinfo.samplerate) ;
+	mp_debug_msg( MP_DEBUG_FILE_IO, "MP_Signal_c::matwrite(file)", "-- frames   : %d\n", (int)sfinfo.frames) ;
+	mp_debug_msg( MP_DEBUG_FILE_IO, "MP_Signal_c::matwrite(file)", "-- channels : %d\n", sfinfo.channels) ;
+	mp_debug_msg( MP_DEBUG_FILE_IO, "MP_Signal_c::matwrite(file)", "-- format   : %d\n", sfinfo.format) ;
+	mp_debug_msg( MP_DEBUG_FILE_IO, "MP_Signal_c::matwrite(file)", "-- sections : %d\n", sfinfo.sections);
+	mp_debug_msg( MP_DEBUG_FILE_IO, "MP_Signal_c::matwrite(file)", "-- seekable : %d\n", sfinfo.seekable) ;
 
-  /* open the file */
-  file = sf_open(fName,SFM_WRITE,&sfinfo);
-  if (file == NULL)
+	/* open the file */
+	file = sf_open(fName,SFM_WRITE,&sfinfo);
+	if (file == NULL)
     {
-      mp_error_msg( "MP_Signal_c::matwrite(file)", "Cannot open sound file %s for writing\n",fName);
-      return(0);
+		mp_error_msg( "MP_Signal_c::matwrite(file)", "Cannot open sound file %s for writing\n",fName);
+		return(0);
     }
 
-  /* write the file */
-  {
-    //double frame[numChans];
+	/* write the file */
     static int allocated_numChans = 0;
-  static double* frame = 0;
-    if (!frame|| allocated_numChans != numChans) {
-	  if (frame) free(frame) ;
-	  	  allocated_numChans = numChans ; 
-		  frame= (double*) malloc (allocated_numChans * sizeof(double)) ;
-  }
-    unsigned long int sample;
+	static double* frame = 0;
+    if (!frame|| allocated_numChans != numChans) 
+	{
+		if (frame) 
+			free(frame) ;
+		allocated_numChans = numChans ; 
+		frame= (double*) malloc (allocated_numChans * sizeof(double)) ;
+	}
+	unsigned long int sample;
     int chan;
     for (sample=0; sample < numSamples; sample++)
-      { /* loop on frames                       */
-        for (chan = 0; chan < numChans; chan++)
-          {     /* interleave the channels in one frame */
-            frame[chan] = channel[chan][sample];
-             /* test if clipping may occur */
-            if (frame[chan]*frame[chan]>1) {clipping = true;
-            	if (frame[chan] < 0) { if(-frame[chan]>maxclipping)maxclipping= -frame[chan]; }
-            	else { if(frame[chan]>maxclipping)maxclipping= frame[chan]; }
-            }
-            
-          }
-        numFrames += (unsigned long) sf_writef_double (file, frame, 1 );
-      }
-  }
-  /* close the file */
-  sf_close(file);
-  if (clipping) mp_warning_msg( "MP_Signal_c::matwrite(file)", "value of frames are major to 1 with max value %f, clipping may occur on the reconstruct wave file.\nYou may apply a gain of %f on the imput signal\n", maxclipping, 0.99/maxclipping);
-  return(numFrames);
+	{ /* loop on frames                       */
+		for (chan = 0; chan < numChans; chan++)
+		{     /* interleave the channels in one frame */
+			frame[chan] = channel[chan][sample];
+			/* test if clipping may occur */
+			if (frame[chan]*frame[chan]>1) 
+			{
+				clipping = true;
+				if (frame[chan] < 0) 
+				{ 
+					if(-frame[chan]>maxclipping)
+						maxclipping= -frame[chan]; 
+				}
+            	else 
+				{ 
+					if(frame[chan]>maxclipping)
+						maxclipping= frame[chan]; 
+				}
+			}
+		}
+		numFrames += (unsigned long) sf_writef_double (file, frame, 1 );
+	}
+	/* close the file */
+	sf_close(file);
+	if(frame) free(frame);
+	if (clipping) mp_warning_msg( "MP_Signal_c::matwrite(file)", "value of frames are major to 1 with max value %f, clipping may occur on the reconstruct wave file.\nYou may apply a gain of %f on the imput signal\n", maxclipping, 0.99/maxclipping);
+	return(numFrames);
 }
 
 /*************************/

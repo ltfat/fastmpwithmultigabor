@@ -58,7 +58,6 @@
  * Harmonic Decomposition of Audio Signals with Matching Pursuit </A>, 
  * IEEE Trans. on Signal Proc., Vol. 51, No. 1, January 2003, pp 101-111.
  *
- * \sa MP_Harmonic_Atom_c::build_waveform()
  *
  * A harmonic block is the \b union of a standard Gabor block
  * with a set of harmonic subspaces spanned by Gabor atoms at discrete frequencies 

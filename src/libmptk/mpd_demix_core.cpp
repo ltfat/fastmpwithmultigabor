@@ -425,7 +425,7 @@ unsigned short int MP_Mpd_demix_Core_c::step()
   maxAtom->amp[0] = maxAmp;
 
   /* - update the input signal
-     (note that maxAmp will be used in build_waveform, when calling
+     (note that maxAmp will be used in buildwaveform, when calling
      substract_add_var_amp. that's why amp[k] is not multiplied by
      maxAmp) */
   for ( int c = 0; c < residual->numChans; c++)

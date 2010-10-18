@@ -74,7 +74,7 @@ void mexFunction(int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[]) {
   }
 
   // Checking compatibility ????
-  // Reconstructing : this is where it crashes! Apparently, in more details, it happens in build_waveform
+  // Reconstructing : this is where it crashes! Apparently, in more details, it happens in buildwaveform
   // Maybe this comes from a bad atom conversion ????
   mexPrintf("Succesfully generated atom\n");
   atom->write(stdout,MP_TEXT);

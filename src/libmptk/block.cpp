@@ -725,3 +725,100 @@ void MP_Block_c::substract_add_grad( GP_Param_Book_c* book, MP_Real_t step,
     for (iter = book->begin(); iter != book->end(); ++iter)
         iter->substract_add_grad(step, sigSub, sigAdd);
 }
+
+
+void MP_Block_c::build_subbook_waveform_amp(GP_Book_c* thisBook, MP_Real_t *outBuffer )
+{
+	GP_Book_Iterator_c *iter;
+	GP_Param_Book_c* thisFrame;
+	unsigned long int thisPosition = 0;
+	unsigned long int thisFirstPosition = 0;
+	// Mise à 0 du buffer
+	memset(outBuffer, 0, sizeof(outBuffer));
+	
+	// Parcours du book pour récupérer les frames
+	for (iter = thisBook->begin().copy(); *iter != thisBook->end(); iter->go_to_next_frame())	
+	{
+		thisFrame = iter->get_frame();	
+		// Récupérer la position
+		if(*iter == thisBook->begin())
+				thisFirstPosition = thisFrame->pos;
+		else
+				thisPosition = thisFrame->pos - thisFirstPosition;
+		// Addition
+		build_frame_waveform_amp(thisFrame, outBuffer+thisPosition);
+	}
+}
+
+void MP_Block_c::build_subbook_waveform_corr(GP_Book_c* thisBook, MP_Real_t *outBuffer )
+{
+	GP_Book_Iterator_c *iter;
+	GP_Param_Book_c* thisFrame;
+	unsigned long int thisPosition = 0;
+	unsigned long int thisFirstPosition = 0;
+	// Mise à 0 du buffer
+	memset(outBuffer, 0, sizeof(outBuffer));
+	
+	// Parcours du book pour récupérer les frames
+	for (iter = thisBook->begin().copy(); *iter != thisBook->end(); iter->go_to_next_frame())	
+	{
+		thisFrame = iter->get_frame();	
+		// Récupérer la position
+		if(*iter == thisBook->begin())
+			thisFirstPosition = thisFrame->pos;
+		else
+			thisPosition = thisFrame->pos - thisFirstPosition;
+		// Addition
+		build_frame_waveform_corr(thisFrame, outBuffer+thisPosition);
+	}
+	
+}
+
+void MP_Block_c::build_frame_waveform_amp(GP_Param_Book_c* thisFrame, MP_Real_t *outBuffer )
+{
+	//BUFFER TEMPORAIRE pour mettre additioner les atomes
+	MP_Real_t outBufferTemp[filterLen];
+	GP_Param_Book_Iterator_c iter;
+	// Parcours de la frame pour reconstruction
+	for (iter = thisFrame->begin(); iter != thisFrame->end(); ++iter)	
+	{
+		build_atom_waveform_amp(&*iter,outBufferTemp);
+		for(unsigned int iIndex = 0; iIndex != filterLen; iIndex++)
+			outBuffer[iIndex] += outBufferTemp[iIndex];
+	}
+}
+
+void MP_Block_c::build_frame_waveform_corr(GP_Param_Book_c* thisFrame, MP_Real_t *outBuffer )
+{
+	MP_Real_t outBufferTemp[filterLen];
+	GP_Param_Book_Iterator_c iter;
+	// Parcours de la frame pour reconstruction
+	for (iter = thisFrame->begin(); iter != thisFrame->end(); ++iter)	
+	{
+		build_atom_waveform_corr(&*iter,outBufferTemp);
+		for(unsigned int iIndex = 0; iIndex != filterLen; iIndex++)
+			outBuffer[iIndex] += outBufferTemp[iIndex];
+	}
+}
+
+void MP_Block_c::build_atom_waveform_amp(MP_Atom_c *thisAtom,MP_Real_t *outBuffer )
+{
+	thisAtom->build_waveform(outBuffer);
+}
+
+void MP_Block_c::build_atom_waveform_corr(MP_Atom_c *thisAtom,MP_Real_t *outBuffer )
+{
+	thisAtom->build_waveform(outBuffer);
+	// Parcours du tableau outBuffer pour effectuer le calcul de corrélation
+	for (unsigned int iIndex = 0; iIndex < sizeof(outBuffer); iIndex++)
+        outBuffer[iIndex] = (outBuffer[iIndex]/thisAtom->amp[0])*thisAtom->corr[0]; // ATTENTION FONCTIONNE POUR LE CHANNEL 1 : prévoir du multiChannel
+	
+}
+
+void MP_Block_c::build_atom_waveform_norm(MP_Atom_c *thisAtom,MP_Real_t *outBuffer )
+{
+	thisAtom->build_waveform(outBuffer);
+	// Parcours du tableau outBuffer pour effectuer le calcul de norme
+    for (unsigned int iIndex = 0; iIndex < sizeof(outBuffer); iIndex++)
+        outBuffer[iIndex] = outBuffer[iIndex]/thisAtom->amp[0]; // ATTENTION FONCTIONNE POUR LE CHANNEL 1 : prévoir du multiChannel
+}
