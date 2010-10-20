@@ -254,7 +254,7 @@ void MP_FFT_Interface_c::exec_complex_inverse_demod(MP_Real_t* re, MP_Real_t* im
         MP_Real_t *demodFuncRe, MP_Real_t *demodFuncIm,
         MP_Real_t* output){
             
-    int t,f;
+    unsigned int t,f;
     
     // separate the odd and even parts
     *bufferRe = *re;

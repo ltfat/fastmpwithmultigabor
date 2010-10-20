@@ -74,7 +74,7 @@ void mexFunction(int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[]) {
     return;
   }
   // Load sampleRate
-  signal->sampleRate = mxGetScalar(prhs[1]);
+  signal->sampleRate = (int)mxGetScalar(prhs[1]);
 
   // Load dictionary object from Matlab structure
   const mxArray *mxDict = prhs[2];
@@ -101,7 +101,7 @@ void mexFunction(int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[]) {
   }
 
   // Read number of iterations
-  unsigned long int numIter = mxGetScalar(prhs[3]);
+  unsigned long int numIter = (unsigned long int) mxGetScalar(prhs[3]);
     
   // Creating book and core
   MP_Book_c *book = MP_Book_c::create(signal->numChans, signal->numSamples, signal->sampleRate );

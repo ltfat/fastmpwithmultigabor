@@ -78,7 +78,7 @@ void mexFunction(int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[])
     mexErrMsgTxt("Aborting");
     return;
   }
-  signal->sampleRate = sampleRate;
+  signal->sampleRate = (int)sampleRate;
 
   // Writing. 
   if (0==signal->wavwrite(fileName)) {

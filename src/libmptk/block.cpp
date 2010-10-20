@@ -777,7 +777,7 @@ void MP_Block_c::build_subbook_waveform_corr(GP_Book_c* thisBook, MP_Real_t *out
 void MP_Block_c::build_frame_waveform_amp(GP_Param_Book_c* thisFrame, MP_Real_t *outBuffer )
 {
 	//BUFFER TEMPORAIRE pour mettre additioner les atomes
-	MP_Real_t outBufferTemp[filterLen];
+	MP_Real_t *outBufferTemp = new MP_Real_t[filterLen];
 	GP_Param_Book_Iterator_c iter;
 	// Parcours de la frame pour reconstruction
 	for (iter = thisFrame->begin(); iter != thisFrame->end(); ++iter)	
@@ -786,11 +786,12 @@ void MP_Block_c::build_frame_waveform_amp(GP_Param_Book_c* thisFrame, MP_Real_t 
 		for(unsigned int iIndex = 0; iIndex != filterLen; iIndex++)
 			outBuffer[iIndex] += outBufferTemp[iIndex];
 	}
+	delete(outBufferTemp);
 }
 
 void MP_Block_c::build_frame_waveform_corr(GP_Param_Book_c* thisFrame, MP_Real_t *outBuffer )
 {
-	MP_Real_t outBufferTemp[filterLen];
+	MP_Real_t *outBufferTemp = new MP_Real_t[filterLen];
 	GP_Param_Book_Iterator_c iter;
 	// Parcours de la frame pour reconstruction
 	for (iter = thisFrame->begin(); iter != thisFrame->end(); ++iter)	
@@ -799,6 +800,7 @@ void MP_Block_c::build_frame_waveform_corr(GP_Param_Book_c* thisFrame, MP_Real_t
 		for(unsigned int iIndex = 0; iIndex != filterLen; iIndex++)
 			outBuffer[iIndex] += outBufferTemp[iIndex];
 	}
+	delete(outBufferTemp);
 }
 
 void MP_Block_c::build_atom_waveform_amp(MP_Atom_c *thisAtom,MP_Real_t *outBuffer )

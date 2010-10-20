@@ -38,7 +38,7 @@ void fillWindowNameVector(vector <string>*windowNameVector,vector<bool>*windowNe
 		char *name = NULL;
 		if (((unsigned char)0)!=window_type_is_ok(type))
 		{
-			needs_option = window_needs_option(type);
+			needs_option = (window_needs_option(type)==0)?true:false;
 			name = window_name(type);
 			windowNameVector->push_back(string(name));
 			windowNeedsOptionVector->push_back(needs_option);

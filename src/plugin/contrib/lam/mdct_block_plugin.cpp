@@ -677,7 +677,6 @@ unsigned int MP_Mdct_Block_Plugin_c::create_atom( MP_Atom_c **atom,
 void MP_Mdct_Block_Plugin_c::build_frame_waveform_corr(GP_Param_Book_c* frame, MP_Real_t* outBuffer){
     GP_Param_Book_Iterator_c iter;
     unsigned long int freqIdx;
-    MP_Mdct_Atom_Plugin_c* pointer;
     MP_Chan_t c;
     
     // clean the buffers
@@ -688,12 +687,11 @@ void MP_Mdct_Block_Plugin_c::build_frame_waveform_corr(GP_Param_Book_c* frame, M
     for (c = 0; c<s->numChans; c++){
         // fill the buffers
         for (iter = frame->begin(); iter!=frame->end(); ++iter){
-            //pointer = dynamic_cast<MP_Mdct_Atom_Plugin_c*>(&*iter);
             // get the frequency index
             if ( filterLen == fftSize )
-                freqIdx  = lround(iter->get_field(MP_FREQ_PROP,0)*fft->fftSize-0.5);
+                freqIdx  = (unsigned long)(iter->get_field(MP_FREQ_PROP,0)*fft->fftSize);
             else
-                freqIdx  = lround(iter->get_field(MP_FREQ_PROP,0)*fft->fftSize);
+                freqIdx  = (unsigned long)(iter->get_field(MP_FREQ_PROP,0)*fft->fftSize+0.5);
             
             *(mcltOutRe+freqIdx) = (*((iter->corr)+c))*(*(atomEnergy+freqIdx));
         }
