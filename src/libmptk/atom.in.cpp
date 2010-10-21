@@ -719,27 +719,6 @@ void MP_Atom_c::substract_add_var_amp( MP_Real_t *amp, MP_Chan_t numAmps,
 
 }
 
-/**********************************************/
-/* Substract / add a monochannel atom from / to multichannel signals with amplitude proportional to its correlation
- * with the residual. */
-void MP_Atom_c::substract_add_grad( MP_Real_t step, MP_Signal_c *sigSub, MP_Signal_c *sigAdd ) {
-    MP_Real_t invStep;
-    
-    // Apply the step
-    for (int i = 0; i<numChans; i++)
-        corr[i] = corr[i]*step;
-        
-    // perform the substraction
-    substract_add_var_amp(corr, numChans, sigSub, sigAdd);
-    
-    // Revert the correlations to normal
-    invStep = 1/step;
-    for (int i = 0; i<numChans; i++)
-        corr[i] = corr[i]*invStep;
-}
-    
-
-
 /***********************************************************************/
 /*
  * Sorting function which characterizes various properties of the atom,

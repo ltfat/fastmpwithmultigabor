@@ -4,7 +4,7 @@
 /*                                                                            */
 /*                        Matching Pursuit Library                            */
 /*                                                                            */
-/* Rémi Gribonval                                                             */
+/* Rï¿½mi Gribonval                                                             */
 /* Sacha Krstulovic                                           Mon Feb 21 2005 */
 /* -------------------------------------------------------------------------- */
 /*                                                                            */
@@ -197,7 +197,7 @@ public:
 			    const unsigned long int frameIdx,
 			    const unsigned long int filterIdx );
                 
-  void build_frame_waveform_corr(GP_Param_Book_c* frame, MP_Real_t* outBuffer);      
+  unsigned long int build_frame_waveform_corr(GP_Param_Book_c* frame, MP_Real_t* outBuffer);
 
    /** \brief Field a map with the parameter type of the block, the creation and destruction of the map is done by the calling method 
    *

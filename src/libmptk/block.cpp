@@ -4,7 +4,7 @@
 /*                                                                            */
 /*                        Matching Pursuit Library                            */
 /*                                                                            */
-/* Rémi Gribonval                                                             */
+/* Rï¿½mi Gribonval                                                             */
 /* Sacha Krstulovic                                           Mon Feb 21 2005 */
 /* -------------------------------------------------------------------------- */
 /*                                                                            */
@@ -716,31 +716,20 @@ void MP_Block_c::update_frame( unsigned long int frameIdx,
    update_frame(frameIdx, maxCorr, maxFilterIdx);
 }
 
-/**********************************************/
-/* Substract / add a monochannel atom from / to multichannel signals with amplitude proportional to its correlation
- * with the residual. */
-void MP_Block_c::substract_add_grad( GP_Param_Book_c* book, MP_Real_t step, 
-                                     MP_Signal_c *sigSub, MP_Signal_c *sigAdd ) {
-    GP_Param_Book_Iterator_c iter;
-    for (iter = book->begin(); iter != book->end(); ++iter)
-        iter->substract_add_grad(step, sigSub, sigAdd);
-}
-
-
-void MP_Block_c::build_subbook_waveform_amp(GP_Book_c* thisBook, MP_Real_t *outBuffer )
+unsigned long int MP_Block_c::build_subbook_waveform_amp(GP_Book_c* thisBook, MP_Real_t *outBuffer )
 {
 	GP_Book_Iterator_c *iter;
 	GP_Param_Book_c* thisFrame;
 	unsigned long int thisPosition = 0;
 	unsigned long int thisFirstPosition = 0;
-	// Mise ˆ 0 du buffer
+	// Mise ï¿½ 0 du buffer
 	memset(outBuffer, 0, sizeof(outBuffer));
 	
-	// Parcours du book pour rŽcupŽrer les frames
+	// Parcours du book pour rï¿½cupï¿½rer les frames
 	for (iter = thisBook->begin().copy(); *iter != thisBook->end(); iter->go_to_next_frame())	
 	{
 		thisFrame = iter->get_frame();	
-		// RŽcupŽrer la position
+		// Rï¿½cupï¿½rer la position
 		if(*iter == thisBook->begin())
 				thisFirstPosition = thisFrame->pos;
 		else
@@ -748,22 +737,23 @@ void MP_Block_c::build_subbook_waveform_amp(GP_Book_c* thisBook, MP_Real_t *outB
 		// Addition
 		build_frame_waveform_amp(thisFrame, outBuffer+thisPosition);
 	}
+	return thisPosition+filterLen;
 }
 
-void MP_Block_c::build_subbook_waveform_corr(GP_Book_c* thisBook, MP_Real_t *outBuffer )
+unsigned long int MP_Block_c::build_subbook_waveform_corr(GP_Book_c* thisBook, MP_Real_t *outBuffer )
 {
 	GP_Book_Iterator_c *iter;
 	GP_Param_Book_c* thisFrame;
 	unsigned long int thisPosition = 0;
 	unsigned long int thisFirstPosition = 0;
-	// Mise ˆ 0 du buffer
+	// Mise ï¿½ 0 du buffer
 	memset(outBuffer, 0, sizeof(outBuffer));
 	
-	// Parcours du book pour rŽcupŽrer les frames
+	// Parcours du book pour rï¿½cupï¿½rer les frames
 	for (iter = thisBook->begin().copy(); *iter != thisBook->end(); iter->go_to_next_frame())	
 	{
 		thisFrame = iter->get_frame();	
-		// RŽcupŽrer la position
+		// Rï¿½cupï¿½rer la position
 		if(*iter == thisBook->begin())
 			thisFirstPosition = thisFrame->pos;
 		else
@@ -771,10 +761,10 @@ void MP_Block_c::build_subbook_waveform_corr(GP_Book_c* thisBook, MP_Real_t *out
 		// Addition
 		build_frame_waveform_corr(thisFrame, outBuffer+thisPosition);
 	}
-	
+	return thisPosition+filterLen;
 }
 
-void MP_Block_c::build_frame_waveform_amp(GP_Param_Book_c* thisFrame, MP_Real_t *outBuffer )
+unsigned long int MP_Block_c::build_frame_waveform_amp(GP_Param_Book_c* thisFrame, MP_Real_t *outBuffer )
 {
 	//BUFFER TEMPORAIRE pour mettre additioner les atomes
 	MP_Real_t *outBufferTemp = new MP_Real_t[filterLen];
@@ -786,10 +776,12 @@ void MP_Block_c::build_frame_waveform_amp(GP_Param_Book_c* thisFrame, MP_Real_t 
 		for(unsigned int iIndex = 0; iIndex != filterLen; iIndex++)
 			outBuffer[iIndex] += outBufferTemp[iIndex];
 	}
-	delete(outBufferTemp);
+
+    delete(outBufferTemp);
+	return filterLen;
 }
 
-void MP_Block_c::build_frame_waveform_corr(GP_Param_Book_c* thisFrame, MP_Real_t *outBuffer )
+unsigned long int MP_Block_c::build_frame_waveform_corr(GP_Param_Book_c* thisFrame, MP_Real_t *outBuffer )
 {
 	MP_Real_t *outBufferTemp = new MP_Real_t[filterLen];
 	GP_Param_Book_Iterator_c iter;
@@ -800,27 +792,31 @@ void MP_Block_c::build_frame_waveform_corr(GP_Param_Book_c* thisFrame, MP_Real_t
 		for(unsigned int iIndex = 0; iIndex != filterLen; iIndex++)
 			outBuffer[iIndex] += outBufferTemp[iIndex];
 	}
+
 	delete(outBufferTemp);
+	return filterLen;
 }
 
-void MP_Block_c::build_atom_waveform_amp(MP_Atom_c *thisAtom,MP_Real_t *outBuffer )
+unsigned long int MP_Block_c::build_atom_waveform_amp(MP_Atom_c *thisAtom,MP_Real_t *outBuffer )
 {
 	thisAtom->build_waveform(outBuffer);
+	return filterLen;
 }
 
-void MP_Block_c::build_atom_waveform_corr(MP_Atom_c *thisAtom,MP_Real_t *outBuffer )
+unsigned long int MP_Block_c::build_atom_waveform_corr(MP_Atom_c *thisAtom,MP_Real_t *outBuffer )
 {
 	thisAtom->build_waveform(outBuffer);
-	// Parcours du tableau outBuffer pour effectuer le calcul de corrŽlation
-	for (unsigned int iIndex = 0; iIndex < sizeof(outBuffer); iIndex++)
-        outBuffer[iIndex] = (outBuffer[iIndex]/thisAtom->amp[0])*thisAtom->corr[0]; // ATTENTION FONCTIONNE POUR LE CHANNEL 1 : prŽvoir du multiChannel
-	
+	// Parcours du tableau outBuffer pour effectuer le calcul de corrï¿½lation
+	for (unsigned int iIndex = 0; iIndex < filterLen; iIndex++)
+        outBuffer[iIndex] = (outBuffer[iIndex]/thisAtom->amp[0])*thisAtom->corr[0]; // ATTENTION FONCTIONNE POUR LE CHANNEL 1 : prï¿½voir du multiChannel
+	return filterLen;
 }
 
-void MP_Block_c::build_atom_waveform_norm(MP_Atom_c *thisAtom,MP_Real_t *outBuffer )
+unsigned long int MP_Block_c::build_atom_waveform_norm(MP_Atom_c *thisAtom,MP_Real_t *outBuffer )
 {
 	thisAtom->build_waveform(outBuffer);
 	// Parcours du tableau outBuffer pour effectuer le calcul de norme
-    for (unsigned int iIndex = 0; iIndex < sizeof(outBuffer); iIndex++)
-        outBuffer[iIndex] = outBuffer[iIndex]/thisAtom->amp[0]; // ATTENTION FONCTIONNE POUR LE CHANNEL 1 : prŽvoir du multiChannel
+    for (unsigned int iIndex = 0; iIndex < filterLen; iIndex++)
+        outBuffer[iIndex] = outBuffer[iIndex]/thisAtom->amp[0]; // ATTENTION FONCTIONNE POUR LE CHANNEL 1 : prï¿½voir du multiChannel
+    return filterLen;
 }

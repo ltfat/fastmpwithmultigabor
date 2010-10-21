@@ -173,9 +173,17 @@ GP_Param_Book_c& GP_Param_Book_c::operator = (const GP_Param_Book_c& book){
   return *this;
 }
 
-void GP_Param_Book_c::substract_add_grad(MP_Dict_c* dict, MP_Real_t step,
+/*void GP_Param_Book_c::substract_add_grad(MP_Dict_c* dict, MP_Real_t step,
                                          MP_Signal_c* sigSub, MP_Signal_c* sigAdd){
     dict->block[blockIdx]->substract_add_grad(this, step, sigSub, sigAdd);
+}*/
+
+void GP_Param_Book_c::build_waveform_amp(MP_Dict_c* dict, MP_Real_t* outBuffer){
+    dict->block[blockIdx]->build_frame_waveform_amp(this, outBuffer);
+}
+
+void GP_Param_Book_c::build_waveform_corr(MP_Dict_c* dict, MP_Real_t* outBuffer){
+    dict->block[blockIdx]->build_frame_waveform_corr(this, outBuffer);
 }
 
 void swap(GP_Param_Book_c& book1, GP_Param_Book_c& book2){

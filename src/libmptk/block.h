@@ -4,7 +4,7 @@
 /*                                                                            */
 /*                        Matching Pursuit Library                            */
 /*                                                                            */
-/* Rémi Gribonval                                                             */
+/* Rï¿½mi Gribonval                                                             */
 /* Sacha Krstulovic                                           Mon Feb 21 2005 */
 /* -------------------------------------------------------------------------- */
 /*                                                                            */
@@ -174,25 +174,18 @@ class MP_Block_c {
 		
 		MPTK_LIB_EXPORT map< string, string, mp_ltstring> * get_block_parameters_map();
  
-		/** \brief Substract/add all the atoms in a given frame from / to a multichannel signal with amplitudes proportional to their correlations with the residual.
-		 * \param book: a book containing all atoms to substract/add
-		 * \param step: the gradient step
-		 * \param sigSub signal from which the atom waveform is to be removed
-		 * \param sigAdd signal to which the atom waveform is to be added
-		 * \remark Passing sigSub == NULL or sigAdd == NULL skips the corresponding substraction / addition. */
-		MPTK_LIB_EXPORT virtual void substract_add_grad(GP_Param_Book_c* book, MP_Real_t step, MP_Signal_c* sigSub, MP_Signal_c* sigAdd); 
- 
 		/** \brief Build concatenated waveforms corresponding to each channel of an atom. 
-		 * \param outBuffer the array of size \b totalChanLen which is filled with the  concatenated waveforms of all channels. */ 
-		MPTK_LIB_EXPORT virtual void build_subbook_waveform_amp(GP_Book_c* book, MP_Real_t *outBuffer );
-		MPTK_LIB_EXPORT virtual void build_subbook_waveform_corr(GP_Book_c* book, MP_Real_t *outBuffer );
+		 * \param outBuffer the array of size \b totalChanLen which is filled with the  concatenated waveforms of all channels.
+		 * \return the length of the built waveform. */
+		MPTK_LIB_EXPORT virtual unsigned long int build_subbook_waveform_amp(GP_Book_c* book, MP_Real_t *outBuffer );
+		MPTK_LIB_EXPORT virtual unsigned long int build_subbook_waveform_corr(GP_Book_c* book, MP_Real_t *outBuffer );
 
-		MPTK_LIB_EXPORT virtual void build_frame_waveform_amp(GP_Param_Book_c* frame, MP_Real_t *outBuffer );
-		MPTK_LIB_EXPORT virtual void build_frame_waveform_corr(GP_Param_Book_c* frame, MP_Real_t *outBuffer );
+		MPTK_LIB_EXPORT virtual unsigned long int build_frame_waveform_amp(GP_Param_Book_c* frame, MP_Real_t *outBuffer );
+		MPTK_LIB_EXPORT virtual unsigned long int build_frame_waveform_corr(GP_Param_Book_c* frame, MP_Real_t *outBuffer );
 	
-		MPTK_LIB_EXPORT virtual void build_atom_waveform_amp(MP_Atom_c *atom,MP_Real_t *outBuffer );
-		MPTK_LIB_EXPORT virtual void build_atom_waveform_corr(MP_Atom_c *atom,MP_Real_t *outBuffer );
-		MPTK_LIB_EXPORT virtual void build_atom_waveform_norm(MP_Atom_c *atom,MP_Real_t *outBuffer );
+		MPTK_LIB_EXPORT virtual unsigned long int build_atom_waveform_amp(MP_Atom_c *atom,MP_Real_t *outBuffer );
+		MPTK_LIB_EXPORT virtual unsigned long int build_atom_waveform_corr(MP_Atom_c *atom,MP_Real_t *outBuffer );
+		MPTK_LIB_EXPORT virtual unsigned long int build_atom_waveform_norm(MP_Atom_c *atom,MP_Real_t *outBuffer );
 
 };
 

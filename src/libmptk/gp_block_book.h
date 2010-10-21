@@ -240,6 +240,8 @@ class GP_Block_Book_c:public GP_Book_c, public vector<GP_Pos_Book_c>{
    */
  //MPTK_LIB_EXPORT void substract_add_grad(MP_Dict_c* dict, MP_Real_t step, 
  //                                        MP_Signal_c* sigSub, MP_Signal_c* sigAdd);
+ 
+
 };
 
 #endif /* __gp_block_book_h_ */

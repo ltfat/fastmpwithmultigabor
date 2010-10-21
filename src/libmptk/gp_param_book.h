@@ -154,8 +154,23 @@ class GP_Param_Book_c:public GP_Book_c, public paramBookMap{
    *
    * \remark Passing sigSub == NULL or sigAdd == NULL skips the corresponding substraction / addition.
    */
- MPTK_LIB_EXPORT void substract_add_grad(MP_Dict_c* dict, MP_Real_t step, 
-                                         MP_Signal_c* sigSub, MP_Signal_c* sigAdd);
+ //MPTK_LIB_EXPORT void substract_add_grad(MP_Dict_c* dict, MP_Real_t step, 
+ //                                        MP_Signal_c* sigSub, MP_Signal_c* sigAdd);
+ 
+  /** \brief rebuild the waveform of the combination of all atoms in the book
+   * 
+   * \param dict: the dictionary used to interprete the book
+   * \param outBuffer: the buffer to store the result to
+   */
+   void build_waveform_amp(MP_Dict_c* dict, MP_Real_t* outBuffer);
+   
+   /** \brief rebuild the waveform of the combination of all atoms in the book,
+    * using the correlations instead of the amplitudes of the atoms.
+    * 
+    * \param dict: the dictionary used to interprete the book
+    * \param outBuffer: the buffer to store the result to
+    */
+   void build_waveform_corr(MP_Dict_c* dict, MP_Real_t* outBuffer);
 };
 
 MPTK_LIB_EXPORT void swap(GP_Param_Book_c&, GP_Param_Book_c&);

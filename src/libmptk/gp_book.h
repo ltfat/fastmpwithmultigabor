@@ -180,6 +180,23 @@ class GP_Book_c{
    */
  //MPTK_LIB_EXPORT void substract_add_grad(MP_Dict_c* dict, MP_Real_t step, 
  //                                        MP_Signal_c* sigSub, MP_Signal_c* sigAdd)=0;
+
+  /** \brief rebuild the waveform of the combination of all atoms in the book
+   * 
+   * \param dict: the dictionary used to interprete the book
+   * \param outBuffer: the buffer to store the result to. Has to be initially filled with zeroes.
+   * \param tmpBuffer: buffer used for storing temporary results. Should be the same size as outBuffer.
+   */
+   void build_waveform_amp(MP_Dict_c* dict, MP_Real_t* outBuffer, MP_Real_t* tmpBuffer);
+   
+   /** \brief rebuild the waveform of the combination of all atoms in the book,
+    * using the correlations instead of the amplitudes of the atoms.
+    * 
+    * \param dict: the dictionary used to interprete the book
+    * \param outBuffer: the buffer to store the result to. Has to be initially filled with zeroes.
+    * \param tmpBuffer: buffer used for storing temporary results. Should be the same size as outBuffer.
+    */
+   void build_waveform_corr(MP_Dict_c* dict, MP_Real_t* outBuffer, MP_Real_t* tmpBuffer);
 };
 
 #endif /* __gp_book_h_ */

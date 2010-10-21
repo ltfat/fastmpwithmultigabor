@@ -54,7 +54,7 @@ GP_Pos_Range_Sub_Book_c* GP_Pos_Range_Sub_Book_c::get_sub_book(unsigned int bloc
   if (!subBook)
     return NULL;
   if (subBook == book)
-    return new GP_Pos_Range_Sub_Book_c(*this);
+    return this;
   return new GP_Pos_Range_Sub_Book_c(subBook, minPos, maxPos);
 }
 

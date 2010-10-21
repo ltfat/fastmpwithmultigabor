@@ -174,7 +174,7 @@ void swap (GP_Pos_Book_c& book1, GP_Pos_Book_c& book2){
   book2.endIter = tmpIter;
 }
 
-void GP_Pos_Book_c::substract_add_grad(MP_Dict_c* dict, MP_Real_t step,
+/*void GP_Pos_Book_c::substract_add_grad(MP_Dict_c* dict, MP_Real_t step,
                                         MP_Signal_c* sigSub, MP_Signal_c* sigAdd){
     GP_Pos_Book_Iterator_c iter;
     GP_Param_Book_c subBook;
@@ -184,8 +184,16 @@ void GP_Pos_Book_c::substract_add_grad(MP_Dict_c* dict, MP_Real_t step,
                                         sigSub,  sigAdd);
         iter.go_to_next_frame();
     }
+}*/
+
+void GP_Pos_Book_c::build_waveform_amp(MP_Dict_c* dict, MP_Real_t* outBuffer){
+    dict->block[blockIdx]->build_subbook_waveform_amp(this, outBuffer);
 }
-        
+
+void GP_Pos_Book_c::build_waveform_corr(MP_Dict_c* dict, MP_Real_t* outBuffer){
+    dict->block[blockIdx]->build_subbook_waveform_corr(this, outBuffer);
+}
+         
 // Iterator methods
 
 GP_Pos_Book_Iterator_c::GP_Pos_Book_Iterator_c(void){

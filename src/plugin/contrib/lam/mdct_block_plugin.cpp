@@ -674,7 +674,7 @@ unsigned int MP_Mdct_Block_Plugin_c::create_atom( MP_Atom_c **atom,
 
 }
 
-void MP_Mdct_Block_Plugin_c::build_frame_waveform_corr(GP_Param_Book_c* frame, MP_Real_t* outBuffer){
+unsigned long int MP_Mdct_Block_Plugin_c::build_frame_waveform_corr(GP_Param_Book_c* frame, MP_Real_t* outBuffer){
     GP_Param_Book_Iterator_c iter;
     unsigned long int freqIdx;
     MP_Chan_t c;
@@ -698,6 +698,7 @@ void MP_Mdct_Block_Plugin_c::build_frame_waveform_corr(GP_Param_Book_c* frame, M
     
         compute_inverse_transform(outBuffer+c*filterLen);
     }
+    return filterLen;
 }
     
     
