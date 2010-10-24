@@ -77,6 +77,9 @@ class MP_Block_c {
 		/** \brief number of frames for each channel (determined by
 		* the size of the signal, the frame shift and the block offset) */
 		unsigned long int numFrames;
+		/** \brief intrnal buffer to store the waveform of one atom
+		 */
+		MP_Real_t* outBufferTemp;
   
 		/* Max of inner products (in fact, max of the squared energy): */
 		/** \brief value of the max IP across all frames */
