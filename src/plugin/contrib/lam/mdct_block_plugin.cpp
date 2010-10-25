@@ -532,7 +532,7 @@ void MP_Mdct_Block_Plugin_c::update_frame(unsigned long int frameIdx,
                 freq  = (MP_Real_t)( (double)(j) / (double)(fft->fftSize) );
             }
             if (freq == iter->get_field(MP_FREQ_PROP, chanIdx)){
-                iter->corr[chanIdx] = mcltOutRe[j]/sqrt(atomEnergy[j]);
+                iter->corr[chanIdx] = mcltOutRe[j];///sqrt(atomEnergy[j]);
                 //cerr << "Updating correlations for atom" << endl;
                 //iter->info(stderr);
                 //cerr << "corr = " << iter->corr[chanIdx] << endl;
@@ -679,6 +679,7 @@ unsigned long int MP_Mdct_Block_Plugin_c::build_frame_waveform_corr(GP_Param_Boo
     unsigned long int freqIdx;
     MP_Chan_t c;
     
+    cout << "MDCT" << endl;
     // clean the buffers
     memset(outBuffer, 0, sizeof(MP_Real_t)*filterLen*s->numChans);
     memset(mcltOutRe, 0, sizeof(MP_Real_t)*numFreqs);
@@ -691,9 +692,9 @@ unsigned long int MP_Mdct_Block_Plugin_c::build_frame_waveform_corr(GP_Param_Boo
             if ( filterLen == fftSize )
                 freqIdx  = (unsigned long)(iter->get_field(MP_FREQ_PROP,0)*fft->fftSize);
             else
-                freqIdx  = (unsigned long)(iter->get_field(MP_FREQ_PROP,0)*fft->fftSize+0.5);
-            
-            *(mcltOutRe+freqIdx) = (*((iter->corr)+c))*(*(atomEnergy+freqIdx));
+                freqIdx  = (unsigned long)(iter->get_field(MP_FREQ_PROP,0)*fft->fftSize-0.5);
+            cout << "atom energy = " << *(atomEnergy+freqIdx) << endl;
+            *(mcltOutRe+freqIdx) = (*((iter->corr)+c));//*sqrt(*(atomEnergy+freqIdx));
         }
     
         compute_inverse_transform(outBuffer+c*filterLen);

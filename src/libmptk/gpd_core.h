@@ -5,7 +5,7 @@
 /*                        Matching Pursuit Utilities                          */
 /* Thomas Blumensath                                                          */
 /* Benjamin Roy                                                               */
-/* Rémi Gribonval                                                             */
+/* Rï¿½mi Gribonval                                                             */
 /* Sacha Krstulovic                                           Mon Feb 21 2005 */
 /* -------------------------------------------------------------------------- */
 /*                                                                            */
@@ -81,6 +81,10 @@ class GPD_Core_c:public MP_Abstract_Core_c
     char *bookFileName;
     /** \brief Name for the approximant*/
     char *approxFileName;
+    /** \brief Gradient buffer */
+    MP_Real_t* gradient;
+    /** \brief temporary buffer for computing the gradient */
+    MP_Real_t* tmpBuffer;
 
 
 

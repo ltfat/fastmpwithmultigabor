@@ -375,7 +375,7 @@ MP_Real_t MP_Block_c::update_max( const MP_Support_t frameSupport )
 			maxIPIdxInFrame[ elevatorFrame[numLevels-1][0] ] );
 #endif
 
-/* First pass at level 0 (without a registration of the max frame number) */
+	/* First pass at level 0 (without a registration of the max frame number) */
 #ifdef MP_BLOCK_FRAMES_IS_POW2
 	curFrom = ( fromFrame >> MP_LOG2_BLOCK_FRAMES );
 	curTo   = ( toFrame   >> MP_LOG2_BLOCK_FRAMES );
@@ -405,12 +405,12 @@ MP_Real_t MP_Block_c::update_max( const MP_Support_t frameSupport )
 		}
 		/* Register the max at the upper level */
 #ifndef NDEBUG
-mp_debug_msg( MP_DEBUG_MP_ITERATIONS, func, "Propagating max %g (frame %lu)"
-		" at level 0, position %lu.\n",
-		max, maxIdx, cur );
+		mp_debug_msg( MP_DEBUG_MP_ITERATIONS, func, "Propagating max %g (frame %lu)"
+				" at level 0, position %lu.\n",
+				max, maxIdx, cur );
 #endif
-elevator[0][cur] = max;
-elevatorFrame[0][cur] = maxIdx;
+		elevator[0][cur] = max;
+		elevatorFrame[0][cur] = maxIdx;
 	}
 
 #ifdef MP_BLOCK_FRAMES_IS_POW2
@@ -453,12 +453,12 @@ elevatorFrame[0][cur] = maxIdx;
 			}
 			/* Register the max at the upper level */
 #ifndef NDEBUG
-mp_debug_msg( MP_DEBUG_MP_ITERATIONS, func, "Propagating max %g"
-		" (frame %lu) at level %lu, position %lu.\n",
-		max, maxIdx, level+1, cur );
+			mp_debug_msg( MP_DEBUG_MP_ITERATIONS, func, "Propagating max %g"
+					" (frame %lu) at level %lu, position %lu.\n",
+					max, maxIdx, level+1, cur );
 #endif
-elevator[level+1][cur] = max;
-elevatorFrame[level+1][cur] = maxIdx;
+			elevator[level+1][cur] = max;
+			elevatorFrame[level+1][cur] = maxIdx;
 		}
 
 #ifdef MP_NUM_BRANCHES_IS_POW2
@@ -735,23 +735,36 @@ unsigned long int MP_Block_c::build_subbook_waveform_amp(GP_Book_c* thisBook, MP
 	GP_Book_Iterator_c *iter;
 	GP_Param_Book_c* thisFrame;
 	unsigned long int thisPosition = 0;
-	unsigned long int thisFirstPosition = 0;
+	unsigned long int thisFirstPosition = thisBook->begin()->support[0].pos;
+	unsigned long int size = 0;
+	unsigned long int base;
+
+	// Calcul de la longueur finale;
+	for (iter = thisBook->begin().copy(); *iter != thisBook->end(); iter->go_to_next_frame())
+		thisPosition = (*iter)->support[0].pos;
+
+	size = thisPosition-thisFirstPosition+filterLen;
+
 	// Mise � 0 du buffer
-	memset(outBuffer, 0, sizeof(outBuffer));
+	memset(outBuffer, 0, size*s->numChans);
 
 	// Parcours du book pour r�cup�rer les frames
-	for (iter = thisBook->begin().copy(); *iter != thisBook->end(); iter->go_to_next_frame())	
+	for (*iter = thisBook->begin(); *iter != thisBook->end(); iter->go_to_next_frame())
 	{
-		thisFrame = iter->get_frame();	
-		// R�cup�rer la position
-		if(*iter == thisBook->begin())
-			thisFirstPosition = thisFrame->pos;
-		else
-			thisPosition = thisFrame->pos - thisFirstPosition;
-		// Addition
-		build_frame_waveform_amp(thisFrame, outBuffer+thisPosition);
+		thisFrame = iter->get_frame();
+		build_frame_waveform_amp(thisFrame, outBufferTemp);
+
+		base = thisFrame->pos - thisFirstPosition;
+		for (MP_Chan_t c = 0; c < s->numChans; c++){
+			unsigned long int outOffset = c*size;
+			unsigned long int tmpOffset = c*filterLen;
+			for (unsigned long int t = 0; t < filterLen; t++)
+				outBuffer[t+outOffset+base] += outBufferTemp[t+tmpOffset];
+		}
 	}
-	return thisPosition+filterLen;
+
+	delete iter;
+	return size;
 }
 
 unsigned long int MP_Block_c::build_subbook_waveform_corr(GP_Book_c* thisBook, MP_Real_t *outBuffer )
@@ -759,23 +772,37 @@ unsigned long int MP_Block_c::build_subbook_waveform_corr(GP_Book_c* thisBook, M
 	GP_Book_Iterator_c *iter;
 	GP_Param_Book_c* thisFrame;
 	unsigned long int thisPosition = 0;
-	unsigned long int thisFirstPosition = 0;
+	unsigned long int thisFirstPosition = thisBook->begin()->support[0].pos;
+	unsigned long int size = 0;
+	unsigned long int base;
+
+	// Calcul de la longueur finale;
+	for (iter = thisBook->begin().copy(); *iter != thisBook->end(); iter->go_to_next_frame())
+		thisPosition = (*iter)->support[0].pos;
+	delete iter;
+
+	size = thisPosition-thisFirstPosition+filterLen;
+
 	// Mise � 0 du buffer
-	memset(outBuffer, 0, sizeof(outBuffer));
+	memset(outBuffer, 0, size*s->numChans);
 
 	// Parcours du book pour r�cup�rer les frames
-	for (iter = thisBook->begin().copy(); *iter != thisBook->end(); iter->go_to_next_frame())	
+	for (iter = thisBook->begin().copy();*iter != thisBook->end(); iter->go_to_next_frame())
 	{
-		thisFrame = iter->get_frame();	
-		// R�cup�rer la position
-		if(*iter == thisBook->begin())
-			thisFirstPosition = thisFrame->pos;
-		else
-			thisPosition = thisFrame->pos - thisFirstPosition;
-		// Addition
-		build_frame_waveform_corr(thisFrame, outBuffer+thisPosition);
+		thisFrame = iter->get_frame();
+		build_frame_waveform_corr(thisFrame, outBufferTemp);
+
+		base = thisFrame->pos - thisFirstPosition;
+		for (MP_Chan_t c = 0; c < s->numChans; c++){
+			unsigned long int outOffset = c*size;
+			unsigned long int tmpOffset = c*filterLen;
+			for (unsigned long int t = 0; t < filterLen; t++)
+				outBuffer[t+outOffset+base] += outBufferTemp[t+tmpOffset];
+		}
 	}
-	return thisPosition+filterLen;
+
+	delete iter;
+	return size;
 }
 
 unsigned long int MP_Block_c::build_frame_waveform_amp(GP_Param_Book_c* thisFrame, MP_Real_t *outBuffer )
@@ -796,6 +823,7 @@ unsigned long int MP_Block_c::build_frame_waveform_amp(GP_Param_Book_c* thisFram
 unsigned long int MP_Block_c::build_frame_waveform_corr(GP_Param_Book_c* thisFrame, MP_Real_t *outBuffer )
 {
 	GP_Param_Book_Iterator_c iter;
+	cout << "Generic" << endl;
 	// Parcours de la frame pour reconstruction
 	for (iter = thisFrame->begin(); iter != thisFrame->end(); ++iter)	
 	{
