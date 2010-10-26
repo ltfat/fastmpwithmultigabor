@@ -38,6 +38,7 @@ case $PIPOL_IMAGE in
 
 		#2) Creation of temporary repertory  
 		mkdir /cygdrive/c/Temp
+		export TEMP="/cygdrive/c/Documents and Settings/root/Local Settings/Temp"
 		
 		#3) Detectioon of cmake version 
 		if [ -e "/cygdrive/c/CMake 2.8/bin/cmake.exe" ]; then
