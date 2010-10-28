@@ -16,61 +16,61 @@ case $PIPOL_IMAGE in
 		  mkdir MPTK_Build 
 		  echo "Fin de la création..."
 		fi
+
+		# 3) Configuration of the compilator for Matlab 32 bits version
+		export MACI64=0
 		
-		# 3) the build 
+		# 4) the build 
 		cd MPTK_Build; { 
-		    ## 3.1) configuration
+		    ## 4.1) configuration
 		    cmake -DDASH_TESTING=ON $PIPOL_WDIR/MPTK_Source
 		    make ExperimentalUpdate
 		    make EperimentalConfigure
-		    ## 3.2) build
+		    ## 4.2) build
 		    make ExperimentalBuild
-		    ## 3.3) test
+		    ## 4.3) test
 		    make ExperimentalTest
-		    ## 3.4) Submit
+		    ## 4.4) Submit
 		    make ExperimentalSubmit
-		    ## 3.5) packaging
+		    ## 4.5) packaging
 		    cpack
 		}; cd -
 	;;
 
 	*windows*)
 
-		#2) Creation of temporary repertory  
+		# 2) Creation of temporary repertory  
 		mkdir /cygdrive/c/Temp
 		export TEMP="/cygdrive/c/Documents and Settings/root/Local Settings/Temp"
 		
-		#3) Configuration of the compilator for Matlab 32 bits version
-		export MACI64=0
-		
-		#4) Detectioon of cmake version 
+		# 3) Detectioon of cmake version 
 		if [ -e "/cygdrive/c/CMake 2.8/bin/cmake.exe" ]; then
 			VERSION="2.8"
 		else
 			VERSION="2.6"
 		fi
 
-		#5) Cleaning the projet
+		# 4) Cleaning the projet
 		rm -Rf ./MPTK_Build
 		mkdir MPTK_Build 
 		cd MPTK_Build
 		
-		#6) Making VISUAL project with cmake 2.6 - 2.8
+		# 5) Making VISUAL project with cmake 2.6 - 2.8
 		/cygdrive/c/CMake\ $VERSION/bin/cmake.exe -DDASH_TESTING=ON -G "$PIPOL_WIN_COMPILER" ./../MPTK_Source
 
-		#7) Setting environment
+		# 6) Setting environment
 	    "$MSVC_PATH/Common7/Tools/vsvars32.bat"
 
-		#8) Cleaning the project
+		# 7) Cleaning the project
 		"$VCBUILD" MPTK.sln /Clean "Release|Win32"
 
-		#9) Project build
+		# 8) Project build
 		"$VCBUILD" MPTK.sln /Build "Release|Win32"
 		
-		#10) CDASH submision
+		# 9) CDASH submision
 		/cygdrive/c/CMake\ $VERSION/bin/ctest.exe -D "Experimental" 
 
-		#11) To make a Windows Package Installer
+		# 10) To make a Windows Package Installer
 		/cygdrive/c/CMake\ $VERSION/bin/cpack.exe -G "NSIS" 
 	;;
 	*)
