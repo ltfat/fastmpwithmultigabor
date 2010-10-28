@@ -17,19 +17,19 @@ case $PIPOL_IMAGE in
 		  echo "Fin de la création..."
 		fi
 		
-		# 4) the build 
+		# 3) the build 
 		cd MPTK_Build; { 
-		    ## 4.1) configuration
+		    ## 3.1) configuration
 		    cmake -DDASH_TESTING=ON $PIPOL_WDIR/MPTK_Source
 		    make ExperimentalUpdate
 		    make EperimentalConfigure
-		    ## 4.2) build
+		    ## 3.2) build
 		    make ExperimentalBuild
-		    ## 4.3) test
+		    ## 3.3) test
 		    make ExperimentalTest
-		    ## 4.4) Submit
+		    ## 3.4) Submit
 		    make ExperimentalSubmit
-		    ## 4.5) packaging
+		    ## 3.5) packaging
 		    cpack
 		}; cd -
 	;;
@@ -40,38 +40,38 @@ case $PIPOL_IMAGE in
 		mkdir /cygdrive/c/Temp
 		export TEMP="/cygdrive/c/Documents and Settings/root/Local Settings/Temp"
 		
-		#3) Detectioon of cmake version 
+		#3) Configuration of the compilator for Matlab 32 bits version
+		export MACI64=0
+		
+		#4) Detectioon of cmake version 
 		if [ -e "/cygdrive/c/CMake 2.8/bin/cmake.exe" ]; then
 			VERSION="2.8"
 		else
 			VERSION="2.6"
 		fi
 
-		#4) Cleaning the projet
+		#5) Cleaning the projet
 		rm -Rf ./MPTK_Build
 		mkdir MPTK_Build 
 		cd MPTK_Build
 		
-		#Making VISUAL project with cmake 2.6 - 2.8
+		#6) Making VISUAL project with cmake 2.6 - 2.8
 		/cygdrive/c/CMake\ $VERSION/bin/cmake.exe -DDASH_TESTING=ON -G "$PIPOL_WIN_COMPILER" ./../MPTK_Source
 
-		#Setting environment
+		#7) Setting environment
 	    "$MSVC_PATH/Common7/Tools/vsvars32.bat"
 
-		#Cleaning the project
+		#8) Cleaning the project
 		"$VCBUILD" MPTK.sln /Clean "Release|Win32"
 
-		#Project build
+		#9) Project build
 		"$VCBUILD" MPTK.sln /Build "Release|Win32"
 		
-		#CDASH submision
+		#10) CDASH submision
 		/cygdrive/c/CMake\ $VERSION/bin/ctest.exe -D "Experimental" 
 
-		#To make a Windows Package Installer
+		#11) To make a Windows Package Installer
 		/cygdrive/c/CMake\ $VERSION/bin/cpack.exe -G "NSIS" 
-
-		#and then you can save the package
-	
 	;;
 	*)
 	;;
