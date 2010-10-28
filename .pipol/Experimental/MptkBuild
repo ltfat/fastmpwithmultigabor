@@ -17,8 +17,12 @@ case $PIPOL_IMAGE in
 		  echo "Fin de la création..."
 		fi
 
-		# 3) Configuration of the compilator for Matlab 32 bits version
-		export MACI64=0
+		# 3) Configuration of the compilator for Matlab 32/64 bits version
+		if expr $PIPOL_IMAGE : ".*x86_64.*"; then 
+			export MACI64=1 
+		else 
+			export MACI64=0
+		fi
 		
 		# 4) the build 
 		cd MPTK_Build; { 
