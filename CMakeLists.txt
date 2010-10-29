@@ -157,32 +157,37 @@ ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
 	ENDIF(BUILD_DEBUG)
 ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
 
-#Set  BUILDVERSION, PACKAGENAME, PACKAGENAMEFULL and AUTHORS according to text files in /version
-
+##############################################################################
+#Setting package versions informations according to text files in /version
+##############################################################################
 INCLUDE(${MPTK_SOURCE_DIR}/version/buildversion.cmake)
 INCLUDE(${MPTK_SOURCE_DIR}/CMake/CommonConfig.cmake)
 FILE(READ ${MPTK_SOURCE_DIR}/version/AUTHORS AUTHORS)
 SET(BUILDVERSION_GUILLEMETS \"${BUILDVERSION_MAJOR}.${BUILDVERSION_MINOR}.${BUILDVERSION_PATCH}\")
 SET(BUILDVERSION "${BUILDVERSION_MAJOR}.${BUILDVERSION_MINOR}.${BUILDVERSION_PATCH}")
 
+##############################################################################
 #Define the target for install
-
+##############################################################################
 SET(MPTK_FFTW_WISDOM_FILE ${MPTK_BINARY_DIR}/mptk/default_fftw_wisdom_file)
 SET(MPTK_FFTW_WISDOM_FILE_INSTALL ${CMAKE_INSTALL_PREFIX}/mptk/default_fftw_wisdom_file)
 SET(MPTK_REFERENCE_PATH ${MPTK_BINARY_DIR}/mptk/reference)
 SET(MPTK_REFERENCE_PATH_INSTALL ${CMAKE_INSTALL_PREFIX}/mptk/reference)
 
+##############################################################################
+#Define temporary directory
+##############################################################################
 IF(UNIX)
-SET(MPTK_TMP_PATH /tmp)
+	SET(MPTK_TMP_PATH /tmp)
 ELSE(UNIX)
-IF(WIN32)
-SET(MPTK_TMP_PATH C:/Temp)
-ENDIF(WIN32)
+	IF(WIN32)
+		SET(MPTK_TMP_PATH C:/Temp)
+	ENDIF(WIN32)
 ENDIF(UNIX)
 
-# --------------------------
-# DEFAULT REFERENCE FILES
-# --------------------------
+##############################################################################
+# Setting DEFAULT REFERENCE FILES
+##############################################################################
 SET(MPTK_DEFAULT_DICT_FILENAME dictionary/dic_gabor_two_scales.xml)
 SET(MPTK_DEFAULT_MDCTDICT_FILENAME dictionary/dic_mdct_two_scales.xml)
 SET(MPTK_DEFAULT_MIXER_FILENAME  mixer/mix_58_mixer.txt)
@@ -191,7 +196,9 @@ SET(MPTK_DEFAULT_DICT_LIST_INSTALL_PATH dictionary)
 SET(MPTK_DEFAULT_ANYWAVETABLE_INSTALL_PATH wavetable)
 SET(MPTK_DEFAULT_ANYWAVEDICT_INSTALL_PATH dictionary)
 
+#----------------------
 # Copied default files
+#----------------------
 FOREACH(default DICT MDCTDICT MIXER ANYWAVETABLE_DATA)
 	SET(MPTK_DEFAULT_${default}_FILE          ${MPTK_REFERENCE_PATH}/${MPTK_DEFAULT_${default}_FILENAME})
 	SET(MPTK_DEFAULT_${default}_FILE_INSTALL  ${MPTK_REFERENCE_PATH_INSTALL}/${MPTK_DEFAULT_${default}_FILENAME})
@@ -199,7 +206,9 @@ FOREACH(default DICT MDCTDICT MIXER ANYWAVETABLE_DATA)
 	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/${MPTK_DEFAULT_${default}_FILENAME}  ${MPTK_BINARY_DIR}/install/mptk/reference/${MPTK_DEFAULT_${default}_FILENAME} COPYONLY)
 ENDFOREACH(default)
 
-# EXAMPLE REFERENCE FILES
+#--------------------------
+# Example reference files
+#--------------------------
 SET(MPTK_EXAMPLE_BOOK_FILENAME book/exampleBook.bin)
 SET(MPTK_EXAMPLE_SIGNAL_FILENAME signal/glockenspiel.wav)
 SET(MPTK_EXAMPLE_STEREOSIGNAL_FILENAME signal/mix_58_stereo.wav)
@@ -213,8 +222,8 @@ FOREACH(example BOOK SIGNAL STEREOSIGNAL)
 	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/${MPTK_EXAMPLE_${example}_FILENAME}  ${MPTK_BINARY_DIR}/install/mptk/reference/${MPTK_EXAMPLE_${example}_FILENAME} COPYONLY)
 ENDFOREACH(example)
 
-# --------------------------
-# GENERATED DEFAULT FILES
+#--------------------------
+# Generated default files
 # --------------------------
 SET(MPTK_DEFAULT_DICT_LIST_FILENAME  dictionary/dict-list.txt)
 SET(MPTK_DEFAULT_ANYWAVETABLE_FILENAME wavetable/defaultWaveTable.xml)
@@ -227,8 +236,9 @@ FOREACH(default DICT_LIST ANYWAVETABLE ANYWAVEDICT)
 	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/${MPTK_DEFAULT_${default}_FILENAME}.install ${MPTK_BINARY_DIR}/install/mptk/reference/${MPTK_DEFAULT_${default}_FILENAME} @ONLY)
 ENDFOREACH(default)
 
+##############################################################################
 # Depending on compiler+IDE (Make/Xcode/Visual), need to specify postfix for build type
-#--------------------------------------------------------------------------------------
+##############################################################################
 # Case of Visual Studio 
 IF( CMAKE_CXX_COMPILER STREQUAL "cl")
     IF (BUILD_DEBUG)
@@ -261,27 +271,31 @@ ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
   ENDIF(CMAKE_GENERATOR STREQUAL "Xcode") 
 ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
 
-# ----------------------------------------------------------------------------
+# --------------------------------
 # setting path configuration file
+# --------------------------------
 CONFIGURE_FILE(${MPTK_SOURCE_DIR}/path.xml.in ${MPTK_BINARY_DIR}/mptk/path.xml @ONLY)
 CONFIGURE_FILE(${MPTK_SOURCE_DIR}/path.xml.install ${MPTK_BINARY_DIR}/path.xml @ONLY)
 
-#-----------------------------------------------------------------------------
+#------------------
 # setting bin path
+# -----------------
 IF(EXECUTABLE_OUTPUT_PATH)
 ELSE(EXECUTABLE_OUTPUT_PATH)
 	SET(EXECUTABLE_OUTPUT_PATH "${MPTK_BINARY_DIR}/bin/${OS}" CACHE PATH "Single output directory for building all executables.")
 ENDIF(EXECUTABLE_OUTPUT_PATH)
 
-#-----------------------------------------------------------------------------
+#-----------------
 #setting lib path
+#-----------------
 IF(LIBRARY_OUTPUT_PATH)
 ELSE(LIBRARY_OUTPUT_PATH)
 	SET(LIBRARY_OUTPUT_PATH "${MPTK_BINARY_DIR}/lib/${OS}" CACHE PATH "Single output directory for building all libraries.")
 ENDIF(LIBRARY_OUTPUT_PATH)
 
-## FINDING EXTERNAL LIBRARIES
-#############################
+##############################################################################
+# FINDING EXTERNAL LIBRARIES
+##############################################################################
 # Setting path to libraries and modules for apps
 SET(LIBDSP_INCLUDE_DIR  ${MPTK_SOURCE_DIR}/src/libdsp_windows)
 SET(UTILS_SOURCE_DIR ${MPTK_SOURCE_DIR}/src/utils )
@@ -309,9 +323,9 @@ INCLUDE_DIRECTORIES(/usr/include
 		${SNDFILE_INCLUDE_DIR} 
 		${MATLAB_INCLUDE_DIR} 
 		)
-#-----------------------------------------------------------------------------
+##############################################################################
 ##Platform configuration tests.
-#############################
+##############################################################################
 INCLUDE(${MPTK_SOURCE_DIR}/CMake/CMakeBackwardCompatibilityC.cmake)
 INCLUDE(${CMAKE_ROOT}/Modules/TestForANSIStreamHeaders.cmake)
 INCLUDE(${CMAKE_ROOT}/Modules/TestForSTDNamespace.cmake)
@@ -386,8 +400,9 @@ INSTALL(FILES ${MPTK_BINARY_DIR}/install/include/mptk.h DESTINATION include)
 #Filling the various required informations and validate the release
 #Download the release and test if build correctly
 
+##############################################################################
 # CPACK RULES
-#-----------------------------------------------------------------------------
+##############################################################################
 INCLUDE(InstallRequiredSystemLibraries)
 SET(CPACK_SET_DESTDIR "ON")
 SET(CPACK_PACKAGE_RELOCATABLE "FALSE")
@@ -410,8 +425,9 @@ SET(CPACK_RESOURCE_FILE_README "${MPTK_SOURCE_DIR}/src/utils/readme.txt")
 INSTALL(FILES "${MPTK_SOURCE_DIR}/README.txt" DESTINATION mptk)
 INSTALL(FILES "${MPTK_SOURCE_DIR}/COPYING.txt" DESTINATION mptk)
 
+##############################################################################
 # BINARY DISTRIBUTION:
-#-----------------------------------------------------------------------------
+##############################################################################
 SET(CPACK_INSTALL_CMAKE_PROJECTS "${MPTK_BINARY_DIR};MPTK;ALL;/")
 SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Matching Pursuit Tool Kit")
 SET(CPACK_SOURCE_PACKAGE_FILE_NAME "${MPTK-CPACK_PACKAGE_VERSION}")
@@ -451,14 +467,8 @@ INCLUDE(CPack)
 ##############################################################################
 #CTest is a testing tool distributed as a part of CMake.
 #To allow test the CMake variable BUILD_TESTING has to be set to ON
-#A simple way to submit Experimental dashboard is:
-#ctest -D Experimental
-#To show what targets are available, run:
-#ctest -D Help
-#
 #Results are by default displayed on the INRIA dash server:
 #http://cdash.inria.fr/CDash/index.php?project=MPTK
-#The "CTestConfig.cmake" file in the toplevel source directory set the dashboard preferences.
 
 IF(BUILD_TESTING)
 	ENABLE_TESTING()
