@@ -51,6 +51,10 @@ if [ "`cmake --version`" != "cmake version ${cmake_version}" ]; then
 	tar xvf cmake-${cmake_version}.tar
 	cd cmake-${cmake_version}; {
 		./bootstrap
+		case $PIPOL_IMAGE in
+		  *mac*) ./configure --prefix=/opt/local;;
+		  *);;
+		esac
 		make
 		sudo make install
 		date

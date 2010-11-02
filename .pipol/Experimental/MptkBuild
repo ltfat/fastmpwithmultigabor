@@ -30,7 +30,6 @@ case $PIPOL_IMAGE in
 		cd MPTK_Build; { 
 		    ## 4.1) configuration
 		    cmake -DDASH_TESTING=ON $ADDCOMPIL $PIPOL_WDIR/MPTK_Source
-		    echo "<<<<<<<<<< cmake -DDASH_TESTING=ON $ADDCOMPIL $PIPOL_WDIR/MPTK_Source >>>>>>>>>>>>>"
 		    make ExperimentalUpdate
 		    make EperimentalConfigure
 		    ## 4.2) build
