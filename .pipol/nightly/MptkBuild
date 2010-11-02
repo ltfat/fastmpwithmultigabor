@@ -33,7 +33,7 @@ case $PIPOL_IMAGE in
 		# 3) Configuration of the compilator for Matlab 32/64 bits version
 		if expr $PIPOL_IMAGE : ".*x86_64.*"; then 
 			export MACI64=1 
-			ADDCOMPIL="-DCMAKE_OSX_ARCHITECTURES=\"x86_64\""
+			ADDCOMPIL="-DCMAKE_OSX_ARCHITECTURES=x86_64"
 		else 
 			export MACI64=0
 			ADDCOMPIL="" 
