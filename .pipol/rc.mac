@@ -34,3 +34,7 @@ echo "---------------------------------------------------"
 echo "Installation de la librairie fftw3..."
 echo "---------------------------------------------------"
 sudo /opt/local/bin/port install fftw-3 +universal
+echo "---------------------------------------------------"
+echo "Installation de valgrind..."
+echo "---------------------------------------------------"
+sudo /opt/local/bin/port install valgrind
