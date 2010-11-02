@@ -149,6 +149,10 @@ public:
   
   /** \brief Compute the inverse MCLT transform */
   virtual void compute_inverse_transform(MP_Real_t* out);
+  
+  /** \brief test the trasnforms */
+  MP_Real_t test (void);
+  MP_Real_t fft_test(){return fft->test();}
 };
  
 

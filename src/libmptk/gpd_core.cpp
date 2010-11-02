@@ -170,8 +170,8 @@ GPD_Core_c::~GPD_Core_c() {
 	if (bookFileName) free(bookFileName);
 	if (approxFileName) free(approxFileName);
 	if (touchBook) delete(touchBook);
-	if (gradient) delete gradient;
-	if (tmpBuffer) delete tmpBuffer;
+	if (gradient) delete[] gradient;
+	if (tmpBuffer) delete[] tmpBuffer;
 }
 
 
@@ -336,6 +336,13 @@ unsigned short int GPD_Core_c::step() {
 	mp_debug_msg( MP_DEBUG_MPD_LOOP, func, "SNR is [%g]/[%g].\n",
 			10*log10(currentSnr), 10*log10(stopAfterSnr) );
 
+    // test the blocks
+    cout << "FFT error on block 0 " << dict->block[0]->fft_test() << endl;
+    cout << "FFT error on block 1 " << dict->block[1]->fft_test() << endl;
+    cout << "MCLT error on block 0 = " << dict->block[0]->test() << endl;
+    cout << "MCLT error on block 1 = " << dict->block[1]->test() << endl;
+    
+
 	/* Check if a signal is present */
 	if ( residual == NULL )
 	{
@@ -401,7 +408,7 @@ unsigned short int GPD_Core_c::step() {
 		for (t = 0; t <gradSupport.len; t++)
 			enGrad = enGrad + gradient[t+offset]*gradient[t+offset];
 
-		alpha = 0.5*enCorr/enGrad;
+		alpha = enCorr/enGrad;
 	 mp_progress_msg( "Computing gradient", "Alpha = %lf\n", alpha);
 		  mp_progress_msg( "Blabla", "enCorr = %lf\n", enCorr);
 		  mp_progress_msg( "Blabla", "enGrad = %lf\n", enGrad);

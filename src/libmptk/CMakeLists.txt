@@ -30,6 +30,7 @@ SET(HEADER_FILE
     ${CMAKE_SOURCE_DIR}/src/libmptk/dll.h     
 	${CMAKE_SOURCE_DIR}/src/libmptk/win_server.h        
 	${CMAKE_SOURCE_DIR}/src/libmptk/fft_interface.h     
+	${CMAKE_SOURCE_DIR}/src/libmptk/dct_interface.h     
 	${CMAKE_SOURCE_DIR}/src/libmptk/general.h           
 	${CMAKE_SOURCE_DIR}/src/libmptk/mtrand.h            
 	${CMAKE_SOURCE_DIR}/src/libmptk/regression.h        
@@ -109,6 +110,7 @@ MACRO(GET_MPTK_LIB_CPPSOURCE out)
 	${CMAKE_SOURCE_DIR}/src/libmptk/mp_signal.cpp     
 	${CMAKE_SOURCE_DIR}/src/libmptk/win_server.cpp    
 	${CMAKE_SOURCE_DIR}/src/libmptk/fft_interface.cpp 
+	${CMAKE_SOURCE_DIR}/src/libmptk/dct_interface.cpp 
 	${CMAKE_SOURCE_DIR}/src/libmptk/block.cpp 
 	${MPTK_BINARY_DIR}/src/libmptk/atom.cpp 
 	${CMAKE_SOURCE_DIR}/src/libmptk/anywave_table.cpp 

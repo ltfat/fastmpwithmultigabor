@@ -43,6 +43,7 @@
 
 #include "mptk.h"
 #include "mp_system.h"
+#include <fstream>
 
 
 /*********************************/
@@ -257,27 +258,20 @@ void MP_FFT_Interface_c::exec_complex_inverse_demod(MP_Real_t* re, MP_Real_t* im
     unsigned int t,f;
     
     // separate the odd and even parts
-    *bufferRe = *re;
-    *bufferIm = *im;
-    *buffer2Re = 0;
-    *buffer2Im = 0;
-    for (f = 1; f < numFreqs/2+1; f++){
-        *(bufferRe+f) = 0.5*(*(re+f)+*(re+numFreqs-f));
-        *(bufferRe+numFreqs-f) = *(bufferRe+f);
-        
-        *(bufferIm+f) = 0.5*(*(im+f)+*(im+numFreqs-f));
-        *(bufferIm+numFreqs-f) = *(bufferIm+f);
-        
-        *(buffer2Re+f) = -0.5*(*(re+f)-*(re+numFreqs-f));
-        *(buffer2Re+numFreqs-f) = -*(buffer2Re+f);
-        
-        *(buffer2Im+f) = 0.5*(*(im+f)-*(im+numFreqs-f));
-        *(buffer2Im+numFreqs-f) = -*(buffer2Im+f);
+//    *bufferRe = *re;
+//    *bufferIm = *im;
+//    *buffer2Re = 0;
+//    *buffer2Im = 0;
+    for (f = 0; f < numFreqs; f++){
+        bufferRe[f] = re[f];
+        bufferIm[f] = im[f];
+        buffer2Re[f] = im[f];
+        buffer2Im[f] = re[f];
     }
     
     // compute inverse fft. The real part will be in inDemodulated, the imaginary part in output
     exec_complex_inverse(bufferRe, bufferIm, inDemodulated);
-    exec_complex_inverse(buffer2Im, buffer2Re, output);
+    exec_complex_inverse(buffer2Re, buffer2Im, output);
     
     // modulate.
     //WARNING: this formula is only right with unitary demodulation functions.
@@ -735,4 +729,46 @@ bool MP_FFT_Interface_c::save_fft_library_config()
   return false;
 #endif
 
+}
+
+MP_Real_t MP_FFTW_Interface_c::test(){
+    MP_Real_t* in = new MP_Real_t[windowSize];
+    MP_Real_t* deRe = new MP_Real_t[windowSize];
+    MP_Real_t* deIm = new MP_Real_t[windowSize];
+    MP_Real_t* re = new MP_Real_t[numFreqs];
+    MP_Real_t* im = new MP_Real_t[numFreqs];
+    MP_Real_t* out = new MP_Real_t[windowSize];
+    MP_Real_t err = 0;
+    unsigned long int t;
+    ofstream f;
+    
+    in[0] = 1;
+    for (t = 0; t<windowSize; t++){
+        deRe[t] = 1;
+        deIm[t] = 0;
+        out[t] = 0;
+    }
+        
+    exec_complex_demod(in, deRe, deIm, re, im);
+    f.open("/local/tempo/test/re.txt");
+    for (t = 0; t < numFreqs; t++)
+        f << t << '\t' << re[t] << endl;
+    f.close();
+    f.open("/local/tempo/test/im.txt");
+    for (t = 0; t < numFreqs; t++)
+        f << t << '\t' << im[t] << endl;
+    f.close();
+    
+    exec_complex_inverse_demod(re, im, deRe, deIm, out);
+    
+    for (t = 0; t < windowSize; t++)
+        err += (out[t]-in[t])*(out[t]-in[t]);
+        
+    delete out;
+    delete im;
+    delete re;
+    delete deIm;
+    delete deRe;
+    delete in;
+    return err;
 }

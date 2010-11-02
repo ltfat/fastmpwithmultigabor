@@ -83,6 +83,11 @@
 #cmakedefine HAVE_MPTK_FFT_INTERFACE_H 1
 # ifdef HAVE_MPTK_FFT_INTERFACE_H
 #include "fft_interface.h"
+# endif  
+   
+#cmakedefine HAVE_MPTK_DCT_INTERFACE_H 1
+# ifdef HAVE_MPTK_DCT_INTERFACE_H
+#include "dct_interface.h"
 # endif     
 
 #cmakedefine HAVE_MPTK_GENERAL_H 1

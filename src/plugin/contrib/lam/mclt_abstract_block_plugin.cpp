@@ -330,3 +330,23 @@ void MP_Mclt_Abstract_Block_Plugin_c::compute_inverse_transform(MP_Real_t* out){
     
     fft->exec_complex_inverse_demod (fftRe, fftIm, preModRe, preModIm, out);
 }
+
+MP_Real_t MP_Mclt_Abstract_Block_Plugin_c::test(){
+    MP_Real_t* sample = new MP_Real_t[filterLen];
+    MP_Real_t* out = new MP_Real_t[filterLen];
+    MP_Real_t err = 0;
+    
+    memset (sample, 0, sizeof(MP_Real_t)*filterLen);
+    sample[0] = 1;
+    compute_transform(sample);
+    compute_inverse_transform(out);
+    
+    err = (out[0])*(out[0]);
+    for (unsigned long int t = 1; t < filterLen; t++){
+        err += out[t]*out[t];
+    }
+        
+    delete sample;
+    delete out;
+    return err;
+}

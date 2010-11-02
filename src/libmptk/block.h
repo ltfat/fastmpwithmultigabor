@@ -189,7 +189,9 @@ class MP_Block_c {
 		MPTK_LIB_EXPORT virtual unsigned long int build_atom_waveform_amp(MP_Atom_c *atom,MP_Real_t *outBuffer );
 		MPTK_LIB_EXPORT virtual unsigned long int build_atom_waveform_corr(MP_Atom_c *atom,MP_Real_t *outBuffer );
 		MPTK_LIB_EXPORT virtual unsigned long int build_atom_waveform_norm(MP_Atom_c *atom,MP_Real_t *outBuffer );
-
+        virtual MP_Real_t test(){return MP_PI;}
+        virtual MP_Real_t fft_test(){return MP_PI;}
+        
 };
 
 
