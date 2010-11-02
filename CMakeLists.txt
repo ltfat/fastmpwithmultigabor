@@ -479,7 +479,6 @@ IF(BUILD_TESTING)
 	INCLUDE(CTest)
 	INCLUDE(CTestConfig.cmake)
 	# TEST with CTest:
-	SET(CMAKE_CXX_FLAGS "-fprofile-arcs -ftest-coverage  ${CMAKE_CXX_FLAGS}") 
 	ADD_TEST(MESSAGE, ${MPTK_BINARY_DIR}/bin/test_messaging)
 	ADD_TEST(FFT, ${MPTK_BINARY_DIR}/bin/test_fft ${MPTK_BINARY_DIR}/mptk/path.xml)
 	ADD_TEST(PARABOLIC_REGRESSION, ${MPTK_BINARY_DIR}/bin/test_parabolic_regression)
