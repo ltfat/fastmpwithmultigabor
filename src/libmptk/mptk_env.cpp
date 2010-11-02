@@ -70,7 +70,18 @@ MPTK_Env_c::MPTK_Env_c()
 /* Destructor */
 MPTK_Env_c::~MPTK_Env_c()
 {
-  instanceFlag=false;
+	instanceFlag=false;
+	map<const char*,const char*,mp_ltstring>::iterator iter;
+	const char *a,*b;
+	while(!MPTK_Env_c::get_env()->configPath.empty()) 
+	{ 
+		iter = MPTK_Env_c::get_env()->configPath.begin();
+		a = iter->first;
+		b = iter->second;
+		MPTK_Env_c::get_env()->configPath.erase(iter); 
+		free((void *)a); 
+		free((void *)b); 
+	}
 }
 
 /*Create a singleton of MPTK_Env_c class */
