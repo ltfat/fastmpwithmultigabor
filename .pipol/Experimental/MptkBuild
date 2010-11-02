@@ -36,10 +36,13 @@ case $PIPOL_IMAGE in
 		    make ExperimentalBuild
 		    ## 4.3) test
 		    make ExperimentalTest
-		    ## 4.4) Submit
-		    make ExperimentalSubmit
-		    ## 4.5) packaging
+		    ## 4.4) packaging
 		    cpack
+		    ## 4.5) coverage
+		    cmake -DBUILD_DEBUG=ON -DDASH_TESTING=ON $ADDCOMPIL $PIPOL_WDIR/MPTK_Source
+		    make ExperimentalCoverage
+		    ## 4.6) Submit
+		    make ExperimentalSubmit
 		}; cd -
 	;;
 
