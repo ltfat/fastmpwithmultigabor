@@ -189,14 +189,6 @@ MP_Block_c* MP_Mclt_Block_Plugin_c::create( MP_Signal_c *setSignal, map<string, 
       delete( newBlock );
       return( NULL );
     }
-  /* Set the block parameter map (that are independent from the signal) */
-  if ( newBlock->init_parameter_map( filterLen, filterShift, fftSize,
-                                     windowType, windowOption, blockOffset ) )
-    {
-      mp_error_msg( func, "Failed to initialize parameters map in the new Gabor block.\n" );
-      delete( newBlock );
-      return( NULL );
-    }
 
   /* Set the block parameter map (that are independent from the signal) */
   if ( newBlock->init_parameter_map( filterLen, filterShift, fftSize,
