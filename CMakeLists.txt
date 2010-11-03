@@ -148,7 +148,7 @@ ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
 			ADD_DEFINITIONS(-g -O3 -quiet -pipe)
 		ENDIF(BUILD_VERBOSE)
 		# Add debug mode for mex files
-		SET(MATLAB_COMPILATION "-v -g")		
+		SET(MATLAB_COMPILATION "-g -v")		
 	ELSE(BUILD_DEBUG)
 		# Case of release mode
 		IF (BUILD_VERBOSE)
