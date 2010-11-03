@@ -182,6 +182,7 @@ int main( int argc, char ** argv )
   delete(approxArray);
   delete(dictArray);
   delete(book);
+  delete(nameBlockVector);
   
   /* Release Mptk environnement */
   MPTK_Env_c::get_env()->release_environment();
