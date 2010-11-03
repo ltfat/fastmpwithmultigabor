@@ -293,7 +293,7 @@ void MP_Block_c::nullify_signal( void )
 		elevFrameSpace = NULL;
 	}
 	if (outBufferTemp){
-		delete outBufferTemp;
+		delete outBufferTemp[];
 		outBufferTemp = NULL;
 	}
 }
@@ -335,7 +335,7 @@ MP_Block_c::~MP_Block_c()
 	if ( elevSpace )         free( elevSpace );
 	if ( elevatorFrame )     free( elevatorFrame );
 	if ( elevFrameSpace )    free( elevFrameSpace );
-	if ( outBufferTemp ) 	   delete outBufferTemp;
+	if ( outBufferTemp ) 	   delete outBufferTemp[];
 	if (  parameterMap ){
 		while( !(*parameterMap).empty() ) {
 			(*parameterMap).erase( (*parameterMap).begin() );
@@ -816,7 +816,7 @@ unsigned long int MP_Block_c::build_frame_waveform_amp(GP_Param_Book_c* thisFram
 			outBuffer[iIndex] += outBufferTemp[iIndex];
 	}
 
-	delete(outBufferTemp);
+	delete outBufferTemp[];
 	return filterLen;
 }
 
@@ -832,7 +832,7 @@ unsigned long int MP_Block_c::build_frame_waveform_corr(GP_Param_Book_c* thisFra
 			outBuffer[iIndex] += outBufferTemp[iIndex];
 	}
 
-	delete(outBufferTemp);
+	delete outBufferTemp[];
 	return filterLen;
 }
 
