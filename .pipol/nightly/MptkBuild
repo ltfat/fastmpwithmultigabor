@@ -49,12 +49,14 @@ case $PIPOL_IMAGE in
 		    make NightlyBuild
 		    ## 4.3) test
 		    make NightlyTest
-		    ## 4.4) Mem check
+		    ## 4.4) coverage
+		    make NightlyCoverage
+		    ## 4.5) Mem check
 		    make NightlyMemCheck
-		    ## 4.5) Submit
+		    ## 4.6) Submit
 		    make NightlySubmit
 		
-		    ## 4.5) packaging
+		    ## 4.7) packaging
 		    cpack
 		}; cd -
 	;;

@@ -36,7 +36,9 @@ case $PIPOL_IMAGE in
 		    make ExperimentalBuild
 		    ## 4.3) test
 		    make ExperimentalTest
-		    ## 4.4) packaging
+		    ## 4.4) coverage
+		    make ExperimentalCoverage
+		    ## 4.5) packaging
 		    cpack
 		    ## 4.6) Submit
 		    make ExperimentalSubmit
