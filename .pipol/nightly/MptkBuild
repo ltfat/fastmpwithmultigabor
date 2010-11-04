@@ -52,11 +52,7 @@ case $PIPOL_IMAGE in
 		    ## 4.4) coverage
 		    make NightlyCoverage
 		    ## 4.5) Mem check
-			case $PIPOL_IMAGE in
-				*linux-fedora-core13* | *linux-ubuntu-karmic* | *linux-debian-lenny* | *mac*)
-		    		make NightlyMemCheck;;
-				*);;
-			esac
+	   		make NightlyMemCheck;;
 		    ## 4.6) Submit
 		    make NightlySubmit
 		
