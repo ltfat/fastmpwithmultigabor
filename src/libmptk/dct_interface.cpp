@@ -190,7 +190,7 @@ MP_DCTW_Interface_c::MP_DCTW_Interface_c( const unsigned long int setDctSize )
 
   /* Create plans */
   p = fftw_plan_r2r_1d( (int)(dctSize), inPrepared, out, FFTW_REDFT11, FFTW_MEASURE );
-  scale = 1/sqrt(dctSize);
+  scale = 1/sqrt((double)dctSize);
 }
 
 /**************/
