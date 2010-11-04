@@ -80,6 +80,14 @@ ELSE(UNIX)
 ENDIF(UNIX)
 
 ##############################################################################
+# Setting coverage options :
+##############################################################################
+IF(BUILD_COVERAGE AND APPLE)
+	SET(COVERAGE_FLAGS -fprofile-arcs -ftest-coverage)
+	SET(COVERAGE_LIB -lgcov)
+ENDIF(BUILD_COVERAGE AND APPLE)
+
+##############################################################################
 # Setting the compilation flags in dynamic format:
 ##############################################################################
 IF(WIN32)
@@ -92,17 +100,17 @@ IF(WIN32)
 ELSE(WIN32)
 	IF(APPLE)
 		IF(CMAKE_SYSTEM_PROCESSOR STREQUAL "ia64" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
-			SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -single_module -headerpad_max_install_names -lgcov") 
+			SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -single_module -headerpad_max_install_names ${COVERAGE_LIB}") 
 			SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
 		ELSE(CMAKE_SYSTEM_PROCESSOR STREQUAL "ia64" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
-			SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -single_module -headerpad_max_install_names -lgcov") 
+			SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -single_module -headerpad_max_install_names ${COVERAGE_LIB}") 
 		ENDIF(CMAKE_SYSTEM_PROCESSOR STREQUAL "ia64" OR CMAKE_SYSTEM_PROCESSOR STREQUAL  "x86_64")
 	ELSE(APPLE)
 		IF(CMAKE_SYSTEM_PROCESSOR STREQUAL "ia64" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
-			SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -Wl,--export-dynamic -lgcov")
+			SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -Wl,--export-dynamic")
 			SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
 		ELSE(CMAKE_SYSTEM_PROCESSOR STREQUAL "ia64" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
-			SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,--export-dynamic -lgcov")
+			SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,--export-dynamic")
 		ENDIF(CMAKE_SYSTEM_PROCESSOR STREQUAL "ia64" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
 	ENDIF(APPLE)
 ENDIF(WIN32)
@@ -130,25 +138,25 @@ IF( CMAKE_CXX_COMPILER STREQUAL "cl")
 	# sprintf_s(). These functions are considered by Microsoft more secure. This is
 	# a worthwhile exercise ! The use of these deprecated functions causes a lot of
 	# warnings. To suppress it, we add the _CRT_SECURE_NO_DEPRECATE preprocessor
-	# definition
+	# definition -fprofile-arcs -ftest-coverage
     ADD_DEFINITIONS(-D_CRT_SECURE_NO_DEPRECATE -D_CRT_SECURE_NO_WARNINGS)
 ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
 	# Case of other compiler/environment : tags depend on build mode (debug/release
 	IF(BUILD_DEBUG) 
 		# Case of debug mode
 		IF (BUILD_VERBOSE)
-			ADD_DEFINITIONS(-g -O3 -Wall -pipe -v -fprofile-arcs -ftest-coverage)
+			ADD_DEFINITIONS(-g -O3 -Wall -pipe -v ${COVERAGE_FLAGS})
 		ELSE(BUILD_VERBOSE)
-			ADD_DEFINITIONS(-g -O3 -quiet -pipe -fprofile-arcs -ftest-coverage)
+			ADD_DEFINITIONS(-g -O3 -quiet -pipe ${COVERAGE_FLAGS})
 		ENDIF(BUILD_VERBOSE)
 		# Add debug mode for mex files
 		SET(MATLAB_COMPILATION "-g")		
 	ELSE(BUILD_DEBUG)
 		# Case of release mode
 		IF (BUILD_VERBOSE)
-			ADD_DEFINITIONS( -O3 -Wall -pipe -v -DNDEBUG -fprofile-arcs -ftest-coverage)
+			ADD_DEFINITIONS( -O3 -Wall -pipe -v -DNDEBUG ${COVERAGE_FLAGS})
 		ELSE(BUILD_VERBOSE)
-			ADD_DEFINITIONS( -O3 -quiet -pipe -DNDEBUG -fprofile-arcs -ftest-coverage)
+			ADD_DEFINITIONS( -O3 -quiet -pipe -DNDEBUG ${COVERAGE_FLAGS})
 		ENDIF(BUILD_VERBOSE)
 		# Add debug mode for mex files
 		SET(MATLAB_COMPILATION "-v")		
@@ -307,7 +315,7 @@ INCLUDE( ${MPTK_SOURCE_DIR}/CMake/FindExternalLibs.cmake )
 #Set directories for linker
 LINK_DIRECTORIES( ${PTHREAD_LIBRARY_PATH} 
                   ${SNDFILE_LIBRARY_PATH} 
-                  ${FFTW3_LIBRARY_PATH} )
+                  ${FFTW3_LIBRARY_PATH})
 #set the include directories paths for building
 INCLUDE_DIRECTORIES(/usr/include 
 		${MPTK_SOURCE_DIR}               	# TO INCLUDE mp_system.h
