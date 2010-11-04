@@ -52,12 +52,13 @@ case $PIPOL_IMAGE in
 		    ## 4.4) coverage
 		    make NightlyCoverage
 		    ## 4.5) Mem check
-	   		make NightlyMemCheck;;
+	   		make NightlyMemCheck
 		    ## 4.6) Submit
 		    make NightlySubmit
-		
 		    ## 4.7) packaging
-		    cpack
+		    cpack -DCPACK_OUTPUT_FILE_PATH=$PIPOL_WDIR/MPTK_Build
+		    ## 4.8) copying
+			cp $PIPOL_WDIR/MPTK_Build/MPTK-binary-* $PIPOL_HOMEDIR/packages/
 		}; cd -
 	;;
 
@@ -95,7 +96,10 @@ case $PIPOL_IMAGE in
 		/cygdrive/c/CMake\ $VERSION/bin/ctest.exe -D "Nightly" 
 
 		# 10) To make a Windows Package Installer
-		/cygdrive/c/CMake\ $VERSION/bin/cpack.exe -G "NSIS" 
+		/cygdrive/c/CMake\ $VERSION/bin/cpack.exe -DCPACK_OUTPUT_FILE_PATH=$PIPOL_WDIR/MPTK_Build -G "NSIS" 
+		
+        # 11) Save the package
+		cp $PIPOL_WDIR/MPTK_Build/MPTK-binary-* $PIPOL_HOMEDIR/packages/
 	;;
 	*)
 	;;
