@@ -29,7 +29,7 @@ case $PIPOL_IMAGE in
 		# 4) the build 
 		cd MPTK_Build; { 
 		    ## 4.1) configuration
-		    cmake -DDASH_TESTING=ON $ADDCOMPIL $PIPOL_WDIR/MPTK_Source
+		    cmake -DDASH_TESTING=ON -DBUILD_COVERAGE=ON $ADDCOMPIL $PIPOL_WDIR/MPTK_Source
 		    make ExperimentalUpdate
 		    make ExperimentalConfigure
 		    ## 4.2) build

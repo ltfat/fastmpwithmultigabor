@@ -42,7 +42,7 @@ case $PIPOL_IMAGE in
 		# 4) the build 
 		cd MPTK_Build; { 
 		    ## 4.1) configuration
-		    cmake -DDASH_TESTING=ON $ADDCOMPIL $PIPOL_WDIR/MPTK_Source
+		    cmake -DDASH_TESTING=ON -DBUILD_COVERAGE=ON $ADDCOMPIL $PIPOL_WDIR/MPTK_Source
 		    make NightlyUpdate
 		    make NightlyConfigure
 		    ## 4.2) build
@@ -52,7 +52,11 @@ case $PIPOL_IMAGE in
 		    ## 4.4) coverage
 		    make NightlyCoverage
 		    ## 4.5) Mem check
-		    make NightlyMemCheck
+			case $PIPOL_IMAGE in
+				*linux-fedora-core13* | *linux-ubuntu-karmic* | *linux-debian-lenny* | *mac*)
+		    		make NightlyMemCheck;;
+				*);;
+			esac
 		    ## 4.6) Submit
 		    make NightlySubmit
 		
