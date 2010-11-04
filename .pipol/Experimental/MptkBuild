@@ -38,10 +38,12 @@ case $PIPOL_IMAGE in
 		    make ExperimentalTest
 		    ## 4.4) coverage
 		    make ExperimentalCoverage
-		    ## 4.5) packaging
-		    cpack
 		    ## 4.6) Submit
 		    make ExperimentalSubmit
+		    ## 4.5) packaging
+		    cpack -DCPACK_OUTPUT_FILE_PATH=$PIPOL_WDIR/MPTK_Build
+		    ## 4.6) copying
+			cp $PIPOL_WDIR/MPTK_Build/MPTK-binary-* $PIPOL_HOMEDIR/packages/
 		}; cd -
 	;;
 
@@ -79,7 +81,10 @@ case $PIPOL_IMAGE in
 		/cygdrive/c/CMake\ $VERSION/bin/ctest.exe -D "Experimental" 
 
 		# 10) To make a Windows Package Installer
-		/cygdrive/c/CMake\ $VERSION/bin/cpack.exe -G "NSIS" 
+		/cygdrive/c/CMake\ $VERSION/bin/cpack.exe -DCPACK_OUTPUT_FILE_PATH=$PIPOL_WDIR/MPTK_Build -G "NSIS" 
+		
+        # 11) Save the package
+		cp $PIPOL_WDIR/MPTK_Build/MPTK-binary-* $PIPOL_HOMEDIR/packages/
 	;;
 	*)
 	;;
