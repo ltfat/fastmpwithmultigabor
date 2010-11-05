@@ -66,39 +66,50 @@ case $PIPOL_IMAGE in
  
 		# 2) Creation of temporary repertory  
 		mkdir /cygdrive/c/Temp
-		export TEMP="/cygdrive/c/Documents and Settings/root/Local Settings/Temp"
 		
-		# 3) Detectioon of cmake version 
+		# 3) Configuration of the variables for matlab
+		export TEMP=/cygdrive/c/Temp
+		if expr $PIPOL_IMAGE : ".*x86_64.*"; then 
+			export PROCESSOR_ARCHITECTURE=AMD64		
+		else 
+			export PROCESSOR_ARCHITECTURE=x86
+		fi
+		
+		# 4) Configuration of mex
+		printf 'y\n2\ny\n' | /cygdrive/y/i386/matlab-2010a-windows/bin/mex.bat -setup
+				
+		
+		# 5) Detectioon of cmake version 
 		if [ -e "/cygdrive/c/CMake 2.8/bin/cmake.exe" ]; then
 			VERSION="2.8"
 		else
 			VERSION="2.6"
 		fi
 
-		# 4) Cleaning the projet
+		# 6) Cleaning the projet
 		rm -Rf ./MPTK_Build
 		mkdir MPTK_Build 
 		cd MPTK_Build
 		
-		# 5) Making VISUAL project with cmake 2.6 - 2.8
+		# 7) Making VISUAL project with cmake 2.6 - 2.8
 		/cygdrive/c/CMake\ $VERSION/bin/cmake.exe -DDASH_TESTING=ON -G "$PIPOL_WIN_COMPILER" ./../MPTK_Source
 
-		# 6) Setting environment
+		# 8) Setting environment
 	    "$MSVC_PATH/Common7/Tools/vsvars32.bat"
 
-		# 7) Cleaning the project
+		# 9) Cleaning the project
 		"$VCBUILD" MPTK.sln /Clean "Release|Win32"
 
-		# 8) Project build
+		# 10) Project build
 		"$VCBUILD" MPTK.sln /Build "Release|Win32"
 		
-		# 9) CDASH submision
+		# 11) CDASH submision
 		/cygdrive/c/CMake\ $VERSION/bin/ctest.exe -D "Nightly" 
 
-		# 10) To make a Windows Package Installer
+		# 12) To make a Windows Package Installer
 		/cygdrive/c/CMake\ $VERSION/bin/cpack.exe -DCPACK_OUTPUT_FILE_PATH=$PIPOL_WDIR/MPTK_Build -G "NSIS" 
 		
-        # 11) Save the package
+        # 13) Save the package
 		cp $PIPOL_WDIR/MPTK_Build/MPTK-binary-* $PIPOL_HOMEDIR/packages/
 	;;
 	*)
