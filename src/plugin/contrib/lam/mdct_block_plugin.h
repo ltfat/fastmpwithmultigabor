@@ -47,17 +47,29 @@
 /** \brief Blocks corresponding to MDCT frames 
  *
  */
-class MP_Mdct_Block_Plugin_c:public MP_Mclt_Abstract_Block_Plugin_c {
+class MP_Mdct_Block_Plugin_c: public MP_Block_c {
 
   /********/
   /* DATA */
   /********/
-
-  /** \brief Storage space for the atom energy
-   * 
-   */ 
-  MP_Real_t *atomEnergy;
-
+  
+  unsigned long int lapSize;
+  unsigned char windowType;
+  double windowOption;
+  
+  /** \brief buffer to compute the frames before DCT
+   */
+  MP_Real_t* frameBuffer;
+  
+  /** \brief window
+   */
+   MP_Real_t* window;
+   
+   /** \brief buffer to save the correlations of frame on all channels
+    */
+    MP_Real_t* mag;
+    
+    MP_DCT_Interface_c* dct;
 
   /***********/
   /* METHODS */
@@ -93,7 +105,6 @@ protected:
    *  */
   virtual int init_parameters( const unsigned long int setFilterLen,
 			       const unsigned long int setFilterShift,
-			       const unsigned long int setFftSize,
 			       const unsigned char setWindowType,
 			       const double setWindowOption,
 			       const unsigned long int setBlockOffset );
@@ -110,7 +121,6 @@ protected:
 
   virtual int init_parameter_map( const unsigned long int setFilterLen,
 			       const unsigned long int setFilterShift,
-			       const unsigned long int setFftSize,
 			       const unsigned char setWindowType,
 			       const double setWindowOption,
 			       const unsigned long int setBlockOffset );
@@ -199,6 +209,8 @@ public:
                 
   unsigned long int build_frame_waveform_corr(GP_Param_Book_c* frame, MP_Real_t* outBuffer);
 
+  unsigned long int build_frame_waveform_amp(GP_Param_Book_c* frame, MP_Real_t* outBuffer);
+
    /** \brief Field a map with the parameter type of the block, the creation and destruction of the map is done by the calling method 
    *
    * \param parameterMapType the map to fill .
@@ -216,18 +228,6 @@ public:
    * \param parameterMapDefault the map to fill.
    */
   static void  get_parameters_default_map(map< string, string, mp_ltstring>* parameterMapDefault);
-
-protected:
-
-  /** \brief Allocates the atom's energy.
-   */
-  int alloc_energy( MP_Real_t **atomEnergy );
-
-  /** \brief Computes and tabulates the atom's energy.
-   */
-  int fill_energy( MP_Real_t *atomEnergy );
-
-
 };
  
 
