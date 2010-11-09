@@ -171,6 +171,10 @@ class GP_Param_Book_c:public GP_Book_c, public paramBookMap{
     * \param outBuffer: the buffer to store the result to
     */
    void build_waveform_corr(MP_Dict_c* dict, MP_Real_t* outBuffer);
+
+   /** \brief tells whether a book is empty or not
+    */
+   bool is_empty();
 };
 
 MPTK_LIB_EXPORT void swap(GP_Param_Book_c&, GP_Param_Book_c&);

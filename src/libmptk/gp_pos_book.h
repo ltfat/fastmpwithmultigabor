@@ -229,7 +229,7 @@ public:
 	/* \brief Test if a book is empty.
 	 * \return true if the book contains no atoms, false otherwise.
 	 */
-	MPTK_LIB_EXPORT bool empty();
+	MPTK_LIB_EXPORT bool is_empty();
 
 	/* \brief get an iterator pointing to the first atom of the book
 	 * \return the iterator

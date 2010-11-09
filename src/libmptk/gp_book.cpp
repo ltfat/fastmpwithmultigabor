@@ -57,12 +57,9 @@ unsigned long int GP_Book_c::build_waveform_corr(MP_Dict_c* dict, MP_Real_t* out
 	GP_Book_c* subBook;
 
 	// compute the dimensions of the waveform
-	cout << "coucou1" << endl;
 	base = begin()->support[0].pos;
-	cout << "coucou2" << endl;
 
 	for (iter = begin().copy(); *iter != end(); iter->go_to_next_frame()){
-		cout << "coucou3" << endl;
 		if ((*iter)->support[0].pos < wavBeg)
 			wavBeg = (*iter)->support[0].pos;
 		if ((*iter)->support[0].pos + (*iter)->support[0].len > wavEnd)

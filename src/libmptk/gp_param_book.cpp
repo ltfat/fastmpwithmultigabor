@@ -186,6 +186,14 @@ void GP_Param_Book_c::build_waveform_corr(MP_Dict_c* dict, MP_Real_t* outBuffer)
     dict->block[blockIdx]->build_frame_waveform_corr(this, outBuffer);
 }
 
+bool GP_Param_Book_c::is_empty(){
+	paramBookMap::iterator iter;
+	for (iter = paramBookMap::begin(); iter != paramBookMap::end(); ++iter)
+		if (iter->second)
+			return false;
+	return true;
+}
+
 void swap(GP_Param_Book_c& book1, GP_Param_Book_c& book2){
   GP_Param_Book_Iterator_c tmpIter;
   unsigned long int tmpPos(book1.pos);

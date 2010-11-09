@@ -138,10 +138,10 @@ GP_Pos_Book_Iterator_c& GP_Pos_Book_c::end(void){
   return endIter;
 }
 
-bool GP_Pos_Book_c::empty(){
+bool GP_Pos_Book_c::is_empty(){
   posBookMap::iterator iter, end = posBookMap::end();
   for(iter = posBookMap::begin(); iter != end; iter++)
-    if(!iter->second.empty())
+    if(!iter->second.is_empty())
       return false;
   return true;
 }
