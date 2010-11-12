@@ -2,149 +2,149 @@
 
 GP_Param_Book_c::GP_Param_Book_c(unsigned int blockIdx,
 		unsigned long int pos):
-  blockIdx(blockIdx),
-  pos(pos){
-  begIter = GP_Param_Book_Iterator_c(this);
-  endIter = GP_Param_Book_Iterator_c(this);
+		blockIdx(blockIdx),
+		pos(pos){
+	begIter = GP_Param_Book_Iterator_c(this);
+	endIter = GP_Param_Book_Iterator_c(this);
 }
 
 GP_Param_Book_c::GP_Param_Book_c(const GP_Param_Book_c& book):
-  paramBookMap(book),
-  blockIdx(book.blockIdx),
-  pos(book.pos){
-  begIter = GP_Param_Book_Iterator_c(this);
-  endIter = GP_Param_Book_Iterator_c(this);
-    endIter.paramIter = paramBookMap::end();
+		  paramBookMap(book),
+		  blockIdx(book.blockIdx),
+		  pos(book.pos){
+	begIter = GP_Param_Book_Iterator_c(this);
+	endIter = GP_Param_Book_Iterator_c(this);
+	endIter.paramIter = paramBookMap::end();
 }
-  
+
 GP_Param_Book_c::~GP_Param_Book_c(){
-  reset();
+	reset();
 }
 
 bool GP_Param_Book_c::contains(MP_Atom_Param_c& param){
-  return find(&param) != paramBookMap::end();
+	return find(&param) != paramBookMap::end();
 }
 
 bool GP_Param_Book_c::contains(unsigned int blockIdx,
 		unsigned long int pos,
 		MP_Atom_Param_c& param){
-  if (blockIdx != this->blockIdx)
-    return false;
-  if (pos != this->pos)
-    return false;
-  return find(&param) != paramBookMap::end();
+	if (blockIdx != this->blockIdx)
+		return false;
+	if (pos != this->pos)
+		return false;
+	return find(&param) != paramBookMap::end();
 }
 
 bool GP_Param_Book_c::contains(const MP_Atom_c& atom){
-  MP_Atom_Param_c* param;
-  bool res;
-  if (blockIdx != atom.blockIdx)
-    return false;
-  if (pos != atom.get_pos())
-    return false; 
-  param = atom.get_atom_param();
-  res = (find(atom.get_atom_param()) != paramBookMap::end());
-  delete param;
-  return res;
+	MP_Atom_Param_c* param;
+	bool res;
+	if (blockIdx != atom.blockIdx)
+		return false;
+	if (pos != atom.get_pos())
+		return false;
+	param = atom.get_atom_param();
+	res = (find(atom.get_atom_param()) != paramBookMap::end());
+	delete param;
+	return res;
 }
 
 MP_Atom_c* GP_Param_Book_c::get_atom(MP_Atom_Param_c& param){
-  iterator iter = find(&param);
-  if (iter == paramBookMap::end())
-    return NULL;
-  return iter->second;
+	iterator iter = find(&param);
+	if (iter == paramBookMap::end())
+		return NULL;
+	return iter->second;
 }
 
 MP_Atom_c* GP_Param_Book_c::get_atom(unsigned int blockIdx ,
 		unsigned long int pos,
 		MP_Atom_Param_c& param){
-  iterator iter;
-  if (blockIdx != this->blockIdx)
-    return NULL;
-  if (pos != this->pos)
-    return NULL;
-  iter = find(&param);
-  if (iter == paramBookMap::end())
-    return NULL;
-  return iter->second;
+	iterator iter;
+	if (blockIdx != this->blockIdx)
+		return NULL;
+	if (pos != this->pos)
+		return NULL;
+	iter = find(&param);
+	if (iter == paramBookMap::end())
+		return NULL;
+	return iter->second;
 }
 
 MP_Atom_c* GP_Param_Book_c::get_atom(const MP_Atom_c& atom){
-  MP_Atom_Param_c* param;
-  iterator iter;
-  if (blockIdx != atom.blockIdx)
-    return NULL;
-  if (pos != atom.get_pos())
-    return NULL;
-  param = atom.get_atom_param();
-  iter = find(param);
-  delete param;
-  if (iter == paramBookMap::end())
-    return NULL;
-  return iter->second;
+	MP_Atom_Param_c* param;
+	iterator iter;
+	if (blockIdx != atom.blockIdx)
+		return NULL;
+	if (pos != atom.get_pos())
+		return NULL;
+	param = atom.get_atom_param();
+	iter = find(param);
+	delete param;
+	if (iter == paramBookMap::end())
+		return NULL;
+	return iter->second;
 }
 
 int GP_Param_Book_c::append(MP_Atom_c* atom){
-  pair<iterator, bool> res;
-  iterator previous;
-  MP_Atom_Param_c* param;
-  
-  if (!atom){
-    cerr << "GP_Param_Book_c::append NULL atom" << endl;
-    return false;
-  }
-  if (blockIdx != atom->blockIdx)
-    return 0;
-  if (pos != atom->get_pos())
-    return 0;
+	pair<iterator, bool> res;
+	iterator previous;
+	MP_Atom_Param_c* param;
 
-  param = atom->get_atom_param();
-  if (!param){
-    cerr << "GP_Param_Book_c::append NULL param" << endl;
-    return 0;
-  }
+	if (!atom){
+		cerr << "GP_Param_Book_c::append NULL atom" << endl;
+		return false;
+	}
+	if (blockIdx != atom->blockIdx)
+		return 0;
+	if (pos != atom->get_pos())
+		return 0;
 
-  previous = find(param);
-  if (previous!=paramBookMap::end()){
-    previous->second->info(stderr);
-    delete param;
-    return 1;
-  }
-  res = insert(pair<MP_Atom_Param_c*, MP_Atom_c*>(param, atom));
-  return res.second;
+	param = atom->get_atom_param();
+	if (!param){
+		cerr << "GP_Param_Book_c::append NULL param" << endl;
+		return 0;
+	}
+
+	previous = find(param);
+	if (previous!=paramBookMap::end()){
+		previous->second->info(stderr);
+		delete param;
+		return 1;
+	}
+	res = insert(pair<MP_Atom_Param_c*, MP_Atom_c*>(param, atom));
+	return res.second;
 }
 
 GP_Param_Book_c* GP_Param_Book_c::get_sub_book(unsigned int blockIdx){
-  if (blockIdx != this->blockIdx)
-    return NULL;
-  return this;
+	if (blockIdx != this->blockIdx)
+		return NULL;
+	return this;
 }
 
 GP_Param_Book_c* GP_Param_Book_c::get_sub_book(unsigned long int pos){
-  if (pos != this->pos)
-    return NULL;
-  return this;
+	if (pos != this->pos)
+		return NULL;
+	return this;
 }
 
 GP_Param_Book_c* GP_Param_Book_c::insert_sub_book(unsigned int blockIdx){
-  if (blockIdx != this->blockIdx)
-    return NULL;
-  return this;
+	if (blockIdx != this->blockIdx)
+		return NULL;
+	return this;
 }
 
 GP_Param_Book_c* GP_Param_Book_c::insert_sub_book(unsigned long int pos){
-  if (pos != this->pos)
-    return NULL;
-  return this;
+	if (pos != this->pos)
+		return NULL;
+	return this;
 }
 
 GP_Param_Book_c* GP_Param_Book_c::get_sub_book(unsigned long int minPos,
 		unsigned long int maxPos){
-  if (pos > maxPos)
-    return NULL;
-  if (pos < minPos)
-    return NULL;
-  return this;
+	if (pos > maxPos)
+		return NULL;
+	if (pos < minPos)
+		return NULL;
+	return this;
 }
 
 void GP_Param_Book_c::reset(void){
@@ -156,21 +156,21 @@ void GP_Param_Book_c::reset(void){
 }
 
 GP_Param_Book_Iterator_c& GP_Param_Book_c::begin(void){
-  begIter = GP_Param_Book_Iterator_c(this);
-  return begIter;
+	begIter = GP_Param_Book_Iterator_c(this);
+	return begIter;
 }
 
 GP_Param_Book_Iterator_c& GP_Param_Book_c::end(void){
-  endIter.paramIter = paramBookMap::end();
-  return endIter;
+	endIter.paramIter = paramBookMap::end();
+	return endIter;
 }
 
 GP_Param_Book_c& GP_Param_Book_c::operator = (const GP_Param_Book_c& book){
-  paramBookMap(*this) = paramBookMap(book);
-  begIter = GP_Param_Book_Iterator_c(this);
-  endIter = GP_Param_Book_Iterator_c(this);
-  endIter.paramIter = paramBookMap::end();
-  return *this;
+	paramBookMap(*this) = paramBookMap(book);
+	begIter = GP_Param_Book_Iterator_c(this);
+	endIter = GP_Param_Book_Iterator_c(this);
+	endIter.paramIter = paramBookMap::end();
+	return *this;
 }
 
 /*void GP_Param_Book_c::substract_add_grad(MP_Dict_c* dict, MP_Real_t step,
@@ -179,11 +179,11 @@ GP_Param_Book_c& GP_Param_Book_c::operator = (const GP_Param_Book_c& book){
 }*/
 
 void GP_Param_Book_c::build_waveform_amp(MP_Dict_c* dict, MP_Real_t* outBuffer){
-    dict->block[blockIdx]->build_frame_waveform_amp(this, outBuffer);
+	dict->block[blockIdx]->build_frame_waveform_amp(this, outBuffer);
 }
 
 void GP_Param_Book_c::build_waveform_corr(MP_Dict_c* dict, MP_Real_t* outBuffer){
-    dict->block[blockIdx]->build_frame_waveform_corr(this, outBuffer);
+	dict->block[blockIdx]->build_frame_waveform_corr(this, outBuffer);
 }
 
 bool GP_Param_Book_c::is_empty(){
@@ -195,88 +195,92 @@ bool GP_Param_Book_c::is_empty(){
 }
 
 void swap(GP_Param_Book_c& book1, GP_Param_Book_c& book2){
-  GP_Param_Book_Iterator_c tmpIter;
-  unsigned long int tmpPos(book1.pos);
-  unsigned int tmpIdx;
+	GP_Param_Book_Iterator_c tmpIter;
+	unsigned long int tmpPos(book1.pos);
+	unsigned int tmpIdx;
 
-  swap((paramBookMap&) book1, (paramBookMap&) book2);
+	swap((paramBookMap&) book1, (paramBookMap&) book2);
 
-  tmpIter = book1.begIter;
-  book1.begIter = book2.begIter;
-  book2.begIter = tmpIter;
+	tmpIter = book1.begIter;
+	book1.begIter = book2.begIter;
+	book2.begIter = tmpIter;
 
-  tmpIter = book1.endIter;
-  book1.endIter = book2.endIter;
-  book2.endIter = tmpIter;
+	tmpIter = book1.endIter;
+	book1.endIter = book2.endIter;
+	book2.endIter = tmpIter;
 
-  book1.pos = book2.pos;
-  book2.pos = tmpPos;
+	book1.pos = book2.pos;
+	book2.pos = tmpPos;
 
-  tmpIdx = book1.blockIdx;
-  book1.blockIdx = book2.blockIdx;
-  book2.blockIdx = tmpIdx;
+	tmpIdx = book1.blockIdx;
+	book1.blockIdx = book2.blockIdx;
+	book2.blockIdx = tmpIdx;
 }
 
 // Iterator methods
 
 GP_Param_Book_Iterator_c::GP_Param_Book_Iterator_c():
-  paramIter(){
-  book = NULL;
+		  paramIter(){
+	book = NULL;
 }
 
 GP_Param_Book_Iterator_c::GP_Param_Book_Iterator_c(GP_Param_Book_c* book):
-  book(book),
-  paramIter(book->paramBookMap::begin()){
+		  book(book),
+		  paramIter(book->paramBookMap::begin()){
 }
 
 GP_Param_Book_Iterator_c::GP_Param_Book_Iterator_c(GP_Param_Book_c* book,
-                           const paramBookMap::iterator& paramIter):
-  book(book),
-  paramIter(paramIter){
+		const paramBookMap::iterator& paramIter):
+		book(book),
+		paramIter(paramIter){
 }
 
 GP_Param_Book_Iterator_c::~GP_Param_Book_Iterator_c(void){
 }
 
 GP_Param_Book_Iterator_c& GP_Param_Book_Iterator_c::operator ++(void){
-  ++paramIter;
-  return *this;
+	++paramIter;
+	return *this;
 }
 
 GP_Param_Book_Iterator_c& GP_Param_Book_Iterator_c::go_to_next_block(void){
-  paramIter = book->paramBookMap::end();
-  return *this;
+	paramIter = book->paramBookMap::end();
+	return *this;
 }
 
 GP_Param_Book_Iterator_c& GP_Param_Book_Iterator_c::go_to_pos(unsigned long int pos){
-  if (book->pos < pos)
-    paramIter = book->paramBookMap::end();
-  return *this;
+	if (book->pos < pos)
+		paramIter = book->paramBookMap::end();
+	return *this;
 }
 
 GP_Param_Book_Iterator_c& GP_Param_Book_Iterator_c::go_to_next_frame(){
-    paramIter = book->paramBookMap::end();
-    return *this;
+	paramIter = book->paramBookMap::end();
+	return *this;
 }
 
 MP_Atom_c& GP_Param_Book_Iterator_c::operator *(void){
-  return *(paramIter->second);
+	return *(paramIter->second);
 }
 
 MP_Atom_c* GP_Param_Book_Iterator_c::operator ->(void){
-  return paramIter->second;
+	if (!book)
+		cout << "NULL book in the iterator" << endl;
+	if (*this == book->end())
+		cout << "appel invalide: déréférencement de end" << endl;
+	return paramIter->second;
 }
 
 GP_Param_Book_c* GP_Param_Book_Iterator_c:: get_frame(void){
-    return book;
+	return book;
 }
 
 bool GP_Param_Book_Iterator_c::operator == (const GP_Book_Iterator_c& arg)const{
-    if (typeid(*this) != typeid(arg))
-        return false;
-  return paramIter == (dynamic_cast<const GP_Param_Book_Iterator_c&>(arg)).paramIter;
+	if (typeid(*this) != typeid(arg))
+		return false;
+	return paramIter == (dynamic_cast<const GP_Param_Book_Iterator_c&>(arg)).paramIter;
 }
 
 GP_Param_Book_Iterator_c* GP_Param_Book_Iterator_c::copy(void)const{
-    return new GP_Param_Book_Iterator_c(*this);
+	return new GP_Param_Book_Iterator_c(*this);
 }

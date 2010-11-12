@@ -61,11 +61,13 @@ MP_Mdct_Block_Plugin_c::create (MP_Signal_c * setSignal, map < string, string,
 	unsigned long int blockOffset = 0;
 
 	/* Instantiate and check */
+
 	newBlock = new MP_Mdct_Block_Plugin_c ();
 	if (newBlock == NULL) {
 		mp_error_msg (func, "Failed to create a new Gabor block.\n");
 		return (NULL);
 	}
+
 	/* Analyse the parameter map */
 	if (strcmp ((*paramMap)["type"].c_str (), "mdct")) {
 		mp_error_msg (func, "Parameter map does not define a MDCT block.\n");
@@ -162,6 +164,7 @@ MP_Mdct_Block_Plugin_c::create (MP_Signal_c * setSignal, map < string, string,
 			return (NULL);
 		}
 	}
+
 	/* Set the block parameters (that are independent from the signal) */
 	if (newBlock->init_parameters (filterLen, filterShift, windowType, windowOption, blockOffset)) {
 		mp_error_msg (func,
@@ -177,6 +180,7 @@ MP_Mdct_Block_Plugin_c::create (MP_Signal_c * setSignal, map < string, string,
 		delete (newBlock);
 		return (NULL);
 	}
+
 	/* Set the signal-related parameters */
 	if (newBlock->plug_signal (setSignal)) {
 		mp_error_msg (func, "Failed to plug a signal in the new MDCT block.\n");
@@ -348,6 +352,7 @@ MP_Mdct_Block_Plugin_c::MP_Mdct_Block_Plugin_c (void)
 
 	frameBuffer = NULL;
 	window = NULL;
+	mag = NULL;
 
 }
 
@@ -735,9 +740,6 @@ unsigned long int MP_Mdct_Block_Plugin_c::build_frame_waveform_corr (
 	// clean the buffers
 	memset (mag, 0, sizeof (MP_Real_t) * numFilters * s->numChans);
 
-	// get the frequency index
-	freqIdx = (unsigned long) (iter->get_field (MP_FREQ_PROP, 0) * filterLen - 0.5);
-
 	for (c = 0, magPtr = mag, outPtr = outBuffer;
 			c < s->numChans;
 			c++, magPtr += numFilters, outPtr += filterLen) {
@@ -756,10 +758,12 @@ unsigned long int MP_Mdct_Block_Plugin_c::build_frame_waveform_corr (
 		while (t < lapSize){
 			outPtr[t] = -0.5*window[t]*frameBuffer[lapSize-1-t];
 			outPtr[lapSize+t] = 0.5*window[lapSize+t]*frameBuffer[t];
+			t++;
 		}
 		while (t < numFilters){
 			outPtr[lapSize+t] = 0.5*window[lapSize+t]*frameBuffer[t];
 			outPtr[numFilters+t] = 0.5*window[numFilters+t]*frameBuffer[numFilters-1-t];
+			t++;
 		}
 	}
 	return filterLen;
@@ -800,10 +804,12 @@ unsigned long int MP_Mdct_Block_Plugin_c::build_frame_waveform_amp (
 		while (t < lapSize){
 			outPtr[t] = -0.5*window[t]*frameBuffer[lapSize-1-t];
 			outPtr[lapSize+t] = 0.5*window[lapSize+t]*frameBuffer[t];
+			t++;
 		}
 		while (t < numFilters){
 			outPtr[lapSize+t] = 0.5*window[lapSize+t]*frameBuffer[t];
 			outPtr[numFilters+t] = 0.5*window[numFilters+t]*frameBuffer[numFilters-1-t];
+			t++;
 		}
 	}
 	return filterLen;

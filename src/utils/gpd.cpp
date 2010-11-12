@@ -529,6 +529,7 @@ int main( int argc, char **argv )
                                   " would be a symptom of parsing errors.)\n" );
 
   dict = MP_Dict_c::init( dictFileName );
+  cout << "Dictionary loaded" << endl;
   if ( dict == NULL )
     {
       mp_error_msg( func, "Failed to create a dictionary from XML file [%s].\n",

@@ -223,13 +223,13 @@ class MP_DCTW_Interface_c:public MP_DCT_Interface_c
     /* OTHER METHODS           */
     /***************************/
   public:
-    /** \brief Performs the complex FFT of an input signal buffer and puts the result in two output buffers.
+    /** \brief Performs the complex DCT of an input signal buffer and puts the result in two output buffers.
      *
      * \param in  input signal buffer, only the first windowSize values are used.
      * \param out  output the DCT coefficients, only the first numFreqs values are filled.
      * The output buffers are filled with the values
      * \f[
-     * \mbox{out}[k] = \frac{1}{\sqrt(\mbox{\dctSize})}\sum_{n=0}^{\mbox{dctSize}-1}\ mbox{in}[n] \cdot \cos\left(\frac{\pi}{\mbox{dctSize}}
+     * \mbox{out}[k] = \sum_{n=0}^{\mbox{dctSize}-1}\ mbox{in}[n] \cdot \cos\left(\frac{\pi}{\mbox{dctSize}}
      * \left(n+\frac{1}{2}\right)\left(k+\frac{1}{2}\right).
      * \f]
      * for \f$0 \leq k < \mbox{dctSize} 

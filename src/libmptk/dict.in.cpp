@@ -75,7 +75,7 @@ MP_Dict_c* MP_Dict_c::init(  const char *dictFileName )
   /* Note: with a NULL signal, add_blocks will build all the signal-independent
      parts of the blocks. It is then necessary to run a dict.copy_signal(sig)
      or a dict.plug_signal(sig) to actually use the dictionary. */
-
+  cout << "blocks added" << endl;
 
   if ( newDict->numBlocks == 0 )
     {
@@ -264,6 +264,7 @@ int MP_Dict_c::load_xml_file(const char* fName)
 {
   const char* func = "MP_Dict_c::load_xml_file(const char* fName)";
   TiXmlDocument doc(fName);
+
   if (!doc.LoadFile())
     {
       mp_error_msg( func, "Error while loading the dictionary file [%s].\n", fName );
