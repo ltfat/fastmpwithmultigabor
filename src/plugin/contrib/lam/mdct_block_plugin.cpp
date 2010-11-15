@@ -216,6 +216,9 @@ MP_Mdct_Block_Plugin_c::init_parameters (const unsigned long int setFilterLen,
 		return( 1 );
 	}
 
+	/* initialize lapSize */
+	lapSize = setFilterLen/4;
+
 	/* Create the DCT object */
 	dct = (MP_DCT_Interface_c*)MP_DCT_Interface_c::init(numFilters);
 	if ( dct == NULL ) {
@@ -442,7 +445,7 @@ MP_Mdct_Block_Plugin_c::update_frame (unsigned long int frameIdx,
 		in = s->channel[chanIdx] + inShift;
 
 		for (i = 0; i < lapSize; i++) {
-			frameBuffer[i+numFilters] =
+			frameBuffer[i+lapSize] =
 					in[i]*window[i] - in[numFilters-1-i]*window[numFilters-1-i];
 			frameBuffer[i] =
 					-in[filterLen-lapSize-1-i] * window[filterLen-lapSize-1-i] -
@@ -706,7 +709,7 @@ MP_Mdct_Block_Plugin_c::create_atom (MP_Atom_c ** atom,
 
 		/* 4) Preprocessing: windowing and folding */
 		for (i = 0; i < lapSize; i++) {
-			frameBuffer[i + numFilters] = in[i] * window[i] -
+			frameBuffer[i + lapSize] = in[i] * window[i] -
 					in[numFilters-1-i] * window[numFilters-1-i];
 			frameBuffer[i] = -in[filterLen-lapSize-1-i] * window[filterLen-lapSize-1-i]
 			                                                     -in[filterLen-lapSize +i] * window[filterLen-lapSize+i];
