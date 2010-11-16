@@ -75,7 +75,6 @@ MP_Dict_c* MP_Dict_c::init(  const char *dictFileName )
   /* Note: with a NULL signal, add_blocks will build all the signal-independent
      parts of the blocks. It is then necessary to run a dict.copy_signal(sig)
      or a dict.plug_signal(sig) to actually use the dictionary. */
-  cout << "blocks added" << endl;
 
   if ( newDict->numBlocks == 0 )
     {

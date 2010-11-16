@@ -143,18 +143,21 @@ int MP_DCT_Interface_c::test( const double precision,
     {
       amp = samples[i];
       energy1 += amp*amp;
+      buffer[i] = 0;
     }
-  /* -2- The resulting DCT should be of the same energy multiplied by windowSize */
+  /* -2- The resulting DCT should be of the same energy multiplied by setDctSize */
   energy2 = 0.0;
   dct->exec_dct(samples,buffer);
+  //dct->exec_dct(buffer, samples);
   
   energy2 = 0;
   for (i=0; i<setDctSize; i++)
     {
+	  buffer[i] = buffer[i]*dct->scale;
       energy2 += buffer[i]*buffer[i];
     }
 
-  tmp = fabsf((float)energy2 /((float)(energy1))-1);
+  tmp = energy2/energy1 - 1;
   delete[] buffer;
   if ( tmp < precision )
     {
@@ -169,7 +172,7 @@ int MP_DCT_Interface_c::test( const double precision,
              setDctSize, tmp, precision);
       return(1);
     }
-
+return 0;
 }
 
 /***************************/
@@ -190,7 +193,7 @@ MP_DCTW_Interface_c::MP_DCTW_Interface_c( const unsigned long int setDctSize )
 
   /* Create plans */
   p = fftw_plan_r2r_1d( (int)(dctSize), inPrepared, out, FFTW_REDFT11, FFTW_MEASURE );
-  scale = 1/sqrt((double)dctSize);
+  scale = 1/sqrt(2*(double)dctSize);
 }
 
 /**************/
@@ -209,19 +212,19 @@ MP_DCTW_Interface_c::~MP_DCTW_Interface_c()
 /**************************/
 /* Get the complex result */
 
-void MP_DCTW_Interface_c::exec_dct( MP_Real_t *in, MP_Real_t *out )
+void MP_DCTW_Interface_c::exec_dct( MP_Real_t *in, MP_Real_t *outBuffer )
 {
 
   unsigned long int i;
 
   /* Simple buffer check */
   assert( in != NULL );
-  assert( out != NULL );
+  assert( outBuffer != NULL );
 
   /* Copy and window the input signal */
   for ( i=0; i<dctSize; i++ )
     {
-      *(inPrepared+i) = (double)(*(in+i));      
+      *(inPrepared+i) = (double)(*(in+i));
     }
 
   /* Execute the FFT described by plan "p"
@@ -232,7 +235,7 @@ void MP_DCTW_Interface_c::exec_dct( MP_Real_t *in, MP_Real_t *out )
   /* Cast and copy the result */
   for ( i=0; i<dctSize; i++ )
     {
-      *(out+i) = (MP_Real_t)( *(this->out)+i );
+      outBuffer[i] = (MP_Real_t)(out[i]);
     }
 }
 

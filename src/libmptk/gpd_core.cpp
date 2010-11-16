@@ -325,6 +325,7 @@ unsigned short int GPD_Core_c::step() {
 	MP_Real_t alpha, enCorr, enGrad;
 	MP_Support_t gradSupport;
 	MP_Chan_t c;
+	MP_Real_t* samples;
 
 	/* Reset the state info */
 	state = 0;
@@ -335,13 +336,6 @@ unsigned short int GPD_Core_c::step() {
 	mp_debug_msg( MP_DEBUG_MPD_LOOP, func, "Next snr hit is    [%lu].\n", nextSnrHit );
 	mp_debug_msg( MP_DEBUG_MPD_LOOP, func, "SNR is [%g]/[%g].\n",
 			10*log10(currentSnr), 10*log10(stopAfterSnr) );
-
-    // test the blocks
-    cout << "FFT error on block 0 " << dict->block[0]->fft_test() << endl;
-    cout << "FFT error on block 1 " << dict->block[1]->fft_test() << endl;
-    cout << "MCLT error on block 0 = " << dict->block[0]->test() << endl;
-    cout << "MCLT error on block 1 = " << dict->block[1]->test() << endl;
-    
 
 	/* Check if a signal is present */
 	if ( residual == NULL )
@@ -365,7 +359,7 @@ unsigned short int GPD_Core_c::step() {
 	numAtoms = dict->create_max_gp_atom( &atom );
 	//cerr << "found atom = " << endl;
 	//atom->info(stderr);
-	//cerr << "corr = " << *atom->corr << endl;
+	cerr << "corr = " << *atom->corr << endl;
 	if ( numAtoms == 0 )
 	{
 		mp_error_msg( func, "The Gradient Pursuit iteration failed. Dictionary, book"

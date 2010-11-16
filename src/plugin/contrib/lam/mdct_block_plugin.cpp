@@ -481,7 +481,7 @@ MP_Mdct_Block_Plugin_c::update_frame (unsigned long int frameIdx,
 			maxIdx = i;
 		}
 	}
-	*maxCorr = (MP_Real_t) max;
+	*maxCorr = (MP_Real_t) max*dct->scale;;
 	*maxFilterIdx = maxIdx;
 }
 
@@ -534,7 +534,7 @@ MP_Mdct_Block_Plugin_c::update_frame (unsigned long int frameIdx,
 		in = s->channel[chanIdx] + inShift;
 
 		for (i = 0; i < lapSize; i++) {
-			frameBuffer[i + numFilters] =
+			frameBuffer[i + lapSize] =
 					in[i] * window[i] - in[numFilters - 1 - i] * window[numFilters - 1 - i];
 			frameBuffer[i] =
 					-in[filterLen - lapSize - 1 - i] * window[filterLen - lapSize -
@@ -575,7 +575,7 @@ MP_Mdct_Block_Plugin_c::update_frame (unsigned long int frameIdx,
 	for (chanIdx = 1, magPtr = mag + numFilters;	/* <- other channels */
 			chanIdx < numChans; chanIdx++, magPtr += numFilters) {
 		if (found)
-			iter->corr[chanIdx] = *magPtr;
+			iter->corr[chanIdx] = *magPtr*dct->scale;
 #ifdef MP_MAGNITUDE_IS_SQUARED
 		sum += (double) (*magPtr * (*magPtr));
 #else
@@ -629,7 +629,7 @@ MP_Mdct_Block_Plugin_c::update_frame (unsigned long int frameIdx,
 			}
 		}
 	}
-	*maxCorr = (MP_Real_t) max;
+	*maxCorr = (MP_Real_t) max*dct->scale;
 	*maxFilterIdx = maxIdx;
 }
 
@@ -719,7 +719,7 @@ MP_Mdct_Block_Plugin_c::create_atom (MP_Atom_c ** atom,
 		dct->exec_dct (frameBuffer, mag);
 
 		/* 6) fill in the atom parameters */
-		matom->amp[chanIdx] = (MP_Real_t) (mag[freqIdx]);
+		matom->amp[chanIdx] = (MP_Real_t) (mag[freqIdx])*dct->scale;
 
 	}
 
@@ -797,7 +797,7 @@ unsigned long int MP_Mdct_Block_Plugin_c::build_frame_waveform_amp (
 			// get the frequency index
 			freqIdx = (unsigned long) (iter->get_field (MP_FREQ_PROP, 0) * filterLen - 0.5);
 
-			*(magPtr + freqIdx) = (*((iter->amp) + c));
+			*(magPtr + freqIdx) = (*((iter->amp) + c))*dct->scale;
 		}
 
 		dct->exec_dct(magPtr, frameBuffer);

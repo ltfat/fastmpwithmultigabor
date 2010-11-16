@@ -73,13 +73,8 @@ unsigned long int GP_Book_c::build_waveform_corr(MP_Dict_c* dict, MP_Real_t* out
 		MP_Real_t enGrad=0;
 		subBook = get_sub_book(i);
 		if (!subBook->is_empty()){
-			cout << "non-empty sub-book" << endl;
 			blockBeg = subBook->begin()->support[0].pos;
 			blockSize = dict->block[i]->build_subbook_waveform_corr(subBook, tmpBuffer);
-
-			for (unsigned long int t = 0; t < dict->block[i]->filterLen;t++)
-				enGrad = enGrad + tmpBuffer[t]*tmpBuffer[t];
-			cout << "enGrad = " << enGrad << endl;
 
 			for (MP_Chan_t c = 0; c < dict->signal->numChans; c++){
 				wavOffset = c*wavSize+blockBeg-base;

@@ -62,6 +62,7 @@ class MP_DCT_Interface_c
      */
     unsigned long int dctSize;
     MP_Real_t* buffer;
+    double scale;
     
     /***********/
     /* METHODS */
@@ -198,7 +199,6 @@ class MP_DCTW_Interface_c:public MP_DCT_Interface_c
     double *inPrepared;
     /** \brief output of the plan */
     double *out;
-    double scale;
 
     /***********/
     /* METHODS */

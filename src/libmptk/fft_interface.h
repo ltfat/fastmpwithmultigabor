@@ -457,8 +457,6 @@ class MP_FFTW_Interface_c:public MP_FFT_Interface_c
      *
      */
     void exec_complex_inverse_without_window( MP_Real_t *re, MP_Real_t *im, MP_Real_t *output );
-    
-    MP_Real_t test();
 
   };
 
