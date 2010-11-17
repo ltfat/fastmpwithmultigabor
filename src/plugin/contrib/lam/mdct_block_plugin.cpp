@@ -499,7 +499,7 @@ MP_Mdct_Block_Plugin_c::update_frame (unsigned long int frameIdx,
 	MP_Real_t *in;
 	MP_Real_t *magPtr;
 
-	double sum;
+	double sum = 0.0;
 	double max;
 	unsigned long int maxIdx;
 	MP_Real_t freq;
