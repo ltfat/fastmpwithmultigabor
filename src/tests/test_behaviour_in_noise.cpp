@@ -158,8 +158,13 @@ int main( int argc, char ** argv )
               mp_error_msg( func, "failed to initialise core for block[%s]\n",nameBlockVector->at(n).c_str());
               return (-1);
             }
-          if (coreArray->at(n)->can_step())coreArray->at(n)->run();
-          if (coreArray->at(n)->get_initial_energy() <= dictArray->at(n)->signal->energy) return(-1);
+          if (coreArray->at(n)->can_step())
+          	coreArray->at(n)->run();
+          if (coreArray->at(n)->get_initial_energy() <= dictArray->at(n)->signal->energy) 
+          {
+			mp_error_msg( func, "block[%s]: energy of signal after extraction [%g] is higher than the initial [%g]\n",nameBlockVector->at(n).c_str(), dictArray->at(n)->signal->energy, coreArray->at(n)->get_initial_energy());
+          	return(-1);
+          }
           else
             {
               mp_info_msg( func, "block[%s]: energy of signal before extraction [%g] after [%g] \n", nameBlockVector->at(n).c_str(), coreArray->at(n)->get_initial_energy() , dictArray->at(n)->signal->energy  );
