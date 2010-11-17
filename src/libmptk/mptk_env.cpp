@@ -385,7 +385,7 @@ bool MPTK_Env_c::load_environment(const char * name )
 	if (MP_FFT_Interface_c::init_fft_library_config()) 
 		mp_debug_msg( MP_DEBUG_CONSTRUCTION ,func, "The fftw Plan is now loaded.\n" );
 	else 
-		mp_debug_msg(MP_DEBUG_CONSTRUCTION, func, "No fftw Plan well formed was found.\n" );
+		mp_debug_msg(MP_DEBUG_CONSTRUCTION, func, "No well formed fftw Plan was found.\n" );
 	environment_loaded = true;  
 	return true;
 }

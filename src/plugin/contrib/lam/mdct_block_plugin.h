@@ -56,6 +56,7 @@ class MP_Mdct_Block_Plugin_c: public MP_Block_c {
   unsigned long int lapSize;
   unsigned char windowType;
   double windowOption;
+  MP_Real_t scalingFactor;
   
   /** \brief buffer to compute the frames before DCT
    */
