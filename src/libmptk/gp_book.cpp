@@ -70,7 +70,6 @@ unsigned long int GP_Book_c::build_waveform_corr(MP_Dict_c* dict, MP_Real_t* out
 	memset(outBuffer, 0, dict->signal->numChans*wavSize*sizeof(MP_Real_t));
 
 	for (i = 0; i < dict->numBlocks; i++){
-		MP_Real_t enGrad=0;
 		subBook = get_sub_book(i);
 		if (!subBook->is_empty()){
 			blockBeg = subBook->begin()->support[0].pos;

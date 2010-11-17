@@ -325,7 +325,6 @@ unsigned short int GPD_Core_c::step() {
 	MP_Real_t alpha, enCorr, enGrad;
 	MP_Support_t gradSupport;
 	MP_Chan_t c;
-	MP_Real_t* samples;
 
 	/* Reset the state info */
 	state = 0;
