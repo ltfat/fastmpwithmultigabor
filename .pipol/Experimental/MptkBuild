@@ -18,12 +18,12 @@ case $PIPOL_IMAGE in
 		fi
 
 		# 3) Configuration of the compilator for Matlab 32/64 bits version
-		if expr $PIPOL_IMAGE : ".*x86_64.*"; then 
-			export MACI64=1 
-			ADDCOMPIL=-DCMAKE_OSX_ARCHITECTURES=x86_64
-		else 
+		if expr $PIPOL_IMAGE : ".*i386.*"; then 
 			export MACI64=0
 			ADDCOMPIL="" 
+		else 
+			export MACI64=1 
+			ADDCOMPIL=-DCMAKE_OSX_ARCHITECTURES=x86_64
 		fi
 		
 		# 4) the build 
