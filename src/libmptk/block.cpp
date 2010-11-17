@@ -846,7 +846,7 @@ unsigned long int MP_Block_c::build_atom_waveform_corr(MP_Atom_c *thisAtom,MP_Re
 {
 	thisAtom->build_waveform(outBuffer);
 	// Parcours du tableau outBuffer pour effectuer le calcul de corr�lation
-	for (unsigned int c = 0; c < s->numChans; c++){
+	for (int c = 0; c < s->numChans; c++){
 		unsigned long int offset = c*filterLen;
 		for (unsigned int iIndex = 0; iIndex < filterLen; iIndex++)
 			outBuffer[iIndex+offset] = (outBuffer[iIndex+offset]/thisAtom->amp[c])*thisAtom->corr[c];
@@ -858,7 +858,7 @@ unsigned long int MP_Block_c::build_atom_waveform_norm(MP_Atom_c *thisAtom,MP_Re
 {
 	thisAtom->build_waveform(outBuffer);
 	// Parcours du tableau outBuffer pour effectuer le calcul de norme
-	for (unsigned int c = 0; c < s->numChans; c++){
+	for (int c = 0; c < s->numChans; c++){
 		unsigned long int offset = c*filterLen;
 		for (unsigned int iIndex = 0; iIndex < filterLen; iIndex++)
 			outBuffer[iIndex+offset] = outBuffer[iIndex+offset]/thisAtom->amp[c];
