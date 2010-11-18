@@ -329,14 +329,17 @@ INCLUDE_DIRECTORIES(/usr/include
 		${SNDFILE_INCLUDE_DIR} 
 		${MATLAB_INCLUDE_DIR} 
 		)
+
 ##############################################################################
 ##Platform configuration tests.
 ##############################################################################
+INCLUDE(${CMAKE_ROOT}/Modules/CMakeDetermineCompilerId.cmake)
+IF(${CMAKE_C_COMPILER_ID} MATCHES "MSVC")
+	INCLUDE(${CMAKE_ROOT}/Modules/Windows-cl.cmake)
+ENDIF(${CMAKE_C_COMPILER_ID} MATCHES "MSVC")
 INCLUDE(${MPTK_SOURCE_DIR}/CMake/CMakeBackwardCompatibilityC.cmake)
-INCLUDE(${CMAKE_ROOT}/Modules/TestForANSIStreamHeaders.cmake)
-INCLUDE(${CMAKE_ROOT}/Modules/TestForSTDNamespace.cmake)
-INCLUDE(${CMAKE_ROOT}/Modules/TestForANSIForScope.cmake)
-INCLUDE(${CMAKE_ROOT}/Modules/CheckTypeSize.cmake)
+INCLUDE(${CMAKE_ROOT}/Modules/CMakeBackwardCompatibilityCXX.cmake)
+
 #Configure file according to multithread option:
 IF(BUILD_MULTITHREAD)
 SET(MULTITHREAD 1 CACHE INTERNAL "Define MULTITHREAD to 1" )
@@ -348,15 +351,6 @@ CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/libmptk/dict.in.cpp ${MPTK_BINARY_DIR}/src
 CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/libmptk/atom.in.cpp ${MPTK_BINARY_DIR}/src/libmptk/atom.cpp)  
 ENDIF(BUILD_MULTITHREAD)
 
-# Simulate old CMakeBackwardCompatibilityCXX test.
-# In CMake 2.4 and up this could be just
-# INCLUDE(${CMAKE_ROOT}/Modules/TestForSSTREAM.cmake)
-INCLUDE(${CMAKE_ROOT}/Modules/CheckIncludeFileCXX.cmake)
-CHECK_INCLUDE_FILE_CXX("sstream" CMAKE_HAS_ANSI_STRING_STREAM)
-IF(NOT CMAKE_HAS_ANSI_STRING_STREAM)
-  SET(CMAKE_NO_ANSI_STRING_STREAM 1 CACHE INTERNAL
-    "Does the compiler support sstream or stringstream.")
-ENDIF(NOT CMAKE_HAS_ANSI_STRING_STREAM)
 #-----------------------------------------------------------------------------
 ##header for configuration tests.
 #############################
