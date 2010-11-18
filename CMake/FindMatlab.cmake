@@ -30,6 +30,7 @@ SET(LIBMX "mx")
 SET(LIBENG "eng")
 
 IF(PIPOL_IMAGE)
+MESSAGE(" <<<<<<<<<<<<<< $ENV{PROCESSOR_ARCHITECTURE} >>>>>>>>>>>>>")
 	IF(WIN32)
 		IF($ENV{PROCESSOR_ARCHITECTURE} MATCHES "AMD64")
 			SET(MATLAB_MEX_COMPILER "Y:/amd64/matlab-2010a-windows/bin/mex.bat")
