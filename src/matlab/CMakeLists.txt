@@ -16,7 +16,6 @@ if(COMMAND cmake_policy)
       cmake_policy(SET CMP0003 OLD)
 endif(COMMAND cmake_policy)
 
-MESSAGE ("<<<<<<<<<<< ${MEX_EXTENSION} >>>>>>>>>>>>>>")
 ############################################
 #                  -1-
 # Are we asked to build Matlab MEX files ? 
@@ -32,6 +31,7 @@ IF(BUILD_MATLAB_MEX_FILES OR BUILD_MATLAB_MEX_FILES_EXPERIMENTAL)
 	#  MATLAB_MEX_COMPILER
 	INCLUDE(${MPTK_SOURCE_DIR}/CMake/FindMatlab.cmake)
 ENDIF(BUILD_MATLAB_MEX_FILES OR BUILD_MATLAB_MEX_FILES_EXPERIMENTAL)
+MESSAGE ("<<<<<<<<<<< ${MEX_EXTENSION} >>>>>>>>>>>>>>")
 
 #############################
 #            -2-
