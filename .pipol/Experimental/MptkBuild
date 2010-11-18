@@ -80,13 +80,17 @@ case $PIPOL_IMAGE in
 		/cygdrive/c/CMake\ $VERSION/bin/cmake.exe -DDASH_TESTING=ON -G "$PIPOL_WIN_COMPILER" ./../MPTK_Source
 
 		# 8) Setting environment
-	    "$MSVC_PATH/Common7/Tools/vsvars32.bat"
+		if expr $PIPOL_IMAGE : ".*amd64.*"; then 
+	    	"$MSVC_PATH/VC/vcvarsall.bat"
+		else 
+	    	"$MSVC_PATH/Common7/Tools/vcvars32.bat"
+		fi
 
 		# 9) Cleaning the project
-		"$VCBUILD" MPTK.csproj /Clean "Release|$PROCESSEUR"
+		"$VCBUILD" MPTK.sln /Clean "Release|$PROCESSEUR"
 
 		# 10) Project build
-		"$VCBUILD" MPTK.csproj /Build "Release|$PROCESSEUR"
+		"$VCBUILD" MPTK.sln /Build "Release|$PROCESSEUR"
 		
 		# 11) CDASH submision
 		/cygdrive/c/CMake\ $VERSION/bin/ctest.exe -D "Experimental" 
