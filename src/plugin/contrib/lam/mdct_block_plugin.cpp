@@ -219,7 +219,7 @@ MP_Mdct_Block_Plugin_c::init_parameters (const unsigned long int setFilterLen,
 
 	/* initialize lapSize */
 	lapSize = setFilterLen/4;
-	scalingFactor = 1/sqrt(lapSize);
+	scalingFactor = 1/sqrt((double)lapSize);
 
 	/* Create the DCT object */
 	dct = (MP_DCT_Interface_c*)MP_DCT_Interface_c::init(numFilters);
