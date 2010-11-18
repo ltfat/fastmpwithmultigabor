@@ -39,6 +39,7 @@
 #include "mdct_block_plugin.h"
 #include "mclt_abstract_block_plugin.h"
 #include <sstream>
+#include <fstream>
 
 
 /***************************/
@@ -203,6 +204,7 @@ MP_Mdct_Block_Plugin_c::init_parameters (const unsigned long int setFilterLen,
 
 	const char *func = "MP_Mdct_Block_Plugin_c::init_parameters()";
 	double energy = 0.0;
+	ofstream file;
 
 	/* Check the validity of setFilterLen */
 	if ( is_odd(setFilterLen) || is_odd(setFilterLen/2) ) { /* If windowLen is odd: windowLen has to be even! */
@@ -238,10 +240,14 @@ MP_Mdct_Block_Plugin_c::init_parameters (const unsigned long int setFilterLen,
 	}
 	make_window(window, filterLen, setWindowType, setWindowOption);
 	/* denormalize the window */
-	energy = 1/(window[0]*window[0] + window[numFilters-1]*window[numFilters-1]);
+	energy = 1/sqrt(window[0]*window[0] + window[numFilters-1]*window[numFilters-1]);
 	for (unsigned long int i = 0; i<filterLen; i++)
 		window[i] = window[i]*energy;
-	cerr << "window length == " << filterLen << "\twindow energy == " << energy << endl;
+	/* dump the window */
+//	file.open("/local/tempo/test/window.txt");
+//	for (unsigned long int i = 0; i<filterLen; i++)
+//		file << window[i] << endl;
+//	file.close();
 
 
 	/* allocate frameBuffer

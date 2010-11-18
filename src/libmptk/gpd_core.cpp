@@ -113,6 +113,7 @@ GPD_Core_c* GPD_Core_c::create( MP_Signal_c *setSignal, GP_Double_Index_Book_c *
 		mp_error_msg( func, "Could not use a NULL dictionary.\n" );
 		return( NULL );}
 
+	//cerr << "gradient memory space == " << 3*setSignal->numChans*setDict->maxFilterLen << endl;
 	newCore->gradient = new MP_Real_t[3*setSignal->numChans*setDict->maxFilterLen];
 	if (!newCore->gradient){
 		mp_error_msg( func, "Could not allocate the gradient buffer.\n" );
@@ -414,7 +415,7 @@ unsigned short int GPD_Core_c::step() {
 
 		offset += gradSupport.pos;cout << "offset = " << offset << endl;
 		for (t = 0; t <gradSupport.len; t++)
-			residual->channel[c][t] -= gradient[t+offset]*alpha;
+			residual->channel[c][t+offset] -= gradient[t]*alpha;
 
 		residual->refresh_energy();
 
