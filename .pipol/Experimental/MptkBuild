@@ -52,19 +52,16 @@ case $PIPOL_IMAGE in
 		# 2) Creation of temporary repertory  
 		mkdir /cygdrive/c/Temp
 		
-		# 3) Configuration of the variables for matlab
+		# 3) Configuration of the variables for matlab and mex
 		export TEMP=/cygdrive/c/Temp
 		if expr $PIPOL_IMAGE : ".*amd64.*"; then 
 			export PROCESSOR_ARCHITECTURE=AMD64		
-			PROCESSEUR="amd64"
+			printf 'y\n2\ny\n' | /cygdrive/y/amd64/matlab-2010a-windows/bin/mex.bat -setup
 		else 
 			export PROCESSOR_ARCHITECTURE=x86
-			PROCESSEUR="i386"		
+			printf 'y\n2\ny\n' | /cygdrive/y/i386/matlab-2010a-windows/bin/mex.bat -setup
 		fi
 		
-		# 4) Configuration of mex
-		printf 'y\n2\ny\n' | /cygdrive/y/$PROCESSEUR/matlab-2010a-windows/bin/mex.bat -setup
-				
 		# 5) Detectioon of cmake version 
 		if [ -e "/cygdrive/c/CMake 2.8/bin/cmake.exe" ]; then
 			VERSION="2.8"
