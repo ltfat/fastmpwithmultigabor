@@ -38,6 +38,7 @@
 
 #include "mptk.h"
 #include <iostream>
+#include <fstream>
 
 /*	#ifndef GPD_CORE_H_
 	#include <gp_core.h>
@@ -326,6 +327,7 @@ unsigned short int GPD_Core_c::step() {
 	MP_Real_t alpha, enCorr, enGrad;
 	MP_Support_t gradSupport;
 	MP_Chan_t c;
+	ofstream file;
 
 	/* Reset the state info */
 	state = 0;
@@ -359,7 +361,6 @@ unsigned short int GPD_Core_c::step() {
 	numAtoms = dict->create_max_gp_atom( &atom );
 	//cerr << "found atom = " << endl;
 	//atom->info(stderr);
-	cerr << "corr = " << *atom->corr << endl;
 	if ( numAtoms == 0 )
 	{
 		mp_error_msg( func, "The Gradient Pursuit iteration failed. Dictionary, book"
@@ -403,17 +404,11 @@ unsigned short int GPD_Core_c::step() {
 			enGrad = enGrad + gradient[t+offset]*gradient[t+offset];
 
 		alpha = enCorr/enGrad;
-	 mp_progress_msg( "Computing gradient", "Alpha = %lf\n", alpha);
-		  mp_progress_msg( "Blabla", "enCorr = %lf\n", enCorr);
-		  mp_progress_msg( "Blabla", "enGrad = %lf\n", enGrad);
-		//
+
 		for (iter = touchBook->begin(); iter !=touchBook->end(); ++iter)
 			iter->amp[c] += (iter->corr[c])*alpha;
 
-		cout << "gradSupport.pos = " << gradSupport.pos << endl;
-		cout << "gradSupport.len = " << gradSupport.len << endl;
-
-		offset += gradSupport.pos;cout << "offset = " << offset << endl;
+		offset += gradSupport.pos;
 		for (t = 0; t <gradSupport.len; t++)
 			residual->channel[c][t+offset] -= gradient[t]*alpha;
 

@@ -541,28 +541,28 @@ int MP_Mdct_Atom_Plugin_c::has_field( int field )
 
 MP_Real_t MP_Mdct_Atom_Plugin_c::get_field( int field, MP_Chan_t chanIdx )
 {
-  MP_Real_t x;
-  if ( MP_Atom_c::has_field( field ) ) return ( MP_Atom_c::get_field(field,chanIdx) );
-  else switch (field)
-      {
-      case MP_POS_PROP :
-        x = (MP_Real_t)(support[chanIdx].pos);
-        break;
-      case MP_FREQ_PROP :
-        x = freq;
-        break;
-      case MP_WINDOW_TYPE_PROP :
-	x = (MP_Real_t) windowType;
-	break;
-      case MP_WINDOW_OPTION_PROP :
-	x = windowOption;
-	break;
-      default :
-        mp_warning_msg( "MP_Mdct_Atom_c::get_field()", "Unknown field: %d. Returning ZERO.\n",field );
-        x = 0.0;
-      }
+	MP_Real_t x;
+	if ( MP_Atom_c::has_field( field ) ) return ( MP_Atom_c::get_field(field,chanIdx) );
+	else switch (field)
+	{
+	case MP_POS_PROP :
+		x = (MP_Real_t)(support[chanIdx].pos);
+		break;
+	case MP_FREQ_PROP :
+		x = freq;
+		break;
+	case MP_WINDOW_TYPE_PROP :
+		x = (MP_Real_t) windowType;
+		break;
+	case MP_WINDOW_OPTION_PROP :
+		x = windowOption;
+		break;
+	default :
+		mp_warning_msg( "MP_Mdct_Atom_c::get_field()", "Unknown field: %d. Returning ZERO.\n",field );
+		x = 0.0;
+	}
 
-  return( x );
+	return( x );
 
 }
 

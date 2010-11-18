@@ -774,7 +774,9 @@ unsigned long int MP_Block_c::build_subbook_waveform_corr(GP_Book_c* thisBook, M
 	unsigned long int thisPosition = 0;
 	unsigned long int thisFirstPosition = thisBook->begin()->support[0].pos;
 	unsigned long int size = 0;
-	unsigned long int base;
+	unsigned long int base, t;
+	unsigned long int outOffset;
+	unsigned long int tmpOffset;
 
 	// Calcul de la longueur finale;
 	for (iter = thisBook->begin().copy(); *iter != thisBook->end(); iter->go_to_next_frame())
@@ -784,7 +786,7 @@ unsigned long int MP_Block_c::build_subbook_waveform_corr(GP_Book_c* thisBook, M
 	size = thisPosition-thisFirstPosition+filterLen;
 
 	// Mise � 0 du buffer
-	memset(outBuffer, 0, size*s->numChans);
+	memset(outBuffer, 0, size*s->numChans*sizeof(MP_Real_t));
 
 	// Parcours du book pour r�cup�rer les frames
 	for (iter = thisBook->begin().copy();*iter != thisBook->end(); iter->go_to_next_frame())
@@ -794,9 +796,9 @@ unsigned long int MP_Block_c::build_subbook_waveform_corr(GP_Book_c* thisBook, M
 
 		base = thisFrame->pos - thisFirstPosition;
 		for (MP_Chan_t c = 0; c < s->numChans; c++){
-			unsigned long int outOffset = c*size;
-			unsigned long int tmpOffset = c*filterLen;
-			for (unsigned long int t = 0; t < filterLen; t++)
+			outOffset = c*size;
+			tmpOffset = c*filterLen;
+			for (t = 0; t < filterLen; t++)
 				outBuffer[t+outOffset+base] += outBufferTemp[t+tmpOffset];
 		}
 	}

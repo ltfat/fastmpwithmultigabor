@@ -244,10 +244,10 @@ MP_Mdct_Block_Plugin_c::init_parameters (const unsigned long int setFilterLen,
 	for (unsigned long int i = 0; i<filterLen; i++)
 		window[i] = window[i]*energy;
 	/* dump the window */
-//	file.open("/local/tempo/test/window.txt");
-//	for (unsigned long int i = 0; i<filterLen; i++)
-//		file << window[i] << endl;
-//	file.close();
+	//	file.open("/local/tempo/test/window.txt");
+	//	for (unsigned long int i = 0; i<filterLen; i++)
+	//		file << window[i] << endl;
+	//	file.close();
 
 
 	/* allocate frameBuffer
@@ -440,6 +440,8 @@ MP_Mdct_Block_Plugin_c::update_frame (unsigned long int frameIdx,
 	int chanIdx;
 	int numChans;
 
+	ofstream file;
+
 	assert (s != NULL);
 	numChans = s->numChans;
 	assert (mag != NULL);
@@ -495,9 +497,7 @@ MP_Mdct_Block_Plugin_c::update_frame (unsigned long int frameIdx,
 			maxIdx = i;
 		}
 	}
-	*maxCorr = (MP_Real_t) max*scalingFactor*scalingFactor;
-	if (filterLen == 16384 && inShift == 90112)
-		cerr << "maxCorr == " << sqrt(*maxCorr) <<endl;
+	*maxCorr = (MP_Real_t) max*dct->scale*dct->scale;
 	*maxFilterIdx = maxIdx;
 }
 
@@ -638,8 +638,7 @@ MP_Mdct_Block_Plugin_c::update_frame (unsigned long int frameIdx,
 			}
 		}
 	}
-	*maxCorr = (MP_Real_t) max*scalingFactor*scalingFactor;
-	cerr << "maxCorr == " << *maxCorr <<endl;
+	*maxCorr = (MP_Real_t) max*dct->scale*dct->scale;
 	*maxFilterIdx = maxIdx;
 }
 
@@ -703,7 +702,7 @@ MP_Mdct_Block_Plugin_c::create_atom (MP_Atom_c ** atom,
 	matom->freq = 0.0;
 
 	/* 1) set the frequency of the atom */
-	matom->freq = 1 / filterLen * (freqIdx + 0.5);
+	matom->freq = 1.0 / filterLen * (freqIdx + 0.5);
 	matom->numSamples = pos + filterLen;
 
 	/* For each channel: */
@@ -730,7 +729,7 @@ MP_Mdct_Block_Plugin_c::create_atom (MP_Atom_c ** atom,
 		dct->exec_dct (frameBuffer, mag);
 
 		/* 6) fill in the atom parameters */
-		matom->amp[chanIdx] = (MP_Real_t) (mag[freqIdx])*scalingFactor;
+		matom->amp[chanIdx] = (MP_Real_t) (mag[freqIdx])*dct->scale;
 
 	}
 
@@ -750,7 +749,6 @@ unsigned long int MP_Mdct_Block_Plugin_c::build_frame_waveform_corr (
 	MP_Real_t* magPtr;
 	MP_Real_t* outPtr;
 
-	cout << "MDCT" << endl;
 	// clean the buffers
 	memset (mag, 0, sizeof (MP_Real_t) * numFilters * s->numChans);
 
@@ -762,22 +760,17 @@ unsigned long int MP_Mdct_Block_Plugin_c::build_frame_waveform_corr (
 			// get the frequency index
 			freqIdx = (unsigned long) (iter->get_field (MP_FREQ_PROP, 0) * filterLen - 0.5);
 
-			*(magPtr + freqIdx) = (*((iter->corr) + c))*scalingFactor;
+			*(magPtr + freqIdx) = (*((iter->corr) + c))*dct->scale;
 		}
 
 		dct->exec_dct(magPtr, frameBuffer);
 
 		// unfold and window
-		t = 0;
-		while (t < lapSize){
-			outPtr[t] = -0.5*window[t]*frameBuffer[lapSize-1-t];
-			outPtr[lapSize+t] = 0.5*window[lapSize+t]*frameBuffer[t];
-			t++;
-		}
-		while (t < numFilters){
-			outPtr[lapSize+t] = 0.5*window[lapSize+t]*frameBuffer[t];
-			outPtr[numFilters+t] = 0.5*window[numFilters+t]*frameBuffer[numFilters-1-t];
-			t++;
+		for(t = 0; t < lapSize; t++){
+			outPtr[t] = window[t]*frameBuffer[t+lapSize];
+			outPtr[lapSize+t] = -window[lapSize+t]*frameBuffer[numFilters-1-t];
+			outPtr[numFilters+t] = -window[numFilters+t]*frameBuffer[lapSize-1-t];
+			outPtr[numFilters+lapSize+t] = -window[numFilters+lapSize+t]*frameBuffer[t];
 		}
 	}
 	return filterLen;
@@ -808,7 +801,7 @@ unsigned long int MP_Mdct_Block_Plugin_c::build_frame_waveform_amp (
 			// get the frequency index
 			freqIdx = (unsigned long) (iter->get_field (MP_FREQ_PROP, 0) * filterLen - 0.5);
 
-			*(magPtr + freqIdx) = (*((iter->amp) + c))*scalingFactor;
+			*(magPtr + freqIdx) = (*((iter->amp) + c))*dct->scale;
 		}
 
 		dct->exec_dct(magPtr, frameBuffer);
