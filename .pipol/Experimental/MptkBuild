@@ -55,9 +55,11 @@ case $PIPOL_IMAGE in
 		# 3) Configuration of the variables for matlab and mex
 		export TEMP=/cygdrive/c/Temp
 		if expr $PIPOL_IMAGE : ".*amd64.*"; then 
+			print '<<<<<<< ON PASSE BIEN PAR ICI >>>>>>>>>>>>' 
 			export PROCESSOR_ARCHITECTURE=AMD64		
 			printf 'y\n1\ny\n' | /cygdrive/y/amd64/matlab-2010a-windows/bin/mex.bat -setup
 		else 
+			print '<<<<<<< HAYHAYHAYAYHAYAY >>>>>>>>>>>>' 
 			export PROCESSOR_ARCHITECTURE=x86
 			printf 'y\n2\ny\n' | /cygdrive/y/i386/matlab-2010a-windows/bin/mex.bat -setup
 		fi
