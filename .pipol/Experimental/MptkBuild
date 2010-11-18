@@ -81,7 +81,7 @@ case $PIPOL_IMAGE in
 
 		# 8) Setting environment
 		if expr $PIPOL_IMAGE : ".*amd64.*"; then 
-	    	"$MSVC_PATH/VC/vcvarsall.bat" x86
+	    	"$MSVC_PATH/VC/vcvarsall.bat" amd64
 		else 
 	    	"$MSVC_PATH/Common7/Tools/vsvars32.bat"
 		fi
