@@ -333,13 +333,12 @@ INCLUDE_DIRECTORIES(/usr/include
 ##############################################################################
 ##Platform configuration tests.
 ##############################################################################
-INCLUDE(CMakeDetermineCompilerId)
-IF(${CMAKE_C_COMPILER_ID} MATCHES "MSVC")
+IF(CMAKE_CXX_COMPILER MATCHES "^.*cl.exe$" OR CMAKE_CXX_COMPILER MATCHES "^.*cl$")	
 	MESSAGE("<<<<<<<<<<<< OK : ${CMAKE_C_COMPILER_ID} >>>>>>>>>>>>")
 	INCLUDE(Windows-cl)
-ELSE(${CMAKE_C_COMPILER_ID} MATCHES "MSVC")
+ELSE(CMAKE_CXX_COMPILER MATCHES "^.*cl.exe$" OR CMAKE_CXX_COMPILER MATCHES "^.*cl$")	
 	MESSAGE("<<<<<<<<<<<< NOK : ${CMAKE_C_COMPILER_ID} >>>>>>>>>>>>")
-ENDIF(${CMAKE_C_COMPILER_ID} MATCHES "MSVC")
+ENDIF(CMAKE_CXX_COMPILER MATCHES "^.*cl.exe$" OR CMAKE_CXX_COMPILER MATCHES "^.*cl$")	
 INCLUDE(${MPTK_SOURCE_DIR}/CMake/CMakeBackwardCompatibilityC.cmake)
 INCLUDE(${CMAKE_ROOT}/Modules/CMakeBackwardCompatibilityCXX.cmake)
 
