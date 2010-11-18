@@ -346,7 +346,7 @@ MP_Real_t MP_Mclt_Abstract_Block_Plugin_c::test(){
         err += out[t]*out[t];
     }
         
-    delete sample;
-    delete out;
+    delete []sample;
+    delete []out;
     return err;
 }
