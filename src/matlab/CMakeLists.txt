@@ -16,6 +16,7 @@ if(COMMAND cmake_policy)
       cmake_policy(SET CMP0003 OLD)
 endif(COMMAND cmake_policy)
 
+MESSAGE ("<<<<<<<<<<< ${MEX_EXTENSION} >>>>>>>>>>>>>>")
 ############################################
 #                  -1-
 # Are we asked to build Matlab MEX files ? 
