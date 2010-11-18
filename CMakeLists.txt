@@ -335,7 +335,10 @@ INCLUDE_DIRECTORIES(/usr/include
 ##############################################################################
 INCLUDE(${CMAKE_ROOT}/Modules/CMakeDetermineCompilerId.cmake)
 IF(${CMAKE_C_COMPILER_ID} MATCHES "MSVC")
+	MESSAGE("<<<<<<<<<<<< OK : ${CMAKE_C_COMPILER_ID} >>>>>>>>>>>>")
 	INCLUDE(${CMAKE_ROOT}/Modules/Windows-cl.cmake)
+ELSE(${CMAKE_C_COMPILER_ID} MATCHES "MSVC")
+	MESSAGE("<<<<<<<<<<<< NOK : ${CMAKE_C_COMPILER_ID} >>>>>>>>>>>>")
 ENDIF(${CMAKE_C_COMPILER_ID} MATCHES "MSVC")
 INCLUDE(${MPTK_SOURCE_DIR}/CMake/CMakeBackwardCompatibilityC.cmake)
 INCLUDE(${CMAKE_ROOT}/Modules/CMakeBackwardCompatibilityCXX.cmake)
