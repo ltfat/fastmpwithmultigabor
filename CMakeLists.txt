@@ -333,11 +333,10 @@ INCLUDE_DIRECTORIES(/usr/include
 ##############################################################################
 ##Platform configuration tests.
 ##############################################################################
-MESSAGE("<<<<<<<<<<<< ${CMAKE_ROOT} >>>>>>>>>>>>")
-INCLUDE(${CMAKE_ROOT}/Modules/CMakeDetermineCompilerId.cmake)
+INCLUDE(CMakeDetermineCompilerId)
 IF(${CMAKE_C_COMPILER_ID} MATCHES "MSVC")
 	MESSAGE("<<<<<<<<<<<< OK : ${CMAKE_C_COMPILER_ID} >>>>>>>>>>>>")
-	INCLUDE(${CMAKE_ROOT}/Modules/Windows-cl.cmake)
+	INCLUDE(Windows-cl)
 ELSE(${CMAKE_C_COMPILER_ID} MATCHES "MSVC")
 	MESSAGE("<<<<<<<<<<<< NOK : ${CMAKE_C_COMPILER_ID} >>>>>>>>>>>>")
 ENDIF(${CMAKE_C_COMPILER_ID} MATCHES "MSVC")
