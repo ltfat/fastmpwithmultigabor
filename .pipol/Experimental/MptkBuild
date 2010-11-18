@@ -56,10 +56,10 @@ case $PIPOL_IMAGE in
 		export TEMP=/cygdrive/c/Temp
 		if expr $PIPOL_IMAGE : ".*amd64.*"; then 
 			export PROCESSOR_ARCHITECTURE=AMD64		
-			PROCESSEUR = amd64		
+			PROCESSEUR=amd64		
 		else 
 			export PROCESSOR_ARCHITECTURE=x86
-			PROCESSEUR = i386		
+			PROCESSEUR=i386		
 		fi
 		
 		# 4) Configuration of mex
