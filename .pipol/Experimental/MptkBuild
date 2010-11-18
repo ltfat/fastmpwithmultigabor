@@ -83,10 +83,10 @@ case $PIPOL_IMAGE in
 	    "$MSVC_PATH/Common7/Tools/vsvars32.bat"
 
 		# 9) Cleaning the project
-		"$VCBUILD" MPTK.sln /Clean "Release|$PROCESSEUR"
+		"$VCBUILD" MPTK.sln /Clean "Release"
 
 		# 10) Project build
-		"$VCBUILD" MPTK.sln /Build "Release|$PROCESSEUR"
+		"$VCBUILD" MPTK.sln /Build "Release"
 		
 		# 11) CDASH submision
 		/cygdrive/c/CMake\ $VERSION/bin/ctest.exe -D "Experimental" 
