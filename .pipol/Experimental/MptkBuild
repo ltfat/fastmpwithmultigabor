@@ -54,7 +54,7 @@ case $PIPOL_IMAGE in
 		
 		# 3) Configuration of the variables for matlab
 		export TEMP=/cygdrive/c/Temp
-		if expr $PIPOL_IMAGE : ".*x86_64.*"; then 
+		if expr $PIPOL_IMAGE : ".*amd64.*"; then 
 			export PROCESSOR_ARCHITECTURE=AMD64		
 		else 
 			export PROCESSOR_ARCHITECTURE=x86
