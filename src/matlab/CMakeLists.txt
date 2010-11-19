@@ -99,7 +99,7 @@ experimental/classes/mxBook.cpp)
 ADD_LIBRARY(mptk4matlab SHARED ${MPTK4MATLAB_SOURCES})
 
 SET_TARGET_PROPERTIES(mptk4matlab PROPERTIES
-		      COMPILE_FLAGS " -DC_BUILDING_mptk4matlab ${CMAKE_CXX_FLAGS} -I${MATLAB_INCLUDE_DIR} -I${MPTK_SOURCE_DIR}/src/plugin/base/ -I${MPTK_SOURCE_DIR}/src/plugin/contrib/lam/"
+		      COMPILE_FLAGS " -DC_BUILDING_mptk4matlab ${CMAKE_CXX_FLAGS} -I${MATLAB_INCLUDE_DIR} -I${MPTK_SOURCE_DIR}/src/plugin/base/ -I${MPTK_SOURCE_DIR}/src/plugin/contrib/lam/ -L${MATLAB_MEX_LIBRARY} -L${MATLAB_MX_LIBRARY} -L${MATLAB_ENG_LIBRARY}"
                       PREFIX ""
                       OUTPUT_NAME "libmptk4matlab"
                       )
