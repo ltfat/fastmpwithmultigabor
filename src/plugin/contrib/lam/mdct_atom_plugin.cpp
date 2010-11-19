@@ -326,53 +326,7 @@ int MP_Mdct_Atom_Plugin_c::info()
 /* Waveform builder */
 void MP_Mdct_Atom_Plugin_c::build_waveform( MP_Real_t *outBuffer )
 {
-
-  MP_Real_t *window;
-  MP_Real_t *atomBuffer;
-  unsigned long int windowCenter = 0;
-  /* Parameters for the atom waveform : */
-  unsigned int chanIdx;
-  unsigned int t;
-  unsigned long int len;
-  double dAmp, dFreq, dPhase, dT;
-  double argument;
-
-  assert( outBuffer != NULL );
-
-  for ( chanIdx = 0 , atomBuffer = outBuffer;
-        chanIdx < numChans;
-        chanIdx++  )
-    {
-      /* Dereference the atom length in the current channel once and for all */
-      len = support[chanIdx].len;
-
-      /** make the window */
-      windowCenter = MPTK_Server_c::get_win_server()->get_window( &window, len, windowType, windowOption );
-      assert( window != NULL );
-
-      /* Dereference the arguments once and for all */
-      dFreq      = (double)(  freq ) * MP_2PI;
-      dAmp       = (double)(   amp[chanIdx] );
-
-      /* Compute the phase */
-      dPhase     = dFreq * ( 0.5 + len*0.25 );
-
-      for ( t = 0; t<len; t++ )
-        {
-
-          /* Compute the cosine's argument */
-          dT = (double)(t);
-          argument = dFreq*dT + dPhase;
-
-          /* Compute the waveform samples */
-          *(atomBuffer+t) = ( (double)(*(window+t)) * dAmp * cos(argument) );
-
-        }
-
-      /* Go to the next channel */
-      atomBuffer += len;
-    }
-
+	dict->block[blockIdx]->build_atom_waveform_amp(this, outBuffer);
 }
 
 MP_Real_t wigner_ville(MP_Real_t t, MP_Real_t f, unsigned char windowType)

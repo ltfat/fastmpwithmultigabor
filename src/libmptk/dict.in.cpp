@@ -1251,6 +1251,9 @@ unsigned int MP_Dict_c::create_max_atom( MP_Atom_c** atom )
       return( 0 );
     }
 
+  (*atom)->blockIdx=blockWithMaxIP;
+  (*atom)->dict = this;
+
   return( numAtoms );
 }
 

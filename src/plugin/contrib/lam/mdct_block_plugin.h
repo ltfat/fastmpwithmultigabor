@@ -212,6 +212,12 @@ public:
 
   unsigned long int build_frame_waveform_amp(GP_Param_Book_c* frame, MP_Real_t* outBuffer);
 
+  unsigned long int build_atom_waveform_corr(MP_Atom_c* atom, MP_Real_t* outBuffer);
+
+  unsigned long int build_atom_waveform_amp(MP_Atom_c* atom, MP_Real_t* outBuffer);
+
+  unsigned long int build_atom_waveform_norm(MP_Atom_c* atom, MP_Real_t* outBuffer);
+
    /** \brief Field a map with the parameter type of the block, the creation and destruction of the map is done by the calling method 
    *
    * \param parameterMapType the map to fill .

@@ -786,12 +786,8 @@ unsigned long int MP_Mdct_Block_Plugin_c::build_frame_waveform_amp (
 	MP_Real_t* magPtr;
 	MP_Real_t* outPtr;
 
-	cout << "MDCT" << endl;
 	// clean the buffers
 	memset (mag, 0, sizeof (MP_Real_t) * numFilters * s->numChans);
-
-	// get the frequency index
-	freqIdx = (unsigned long) (iter->get_field (MP_FREQ_PROP, 0) * filterLen - 0.5);
 
 	for (c = 0, magPtr = mag, outPtr = outBuffer;
 			c < s->numChans;
@@ -816,6 +812,95 @@ unsigned long int MP_Mdct_Block_Plugin_c::build_frame_waveform_amp (
 	}
 	return filterLen;
 }
+
+unsigned long int MP_Mdct_Block_Plugin_c::build_atom_waveform_corr(MP_Atom_c* atom, MP_Real_t* outBuffer){
+	unsigned long int freqIdx, t;
+	MP_Chan_t c;
+	MP_Real_t* magPtr;
+	MP_Real_t* outPtr;
+
+	// clean the buffers
+	memset (mag, 0, sizeof (MP_Real_t) * numFilters * s->numChans);
+
+	for (c = 0, magPtr = mag, outPtr = outBuffer;
+			c < s->numChans;
+			c++, magPtr += numFilters, outPtr += filterLen) {
+		// get the frequency index
+		freqIdx = (unsigned long) (atom->get_field (MP_FREQ_PROP, 0) * filterLen - 0.5);
+
+		magPtr[freqIdx] = atom->corr[c]*dct->scale;
+		dct->exec_dct(magPtr, frameBuffer);
+
+		// unfold and window
+		for(t = 0; t < lapSize; t++){
+			outPtr[t] = window[t]*frameBuffer[t+lapSize];
+			outPtr[lapSize+t] = -window[lapSize+t]*frameBuffer[numFilters-1-t];
+			outPtr[numFilters+t] = -window[numFilters+t]*frameBuffer[lapSize-1-t];
+			outPtr[numFilters+lapSize+t] = -window[numFilters+lapSize+t]*frameBuffer[t];
+		}
+	}
+	return filterLen;
+}
+
+unsigned long int MP_Mdct_Block_Plugin_c::build_atom_waveform_amp(MP_Atom_c* atom, MP_Real_t* outBuffer){
+	unsigned long int freqIdx, t;
+	MP_Chan_t c;
+	MP_Real_t* magPtr;
+	MP_Real_t* outPtr;
+
+	// clean the buffers
+	memset (mag, 0, sizeof (MP_Real_t) * numFilters * s->numChans);
+
+	for (c = 0, magPtr = mag, outPtr = outBuffer;
+			c < s->numChans;
+			c++, magPtr += numFilters, outPtr += filterLen) {
+		// get the frequency index
+		freqIdx = (unsigned long) (atom->get_field (MP_FREQ_PROP, 0) * filterLen - 0.5);
+
+		magPtr[freqIdx] = atom->amp[c]*dct->scale;
+		dct->exec_dct(magPtr, frameBuffer);
+
+		// unfold and window
+		for(t = 0; t < lapSize; t++){
+			outPtr[t] = window[t]*frameBuffer[t+lapSize];
+			outPtr[lapSize+t] = -window[lapSize+t]*frameBuffer[numFilters-1-t];
+			outPtr[numFilters+t] = -window[numFilters+t]*frameBuffer[lapSize-1-t];
+			outPtr[numFilters+lapSize+t] = -window[numFilters+lapSize+t]*frameBuffer[t];
+		}
+	}
+	return filterLen;
+}
+
+unsigned long int MP_Mdct_Block_Plugin_c::build_atom_waveform_norm(MP_Atom_c* atom, MP_Real_t* outBuffer){
+	unsigned long int freqIdx, t;
+	MP_Chan_t c;
+	MP_Real_t* magPtr;
+	MP_Real_t* outPtr;
+
+	// clean the buffers
+	memset (mag, 0, sizeof (MP_Real_t) * numFilters * s->numChans);
+
+	for (c = 0, magPtr = mag, outPtr = outBuffer;
+			c < s->numChans;
+			c++, magPtr += numFilters, outPtr += filterLen) {
+		// get the frequency index
+		freqIdx = (unsigned long) (atom->get_field (MP_FREQ_PROP, 0) * filterLen - 0.5);
+
+		magPtr[freqIdx] = dct->scale;
+		dct->exec_dct(magPtr, frameBuffer);
+
+		// unfold and window
+		for(t = 0; t < lapSize; t++){
+			outPtr[t] = window[t]*frameBuffer[t+lapSize];
+			outPtr[lapSize+t] = -window[lapSize+t]*frameBuffer[numFilters-1-t];
+			outPtr[numFilters+t] = -window[numFilters+t]*frameBuffer[lapSize-1-t];
+			outPtr[numFilters+lapSize+t] = -window[numFilters+lapSize+t]*frameBuffer[t];
+		}
+	}
+	return filterLen;
+}
+
+
 
 /*********************************************/
 /* get Paramater type map defining the block */

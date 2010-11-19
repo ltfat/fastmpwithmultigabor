@@ -104,7 +104,7 @@ enum UsageChannels {
 #define MP_INFER 5 /** x <  val \todo document this \sa MP_Atom_c::satisfies() */
 #define MP_HAS   6 /** \todo document this \sa MP_Atom_c::satisfies() */
 
-
+class MP_Dict_c;
 /***********************/
 /* ATOM CLASS          */
 /***********************/
@@ -158,6 +158,7 @@ public:
      * Used by Gradient Pursuit
      */
   unsigned int blockIdx;
+  MP_Dict_c* dict;
 
   /***********/
   /* METHODS */
