@@ -327,8 +327,8 @@ INCLUDE_DIRECTORIES(/usr/include
 		${LIBDSP_INCLUDE_DIR} 
 		${FFTW3_INCLUDE_DIR} 
 		${SNDFILE_INCLUDE_DIR} 
-		${MATLAB_INCLUDE_DIR} 
-		)
+		${MPTK_SOURCE_DIR}/src/plugin/base/
+		${MPTK_SOURCE_DIR}/src/plugin/contrib/lam/)
 
 ##############################################################################
 ##Platform configuration tests.

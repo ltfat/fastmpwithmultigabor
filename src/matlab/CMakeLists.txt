@@ -99,7 +99,7 @@ experimental/classes/mxBook.cpp)
 ADD_LIBRARY(mptk4matlab SHARED ${MPTK4MATLAB_SOURCES})
 
 SET_TARGET_PROPERTIES(mptk4matlab PROPERTIES
-		      COMPILE_FLAGS " -DC_BUILDING_mptk4matlab ${CMAKE_CXX_FLAGS} -I${MATLAB_INCLUDE_DIR} -I${MPTK_SOURCE_DIR}/src/plugin/base/ -I${MPTK_SOURCE_DIR}/src/plugin/contrib/lam/"
+		      COMPILE_FLAGS " -DC_BUILDING_mptk4matlab ${CMAKE_CXX_FLAGS} -I${MATLAB_INCLUDE_DIR}"
                       PREFIX ""
                       OUTPUT_NAME "libmptk4matlab"
                       )
@@ -213,6 +213,7 @@ ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
 # MEX files, only if the MEX ones are not.
 ############################################
 ELSE(BUILD_MATLAB_MEX_FILES AND MATLAB_MEX_COMPILER)   
+
 	# If no MEX compiler is found, or MEX files were not wanted just copy the scripts
 	IF(BUILD_MATLAB_MEX_FILES)
 		MESSAGE("Warning: Matlab MEX compiler is not found, please set the path to Mex compiler or Matlab Mex files will not be compiled")
