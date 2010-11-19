@@ -244,10 +244,10 @@ MP_Mdct_Block_Plugin_c::init_parameters (const unsigned long int setFilterLen,
 	for (unsigned long int i = 0; i<filterLen; i++)
 		window[i] = window[i]*energy;
 	/* dump the window */
-	//	file.open("/local/tempo/test/window.txt");
-	//	for (unsigned long int i = 0; i<filterLen; i++)
-	//		file << window[i] << endl;
-	//	file.close();
+//	file.open("/local/tempo/test/window_large.txt");
+//	for (unsigned long int i = 0; i<filterLen; i++)
+//		file << window[i] << endl;
+//	file.close();
 
 
 	/* allocate frameBuffer
@@ -575,7 +575,7 @@ MP_Mdct_Block_Plugin_c::update_frame (unsigned long int frameIdx,
 	else
 		atEnd = false;
 	if (!atEnd) {
-		freq = 1 / filterLen;
+		freq = 0.5 / filterLen;
 		found = (iter->get_field(MP_FREQ_PROP, 0) == freq);
 	}
 	else
@@ -612,7 +612,7 @@ MP_Mdct_Block_Plugin_c::update_frame (unsigned long int frameIdx,
 			found = (iter->get_field(MP_FREQ_PROP, 0) == freq);
 		}
 		if (found)
-			iter->corr[0] = *(mag + i);
+			iter->corr[0] = *(mag + i)*dct->scale;
 		/* - make the sum */
 
 		sum = (double) (mag[i]*mag[i]);
@@ -620,7 +620,7 @@ MP_Mdct_Block_Plugin_c::update_frame (unsigned long int frameIdx,
 		for (chanIdx = 1, magPtr = mag + numFilters + i;	/* <- other channels */
 				chanIdx < numChans; chanIdx++, magPtr += numFilters) {
 			if (found)
-				iter->corr[chanIdx] = *magPtr;
+				iter->corr[chanIdx] = *magPtr*dct->scale;
 			sum += (double) (*magPtr * (*magPtr));
 		}
 		/* - update the max */

@@ -106,6 +106,7 @@ int GP_Param_Book_c::append(MP_Atom_c* atom){
 
 	previous = find(param);
 	if (previous!=paramBookMap::end()){
+		cerr << "Multiple selection" << endl;
 		previous->second->info(stderr);
 		delete param;
 		return 1;

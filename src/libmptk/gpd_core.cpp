@@ -360,7 +360,7 @@ unsigned short int GPD_Core_c::step() {
 	/** 2/ Create the max atom and store it in the book */
 	numAtoms = dict->create_max_gp_atom( &atom );
 	//cerr << "found atom = " << endl;
-	//atom->info(stderr);
+	//atom->info();
 	if ( numAtoms == 0 )
 	{
 		mp_error_msg( func, "The Gradient Pursuit iteration failed. Dictionary, book"
@@ -405,6 +405,20 @@ unsigned short int GPD_Core_c::step() {
 
 		alpha = enCorr/enGrad;
 
+		// dump the gradient
+//		if (numIter == 30){
+//			file.open("res_old.txt");
+//			for (t = 0; t < residual->numSamples; t++)
+//				file << residual->channel[0][t] << endl;
+//			file.close();
+//
+//			file.open("gradient.txt");
+//			for (t = 0; t < gradSupport.len; t++)
+//				file << gradient[t] << endl;
+//			file.close();
+//			cerr << "enCorr == " << enCorr << "\tenGrad == " << enGrad << "\talpha == " << alpha << endl;
+//		}
+
 		for (iter = touchBook->begin(); iter !=touchBook->end(); ++iter)
 			iter->amp[c] += (iter->corr[c])*alpha;
 
@@ -430,6 +444,7 @@ unsigned short int GPD_Core_c::step() {
 	residualEnergyBefore = residualEnergy;
 	residualEnergy = (double)residual->energy;
 	if ( decayFileName ) decay.append( residualEnergy );
+
 	numIter++;
 
 	/* 6) Check for possible breakpoints: */
@@ -457,6 +472,12 @@ unsigned short int GPD_Core_c::step() {
 				numIter, residualEnergyBefore, residualEnergy );
 		mp_warning_msg( func, "Last atom found is sent to stderr.\n" );
 		book->atom[book->numAtoms-1]->info( stderr );
+
+		// dump the residual
+		file.open("res.txt");
+		for (t = 0; t < residual->numSamples; t++)
+			file << residual->channel[0][t] << endl;
+		file.close();
 		//state = ( state | MP_INCREASING_ENERGY );
 	}
 	/*if ( (residualEnergyBefore - residualEnergy) < 5e-4 ) {
