@@ -91,7 +91,6 @@ ENDIF(BUILD_COVERAGE AND APPLE)
 # Setting the compilation flags in dynamic format:
 ##############################################################################
 IF(WIN32)
-MESSAGE("<<<<<<<<<<<<<<<<<<${CMAKE_SYSTEM_PROCESSOR} >>>>>>>>>>>>>>>>>>>>")
 	IF( CMAKE_SYSTEM_PROCESSOR STREQUAL "amd64" )
 		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 		SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
