@@ -424,6 +424,7 @@ INSTALL(FILES "${MPTK_SOURCE_DIR}/COPYING.txt" DESTINATION mptk)
 ##############################################################################
 # BINARY DISTRIBUTION:
 ##############################################################################
+SET(CPACK_PACKAGE_CONTACT "matchingpursuite@irisa.fr")
 SET(CPACK_INSTALL_CMAKE_PROJECTS "${MPTK_BINARY_DIR};MPTK;ALL;/")
 SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Matching Pursuit Tool Kit")
 SET(CPACK_SOURCE_PACKAGE_FILE_NAME "${MPTK-CPACK_PACKAGE_VERSION}")
