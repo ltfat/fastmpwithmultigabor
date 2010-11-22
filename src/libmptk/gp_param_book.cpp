@@ -106,7 +106,6 @@ int GP_Param_Book_c::append(MP_Atom_c* atom){
 
 	previous = find(param);
 	if (previous!=paramBookMap::end()){
-		cerr << "Multiple selection" << endl;
 		previous->second->info(stderr);
 		delete param;
 		return 1;
@@ -268,7 +267,7 @@ MP_Atom_c* GP_Param_Book_Iterator_c::operator ->(void){
 	if (!book)
 		cout << "NULL book in the iterator" << endl;
 	if (*this == book->end())
-		cout << "appel invalide: déréférencement de end" << endl;
+		cout << "appel invalide: dï¿½rï¿½fï¿½rencement de end" << endl;
 	return paramIter->second;
 }
 

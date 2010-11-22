@@ -221,8 +221,9 @@ GP_Block_Book_Iterator_c& GP_Block_Book_Iterator_c::go_to_next_frame(void){
     posIter.go_to_next_frame();
     while(posIter == blockIter->end()){ //next frame not found
         ++blockIter;
-        if (blockIter == book->blockBookVec::end()) // reached the end
+        if (blockIter == book->blockBookVec::end()){// reached the end
             break;
+        }
             
         posIter = blockIter->begin();
     }
