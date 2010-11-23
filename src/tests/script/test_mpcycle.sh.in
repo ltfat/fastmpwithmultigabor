@@ -2,7 +2,7 @@
 #
 #############################################################################
 ##                                                                         ##
-##                               Makefile.am                               ##
+##                               test_mpcycle.sh                           ##
 ##                                                                         ##
 ##                      Matching Pursuit Testing Suite                     ##
 ##                                                                         ##
@@ -31,8 +31,8 @@
 ## 
 ## SVN log:
 ##
-##   $Author: sacha $
-##   $Date: 2006-02-20 16:17:29 +0100 (Mon, 20 Feb 2006) $
+##   $Author: rleboulc $
+##   $Date: 2010-11-23 16:17:29 +0100 (Mon, 20 Feb 2006) $
 ##   $Revision: 505 $
 ##
 
