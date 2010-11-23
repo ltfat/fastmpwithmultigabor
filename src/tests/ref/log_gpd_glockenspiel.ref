@@ -5,7 +5,7 @@ mptk INFO -- gpd -  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 mptk INFO -- gpd -  WARNING, CONSTRUCTION WORK IN PROGRESS, GPD UNDER DEVELOPMENT
 mptk INFO -- gpd -  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 mptk INFO -- gpd - The command line was:
-gpd --verbose -s 10 -R 10 -D /usr/local/mptk/reference/dictionary/dic_mdct_two_scales.xml /usr/local/mptk/reference/signal/glockenspiel.wav book_gpd_glckenspiel.bin res_gpd_glockenspiel.wav.ref 
+gpd --verbose -s 10 -R 10 -D /usr/local/mptk/reference/dictionary/dic_mdct_two_scales.xml /usr/local/mptk/reference/signal/glockenspiel.wav book_gpd_glockenspiel.bin res_gpd_glockenspiel.wav.ref 
 mptk INFO -- gpd - End command line.
 mptk INFO -- gpd - Loading the dictionary...
 mptk INFO -- gpd - (In the following, spurious output of dictionary pieces would be a symptom of parsing errors.)
@@ -27,7 +27,7 @@ mptk INFO -- gpd - -------------------------
 mptk INFO -- gpd - Starting Gradient Pursuit on signal [/usr/local/mptk/reference/signal/glockenspiel.wav] with dictionary [/usr/local/mptk/reference/dictionary/dic_mdct_two_scales.xml].
 mptk INFO -- gpd - -------------------------
 mptk INFO -- Conditions - This run will iterate until the SNR goes above [10], using [516032] atoms.
-mptk INFO -- Conditions - The resulting book will be written to book file [book_gpd_glckenspiel.bin].
+mptk INFO -- Conditions - The resulting book will be written to book file [book_gpd_glockenspiel.bin].
 mptk INFO -- Conditions - The residual will be written to file [res_gpd_glockenspiel.wav.ref].
 mptk INFO -- Conditions - The energy decay will not be saved.
 mptk INFO -- gpd - The initial signal energy is : 2584.65
@@ -55,6 +55,6 @@ mptk INFO -- Result - ([144] atoms have been selected out of the [516032] atoms 
 mptk INFO -- Result - The initial signal energy was [2584.65].
 mptk INFO -- Result - The residual energy is now [257.169].
 mptk INFO -- Result - The SNR is now [10.0218].
-mptk INFO -- Save info - At iteration [144] : saved the book to file [book_gpd_glckenspiel.bin].
+mptk INFO -- Save info - At iteration [144] : saved the book to file [book_gpd_glockenspiel.bin].
 mptk INFO -- Save info - At iteration [144] : saved the residual signal to file [res_gpd_glockenspiel.wav.ref].
 mptk INFO -- gpd - Have a nice day !
