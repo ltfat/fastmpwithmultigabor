@@ -182,28 +182,28 @@ class GP_Block_Book_c:public GP_Book_c, public vector<GP_Pos_Book_c>{
    * \param the block index
    * \return a pointer to the corresponding GP_Pos_Book_c if it exists, NULL otherwise 
    */
-  MPTK_LIB_EXPORT virtual GP_Pos_Book_c* get_sub_book(unsigned int blockIdx);
+  MPTK_LIB_EXPORT virtual GP_Pos_Book_c* get_block_book(unsigned int blockIdx);
   
   /* \brief get the sub-book containing only atoms generated
    * by a given block, creating it if necessary
    * \param the block index
    * \return a pointer to the corresponding GP_Pos_Book_c. 
    */
-  MPTK_LIB_EXPORT virtual GP_Pos_Book_c* insert_sub_book(unsigned int blockIdx);
+  MPTK_LIB_EXPORT virtual GP_Pos_Book_c* insert_block_book(unsigned int blockIdx);
    
   /* \brief get the sub-book containing only atoms generated
    * by a given position
    * \param target position
    * \return a pointer to a GP_Pos_Range_Sub_Book_c restraining the book between pos and pos+1. 
    */
-  MPTK_LIB_EXPORT virtual GP_Pos_Range_Sub_Book_c* get_sub_book(unsigned long int pos);
+  MPTK_LIB_EXPORT virtual GP_Pos_Range_Sub_Book_c* get_pos_book(unsigned long int pos);
   
   /* \brief get the sub-book containing only atoms generated
    * by a given position
    * \param target position
    * \return a pointer to a GP_Pos_Range_Sub_Book_c restraining the book between pos and pos+1. 
    */
-  MPTK_LIB_EXPORT virtual GP_Pos_Range_Sub_Book_c* insert_sub_book(unsigned long int pos);
+  MPTK_LIB_EXPORT virtual GP_Pos_Range_Sub_Book_c* insert_pos_book(unsigned long int pos);
    
   /* \brief get the sub-book containing only atoms 
    * between 2 given positions.
@@ -211,7 +211,7 @@ class GP_Block_Book_c:public GP_Book_c, public vector<GP_Pos_Book_c>{
    * \param maxPos: upper bound(excluded)
    * \return apointer to the corresponding GP_Pos_Range_Sub_Book_c
    */
-  MPTK_LIB_EXPORT virtual GP_Pos_Range_Sub_Book_c* get_sub_book(unsigned long int minPos,unsigned long int maxPos);
+  MPTK_LIB_EXPORT virtual GP_Pos_Range_Sub_Book_c* get_range_book(unsigned long int minPos,unsigned long int maxPos);
 
   /* \brief get an iterator pointing to the first atom
    * \return the iterator

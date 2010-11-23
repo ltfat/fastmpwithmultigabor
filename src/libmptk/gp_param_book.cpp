@@ -106,6 +106,7 @@ int GP_Param_Book_c::append(MP_Atom_c* atom){
 
 	previous = find(param);
 	if (previous!=paramBookMap::end()){
+		cerr << "Multiple selection" << endl;
 		previous->second->info(stderr);
 		delete param;
 		return 1;
@@ -114,31 +115,31 @@ int GP_Param_Book_c::append(MP_Atom_c* atom){
 	return res.second;
 }
 
-GP_Param_Book_c* GP_Param_Book_c::get_sub_book(unsigned int blockIdx){
+GP_Param_Book_c* GP_Param_Book_c::get_block_book(unsigned int blockIdx){
 	if (blockIdx != this->blockIdx)
 		return NULL;
 	return this;
 }
 
-GP_Param_Book_c* GP_Param_Book_c::get_sub_book(unsigned long int pos){
+GP_Param_Book_c* GP_Param_Book_c::get_pos_book(unsigned long int pos){
 	if (pos != this->pos)
 		return NULL;
 	return this;
 }
 
-GP_Param_Book_c* GP_Param_Book_c::insert_sub_book(unsigned int blockIdx){
+GP_Param_Book_c* GP_Param_Book_c::insert_block_book(unsigned int blockIdx){
 	if (blockIdx != this->blockIdx)
 		return NULL;
 	return this;
 }
 
-GP_Param_Book_c* GP_Param_Book_c::insert_sub_book(unsigned long int pos){
+GP_Param_Book_c* GP_Param_Book_c::insert_pos_book(unsigned long int pos){
 	if (pos != this->pos)
 		return NULL;
 	return this;
 }
 
-GP_Param_Book_c* GP_Param_Book_c::get_sub_book(unsigned long int minPos,
+GP_Param_Book_c* GP_Param_Book_c::get_range_book(unsigned long int minPos,
 		unsigned long int maxPos){
 	if (pos > maxPos)
 		return NULL;

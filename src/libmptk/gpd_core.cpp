@@ -324,7 +324,7 @@ unsigned short int GPD_Core_c::step() {
 	unsigned int numAtoms, size;
 	unsigned long int t, offset;
 	GP_Pos_Range_Sub_Book_Iterator_c iter;
-	MP_Real_t alpha, enCorr, enGrad;
+	MP_Real_t alpha, enCorr, enGrad, tmpCorr;
 	MP_Support_t gradSupport;
 	MP_Chan_t c;
 	ofstream file;
@@ -359,8 +359,8 @@ unsigned short int GPD_Core_c::step() {
 
 	/** 2/ Create the max atom and store it in the book */
 	numAtoms = dict->create_max_gp_atom( &atom );
-	//cerr << "found atom = " << endl;
-	//atom->info();
+//	cerr << endl << "found atom = " << endl;
+//	atom->info();
 	if ( numAtoms == 0 )
 	{
 		mp_error_msg( func, "The Gradient Pursuit iteration failed. Dictionary, book"
@@ -386,6 +386,12 @@ unsigned short int GPD_Core_c::step() {
 	gradSupport.pos = residual->numSamples;
 	size = 0;
 	for (iter = touchBook->begin(); iter !=touchBook->end(); iter.go_to_next_frame()){
+//		tmpCorr = dict->block[iter->blockIdx]->check_corr(&*iter);
+//		if (fabs(tmpCorr) > 0.0000000001 && fabs(tmpCorr-iter->corr[0]) >0.1*fabs(tmpCorr)){
+//			cerr << "touchBook: wrong corr" << endl;
+//			iter-> info();
+//			cerr << "Oracle corr == " << tmpCorr << "\tFound corr == " << iter->corr[0] << endl<<endl;
+//		}
 		//iter->info( stderr );
 		if (gradSupport.pos > iter->support[0].pos)
 			gradSupport.pos = iter->support[0].pos;
@@ -406,18 +412,7 @@ unsigned short int GPD_Core_c::step() {
 		alpha = enCorr/enGrad;
 
 		// dump the gradient
-//		if (numIter == 30){
-//			file.open("res_old.txt");
-//			for (t = 0; t < residual->numSamples; t++)
-//				file << residual->channel[0][t] << endl;
-//			file.close();
 //
-//			file.open("gradient.txt");
-//			for (t = 0; t < gradSupport.len; t++)
-//				file << gradient[t] << endl;
-//			file.close();
-//			cerr << "enCorr == " << enCorr << "\tenGrad == " << enGrad << "\talpha == " << alpha << endl;
-//		}
 
 		for (iter = touchBook->begin(); iter !=touchBook->end(); ++iter)
 			iter->amp[c] += (iter->corr[c])*alpha;
@@ -428,13 +423,10 @@ unsigned short int GPD_Core_c::step() {
 
 		residual->refresh_energy();
 
-		dict->touch[c].pos = touchBook->begin()->support[c].pos;
-		dict->touch[c].len = 0;
-		for (iter = touchBook->begin(); iter !=touchBook->end(); ++iter)
-			if (dict->touch[c].len < iter->support[c].pos+dict->block[iter->blockIdx]->filterLen-1)
-				dict->touch[c].len = iter->support[c].pos+dict->block[iter->blockIdx]->filterLen-1;
-		dict->touch[c].len = dict->touch[c].len-dict->touch[c].pos+1;
+		dict->touch[c].pos = gradSupport.pos;
+		dict->touch[c].len = gradSupport.len;
 
+//		cerr << "Touch == " << dict->touch[c].pos << '\t' << dict->touch[c].len << endl;
 		mp_debug_msg(MP_DEBUG_MPD_LOOP, func, "Touch support for next iteration = %lu %lu\n",
 				dict->touch[c].pos, dict->touch[c].len);
 	}
@@ -474,10 +466,10 @@ unsigned short int GPD_Core_c::step() {
 		book->atom[book->numAtoms-1]->info( stderr );
 
 		// dump the residual
-		file.open("res.txt");
-		for (t = 0; t < residual->numSamples; t++)
-			file << residual->channel[0][t] << endl;
-		file.close();
+//		file.open("res.txt");
+//		for (t = 0; t < residual->numSamples; t++)
+//			file << residual->channel[0][t] << endl;
+//		file.close();
 		//state = ( state | MP_INCREASING_ENERGY );
 	}
 	/*if ( (residualEnergyBefore - residualEnergy) < 5e-4 ) {

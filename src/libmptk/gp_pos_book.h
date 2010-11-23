@@ -197,33 +197,33 @@ public:
 	 * \param blockIdx: target block
 	 * \return a pointer to the sub_book if it exists, NULL otherwise
 	 */
-	MPTK_LIB_EXPORT virtual GP_Pos_Book_c* get_sub_book(unsigned int blockIdx);
+	MPTK_LIB_EXPORT virtual GP_Pos_Book_c* get_block_book(unsigned int blockIdx);
 
 	/* \brief get an index for the sub-book containing only atoms at a given position
 	 * \param pos: target position
 	 * \return a pointer to the sub_book if it exists, NULL otherwise
 	 */
-	MPTK_LIB_EXPORT virtual GP_Param_Book_c* get_sub_book(unsigned long int pos);
+	MPTK_LIB_EXPORT virtual GP_Param_Book_c* get_pos_book(unsigned long int pos);
 
 	/* \brief get an index for the sub-book containing only atoms generated
 	 * by a given block, creating a new empty sub-book if needed
 	 * \param blockIdx: target block
 	 * \return a pointer to the sub_book
 	 */
-	MPTK_LIB_EXPORT virtual GP_Pos_Book_c* insert_sub_book(unsigned int blockIdx);
+	MPTK_LIB_EXPORT virtual GP_Pos_Book_c* insert_block_book(unsigned int blockIdx);
 
 	/* \brief get an index for the sub-book containing only atoms at a given position,
 	 * creating a new empty sub-book if needed
 	 * \param pos: target position
 	 * \return a pointer to the sub_book
 	 */
-	MPTK_LIB_EXPORT virtual GP_Param_Book_c* insert_sub_book(unsigned long int pos);
+	MPTK_LIB_EXPORT virtual GP_Param_Book_c* insert_pos_book(unsigned long int pos);
 
 	/* get an index for the sub-book containing only atoms
 	 * between 2 given positions, included. This leaves
 	 * the neighbourhood selection strategy to the upper level.
 	 */
-	MPTK_LIB_EXPORT virtual GP_Pos_Range_Sub_Book_c* get_sub_book(unsigned long int minPos,
+	MPTK_LIB_EXPORT virtual GP_Pos_Range_Sub_Book_c* get_range_book(unsigned long int minPos,
 			unsigned long int maxPos);
 
 	/* \brief Test if a book is empty.

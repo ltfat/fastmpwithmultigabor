@@ -686,7 +686,7 @@ MP_Support_t MP_Block_c::update_ip( const MP_Support_t *touch, GP_Pos_Book_c* bo
 	{
 
 		pos = frameIdx*filterShift + blockOffset;
-		subBook = book->get_sub_book(pos);
+		subBook = book->get_pos_book(pos);
 		update_frame(frameIdx, &maxCorr, &maxFilterIdx, subBook);
 
 		/* Register the maxCorr value for the current frame */

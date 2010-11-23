@@ -4,7 +4,7 @@
 /*                                                                            */
 /*                        Matching Pursuit Library                            */
 /*                                                                            */
-/* Rémi Gribonval                                                             */
+/* Rï¿½mi Gribonval                                                             */
 /* Sacha Krstulovic                                           Mon Feb 21 2005 */
 /* -------------------------------------------------------------------------- */
 /*                                                                            */
@@ -1172,7 +1172,7 @@ MP_Real_t MP_Dict_c::update( GP_Block_Book_c* touchBook )
   for ( i=0; i<numBlocks; i++)
     {
       /* Recompute the inner products */
-      frameSupport = block[i]->update_ip( touch, touchBook->get_sub_book(i) );
+      frameSupport = block[i]->update_ip( touch, touchBook->get_block_book(i) );
       /* Recompute and locate the max inner product within a block */
       val = block[i]->update_max( frameSupport );
       /* Locate the max inner product across the blocks */

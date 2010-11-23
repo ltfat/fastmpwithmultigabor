@@ -35,7 +35,7 @@ unsigned long int GP_Book_c::build_waveform_amp(MP_Dict_c* dict, MP_Real_t* outB
 	memset(outBuffer, 0, dict->signal->numChans*wavSize*sizeof(MP_Real_t));
 
 	for (i = 0; i < dict->numBlocks; i++){
-		subBook = get_sub_book(i);
+		subBook = get_block_book(i);
 		blockBeg = subBook->begin()->support[0].pos;
 		blockSize = dict->block[i]->build_subbook_waveform_amp(subBook, tmpBuffer);
 		for (MP_Chan_t c = 0; c < dict->signal->numChans; c++){
@@ -67,7 +67,7 @@ unsigned long int GP_Book_c::build_waveform_corr(MP_Dict_c* dict, MP_Real_t* out
 	memset(outBuffer, 0, dict->signal->numChans*wavSize*sizeof(MP_Real_t));
 
 	for (i = 0; i < dict->numBlocks; i++){
-		subBook = get_sub_book(i);
+		subBook = get_block_book(i);
 		if (!subBook->is_empty()){
 			blockBeg = subBook->begin()->support[0].pos;
 			blockSize = dict->block[i]->build_subbook_waveform_corr(subBook, tmpBuffer);

@@ -72,6 +72,8 @@ class MP_Mdct_Block_Plugin_c: public MP_Block_c {
     
     MP_DCT_Interface_c* dct;
 
+    MP_Real_t* outBuffer;
+
   /***********/
   /* METHODS */
   /***********/
@@ -235,6 +237,7 @@ public:
    * \param parameterMapDefault the map to fill.
    */
   static void  get_parameters_default_map(map< string, string, mp_ltstring>* parameterMapDefault);
+  //MP_Real_t check_corr(MP_Atom_c*);
 };
  
 

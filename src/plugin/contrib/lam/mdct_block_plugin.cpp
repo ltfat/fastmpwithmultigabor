@@ -205,6 +205,7 @@ MP_Mdct_Block_Plugin_c::init_parameters (const unsigned long int setFilterLen,
 	const char *func = "MP_Mdct_Block_Plugin_c::init_parameters()";
 	double energy = 0.0;
 	ofstream file;
+	ostringstream oss;
 
 	/* Check the validity of setFilterLen */
 	if ( is_odd(setFilterLen) || is_odd(setFilterLen/2) ) { /* If windowLen is odd: windowLen has to be even! */
@@ -244,7 +245,10 @@ MP_Mdct_Block_Plugin_c::init_parameters (const unsigned long int setFilterLen,
 	for (unsigned long int i = 0; i<filterLen; i++)
 		window[i] = window[i]*energy;
 	/* dump the window */
-//	file.open("/local/tempo/test/window_large.txt");
+//	oss.str("");
+//	oss << "win_" << filterLen << ".txt";
+//	cerr << oss.str() << endl;
+//	file.open(oss.str().c_str());
 //	for (unsigned long int i = 0; i<filterLen; i++)
 //		file << window[i] << endl;
 //	file.close();
@@ -257,6 +261,8 @@ MP_Mdct_Block_Plugin_c::init_parameters (const unsigned long int setFilterLen,
 		mp_error_msg( func, "Failed to allocate the frame buffer in the new MDCT block.\n" );
 		return( 1 );
 	}
+
+	outBuffer = new MP_Real_t[filterLen];
 
 	return (0);
 }
@@ -382,6 +388,7 @@ MP_Mdct_Block_Plugin_c::~MP_Mdct_Block_Plugin_c (){
 		delete[] window;
 	if (frameBuffer)
 		delete[] frameBuffer;
+	delete[] outBuffer;
 }
 
 
@@ -518,7 +525,7 @@ MP_Mdct_Block_Plugin_c::update_frame (unsigned long int frameIdx,
 	double sum = 0.0;
 	double max;
 	unsigned long int maxIdx;
-	MP_Real_t freq;
+	MP_Real_t freq, tmpCorr;
 
 	int chanIdx;
 	int numChans;
@@ -528,8 +535,6 @@ MP_Mdct_Block_Plugin_c::update_frame (unsigned long int frameIdx,
 	GP_Param_Book_Iterator_c iter;
 	if (!touchBook)
 		return update_frame (frameIdx, maxCorr, maxFilterIdx);
-	//cerr << "touchBook.begin() = " << endl;
-	//iter->info(stderr);
 
 	assert (s != NULL);
 	numChans = s->numChans;
@@ -580,8 +585,15 @@ MP_Mdct_Block_Plugin_c::update_frame (unsigned long int frameIdx,
 	}
 	else
 		found = false;
-	if (found)
-		iter->corr[0] = *mag;
+	if (found){
+		iter->corr[0] = *mag*dct->scale;
+//		tmpCorr = check_corr(&*iter);
+//		if (fabs(tmpCorr) > 0.0000000001 && fabs(tmpCorr-iter->corr[0]) >0.01*fabs(tmpCorr)){
+//			cerr << "update_frame: wrong corr" << endl;
+//			iter-> info();
+//			cerr << "Oracle corr == " << tmpCorr << "\tFound corr == " << iter->corr[0] << endl<<endl;
+//		}
+	}
 	sum = (double) (*mag * (*mag));
 
 	/* <- channel 0      */
@@ -611,8 +623,9 @@ MP_Mdct_Block_Plugin_c::update_frame (unsigned long int frameIdx,
 			freq = (i + 0.5) / filterLen;
 			found = (iter->get_field(MP_FREQ_PROP, 0) == freq);
 		}
-		if (found)
+		if (found){
 			iter->corr[0] = *(mag + i)*dct->scale;
+		}
 		/* - make the sum */
 
 		sum = (double) (mag[i]*mag[i]);
@@ -990,6 +1003,7 @@ MP_Mdct_Block_Plugin_c::get_parameters_default_map (map < string, string,
 
 DLL_EXPORT void
 registry (void)
+
 {
 	MP_Block_Factory_c::get_block_factory ()->register_new_block ("mdct",
 			&MP_Mdct_Block_Plugin_c::
@@ -1001,3 +1015,11 @@ registry (void)
 			&MP_Mdct_Block_Plugin_c::
 			get_parameters_default_map);
 }
+
+//MP_Real_t MP_Mdct_Block_Plugin_c::check_corr(MP_Atom_c* atom){
+//	MP_Real_t corr = 0.0;
+//	build_atom_waveform_norm(atom, outBuffer);
+//	for (unsigned long int t = 0; t < atom->support[0].len; t++)
+//		corr += outBuffer[t]*s->channel[0][t+atom->support[0].pos];
+//	return corr;
+//}

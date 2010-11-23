@@ -49,8 +49,8 @@ int GP_Pos_Range_Sub_Book_c::append(MP_Atom_c* newAtom){
   return book->append(newAtom);
 }
 
-GP_Pos_Range_Sub_Book_c* GP_Pos_Range_Sub_Book_c::get_sub_book(unsigned int blockIdx){
-  GP_Book_c* subBook = book->get_sub_book(blockIdx);
+GP_Pos_Range_Sub_Book_c* GP_Pos_Range_Sub_Book_c::get_block_book(unsigned int blockIdx){
+  GP_Book_c* subBook = book->get_block_book(blockIdx);
   if (!subBook)
     return NULL;
   if (subBook == book)
@@ -58,16 +58,16 @@ GP_Pos_Range_Sub_Book_c* GP_Pos_Range_Sub_Book_c::get_sub_book(unsigned int bloc
   return new GP_Pos_Range_Sub_Book_c(subBook, minPos, maxPos);
 }
 
-GP_Book_c* GP_Pos_Range_Sub_Book_c::get_sub_book(unsigned long int pos){
+GP_Book_c* GP_Pos_Range_Sub_Book_c::get_pos_book(unsigned long int pos){
   if (pos<minPos)
     return NULL;
   if (pos>maxPos)
     return NULL;
-  return book->get_sub_book(pos);
+  return book->get_pos_book(pos);
 }
 
-GP_Pos_Range_Sub_Book_c* GP_Pos_Range_Sub_Book_c::insert_sub_book(unsigned int blockIdx){
-  GP_Book_c* subBook = book->get_sub_book(blockIdx);
+GP_Pos_Range_Sub_Book_c* GP_Pos_Range_Sub_Book_c::insert_block_book(unsigned int blockIdx){
+  GP_Book_c* subBook = book->get_block_book(blockIdx);
   if (!subBook)
     return NULL;
   if (subBook == book)
@@ -75,15 +75,15 @@ GP_Pos_Range_Sub_Book_c* GP_Pos_Range_Sub_Book_c::insert_sub_book(unsigned int b
   return new GP_Pos_Range_Sub_Book_c(subBook, minPos, maxPos);
 }
 
-GP_Book_c* GP_Pos_Range_Sub_Book_c::insert_sub_book(unsigned long int pos){
+GP_Book_c* GP_Pos_Range_Sub_Book_c::insert_pos_book(unsigned long int pos){
   if (pos<minPos)
     return NULL;
   if (pos>maxPos)
     return NULL;
-  return book->insert_sub_book(pos);
+  return book->insert_pos_book(pos);
 }
 
-GP_Pos_Range_Sub_Book_c* GP_Pos_Range_Sub_Book_c::get_sub_book(unsigned long int minPos,
+GP_Pos_Range_Sub_Book_c* GP_Pos_Range_Sub_Book_c::get_range_book(unsigned long int minPos,
 		unsigned long int maxPos){
   return new GP_Pos_Range_Sub_Book_c(book,
 				     max(minPos, this->minPos),

@@ -179,34 +179,34 @@ class GP_Pos_Range_Sub_Book_c: public GP_Book_c{
    * \param blockIdx: target block
    * \return a pointer to the sub_book if it exists, NULL otherwise
    */
-  MPTK_LIB_EXPORT GP_Pos_Range_Sub_Book_c* get_sub_book(unsigned int blockIdx);
+  MPTK_LIB_EXPORT GP_Pos_Range_Sub_Book_c* get_block_book(unsigned int blockIdx);
     
   /* \brief get an index for the sub-book containing only atoms at a given position
    * \param pos: target position
    * \return a pointer to the sub_book if it exists, NULL otherwise
    */
-  MPTK_LIB_EXPORT GP_Book_c* get_sub_book(unsigned long int pos);
+  MPTK_LIB_EXPORT GP_Book_c* get_pos_book(unsigned long int pos);
   
   /* \brief get an index for the sub-book containing only atoms generated
    * by a given block, creating a new empty sub-book if needed
    * \param blockIdx: target block
    * \return a pointer to the sub_book
    */
-  MPTK_LIB_EXPORT GP_Pos_Range_Sub_Book_c* insert_sub_book(unsigned int blockIdx);
+  MPTK_LIB_EXPORT GP_Pos_Range_Sub_Book_c* insert_block_book(unsigned int blockIdx);
     
   /* \brief get an index for the sub-book containing only atoms at a given position,
    * creating a new empty sub-book if needed
    * \param pos: target position
    * \return a pointer to the sub_book
    */
-  MPTK_LIB_EXPORT GP_Book_c* insert_sub_book(unsigned long int pos);
+  MPTK_LIB_EXPORT GP_Book_c* insert_pos_book(unsigned long int pos);
     
   /* \brief get an index for the sub-book containing only atoms between two positions
    * \param minPos: lower bound (included)
    * \param maxPos: upper bound (excluded)
    * \return a pointer to the sub_book if it exists, NULL otherwise
    */
-  MPTK_LIB_EXPORT GP_Pos_Range_Sub_Book_c* get_sub_book(unsigned long int minPos,
+  MPTK_LIB_EXPORT GP_Pos_Range_Sub_Book_c* get_range_book(unsigned long int minPos,
 		  unsigned long int maxPos);
 
   /* \brief get an iterator pointing to the first atom of the book

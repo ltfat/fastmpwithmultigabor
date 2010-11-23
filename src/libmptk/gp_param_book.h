@@ -126,15 +126,15 @@ class GP_Param_Book_c:public GP_Book_c, public paramBookMap{
 
   MPTK_LIB_EXPORT int append(MP_Atom_c*);
 
-  MPTK_LIB_EXPORT GP_Param_Book_c* get_sub_book(unsigned int blockIdx);
+  MPTK_LIB_EXPORT GP_Param_Book_c* get_block_book(unsigned int blockIdx);
 
-  MPTK_LIB_EXPORT GP_Param_Book_c* get_sub_book(unsigned long int pos);
+  MPTK_LIB_EXPORT GP_Param_Book_c* get_pos_book(unsigned long int pos);
   
-  MPTK_LIB_EXPORT GP_Param_Book_c* insert_sub_book(unsigned int blockIdx);
+  MPTK_LIB_EXPORT GP_Param_Book_c* insert_block_book(unsigned int blockIdx);
 
-  MPTK_LIB_EXPORT GP_Param_Book_c* insert_sub_book(unsigned long int pos);
+  MPTK_LIB_EXPORT GP_Param_Book_c* insert_pos_book(unsigned long int pos);
 
-  MPTK_LIB_EXPORT GP_Param_Book_c* get_sub_book(unsigned long int minPos,
+  MPTK_LIB_EXPORT GP_Param_Book_c* get_range_book(unsigned long int minPos,
 		  unsigned long int maxPos);
 
   MPTK_LIB_EXPORT void reset(void);

@@ -4,7 +4,7 @@
 /*                                                                            */
 /*                        Matching Pursuit Library                            */
 /*                                                                            */
-/* Boris Mailhé                                               Tue Aug 05 2008 */
+/* Boris Mailhï¿½                                               Tue Aug 05 2008 */
 /* -------------------------------------------------------------------------- */
 /*                                                                            */
 /*  Copyright (C) 2005 IRISA                                                  */
@@ -151,5 +151,5 @@ GP_Pos_Range_Sub_Book_c* GP_Double_Index_Book_c::get_neighbours (MP_Atom_c* atom
       begin = 0;
     end += (atom->support->len -1);
     
-    return sortBook->get_sub_book(begin, end);
+    return sortBook->get_range_book(begin, end);
 }

@@ -26,18 +26,18 @@ bool GP_Pos_Book_c::contains(unsigned int blockIdx,
 		MP_Atom_Param_c& param){
   if (blockIdx != this->blockIdx)
     return false;
-  return get_sub_book(pos)->contains(param);
+  return get_pos_book(pos)->contains(param);
 }
 
 bool GP_Pos_Book_c::contains(unsigned long int pos,
 			       MP_Atom_Param_c& param){
-  return get_sub_book(pos)->contains(param);
+  return get_pos_book(pos)->contains(param);
 }
 
 bool GP_Pos_Book_c::contains(const MP_Atom_c& atom){
   if (blockIdx != atom.blockIdx)
     return false;
-  return get_sub_book(atom.get_pos())->contains(*(atom.get_atom_param()));
+  return get_pos_book(atom.get_pos())->contains(*(atom.get_atom_param()));
 }
 
 /* get an atom if present, NULL otherwise
@@ -47,18 +47,18 @@ MP_Atom_c* GP_Pos_Book_c::get_atom(unsigned int blockIdx,
 		MP_Atom_Param_c& param){
  if (blockIdx != this->blockIdx)
     return NULL;
- return get_sub_book(pos)->get_atom(param);
+ return get_pos_book(pos)->get_atom(param);
 }
 
 MP_Atom_c* GP_Pos_Book_c::get_atom(unsigned long int pos,
 				     MP_Atom_Param_c& param){
-  return get_sub_book(pos)->get_atom(param);
+  return get_pos_book(pos)->get_atom(param);
 }
 
 MP_Atom_c* GP_Pos_Book_c::get_atom(const MP_Atom_c& atom){
   if (blockIdx != atom.blockIdx)
     return NULL;
-  return get_sub_book(atom.get_pos())->get_atom(*(atom.get_atom_param()));
+  return get_pos_book(atom.get_pos())->get_atom(*(atom.get_atom_param()));
 }
 
 /** \brief Clear all the atoms from the book.
@@ -91,7 +91,7 @@ int GP_Pos_Book_c::append( MP_Atom_c *newAtom ){
 /* get an index for the sub-book containing only atoms generated
  * by a given block.
  */
-GP_Pos_Book_c* GP_Pos_Book_c::get_sub_book(unsigned int blockIdx){
+GP_Pos_Book_c* GP_Pos_Book_c::get_block_book(unsigned int blockIdx){
   if (blockIdx != this->blockIdx)
     return NULL;
   return this;
@@ -101,7 +101,7 @@ GP_Pos_Book_c* GP_Pos_Book_c::get_sub_book(unsigned int blockIdx){
  * at a given position. All changes to the sub-book will be backed to the 
  * original one.
  */
-GP_Param_Book_c* GP_Pos_Book_c::get_sub_book(unsigned long int pos){
+GP_Param_Book_c* GP_Pos_Book_c::get_pos_book(unsigned long int pos){
   iterator sub = find(pos);
   if (sub == posBookMap::end())
     return NULL;
@@ -112,18 +112,18 @@ GP_Param_Book_c* GP_Pos_Book_c::get_sub_book(unsigned long int pos){
  * between 2 given positions, included. This leaves 
  * the neighbourhood selection strategy to the upper level.
  */
-GP_Pos_Range_Sub_Book_c* GP_Pos_Book_c::get_sub_book(unsigned long int minPos,
+GP_Pos_Range_Sub_Book_c* GP_Pos_Book_c::get_range_book(unsigned long int minPos,
 		unsigned long int maxPos){
   return new GP_Pos_Range_Sub_Book_c(this, minPos, maxPos);
 }
 
-GP_Pos_Book_c* GP_Pos_Book_c::insert_sub_book(unsigned int blockIdx){
+GP_Pos_Book_c* GP_Pos_Book_c::insert_block_book(unsigned int blockIdx){
   if (blockIdx != this->blockIdx)
     return NULL;
   return this;
 }
 
-GP_Param_Book_c* GP_Pos_Book_c::insert_sub_book(unsigned long int pos){
+GP_Param_Book_c* GP_Pos_Book_c::insert_pos_book(unsigned long int pos){
   pair<iterator,bool> sub = insert(value_type(pos, GP_Param_Book_c(blockIdx, pos)));
   return &(sub.first->second);
 }
