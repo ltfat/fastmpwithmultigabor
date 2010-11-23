@@ -23,7 +23,7 @@ ENDFOREACH(test_target)
 #------------------------------------------------
 #Find or generate the tests scripts
 #------------------------------------------------
-FOREACH(MPTK_SCRIPTS TestExecCycle)
+FOREACH(MPTK_SCRIPTS TestExecCycle TestMatlab)
 	FIND_FILE(MPTK_SCRIPTS_FOUND ${MPTK_SCRIPTS}.* PATHS ${MPTK_BINARY_DIR}/bin/script/)
 	IF(NOT MPTK_SCRIPTS_FOUND)
 		CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/tests/script/${MPTK_SCRIPTS}${BATCHEXT}.in ${MPTK_BINARY_DIR}/bin/script/${MPTK_SCRIPTS}${BATCHEXT} @ONLY)
