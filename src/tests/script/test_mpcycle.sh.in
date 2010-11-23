@@ -181,3 +181,41 @@ else
   echo "                         diff $currentpath/log_mpf_book_mix_58_stereo.bin.log $refsourcepath/log_mpf_book_mix_58_stereo.bin.ref"
   exit 1
 fi
+
+#
+# check gpd
+#
+echo "=============================="
+echo "#                            #"
+echo "#       checking gpd         #"
+echo "#                            #"
+echo "=============================="
+
+if [ -f "$binpath/gpd" ]; then
+	echo "The executable file named gpd is located under : $binpath/gpd"
+else
+	echo "You should probably build gpd before running the tests..."
+	exit 1		
+fi
+
+echo "--------------------------------------------------"
+echo " gpd command to create a book and a log           "
+echo "--------------------------------------------------"
+
+cmd="$binpath/gpd  --verbose -s 10 -R 10 -C $mptkpath/path.xml -D $refbinpath/dictionary/dic_mdct_two_scales.xml $refbinpath/signal/glockenspiel.wav $currentpath/book_gpd_glockenspiel.bin $currentpath/res_gpd_glockenspiel.wav >& $currentpath/log_gpd_glockenspiel.log;"
+echo $cmd
+eval $cmd
+
+echo "--------------------------------------------------"
+echo " diff command to differentiate the log files      "
+echo "--------------------------------------------------"
+
+diff -I 'glockenspiel' -I 'dic_mdct_two_scales' -I 'WARNING' $currentpath/log_gpd_glockenspiel.log $refsourcepath/log_gpd_glockenspiel.ref > /dev/null 2> /dev/null
+if test $? -eq 0; then
+  echo "  gpd -- test -- The current log is similar to the reference log. Test passed successfully."
+else
+  echo "  gpd -- test ERROR -- The current log differs from the reference log."
+  echo "                       For details, execute:"
+  echo "                         diff -I 'glockenspiel' -I 'dic_mdct_two_scales' -I 'WARNING' $currentpath/log_gpd_glockenspiel.log $refsourcepath/log_gpd_glockenspiel.ref"
+  exit 1
+fi
