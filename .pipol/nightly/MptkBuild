@@ -70,7 +70,7 @@ case $PIPOL_IMAGE in
 		# 3) Configuration of the variables for matlab
 		export TEMP=/cygdrive/c/Temp
 		if expr $PIPOL_IMAGE : ".*amd64.*"; then 
-			SYSTEMOS="Win64"
+			SYSTEMOS=" Win64"
 			SYSTEMCOMPILE="x64"
 			export PROCESSOR_ARCHITECTURE=AMD64		
 			printf 'y\n1\ny\n' | /cygdrive/y/amd64/matlab-2010a-windows/bin/mex.bat -setup
@@ -94,7 +94,7 @@ case $PIPOL_IMAGE in
 		cd MPTK_Build
 		
 		# 6) Making VISUAL project with cmake 2.6 - 2.8
-		/cygdrive/c/CMake\ $VERSION/bin/cmake.exe -DDASH_TESTING=ON -G "$PIPOL_WIN_COMPILER $SYSTEMOS" ./../MPTK_Source
+		/cygdrive/c/CMake\ $VERSION/bin/cmake.exe -DDASH_TESTING=ON -G "$PIPOL_WIN_COMPILER$SYSTEMOS" ./../MPTK_Source
 
 		# 7) Setting environment
 		if expr $PIPOL_IMAGE : ".*amd64.*"; then 
