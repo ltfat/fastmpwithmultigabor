@@ -525,7 +525,7 @@ MP_Mdct_Block_Plugin_c::update_frame (unsigned long int frameIdx,
 	double sum = 0.0;
 	double max;
 	unsigned long int maxIdx;
-	MP_Real_t freq, tmpCorr;
+	MP_Real_t freq;
 
 	int chanIdx;
 	int numChans;

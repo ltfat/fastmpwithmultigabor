@@ -324,7 +324,7 @@ unsigned short int GPD_Core_c::step() {
 	unsigned int numAtoms, size;
 	unsigned long int t, offset;
 	GP_Pos_Range_Sub_Book_Iterator_c iter;
-	MP_Real_t alpha, enCorr, enGrad, tmpCorr;
+	MP_Real_t alpha, enCorr, enGrad;
 	MP_Support_t gradSupport;
 	MP_Chan_t c;
 	ofstream file;

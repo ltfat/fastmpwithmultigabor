@@ -114,7 +114,7 @@ MACRO(GET_MPTK_LIB_CPPSOURCE out)
 	${CMAKE_SOURCE_DIR}/src/libmptk/block.cpp 
 	${MPTK_BINARY_DIR}/src/libmptk/atom.cpp 
 	${CMAKE_SOURCE_DIR}/src/libmptk/anywave_table.cpp 
-    ${CMAKE_SOURCE_DIR}/src/libmptk/anywave_server.cpp             
+   	 ${CMAKE_SOURCE_DIR}/src/libmptk/anywave_server.cpp             
 	${CMAKE_SOURCE_DIR}/src/libmptk/convolution.cpp
 	${CMAKE_SOURCE_DIR}/src/libmptk/atom_factory.cpp
 	${CMAKE_SOURCE_DIR}/src/libmptk/block_factory.cpp
@@ -151,7 +151,12 @@ SET_SOURCE_FILES_PROPERTIES(
 )
 #
 
-ADD_LIBRARY(mptk SHARED ${MPTK_LIB_CPPSOURCE})
+IF(BUILD_SHARED_LIBS)
+	ADD_LIBRARY(mptk SHARED ${MPTK_LIB_CPPSOURCE})
+ELSE(BUILD_SHARED_LIBS)
+	ADD_LIBRARY(mptk STATIC ${MPTK_LIB_CPPSOURCE})
+ENDIF(BUILD_SHARED_LIBS)
+
 #In case of 64 bits plateform we have to compil with -fPIC flag
 #
 SET_TARGET_PROPERTIES(mptk PROPERTIES COMPILE_FLAGS "-DC_BUILDING_MPTK ${CMAKE_CXX_FLAGS}" OUTPUT_NAME "mptk")
@@ -166,13 +171,11 @@ ENDIF(WIN32)
 # Define install target:
 #For mptk library:
 IF(BUILD_SHARED_LIBS)
-INSTALL(TARGETS
-  mptk 
- LIBRARY DESTINATION lib
- ARCHIVE DESTINATION lib
- RUNTIME DESTINATION lib
-)
-
+	INSTALL(TARGETS mptk 
+ 		LIBRARY DESTINATION lib
+		ARCHIVE DESTINATION lib
+		RUNTIME DESTINATION lib)
+ENDIF(BUILD_SHARED_LIBS)
 
 IF(WIN32)
 	IF(CMAKE_CXX_COMPILER STREQUAL "cl")
@@ -187,4 +190,4 @@ IF(WIN32)
 ENDIF(WIN32)
 #for mptk include file:
 INSTALL(FILES ${MPTK_BINARY_DIR}/path.xml DESTINATION mptk)
-ENDIF(BUILD_SHARED_LIBS)
+
