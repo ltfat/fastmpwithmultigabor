@@ -1,0 +1,20 @@
+-------
+AUTHORS:
+-------
+IRISA METISS team
+Remi Gribonval		<remi@irisa.fr>
+Sacha Krstulovic	<sacha@irisa.fr>
+------------
+Contributors:
+------------
+Emmanuel Ravelli	<ravelli@lam.jussieu.fr>
+Sylvain Lesage		<slesage@irisa.fr>
+Stefan Strahl		<stefan.strahl@uni-oldenburg.de>
+Boris Mailhe		<boris.mailhe@irisa.fr>
+------------
+Software engineering:
+------------
+Benjamin Roy		<broy@irisa.fr>
+Ronan Le Boulch		<ronan.le_boulch@irisa.fr>
+
+
