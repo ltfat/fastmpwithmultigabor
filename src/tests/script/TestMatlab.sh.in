@@ -36,11 +36,21 @@
 ##   $Revision: 505 $
 ##
 
-installpath=@EXECUTABLE_OUTPUT_PATH@
 matlabpath=@MATLAB_ROOT@
+matlabTestspath=@MPTK_MATLABTESTS_PATH@
 
 echo "####################################"
 echo "          Launching Matlab          "
 echo "####################################"
-$matlabpath/bin/matlab -nosplash -nojvm -nodesktop -r "$installpath/script/TestMatlab,exit"
+$matlabpath/bin/matlab -nosplash -nojvm -nodesktop -r "run $matlabTestspath/matlabtest_getmptkinfo.m,exit" > log_test.log;
 
+testFinal=$(cat log_test.log | tail -2 | head -1)
+echo "####################################"
+echo "      Testing Matlab Execution      "
+echo "####################################"
+if test $testFinal -eq 0; then
+	echo "matlabtest_getmptkinfo -- test -- Test passed successfully."
+else
+	echo "matlabtest_getmptkinfo -- test -- ERROR during the test"
+	exit 1		
+fi

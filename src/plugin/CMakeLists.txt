@@ -6,23 +6,6 @@ if(COMMAND cmake_policy)
     cmake_policy(SET CMP0003 NEW)
 endif(COMMAND cmake_policy)
 
-#In case of 64 bits plateform we have to compil with -fPIC flag
-# THIS SHOULD BE INHERITED FROM CALLING CMakeLists.txt !!!!
-
-IF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
-IF( CMAKE_CXX_COMPILER STREQUAL "cl")
-    SET(PLUGIN_COMPILE_FLAGS " -fPIC")
-ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
-    SET(PLUGIN_COMPILE_FLAGS " -Wno-deprecated -fPIC")
-ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
-ELSE( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" ) 
-IF( CMAKE_CXX_COMPILER STREQUAL "cl")
-    SET(PLUGIN_COMPILE_FLAGS "")
-ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
-    SET(PLUGIN_COMPILE_FLAGS " -Wno-deprecated")
-ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
-ENDIF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" ) 
-
 #########################################
 # GABOR 
 #Create the Gabor plugins in DLL
@@ -161,21 +144,23 @@ contrib/lam/mdst_block_plugin.cpp
 
 FOREACH(target GABOR CONSTANT DIRAC NYQUIST ANYWAVE MCLT MDCT MDST)
    FOREACH(type ATOM BLOCK)
-      ADD_LIBRARY(${target}_${type} SHARED ${${target}_${type}_PLUGIN_SOURCES})
+      IF(BUILD_SHARED_LIBS)
+      	ADD_LIBRARY(${target}_${type} SHARED ${${target}_${type}_PLUGIN_SOURCES})
+      ELSE(BUILD_SHARED_LIBS)
+      	ADD_LIBRARY(${target}_${type} STATIC ${${target}_${type}_PLUGIN_SOURCES})
+      ENDIF(BUILD_SHARED_LIBS)
+
       SET_TARGET_PROPERTIES(${target}_${type} PROPERTIES
-			    COMPILE_FLAGS " -DC_BUILDING_${target}_${type} ${SHARED_FLAGS} ${PLUGIN_COMPILE_FLAGS}"
+			    COMPILE_FLAGS " -DC_BUILDING_${target}_${type} ${CMAKE_CXX_FLAGS}"
 			    PREFIX ""
     			    OUTPUT_NAME "${target}_${type}")
       TARGET_LINK_LIBRARIES(${target}_${type}  mptk)
       ADD_DEPENDENCIES(${target}_${type}  mptk) 
       IF(BUILD_SHARED_LIBS)
 		INSTALL(TARGETS ${target}_${type}
-# COMMENTED OUT BECAUSE CAUSED INSTALL TO FAIL ON MACOSX
-#		        CONFIGURATIONS Release
     			LIBRARY DESTINATION mptk/plugins
-			    ARCHIVE DESTINATION mptk/plugins
-			    RUNTIME DESTINATION mptk/plugins
-       			)
+			ARCHIVE DESTINATION mptk/plugins
+			RUNTIME DESTINATION mptk/plugins)
       ENDIF(BUILD_SHARED_LIBS)
    ENDFOREACH(type)
 ENDFOREACH(target)

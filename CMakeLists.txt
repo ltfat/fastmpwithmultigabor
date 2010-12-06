@@ -9,6 +9,7 @@ if(COMMAND cmake_policy)
       cmake_policy(SET CMP0002 OLD)
 endif(COMMAND cmake_policy)
 
+
 ##############################################################################
 # Setting compilation option
 ##############################################################################
@@ -167,7 +168,6 @@ ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
 #Setting package versions informations according to text files in /version
 ##############################################################################
 INCLUDE(${MPTK_SOURCE_DIR}/version/buildversion.cmake)
-INCLUDE(${MPTK_SOURCE_DIR}/CMake/CommonConfig.cmake)
 FILE(READ ${MPTK_SOURCE_DIR}/version/AUTHORS.txt AUTHORS)
 SET(BUILDVERSION_GUILLEMETS \"${BUILDVERSION_MAJOR}.${BUILDVERSION_MINOR}.${BUILDVERSION_PATCH}\")
 SET(BUILDVERSION "${BUILDVERSION_MAJOR}.${BUILDVERSION_MINOR}.${BUILDVERSION_PATCH}")
@@ -246,19 +246,17 @@ ENDFOREACH(default)
 # Depending on compiler+IDE (Make/Xcode/Visual), need to specify postfix for build type
 ##############################################################################
 # Case of Visual Studio 
-IF( CMAKE_CXX_COMPILER STREQUAL "cl")
+IF(WIN32)
     IF (BUILD_DEBUG)
-      # Case of debug mode
-      SET(MPTK_DEBUG_RELEASE "/debug")
-      SET(MPTK_LIB_DIR ${MPTK_BINARY_DIR}/lib/debug)
-      SET(MPTK_LIB_DIR_INSTALL ${CMAKE_INSTALL_PREFIX}/lib)
+		# Case of debug mode
+		SET(MPTK_DEBUG_RELEASE "debug")
+		SET(MPTK_LIB_DIR ${MPTK_BINARY_DIR}/lib/debug)
     ELSE (BUILD_DEBUG)
     	# Case of release mode
-      SET(MPTK_DEBUG_RELEASE "/release")
-    	SET(MPTK_LIB_DIR ${MPTK_BINARY_DIR}/lib/release)
-    	SET(MPTK_LIB_DIR_INSTALL ${CMAKE_INSTALL_PREFIX}/lib)
+		SET(MPTK_DEBUG_RELEASE "release")
+		SET(MPTK_LIB_DIR ${MPTK_BINARY_DIR}/lib/release)
     ENDIF (BUILD_DEBUG)
-ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
+ELSE(WIN32)
   # Case of Xcode
   IF( CMAKE_GENERATOR STREQUAL "Xcode")
     # We would like to select a single build mode, would we ?
@@ -275,13 +273,14 @@ ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
     SET(MPTK_LIB_DIR ${MPTK_BINARY_DIR}/lib)
     SET(MPTK_LIB_DIR_INSTALL ${CMAKE_INSTALL_PREFIX}/lib)
   ENDIF(CMAKE_GENERATOR STREQUAL "Xcode") 
-ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
+ENDIF(WIN32)
 
 # --------------------------------
 # setting path configuration file
 # --------------------------------
 CONFIGURE_FILE(${MPTK_SOURCE_DIR}/path.xml.in ${MPTK_BINARY_DIR}/mptk/path.xml @ONLY)
-CONFIGURE_FILE(${MPTK_SOURCE_DIR}/path.xml.install ${MPTK_BINARY_DIR}/path.xml @ONLY)
+CONFIGURE_FILE(${MPTK_SOURCE_DIR}/path.xml.install ${MPTK_BINARY_DIR}/install/path.xml @ONLY)
+INSTALL(FILES ${MPTK_BINARY_DIR}/install/path.xml DESTINATION mptk)
 
 #------------------
 # setting bin path
@@ -409,7 +408,7 @@ SET(CPACK_PACKAGE_VERSION ${BUILDVERSION})
 SET(CPACK_PACKAGE_VERSION_MAJOR "${BUILDVERSION_MAJOR}")
 SET(CPACK_PACKAGE_VERSION_MINOR "${BUILDVERSION_MINOR}")
 SET(CPACK_PACKAGE_VERSION_PATCH "${BUILDVERSION_PATCH}")
-SET(CPACK_SYSTEM_NAME "${CMAKE_OSX_ARCHITECTURES}")
+SET(CPACK_SYSTEM_NAME "${CMAKE_SYSTEM_PROCESSOR}")
 SET(CPACK_PACKAGE_INSTALL_DIRECTORY "MPTK")
 
 SET(CPACK_OUTPUT_CONFIG_FILE "${MPTK_BINARY_DIR}/CPackConfig.cmake")
@@ -499,5 +498,8 @@ IF(BUILD_TESTING)
 	ADD_TEST(MPD_DEMIX, ${MPTK_BINARY_DIR}/bin/mpd_demix -C ${MPTK_BINARY_DIR}/mptk/path.xml -D ${MPTK_DEFAULT_DICT_LIST_FILE} -M ${MPTK_DEFAULT_MIXER_FILE} -n 10 ${MPTK_EXAMPLE_STEREOSIGNAL_FILE} ${MPTK_TMP_PATH}/test_demix.bin)
 	ADD_TEST(SCRIPT1, ${MPTK_BINARY_DIR}/bin/script/TestExecCycle${BATCHEXT})
 	ADD_TEST(GPD, ${MPTK_BINARY_DIR}/bin/gpd -C ${MPTK_BINARY_DIR}/mptk/path.xml -D ${MPTK_DEFAULT_MDCTDICT_FILE} -n 10 -q ${MPTK_REFERENCE_PATH}/signal/glockenspiel.wav ${MPTK_TMP_PATH}/test_gpd.bin)
+	IF(NOT PIPOL_IMAGE)
+		ADD_TEST(MATLABGETMPTKINFO,  ${MPTK_BINARY_DIR}/bin/script/TestMatlab${BATCHEXT})
+	ENDIF(NOT PIPOL_IMAGE)
 ENDIF(BUILD_TESTING)
 

@@ -53,8 +53,8 @@ FOREACH(file GettingStarted.m)
     SET(MPTK_CONFIG_FILENAME ${MPTK_BINARY_DIR}/mptk/path.xml)
     CONFIGURE_FILE(${MPTK_MATLAB_SRC_DIR}/${file}.in ${MPTK_MATLAB_OUTPUT_DIR}/${file} @ONLY)
     SET(MPTK_CONFIG_FILENAME ${CMAKE_INSTALL_PREFIX}/mptk/path.xml)
-    CONFIGURE_FILE(${MPTK_MATLAB_SRC_DIR}/${file}.in ${MPTK_MATLAB_OUTPUT_DIR}/for_install_only/${file} @ONLY)     
-    INSTALL(FILES ${MPTK_MATLAB_OUTPUT_DIR}/for_install_only/${file} DESTINATION ${MPTK_MATLAB_INSTALL_DIR})
+    CONFIGURE_FILE(${MPTK_MATLAB_SRC_DIR}/${file}.in ${MPTK_BINARY_DIR}/install/mptk/matlab/${file} @ONLY)     
+    INSTALL(FILES ${MPTK_BINARY_DIR}/install/mptk/matlab/${file} DESTINATION ${MPTK_MATLAB_INSTALL_DIR})
 ENDFOREACH(file)
 
 # SCRIPT FILES
@@ -156,8 +156,7 @@ FOREACH(target getmptkinfo dictread dictwrite sigread sigwrite bookread bookwrit
    ENDIF(UNIX)
 
     # Copy the MEX-wrapper
-    CONFIGURE_FILE(${MPTK_MATLAB_SRC_DIR}/${target}.m ${MPTK_MATLAB_OUTPUT_DIR}/${target}.m
-                   COPYONLY) 
+    CONFIGURE_FILE(${MPTK_MATLAB_SRC_DIR}/${target}.m ${MPTK_MATLAB_OUTPUT_DIR}/${target}.m COPYONLY) 
 
     # Set rules to install the MEX-binary and MEX-wrapper
     INSTALL(FILES ${MPTK_MATLAB_OUTPUT_DIR}/${target}.${MEX_EXTENSION} ${MPTK_MATLAB_OUTPUT_DIR}/${target}.m
