@@ -19,6 +19,10 @@ ADD_CUSTOM_COMMAND(
 SET_SOURCE_FILES_PROPERTIES(${MPTK_BINARY_DIR}/src/libmptk/regression_constants.h GENERATED)
 #
 #------------------------------------------------
+#Generate the mptk.h used to build:
+INCLUDE(${MPTK_SOURCE_DIR}/CMake/CMakeGenerateMPTKHeader.cmake)
+#
+#------------------------------------------------
 #Set the list of header files
 SET(HEADER_FILE 
     ${CMAKE_SOURCE_DIR}/src/libmptk/mp_types.h 
@@ -77,7 +81,7 @@ IF(NOT EXISTS ${MPTK_BINARY_DIR}/install/include/mptk.h)
     ENDFOREACH(HEADER)
     FILE(READ ${CMAKE_SOURCE_DIR}/src/libmptk/mp_pthreads_barrier.h BUFFER)
     FILE(APPEND ${MPTK_BINARY_DIR}/install/include/mptk.h  "${BUFFER}" )
-    FILE(READ ${CMAKE_SOURCE_DIR}/src/libmptk/mp_system.h BUFFER)
+    FILE(READ ${CMAKE_SOURCE_DIR}/mp_system.h BUFFER)
     FILE(APPEND ${MPTK_BINARY_DIR}/install/include/mptk.h  "${BUFFER}" )
     FILE(APPEND ${MPTK_BINARY_DIR}/install/include/mptk.h "#endif /* __mptk_h_ */\n" )
     SET(MPTK_SHARED_HEADER TRUE INTERNAL)
@@ -86,7 +90,6 @@ ENDIF(NOT EXISTS ${MPTK_BINARY_DIR}/install/include/mptk.h)
 
 #Place this header file in the include directory of the build directory
 CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/libmptk/mptk.h.cmake ${MPTK_BINARY_DIR}/src/libmptk/mptk.h)
-CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/libmptk/config.h.cmake ${MPTK_BINARY_DIR}/src/libmptk/config.h)
 # 
 
 #------------------------------------------------

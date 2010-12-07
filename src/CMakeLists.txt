@@ -24,14 +24,14 @@ ADD_SUBDIRECTORY (plugin)
 #------------------------------------------------  
 #Build the executable if requested by the end-user
 IF(BUILD_EXECUTABLE)
-	ADD_SUBDIRECTORY (utils )
+ADD_SUBDIRECTORY (utils )
 ENDIF(BUILD_EXECUTABLE)
 
 # Go to compile GUI
 IF(BUILD_GUI)
-	ADD_SUBDIRECTORY (gui) 
+ADD_SUBDIRECTORY (gui) 
 ENDIF(BUILD_GUI)
 
 IF(BUILD_TESTING)
-	ADD_SUBDIRECTORY (tests) 
+ADD_SUBDIRECTORY (tests) 
 ENDIF(BUILD_TESTING)
