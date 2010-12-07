@@ -287,7 +287,7 @@ INSTALL(FILES ${MPTK_BINARY_DIR}/install/path.xml DESTINATION mptk)
 # -----------------
 IF(EXECUTABLE_OUTPUT_PATH)
 ELSE(EXECUTABLE_OUTPUT_PATH)
-	SET(EXECUTABLE_OUTPUT_PATH "${MPTK_BINARY_DIR}/bin/${OS}" CACHE PATH "Single output directory for building all executables.")
+	SET(EXECUTABLE_OUTPUT_PATH "${MPTK_BINARY_DIR}/bin/" CACHE PATH "Single output directory for building all executables.")
 ENDIF(EXECUTABLE_OUTPUT_PATH)
 
 #-----------------
@@ -295,7 +295,7 @@ ENDIF(EXECUTABLE_OUTPUT_PATH)
 #-----------------
 IF(LIBRARY_OUTPUT_PATH)
 ELSE(LIBRARY_OUTPUT_PATH)
-	SET(LIBRARY_OUTPUT_PATH "${MPTK_BINARY_DIR}/lib/${OS}" CACHE PATH "Single output directory for building all libraries.")
+	SET(LIBRARY_OUTPUT_PATH "${MPTK_BINARY_DIR}/lib/" CACHE PATH "Single output directory for building all libraries.")
 ENDIF(LIBRARY_OUTPUT_PATH)
 
 ##############################################################################

@@ -2,7 +2,7 @@
 /*                                                                            */
 /*                  	          dictwrite.cpp                       	      */
 /*                                                                            */
-/*				mptk4matlab toolbox		      	      */
+/*								mptk4matlab toolbox							  */
 /*                                                                            */
 /* Remi Gribonval                                            	  July   2008 */
 /* -------------------------------------------------------------------------- */
@@ -22,6 +22,23 @@
 /*  Foundation, Inc., 59 Temple Place - Suite 330,                            */
 /*  Boston, MA  02111-1307, USA.                                              */
 /*                                                                            */
+/******************************************************************************/
+/*						MPTK - Matlab interface								  */
+/* Export a dictionary description from Matlab to a file, using MPTK		  */
+/*																			  */
+/* Usage: isvalid = dictwrite(dict[,filename])								  */
+/*																			  */
+/* Inputs:																	  */
+/*  - dict     : a dictionary description with the following structure		  */
+/*						dict.block{i} = block								  */
+/*					where, for example										  */
+/*						block.type = 'dirac'								  */
+/*					and block may have other field names					  */
+/*  - filename : the filename where to write the dictionary description in	  */
+/*               XML if ommited, we just check if the syntax of dict is valid */
+/*																			  */
+/* Outputs:																	  */
+/*  - isvalid   : indicates if the dictionary structure was correctly formed  */ 
 /******************************************************************************/
 
 #include "mptk4matlab.h"

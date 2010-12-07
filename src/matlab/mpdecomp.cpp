@@ -23,6 +23,22 @@
 /*  Boston, MA  02111-1307, USA.                                              */
 /*                                                                            */
 /******************************************************************************/
+/*						MPTK - Matlab interface								  */
+/* Decomposes a signal with MPTK											  */
+/*																			  */
+/* Usage: [book,residual,decay] = mpdecomp(signal,sampleRate,dict,numIter)	  */
+/*																			  */
+/* Inputs:																	  */
+/*  - signal    : a numSamples x numChans signal (each column is a channel)	  */
+/*  - sampleRate: the sampleRate of the signal								  */
+/*  - dict      : either a dictionary Matlab strucure, or a filename		  */
+/*  - numIter   : the number of iterations to perform						  */
+/*																			  */
+/* Outputs:																	  */
+/*  - book      : the book with the resulting decomposition					  */
+/*  - residual  : the residual obtained after the iterations				  */
+/*  - decay     : numIterx1 vector with the residual energy at each iteration */
+/******************************************************************************/
 
 #include "mptk4matlab.h"
 

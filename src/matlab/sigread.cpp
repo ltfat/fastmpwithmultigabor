@@ -23,10 +23,19 @@
 /*  Boston, MA  02111-1307, USA.                                              */
 /*                                                                            */
 /******************************************************************************/
-/*
- * $Version 0.5.3$
- * $Date 05/22/2007$
- */
+/*						MPTK - Matlab interface								  */	
+/* Imports a signal from a file to Matlab, using MPTK						  */
+/*																			  */
+/* Usage: [signal,sampleRate] = sigread(filename)							  */
+/*																			  */
+/* Input:																	  */
+/*  - filename : the filename where to read the signal						  */
+/*																			  */
+/* Output:																	  */
+/*  - signal     : a matrix numSamples x numChans							  */
+/*																			  */
+/* sampleRate : the sampling frequency of the read signal					  */
+/******************************************************************************/
 
 #include "mptk4matlab.h"
 

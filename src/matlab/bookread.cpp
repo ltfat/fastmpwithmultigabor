@@ -2,7 +2,7 @@
 /*                                                                            */
 /*                  	      bookread_exp.cpp                                */
 /*                                                                            */
-/*				mptk4matlab toolbox		      	      */
+/*							mptk4matlab toolbox								  */
 /*                                                                            */
 /* Emmanuel Ravelli                                            	  May 22 2007 */
 /* Gilles Gonon                                               	  Feb 20 2008 */
@@ -25,10 +25,22 @@
 /*  Boston, MA  02111-1307, USA.                                              */
 /*                                                                            */
 /******************************************************************************/
-/*
- * $Version 0.5.3$
- * $Date 05/22/2007$
- */
+/*							MPTK - Matlab interface							  */
+/*  Imports a binary Matching Pursuit book file to Matlab, using MPTK		  */
+/*																			  */
+/*  Usage : book = bookread(filename)										  */
+/*																			  */
+/*  Input :																	  */
+/*   - filename : the filename where to read the book						  */
+/*																			  */
+/*  Output :																  */
+/*   - book     : a book structure with the following structure				  */
+/*																			  */
+/*  Known limitations : only the following atom types are supported:		  */
+/*     gabor, harmonic, mdct, mclt, dirac.									  */
+/*																			  */
+ /******************************************************************************/
+
 
 #include "mptk4matlab.h"
 #include "matrix.h"

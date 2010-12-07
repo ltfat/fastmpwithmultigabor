@@ -2,7 +2,7 @@
 /*                                                                            */
 /*                  	          bookwrite.cpp                      	      */
 /*                                                                            */
-/*				mptk4matlab toolbox		      	      */
+/*								mptk4matlab toolbox							  */
 /*                                                                            */
 /* Gilles Gonon                                                	  Feb 21 2008 */
 /* Remi Gribonval                                              	  July   2008 */
@@ -24,10 +24,19 @@
 /*  Boston, MA  02111-1307, USA.                                              */
 /*                                                                            */
 /******************************************************************************/
-/*
- * $Version 0.5.4$
- * $Date 21/02/2008$
- */
+/*							MPTK - Matlab interface							  */
+/* Exports a binary Matching Pursuit book from Matlab, using MPTK			  */
+/*																			  */
+/* Usage : bookwrite(book,filename[,writeMode])								  */
+/*																			  */
+/* Input :																	  */
+/*  - book     : a book structure with the following structure				  */
+/*  - filename : the filename where to read the book						  */
+/*  - writeMode: optional, 'binary' (default) or 'txt'						  */
+/*																			  */
+/* Known limitations : only the following atom types are supported:			  */
+/*    gabor, harmonic, mdct, mclt, dirac.									  */
+/******************************************************************************/
 
 #include "mptk4matlab.h"
 #include "mxBook.h"

@@ -23,6 +23,21 @@
 /*  Boston, MA  02111-1307, USA.                                              */
 /*                                                                            */
 /******************************************************************************/
+/*							MPTK - Matlab interface							  */
+/* Imports a dictionary description from a file to Matlab, using MPTK		  */
+/*																			  */
+/* Usage: dict = dictread(filename)											  */
+/*																			  */
+/* Input:																	  */
+/*  - filename : the filename where to read the dictionary description in XML */
+/*																			  */
+/* Output:																	  */
+/*  - dict     : a dictionary description with the following structure		  */
+/*						dict.block{i} = block								  */
+/*				where, for example											  */
+/*						block.type = 'dirac'								  */
+/*				and block may have other field names						  */
+/******************************************************************************/
 
 #include "mptk4matlab.h"
 

@@ -154,13 +154,6 @@ FOREACH(target getmptkinfo dictread dictwrite sigread sigwrite bookread bookwrit
           ARGS      -O -DHAVE_FFTW3 -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${MPTK_SOURCE_DIR}/src/tinyxml/ -I${MPTK_SOURCE_DIR} -I${MPTK_SOURCE_DIR}/src/libdsp_windows/ -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${FFTW3_INCLUDE_DIR} -I${PTHREAD_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/ -I${MPTK_MATLAB_SRC_DIR}/classes/ -I${MPTK_MATLAB_SRC_DIR}/experimental/classes/ -I${MPTK_SOURCE_DIR}/src/plugin/base/ -I${MPTK_SOURCE_DIR}/src/plugin/contrib/lam/ -L${LIBRARY_OUTPUT_PATH} -L${MPTK_LIB_DIR} -outdir ${MPTK_MATLAB_OUTPUT_DIR} ${MPTK_MATLAB_SRC_DIR}/${target}.cpp -lmptk -lmptk4matlab
           COMMENT   "MEX")
    ENDIF(UNIX)
-
-    # Copy the MEX-wrapper
-    CONFIGURE_FILE(${MPTK_MATLAB_SRC_DIR}/${target}.m ${MPTK_MATLAB_OUTPUT_DIR}/${target}.m COPYONLY) 
-
-    # Set rules to install the MEX-binary and MEX-wrapper
-    INSTALL(FILES ${MPTK_MATLAB_OUTPUT_DIR}/${target}.${MEX_EXTENSION} ${MPTK_MATLAB_OUTPUT_DIR}/${target}.m
-            DESTINATION ${MPTK_MATLAB_INSTALL_DIR})
 ENDFOREACH(target)
 
 #Install mandatory dll for windows

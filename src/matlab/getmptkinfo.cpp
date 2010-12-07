@@ -23,10 +23,23 @@
 /*  Boston, MA  02111-1307, USA.                                              */
 /*                                                                            */
 /******************************************************************************/
-/*
- * $Version 0.5.3$
- * $Date 05/22/2007$
- */
+/*							MPTK - Matlab interface							  */
+/* Gets various information on MTPK plugins and configuration into Matlab	  */
+/*																			  */
+/* Usage :  info = getmptkinfo()											  */
+/*																			  */
+/* Output :																	  */
+/* info : a structure with the following informations						  */
+/*			info.atoms.type{}				info.windows.type{}				  */
+/*			info.blocks.type{}				info.windows.needsOption{}		  */
+/*			info.blocks.info{}				info.path{}						  */
+/*			info.blocks.default{}											  */
+/*																			  */
+/*  path : has different fields taken from the configuration file :			  */
+/*      path.reference														  */
+/*      path.dll_directory													  */
+/*      path.fftw_wisdom_file												  */
+/******************************************************************************/
 
 #include "mptk4matlab.h"
 

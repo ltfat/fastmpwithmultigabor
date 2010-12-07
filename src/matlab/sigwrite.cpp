@@ -23,6 +23,16 @@
 /*  Boston, MA  02111-1307, USA.                                              */
 /*                                                                            */
 /******************************************************************************/
+/*						MPTK - Matlab interface								  */
+/* Export a signal from Matlab to a WAVE file, using MPTK					  */
+/*																			  */
+/* Usage: sigwrite(signal,fileName,sampleRate)								  */
+/*																			  */
+/* Inputs:																	  */
+/*  - signal     : a numSamples x numChans matrix							  */
+/*  - filename : the filename where to write the signal						  */
+/*  - sampleRate: the sampling frequency									  */
+/******************************************************************************/
 
 #include "mptk4matlab.h"
 
