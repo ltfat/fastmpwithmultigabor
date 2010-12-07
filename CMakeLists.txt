@@ -319,9 +319,10 @@ LINK_DIRECTORIES( ${PTHREAD_LIBRARY_PATH}
 INCLUDE_DIRECTORIES(/usr/include 
 		${MPTK_SOURCE_DIR}               	# TO INCLUDE mp_system.h
    		${MPTK_SOURCE_DIR}/src/tinyxml   	# TO INCLUDE TinyXML code
+		${MPTK_BINARY_DIR}               	# TO INCLUDE config.h
 		${PTHREAD_INCLUDE_DIR}				# AUTOMATICALLY CREATED IN FindPThread
 		${MPTK_SOURCE_DIR}/src/libmptk
-		${MPTK_BINARY_DIR}/src/libmptk/ 	# TO INCLUDE regression_constant.h, mptk.h and config.h automatically generated 
+		${MPTK_BINARY_DIR}/src/libmptk/ 	# TO INCLUDE regression_constant.h and mptk.h, automatically generated 
 		${LIBDSP_INCLUDE_DIR} 
 		${FFTW3_INCLUDE_DIR} 
 		${SNDFILE_INCLUDE_DIR} 
