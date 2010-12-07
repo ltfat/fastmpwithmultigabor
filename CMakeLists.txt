@@ -347,12 +347,6 @@ CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/libmptk/atom.in.cpp ${MPTK_BINARY_DIR}/src
 ENDIF(BUILD_MULTITHREAD)
 
 #-----------------------------------------------------------------------------
-##header for configuration tests.
-#############################
-INCLUDE(${MPTK_SOURCE_DIR}/CMake/CMakeGenerateMPTKHeader.cmake)
-
-
-#-----------------------------------------------------------------------------
 ## STARTING WITH SUBFOLDERS
 # Include src folder to compiling proccess
 #
@@ -363,6 +357,9 @@ IF(BUILD_DOCUMENTATION)
 ADD_SUBDIRECTORY(${MPTK_SOURCE_DIR}/doc)
 ENDIF(BUILD_DOCUMENTATION)
 ADD_SUBDIRECTORY( src)
+
+# Header for configuration tests.
+INCLUDE(${MPTK_SOURCE_DIR}/CMake/CMakeGenerateMPTKHeader.cmake)
 
 INSTALL(DIRECTORY ${MPTK_BINARY_DIR}/install/mptk/reference DESTINATION mptk)
 INSTALL(FILES ${MPTK_BINARY_DIR}/install/include/mptk.h DESTINATION include)
