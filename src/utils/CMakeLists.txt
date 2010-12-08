@@ -69,7 +69,7 @@ IF(WIN32)
                             TARGET mpd
                             POST_BUILD
                             COMMAND ${CMAKE_COMMAND}
-                            ARGS -E copy "${MPTK_BINARY_DIR}/lib/debug/mptk.dll" 
+                            ARGS -E copy "${MPTK_BINARY_DIR}/lib/${MPTK_DEBUG_RELEASE}/mptk.dll" 
                             "${MPTK_BINARY_DIR}/bin/${MPTK_DEBUG_RELEASE}/mptk.dll")
 ENDIF(WIN32)
 
