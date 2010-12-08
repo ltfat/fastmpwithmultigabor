@@ -156,7 +156,8 @@ FOREACH(target getmptkinfo dictread dictwrite sigread sigwrite bookread bookwrit
    ENDIF(UNIX)
    
     # Set rules to install the MEX-binary and MEX-wrapper
-    INSTALL(FILES ${MPTK_MATLAB_OUTPUT_DIR}/${target}.${MEX_EXTENSION} DESTINATION ${MPTK_MATLAB_INSTALL_DIR})
+    CONFIGURE_FILE(${MPTK_MATLAB_SRC_DIR}/${target}.m ${MPTK_MATLAB_OUTPUT_DIR}/${target}.m COPYONLY)    
+    INSTALL(FILES ${MPTK_MATLAB_OUTPUT_DIR}/${target}.${MEX_EXTENSION} ${MPTK_MATLAB_OUTPUT_DIR}/${target}.m DESTINATION ${MPTK_MATLAB_INSTALL_DIR})
 
 ENDFOREACH(target)
 
