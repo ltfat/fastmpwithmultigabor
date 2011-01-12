@@ -28,6 +28,6 @@
 disp('*****************************');
 disp('     Test : getmptkinfo      ');
 disp('*****************************');
-cd /Users/rleboulc/bar/mptk/matlab
+cd /usr/local/mptk/matlab
 
 disp('0');
