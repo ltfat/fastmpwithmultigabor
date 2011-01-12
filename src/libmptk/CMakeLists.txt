@@ -1,10 +1,10 @@
-   if(COMMAND cmake_policy)
+    if(COMMAND cmake_policy)
       cmake_policy(SET CMP0003 OLD)
     endif(COMMAND cmake_policy)
                  
 #------------------------------------------------
 # Generating regression_constants.h using make_regression_constants.cpp
-#
+#------------------------------------------------
 ADD_EXECUTABLE(make_regression_constants make_regression_constants.cpp)
 GET_TARGET_PROPERTY(MY_GENERATOR_EXE make_regression_constants LOCATION)
 #Add the custom command that will generate the file
@@ -13,17 +13,21 @@ ADD_CUSTOM_COMMAND(
    COMMAND ${MY_GENERATOR_EXE} ${EXECUTABLE_OUTPUT_PATH} 
    DEPENDS make_regression_constants
 )
+SET_SOURCE_FILES_PROPERTIES(${MPTK_BINARY_DIR}/src/libmptk/regression_constants.h GENERATED)
 
 #------------------------------------------------
-#Set the source file properties as generated to include it
-SET_SOURCE_FILES_PROPERTIES(${MPTK_BINARY_DIR}/src/libmptk/regression_constants.h GENERATED)
-#
+# Generating config.h 
+#------------------------------------------------
+CONFIGURE_FILE(${MPTK_SOURCE_DIR}/config.h.cmake ${MPTK_BINARY_DIR}/src/libmptk/config.h)
+
 #------------------------------------------------
 #Generate the mptk.h used to build:
+#------------------------------------------------
 INCLUDE(${MPTK_SOURCE_DIR}/CMake/CMakeGenerateMPTKHeader.cmake)
-#
+
 #------------------------------------------------
 #Set the list of header files
+#------------------------------------------------
 SET(HEADER_FILE 
     ${CMAKE_SOURCE_DIR}/src/libmptk/mp_types.h 
 	${CMAKE_SOURCE_DIR}/src/libmptk/mp_messaging.h   

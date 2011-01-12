@@ -102,7 +102,7 @@ protected:
 
 public:
   /* Destructor */
-  MPTK_LIB_EXPORT ~MP_Book_c();
+  MPTK_LIB_EXPORT virtual ~MP_Book_c();
 
 
   /***************************/

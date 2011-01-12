@@ -215,21 +215,8 @@ MP_Book_c::MP_Book_c() {
 /**************/
 /* Destructor */
 MP_Book_c::~MP_Book_c() {
-
-  mp_debug_msg( MP_DEBUG_DESTRUCTION, "MP_Book_c::~MP_Book_c()",
-		"Deleting book...\n" );
-
-  unsigned long int i;
-
-  if ( atom ) {
-    for ( i=0; i<numAtoms; i++ ) {
-      if ( atom[i] ) delete( atom[i] );
-    }
-    free( atom );
-  }
-
-  mp_debug_msg( MP_DEBUG_DESTRUCTION, "MP_Book_c::~MP_Book_c()",
-		"Done.\n" );
+	mp_debug_msg( MP_DEBUG_DESTRUCTION, "MP_Book_c::~MP_Book_c()", "Deleting book...\n" );
+	mp_debug_msg( MP_DEBUG_DESTRUCTION, "MP_Book_c::~MP_Book_c()", "Done.\n" );
 }
 
 

@@ -479,7 +479,6 @@ int main( int argc, char **argv )
   /* PRELIMINARIES                                  */
   /**************************************************/
 
-  
   /* Parse the command line */
   if ( argc == 1 ) usage();
   if ( parse_args( argc, argv ) )
@@ -531,20 +530,17 @@ int main( int argc, char **argv )
   dict = MP_Dict_c::init( dictFileName );
   cout << "Dictionary loaded" << endl;
   if ( dict == NULL )
-    {
-      mp_error_msg( func, "Failed to create a dictionary from XML file [%s].\n",
-                    dictFileName );
+  {
+      mp_error_msg( func, "Failed to create a dictionary from XML file [%s].\n", dictFileName );
       free_mem( dict, book, sig, calculator );
-
-      return( ERR_DICT );
-    }
+      return( ERR_DICT );	
+  }
   if ( dict->numBlocks == 0 )
-   {
+  {
       mp_error_msg( func, "The dictionary scanned from XML file [%s] contains no blocks.\n");
       free_mem( dict, book, sig, calculator );
-
       return( ERR_DICT );
-    }
+  }
     
   if ( !GPD_QUIET ) mp_info_msg( func, "The dictionary is now loaded.\n" );
   
@@ -554,8 +550,7 @@ int main( int argc, char **argv )
   sig = MP_Signal_c::init( sndFileName );
   if ( sig == NULL )
     {
-      mp_error_msg( func, "Failed to initialize a signal from file [%s].\n",
-                    sndFileName );
+      mp_error_msg( func, "Failed to initialize a signal from file [%s].\n", sndFileName );
       free_mem( dict, book, sig, calculator );
       return( ERR_SIG );
     }
@@ -613,9 +608,6 @@ int main( int argc, char **argv )
   if ( GPD_USE_SNR ) calculator->set_snr_hit( GPD_SNR_HIT );
   if ( GPD_VERBOSE ) calculator->set_verbose();
   else calculator->reset_verbose();
-   
-
-
 
   /******************/
   /* Initial report */

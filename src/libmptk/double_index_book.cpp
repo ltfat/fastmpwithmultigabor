@@ -57,27 +57,26 @@ GP_Double_Index_Book_c* GP_Double_Index_Book_c::create() {
 
   /* Instantiate and check */
   newBook = new GP_Double_Index_Book_c();
-  if ( newBook == NULL ) {
-    mp_error_msg( func, "Failed to create a new double indexed book.\n" );
-    return( NULL );
+  if ( newBook == NULL ) 
+  {
+	  mp_error_msg( func, "Failed to create a new double indexed book.\n" );
+	  return( NULL );
   }
   
   /* Allocate the atom array */
-  if ( (newBook->atom = (MP_Atom_c**) calloc( MP_BOOK_GRANULARITY, sizeof(MP_Atom_c*) )) == NULL ) {
-    mp_warning_msg( func, "Can't allocate storage space for [%lu] atoms in the new book."
-            " The atom array is left un-initialized.\n", MP_BOOK_GRANULARITY );
-    newBook->atom = NULL;
-    newBook->maxNumAtoms = 0;
+  if ( (newBook->atom = (MP_Atom_c**) calloc( MP_BOOK_GRANULARITY, sizeof(MP_Atom_c*) )) == NULL ) 
+  {
+	  mp_warning_msg( func, "Can't allocate storage space for [%lu] atoms in the new book. The atom array is left un-initialized.\n", MP_BOOK_GRANULARITY );
+	  newBook->atom = NULL;
+	  newBook->maxNumAtoms = 0;
   }
-  else newBook->maxNumAtoms = MP_BOOK_GRANULARITY;
+  else 
+	  newBook->maxNumAtoms = MP_BOOK_GRANULARITY;
 
   return( newBook );
 }
 
-GP_Double_Index_Book_c* GP_Double_Index_Book_c::create(MP_Chan_t setNumChans, 
-					  unsigned long int setNumSamples, 
-					  int setSampleRate,
-                      unsigned int numBlocks ) {
+GP_Double_Index_Book_c* GP_Double_Index_Book_c::create(MP_Chan_t setNumChans, unsigned long int setNumSamples, int setSampleRate, unsigned int numBlocks ) {
 
   const char* func = "GP_Double_Index_Book_c::create(MP_Chan_t numChans, unsigned long int numSamples, unsigned long int numAtoms )";
   GP_Double_Index_Book_c *newBook = NULL;
@@ -90,7 +89,6 @@ GP_Double_Index_Book_c* GP_Double_Index_Book_c::create(MP_Chan_t setNumChans,
   }
   
   newBook->sortBook = new GP_Block_Book_c(numBlocks);
-  
   newBook->numChans = setNumChans;
   newBook->numSamples = setNumSamples;
   newBook->sampleRate = setSampleRate;
@@ -106,7 +104,8 @@ GP_Double_Index_Book_c::GP_Double_Index_Book_c() {
 /**************/
 /* Destructor */
 GP_Double_Index_Book_c::~GP_Double_Index_Book_c() {
-    delete sortBook;
+	if ( sortBook )
+		delete sortBook;
 }
 
 /***************************/

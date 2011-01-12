@@ -144,11 +144,7 @@ contrib/lam/mdst_block_plugin.cpp
 
 FOREACH(target GABOR CONSTANT DIRAC NYQUIST ANYWAVE MCLT MDCT MDST)
    FOREACH(type ATOM BLOCK)
-      IF(BUILD_SHARED_LIBS)
       	ADD_LIBRARY(${target}_${type} SHARED ${${target}_${type}_PLUGIN_SOURCES})
-      ELSE(BUILD_SHARED_LIBS)
-      	ADD_LIBRARY(${target}_${type} STATIC ${${target}_${type}_PLUGIN_SOURCES})
-      ENDIF(BUILD_SHARED_LIBS)
 
       SET_TARGET_PROPERTIES(${target}_${type} PROPERTIES
 			    COMPILE_FLAGS " -DC_BUILDING_${target}_${type} ${CMAKE_CXX_FLAGS}"

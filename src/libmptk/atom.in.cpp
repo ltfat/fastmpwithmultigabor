@@ -217,10 +217,14 @@ int MP_Atom_c::read( FILE *fid, const char mode ) {
 
 /**************/
 /* Destructor */
-MP_Atom_c::~MP_Atom_c() {
-  if (support) free(support);
-  if (amp) free(amp);
-  if (corr) free(corr);
+MP_Atom_c::~MP_Atom_c() 
+{
+  if (support) 
+	  free(support);
+  if (amp) 
+	  free(amp);
+  if (corr) 
+	  free(corr);
 }
 
 

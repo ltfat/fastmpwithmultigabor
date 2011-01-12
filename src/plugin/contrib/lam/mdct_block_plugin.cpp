@@ -1,6 +1,6 @@
 /******************************************************************************/
 /*                                                                            */
-/*                         mdct_block.cpp      		                      */
+/*                         mdct_block.cpp									  */
 /*                                                                            */
 /*                        Matching Pursuit Library                            */
 /*                                                                            */
@@ -28,9 +28,9 @@
 /******************************************************************************/
 
 /****************************************************************/
-/*                                               		*/
-/* mdct_block.cpp: methods for mclt blocks			*/
-/*                                               		*/
+/*																*/
+/* mdct_block.cpp: methods for mclt blocks						*/
+/*																*/
 /****************************************************************/
 
 #include "mptk.h"
@@ -45,13 +45,9 @@
 /***************************/
 /* CONSTRUCTORS/DESTRUCTOR */
 /***************************/
-MP_Block_c *
-MP_Mdct_Block_Plugin_c::create (MP_Signal_c * setSignal, map < string, string,
-		mp_ltstring > *paramMap)
+MP_Block_c *MP_Mdct_Block_Plugin_c::create (MP_Signal_c * setSignal, map < string, string, mp_ltstring > *paramMap)
 {
-
-	const char *func =
-			"MP_Mdct_Block_Plugin_c::create( MP_Signal_c *setSignal, map<const char*, const char*, MP_Dict_c::ltstr> *paramMap )";
+	const char *func = "MP_Mdct_Block_Plugin_c::create( MP_Signal_c *setSignal, map<const char*, const char*, MP_Dict_c::ltstr> *paramMap )";
 	MP_Mdct_Block_Plugin_c *newBlock = NULL;
 	char *convertEnd;
 	unsigned long int filterLen = 0;
@@ -194,8 +190,7 @@ MP_Mdct_Block_Plugin_c::create (MP_Signal_c * setSignal, map < string, string,
 
 /*********************************************************/
 /* Initialization of signal-independent block parameters */
-int
-MP_Mdct_Block_Plugin_c::init_parameters (const unsigned long int setFilterLen,
+int MP_Mdct_Block_Plugin_c::init_parameters (const unsigned long int setFilterLen,
 		const unsigned long int setFilterShift,
 		const unsigned char setWindowType,
 		const double setWindowOption,
@@ -244,18 +239,8 @@ MP_Mdct_Block_Plugin_c::init_parameters (const unsigned long int setFilterLen,
 	energy = 1/sqrt(window[0]*window[0] + window[numFilters-1]*window[numFilters-1]);
 	for (unsigned long int i = 0; i<filterLen; i++)
 		window[i] = window[i]*energy;
-	/* dump the window */
-//	oss.str("");
-//	oss << "win_" << filterLen << ".txt";
-//	cerr << oss.str() << endl;
-//	file.open(oss.str().c_str());
-//	for (unsigned long int i = 0; i<filterLen; i++)
-//		file << window[i] << endl;
-//	file.close();
 
-
-	/* allocate frameBuffer
-	 */
+	/* allocate frameBuffer */
 	frameBuffer = new MP_Real_t[numFilters];
 	if (!frameBuffer){
 		mp_error_msg( func, "Failed to allocate the frame buffer in the new MDCT block.\n" );
@@ -388,7 +373,10 @@ MP_Mdct_Block_Plugin_c::~MP_Mdct_Block_Plugin_c (){
 		delete[] window;
 	if (frameBuffer)
 		delete[] frameBuffer;
-	delete[] outBuffer;
+	if (outBuffer)
+		delete[] outBuffer;
+	if (dct)
+		delete dct;
 }
 
 

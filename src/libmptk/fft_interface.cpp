@@ -64,32 +64,25 @@ MP_FFT_Interface_c* MP_FFT_Interface_c::init( const unsigned long int setWindowS
 
   if ( setFftSize < setWindowSize )
     {
-      mp_error_msg( "MP_FFT_Interface_c::init()",
-                    "Can't create a FFT of size %lu smaller than the window size %lu."
-                    " Returning a NULL fft object.\n", setFftSize, setWindowSize);
+      mp_error_msg( "MP_FFT_Interface_c::init()","Can't create a FFT of size %lu smaller than the window size %lu. Returning a NULL fft object.\n", setFftSize, setWindowSize);
       return( NULL );
     }
 
   /* Create the adequate FFT and check the returned address */
 #ifdef USE_FFTW3
-  fft = (MP_FFT_Interface_c*) new MP_FFTW_Interface_c( setWindowSize, setWindowType, setWindowOption,
-        setFftSize );
-  if ( fft == NULL ) mp_error_msg( "MP_FFT_Interface_c::init()",
-                                     "Instanciation of FFTW_Interface failed."
-                                     " Returning a NULL fft object.\n" );
+  fft = (MP_FFT_Interface_c*) new MP_FFTW_Interface_c( setWindowSize, setWindowType, setWindowOption, setFftSize );
+  if ( fft == NULL ) 
+	  mp_error_msg( "MP_FFT_Interface_c::init()", "Instanciation of FFTW_Interface failed. Returning a NULL fft object.\n" );
 #elif defined(USE_MAC_FFT)
-  fft = (MP_FFT_Interface_c*) new MP_MacFFT_Interface_c( setWindowSize, setWindowType, setWindowOption,
-        setFftSize );
-  if ( fft == NULL ) mp_error_msg( "MP_FFT_Interface_c::init()",
-                                     "Instanciation of MacFFT_Interface failed."
-                                     " Returning a NULL fft object.\n" );
+  fft = (MP_FFT_Interface_c*) new MP_MacFFT_Interface_c( setWindowSize, setWindowType, setWindowOption, setFftSize );
+  if ( fft == NULL ) 
+	  mp_error_msg( "MP_FFT_Interface_c::init()","Instanciation of MacFFT_Interface failed."" Returning a NULL fft object.\n" );
 #else
 #  error "No FFT implementation was found !"
 #endif
 
   if ( fft == NULL){ 
-    mp_error_msg( "MP_FFT_Interface_c::init()",
-                    "FFT window is NULL. Returning a NULL fft object.\n");
+    mp_error_msg( "MP_FFT_Interface_c::init()","FFT window is NULL. Returning a NULL fft object.\n");
   	return( NULL );
   
   }
@@ -98,8 +91,7 @@ MP_FFT_Interface_c* MP_FFT_Interface_c::init( const unsigned long int setWindowS
   /* - window: */
   if ( fft->window == NULL )
     {
-      mp_error_msg( "MP_FFT_Interface_c::init()",
-                    "FFT window is NULL. Returning a NULL fft object.\n");
+      mp_error_msg( "MP_FFT_Interface_c::init()","FFT window is NULL. Returning a NULL fft object.\n");
       delete( fft );
       return( NULL );
     }
@@ -108,8 +100,7 @@ MP_FFT_Interface_c* MP_FFT_Interface_c::init( const unsigned long int setWindowS
        ( fft->buffer2Re == NULL ) || ( fft->buffer2Im == NULL ) ||
        ( fft->inDemodulated == NULL ) )
     {
-      mp_error_msg( "MP_FFT_Interface_c::init()",
-                    "One or several of the internal FFT buffers are NULL. Returning a NULL fft object.\n");
+      mp_error_msg( "MP_FFT_Interface_c::init()","One or several of the internal FFT buffers are NULL. Returning a NULL fft object.\n");
       delete( fft );
       return( NULL );
     }
@@ -325,16 +316,15 @@ int MP_FFT_Interface_c::test( const double presicion,
   tmp = fabsf((float)energy2 /(setWindowSize*(float)(energy1))-1);
   if ( tmp < presicion )
     {
-      mp_info_msg( "MP_FFT_Interface_c::test()","SUCCESS for FFT size [%ld] energy in/out = 1+/-%g\n",
-             setWindowSize,tmp);
-      return(0);
+		mp_info_msg( "MP_FFT_Interface_c::test()","SUCCESS for FFT size [%ld] energy in/out = 1+/-%g\n",setWindowSize,tmp);
+		delete(fft);
+		return(0);
     }
   else
     {
-     mp_error_msg( "MP_FFT_Interface_c::test()",
-                        "FAILURE for FFT size [%ld] energy |in/out-1|= %g > %g\n",
-             setWindowSize, tmp, presicion);
-      return(1);
+		mp_error_msg( "MP_FFT_Interface_c::test()", "FAILURE for FFT size [%ld] energy |in/out-1|= %g > %g\n", setWindowSize, tmp, presicion);
+		delete(fft);
+		return(1);
     }
 
 }
