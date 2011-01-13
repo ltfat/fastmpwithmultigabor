@@ -158,5 +158,5 @@ void MP_Atom_Factory_c::get_registered_atom_names( char **atomNames ){
 
 /* Returns the size of the atom vector */
 int MP_Atom_Factory_c::get_atom_size( void ){
-	return MP_Atom_Factory_c::atom_empty.size();
+	return (int)MP_Atom_Factory_c::atom_empty.size();
 }	 

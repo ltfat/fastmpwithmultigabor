@@ -109,7 +109,7 @@ int MP_Atom_c::alloc_atom_param( const MP_Chan_t setNumChans ) {
 int MP_Atom_c::read( FILE *fid, const char mode ) {
 
   const char *func = "MP_Atom_c::read(fid,mode)";
-  unsigned long int nItem = 0;
+  int nItem = 0;
   char str[MP_MAX_STR_LEN];
   double fidAmp;
   MP_Chan_t i, iRead;
@@ -183,8 +183,8 @@ int MP_Atom_c::read( FILE *fid, const char mode ) {
   case MP_BINARY:
     /* Support */
     for ( i=0, nItem = 0; i<numChans; i++ ) {
-      nItem += mp_fread( &(support[i].pos), sizeof(uint32_t), 1, fid );
-      nItem += mp_fread( &(support[i].len), sizeof(uint32_t), 1, fid );
+      nItem += (int)mp_fread( &(support[i].pos), sizeof(uint32_t), 1, fid );
+      nItem += (int)mp_fread( &(support[i].len), sizeof(uint32_t), 1, fid );
     }
     /* Amp */
     if ( mp_fread( amp,   sizeof(MP_Real_t), numChans, fid ) != (size_t)numChans ) {
@@ -254,14 +254,14 @@ int MP_Atom_c::write( FILE *fid, const char mode ) {
 
   case MP_BINARY:
     /* numChans */
-    nItem += mp_fwrite( &numChans, sizeof(MP_Chan_t), 1, fid );
+    nItem += (int)mp_fwrite( &numChans, sizeof(MP_Chan_t), 1, fid );
     /* Support */
     for ( i=0; i<numChans; i++ ) {
-      nItem += mp_fwrite( &(support[i].pos), sizeof(uint32_t), 1, fid );
-      nItem += mp_fwrite( &(support[i].len), sizeof(uint32_t), 1, fid );
+      nItem += (int)mp_fwrite( &(support[i].pos), sizeof(uint32_t), 1, fid );
+      nItem += (int)mp_fwrite( &(support[i].len), sizeof(uint32_t), 1, fid );
     }
     /* Amp */
-    nItem += mp_fwrite( amp,   sizeof(MP_Real_t), numChans, fid );
+    nItem += (int)mp_fwrite( amp,   sizeof(MP_Real_t), numChans, fid );
     break;
 
   default:

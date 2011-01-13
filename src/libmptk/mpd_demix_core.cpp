@@ -145,7 +145,12 @@ MP_Mpd_demix_Core_c::~MP_Mpd_demix_Core_c()
       for ( unsigned int j = 0; j < mixer->numSources; j++ ) if ( sigArray->at(j) ) delete sigArray->at(j);
       delete sigArray;
     }
-
+	if(amp)
+		free(amp);
+	if(bookFileName)
+		free(bookFileName);
+	if(srcSeqFileName)
+		free(srcSeqFileName);
 }
 
 
@@ -577,60 +582,69 @@ void MP_Mpd_demix_Core_c::set_save_hit( const unsigned long int setSaveHit,
                                         const char* setDecayFileName,
                                         const char* setSrcSeqFileName )
 {
-  const char* func = "set_save_hit";
-  char* newBookFileName;
-  char* newResFileName;
-  char* newDecayFileName;
-  char* newSrcSeqFileName;
-  if (setSaveHit>0) saveHit = setSaveHit;
-  if (setSaveHit>0) nextSaveHit = numIter + setSaveHit;
+	const char* func = "set_save_hit";
+	char* newBookFileName;
+	char* newResFileName;
+	char* newDecayFileName;
+	char* newSrcSeqFileName;
 
-//reallocate memory and copy name
-  if (setBookFileName && strlen(setBookFileName) >1 )
-    {
-      newBookFileName = (char*) realloc((void *)bookFileName  , ((strlen(setBookFileName)+1 ) * sizeof(char)));
-      if ( newBookFileName == NULL )
-        {
-          mp_error_msg( func,"Failed to re-allocate book file name to store book [%s] .\n",
-                        setBookFileName );
-        }
-      else bookFileName = newBookFileName;
-      strcpy(bookFileName, setBookFileName);
-    }
+	//********************************
+	// Initialisation
+	//********************************
+	if (setSaveHit>0) 
+		saveHit = setSaveHit;
+	if (setSaveHit>0) 
+		nextSaveHit = numIter + setSaveHit;
 
-  if ( setResFileName && strlen(setResFileName) > 1 )
-    {
-      newResFileName = (char*) realloc((void *)resFileName  , ((strlen(setResFileName)+1 ) * sizeof(char)));
-      if ( newResFileName == NULL )
-        {
-          mp_error_msg( func,"Failed to re-allocate residual file name to store residual [%s] .\n",
-                        setResFileName);
-        }
-      else resFileName = newResFileName;
+	//********************************
+	// Reallocate memory and copy name
+	//********************************
+	// 1) Book file name
+	if (setBookFileName && strlen(setBookFileName) >1 )
+	{
+		newBookFileName = (char*) realloc((void *)bookFileName  , ((strlen(setBookFileName)+1 ) * sizeof(char)));
+		if ( newBookFileName == NULL )
+		{
+			mp_error_msg( func,"Failed to re-allocate book file name to store book [%s] .\n", setBookFileName );
+		}
+		else 
+			bookFileName = newBookFileName;
+		strcpy(bookFileName, setBookFileName);
+	}
+	// 2) Residus file name
+	if ( setResFileName && strlen(setResFileName) > 1 )
+	{
+		newResFileName = (char*) realloc((void *)resFileName  , ((strlen(setResFileName)+1 ) * sizeof(char)));
+		if ( newResFileName == NULL )
+		{
+			mp_error_msg( func,"Failed to re-allocate residual file name to store residual [%s] .\n", setResFileName);
+		}
+		else 
+			resFileName = newResFileName;
       strcpy(resFileName, setResFileName);
-    }
-  if ( setDecayFileName && strlen(setDecayFileName)> 1 )
-    {
-      newDecayFileName = (char*) realloc((void *)decayFileName  , ((strlen(setDecayFileName)+1 ) * sizeof(char)));
-      if ( newDecayFileName == NULL )
-        {
-          mp_error_msg( func,"Failed to re-allocate residual file name to store residual [%s] .\n",
-                        setDecayFileName);
-        }
-      else decayFileName = newDecayFileName;
-      strcpy(decayFileName, setDecayFileName);
-    }
-  if ( setSrcSeqFileName && strlen(setSrcSeqFileName)> 1 )
-    {
-      newSrcSeqFileName = (char*) realloc((void *)srcSeqFileName  , ((strlen(setSrcSeqFileName)+1 ) * sizeof(char)));
-      if ( newSrcSeqFileName == NULL )
-        {
-          mp_error_msg( func,"Failed to re-allocate residual file name to store residual [%s] .\n",
-                        setSrcSeqFileName);
-        }
-      else srcSeqFileName = newSrcSeqFileName;
-      strcpy(srcSeqFileName, setSrcSeqFileName);
-    }
-
-
+	}
+	// 3) Decay file name
+	if ( setDecayFileName && strlen(setDecayFileName)> 1 )
+	{
+		newDecayFileName = (char*) realloc((void *)decayFileName  , ((strlen(setDecayFileName)+1 ) * sizeof(char)));
+		if ( newDecayFileName == NULL )
+		{
+			mp_error_msg( func,"Failed to re-allocate residual file name to store residual [%s] .\n", setDecayFileName);
+		}
+		else 
+			decayFileName = newDecayFileName;
+		strcpy(decayFileName, setDecayFileName);
+	}
+	// 4) SourceSeq file name
+	if ( setSrcSeqFileName && strlen(setSrcSeqFileName)> 1 )
+	{
+		newSrcSeqFileName = (char*) realloc((void *)srcSeqFileName  , ((strlen(setSrcSeqFileName)+1 ) * sizeof(char)));
+		if ( newSrcSeqFileName == NULL )
+		{
+			mp_error_msg( func,"Failed to re-allocate residual file name to store residual [%s] .\n", setSrcSeqFileName);
+		}
+		else 
+			srcSeqFileName = newSrcSeqFileName;
+		strcpy(srcSeqFileName, setSrcSeqFileName);
+	}
 }

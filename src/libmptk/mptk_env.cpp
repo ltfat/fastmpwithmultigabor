@@ -186,7 +186,7 @@ void MPTK_Env_c::get_registered_path_names( char **pathNames ){
 
 /* Returns the size of the atom vector */
 int MPTK_Env_c::get_path_size( void ){
-	return MPTK_Env_c::configPath.size();
+	return (int)MPTK_Env_c::configPath.size();
 }	 
 
 /* Get the path of the configuration file using a env variable */

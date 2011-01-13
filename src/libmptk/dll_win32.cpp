@@ -171,7 +171,7 @@ bool MP_Dll_Manager_c::search_library(vector<string> * lib_names, const char * p
   buffer = path;
   buffer  += "\\";
   buffer += MP_Dll_Manager_c::get_dll_type();
-  if ( (hFile = _findfirst(buffer.c_str(), &c_file)) == -1L )
+  if ( (hFile = (long)_findfirst(buffer.c_str(), &c_file)) == -1L )
     {
       mp_error_msg( "MP_Dll_Manager::search_library","No *.dll files in current directory: [%s]\n", buffer.c_str() );
       return false;

@@ -535,16 +535,15 @@ int MP_Book_c::info() {
   unsigned long int i;
   int nChar = 0;
 
-  nChar += mp_info_msg( "BOOK", "Number of atoms              =[%lu]  (Current atom array size =[%lu])\n",
-			numAtoms, maxNumAtoms );
-  nChar += mp_info_msg( "  |-", "Number of channels           =[%d]\n",    numChans );
-  nChar += mp_info_msg( "  |-", "Number of samples per channel=[%lu]\n",   numSamples );
-  nChar += mp_info_msg( "  |-", "Sampling rate                =[%d]\n",    sampleRate );
+  nChar += (int)mp_info_msg( "BOOK", "Number of atoms              =[%lu]  (Current atom array size =[%lu])\n", numAtoms, maxNumAtoms );
+  nChar += (int)mp_info_msg( "  |-", "Number of channels           =[%d]\n",    numChans );
+  nChar += (int)mp_info_msg( "  |-", "Number of samples per channel=[%lu]\n",   numSamples );
+  nChar += (int)mp_info_msg( "  |-", "Sampling rate                =[%d]\n",    sampleRate );
   for ( i=0; i<numAtoms; i++ ) {
-    nChar += mp_info_msg( "  |-", "--ATOM [%lu/%lu] info :\n", i+1, numAtoms );
+    nChar += (int)mp_info_msg( "  |-", "--ATOM [%lu/%lu] info :\n", i+1, numAtoms );
     atom[i]->info();
   }
-  nChar += mp_info_msg( "  O-", "End of book.\n",    sampleRate );
+  nChar += (int)mp_info_msg( "  O-", "End of book.\n",    sampleRate );
 
   return( nChar );
 }
@@ -556,10 +555,8 @@ int MP_Book_c::short_info() {
   
   int nChar = 0;
 
-  nChar += mp_info_msg( "BOOK", "[%lu] atoms (current atom array size = [%lu])\n",
-			numAtoms, maxNumAtoms );
-  nChar += mp_info_msg( "  |-", "[%lu] samples on [%d] channels; sample rate [%d]Hz.\n",
-			numSamples, numChans, sampleRate );
+  nChar += (int)mp_info_msg( "BOOK", "[%lu] atoms (current atom array size = [%lu])\n", numAtoms, maxNumAtoms );
+  nChar += (int)mp_info_msg( "  |-", "[%lu] samples on [%d] channels; sample rate [%d]Hz.\n", numSamples, numChans, sampleRate );
   return( nChar );
 }
 

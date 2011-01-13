@@ -138,11 +138,11 @@ void MP_TF_Map_c::reset( void ) {
 /* Human-readable info */
 int MP_TF_Map_c::info( FILE *fid ) {
   int nChar = 0;
-  nChar += mp_info_msg( fid, "TFMAP","Number of channels : %d\n", numChans );
-  nChar += mp_info_msg( fid, "   |-","Number of columns  : %lu\n", numCols  );
-  nChar += mp_info_msg( fid, "   |-","Number of rows     : %lu\n", numRows  );
-  nChar += mp_info_msg( fid, "   |-","Time range         : [%lu %lu[ (dt = %g)\n", tMin, tMax, dt );
-  nChar += mp_info_msg( fid, "   O-","freq range         : [%g %g[ (df = %g)\n", fMin, fMax, df );
+  nChar += (int)mp_info_msg( fid, "TFMAP","Number of channels : %d\n", numChans );
+  nChar += (int)mp_info_msg( fid, "   |-","Number of columns  : %lu\n", numCols  );
+  nChar += (int)mp_info_msg( fid, "   |-","Number of rows     : %lu\n", numRows  );
+  nChar += (int)mp_info_msg( fid, "   |-","Time range         : [%lu %lu[ (dt = %g)\n", tMin, tMax, dt );
+  nChar += (int)mp_info_msg( fid, "   O-","freq range         : [%g %g[ (df = %g)\n", fMin, fMax, df );
   return(nChar);
 }
 
@@ -153,7 +153,7 @@ unsigned long int MP_TF_Map_c::dump_to_file( const char *fName , char flagUpside
 
   const char* func = "MP_TF_Map_c::dump_to_file(..)";
   FILE *fid;
-  unsigned long int nWrite = 0;
+  int nWrite = 0;
   MP_Tfmap_t *ptrColumn;
   unsigned long int i;
    /** will initialize initial numCols and numRows with the first value with wich this function is called */
@@ -176,13 +176,13 @@ unsigned long int MP_TF_Map_c::dump_to_file( const char *fName , char flagUpside
 
   /* Write the values */
   if ( flagUpsideDown == 0 ) {
-    nWrite = mp_fwrite( storage, sizeof(MP_Tfmap_t), numChans*numRows*numCols, fid );
+    nWrite = (int)mp_fwrite( storage, sizeof(MP_Tfmap_t), numChans*numRows*numCols, fid );
   }
   /* If flagUpsideDown is set, rotate the picture */
   else {
     for( ptrColumn = storage; ptrColumn < endStorage; ptrColumn += numRows ) {
       for ( i = 0; i < numRows; i++ ) column[i] = *(ptrColumn+numRows-i-1);
-      nWrite += mp_fwrite( column, sizeof(MP_Tfmap_t), numRows, fid );
+      nWrite += (int)mp_fwrite( column, sizeof(MP_Tfmap_t), numRows, fid );
     }
   }
 

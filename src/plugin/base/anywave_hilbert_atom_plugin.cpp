@@ -406,8 +406,8 @@ int MP_Anywave_Hilbert_Atom_Plugin_c::write( FILE *fid, const char mode )
     case MP_BINARY:
 
       /* Binary parameters */
-      if (realPart) nItem += mp_fwrite( realPart, sizeof(MP_Real_t), (size_t)numChans, fid );
-      if (hilbertPart) nItem += mp_fwrite( hilbertPart, sizeof(MP_Real_t), (size_t)numChans, fid );
+      if (realPart) nItem += (int)mp_fwrite( realPart, sizeof(MP_Real_t), (size_t)numChans, fid );
+      if (hilbertPart) nItem += (int)mp_fwrite( hilbertPart, sizeof(MP_Real_t), (size_t)numChans, fid );
       break;
 
     default:
@@ -436,16 +436,13 @@ int MP_Anywave_Hilbert_Atom_Plugin_c::info()
 
   unsigned short int chanIdx = 0;
   int nChar = 0;
-  nChar += mp_info_msg("ANYWAVE HILBERT ATOM", "[%d] channel(s)\n", numChans );
+  nChar += (int)mp_info_msg("ANYWAVE HILBERT ATOM", "[%d] channel(s)\n", numChans );
 
-  nChar += mp_info_msg( "           |-", "\tFilename %s\tfilterIdx %li\n",
-                        anywaveTable->tableFileName, anywaveIdx );
+  nChar += (int)mp_info_msg( "           |-", "\tFilename %s\tfilterIdx %li\n", anywaveTable->tableFileName, anywaveIdx );
 
-  for ( chanIdx = 0;
-        chanIdx < numChans;
-        chanIdx ++ )
+  for ( chanIdx = 0; chanIdx < numChans; chanIdx ++ )
     {
-      nChar += mp_info_msg( "           |-", "(%u/%u)\tSupport= %lu %lu\tAmp %g\trealPart %g\thilbertPart %g\n",
+      nChar += (int)mp_info_msg( "           |-", "(%u/%u)\tSupport= %lu %lu\tAmp %g\trealPart %g\thilbertPart %g\n",
                             chanIdx+1, numChans, support[chanIdx].pos, support[chanIdx].len,
                             (double)amp[chanIdx], (double)realPart[chanIdx], (double)hilbertPart[chanIdx]);
     }

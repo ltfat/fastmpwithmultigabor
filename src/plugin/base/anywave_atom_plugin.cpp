@@ -331,11 +331,11 @@ int MP_Anywave_Atom_Plugin_c::write( FILE *fid, const char mode )
     case MP_BINARY:
       /* Filename of the table containing the waveform */
       numChar = (unsigned long int) strlen(anywaveTable->tableFileName)+1;
-      nItem += mp_fwrite( &numChar,  sizeof(unsigned long int), 1, fid );
+      nItem += (int)mp_fwrite( &numChar,  sizeof(unsigned long int), 1, fid );
       nItem += fprintf( fid, "%s\n", anywaveTable->tableFileName );
 
       /* Binary parameters */
-      nItem += mp_fwrite( &anywaveIdx,  sizeof(unsigned long int), 1, fid );
+      nItem += (int)mp_fwrite( &anywaveIdx,  sizeof(unsigned long int), 1, fid );
       break;
 
     default:
@@ -388,14 +388,11 @@ int MP_Anywave_Atom_Plugin_c::info()
 
   MP_Chan_t chanIdx = 0;
   int nChar = 0;
-  nChar += mp_info_msg( "ANYWAVE ATOM", "[%d] channel(s)\n", numChans );
-  nChar += mp_info_msg( "           |-", "\tFilename %s\tfilterIdx %li\n",
-                        anywaveTable->tableFileName, anywaveIdx );
-  for ( chanIdx = 0;
-        chanIdx < numChans;
-        chanIdx ++ )
+  nChar += (int)mp_info_msg( "ANYWAVE ATOM", "[%d] channel(s)\n", numChans );
+  nChar += (int)mp_info_msg( "           |-", "\tFilename %s\tfilterIdx %li\n", anywaveTable->tableFileName, anywaveIdx );
+  for ( chanIdx = 0; chanIdx < numChans; chanIdx ++ )
     {
-      nChar += mp_info_msg( "           |-", "(%u/%u)\tSupport= %lu %lu\tAmp %g\n",
+      nChar += (int)mp_info_msg( "           |-", "(%u/%u)\tSupport= %lu %lu\tAmp %g\n",
                             chanIdx+1, numChans, support[chanIdx].pos, support[chanIdx].len,
                             (double)amp[chanIdx] );
     }

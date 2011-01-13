@@ -186,8 +186,10 @@ class MP_Abstract_Core_c
     /**\brief A public destructor */
     virtual ~MP_Abstract_Core_c()
     {
-      if (resFileName) free(resFileName);
-      if (decayFileName) free(decayFileName);
+      if (resFileName) 
+		  free(resFileName);
+      if (decayFileName) 
+		  free(decayFileName);
 
     };
     /***************************/

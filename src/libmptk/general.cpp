@@ -271,7 +271,7 @@ unsigned long int MP_Var_Array_c<TYPE>::save( const char* fName ) {
 		  fName );
     return( 0 );
   }
-  nWrite = mp_fwrite( elem, sizeof(TYPE), nElem, fid );
+  nWrite = (unsigned long int)mp_fwrite( elem, sizeof(TYPE), nElem, fid );
   fclose( fid );
   return( nWrite );
 }

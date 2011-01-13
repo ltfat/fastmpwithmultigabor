@@ -536,11 +536,11 @@ int parse_args(int argc, char **argv)
   return(0);
 }
 
-  std::vector<MP_Book_c*> *bookArray = NULL;
-  std::vector<MP_Dict_c*> *dictArray = NULL;
-
-  MP_Mixer_c* mixer =NULL;
-  MP_Mpd_demix_Core_c* mpdDemixCore = NULL;
+//  std::vector<MP_Book_c*> *bookArray = NULL;
+//  std::vector<MP_Dict_c*> *dictArray = NULL;
+//
+//  MP_Mixer_c* mixer =NULL;
+//  MP_Mpd_demix_Core_c* mpdDemixCore = NULL;
 
 /*---------------------*/
 void free_mem( std::vector<MP_Dict_c*> *dictArray, std::vector<MP_Book_c*> *bookArray, MP_Mixer_c* mixer, MP_Signal_c *inSignal, MP_Mpd_demix_Core_c* mpdDemixCore, char ** dictFileNameList )
@@ -555,7 +555,9 @@ void free_mem( std::vector<MP_Dict_c*> *dictArray, std::vector<MP_Book_c*> *book
     }
   if ( bookArray )
     {
-      for ( unsigned int j = 0; j < mixer->numSources; j++ ) if ( bookArray->at(j) ) delete bookArray->at(j);
+      for ( unsigned int j = 0; j < mixer->numSources; j++ ) 
+		  if ( bookArray->at(j) ) 
+			  delete bookArray->at(j);
       delete (bookArray);
     }
   
@@ -656,7 +658,8 @@ return( ERR_MIXER  );
     
 bookArray = new  std::vector<MP_Book_c*>(mixer->numSources);
 
-for (unsigned int j =0; j <mixer->numSources; j++) bookArray->at(j) = MP_Book_c::create(1, inSignal->numSamples, inSignal->sampleRate );
+for (unsigned int j =0; j <mixer->numSources; j++) 
+	bookArray->at(j) = MP_Book_c::create(1, inSignal->numSamples, inSignal->sampleRate );
 
 
 

@@ -154,7 +154,7 @@ int MP_Block_Factory_c::get_block_type_size( const char* blockName )
 {
 	map<string, string, mp_ltstring> typeMap;	
 	MP_Block_Factory_c::get_block_factory()->blockType[blockName](&typeMap);	
-	return typeMap.size();
+	return (int)typeMap.size();
 }
 
 /* get a block parameter info function registered in the hash map */
@@ -187,7 +187,7 @@ int MP_Block_Factory_c::get_block_info_size( const char* blockName )
 {
 	map<string, string, mp_ltstring> infoMap;	
 	MP_Block_Factory_c::get_block_factory()->blockInfo[blockName](&infoMap);	
-	return infoMap.size();
+	return (int)infoMap.size();
 }
 
 /* get a block parameter default function registered in the hash map */
@@ -220,7 +220,7 @@ int MP_Block_Factory_c::get_block_default_size( const char* blockName )
 {
 	map<string, string, mp_ltstring> defaultMap;	
 	MP_Block_Factory_c::get_block_factory()->blockDefault[blockName](&defaultMap);	
-	return defaultMap.size();
+	return (int)defaultMap.size();
 }
 
 /* fil a vector with the nam of the block registred in block factory */
@@ -252,5 +252,5 @@ void MP_Block_Factory_c::get_registered_block_names( char **blockNames ){
 
 /* Returns the size of the atom vector */
 int MP_Block_Factory_c::get_block_size( void ){
-	return MP_Block_Factory_c::block.size();
+	return (int)MP_Block_Factory_c::block.size();
 }	 

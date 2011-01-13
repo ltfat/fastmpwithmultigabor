@@ -44,8 +44,8 @@ MP_Signal_c *mp_create_signal_from_mxSignal(const mxArray *mxSignal) {
     mp_error_msg(func,"input signal should be a numSamples x numChans matrix");
     return(NULL);
   }
-  unsigned long int numSamples = mxGetM(mxSignal);
-  unsigned int      numChans   = mxGetN(mxSignal);
+  unsigned long int numSamples = (unsigned long int)mxGetM(mxSignal);
+  unsigned int      numChans   = (unsigned int)mxGetN(mxSignal);
   
   // Creating storage for output
   MP_Signal_c *signal = MP_Signal_c::init(numChans,numSamples,1);

@@ -531,7 +531,7 @@ unsigned long int MP_Signal_c::read_from_float_file( const char *fName )
 
   /* Read the samples,
      and emit a warning if we can't read enough samples to fill the whole signal: */
-  if ( (nRead = mp_fread( buffer, sizeof(float), numChans*numSamples, fid ))
+  if ( (nRead = (unsigned long int)mp_fread( buffer, sizeof(float), numChans*numSamples, fid ))
        != (numChans*numSamples) )
     {
       mp_warning_msg( "MP_Signal_c::read_from_float_file(file)",
@@ -599,7 +599,7 @@ unsigned long int MP_Signal_c::dump_to_float_file( const char *fName )
 
   /* Write to the file,
      and emit a warning if we can't write all the signal samples: */
-  if ( (nWrite = mp_fwrite( buffer, sizeof(float), numChans*numSamples, fid ))
+  if ( (nWrite = (unsigned long int)mp_fwrite( buffer, sizeof(float), numChans*numSamples, fid ))
        != (numChans*numSamples) )
     {
       mp_warning_msg( "MP_Signal_c::dump_to_float_file(file)",
@@ -649,7 +649,7 @@ unsigned long int MP_Signal_c::dump_to_double_file( const char *fName )
 
   /* Write to the file,
      and emit a warning if we can't write all the signal samples: */
-  if ( (nWrite = mp_fwrite( buffer, sizeof(double), numChans*numSamples, fid ))
+  if ( (nWrite = (unsigned long int)mp_fwrite( buffer, sizeof(double), numChans*numSamples, fid ))
        != (numChans*numSamples) )
     {
       mp_warning_msg( "MP_Signal_c::dump_to_double_file(file)",
@@ -844,9 +844,7 @@ int MP_Signal_c::info( FILE *fid )
 
   int nChar = 0;
 
-  nChar += mp_info_msg( fid, "SIGNAL",
-                        "[%lu] samples on [%d] channels; sample rate [%d]Hz; energy [%g].\n",
-                        numSamples, numChans, sampleRate, energy );
+  nChar += (int)mp_info_msg( fid, "SIGNAL", "[%lu] samples on [%d] channels; sample rate [%d]Hz; energy [%g].\n", numSamples, numChans, sampleRate, energy );
 
   return( nChar );
 }
@@ -858,9 +856,7 @@ int MP_Signal_c::info( void )
 
   int nChar = 0;
 
-  nChar += mp_info_msg( "SIGNAL",
-                        "[%lu] samples on [%d] channels; sample rate [%d]Hz; energy [%g].\n",
-                        numSamples, numChans, sampleRate, energy );
+  nChar += (int)mp_info_msg( "SIGNAL", "[%lu] samples on [%d] channels; sample rate [%d]Hz; energy [%g].\n", numSamples, numChans, sampleRate, energy );
 
   return( nChar );
 }
