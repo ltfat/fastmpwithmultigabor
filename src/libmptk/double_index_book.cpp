@@ -104,6 +104,11 @@ GP_Double_Index_Book_c::GP_Double_Index_Book_c() {
 /**************/
 /* Destructor */
 GP_Double_Index_Book_c::~GP_Double_Index_Book_c() {
+	if(atom)
+	{
+		free(atom); 
+		atom = NULL;
+	}
 	if ( sortBook )
 		delete sortBook;
 }

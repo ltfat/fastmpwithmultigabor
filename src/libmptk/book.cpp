@@ -216,6 +216,14 @@ MP_Book_c::MP_Book_c() {
 /* Destructor */
 MP_Book_c::~MP_Book_c() {
 	mp_debug_msg( MP_DEBUG_DESTRUCTION, "MP_Book_c::~MP_Book_c()", "Deleting book...\n" );
+	if(atom)
+	{
+		for(int i=0; i<numAtoms; i++)
+			if(atom[i])
+				delete atom[i];
+		free(atom); 
+		atom = NULL;
+	}
 	mp_debug_msg( MP_DEBUG_DESTRUCTION, "MP_Book_c::~MP_Book_c()", "Done.\n" );
 }
 
