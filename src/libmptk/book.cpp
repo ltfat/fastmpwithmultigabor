@@ -215,12 +215,13 @@ MP_Book_c::MP_Book_c() {
 /**************/
 /* Destructor */
 MP_Book_c::~MP_Book_c() {
+	unsigned long int iIndex;
 	mp_debug_msg( MP_DEBUG_DESTRUCTION, "MP_Book_c::~MP_Book_c()", "Deleting book...\n" );
 	if(atom)
 	{
-		for(int i=0; i<numAtoms; i++)
-			if(atom[i])
-				delete atom[i];
+		for(iIndex=0; iIndex<numAtoms; iIndex++)
+			if(atom[iIndex])
+				delete atom[iIndex];
 		free(atom); 
 		atom = NULL;
 	}

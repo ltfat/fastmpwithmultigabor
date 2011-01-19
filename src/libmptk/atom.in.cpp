@@ -198,10 +198,10 @@ int MP_Atom_c::read( FILE *fid, const char mode ) {
   }
 
   /* Check the support information */
-  if ( nItem != ( 2 * (unsigned long int)( numChans ) ) ) {
+  if ( nItem != ( 2 * (int)( numChans ) ) ) {
     mp_error_msg( func, "Problem while reading the supports :"
 		  " %lu read, %lu expected.\n",
-		  nItem, 2 * (unsigned long int )( numChans ) );
+		  nItem, 2 * (int )( numChans ) );
     return( 1 );
   }
   
