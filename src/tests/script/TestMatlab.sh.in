@@ -42,7 +42,24 @@ matlabTestspath=@MPTK_MATLABTESTS_PATH@
 echo "####################################"
 echo "          Launching Matlab          "
 echo "####################################"
-$matlabpath/bin/matlab -nosplash -nojvm -nodesktop -r "run $matlabTestspath/matlabtest_getmptkinfo.m,exit" > log_test.log;
+# Search if Matlab exists
+if [ -f "$matlabpath/bin/matlab" ]; then
+	echo "Searching Matlab under \"$matlabpath/bin/matlab\"... Ok !"
+else
+	echo "Searching Matlab under \"$matlabpath/bin/matlab\"... Failed ! Execution aborted"
+	exit 1		
+fi
+
+# Search if the Matlab file exists
+if [ -f "$matlabTestspath/matlabtest_getmptkinfo.m" ]; then
+	echo "Searching Matlab m file under \"$matlabTestspath/matlabtest_getmptkinfo.m\"... Ok !"
+else
+	echo "Searching Matlab m file under \"$matlabTestspath/matlabtest_getmptkinfo.m\"... Failed ! Execution aborted"
+	exit 1		
+fi
+
+# If it's ok then run Matlab
+$matlabpath/bin/matlab -nosplash -nojvm -nodesktop -r "run $matlabTestspath/matlabtest_getmptkinfo.m,exit" > log_test.log
 
 testFinal=$(cat log_test.log | tail -2 | head -1)
 echo "####################################"
