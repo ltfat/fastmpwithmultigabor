@@ -37,7 +37,7 @@ setenv('MPTK_CONFIG_FILENAME','@CMAKE_INSTALL_PREFIX@/mptk/path.xml')
 
 disp('... Searching for the Matlab test files...');
 if exist('@MPTK_BINARY_DIR@/bin/matlabTests/SpecificsTests/') == 0
-	disp('Error : The path of Matlab test files does not exist')
+	disp('Error : The path of Matlab test files does not exist : @MPTK_BINARY_DIR@/bin/matlabTests/SpecificsTests/')
 	exit;
 end
 TestFiles = what('@MPTK_BINARY_DIR@/bin/matlabTests/SpecificsTests/');
