@@ -16,9 +16,13 @@ ENDFOREACH(test_target)
 #------------------------------------------------
 # Copy the Matlab tests
 #------------------------------------------------
-SET(MPTK_MATLABTESTS_PATH ${MPTK_BINARY_DIR}/bin/matlabTests)
-FOREACH(MPTK_MATLABTESTS runAllMatlabTests)
-	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/tests/matlabTests/${MPTK_MATLABTESTS}.m.in ${MPTK_MATLABTESTS_PATH}/${MPTK_MATLABTESTS}.m @ONLY)
+SET(MPTK_MATLABALLTEST_PATH ${MPTK_BINARY_DIR}/bin/matlabTests)
+SET(MPTK_MATLABALLTEST_NAME runAllMatlabTests)
+CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/tests/matlabTests/${MPTK_MATLABALLTEST_NAME}.m.in ${MPTK_MATLABALLTEST_PATH}/${MPTK_MATLABALLTEST_NAME}.m @ONLY)
+
+SET(MPTK_MATLABSPECTEST_PATH ${MPTK_MATLABALLTEST_PATH}/SpecificsMatlabTests)
+FOREACH(MPTK_MATLABTESTS TestDictread)
+	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/tests/matlabTests/SpecificsMatlabTests/${MPTK_MATLABTESTS}.m.in ${MPTK_MATLABSPECTEST_PATH}/${MPTK_MATLABTESTS}.m @ONLY)
 ENDFOREACH(MPTK_MATLABTESTS)
 
 #------------------------------------------------

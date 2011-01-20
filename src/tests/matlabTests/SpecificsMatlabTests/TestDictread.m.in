@@ -26,45 +26,5 @@
 %																				%
 %*******************************************************************************%
 disp('*****************************');
-disp('     Test : getmptkinfo      ');
+disp('           Test : 1          ');
 disp('*****************************');
-
-disp('... Redirection of the path to installation directory...')
-cd @CMAKE_INSTALL_PREFIX@/mptk/matlab/
-
-disp('... Adding the environment path variable MPTK_CONFIG_FILENAME...')
-setenv('MPTK_CONFIG_FILENAME','@CMAKE_INSTALL_PREFIX@/mptk/path.xml')
-
-disp('... Searching for the Matlab test files...');
-if exist('@MPTK_BINARY_DIR@/bin/matlabTests/SpecificsMatlabTests/') == 0
-	disp('Error : The path of Matlab test files does not exist : @MPTK_BINARY_DIR@/bin/matlabTests/SpecificsMatlabTests/')
-	exit;
-end
-TestFiles = what('@MPTK_BINARY_DIR@/bin/matlabTests/SpecificsMatlabTests/');
-if isempty(TestFiles.m) == 1
-	disp(sprintf('Error : There is no Matlab M file under this path : %s',TestFiles.path))
-	exit;
-end
-addpath(TestFiles.path)
-for iIndex = 1:length(TestFiles.m)
-	try
-		[useless,TestFileWithoutExt] = fileparts(TestFiles.m{iIndex});
-		eval(TestFileWithoutExt)
-	catch err
-		disp(sprintf('Error during the test of : %s',TestFiles.m{iIndex}))
-		disp('1')
-		exit;
-	end
-end
-
-%disp('-----------------');
-%disp('Testing the books');
-%disp('-----------------');
-%disp(' 3) Launching Bookread test...');
-%book = bookread('@CMAKE_INSTALL_PREFIX@/mptk/reference/book/exampleBook.bin')
-%disp(' 4) Launching Sigread test...');
-%sigread('@CMAKE_INSTALL_PREFIX@/mptk/reference/signal/glockenspiel.wav');
-%disp(' 5) Launching Reconstruction test...');
-%mprecons(book);
-
-disp('0')

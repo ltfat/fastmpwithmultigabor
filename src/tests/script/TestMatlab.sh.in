@@ -37,7 +37,7 @@
 ##
 
 matlabpath=@MATLAB_ROOT@
-matlabTestspath=@MPTK_MATLABTESTS_PATH@
+matlabTestspath=@MPTK_MATLABALLTEST_PATH@
 
 echo "####################################"
 echo "          Launching Matlab          "
