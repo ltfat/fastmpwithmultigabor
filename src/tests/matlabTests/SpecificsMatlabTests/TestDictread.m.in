@@ -1,6 +1,6 @@
 %*******************************************************************************%
 %																				%
-%                            test_getmptkinfo.m									%
+%                            TestDictread.m										%
 %																				%
 %                      Matching Pursuit Testing Suite							%
 %																				%
@@ -25,6 +25,19 @@
 %  Boston, MA  02111-1307, USA.													%
 %																				%
 %*******************************************************************************%
-disp('*****************************');
-disp('           Test : 1          ');
-disp('*****************************');
+disp('-----------------------------------------------------');
+disp('Testing the dictionaries using dictread and dictwrite');
+disp('-----------------------------------------------------');
+dict = dictread([mptkInfo.path.reference '/@MPTK_DEFAULT_DICT_FILENAME@'])
+
+dictwrite(dict,filename)
+
+
+
+
+%disp(' 3) Launching Bookread test...');
+%book = bookread('@CMAKE_INSTALL_PREFIX@/mptk/reference/book/exampleBook.bin')
+%disp(' 4) Launching Sigread test...');
+%sigread('@CMAKE_INSTALL_PREFIX@/mptk/reference/signal/glockenspiel.wav');
+%disp(' 5) Launching Reconstruction test...');
+%mprecons(book);

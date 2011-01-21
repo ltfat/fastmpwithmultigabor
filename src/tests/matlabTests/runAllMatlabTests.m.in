@@ -1,6 +1,6 @@
 %*******************************************************************************%
 %																				%
-%                            test_getmptkinfo.m									%
+%                            runAllMatlabTests.m								%
 %																				%
 %                      Matching Pursuit Testing Suite							%
 %																				%
@@ -26,7 +26,7 @@
 %																				%
 %*******************************************************************************%
 disp('*****************************');
-disp('     Test : getmptkinfo      ');
+disp('   Test : runAllMatlabTests  ');
 disp('*****************************');
 
 disp('... Redirection of the path to installation directory...')
@@ -56,15 +56,5 @@ for iIndex = 1:length(TestFiles.m)
 		exit;
 	end
 end
-
-%disp('-----------------');
-%disp('Testing the books');
-%disp('-----------------');
-%disp(' 3) Launching Bookread test...');
-%book = bookread('@CMAKE_INSTALL_PREFIX@/mptk/reference/book/exampleBook.bin')
-%disp(' 4) Launching Sigread test...');
-%sigread('@CMAKE_INSTALL_PREFIX@/mptk/reference/signal/glockenspiel.wav');
-%disp(' 5) Launching Reconstruction test...');
-%mprecons(book);
 
 disp('0')
