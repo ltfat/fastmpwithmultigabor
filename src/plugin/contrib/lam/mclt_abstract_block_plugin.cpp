@@ -25,7 +25,8 @@
 /*  Foundation, Inc., 59 Temple Place - Suite 330,                            */
 /*  Boston, MA  02111-1307, USA.                                              */
 /*                                                                            */
-/******************************************************************************/
+/******************************************************************************/
+
 
 /****************************************************************/
 /*                                               		*/
@@ -207,7 +208,8 @@ MP_Mclt_Abstract_Block_Plugin_c::MP_Mclt_Abstract_Block_Plugin_c( void )
 
   preModRe = preModIm = postModRe = postModIm = NULL;
 
-  fftSize = numFreqs = 0;
+  fftSize = numFreqs = 0;
+
   mp_debug_msg( MP_DEBUG_CONSTRUCTION, "MP_mclt_abstract_Block_c::MP_mclt_abstract_Block_c()",
 		"Done.\n" );  
 
@@ -337,12 +339,14 @@ MP_Real_t MP_Mclt_Abstract_Block_Plugin_c::test(){
     MP_Real_t err = 0;
     
     memset (sample, 0, sizeof(MP_Real_t)*filterLen);
+    memset (out, 0, sizeof(MP_Real_t)*filterLen);
     sample[0] = 1;
     compute_transform(sample);
     compute_inverse_transform(out);
     
     err = (out[0])*(out[0]);
-    for (unsigned long int t = 1; t < filterLen; t++){
+    for (unsigned long int t = 1; t < filterLen; t++)
+	{
         err += out[t]*out[t];
     }
         
