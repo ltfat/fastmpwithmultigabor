@@ -2,7 +2,7 @@
 /*                                                                            */
 /*                  	          mpdecomp.cpp                       	      */
 /*                                                                            */
-/*				mptk4matlab toolbox		      	      */
+/*							mptk4matlab toolbox								  */
 /*                                                                            */
 /* Remi Gribonval                                            	  July   2008 */
 /* -------------------------------------------------------------------------- */

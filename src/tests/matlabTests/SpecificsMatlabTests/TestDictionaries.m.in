@@ -28,16 +28,23 @@
 disp('-----------------------------------------------------');
 disp('Testing the dictionaries using dictread and dictwrite');
 disp('-----------------------------------------------------');
-dict = dictread([mptkInfo.path.reference '/@MPTK_DEFAULT_DICT_FILENAME@'])
 
-dictwrite(dict,filename)
+disp('... Verifying the presence of the dictionary example...');
+if exist('@MPTK_BINARY_DIR@/mptk/reference/@MPTK_DEFAULT_DICT_FILENAME@') == 0
+	disp('Error : The following dictionary example file does not exist : @MPTK_BINARY_DIR@/mptk/reference/@MPTK_DEFAULT_DICT_FILENAME@')
+	exit;
+end
 
+try
+	dicttest = dictread('@MPTK_BINARY_DIR@/mptk/reference/@MPTK_DEFAULT_DICT_FILENAME@')
+catch err
+	disp('Error during the "dictread" test')
+	exit;
+end
 
-
-
-%disp(' 3) Launching Bookread test...');
-%book = bookread('@CMAKE_INSTALL_PREFIX@/mptk/reference/book/exampleBook.bin')
-%disp(' 4) Launching Sigread test...');
-%sigread('@CMAKE_INSTALL_PREFIX@/mptk/reference/signal/glockenspiel.wav');
-%disp(' 5) Launching Reconstruction test...');
-%mprecons(book);
+try
+	dictwrite(dicttest,'@MPTK_BINARY_DIR@/mptk/reference/@MPTK_DEFAULT_DICT_FILENAMEBIS@')
+catch err
+	disp('Error during the "dictwrite" test')
+	exit;
+end

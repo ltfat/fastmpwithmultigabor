@@ -45,69 +45,83 @@
 
 void mexFunction(int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[])
 {
-  char *fileName   = NULL;
+	char *fileName   = NULL;
 
-  InitMPTK4Matlab(mexFunctionName());
+	InitMPTK4Matlab(mexFunctionName());
   
-  // Check input arguments
-  if (nrhs<1 || nrhs>2) {
-    mexPrintf("%s error -- bad number of input arguments\n",mexFunctionName());
-    mexPrintf("    see help %s\n",mexFunctionName());
-    mexErrMsgTxt("Aborting");
-    return;
-  }
-  if(nrhs==2) {
-    if(!mxIsChar(prhs[1])) {
-      mexPrintf("%s error -- the optional second argument filename should be a string\n",mexFunctionName());
-      mexPrintf("    see help %s\n",mexFunctionName());
-      mexErrMsgTxt("Aborting");
-      return;        
-    }
-    else {
-      fileName = mxArrayToString(prhs[1]);
-      if (NULL==fileName) {
-	mexPrintf("%s error -- the optional second argument filename could not be retrieved from the input\n",mexFunctionName());
-	mexErrMsgTxt("Aborting");
-	return;
-      }
-    }
-  }
+	// Check input arguments
+	if (nrhs<1 || nrhs>2) 
+	{
+		mexPrintf("%s error -- bad number of input arguments\n",mexFunctionName());
+		mexPrintf("    see help %s\n",mexFunctionName());
+		mexErrMsgTxt("Aborting");
+		return;
+	}
+	if(nrhs==2) 
+	{
+		if(!mxIsChar(prhs[1])) 
+		{
+			mexPrintf("%s error -- the optional second argument filename should be a string\n",mexFunctionName());
+			mexPrintf("    see help %s\n",mexFunctionName());
+			mexErrMsgTxt("Aborting");
+			return;        
+		}
+		else 
+		{
+			fileName = mxArrayToString(prhs[1]);
+			if (NULL==fileName) 
+			{
+				mexPrintf("%s error -- the optional second argument filename could not be retrieved from the input\n",mexFunctionName());
+				mexErrMsgTxt("Aborting");
+				return;
+			}
+		}
+	}
 
-  // Check output arguments
-  if (nlhs>1) {
-    mexPrintf("%s error -- bad number of output arguments\n",mexFunctionName());
-    mexPrintf("    see help %s\n",mexFunctionName());
-    mexErrMsgTxt("Aborting");
-    return;
-  }
+	// Check output arguments
+	if (nlhs>1) 
+	{
+		mexPrintf("%s error -- bad number of output arguments\n",mexFunctionName());
+		mexPrintf("    see help %s\n",mexFunctionName());
+		// Clean the house
+		mxFree(fileName);
+		mexErrMsgTxt("Aborting");
+		return;
+	}
 
-  // Converting dictionary
-  const mxArray* mxDict = prhs[0];
-  MP_Dict_c *dict = mp_create_dict_from_mxDict(mxDict);
+	// Converting dictionary
+	const mxArray* mxDict = prhs[0];
+	MP_Dict_c *dict = mp_create_dict_from_mxDict(mxDict);
 
-  // If the dictionary is not valid
-  if(NULL==dict) {
-    double isvalid   = 0.0;
-    if(nlhs>0) plhs[0] = mxCreateDoubleScalar((double)isvalid);
-    return;
-  }
-  // If it is valid
-  double isvalid = 1.0;
-  if(nlhs>0) plhs[0] = mxCreateDoubleScalar((double)isvalid);
-  // If a filename was provided, we need to try to write to file
-  if(NULL!=fileName) {
-    if (dict->print(fileName)) {
-      mexPrintf("%s error --the dictionary could not be written to file %s\n",mexFunctionName(),fileName);
-      // Clean the house
-      mxFree(fileName);
-      mexErrMsgTxt("Aborting");
-      return;
-    } 
-    else {
-      // Clean the house
-      mxFree(fileName);
-    }
-  }
-  // Clean the house
-  delete dict;
+	// If the dictionary is not valid
+	if(NULL==dict) 
+	{
+		double isvalid   = 0.0;
+		if(nlhs>0) 
+			plhs[0] = mxCreateDoubleScalar((double)isvalid);
+		return;
+	}
+	// If it is valid
+	double isvalid = 1.0;
+	if(nlhs>0) 
+		plhs[0] = mxCreateDoubleScalar((double)isvalid);
+	// If a filename was provided, we need to try to write to file
+	if(NULL!=fileName) 
+	{
+		if (dict->print(fileName)) 
+		{
+			mexPrintf("%s error -- the dictionary could not be written to file %s\n",mexFunctionName(),fileName);
+			// Clean the house
+			mxFree(fileName);
+			mexErrMsgTxt("Aborting");
+			return;
+		} 
+		else 
+		{
+			// Clean the house
+			mxFree(fileName);
+		}
+	}
+	// Clean the house
+	delete dict;
 }

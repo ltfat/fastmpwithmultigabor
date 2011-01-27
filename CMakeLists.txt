@@ -201,6 +201,8 @@ SET(MPTK_DEFAULT_ANYWAVETABLE_DATA_FILENAME wavetable/defaultWaveTableData.bin)
 SET(MPTK_DEFAULT_DICT_LIST_INSTALL_PATH dictionary)
 SET(MPTK_DEFAULT_ANYWAVETABLE_INSTALL_PATH wavetable)
 SET(MPTK_DEFAULT_ANYWAVEDICT_INSTALL_PATH dictionary)
+# Useful for Matlab script test
+SET(MPTK_DEFAULT_DICT_FILENAMEBIS dictionary/dic_gabor_two_scalesBis.xml)
 
 #----------------------
 # Copied default files
@@ -218,6 +220,10 @@ ENDFOREACH(default)
 SET(MPTK_EXAMPLE_BOOK_FILENAME book/exampleBook.bin)
 SET(MPTK_EXAMPLE_SIGNAL_FILENAME signal/glockenspiel.wav)
 SET(MPTK_EXAMPLE_STEREOSIGNAL_FILENAME signal/mix_58_stereo.wav)
+# Useful for Matlab script test
+SET(MPTK_EXAMPLE_BOOK_WRITE_FILENAME book/testBookWrite.bin)
+SET(MPTK_EXAMPLE_SIGNAL_WRITE_FILENAME signal/testglockenspiel.wav)
+SET(MPTK_EXAMPLE_SIGNAL_RECONST_FILENAME signal/testglockenspielReconst.wav)
 
 FOREACH(example BOOK SIGNAL STEREOSIGNAL)
 	SET(MPTK_EXAMPLE_${example}_FILE          ${MPTK_REFERENCE_PATH}/${MPTK_EXAMPLE_${example}_FILENAME})
