@@ -133,15 +133,19 @@ ENDIF(BUILD_TESTING AND DASH_TESTING)
 # Setting compilation options :
 ##############################################################################
 #Select the ADD_DEFINITIONS according to selected options
-IF( CMAKE_CXX_COMPILER STREQUAL "cl")
-	# With Visual Studio 2005, Microsoft deprecates the standard C library, for
+IF(WIN32)
+  # With Visual Studio 2005, Microsoft deprecates the standard C library, for
 	# example fopen() and sprintf(), to non-portable functions fopen_s() and
 	# sprintf_s(). These functions are considered by Microsoft more secure. This is
 	# a worthwhile exercise ! The use of these deprecated functions causes a lot of
 	# warnings. To suppress it, we add the _CRT_SECURE_NO_DEPRECATE preprocessor
 	# definition -fprofile-arcs -ftest-coverage
-    ADD_DEFINITIONS(-D_CRT_SECURE_NO_DEPRECATE -D_CRT_SECURE_NO_WARNINGS)
-ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
+  ADD_DEFINITIONS(-D_CRT_SECURE_NO_DEPRECATE -D_CRT_SECURE_NO_WARNINGS)
+  IF(BUILD_DEBUG) 
+    # Add debug mode for mex files
+    SET(MATLAB_COMPILATION "-g")		
+  ENDIF(BUILD_DEBUG)
+ELSE(WIN32)
 	# Case of other compiler/environment : tags depend on build mode (debug/release
 	IF(BUILD_DEBUG) 
 		# Case of debug mode
@@ -162,7 +166,7 @@ ELSE( CMAKE_CXX_COMPILER STREQUAL "cl")
 		# Add debug mode for mex files
 		SET(MATLAB_COMPILATION "-v")		
 	ENDIF(BUILD_DEBUG)
-ENDIF( CMAKE_CXX_COMPILER STREQUAL "cl")
+ENDIF(WIN32)
 
 ##############################################################################
 #Setting package versions informations according to text files in /version
