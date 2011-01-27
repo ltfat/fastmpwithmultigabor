@@ -488,8 +488,16 @@ MP_Signal_c::~MP_Signal_c()
 
   mp_debug_msg( MP_DEBUG_DESTRUCTION, "MP_Signal_c::~MP_Signal_c()", "Deleting the signal...\n");
 
-	if (storage) free(storage);
-	if (channel) free(channel);
+	if (storage) 
+	{
+		free(storage);
+		storage = NULL;
+	}
+	if (channel) 
+	{	
+		free(channel);
+		channel = NULL;
+	}
 
   mp_debug_msg( MP_DEBUG_DESTRUCTION, "MP_Signal_c::~MP_Signal_c()", "Done.\n");
 
@@ -708,8 +716,8 @@ unsigned long int MP_Signal_c::wavwrite( const char *fName )
     }
 
 	/* write the file */
-	static int allocated_numChans = 0;
-	static double *frame = 0;
+	int allocated_numChans = 0;
+	double *frame = 0;
 	if (!frame|| allocated_numChans != numChans) {
 		if (frame) 
 			free(frame) ;
@@ -743,7 +751,11 @@ unsigned long int MP_Signal_c::wavwrite( const char *fName )
 	}
 	/* close the file */
 	sf_close(file);
-	if (frame) free(frame) ;
+	if (frame) 
+	{
+		free(frame);
+		frame = NULL;
+	}
 	if (clipping) mp_warning_msg( "MP_Signal_c::matwrite(file)", "value of frames are major to 1 with max value %f, clipping may occur on the reconstruct wave file.\nYou may apply a gain of %f on the imput signal\n", maxclipping, 0.99/maxclipping);
 	return(numFrames);
 }
@@ -796,8 +808,8 @@ unsigned long int MP_Signal_c::matwrite( const char *fName )
     }
 
 	/* write the file */
-    static int allocated_numChans = 0;
-	static double* frame = 0;
+    int allocated_numChans = 0;
+	double* frame = 0;
     if (!frame|| allocated_numChans != numChans) 
 	{
 		if (frame) 

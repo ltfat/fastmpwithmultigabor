@@ -99,7 +99,7 @@ void mexFunction(int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[])
 	signal->sampleRate = (int)sampleRate;
 
 	// Writing. 
-	if (0==signal->wavwrite(fileName)) 
+	if (signal->wavwrite(fileName) == 0) 
 	{
 		mexPrintf("%s error -- the signal could not be written to WAV file %s\n",mexFunctionName(),fileName);
 		// Clean the house
