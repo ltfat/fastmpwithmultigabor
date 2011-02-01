@@ -1,23 +1,20 @@
 % MPTK - Matlab interface
-% Imports a binary Matching Pursuit book file to Matlab, using MPTK
+% Imports a binary Matching Pursuit anywave file to Matlab, using MPTK
 %
-% Usage : book = anywaveread()
+% Usage : anywaveTable = anywaveread(filename)
 %
 % Input : 
-% filename : the filename where to read the book
+% filename : the filename where to read the anywaveTable
 %
 % Output:
-% book     : a book structure with the following structure
+% anywaveTable: a anywaveTable structure with the following structure
 %    TODO : document
 %
-% Known limitations : only the following atom types are supported: 
-%    gabor, harmonic, mdct, mclt, dirac.
-%
-% See also : bookwrite, bookedit
+% See also : anywavewrite
 %
 % Authors:
-% Emmanuel Ravelli (LAM, Paris, France)
-% Gilles Gonon, Remi Gribonval (IRISA, Rennes, France)
+% Boris Mailhé (LAM, Paris, United kingdom)
+% Ronan Le Boulch (IRISA, Rennes, France)
 % 
 % Distributed under the General Public License.
 %                                       
