@@ -41,7 +41,8 @@
 /********************************************************************************/
 mxArray *mp_create_mxAnywaveTable_from_anywave_table(const MP_Anywave_Table_c *AnyTable) 
 {
-    char				*func = "mp_create_mxAnywaveTable_from_anywave_table";
+    int					numBookFieldNames = 0;
+	char				*func = "mp_create_mxAnywaveTable_from_anywave_table";
     unsigned long int	filterIdx, chanIdx, sampleIdx;
 	mxArray				*mxReturnTable;
 	mxArray				*mxTempMatrix;
@@ -60,7 +61,10 @@ mxArray *mp_create_mxAnywaveTable_from_anywave_table(const MP_Anywave_Table_c *A
 	//--------------------------
 	// Creating output arguments
 	//--------------------------
-	mxReturnTable = mxCreateStructMatrix((mwSize)1,(mwSize)1,0,NULL);
+	// Allocate Output book structure
+	const char *bookFieldNames[] = {"tableFileName","dataFileName","normalized","centeredAndDenyquisted","wave"};
+	numBookFieldNames = 5;
+	mxReturnTable = mxCreateStructMatrix((mwSize)1,(mwSize)1,numBookFieldNames,bookFieldNames);
 	if(!mxReturnTable)
 	{
 		mp_error_msg(func,"could not create the table\n");
@@ -71,7 +75,6 @@ mxArray *mp_create_mxAnywaveTable_from_anywave_table(const MP_Anywave_Table_c *A
 	// Adding the datas into the output matrix
 	//-----------------------------------------
 	// Adding the table filename to the return table
-	mxAddField(mxReturnTable,"tableFileName");
 	mxTempMatrix = mxCreateString(AnyTable->tableFileName);
 	if(!mxTempMatrix)	
 	{
@@ -80,10 +83,8 @@ mxArray *mp_create_mxAnywaveTable_from_anywave_table(const MP_Anywave_Table_c *A
 		return(NULL);
 	}
 	mxSetField(mxReturnTable,0,"tableFileName",mxTempMatrix);
-	mxDestroyArray(mxTempMatrix);
 	
 	// Adding the datas filename to the return table
-	mxAddField(mxReturnTable,"dataFileName");
 	mxTempMatrix = mxCreateString(AnyTable->dataFileName);
 	if(!mxTempMatrix)
 	{
@@ -92,10 +93,8 @@ mxArray *mp_create_mxAnywaveTable_from_anywave_table(const MP_Anywave_Table_c *A
 		return(NULL);
 	}
 	mxSetField(mxReturnTable,0,"dataFileName",mxTempMatrix);
-	mxDestroyArray(mxTempMatrix);
   
 	// Adding the normalised datas to the return table
-	mxAddField(mxReturnTable,"normalized");
 	mxTempMatrix = mxCreateDoubleScalar(AnyTable->normalized);
 	if(!mxTempMatrix)
 	{
@@ -104,10 +103,8 @@ mxArray *mp_create_mxAnywaveTable_from_anywave_table(const MP_Anywave_Table_c *A
 		return(NULL);
 	}
 	mxSetField(mxReturnTable,0,"normalized",mxTempMatrix);
-	mxDestroyArray(mxTempMatrix);
 	
 	// Adding the centered and deny quisted datas to the return table
-	mxAddField(mxReturnTable, "centeredAndDenyquisted");
 	mxTempMatrix = mxCreateDoubleScalar(AnyTable->centeredAndDenyquisted);
 	if(!mxTempMatrix)
 	{
@@ -116,7 +113,6 @@ mxArray *mp_create_mxAnywaveTable_from_anywave_table(const MP_Anywave_Table_c *A
 		return(NULL);
 	}
 	mxSetField(mxReturnTable,0,"centeredAndDenyquisted",mxTempMatrix);
-	mxDestroyArray(mxTempMatrix);
   
 	// Create the waveform array
 	mwDimension = new mwSize[3];
@@ -138,11 +134,9 @@ mxArray *mp_create_mxAnywaveTable_from_anywave_table(const MP_Anywave_Table_c *A
 				mxGetPr(mxWaveArray)[(filterIdx*AnyTable->numChans + chanIdx)*AnyTable->filterLen +  sampleIdx] = (double) (AnyTable->wave[filterIdx][chanIdx][sampleIdx]);
   
 	// Adding the waveform array
-	mxAddField(mxReturnTable, "wave");
 	mxSetField(mxReturnTable, 0, "wave", mxWaveArray);
   
 	// Clean the house
-	mxDestroyArray(mxWaveArray);
 	delete[]mwDimension;
 
 	return mxReturnTable;
