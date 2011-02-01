@@ -93,6 +93,7 @@ classes/mptk4matlab.h
 classes/mptk4matlab.cpp
 classes/mexDict.cpp
 classes/mexSignal.cpp
+classes/mexAnywaveTable.cpp
 experimental/classes/mxBook.h
 experimental/classes/mxBook.cpp)
 
@@ -114,7 +115,7 @@ INSTALL(TARGETS
 )
 
 # List of mex files to be compiled and installed
-FOREACH(target getmptkinfo dictread dictwrite sigread sigwrite bookread bookwrite mprecons mpdecomp)
+FOREACH(target getmptkinfo dictread dictwrite sigread sigwrite bookread bookwrite mprecons mpdecomp anywavetableread)
    ADD_CUSTOM_TARGET(matlab_${target} 
    	             ALL echo
                      DEPENDS
