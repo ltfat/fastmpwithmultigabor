@@ -43,11 +43,12 @@ mxArray *mp_create_mxAnywaveTable_from_anywave_table(const MP_Anywave_Table_c *A
 {
     int					numBookFieldNames = 0;
 	char				*func = "mp_create_mxAnywaveTable_from_anywave_table";
-    unsigned long int	filterIdx, chanIdx, sampleIdx;
+    unsigned long int	filterIdx, chanIdx, sampleIdx, storageIdx;
 	mxArray				*mxReturnTable;
 	mxArray				*mxTempMatrix;
 	mxArray				*mxWaveArray;
-	mwSize				*mwDimension;
+	mxArray				*mxStorageArray;
+	mwSize				*mwDimension1,*mwDimension2;
 	
 	//--------------------------
 	// Checking input arguments
@@ -62,8 +63,8 @@ mxArray *mp_create_mxAnywaveTable_from_anywave_table(const MP_Anywave_Table_c *A
 	// Creating output arguments
 	//--------------------------
 	// Allocate Output book structure
-	const char *bookFieldNames[] = {"tableFileName","dataFileName","normalized","centeredAndDenyquisted","wave"};
-	numBookFieldNames = 5;
+	const char *bookFieldNames[] = {"tableFileName","dataFileName","normalized","centeredAndDenyquisted","storage","wave"};
+	numBookFieldNames = 6;
 	mxReturnTable = mxCreateStructMatrix((mwSize)1,(mwSize)1,numBookFieldNames,bookFieldNames);
 	if(!mxReturnTable)
 	{
@@ -114,12 +115,30 @@ mxArray *mp_create_mxAnywaveTable_from_anywave_table(const MP_Anywave_Table_c *A
 	}
 	mxSetField(mxReturnTable,0,"centeredAndDenyquisted",mxTempMatrix);
   
+	// Create the storage array
+	mwDimension1 = new mwSize[1];
+	mwDimension1[0] = AnyTable->filterLen * AnyTable->numChans * AnyTable->numFilters;
+	mxStorageArray = mxCreateNumericArray(1, mwDimension1, mxDOUBLE_CLASS, mxREAL);
+	if(!mxStorageArray)
+	{
+		mp_error_msg(func,"could not create storage array\n");
+		mxDestroyArray(mxReturnTable);
+		return(NULL);
+	}
+  
+	//Fill in the storage array
+	for (storageIdx = 0 ; storageIdx < AnyTable->filterLen * AnyTable->numChans * AnyTable->numFilters ; storageIdx++)
+		mxGetPr(mxStorageArray)[storageIdx] = (double) (AnyTable->storage[storageIdx]);
+
+	// Adding the storage array
+	mxSetField(mxReturnTable, 0, "storage", mxStorageArray);
+
 	// Create the waveform array
-	mwDimension = new mwSize[3];
-	mwDimension[0] = AnyTable->filterLen;
-	mwDimension[1] = AnyTable->numChans;
-	mwDimension[2] = AnyTable->numFilters;
-	mxWaveArray = mxCreateNumericArray(3, mwDimension, mxDOUBLE_CLASS, mxREAL);
+	mwDimension2 = new mwSize[3];
+	mwDimension2[0] = AnyTable->filterLen;
+	mwDimension2[1] = AnyTable->numChans;
+	mwDimension2[2] = AnyTable->numFilters;
+	mxWaveArray = mxCreateNumericArray(3, mwDimension2, mxDOUBLE_CLASS, mxREAL);
 	if(!mxWaveArray)
 	{
 		mp_error_msg(func,"could not create waveform array\n");
@@ -137,7 +156,8 @@ mxArray *mp_create_mxAnywaveTable_from_anywave_table(const MP_Anywave_Table_c *A
 	mxSetField(mxReturnTable, 0, "wave", mxWaveArray);
   
 	// Clean the house
-	delete[]mwDimension;
+	delete[]mwDimension1;
+	delete[]mwDimension2;
 
 	return mxReturnTable;
 }
