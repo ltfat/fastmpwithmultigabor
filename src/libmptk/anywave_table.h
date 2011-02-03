@@ -190,14 +190,22 @@ public:
  public:
   /** \brief Print the table structure to a stream
    *
-   * the output is the same as the file tableFileName
+   * the output is empty
    *
    * \param fid A writeable stream
-   * \return The number of printed characters
    * \remark DO NOT WRITE THE DATA TO the file \a dataFileName
    */
-  MPTK_LIB_EXPORT unsigned long int print ( FILE *fid );
+  MPTK_LIB_EXPORT void printTable ( FILE *fidTable );
 
+	/** \brief Print the table structure to a stream
+	 *
+	 * the output is the same as the file tableFileName
+	 *
+	 * \param fid A writeable stream
+	 * \remark DO NOT WRITE THE DATA TO the file \a dataFileName
+	 */
+	MPTK_LIB_EXPORT void printDatas ( FILE *fidDatas );
+	
   /** \brief Print the table structure to a file
    *
    * the output is the same as the file tableFileName
@@ -206,7 +214,7 @@ public:
    * \return The number of printed characters
    * \remark DO NOT WRITE THE DATA TO the file \a dataFileName
    */
-  MPTK_LIB_EXPORT unsigned long int print( const char *fName );
+  MPTK_LIB_EXPORT unsigned long int print( const char *szTableName, const char *szDatasName );
 
   /** \brief load the data contained in dataFileName, store it in
    * storage and update the pointers in wave

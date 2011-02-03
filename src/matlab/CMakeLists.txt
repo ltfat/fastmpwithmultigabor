@@ -115,7 +115,7 @@ INSTALL(TARGETS
 )
 
 # List of mex files to be compiled and installed
-FOREACH(target getmptkinfo dictread dictwrite sigread sigwrite bookread bookwrite mprecons mpdecomp anywavetableread)
+FOREACH(target getmptkinfo dictread dictwrite sigread sigwrite bookread bookwrite mprecons mpdecomp anywavetableread anywavetablewrite)
    ADD_CUSTOM_TARGET(matlab_${target} 
    	             ALL echo
                      DEPENDS
