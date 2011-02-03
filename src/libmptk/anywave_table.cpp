@@ -639,11 +639,11 @@ void MP_Anywave_Table_c::printTable( FILE *fidTable )
 /* printing to a stream */
 void MP_Anywave_Table_c::printDatas( FILE *fidDatas )
 {
-	unsigned long int filterIdx, chanIdx;
+	unsigned long int iFilterIdx, iChanIdx;
 	
-	for (filterIdx = 0 ; filterIdx < numFilters ; filterIdx++)
-		for(chanIdx = 0 ; filterIdx < numChans ; filterIdx++)
-			fwrite(wave[filterIdx][chanIdx], sizeof(double), 1*sizeof(double), fidDatas);
+	for (iFilterIdx = 0 ; iFilterIdx < numFilters ; iFilterIdx++)
+		for(iChanIdx = 0 ; iChanIdx < numChans ; iChanIdx++)
+			fwrite(wave[iFilterIdx][iChanIdx], sizeof(double), filterLen, fidDatas);
 
 	return;
 }
@@ -655,8 +655,7 @@ unsigned long int MP_Anywave_Table_c::print( const char *szTableName, const char
 
 	FILE *fidTable, *fidDatas;
 
-	fidTable = fopen(szTableName,"w");
-	if (fidTable == NULL)
+	if((fidTable = fopen(szTableName,"wb")) == NULL)
     {
 		mp_error_msg( "MP_Anywave_Table_c::print", "Could not open file %s to write a table\n",szTableName);
 		return(false);
@@ -664,12 +663,11 @@ unsigned long int MP_Anywave_Table_c::print( const char *szTableName, const char
 	printTable(fidTable);
 	fclose (fidTable);
 	
-	fidDatas = fopen(szDatasName,"wb");
-	if (fidDatas == NULL)
+	if((fidDatas = fopen(szDatasName,"wb")) == NULL)
     {
 		mp_error_msg( "MP_Anywave_Table_c::print", "Could not open file %s to write the wave datas\n",szDatasName);
 		return(false);
-    }
+	}
 	printDatas(fidDatas);
 	fclose (fidDatas);
 	

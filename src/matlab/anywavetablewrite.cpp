@@ -126,7 +126,7 @@ void mexFunction(int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[])
 		return;
 	}
   
-	mpAnywaveTable->print(szTableFileName,szTableFileName);
+	mpAnywaveTable->print(szTableFileName,szDatasFileName);
 
 	// Clean the house
 	mxFree(szTableFileName);

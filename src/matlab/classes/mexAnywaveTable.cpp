@@ -43,12 +43,11 @@ mxArray *mp_create_mxAnywaveTable_from_anywave_table(const MP_Anywave_Table_c *A
 {
     int					numBookFieldNames = 0;
 	char				*func = "mp_create_mxAnywaveTable_from_anywave_table";
-    unsigned long int	filterIdx, chanIdx, sampleIdx, storageIdx;
+    unsigned long int	filterIdx, chanIdx, sampleIdx;
 	mxArray				*mxReturnTable;
 	mxArray				*mxTempMatrix;
 	mxArray				*mxWaveArray;
-	mxArray				*mxStorageArray;
-	mwSize				*mwDimension1,*mwDimension2;
+	mwSize				*mwDimension;
 	
 	//--------------------------
 	// Checking input arguments
@@ -63,8 +62,8 @@ mxArray *mp_create_mxAnywaveTable_from_anywave_table(const MP_Anywave_Table_c *A
 	// Creating output arguments
 	//--------------------------
 	// Allocate Output book structure
-	const char *bookFieldNames[] = {"tableFileName","dataFileName","normalized","centeredAndDenyquisted","storage","wave"};
-	numBookFieldNames = 6;
+	const char *bookFieldNames[] = {"tableFileName","dataFileName","normalized","centeredAndDenyquisted","wave"};
+	numBookFieldNames = 5;
 	mxReturnTable = mxCreateStructMatrix((mwSize)1,(mwSize)1,numBookFieldNames,bookFieldNames);
 	if(!mxReturnTable)
 	{
@@ -115,30 +114,12 @@ mxArray *mp_create_mxAnywaveTable_from_anywave_table(const MP_Anywave_Table_c *A
 	}
 	mxSetField(mxReturnTable,0,"centeredAndDenyquisted",mxTempMatrix);
   
-	// Create the storage array
-	mwDimension1 = new mwSize[1];
-	mwDimension1[0] = AnyTable->filterLen * AnyTable->numChans * AnyTable->numFilters;
-	mxStorageArray = mxCreateNumericArray(1, mwDimension1, mxDOUBLE_CLASS, mxREAL);
-	if(!mxStorageArray)
-	{
-		mp_error_msg(func,"could not create storage array\n");
-		mxDestroyArray(mxReturnTable);
-		return(NULL);
-	}
-  
-	//Fill in the storage array
-	for (storageIdx = 0 ; storageIdx < AnyTable->filterLen * AnyTable->numChans * AnyTable->numFilters ; storageIdx++)
-		mxGetPr(mxStorageArray)[storageIdx] = (double) (AnyTable->storage[storageIdx]);
-
-	// Adding the storage array
-	mxSetField(mxReturnTable, 0, "storage", mxStorageArray);
-
 	// Create the waveform array
-	mwDimension2 = new mwSize[3];
-	mwDimension2[0] = AnyTable->filterLen;
-	mwDimension2[1] = AnyTable->numChans;
-	mwDimension2[2] = AnyTable->numFilters;
-	mxWaveArray = mxCreateNumericArray(3, mwDimension2, mxDOUBLE_CLASS, mxREAL);
+	mwDimension = new mwSize[3];
+	mwDimension[0] = AnyTable->filterLen;
+	mwDimension[1] = AnyTable->numChans;
+	mwDimension[2] = AnyTable->numFilters;
+	mxWaveArray = mxCreateNumericArray(3, mwDimension, mxDOUBLE_CLASS, mxREAL);
 	if(!mxWaveArray)
 	{
 		mp_error_msg(func,"could not create waveform array\n");
@@ -156,8 +137,7 @@ mxArray *mp_create_mxAnywaveTable_from_anywave_table(const MP_Anywave_Table_c *A
 	mxSetField(mxReturnTable, 0, "wave", mxWaveArray);
   
 	// Clean the house
-	delete[]mwDimension1;
-	delete[]mwDimension2;
+	delete[]mwDimension;
 
 	return mxReturnTable;
 }
@@ -180,7 +160,6 @@ MP_Anywave_Table_c *mp_create_anywave_table_from_mxAnywaveTable(const mxArray *m
 	mxArray					*mxTempMatrix;
 	const mwSize			*mwDimension;
 	unsigned long int		iFilterIdx, iSampleIdx;
-	MP_Real_t				**dFilterWave;
 	MP_Chan_t				iChanIdx;
 
 	//----------------------------
@@ -248,17 +227,7 @@ MP_Anywave_Table_c *mp_create_anywave_table_from_mxAnywaveTable(const mxArray *m
 	AnyTable->filterLen = mwDimension[0];
 	AnyTable->numChans = mwDimension[1];
 	AnyTable->numFilters = mwDimension[2];
-	delete mwDimension;
   
-	// Getting the storage field
-	AnyTable->storage = (MP_Real_t*)mxMalloc(AnyTable->filterLen * AnyTable->numChans * AnyTable->numFilters * sizeof(MP_Real_t));
-	if (!AnyTable->storage)
-	{
-		mp_error_msg(func,"could not allocate storage space for the waveforms\n");
-		delete AnyTable;
-		return(NULL);
-	}
-       
 	// Getting the wave field
 	AnyTable->wave = (MP_Real_t***)mxMalloc(AnyTable->numFilters*sizeof(MP_Real_t**));
 	if(!AnyTable->wave) 
@@ -267,7 +236,7 @@ MP_Anywave_Table_c *mp_create_anywave_table_from_mxAnywaveTable(const mxArray *m
 		delete AnyTable;
 		return(NULL);
 	}  
-    for (iFilterIdx = 0 ; iFilterIdx < AnyTable->filterLen ; iFilterIdx++)
+    for (iFilterIdx = 0 ; iFilterIdx < AnyTable->numFilters ; iFilterIdx++)
 	{
 		AnyTable->wave[iFilterIdx] = (MP_Real_t**)mxMalloc(AnyTable->numChans*sizeof(MP_Real_t*));
 		if(!AnyTable->wave[iFilterIdx]) 
@@ -277,12 +246,11 @@ MP_Anywave_Table_c *mp_create_anywave_table_from_mxAnywaveTable(const mxArray *m
 			return(NULL);
 		}
 		
-		dFilterWave = AnyTable->wave[iFilterIdx];
 		for (iChanIdx = 0 ; iChanIdx < AnyTable->numChans ; iChanIdx++)
 		{
-			dFilterWave[iChanIdx] = AnyTable->storage + (iFilterIdx * AnyTable->numChans + iChanIdx) * AnyTable->filterLen;
+			AnyTable->wave[iFilterIdx][iChanIdx] = (MP_Real_t*)mxMalloc(AnyTable->filterLen*sizeof(MP_Real_t));
 			for (iSampleIdx = 0; iSampleIdx < AnyTable->filterLen ; iSampleIdx++)
-				dFilterWave[iChanIdx][iSampleIdx] = mxGetPr(mxTempMatrix)[(iFilterIdx * AnyTable->numChans + iChanIdx) * AnyTable->filterLen + iSampleIdx];
+				AnyTable->wave[iFilterIdx][iChanIdx][iSampleIdx] = mxGetPr(mxTempMatrix)[(iFilterIdx * AnyTable->numChans + iChanIdx) * AnyTable->filterLen + iSampleIdx];
 		}
 	}
     return AnyTable;
