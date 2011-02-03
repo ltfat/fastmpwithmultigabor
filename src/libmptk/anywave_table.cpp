@@ -608,15 +608,15 @@ void MP_Anywave_Table_c::writeTable( FILE *fidTable, const char *szDatasName )
 {
 	/* Print the xml declaration */
 	fprintf( fidTable, "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n" );
-	/* Print the lib version */
-	fprintf( fidTable, "<libVersion>%s</libVersion>\n", VERSION );
 	/* Print opening <table> tag */
 	fprintf( fidTable, "<table>\n" );
+	/* Print the lib version */
+	fprintf( fidTable, "<libVersion>%s</libVersion>\n", VERSION );
 	/* Print the parameters */
-	fprintf( fidTable, "\t<par type=\"numChans\">%i</par>\n", numChans );
-	fprintf( fidTable, "\t<par type=\"filterLen\">%li</par>\n", filterLen );
-	fprintf( fidTable, "\t<par type=\"numFilters\">%li</par>\n", numFilters );
-	fprintf( fidTable, "\t<par type=\"data\">%s</par>\n", szDatasName );
+	fprintf( fidTable, "\t<param name=\"numChans\" value=\"%i\"/>\n", numChans );
+	fprintf( fidTable, "\t<param name=\"filterLen\" value=\"%li\"/>\n", filterLen );
+	fprintf( fidTable, "\t<param name=\"numFilters\" value=\"%li\"/>\n", numFilters );
+	fprintf( fidTable, "\t<param name=\"data\" value=\"%s\"/>\n", szDatasName );
 	/* Print the closing </table> tag */
 	fprintf( fidTable, "</table>\n");
 	
