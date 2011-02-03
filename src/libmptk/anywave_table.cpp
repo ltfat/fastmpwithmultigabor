@@ -125,9 +125,6 @@ bool MP_Anywave_Table_c::test( char* filename )
     {
       return(false);
     }
-  /*  the table */
-  fprintf( stdout, "---- Printing the table:\n" );
-  tablePtr->printTable( stdout );
 
   /* print the first channel of the first filter before normalization */
   fprintf( stdout, "---- Printing the 10 first samples of the first channel of the first filter before normalization:\n" );
@@ -497,37 +494,27 @@ bool MP_Anywave_Table_c::parse_xml_file(const char* fName)
 /* Normalization of the waveforms */
 unsigned long int MP_Anywave_Table_c::normalize( void )
 {
-  unsigned long int filterIdx = 0;
-  MP_Real_t *pSample;
-  MP_Real_t *pSampleStart;
-  MP_Real_t *pSampleEnd;
-  double energyCoeff;
+	unsigned long int filterIdx = 0;
+	MP_Real_t *pSample;
+	MP_Real_t *pSampleStart;
+	MP_Real_t *pSampleEnd;
+	double energyCoeff;
 
-  for (filterIdx = 0;
-       filterIdx < numFilters;
-       filterIdx++)
-    {
+	for (filterIdx = 0 ; filterIdx < numFilters ; filterIdx++)
+	{
+		pSampleStart = wave[filterIdx][0];
+		pSampleEnd = pSampleStart + filterLen*(unsigned long int)numChans;
 
-      pSampleStart = wave[filterIdx][0];
-      pSampleEnd = pSampleStart + filterLen*(unsigned long int)numChans;
+		energyCoeff = 0.0;
+		for (pSample = pSampleStart ; pSample < pSampleEnd ; pSample++)
+			energyCoeff += (*pSample) * (*pSample);
 
-      energyCoeff = 0.0;
-      for (pSample = pSampleStart;
-           pSample < pSampleEnd;
-           pSample++)
-        {
-          energyCoeff += (*pSample) * (*pSample);
-        }
-      energyCoeff = (MP_Real_t) 1 / sqrt( (double) energyCoeff );
-      for (pSample = pSampleStart;
-           pSample < pSampleEnd;
-           pSample++)
-        {
-          (*pSample) = (*pSample) * energyCoeff;
-        }
-    }
-  normalized = 1;
-  return(normalized);
+		energyCoeff = (MP_Real_t) 1 / sqrt( (double) energyCoeff );
+		for (pSample = pSampleStart ; pSample < pSampleEnd ; pSample++)
+			(*pSample) = (*pSample) * energyCoeff;
+	}
+	normalized = 1;
+	return(normalized);
 }
 
 /* Sets the mean and the nyquist component of the waveforms to zero */
@@ -617,27 +604,27 @@ char* MP_Anywave_Table_c::set_data_file_name( const char* filename )
 }
 
 /* printing to a stream */
-void MP_Anywave_Table_c::printTable( FILE *fidTable )
+void MP_Anywave_Table_c::writeTable( FILE *fidTable, const char *szDatasName )
 {
-  /* Print the xml declaration */
-  fprintf( fidTable, "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n" );
-  /* Print the lib version */
-  fprintf( fidTable, "<libVersion>%s</libVersion>\n", VERSION );
-  /* Print opening <table> tag */
-  fprintf( fidTable, "<table>\n" );
-  /* Print the parameters */
-  fprintf( fidTable, "\t<par type=\"numChans\">%i</par>\n", numChans );
-  fprintf( fidTable, "\t<par type=\"filterLen\">%li</par>\n", filterLen );
-  fprintf( fidTable, "\t<par type=\"numFilters\">%li</par>\n", numFilters );
-  fprintf( fidTable, "\t<par type=\"data\">%s</par>\n", dataFileName );
-  /* Print the closing </table> tag */
-  fprintf( fidTable, "</table>\n");
-
-  return;
+	/* Print the xml declaration */
+	fprintf( fidTable, "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n" );
+	/* Print the lib version */
+	fprintf( fidTable, "<libVersion>%s</libVersion>\n", VERSION );
+	/* Print opening <table> tag */
+	fprintf( fidTable, "<table>\n" );
+	/* Print the parameters */
+	fprintf( fidTable, "\t<par type=\"numChans\">%i</par>\n", numChans );
+	fprintf( fidTable, "\t<par type=\"filterLen\">%li</par>\n", filterLen );
+	fprintf( fidTable, "\t<par type=\"numFilters\">%li</par>\n", numFilters );
+	fprintf( fidTable, "\t<par type=\"data\">%s</par>\n", szDatasName );
+	/* Print the closing </table> tag */
+	fprintf( fidTable, "</table>\n");
+	
+	return;
 }
 
 /* printing to a stream */
-void MP_Anywave_Table_c::printDatas( FILE *fidDatas )
+void MP_Anywave_Table_c::writeDatas( FILE *fidDatas )
 {
 	unsigned long int iFilterIdx, iChanIdx;
 	
@@ -650,7 +637,7 @@ void MP_Anywave_Table_c::printDatas( FILE *fidDatas )
 
 /**********************/
 /* Printing to a file */
-unsigned long int MP_Anywave_Table_c::print( const char *szTableName, const char *szDatasName )
+unsigned long int MP_Anywave_Table_c::write( const char *szTableName, const char *szDatasName )
 {
 
 	FILE *fidTable, *fidDatas;
@@ -660,7 +647,7 @@ unsigned long int MP_Anywave_Table_c::print( const char *szTableName, const char
 		mp_error_msg( "MP_Anywave_Table_c::print", "Could not open file %s to write a table\n",szTableName);
 		return(false);
     }
-	printTable(fidTable);
+	writeTable(fidTable, szDatasName);
 	fclose (fidTable);
 	
 	if((fidDatas = fopen(szDatasName,"wb")) == NULL)
@@ -668,7 +655,7 @@ unsigned long int MP_Anywave_Table_c::print( const char *szTableName, const char
 		mp_error_msg( "MP_Anywave_Table_c::print", "Could not open file %s to write the wave datas\n",szDatasName);
 		return(false);
 	}
-	printDatas(fidDatas);
+	writeDatas(fidDatas);
 	fclose (fidDatas);
 	
   return(true);

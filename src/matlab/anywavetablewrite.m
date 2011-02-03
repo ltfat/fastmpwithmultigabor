@@ -16,8 +16,7 @@
 % See also : bookwrite, bookedit
 %
 % Authors:
-% Emmanuel Ravelli (LAM, Paris, France)
-% Gilles Gonon, Remi Gribonval (IRISA, Rennes, France)
+% Ronan Le Boulch (IRISA, Rennes, France)
 % 
 % Distributed under the General Public License.
 %                                       
