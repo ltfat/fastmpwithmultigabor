@@ -32,7 +32,7 @@
 void mexFunction(int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[])
 {
 	char				*szFileName;
-	MP_Anywave_Table_c	*xTable;
+	MP_Anywave_Table_c	*mpTable;
 	mxArray				*mxTable;
 	
 	//------------------------
@@ -82,8 +82,8 @@ void mexFunction(int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[])
 	//-------------------
 	// Loading the table
 	//-------------------
-	xTable = new MP_Anywave_Table_c(szFileName);
-	if (!xTable) 
+	mpTable = new MP_Anywave_Table_c(szFileName);
+	if (!mpTable) 
 	{
 		mexPrintf("Failed to create an anywave table from binary file [%s].\n", szFileName);
 		mexErrMsgTxt("Aborting");
@@ -94,7 +94,7 @@ void mexFunction(int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[])
 	//-----------------------------------------------
 	// Loading dictionary object in Matlab structure
 	//-----------------------------------------------
-	mxTable = mp_create_mxAnywaveTable_from_anywave_table(xTable);
+	mxTable = mp_create_mxAnywaveTable_from_anywave_table(mpTable);
 	if(!mxTable) 
 	{
 		mexPrintf("Failed to convert an anywave table from MPTK to Matlab.\n");
@@ -106,5 +106,5 @@ void mexFunction(int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[])
 	
 	// Clean the house
 	mxFree(szFileName);
-	free(xTable);
+	free(mpTable);
 }

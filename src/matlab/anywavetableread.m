@@ -1,17 +1,18 @@
 % MPTK - Matlab interface
 % Imports a binary Matching Pursuit anywave file to Matlab, using MPTK
 %
-% Usage : anywaveTable = anywaveread('filename')
+% Usage : anywaveTable = anywaveread('fileTablename')
 %
 % Input : 
-% filename : the filename where to read the anywaveTable
+% fileTablename : The 'xml' fileTablename where to read the anywaveTable
 %
 % Output:
-% anywaveTable: a anywaveTable structure with the following structure
+% anywaveTable: A anywaveTable structure with the following structure
 %		tableFileName : The 'xml' table associated with the anywave table
 %		dataFileName : The 'bin' file containing the wave datas
 %		normalized : The flag indicating if the waveforms have been normalized
-%		centeredAndDenyquisted: 0
+%		centeredAndDenyquisted : 0
+%		wave : 0
 %
 % See also : anywavewrite
 %
