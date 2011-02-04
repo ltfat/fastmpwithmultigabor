@@ -624,6 +624,8 @@ void MP_Anywave_Table_c::writeTable( FILE *fidTable, const char *szDatasName )
 	fprintf( fidTable, "\t<param name=\"numChans\" value=\"%i\"/>\n", numChans );
 	fprintf( fidTable, "\t<param name=\"filterLen\" value=\"%li\"/>\n", filterLen );
 	fprintf( fidTable, "\t<param name=\"numFilters\" value=\"%li\"/>\n", numFilters );
+	fprintf( fidTable, "\t<param name=\"normalized\" value=\"%li\"/>\n", normalized );
+	fprintf( fidTable, "\t<param name=\"centeredAndDenyquisted\" value=\"%li\"/>\n", centeredAndDenyquisted );
 	fprintf( fidTable, "\t<param name=\"data\" value=\"%s\"/>\n", szDatasName );
 	/* Print the closing </table> tag */
 	fprintf( fidTable, "</table>\n");

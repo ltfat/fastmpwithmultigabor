@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <table>
-<libVersion>0.4beta</libVersion>
-     <param name="numChans" value="1"/>	
-	 <param name="filterLen" value="64"/>	
-	 <param name="numFilters" value="20"/>
-	 <param name="normalized" value="0"/>
-	 <param name="centeredAndDenyquisted" value="0"/>
-	 <param name="data" value="@MPTK_DEFAULT_ANYWAVETABLE_DATA_FILE@"/>
+<libVersion>0.6.0</libVersion>
+	<param name="numChans" value="1"/>	
+	<param name="filterLen" value="64"/>	
+	<param name="numFilters" value="20"/>
+	<param name="normalized" value="0"/>
+	<param name="centeredAndDenyquisted" value="0"/>
+	<param name="data" value="@MPTK_DEFAULT_ANYWAVETABLE_DATA_FILE@"/>
 </table>
