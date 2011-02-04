@@ -392,102 +392,110 @@ void MP_Anywave_Table_c::reset( void )
 
 bool MP_Anywave_Table_c::parse_xml_file(const char* fName)
 {
-  const char* func = "MP_Anywave_Table_c::parse_xml_file(const char* fName)";
-  TiXmlNode * node;
-  TiXmlElement * param;
-  TiXmlElement * properties;
-  char*  convertEnd;
-  bool numChansIsSet = false;
-  bool filterLenIsSet = false;
-  bool numFiltersIsSet = false;
-  TiXmlDocument doc(fName);
-  if (!doc.LoadFile())
+	const char* func = "MP_Anywave_Table_c::parse_xml_file(const char* fName)";
+	TiXmlNode * node;
+	TiXmlElement * param;
+	TiXmlElement * properties;
+	char*  convertEnd;
+	bool numChansIsSet = false;
+	bool filterLenIsSet = false;
+	bool numFiltersIsSet = false;
+	bool normalizedIsSet = false;
+	bool centeredAndDenyquistedIsSet = false;
+	TiXmlDocument doc(fName);
+	if (!doc.LoadFile())
     {
-      mp_error_msg( func, "Error while loading the table description file [%s].\n", fName );
-      mp_error_msg( func, "Error ID: %u .\n", doc.ErrorId() );
-      mp_error_msg( func, "Error description: %s .\n", doc.ErrorDesc());
-      return  false;
-    }
-  TiXmlHandle hdl(&doc);
+		mp_error_msg( func, "Error while loading the table description file [%s].\n", fName );
+		mp_error_msg( func, "Error ID: %u .\n", doc.ErrorId() );
+		mp_error_msg( func, "Error description: %s .\n", doc.ErrorDesc());
+		return  false;
+	}
+	TiXmlHandle hdl(&doc);
 
-  properties = hdl.FirstChildElement("table").FirstChildElement("libVersion").Element();
-  // unused variable
-  // const char * libVersion = properties->GetText();
+	properties = hdl.FirstChildElement("table").FirstChildElement("libVersion").Element();
 
-  node = hdl.FirstChild("table").ToNode();
-  param = node->FirstChildElement("param");
-  if (param!=0)
+	node = hdl.FirstChild("table").ToNode();
+	param = node->FirstChildElement("param");
+	if (param!=0)
     {
-      for ( ; param!=0 ; param = param->NextSiblingElement("param"))
-	//      for (param ; param!=0 ; param = param->NextSiblingElement("param"))
+		for ( ; param!=0 ; param = param->NextSiblingElement("param"))
         {
-          if (!(strcmp(param->Attribute("name"),"filterLen")))
+			if(!(strcmp(param->Attribute("name"),"filterLen")))
             {
-              filterLen =strtol(param->Attribute("value"), &convertEnd, 10);
-              if (*convertEnd != '\0')
-                {
-                  mp_error_msg( func, "cannot convert parameter filterLen in unsigned long int.\n" );
-
-                  return( false );
+				filterLen =strtol(param->Attribute("value"), &convertEnd, 10);
+				if (*convertEnd != '\0')
+				{
+					mp_error_msg( func, "cannot convert parameter filterLen in unsigned long int.\n" );
+					return( false );
                 }
-              else filterLenIsSet = true;
+				else filterLenIsSet = true;
             }
-          if
-	    (!(strcmp(param->Attribute("name"),"numChans")))
+			if(!(strcmp(param->Attribute("name"),"numChans")))
             {
-              numChans =(unsigned short int) strtol(param->Attribute("value"), &convertEnd, 10);
-              if (*convertEnd != '\0')
+				numChans =(unsigned short int) strtol(param->Attribute("value"), &convertEnd, 10);
+				if(*convertEnd != '\0')
                 {
-                  mp_error_msg( func, "cannot convert parameter numChans in unsigned long int.\n" );
-                  return( false );
+					mp_error_msg( func, "cannot convert parameter numChans in unsigned long int.\n" );
+					return( false );
                 }
-              else numChansIsSet = true;
-
+				else numChansIsSet = true;
             }
-          if
-	    (!(strcmp(param->Attribute("name"),"numFilters")))
-
+			if(!(strcmp(param->Attribute("name"),"numFilters")))
             {
-              numFilters =strtol(param->Attribute("value"), &convertEnd, 10);
-              if (*convertEnd != '\0')
+				numFilters =strtol(param->Attribute("value"), &convertEnd, 10);
+				if (*convertEnd != '\0')
                 {
-                  mp_error_msg( func, "cannot convert parameter numFilters in unsigned long int.\n" );
-                  return( false );
+					mp_error_msg( func, "cannot convert parameter numFilters in unsigned long int.\n" );
+					return( false );
                 }
-              else numFiltersIsSet = true;
+				else numFiltersIsSet = true;
             }
-
-          if
-	    (!(strcmp(param->Attribute("name"),"data")))
+			if(!(strcmp(param->Attribute("name"),"normalized")))
             {
-
-              if ( set_data_file_name( param->Attribute("value") ) == NULL )
+				normalized =strtol(param->Attribute("value"), &convertEnd, 10);
+				if (*convertEnd != '\0')
                 {
-
-                  if ( !numFiltersIsSet) mp_error_msg( func, "No parameter numFilters to define the table in %s file.\n", fName );
-                  if ( !numChansIsSet) mp_error_msg( func, "No parameter numChans to define the table in %s file.\n", fName );
-                  if ( !filterLenIsSet) mp_error_msg( func, "No parameter filterLen to define the table in %s file.\n", fName );
-                  mp_error_msg( func,"setting dataFileName %s to the table failed."
-                                " Returning 0.\n", dataFileName );
-                  return( false );
+					mp_error_msg( func, "cannot convert parameter normalized in unsigned long int.\n" );
+					return( false );
                 }
-              if ( load_data() == false )
+				else normalizedIsSet = true;
+            }
+			if(!(strcmp(param->Attribute("name"),"centeredAndDenyquisted")))
+            {
+				centeredAndDenyquisted =strtol(param->Attribute("value"), &convertEnd, 10);
+				if (*convertEnd != '\0')
                 {
-                  if ( !numFiltersIsSet) mp_error_msg( func, "No parameter numFilters to define the table in %s file.\n", fName );
-                  if ( !numChansIsSet) mp_error_msg( func, "No parameter numChans to define the table in %s file.\n", fName );
-                  if ( !filterLenIsSet) mp_error_msg( func, "No parameter filterLen to define the table in %s file.\n", fName );
-                  mp_error_msg( func,"loading the data from the file %s failed."
-                                " Returning 0.\n", dataFileName );
-                  return( false );
+					mp_error_msg( func, "cannot convert parameter numFilters in unsigned long int.\n" );
+					return( false );
+                }
+				else centeredAndDenyquistedIsSet = true;
+            }
+			if(!(strcmp(param->Attribute("name"),"data")))
+            {
+				if ( set_data_file_name( param->Attribute("value") ) == NULL )
+                {
+					if ( !numFiltersIsSet) mp_error_msg( func, "No parameter numFilters to define the table in %s file.\n", fName );
+					if ( !numChansIsSet) mp_error_msg( func, "No parameter numChans to define the table in %s file.\n", fName );
+					if ( !filterLenIsSet) mp_error_msg( func, "No parameter filterLen to define the table in %s file.\n", fName );
+					mp_error_msg( func,"setting dataFileName %s to the table failed. Returning 0.\n", dataFileName );
+					return( false );
+                }
+				if ( load_data() == false )
+                {
+					if ( !numFiltersIsSet) mp_error_msg( func, "No parameter numFilters to define the table in %s file.\n", fName );
+					if ( !numChansIsSet) mp_error_msg( func, "No parameter numChans to define the table in %s file.\n", fName );
+					if ( !filterLenIsSet) mp_error_msg( func, "No parameter filterLen to define the table in %s file.\n", fName );
+					mp_error_msg( func,"loading the data from the file %s failed. Returning 0.\n", dataFileName );
+					return( false );
                 }
             }
         }
-      return( true );
+		return( true );
     }
-  else
+	else
     {
-      mp_error_msg( func, "No parameter to define the table in %s file.\n", fName );
-      return( false );
+		mp_error_msg( func, "No parameter to define the table in %s file.\n", fName );
+		return( false );
     }
 }
 
