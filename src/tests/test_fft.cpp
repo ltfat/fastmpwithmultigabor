@@ -268,6 +268,10 @@ int main(int argc, char ** argv)
         exit(-1);
     }
 	delete fft2;
+	
+	/* Release Mptk environnement */
+	MPTK_Env_c::get_env()->release_environment();
+
     if (testpassed) 
 		return( 0 );
 	else 

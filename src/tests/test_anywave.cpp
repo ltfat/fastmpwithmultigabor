@@ -43,89 +43,90 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void usage() {
-
-  fprintf(stderr, "\n test_anywave signal.wav anywave_table.bin dict.xml");
-  fprintf(stderr, "\n");
-  fprintf(stderr, "\n Calls the test functions of the following classes :");
-  fprintf(stderr, "\n    MP_Anywave_Server_c, MP_Anywave_Table_c, MP_Dict_c");
-  fprintf(stderr, "\n");
-  fprintf(stderr, "\n");
-  fprintf(stderr, "\n signal.wav : a signal in wave format, with as many channels as you want");
-  fprintf(stderr, "\n");
-  fprintf(stderr, "\n anywave_table.xml : a file defining an anywave table. ");
-  fprintf(stderr, "\n   The waveforms must have either one channel, either as many channels as the signal");
-  fprintf(stderr, "\n");
-  fprintf(stderr, "\n dict.xml : a dictionary defining the atoms. Use a dictionary including anywave atoms in order to test them.");  
-  fprintf(stderr, "\n");
-  fprintf(stderr, "\n");
-  fprintf(stderr, "\n");
+void usage() 
+{
+	fprintf(stderr, "\n test_anywave signal.wav anywave_table.bin dict.xml");
+	fprintf(stderr, "\n");
+	fprintf(stderr, "\n Calls the test functions of the following classes :");
+	fprintf(stderr, "\n    MP_Anywave_Server_c, MP_Anywave_Table_c, MP_Dict_c");
+	fprintf(stderr, "\n");
+	fprintf(stderr, "\n");
+	fprintf(stderr, "\n signal.wav : a signal in wave format, with as many channels as you want");
+	fprintf(stderr, "\n");
+	fprintf(stderr, "\n anywave_table.xml : a file defining an anywave table. ");
+	fprintf(stderr, "\n   The waveforms must have either one channel, either as many channels as the signal");
+	fprintf(stderr, "\n");
+	fprintf(stderr, "\n dict.xml : a dictionary defining the atoms. Use a dictionary including anywave atoms in order to test them.");  
+	fprintf(stderr, "\n");
+	fprintf(stderr, "\n");
+	fprintf(stderr, "\n");
 }
 
-int main( int argc, char **argv ) {
+int main( int argc, char **argv ) 
+{
+	char *signalFileName;
+	char *tableFileName;
+	char *dictFileName;
+	bool serverOK;
+	bool tableOK;
+	bool dictOK;
 
-  char *signalFileName;
-  char *tableFileName;
-  char *dictFileName;
+	if (argc != 4) 
+	{
+		usage();
+		return(-1);
+	}
 
-  bool serverOK;
-  bool tableOK;
-  //  bool atomOK;
-  //  bool blockOK;
-  bool dictOK;
-
-  if (argc != 4) {
-    usage();
-    return(-1);
-  }
-
-  signalFileName = argv[1];
-  tableFileName = argv[2];
-  dictFileName = argv[3];
+	signalFileName = argv[1];
+	tableFileName = argv[2];
+	dictFileName = argv[3];
   
-  fprintf(stderr, "\n\nsignalFileName = %s",signalFileName); 
-  fprintf(stderr, "\ntableFileName = %s",tableFileName); 
-  fprintf(stderr, "\ndictFileName = %s\n",dictFileName); 
+	fprintf(stderr, "\n\nsignalFileName = %s",signalFileName); 
+	fprintf(stderr, "\ntableFileName = %s",tableFileName); 
+	fprintf(stderr, "\ndictFileName = %s\n",dictFileName); 
   
   
-  serverOK = MP_Anywave_Server_c::test();
+	serverOK = MP_Anywave_Server_c::test();
+	tableOK = MP_Anywave_Table_c::test( tableFileName );
+	dictOK = MP_Dict_c::test( signalFileName, dictFileName);  
 
-  tableOK = MP_Anywave_Table_c::test( tableFileName );
+	fprintf(stderr, "\n");
+	if (serverOK) 
+	{
+		fprintf(stderr, "\nTEST MP_Anywave_Server_c : OK" );
+	} 
+	else 
+	{
+		fprintf(stderr, "\nTEST MP_Anywave_Server_c : ERROR" );
+	}
+	if (tableOK) 
+	{
+		fprintf(stderr, "\nTEST MP_Anywave_Table_c  : OK" );
+	} 
+	else 
+	{
+		fprintf(stderr, "\nTEST MP_Anywave_Table_c  : ERROR" );
+	}
+	if (dictOK) 
+	{
+		fprintf(stderr, "\nTEST MP_Anywave_Dict_c   : OK" );
+	} 
+	else 
+	{
+		fprintf(stderr, "\nTEST MP_Anywave_Dict_c   : ERROR" );
+	}
 
-  dictOK = MP_Dict_c::test( signalFileName, dictFileName);  
-
-  fprintf(stderr, "\n");
-  if (serverOK) {
-    fprintf(stderr, "\nTEST MP_Anywave_Server_c : OK" );
-  } else {
-    fprintf(stderr, "\nTEST MP_Anywave_Server_c : ERROR" );
-  }
-  if (tableOK) {
-    fprintf(stderr, "\nTEST MP_Anywave_Table_c  : OK" );
-  } else {
-    fprintf(stderr, "\nTEST MP_Anywave_Table_c  : ERROR" );
-  }
-  //  if (atomOK) {
-  //    fprintf(stderr, "\nTEST MP_Anywave_Atom_c   : OK" );
-  //  } else {
-  //    fprintf(stderr, "\nTEST MP_Anywave_Atom_c   : ERROR" );
-  //  }
-  //  if (blockOK) {
-  //    fprintf(stderr, "\nTEST MP_Anywave_Block_c  : OK" );
-  //  } else {
-  //    fprintf(stderr, "\nTEST MP_Anywave_Block_c  : ERROR" );
-  //  }
-  if (dictOK) {
-    fprintf(stderr, "\nTEST MP_Anywave_Dict_c   : OK" );
-  } else {
-    fprintf(stderr, "\nTEST MP_Anywave_Dict_c   : ERROR" );
-  }
-
-  fprintf(stderr, "\n");
+	fprintf(stderr, "\n");
   
-  if (!serverOK || !tableOK || !dictOK) {
-    return (-1);
-  } else {
-    return( 0 );
-  }
+	if (!serverOK || !tableOK || !dictOK) 
+	{
+		return (-1);
+	} 
+	else 
+	{
+		return( 0 );
+	}
+	
+	/* Release Mptk environnement */
+	MPTK_Env_c::get_env()->release_environment();
 }
