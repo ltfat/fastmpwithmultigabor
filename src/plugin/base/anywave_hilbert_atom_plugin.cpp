@@ -551,7 +551,7 @@ int MP_Anywave_Hilbert_Atom_Plugin_c::has_field( int field )
       }
 }
 
-MP_Real_t MP_Anywave_Hilbert_Atom_Plugin_c::get_field( int field , int chanIdx )
+MP_Real_t MP_Anywave_Hilbert_Atom_Plugin_c::get_field( int field , MP_Chan_t chanIdx )
 {
 	const char *func =  "MP_Anywave_Hilbert_Atom_c::get_field";
   MP_Real_t x;
