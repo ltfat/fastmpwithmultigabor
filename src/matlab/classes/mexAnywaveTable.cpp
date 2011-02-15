@@ -41,8 +41,8 @@
 /********************************************************************************/
 mxArray *mp_create_mxAnywaveTable_from_anywave_table(const MP_Anywave_Table_c *AnyTable) 
 {
+	const char			*func = "mp_create_mxAnywaveTable_from_anywave_table";
     int					numBookFieldNames = 0;
-	char				*func = "mp_create_mxAnywaveTable_from_anywave_table";
     unsigned long int	filterIdx, chanIdx, sampleIdx;
 	mxArray				*mxReturnTable;
 	mxArray				*mxTempMatrix;
@@ -154,7 +154,7 @@ mxArray *mp_create_mxAnywaveTable_from_anywave_table(const MP_Anywave_Table_c *A
 /********************************************************************************/
 MP_Anywave_Table_c *mp_create_anywave_table_from_mxAnywaveTable(const mxArray *mxTable)
 {
-    char					*func = "mp_create_anywave_table_from_mxAnywaveTable";
+    const char				*func = "mp_create_anywave_table_from_mxAnywaveTable";
 	char					*szString;
 	MP_Anywave_Table_c		*AnyTable;
 	mxArray					*mxTempMatrix;
