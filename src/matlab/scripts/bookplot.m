@@ -157,7 +157,7 @@ for i = 1:book.numAtoms,
 
 	   % Unknown atom type
 	   otherwise,
-		error( [ '[' atomType '] is an unknown atom type.'] );
+		error( [ '[' atom.type '] is an unknown atom type.'] );
     end;
 
 end;
