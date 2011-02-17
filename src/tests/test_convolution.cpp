@@ -137,7 +137,7 @@ int main( int argc, char **argv )
 {
 	const char					*func = "test convolution";
 	const char					*anywaveTableFileName, *configFileName, *signalFileName;
-	char						*resFile1, *resFile2, *resFile3;
+	const char					*resFile1, *resFile2, *resFile3;
 	MP_Anywave_Table_c			*anywaveTable, *anywaveRealTable;	
 	MP_Convolution_Direct_c		*dirConv;
 	MP_Convolution_FFT_c		*fftConv;
@@ -181,6 +181,12 @@ int main( int argc, char **argv )
 	mp_info_msg( func, "The retrieved value for \"anywaveTableFileName\" is [%s].\n",anywaveTableFileName);
 	signalFileName = MPTK_Env_c::get_env()->get_config_path("exampleSignal");
 	mp_info_msg( func, "The retrieved value for \"exampleSignal\" is [%s].\n",signalFileName);
+	resFile1 = MPTK_Env_c::get_env()->get_config_path("defaultAnyWaveResult1");
+	mp_info_msg( func, "The retrieved value for \"defaultAnyWaveResult1\" is [%s].\n",resFile1);
+	resFile2 = MPTK_Env_c::get_env()->get_config_path("defaultAnyWaveResult2");
+	mp_info_msg( func, "The retrieved value for \"defaultAnyWaveResult2\" is [%s].\n",resFile2);
+	resFile3 = MPTK_Env_c::get_env()->get_config_path("defaultAnyWaveResult3");
+	mp_info_msg( func, "The retrieved value for \"defaultAnyWaveResult3\" is [%s].\n",resFile3);
 
 	//-----------------------------------
 	// Initiating the Anywave parameters                      
@@ -226,8 +232,6 @@ int main( int argc, char **argv )
 
     inputLen = signal->numSamples;
     
-	resFile1 = "/Users/rleboulc/MPTKSVN/mptk/trunk/src/tests/signals/anywave_results_1.bin";
-
     /* load the results */
 	if ( ( fid = fopen( resFile1, "rb" ) ) == NULL ) 
 	{
@@ -353,8 +357,6 @@ int main( int argc, char **argv )
 	//-------------------------------------------------------------------------------------------------------------------------------------------------------------------
     fprintf(stdout,"\nStep 2 : finding the max inner product between each frame and all the filters\n");
     fprintf(stdout,"---------------------------------------------------------------------------------\n");
-
-	resFile2 = "/Users/rleboulc/MPTKSVN/mptk/trunk/src/tests/signals/anywave_results_2.bin";
 
 	/* load the results */
 	if ( ( fid = fopen( resFile2, "rb" ) ) == NULL ) 
@@ -515,8 +517,6 @@ int main( int argc, char **argv )
     anywaveRealTable = anywaveTable->copy();
     anywaveRealTable->center_and_denyquist();
     anywaveRealTable->normalize();
-
- 	resFile3 = "/Users/rleboulc/MPTKSVN/mptk/trunk/src/tests/signals/anywave_results_3.bin";
 
     /* load the results */
 	if ( ( fid = fopen( resFile3, "rb" ) ) == NULL ) 
