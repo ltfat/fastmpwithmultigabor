@@ -6,7 +6,7 @@
 #------------------------------------------------
 #Create all target tests executables
 #------------------------------------------------
-FOREACH(test_target test_anywave test_fft test_messaging test_win test_parabolic_regression test_mp test_mask test_behaviour_in_noise)
+FOREACH(test_target test_anywave test_fft test_messaging test_win test_parabolic_regression test_mp test_mask test_behaviour_in_noise test_convolution)
 	ADD_EXECUTABLE(${test_target} ${MPTK_SOURCE_DIR}/src/tests/${test_target}.cpp)
 	SET_TARGET_PROPERTIES(${test_target} PROPERTIES COMPILE_FLAGS "${CMAKE_CXX_FLAGS}")
 	TARGET_LINK_LIBRARIES(${test_target} mptk dsp_windows ${PTHREAD_LIBRARY_FILE} ${SNDFILE_LIBRARY_FILE} ${FFTW3_LIBRARY_FILE})
@@ -36,12 +36,12 @@ ENDFOREACH(MPTK_SCRIPTS)
 #------------------------------------------------
 # Copy necessary files for standard tests
 #------------------------------------------------
-# File used for mpd test
-CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/tests/signals/anywave_signal.wav ${MPTK_REFERENCE_PATH}/signal/anywave_signal.wav COPYONLY)        
 # File used for test_mp
 CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/tests/signals/dico_test.xml ${MPTK_REFERENCE_PATH}/dictionary/dico_test.xml COPYONLY)
-INSTALL(FILES ${MPTK_REFERENCE_PATH}/dictionary/dico_test.xml DESTINATION mptk/reference/dictionary)
 # File used for test_fft
-CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/tests/signals/2_cosines.flt ${MPTK_REFERENCE_PATH}/signal/2_cosines.flt COPYONLY)     
-INSTALL(FILES ${MPTK_REFERENCE_PATH}/signal/2_cosines.flt DESTINATION mptk/reference/signal)
+CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/tests/signals/2_cosines.flt ${MPTK_REFERENCE_PATH}/signal/2_cosines.flt COPYONLY)
+# File used for test_convolution
+CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/tests/signals/anywave_results_1.bin ${MPTK_REFERENCE_PATH}/wavetable/anywave_results_1.bin COPYONLY)
+CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/tests/signals/anywave_results_2.bin ${MPTK_REFERENCE_PATH}/wavetable/anywave_results_2.bin COPYONLY)
+CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/tests/signals/anywave_results_3.bin ${MPTK_REFERENCE_PATH}/wavetable/anywave_results_3.bin COPYONLY)
 
