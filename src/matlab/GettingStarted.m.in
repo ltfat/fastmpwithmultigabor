@@ -233,7 +233,12 @@ while (quitTutorial == 0)
 			%---------
 			% Anywave
 			%---------
-     		disp('Tutorial in preparation');
+			disp('(press enter to continue)');pause;
+		    [sig sampleRate] = sigread(mptkInfo.path.exampleSignal);
+		    dict = dictread(mptkInfo.path.defaultAnyWaveDict);
+		    [book residual decay] = mpdecomp(sig,sampleRate,dict,1000);
+			sigrec = mprecons(book);
+			sigwrite(sigrec,'/Users/rleboulc/bar/mptk/reference/signal/RECONST.wav',sampleRate)
 		case '6'
 			%------------------
 			% Demixing Pursuit

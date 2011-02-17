@@ -12,5 +12,6 @@
 	<path name="defaultDictList" path="@MPTK_DEFAULT_DICT_LIST_FILE@"/>
 	<path name="exampleBook" path="@MPTK_EXAMPLE_BOOK_FILE@"/>
 	<path name="exampleSignal" path="@MPTK_EXAMPLE_SIGNAL_FILE@"/>
+	<path name="exampleAnywaveSignal" path="@MPTK_EXAMPLE_ANYWAVESIGNAL_FILE@"/>
 	<path name="exampleStereoSignal" path="@MPTK_EXAMPLE_STEREOSIGNAL_FILE@"/>
 </configpath>
