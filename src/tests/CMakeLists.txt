@@ -41,7 +41,9 @@ CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/tests/signals/dico_test.xml ${MPTK_REFEREN
 # File used for test_fft
 CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/tests/signals/2_cosines.flt ${MPTK_REFERENCE_PATH}/signal/2_cosines.flt COPYONLY)
 # File used for test_convolution
-CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/tests/signals/anywave_results_1.bin ${MPTK_REFERENCE_PATH}/wavetable/anywave_results_1.bin COPYONLY)
-CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/tests/signals/anywave_results_2.bin ${MPTK_REFERENCE_PATH}/wavetable/anywave_results_2.bin COPYONLY)
-CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/tests/signals/anywave_results_3.bin ${MPTK_REFERENCE_PATH}/wavetable/anywave_results_3.bin COPYONLY)
-
+SET(MPTK_ANYWAVE_RESULT_1 ${MPTK_REFERENCE_PATH}/misc/anywave_results_1.bin PARENT_SCOPE)
+SET(MPTK_ANYWAVE_RESULT_2 ${MPTK_REFERENCE_PATH}/misc/anywave_results_2.bin PARENT_SCOPE)
+SET(MPTK_ANYWAVE_RESULT_3 ${MPTK_REFERENCE_PATH}/misc/anywave_results_3.bin PARENT_SCOPE)
+CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/tests/signals/anywave_results_1.bin ${MPTK_REFERENCE_PATH}/misc/anywave_results_1.bin COPYONLY)
+CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/tests/signals/anywave_results_2.bin ${MPTK_REFERENCE_PATH}/misc/anywave_results_2.bin COPYONLY)
+CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/tests/signals/anywave_results_3.bin ${MPTK_REFERENCE_PATH}/misc/anywave_results_3.bin COPYONLY)

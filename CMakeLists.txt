@@ -285,13 +285,6 @@ ELSE(WIN32)
   ENDIF(CMAKE_GENERATOR STREQUAL "Xcode") 
 ENDIF(WIN32)
 
-# --------------------------------
-# setting path configuration file
-# --------------------------------
-CONFIGURE_FILE(${MPTK_SOURCE_DIR}/path.xml.in ${MPTK_BINARY_DIR}/mptk/path.xml @ONLY)
-CONFIGURE_FILE(${MPTK_SOURCE_DIR}/path.xml.install ${MPTK_BINARY_DIR}/install/path.xml @ONLY)
-INSTALL(FILES ${MPTK_BINARY_DIR}/install/path.xml DESTINATION mptk)
-
 #------------------
 # setting bin path
 # -----------------
@@ -362,20 +355,52 @@ ENDIF(BUILD_MULTITHREAD)
 INCLUDE(${MPTK_SOURCE_DIR}/CMake/CMakeGenerateMPTKHeader.cmake)
 
 
-#-----------------------------------------------------------------------------
-## STARTING WITH SUBFOLDERS
-# Include src folder to compiling proccess
-#
-# Commented includes might be included twice with recursive include of src
-#
-#
+##############################################################################
+## ADDING CONFIGURATION TO SUBFOLDERS
+##############################################################################
+# Go to compile tinyxml library
+ADD_SUBDIRECTORY (src/tinyxml)
+# Go to compile mptk libraries
+ADD_SUBDIRECTORY (src/libmptk)
+# Go to compile libdsp_windows
+ADD_SUBDIRECTORY (src/libdsp_windows)
+# Go to compile mptk utils
+#ADD_SUBDIRECTORY (src/utils)
+# Go to compile matlab API in MEX Files
+ADD_SUBDIRECTORY (src/matlab)
+# Go to compile python Files
+ADD_SUBDIRECTORY (src/python)
+# Go to compile mptk plugin
+ADD_SUBDIRECTORY (src/plugin)
+
+# Compile the executable if requested by the end-user
+IF(BUILD_EXECUTABLE)
+	ADD_SUBDIRECTORY (src/utils )
+ENDIF(BUILD_EXECUTABLE)
+
+# Compile the documentation if requested by the end-user
 IF(BUILD_DOCUMENTATION)
-ADD_SUBDIRECTORY(${MPTK_SOURCE_DIR}/doc)
+	ADD_SUBDIRECTORY(doc)
 ENDIF(BUILD_DOCUMENTATION)
-ADD_SUBDIRECTORY( src)
+
+# Compile GUI if requested by the end-user
+IF(BUILD_GUI)
+	ADD_SUBDIRECTORY (src/gui) 
+ENDIF(BUILD_GUI)
+
+# Compile TEST if requested by the end-user
+IF(BUILD_TESTING)
+ADD_SUBDIRECTORY (src/tests) 
+ENDIF(BUILD_TESTING)
 
 INSTALL(DIRECTORY ${MPTK_BINARY_DIR}/install/mptk/reference DESTINATION mptk)
 INSTALL(FILES ${MPTK_BINARY_DIR}/install/include/mptk.h DESTINATION include)
+# --------------------------------
+# setting path configuration file
+# --------------------------------
+CONFIGURE_FILE(${MPTK_SOURCE_DIR}/path.xml.in ${MPTK_BINARY_DIR}/mptk/path.xml @ONLY)
+CONFIGURE_FILE(${MPTK_SOURCE_DIR}/path.xml.install ${MPTK_BINARY_DIR}/install/path.xml @ONLY)
+INSTALL(FILES ${MPTK_BINARY_DIR}/install/path.xml DESTINATION mptk)
 
 ##############################################################################
 # Packaging using CPack:

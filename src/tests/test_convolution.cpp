@@ -179,8 +179,8 @@ int main( int argc, char **argv )
 	
 	anywaveTableFileName = MPTK_Env_c::get_env()->get_config_path("defaultAnyWaveTable");
 	mp_info_msg( func, "The retrieved value for \"anywaveTableFileName\" is [%s].\n",anywaveTableFileName);
-	signalFileName = MPTK_Env_c::get_env()->get_config_path("exampleAnywaveSignal");
-	mp_info_msg( func, "The retrieved value for \"signalFileName\" is [%s].\n",signalFileName);
+	signalFileName = MPTK_Env_c::get_env()->get_config_path("exampleSignal");
+	mp_info_msg( func, "The retrieved value for \"exampleSignal\" is [%s].\n",signalFileName);
 
 	//-----------------------------------
 	// Initiating the Anywave parameters                      

@@ -8,6 +8,9 @@
 	<path name="defaultAnyWaveDict" path="@MPTK_DEFAULT_ANYWAVEDICT_FILE@"/>
 	<path name="defaultAnyWaveTable" path="@MPTK_DEFAULT_ANYWAVETABLE_FILE@"/>
 	<path name="defaultAnyWaveTableData" path="@MPTK_DEFAULT_ANYWAVETABLE_DATA_FILE@"/>
+	<path name="defaultAnyWaveResult1" path="@MPTK_ANYWAVE_RESULT_1@"/>
+	<path name="defaultAnyWaveResult2" path="@MPTK_ANYWAVE_RESULT_2@"/>
+	<path name="defaultAnyWaveResult3" path="@MPTK_ANYWAVE_RESULT_3@"/>
 	<path name="defaultMixer" path="@MPTK_DEFAULT_MIXER_FILE@"/>
 	<path name="defaultDictList" path="@MPTK_DEFAULT_DICT_LIST_FILE@"/>
 	<path name="exampleBook" path="@MPTK_EXAMPLE_BOOK_FILE@"/>
