@@ -222,7 +222,6 @@ ENDFOREACH(default)
 # Example reference files
 #--------------------------
 SET(MPTK_EXAMPLE_BOOK_FILENAME book/exampleBook.bin)
-SET(MPTK_EXAMPLE_ANYWAVESIGNAL_FILENAME signal/anywave_signal.wav)
 SET(MPTK_EXAMPLE_SIGNAL_FILENAME signal/glockenspiel.wav)
 SET(MPTK_EXAMPLE_STEREOSIGNAL_FILENAME signal/mix_58_stereo.wav)
 # Useful for Matlab script test
@@ -230,7 +229,7 @@ SET(MPTK_EXAMPLE_BOOK_WRITE_FILENAME book/testBookWrite.bin)
 SET(MPTK_EXAMPLE_SIGNAL_WRITE_FILENAME signal/testglockenspiel.wav)
 SET(MPTK_EXAMPLE_SIGNAL_RECONST_FILENAME signal/testglockenspielReconst.wav)
 
-FOREACH(example BOOK SIGNAL STEREOSIGNAL ANYWAVESIGNAL)
+FOREACH(example BOOK SIGNAL STEREOSIGNAL)
 	SET(MPTK_EXAMPLE_${example}_FILE          ${MPTK_REFERENCE_PATH}/${MPTK_EXAMPLE_${example}_FILENAME})
 	SET(MPTK_EXAMPLE_${example}_FILE_INSTALL  ${MPTK_REFERENCE_PATH_INSTALL}/${MPTK_EXAMPLE_${example}_FILENAME})
 	# Copy in the build directory

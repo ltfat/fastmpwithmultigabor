@@ -137,16 +137,16 @@ int main( int argc, char **argv )
 {
 	const char					*func = "test convolution";
 	const char					*anywaveTableFileName, *configFileName, *signalFileName;
-	char						*resFile1, *resFile2;
-	MP_Anywave_Table_c			*anywaveTable;	
+	char						*resFile1, *resFile2, *resFile3;
+	MP_Anywave_Table_c			*anywaveTable, *anywaveRealTable;	
 	MP_Convolution_Direct_c		*dirConv;
 	MP_Convolution_FFT_c		*fftConv;
 	MP_Convolution_Fastest_c	*fasConv;
 	MP_Signal_c					*signal;
 	MP_Real_t					*input;
 	FILE						*fid;
-	double						*outputTrue1, *trueAmp2;
-    unsigned long int			*trueIdx2;
+	double						*outputTrue1, *trueAmp2, *trueAmp3, *fftAmp3, *fasAmp3;
+    unsigned long int			*trueIdx2, *trueIdx3, *fftIdx3, *fasIdx3;
     double						dirMaxRelErr = 0.0, fftMaxRelErr = 0.0, fasMaxRelErr = 0.0;
 	double						dirAmpMaxRelErr = 0.0, fftAmpMaxRelErr = 0.0, fasAmpMaxRelErr = 0.0;
 	double						dirIdxMaxRelErr = 0.0, fftIdxMaxRelErr = 0.0, fasIdxMaxRelErr = 0.0;
@@ -154,7 +154,6 @@ int main( int argc, char **argv )
 	unsigned long int			chanIdx = 0, filterIdx = 0, frameIdx = 0, sampleIdx = 0, filterShift = 0;
 	unsigned long int			inputLen = 0, numFrames = 0, numFramesSamples = 0, fromSample = 0;
     int							dirOK = 1, fftOK = 1, fasOK = 1;
-	int							verbose = 0;
 
 	mp_info_msg( func, "------------------------------------------------------\n" );
 	mp_info_msg( func, "TEST CONVOLUTION - TESTING CONVOLUTION FUNCTIONALITIES\n" );
@@ -222,8 +221,8 @@ int main( int argc, char **argv )
 	//-----------------------------------------------------------------------------------------
 	// 1) Inner product between the frames of signal and every filter, with a filterShift of 3
 	//-----------------------------------------------------------------------------------------
-    fprintf(stdout,"\nStep 1 : Computing inner products (compute_IP() method)\n");
-    fprintf(stdout,"--------------------------------------------------------\n");
+    fprintf(stdout,"\nStep 1 : Computing inner products\n");
+    fprintf(stdout,"-----------------------------------\n");
 
     inputLen = signal->numSamples;
     
@@ -334,17 +333,16 @@ int main( int argc, char **argv )
 		fasOK = 0;
 
     /* Printing the verdict */
-    fprintf(stdout,"\n using direct convolution  : ");
-	fprintf(stdout,(dirOK == 1)?"[OK]":"[ERROR] (max relative error [%e])", dirMaxRelErr);
-    fprintf(stdout,"\n using fft convolution     : ");
-	fprintf(stdout,(fftOK == 1)?"[OK]":"[ERROR] (max relative error [%e])", fftMaxRelErr);
-    fprintf(stdout,"\n using fastest convolution : ");
-	fprintf(stdout,(fasOK == 1)?"[OK]":"[ERROR] (max relative error [%e])", fasMaxRelErr);
+    fprintf(stdout,"\nusing direct convolution  : ");
+	fprintf(stdout,(dirOK == 1)?"[OK]":"[ERROR] (max relative error [%e])\n", dirMaxRelErr);
+    fprintf(stdout,"using fft convolution     : ");
+	fprintf(stdout,(fftOK == 1)?"[OK]":"[ERROR] (max relative error [%e])\n", fftMaxRelErr);
+    fprintf(stdout,"using fastest convolution : ");
+	fprintf(stdout,(fasOK == 1)?"[OK]":"[ERROR] (max relative error [%e])\n", fasMaxRelErr);
 
     delete(dirConv);
     delete(fftConv);
     delete(fasConv);
-
     free(outputTrue1); outputTrue1 = NULL;
     free(outputDir1); outputDir1 = NULL;
     free(outputFft1); outputFft1 = NULL;
@@ -353,8 +351,8 @@ int main( int argc, char **argv )
 	//-------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	// 2) Find the filterIdx, and the value corresponding to the max (in energy) inner product between each frame of signal and all the filters, with a filterShift of 3
 	//-------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    fprintf(stdout,"\n\nStep 2 : finding the max inner product between each frame and all the filters (compute_max_IP() method)\n");
-    fprintf(stdout,"-----------------------------------------------------------------------------------------------------------\n");
+    fprintf(stdout,"\nStep 2 : finding the max inner product between each frame and all the filters\n");
+    fprintf(stdout,"---------------------------------------------------------------------------------\n");
 
 	resFile2 = "/Users/rleboulc/MPTKSVN/mptk/trunk/src/tests/signals/anywave_results_2.bin";
 
@@ -463,7 +461,7 @@ int main( int argc, char **argv )
 
     for (frameIdx = 0; frameIdx < numFrames; frameIdx ++) 
 	{
-
+	
 		fprintf(stdout, "Frame[%lu] [max nrg|max idx] - true [%2.8lf|%lu] - dir [%2.8lf|%lu] - fft [%2.8lf|%lu] - fas [%2.8lf|%lu]\n",frameIdx,trueAmp2[frameIdx],trueIdx2[frameIdx],dirAmp2[frameIdx],dirIdx2[frameIdx],fftAmp2[frameIdx],fftIdx2[frameIdx],fasAmp2[frameIdx],fasIdx2[frameIdx]);
 
 		if(relative_error(trueAmp2[frameIdx],dirAmp2[frameIdx]) > dirAmpMaxRelErr)
@@ -489,81 +487,72 @@ int main( int argc, char **argv )
 		fasOK = 0;
 
     /* Printing the verdict */
+    fprintf(stdout,"\nusing direct convolution  : ");
+    fprintf(stdout,(dirOK == 1)?"[OK]":"[ERROR] (max relative error: amp [%e] idx [%e])\n", dirAmpMaxRelErr, dirIdxMaxRelErr);
+    fprintf(stdout,"using fft convolution     : ");
+    fprintf(stdout,(fftOK == 1)?"[OK]":"[ERROR] (max relative error: amp [%e] idx [%e])\n",fftAmpMaxRelErr,fftIdxMaxRelErr);
+    fprintf(stdout,"using fastest convolution : ");
+    fprintf(stdout,(fasOK == 1)?"[OK]":"[ERROR] (max relative error: amp [%e] idx [%e])\n",fasAmpMaxRelErr,fasIdxMaxRelErr);
 
-    fprintf(stdout,"\n using direct convolution  : ");
-    if (dirOK == 1) fprintf(stdout,"[OK]");
-    else fprintf(stdout,"[ERROR]");
-    fprintf(stdout," (max relative error: amp [%e] idx [%e])",dirAmpMaxRelErr,dirIdxMaxRelErr);
-
-    fprintf(stdout,"\n using fft convolution     : ");
-    if (fftOK == 1) fprintf(stdout,"[OK]");
-    else fprintf(stdout,"[ERROR]");
-    fprintf(stdout," (max relative error: amp [%e] idx [%e])",fftAmpMaxRelErr,fftIdxMaxRelErr);
-
-    fprintf(stdout,"\n using fastest convolution : ");
-    if (fasOK == 1) fprintf(stdout,"[OK]");
-    else fprintf(stdout,"[ERROR]");
-    fprintf(stdout," (max relative error: amp [%e] idx [%e])",fasAmpMaxRelErr,fasIdxMaxRelErr);
-
-    fflush(stdout);
-    
     delete(dirConv);
     delete(fftConv);
     delete(fasConv);
-
-    free(trueAmp2);
-    free(dirAmp2);
-    free(fftAmp2);
-    free(fasAmp2);
-    free(trueIdx2);
-    free(dirIdx2);
-    free(fftIdx2);
-    free(fasIdx2);
+    free(trueAmp2); trueAmp2 = NULL;
+    free(dirAmp2); dirAmp2 = NULL;
+    free(fftAmp2); fftAmp2 = NULL;
+    free(fasAmp2); fasAmp2 = NULL;
+    free(trueIdx2); trueIdx2 = NULL;
+    free(dirIdx2); dirIdx2 = NULL;
+    free(fftIdx2); fftIdx2 = NULL;
+    free(fasIdx2); fasIdx2 = NULL;
 
 	//-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	// 3) Find the filterIdx, and the value corresponding to the max (in energy) inner product between each frame of signal and all the filters, in the sense of Hilbert, with a filterShift of 3
 	//-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    fprintf(stdout,"\n\nExpe 3 : finding the max inner product (in the Hilbert sense) between each frame and all the filters (compute_max_hilbert_IP() method)\n");
+    fprintf(stdout,"\nStep 3 : finding the max inner product (in the Hilbert sense) between each frame and all the filters\n");
+    fprintf(stdout,"--------------------------------------------------------------------------------------------------------\n");
 
-    MP_Anywave_Table_c* anywaveRealTable = anywaveTable->copy();
+    anywaveRealTable = anywaveTable->copy();
     anywaveRealTable->center_and_denyquist();
     anywaveRealTable->normalize();
 
-	inputLen = signal->numSamples;
+ 	resFile3 = "/Users/rleboulc/MPTKSVN/mptk/trunk/src/tests/signals/anywave_results_3.bin";
 
-    /* load the true results */
-    const char* resFile3 = "/udd/slesage/MPTK/trunk/src/tests/signals/anywave_results_3.bin";
-    double* trueAmp3;
-    unsigned long int* trueIdx3;
-    fid = fopen( resFile3, "rb");    
+    /* load the results */
+	if ( ( fid = fopen( resFile3, "rb" ) ) == NULL ) 
+	{
+		mp_error_msg( func,"Could not open file %s to print a book.\n", resFile3 );
+		return(1);
+	}
+
     if ( fread ( &filterShift, sizeof(unsigned long int), 1, fid) != 1 ) 
 	{
-		mp_error_msg( "test_convolution", "Cannot read the filterShift from the file [%s].\n", resFile3 );
+		mp_error_msg(func, "Cannot read the filterShift from the file [%s].\n", resFile3 );
 		fclose(fid);
 		return(1);
     }
     numFrames = ((inputLen - anywaveTable->filterLen)/filterShift) + 1;
     if ((trueAmp3 = (double*) calloc(numFrames, sizeof(double))) == NULL) 
 	{
-		mp_error_msg( "test_convolution", "Cannot alloc [%lu] double blocks for the trueAmp3 array.\n", numFrames );
+		mp_error_msg(func, "Cannot alloc [%lu] double blocks for the trueAmp3 array.\n", numFrames );
 		fclose(fid);
 		return(1);
     } 
     if ((trueIdx3 = (unsigned long int*) calloc(numFrames, sizeof(unsigned long int))) == NULL) 
 	{
-		mp_error_msg( "test_convolution", "Cannot alloc [%lu] double blocks for the trueIdx3 array.\n", numFrames );
+		mp_error_msg(func, "Cannot alloc [%lu] double blocks for the trueIdx3 array.\n", numFrames );
 		fclose(fid);
 		return(1);
     } 
     if ( fread ( trueAmp3, sizeof(double), numFrames, fid) != numFrames ) 
 	{
-		mp_error_msg( "test_convolution", "Cannot read the [%lu] amplitudes from the file [%s].\n", numFrames, resFile3 );
+		mp_error_msg(func, "Cannot read the [%lu] amplitudes from the file [%s].\n", numFrames, resFile3 );
 		fclose(fid);
 		return(1);
     }
     if ( fread ( trueIdx3, sizeof(unsigned long int), numFrames, fid) != numFrames ) 
 	{
-		mp_error_msg( "test_convolution", "Cannot read the [%lu] indices from the file [%s].\n", numFrames, resFile3 );
+		mp_error_msg(func, "Cannot read the [%lu] indices from the file [%s].\n", numFrames, resFile3 );
 		fclose(fid);
 		return(1);
     }
@@ -573,29 +562,24 @@ int main( int argc, char **argv )
     fasConv = new MP_Convolution_Fastest_c(anywaveRealTable,filterShift );
 
     /* experimental results */
-    double* fftAmp3;
-    double* fasAmp3;
-    unsigned long int* fftIdx3;
-    unsigned long int* fasIdx3;
-
-    if ((fftAmp3 = (double*) calloc(numFrames, sizeof(double))) == NULL) 
+     if ((fftAmp3 = (double*) calloc(numFrames, sizeof(double))) == NULL) 
 	{
-		mp_error_msg( "test_convolution", "Cannot alloc [%lu] double blocks for the fftAmp3 array.\n", numFrames );
+		mp_error_msg(func, "Cannot alloc [%lu] double blocks for the fftAmp3 array.\n", numFrames );
 		return(1);
     } 
     if ((fasAmp3 = (double*) calloc(numFrames, sizeof(double))) == NULL) 
 	{
-		mp_error_msg( "test_convolution", "Cannot alloc [%lu] double blocks for the fasAmp3 array.\n", numFrames );
+		mp_error_msg(func, "Cannot alloc [%lu] double blocks for the fasAmp3 array.\n", numFrames );
 		return(1);
     } 
     if ((fftIdx3 = (unsigned long int*) calloc(numFrames, sizeof(unsigned long int))) == NULL) 
 	{
-		mp_error_msg( "test_convolution", "Cannot alloc [%lu] unsigned long int blocks for the fftIdx3 array.\n", numFrames );
+		mp_error_msg(func, "Cannot alloc [%lu] unsigned long int blocks for the fftIdx3 array.\n", numFrames );
 		return(1);
     } 
     if ((fasIdx3 = (unsigned long int*) calloc(numFrames, sizeof(unsigned long int))) == NULL) 
 	{
-		mp_error_msg( "test_convolution", "Cannot alloc [%lu] unsigned long int blocks for the fasIdx3 array.\n", numFrames );
+		mp_error_msg(func, "Cannot alloc [%lu] unsigned long int blocks for the fasIdx3 array.\n", numFrames );
 		return(1);
     } 
 
@@ -615,19 +599,17 @@ int main( int argc, char **argv )
 
     for (frameIdx = 0; frameIdx < numFrames; frameIdx ++) 
 	{
-		if (verbose) 
-		{
-			fprintf(stdout, "Frame[%lu] [max nrg|max idx] - true [%2.8lf|%lu] - fft [%2.8lf|%lu] - fas [%2.8lf|%lu]\n",frameIdx,trueAmp3[frameIdx],trueIdx3[frameIdx],fftAmp3[frameIdx],fftIdx3[frameIdx],fasAmp3[frameIdx],fasIdx3[frameIdx]);
-		}
-
-      if ( relative_error(trueAmp3[frameIdx],fftAmp3[frameIdx]) > fftAmpMaxRelErr ) 
-		  fftAmpMaxRelErr = relative_error(trueAmp3[frameIdx],fftAmp3[frameIdx]);
-      if ( relative_error(trueAmp3[frameIdx],fasAmp3[frameIdx]) > fasAmpMaxRelErr ) 
-		  fasAmpMaxRelErr = relative_error(trueAmp3[frameIdx],fasAmp3[frameIdx]);
-      if ( relative_error(trueIdx3[frameIdx],fftIdx3[frameIdx]) > fftIdxMaxRelErr ) 
-		  fftIdxMaxRelErr = relative_error(trueIdx3[frameIdx],fftIdx3[frameIdx]);
-      if ( relative_error(trueIdx3[frameIdx],fasIdx3[frameIdx]) > fasIdxMaxRelErr ) 
-		  fasIdxMaxRelErr = relative_error(trueIdx3[frameIdx],fasIdx3[frameIdx]);
+		
+		fprintf(stdout, "Frame[%lu] [max nrg|max idx] - true [%2.8lf|%lu] - fft [%2.8lf|%lu] - fas [%2.8lf|%lu]\n",frameIdx,trueAmp3[frameIdx],trueIdx3[frameIdx],fftAmp3[frameIdx],fftIdx3[frameIdx],fasAmp3[frameIdx],fasIdx3[frameIdx]);
+		
+		if ( relative_error(trueAmp3[frameIdx],fftAmp3[frameIdx]) > fftAmpMaxRelErr ) 
+			fftAmpMaxRelErr = relative_error(trueAmp3[frameIdx],fftAmp3[frameIdx]);
+		if ( relative_error(trueAmp3[frameIdx],fasAmp3[frameIdx]) > fasAmpMaxRelErr ) 
+			fasAmpMaxRelErr = relative_error(trueAmp3[frameIdx],fasAmp3[frameIdx]);
+		if ( relative_error(trueIdx3[frameIdx],fftIdx3[frameIdx]) > fftIdxMaxRelErr ) 
+			fftIdxMaxRelErr = relative_error(trueIdx3[frameIdx],fftIdx3[frameIdx]);
+		if ( relative_error(trueIdx3[frameIdx],fasIdx3[frameIdx]) > fasIdxMaxRelErr ) 
+			fasIdxMaxRelErr = relative_error(trueIdx3[frameIdx],fasIdx3[frameIdx]);
     }
 
     if ((fftAmpMaxRelErr > seuil) && (fftIdxMaxRelErr > seuil)) 
@@ -635,42 +617,23 @@ int main( int argc, char **argv )
     if ((fasAmpMaxRelErr > seuil) && (fasIdxMaxRelErr > seuil)) 
 		fasOK = 0;
 
-    if (verbose) 
-	{
-		fprintf(stdout, "\n");
-    }
-    
     /* Printing the verdict */
+    fprintf(stdout,"\nusing fft convolution     : ");
+	fprintf(stdout,(fftOK == 1)?"[OK]":"[ERROR] (max relative error: amp [%e] idx [%e])\n",fftAmpMaxRelErr,fftIdxMaxRelErr);
+    fprintf(stdout,"using fastest convolution : ");
+	fprintf(stdout,(fasOK == 1)?"[OK]":"[ERROR] (max relative error: amp [%e] idx [%e])\n",fasAmpMaxRelErr,fasIdxMaxRelErr);
 
-    fprintf(stdout,"\n using fft convolution     : ");
-    if (fftOK == 1) 
-		fprintf(stdout,"[OK]");
-    else 
-		fprintf(stdout,"[ERROR]");
-    fprintf(stdout," (max relative error: amp [%e] idx [%e])",fftAmpMaxRelErr,fftIdxMaxRelErr);
-
-    fprintf(stdout,"\n using fastest convolution : ");
-    if (fasOK == 1) 
-		fprintf(stdout,"[OK]");
-    else 
-		fprintf(stdout,"[ERROR]");
-    fprintf(stdout," (max relative error: amp [%e] idx [%e])",fasAmpMaxRelErr,fasIdxMaxRelErr);
-
-    fflush(stdout);
     
     delete(fftConv);
     delete(fasConv);
     delete(anywaveRealTable);
-
-    free(trueAmp3);
-    free(fftAmp3);
-    free(fasAmp3);
-    free(trueIdx3);
-    free(fftIdx3);
-    free(fasIdx3);
-
 	delete(anywaveTable);
-	fprintf(stdout,"\n");
+    free(trueAmp3); trueAmp3 = NULL;
+    free(fftAmp3); fftAmp3 = NULL;
+    free(fasAmp3); fasAmp3 = NULL;
+    free(trueIdx3); trueIdx3 = NULL;
+    free(fftIdx3); fftIdx3 = NULL;
+    free(fasIdx3); fasIdx3 = NULL;
 
 	/* Release Mptk environnement */
 	MPTK_Env_c::get_env()->release_environment();
