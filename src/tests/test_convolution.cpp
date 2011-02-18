@@ -153,7 +153,7 @@ int main( int argc, char **argv )
 	double						seuil = 0.00001;
 	unsigned long int			chanIdx = 0, filterIdx = 0, frameIdx = 0, sampleIdx = 0, filterShift = 0;
 	unsigned long int			inputLen = 0, numFrames = 0, numFramesSamples = 0, fromSample = 0;
-    int							dirOK = 1, fftOK = 1, fasOK = 1;
+    int							dir1Res,fft1Res,fas1Res,dir2Res,fft2Res,fas2Res,fft3Res,fas3Res;
 
 	mp_info_msg( func, "------------------------------------------------------\n" );
 	mp_info_msg( func, "TEST CONVOLUTION - TESTING CONVOLUTION FUNCTIONALITIES\n" );
@@ -245,17 +245,17 @@ int main( int argc, char **argv )
     if ((outputFas1 = (double*) malloc(sizeof(double) * numFramesSamples)) == NULL) 
 	{
 		mp_error_msg(func, "Cannot alloc [%lu] double blocks for the outputFas1 array.\n", numFramesSamples );
-		return(1);
+		return(-1);
     } 
     if ((outputDir1 = (double*) malloc(sizeof(double) * numFramesSamples)) == NULL) 
 	{
 		mp_error_msg(func, "Cannot alloc [%lu] double blocks for the outputDir1 array.\n", numFramesSamples );
-		return(1);
+		return(-1);
     } 
     if ((outputFft1 = (double*) malloc(sizeof(double) * numFramesSamples)) == NULL) 
 	{
 		mp_error_msg(func, "Cannot alloc [%lu] double blocks for the outputFft1 array.\n", numFramesSamples );
-		return(1);
+		return(-1);
     } 
 
     dirConv->compute_IP( input, inputLen, chanIdx, &outputDir1 );
@@ -263,9 +263,6 @@ int main( int argc, char **argv )
     fasConv->compute_IP( input, inputLen, chanIdx, &outputFas1 );
 
     /* Comparison to the true result */
-    fasOK = 1;
-    dirOK = 1;
-    fftOK = 1;
     dirMaxRelErr = 0.0;
     fftMaxRelErr = 0.0;
     fasMaxRelErr = 0.0;
@@ -287,20 +284,19 @@ int main( int argc, char **argv )
 
 		}
     }
-    if (dirMaxRelErr > seuil) 
-		dirOK = 0;
-    if (fftMaxRelErr > seuil) 
-		fftOK = 0;
-    if (fasMaxRelErr > seuil) 
-		fasOK = 0;
+
+    /* Calculating the difference result */
+    dir1Res = (dirMaxRelErr > seuil)?0:1;
+    fft1Res = (fftMaxRelErr > seuil)?0:1; 
+    fas1Res = (fasMaxRelErr > seuil)?0:1; 
 
     /* Printing the verdict */
     fprintf(stdout,"\nusing direct convolution  : ");
-	fprintf(stdout,(dirOK == 1)?"[OK]\n":"[ERROR] (max relative error [%e])\n", dirMaxRelErr);
+	fprintf(stdout,(dir1Res == 1)?"[OK]\n":"[ERROR] (max relative error [%e])\n", dirMaxRelErr);
     fprintf(stdout,"using fft convolution     : ");
-	fprintf(stdout,(fftOK == 1)?"[OK]\n":"[ERROR] (max relative error [%e])\n", fftMaxRelErr);
+	fprintf(stdout,(fft1Res == 1)?"[OK]\n":"[ERROR] (max relative error [%e])\n", fftMaxRelErr);
     fprintf(stdout,"using fastest convolution : ");
-	fprintf(stdout,(fasOK == 1)?"[OK]\n":"[ERROR] (max relative error [%e])\n", fasMaxRelErr);
+	fprintf(stdout,(fas1Res == 1)?"[OK]\n":"[ERROR] (max relative error [%e])\n", fasMaxRelErr);
 
     delete(dirConv);
     delete(fftConv);
@@ -408,9 +404,6 @@ int main( int argc, char **argv )
     fasConv->compute_max_IP( signal, inputLen, fromSample, fasAmp2, fasIdx2 );
 
     /* Comparison to the true result */
-    fasOK = 1;
-    dirOK = 1;
-    fftOK = 1;
     dirAmpMaxRelErr = 0.0;
     fftAmpMaxRelErr = 0.0;
     fasAmpMaxRelErr = 0.0;
@@ -436,20 +429,18 @@ int main( int argc, char **argv )
 			fasIdxMaxRelErr = relative_error(trueIdx2[frameIdx],fasIdx2[frameIdx]);
 	}
 
-    if ((dirAmpMaxRelErr > seuil) && (dirIdxMaxRelErr > seuil)) 
-		dirOK = 0;
-    if ((fftAmpMaxRelErr > seuil) && (fftIdxMaxRelErr > seuil)) 
-		fftOK = 0;
-    if ((fasAmpMaxRelErr > seuil) && (fasIdxMaxRelErr > seuil)) 
-		fasOK = 0;
+    /* Calculating the difference result */
+    dir2Res = ((dirAmpMaxRelErr > seuil) && (dirIdxMaxRelErr > seuil))?0:1;
+    fft2Res = ((fftAmpMaxRelErr > seuil) && (fftIdxMaxRelErr > seuil))?0:1; 
+    fas2Res = ((fasAmpMaxRelErr > seuil) && (fasIdxMaxRelErr > seuil))?0:1; 
 
     /* Printing the verdict */
     fprintf(stdout,"\nusing direct convolution  : ");
-    fprintf(stdout,(dirOK == 1)?"[OK]\n":"[ERROR] (max relative error: amp [%e] idx [%e])\n", dirAmpMaxRelErr, dirIdxMaxRelErr);
+    fprintf(stdout,(dir2Res == 1)?"[OK]\n":"[ERROR] (max relative error: amp [%e] idx [%e])\n", dirAmpMaxRelErr, dirIdxMaxRelErr);
     fprintf(stdout,"using fft convolution     : ");
-    fprintf(stdout,(fftOK == 1)?"[OK]\n":"[ERROR] (max relative error: amp [%e] idx [%e])\n",fftAmpMaxRelErr,fftIdxMaxRelErr);
+    fprintf(stdout,(fft2Res == 1)?"[OK]\n":"[ERROR] (max relative error: amp [%e] idx [%e])\n",fftAmpMaxRelErr,fftIdxMaxRelErr);
     fprintf(stdout,"using fastest convolution : ");
-    fprintf(stdout,(fasOK == 1)?"[OK]\n":"[ERROR] (max relative error: amp [%e] idx [%e])\n",fasAmpMaxRelErr,fasIdxMaxRelErr);
+    fprintf(stdout,(fas2Res == 1)?"[OK]\n":"[ERROR] (max relative error: amp [%e] idx [%e])\n",fasAmpMaxRelErr,fasIdxMaxRelErr);
 
     delete(dirConv);
     delete(fftConv);
@@ -544,8 +535,6 @@ int main( int argc, char **argv )
     fasConv->compute_max_hilbert_IP( signal, inputLen, fromSample, fasAmp3, fasIdx3 );
     
     /* Comparison to the true result */
-    fftOK = 1;
-    fasOK = 1;
     fftAmpMaxRelErr = 0.0;
     fasAmpMaxRelErr = 0.0;
     fftIdxMaxRelErr = 0.0;
@@ -565,18 +554,16 @@ int main( int argc, char **argv )
 			fasIdxMaxRelErr = relative_error(trueIdx3[frameIdx],fasIdx3[frameIdx]);
     }
 
-    if ((fftAmpMaxRelErr > seuil) && (fftIdxMaxRelErr > seuil)) 
-		fftOK = 0;
-    if ((fasAmpMaxRelErr > seuil) && (fasIdxMaxRelErr > seuil)) 
-		fasOK = 0;
+    /* Calculating the difference result */
+    fft3Res = ((fftAmpMaxRelErr > seuil) && (fftIdxMaxRelErr > seuil))?0:1; 
+    fas3Res = ((fasAmpMaxRelErr > seuil) && (fasIdxMaxRelErr > seuil))?0:1; 
 
     /* Printing the verdict */
     fprintf(stdout,"\nusing fft convolution     : ");
-	fprintf(stdout,(fftOK == 1)?"[OK]\n":"[ERROR] (max relative error: amp [%e] idx [%e])\n",fftAmpMaxRelErr,fftIdxMaxRelErr);
+	fprintf(stdout,(fft3Res == 1)?"[OK]\n":"[ERROR] (max relative error: amp [%e] idx [%e])\n",fftAmpMaxRelErr,fftIdxMaxRelErr);
     fprintf(stdout,"using fastest convolution : ");
-	fprintf(stdout,(fasOK == 1)?"[OK]\n":"[ERROR] (max relative error: amp [%e] idx [%e])\n",fasAmpMaxRelErr,fasIdxMaxRelErr);
+	fprintf(stdout,(fas3Res == 1)?"[OK]\n":"[ERROR] (max relative error: amp [%e] idx [%e])\n",fasAmpMaxRelErr,fasIdxMaxRelErr);
 
-    
     delete(fftConv);
     delete(fasConv);
     delete(anywaveRealTable);
@@ -591,5 +578,9 @@ int main( int argc, char **argv )
 	/* Release Mptk environnement */
 	MPTK_Env_c::get_env()->release_environment();
 
-	return(0);
+	/* Sending the result */
+	if(dir1Res && fft1Res && fas1Res && dir2Res && fft2Res && fas2Res && fft3Res && fas3Res)
+		return(0);
+	else
+		return(-1);
 }
