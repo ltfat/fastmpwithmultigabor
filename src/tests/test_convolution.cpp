@@ -165,7 +165,7 @@ int main( int argc, char **argv )
 	if (argc != 2)
     {
 		mp_error_msg( func, "Bad Number of arguments, test_convolution require \"configFileName\" (path.xml) as argument.\n");
-		return( -1 );
+		return(-1);
 	}
 	
 	configFileName = argv[1];
@@ -195,35 +195,6 @@ int main( int argc, char **argv )
 	signal = MP_Signal_c::init(signalFileName);
 	input = signal->channel[0];
 	
-	/* print it to check the precision of the data
-	 fprintf(stdout,"%0.64lf\n",input[0]);
-	 fprintf(stdout,"%0.64lf\n",anywaveTable->wave[0][0][0]);
-	 */
-	
-	
-	/* test of the fft and inverse fft */
-	/*  MP_FFT_Interface_c* ff = MP_FFT_Interface_c::init( anywaveTable->filterLen,DSP_RECTANGLE_WIN,0.0,anywaveTable->filterLen ) ;
-	 MP_Real_t* re = (MP_Real_t*)malloc(sizeof(MP_Real_t) * anywaveTable->filterLen);
-	 MP_Real_t* im = (MP_Real_t*)malloc(sizeof(MP_Real_t) * anywaveTable->filterLen);
-	 MP_Real_t* out = (MP_Real_t*)malloc(sizeof(MP_Real_t) * anywaveTable->filterLen);
-	 ff->exec_complex( anywaveTable->wave[0][0], re, im );
-	 
-	 fprintf(stdout,"Filtre\n");
-	 for (int n=0;n<5;n++)
-	 fprintf(stdout," element %i - %lg\n",n,anywaveTable->wave[0][0][n]);
-	 
-	 fprintf(stdout,"FFT Filtre\n");
-	 for (int n=0;n<5;n++)
-	 fprintf(stdout,"element %i - re=%lg im=%lg\n",n,re[n],im[n]);
-	 
-	 ff->exec_complex_inverse( re, im, out );
-	 fprintf(stdout,"Filtre reconstruit\n");
-	 for (int n=0;n<5;n++)
-	 fprintf(stdout,"element %i - %lg\n",n,out[n]);
-	 
-	 return(1);
-	 */
-	
 	//-----------------------------------------------------------------------------------------
 	// 1) Inner product between the frames of signal and every filter, with a filterShift of 3
 	//-----------------------------------------------------------------------------------------
@@ -236,14 +207,14 @@ int main( int argc, char **argv )
 	if ( ( fid = fopen( resFile1, "rb" ) ) == NULL ) 
 	{
 		mp_error_msg( func,"Could not open file %s to print a book.\n", resFile1 );
-		return(1);
+		return(-1);
 	}
 
 	if ( fread ( &filterShift, sizeof(unsigned long int), 1, fid) != 1 ) 
 	{
 		mp_error_msg(func, "Cannot read the filterShift from the file [%s].\n", resFile1 );
 		fclose(fid);
-		return(1);
+		return(-1);
     }
 
     numFrames = ((inputLen - anywaveTable->filterLen)/filterShift) + 1;
@@ -253,13 +224,13 @@ int main( int argc, char **argv )
 	{
 		mp_error_msg(func, "Cannot alloc [%lu] double blocks for the outputTrue1 array.\n", numFramesSamples );
 		fclose(fid);
-		return(1);
+		return(-1);
     } 
     if ( fread ( outputTrue1, sizeof(double), numFramesSamples, fid) != numFramesSamples ) 
 	{
 		mp_error_msg(func, "Cannot read the [%lu] samples from the file [%s].\n", numFramesSamples, resFile1 );
 		fclose(fid);
-		return(1);
+		return(-1);
     }
     fclose(fid);
 
@@ -291,18 +262,6 @@ int main( int argc, char **argv )
     fftConv->compute_IP( input, inputLen, chanIdx, &outputFft1 );
     fasConv->compute_IP( input, inputLen, chanIdx, &outputFas1 );
 
-
-    /*fprintf(stdout,"%0.64lf\n",outputTrue1[0]);
-    fprintf(stdout,"%0.64lf\n",outputDir1[0]);
-    double temp=0.0;
-    for (sampleIdx= 0;sampleIdx< 2;sampleIdx++){
-      temp = temp + ((double)input[sampleIdx]) * ((double)anywaveTable->wave[0][0][sampleIdx]);
-    }
-    fprintf(stdout,"   %0.64lf\n",((double)input[0]) * ((double)anywaveTable->wave[0][0][0]));
-    fprintf(stdout,"+  %0.64lf\n",((double)input[1]) * ((double)anywaveTable->wave[0][0][1]));
-    fprintf(stdout,"=  %0.64lf\n",temp);
-  */
-  
     /* Comparison to the true result */
     fasOK = 1;
     dirOK = 1;
@@ -361,14 +320,14 @@ int main( int argc, char **argv )
 	if ( ( fid = fopen( resFile2, "rb" ) ) == NULL ) 
 	{
 		mp_error_msg( func,"Could not open file %s to print a book.\n", resFile2 );
-		return(1);
+		return(-1);
 	}
 
 	if ( fread ( &filterShift, sizeof(unsigned long int), 1, fid) != 1 ) 
 	{
 		mp_error_msg(func, "Cannot read the filterShift from the file [%s].\n", resFile2 );
 		fclose(fid);
-		return(1);
+		return(-1);
     }
 	
     numFrames = ((inputLen - anywaveTable->filterLen)/filterShift) + 1;
@@ -377,25 +336,25 @@ int main( int argc, char **argv )
 	{
 		mp_error_msg(func, "Cannot alloc [%lu] double blocks for the trueAmp2 array.\n", numFrames );
 		fclose(fid);
-		return(1);
+		return(-1);
     } 
     if ((trueIdx2 = (unsigned long int*) calloc(numFrames, sizeof(unsigned long int))) == NULL) 
 	{
 		mp_error_msg(func, "Cannot alloc [%lu] double blocks for the trueIdx2 array.\n", numFrames );
 		fclose(fid);
-		return(1);
+		return(-1);
     } 
     if ( fread ( trueAmp2, sizeof(double), numFrames, fid) != numFrames ) 
 	{
 		mp_error_msg(func, "Cannot read the [%lu] amplitudes from the file [%s].\n", numFrames, resFile2 );
 		fclose(fid);
-		return(1);
+		return(-1);
     }
     if ( fread ( trueIdx2, sizeof(unsigned long int), numFrames, fid) != numFrames ) 
 	{
 		mp_error_msg(func, "Cannot read the [%lu] indices from the file [%s].\n", numFrames, resFile2 );
 		fclose(fid);
-		return(1);
+		return(-1);
     }
     fclose(fid);
 
@@ -477,7 +436,6 @@ int main( int argc, char **argv )
 			fasIdxMaxRelErr = relative_error(trueIdx2[frameIdx],fasIdx2[frameIdx]);
 	}
 
-
     if ((dirAmpMaxRelErr > seuil) && (dirIdxMaxRelErr > seuil)) 
 		dirOK = 0;
     if ((fftAmpMaxRelErr > seuil) && (fftIdxMaxRelErr > seuil)) 
@@ -519,39 +477,39 @@ int main( int argc, char **argv )
 	if ( ( fid = fopen( resFile3, "rb" ) ) == NULL ) 
 	{
 		mp_error_msg( func,"Could not open file %s to print a book.\n", resFile3 );
-		return(1);
+		return(-1);
 	}
 
     if ( fread ( &filterShift, sizeof(unsigned long int), 1, fid) != 1 ) 
 	{
 		mp_error_msg(func, "Cannot read the filterShift from the file [%s].\n", resFile3 );
 		fclose(fid);
-		return(1);
+		return(-1);
     }
     numFrames = ((inputLen - anywaveTable->filterLen)/filterShift) + 1;
     if ((trueAmp3 = (double*) calloc(numFrames, sizeof(double))) == NULL) 
 	{
 		mp_error_msg(func, "Cannot alloc [%lu] double blocks for the trueAmp3 array.\n", numFrames );
 		fclose(fid);
-		return(1);
+		return(-1);
     } 
     if ((trueIdx3 = (unsigned long int*) calloc(numFrames, sizeof(unsigned long int))) == NULL) 
 	{
 		mp_error_msg(func, "Cannot alloc [%lu] double blocks for the trueIdx3 array.\n", numFrames );
 		fclose(fid);
-		return(1);
+		return(-1);
     } 
     if ( fread ( trueAmp3, sizeof(double), numFrames, fid) != numFrames ) 
 	{
 		mp_error_msg(func, "Cannot read the [%lu] amplitudes from the file [%s].\n", numFrames, resFile3 );
 		fclose(fid);
-		return(1);
+		return(-1);
     }
     if ( fread ( trueIdx3, sizeof(unsigned long int), numFrames, fid) != numFrames ) 
 	{
 		mp_error_msg(func, "Cannot read the [%lu] indices from the file [%s].\n", numFrames, resFile3 );
 		fclose(fid);
-		return(1);
+		return(-1);
     }
     fclose(fid);
 
@@ -562,22 +520,22 @@ int main( int argc, char **argv )
      if ((fftAmp3 = (double*) calloc(numFrames, sizeof(double))) == NULL) 
 	{
 		mp_error_msg(func, "Cannot alloc [%lu] double blocks for the fftAmp3 array.\n", numFrames );
-		return(1);
+		return(-1);
     } 
     if ((fasAmp3 = (double*) calloc(numFrames, sizeof(double))) == NULL) 
 	{
 		mp_error_msg(func, "Cannot alloc [%lu] double blocks for the fasAmp3 array.\n", numFrames );
-		return(1);
+		return(-1);
     } 
     if ((fftIdx3 = (unsigned long int*) calloc(numFrames, sizeof(unsigned long int))) == NULL) 
 	{
 		mp_error_msg(func, "Cannot alloc [%lu] unsigned long int blocks for the fftIdx3 array.\n", numFrames );
-		return(1);
+		return(-1);
     } 
     if ((fasIdx3 = (unsigned long int*) calloc(numFrames, sizeof(unsigned long int))) == NULL) 
 	{
 		mp_error_msg(func, "Cannot alloc [%lu] unsigned long int blocks for the fasIdx3 array.\n", numFrames );
-		return(1);
+		return(-1);
     } 
 
     fromSample = 0;
