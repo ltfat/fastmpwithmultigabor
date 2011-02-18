@@ -37,9 +37,9 @@
  */
 
 /** \file test_convolution.cpp
- * A file with some code that serves both as an example of how to use the 
- *  convolution class and as a test that it is properly working.
- *
+ * 	INFORMATION : the datas tested by test_convolution.cpp (anywave_results_1.bin, 
+ *  anywave_results_2.bin and anywave_results_3.bin) are written by a matlab 
+ * 	script file named "prepareConvolution.m" situated under matlab/utils
  */
 #include <mptk.h>
 #include <stdio.h>
@@ -241,7 +241,7 @@ int main( int argc, char **argv )
 
 	if ( fread ( &filterShift, sizeof(unsigned long int), 1, fid) != 1 ) 
 	{
-		mp_error_msg( "test_convolution", "Cannot read the filterShift from the file [%s].\n", resFile1 );
+		mp_error_msg(func, "Cannot read the filterShift from the file [%s].\n", resFile1 );
 		fclose(fid);
 		return(1);
     }
@@ -251,19 +251,18 @@ int main( int argc, char **argv )
 	
     if ((outputTrue1 = (double*) malloc(sizeof(double) * numFramesSamples)) == NULL) 
 	{
-		mp_error_msg( "test_convolution", "Cannot alloc [%lu] double blocks for the outputTrue1 array.\n", numFramesSamples );
+		mp_error_msg(func, "Cannot alloc [%lu] double blocks for the outputTrue1 array.\n", numFramesSamples );
 		fclose(fid);
 		return(1);
     } 
     if ( fread ( outputTrue1, sizeof(double), numFramesSamples, fid) != numFramesSamples ) 
 	{
-		mp_error_msg( "test_convolution", "Cannot read the [%lu] samples from the file [%s].\n", numFramesSamples, resFile1 );
+		mp_error_msg(func, "Cannot read the [%lu] samples from the file [%s].\n", numFramesSamples, resFile1 );
 		fclose(fid);
 		return(1);
     }
     fclose(fid);
 
-    
     dirConv = new MP_Convolution_Direct_c(anywaveTable,filterShift );
     fftConv = new MP_Convolution_FFT_c(anywaveTable,filterShift );
     fasConv = new MP_Convolution_Fastest_c(anywaveTable,filterShift );
@@ -318,7 +317,7 @@ int main( int argc, char **argv )
 		for (filterIdx = 0; filterIdx < anywaveTable->numFilters; filterIdx++ ) 
 		{
 			sampleIdx = frameIdx*anywaveTable->numFilters + filterIdx;
-			fprintf(stdout, "Frame[%lu]Filter[%lu] - true [%2.8lf] - dir [%2.8lf] - fft [%2.8lf] - fas [%2.8lf]\n",frameIdx,filterIdx,outputTrue1[sampleIdx],outputDir1[sampleIdx],outputFft1[sampleIdx],outputFas1[sampleIdx]);
+			//fprintf(stdout, "Frame[%lu]Filter[%lu] - true [%2.8lf] - dir [%2.8lf] - fft [%2.8lf] - fas [%2.8lf]\n",frameIdx,filterIdx,outputTrue1[sampleIdx],outputDir1[sampleIdx],outputFft1[sampleIdx],outputFas1[sampleIdx]);
 
 			if ( relative_error(outputTrue1[sampleIdx],outputDir1[sampleIdx]) > dirMaxRelErr ) 
 				dirMaxRelErr = relative_error(outputTrue1[sampleIdx],outputDir1[sampleIdx]);
@@ -338,11 +337,11 @@ int main( int argc, char **argv )
 
     /* Printing the verdict */
     fprintf(stdout,"\nusing direct convolution  : ");
-	fprintf(stdout,(dirOK == 1)?"[OK]":"[ERROR] (max relative error [%e])\n", dirMaxRelErr);
+	fprintf(stdout,(dirOK == 1)?"[OK]\n":"[ERROR] (max relative error [%e])\n", dirMaxRelErr);
     fprintf(stdout,"using fft convolution     : ");
-	fprintf(stdout,(fftOK == 1)?"[OK]":"[ERROR] (max relative error [%e])\n", fftMaxRelErr);
+	fprintf(stdout,(fftOK == 1)?"[OK]\n":"[ERROR] (max relative error [%e])\n", fftMaxRelErr);
     fprintf(stdout,"using fastest convolution : ");
-	fprintf(stdout,(fasOK == 1)?"[OK]":"[ERROR] (max relative error [%e])\n", fasMaxRelErr);
+	fprintf(stdout,(fasOK == 1)?"[OK]\n":"[ERROR] (max relative error [%e])\n", fasMaxRelErr);
 
     delete(dirConv);
     delete(fftConv);
@@ -463,9 +462,7 @@ int main( int argc, char **argv )
 
     for (frameIdx = 0; frameIdx < numFrames; frameIdx ++) 
 	{
-	
-		fprintf(stdout, "Frame[%lu] [max nrg|max idx] - true [%2.8lf|%lu] - dir [%2.8lf|%lu] - fft [%2.8lf|%lu] - fas [%2.8lf|%lu]\n",frameIdx,trueAmp2[frameIdx],trueIdx2[frameIdx],dirAmp2[frameIdx],dirIdx2[frameIdx],fftAmp2[frameIdx],fftIdx2[frameIdx],fasAmp2[frameIdx],fasIdx2[frameIdx]);
-
+		//fprintf(stdout, "Frame[%lu] [max nrg|max idx] - true [%2.8lf|%lu] - dir [%2.8lf|%lu] - fft [%2.8lf|%lu] - fas [%2.8lf|%lu]\n",frameIdx,trueAmp2[frameIdx],trueIdx2[frameIdx],dirAmp2[frameIdx],dirIdx2[frameIdx],fftAmp2[frameIdx],fftIdx2[frameIdx],fasAmp2[frameIdx],fasIdx2[frameIdx]);
 		if(relative_error(trueAmp2[frameIdx],dirAmp2[frameIdx]) > dirAmpMaxRelErr)
 			dirAmpMaxRelErr = relative_error(trueAmp2[frameIdx],dirAmp2[frameIdx]);
 		if ( relative_error(trueAmp2[frameIdx],fftAmp2[frameIdx]) > fftAmpMaxRelErr ) 
@@ -490,11 +487,11 @@ int main( int argc, char **argv )
 
     /* Printing the verdict */
     fprintf(stdout,"\nusing direct convolution  : ");
-    fprintf(stdout,(dirOK == 1)?"[OK]":"[ERROR] (max relative error: amp [%e] idx [%e])\n", dirAmpMaxRelErr, dirIdxMaxRelErr);
+    fprintf(stdout,(dirOK == 1)?"[OK]\n":"[ERROR] (max relative error: amp [%e] idx [%e])\n", dirAmpMaxRelErr, dirIdxMaxRelErr);
     fprintf(stdout,"using fft convolution     : ");
-    fprintf(stdout,(fftOK == 1)?"[OK]":"[ERROR] (max relative error: amp [%e] idx [%e])\n",fftAmpMaxRelErr,fftIdxMaxRelErr);
+    fprintf(stdout,(fftOK == 1)?"[OK]\n":"[ERROR] (max relative error: amp [%e] idx [%e])\n",fftAmpMaxRelErr,fftIdxMaxRelErr);
     fprintf(stdout,"using fastest convolution : ");
-    fprintf(stdout,(fasOK == 1)?"[OK]":"[ERROR] (max relative error: amp [%e] idx [%e])\n",fasAmpMaxRelErr,fasIdxMaxRelErr);
+    fprintf(stdout,(fasOK == 1)?"[OK]\n":"[ERROR] (max relative error: amp [%e] idx [%e])\n",fasAmpMaxRelErr,fasIdxMaxRelErr);
 
     delete(dirConv);
     delete(fftConv);
@@ -599,9 +596,7 @@ int main( int argc, char **argv )
 
     for (frameIdx = 0; frameIdx < numFrames; frameIdx ++) 
 	{
-		
-		fprintf(stdout, "Frame[%lu] [max nrg|max idx] - true [%2.8lf|%lu] - fft [%2.8lf|%lu] - fas [%2.8lf|%lu]\n",frameIdx,trueAmp3[frameIdx],trueIdx3[frameIdx],fftAmp3[frameIdx],fftIdx3[frameIdx],fasAmp3[frameIdx],fasIdx3[frameIdx]);
-		
+		//fprintf(stdout, "Frame[%lu] [max nrg|max idx] - true [%2.8lf|%lu] - fft [%2.8lf|%lu] - fas [%2.8lf|%lu]\n",frameIdx,trueAmp3[frameIdx],trueIdx3[frameIdx],fftAmp3[frameIdx],fftIdx3[frameIdx],fasAmp3[frameIdx],fasIdx3[frameIdx]);
 		if ( relative_error(trueAmp3[frameIdx],fftAmp3[frameIdx]) > fftAmpMaxRelErr ) 
 			fftAmpMaxRelErr = relative_error(trueAmp3[frameIdx],fftAmp3[frameIdx]);
 		if ( relative_error(trueAmp3[frameIdx],fasAmp3[frameIdx]) > fasAmpMaxRelErr ) 
@@ -619,9 +614,9 @@ int main( int argc, char **argv )
 
     /* Printing the verdict */
     fprintf(stdout,"\nusing fft convolution     : ");
-	fprintf(stdout,(fftOK == 1)?"[OK]":"[ERROR] (max relative error: amp [%e] idx [%e])\n",fftAmpMaxRelErr,fftIdxMaxRelErr);
+	fprintf(stdout,(fftOK == 1)?"[OK]\n":"[ERROR] (max relative error: amp [%e] idx [%e])\n",fftAmpMaxRelErr,fftIdxMaxRelErr);
     fprintf(stdout,"using fastest convolution : ");
-	fprintf(stdout,(fasOK == 1)?"[OK]":"[ERROR] (max relative error: amp [%e] idx [%e])\n",fasAmpMaxRelErr,fasIdxMaxRelErr);
+	fprintf(stdout,(fasOK == 1)?"[OK]\n":"[ERROR] (max relative error: amp [%e] idx [%e])\n",fasAmpMaxRelErr,fasIdxMaxRelErr);
 
     
     delete(fftConv);
