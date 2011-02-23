@@ -87,8 +87,8 @@ unsigned long int GP_Book_c::build_waveform_corr(MP_Dict_c* dict, MP_Real_t* out
 				for (unsigned long int t = 0; t < blockSize; t++)
 					outBuffer[t+wavOffset] += tmpBuffer[t+blockOffset];
 			}
-			delete(subBook);		
 		}
+		delete(subBook);		
 	}
 	return wavSize;
 }
