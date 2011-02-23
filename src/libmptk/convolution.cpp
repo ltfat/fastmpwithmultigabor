@@ -123,49 +123,57 @@ void MP_Convolution_c::add_real_and_hilbert_tables( MP_Anywave_Table_c* setAnywa
 }
 
 void MP_Convolution_c::add_real_and_hilbert_tables( void ) {
+	unsigned long int tableIdx;
+	char* str;
 
-  unsigned long int tableIdx;
-  char* str;
-  if ( ( str = (char*) malloc( MP_MAX_STR_LEN * sizeof(char) ) ) == NULL ) {
-    mp_error_msg( "MP_Convolution::add_real_and_hilbert_tables()","The string str cannot be allocated.\n" );    
-    return;
-  }
+	if ( ( str = (char*) malloc( MP_MAX_STR_LEN * sizeof(char) ) ) == NULL ) 
+	{
+		mp_error_msg( "MP_Convolution::add_real_and_hilbert_tables()","The string str cannot be allocated.\n" );    
+		return;
+	}
 
-  delete_real_and_hilbert_tables();
+	delete_real_and_hilbert_tables();
 
-  if (anywaveTable == NULL) {
-    mp_error_msg( "MP_Convolution_c::add_real_and_hilbert_tables", "Can't create the real and hilbert anywave tables, since the original anywaveTable does not exists. These two tables will remain NULL.\n" );
-    return;
-  }
+	if (anywaveTable == NULL) 
+	{
+		mp_error_msg( "MP_Convolution_c::add_real_and_hilbert_tables", "Can't create the real and hilbert anywave tables, since the original anywaveTable does not exists. These two tables will remain NULL.\n" );
+		return;
+	}
 
-  /* create the real table if needed */  
-  strcpy(str, anywaveTable->tableFileName);
-  str = strcat(str,"_real");
-  tableIdx = MPTK_Server_c::get_anywave_server()->get_index( str );
-  if (tableIdx == MPTK_Server_c::get_anywave_server()->numTables) {
-    /* need to create a new table */
-    anywaveRealTable = anywaveTable->copy();
-    anywaveRealTable->center_and_denyquist();
-    anywaveRealTable->normalize();
-    anywaveRealTable->set_table_file_name(str);
-    MPTK_Server_c::get_anywave_server()->add( anywaveRealTable );
-  } else {
-    anywaveRealTable = MPTK_Server_c::get_anywave_server()->tables[tableIdx];
-  }
+	/* create the real table if needed */  
+	strcpy(str, anywaveTable->tableFileName);
+	str = strcat(str,"_real");
+	tableIdx = MPTK_Server_c::get_anywave_server()->get_index( str );
+	if (tableIdx == MPTK_Server_c::get_anywave_server()->numTables) 
+	{
+		/* need to create a new table */
+		anywaveRealTable = anywaveTable->copy();
+		anywaveRealTable->center_and_denyquist();
+		anywaveRealTable->normalize();
+		anywaveRealTable->set_table_file_name(str);
+		MPTK_Server_c::get_anywave_server()->add( anywaveRealTable );
+	}
+	else 
+	{
+		anywaveRealTable = MPTK_Server_c::get_anywave_server()->tables[tableIdx];
+	}
 
-  /* create the hilbert table if needed */
-  strcpy(str, anywaveTable->tableFileName);
-  str = strcat(str,"_hilbert");
-  tableIdx = MPTK_Server_c::get_anywave_server()->get_index( str );
-  if (tableIdx == MPTK_Server_c::get_anywave_server()->numTables) {
-    /* need to create a new table */
-    anywaveHilbertTable = anywaveTable->create_hilbert_dual(str);
-    anywaveHilbertTable->normalize();    
-    MPTK_Server_c::get_anywave_server()->add( anywaveHilbertTable );
-  } else {
-    anywaveHilbertTable = MPTK_Server_c::get_anywave_server()->tables[tableIdx];
-  }
-
+	/* create the hilbert table if needed */
+	strcpy(str, anywaveTable->tableFileName);
+	str = strcat(str,"_hilbert");
+	tableIdx = MPTK_Server_c::get_anywave_server()->get_index( str );
+	if (tableIdx == MPTK_Server_c::get_anywave_server()->numTables) 
+	{
+		/* need to create a new table */
+		anywaveHilbertTable = anywaveTable->create_hilbert_dual(str);
+		anywaveHilbertTable->normalize();    
+		MPTK_Server_c::get_anywave_server()->add( anywaveHilbertTable );
+	}
+	else 
+	{
+		anywaveHilbertTable = MPTK_Server_c::get_anywave_server()->tables[tableIdx];
+	}
+	free(str); str = NULL;
 }
 
 void MP_Convolution_c::delete_real_and_hilbert_tables( void ) {
