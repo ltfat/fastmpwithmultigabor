@@ -34,15 +34,17 @@ case $PIPOL_IMAGE in
 		    make ExperimentalConfigure
 		    ## 4.2) build
 		    make ExperimentalBuild
-		    ## 4.3) test
+		    ## 4.3) build
+		    make install
+		    ## 4.4) test
 		    make ExperimentalTest
-		    ## 4.4) coverage
+		    ## 4.5) coverage
 		    make ExperimentalCoverage
 		    ## 4.6) Submit
 		    make ExperimentalSubmit
-		    ## 4.5) packaging
+		    ## 4.7) packaging
 		    cpack -DCPACK_OUTPUT_FILE_PATH=$PIPOL_WDIR/MPTK_Build
-		    ## 4.6) copying
+		    ## 4.8) copying
 			cp $PIPOL_WDIR/MPTK_Build/MPTK-binary-* $PIPOL_HOMEDIR/packages/
 		}; cd -
 	;;
