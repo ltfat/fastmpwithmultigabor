@@ -511,6 +511,7 @@ int main( int argc, char **argv )
     delete(fasConv);
     delete(anywaveRealTable);
 	delete(anywaveTable);
+	delete(signal);
     free(trueAmp3); trueAmp3 = NULL;
     free(fftAmp3); fftAmp3 = NULL;
     free(fasAmp3); fasAmp3 = NULL;
