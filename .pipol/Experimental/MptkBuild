@@ -36,7 +36,8 @@ case $PIPOL_IMAGE in
 		    make ExperimentalBuild
 		    ## 4.3) build
 		    make install
-			if expr $PIPOL_IMAGE : ".*mac.*"; then 
+			if expr $PIPOL_IMAGE : ".*linux.*"; then 
+		  	echo "<<<<<<<<<< ICI >>>>>>>>>>>>>>>"
 		    	ldconfig /usr/local/lib
 			fi
 		    ## 4.4) test
