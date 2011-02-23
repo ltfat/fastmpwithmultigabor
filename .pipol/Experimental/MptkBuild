@@ -39,6 +39,8 @@ case $PIPOL_IMAGE in
 			if expr $PIPOL_IMAGE : ".*linux.*"; then 
 		  	echo "<<<<<<<<<< ICI >>>>>>>>>>>>>>>"
 		    	ldconfig /usr/local/lib
+			else
+		  		echo "<<<<<<<<<< PAS ICI >>>>>>>>>>>>>>>"
 			fi
 		    ## 4.4) test
 		    make ExperimentalTest
