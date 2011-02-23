@@ -36,7 +36,9 @@ case $PIPOL_IMAGE in
 		    make ExperimentalBuild
 		    ## 4.3) build
 		    make install
-		    ldconfig /usr/local/lib
+			if expr $PIPOL_IMAGE : ".*mac.*"; then 
+		    	ldconfig /usr/local/lib
+			fi
 		    ## 4.4) test
 		    make ExperimentalTest
 		    ## 4.5) coverage
