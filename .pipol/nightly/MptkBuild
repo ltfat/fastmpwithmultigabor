@@ -47,17 +47,22 @@ case $PIPOL_IMAGE in
 		    make NightlyConfigure
 		    ## 4.2) build
 		    make NightlyBuild
-		    ## 4.3) test
+		    ## 4.3) install
+		    make install
+			if expr $PIPOL_IMAGE : ".*linux.*"; then 
+		    	ldconfig /usr/local/lib
+			fi
+		    ## 4.4) test
 		    make NightlyTest
-		    ## 4.4) coverage
+		    ## 4.5) coverage
 		    make NightlyCoverage
-		    ## 4.5) Mem check
+		    ## 4.6) Mem check
 	   		make NightlyMemCheck
-		    ## 4.6) Submit
+		    ## 4.7) Submit
 		    make NightlySubmit
-		    ## 4.7) packaging
+		    ## 4.8) packaging
 		    cpack -DCPACK_OUTPUT_FILE_PATH=$PIPOL_WDIR/MPTK_Build
-		    ## 4.8) copying
+		    ## 4.9) copying
 			cp $PIPOL_WDIR/MPTK_Build/MPTK-binary-* $PIPOL_HOMEDIR/packages/
 		}; cd -
 	;;
@@ -109,13 +114,16 @@ case $PIPOL_IMAGE in
 		# 10) Project build
 		"$VCBUILD" MPTK.sln /Build "Release|$SYSTEMCOMPILE"
 		
-		# 10) CDASH submision
+		# 11) Project build
+		"$VCBUILD" INSTALL.vcproj "Release"
+		
+		# 12) CDASH submision
 		/cygdrive/c/CMake\ $VERSION/bin/ctest.exe -D "Nightly" 
 
-		# 11) To make a Windows Package Installer
+		# 13) To make a Windows Package Installer
 		/cygdrive/c/CMake\ $VERSION/bin/cpack.exe -DCPACK_OUTPUT_FILE_PATH=$PIPOL_WDIR/MPTK_Build -G "NSIS" 
 		
-        # 12) Save the package
+        # 14) Save the package
 		cp $PIPOL_WDIR/MPTK_Build/MPTK-binary-* $PIPOL_HOMEDIR/packages/
 	;;
 	*)
