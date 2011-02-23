@@ -98,6 +98,9 @@ case $PIPOL_IMAGE in
 
 		# 10) Project build
 		"$VCBUILD" MPTK.sln /Build "Release|$SYSTEMCOMPILE"
+
+		# 10) Project build
+		"$VCBUILD" MPTK.sln /Install "Release|$SYSTEMCOMPILE"
 		
 		# 11) CDASH submision
 		/cygdrive/c/CMake\ $VERSION/bin/ctest.exe -D "Experimental" 
