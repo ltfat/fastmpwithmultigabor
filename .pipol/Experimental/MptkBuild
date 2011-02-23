@@ -99,16 +99,16 @@ case $PIPOL_IMAGE in
 		# 10) Project build
 		"$VCBUILD" MPTK.sln /Build "Release|$SYSTEMCOMPILE"
 
-		# 10) Project build
+		# 11) Project build
 		"$VCBUILD" INSTALL.vcproj "Release"
 		
-		# 11) CDASH submision
+		# 12) CDASH submision
 		/cygdrive/c/CMake\ $VERSION/bin/ctest.exe -D "Experimental" 
 
-		# 12) To make a Windows Package Installer
+		# 13) To make a Windows Package Installer
 		/cygdrive/c/CMake\ $VERSION/bin/cpack.exe -DCPACK_OUTPUT_FILE_PATH=$PIPOL_WDIR/MPTK_Build -G "NSIS" 
 		
-        # 13) Save the package
+        # 14) Save the package
 		cp $PIPOL_WDIR/MPTK_Build/MPTK-binary-* $PIPOL_HOMEDIR/packages/
 	;;
 	*)
