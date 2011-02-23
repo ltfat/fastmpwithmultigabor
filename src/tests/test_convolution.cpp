@@ -73,63 +73,6 @@ double relative_error( unsigned long int a, unsigned long int b)
 	return(relative_error((double)a , (double)b));
 }
 
-double relative_errorbis( double a, double b) 
-{
-	double c;
-	double d;
-	fprintf(stdout, "ON ENTRE");
-	
-	c = a-b;
-	if (c < 0) 
-		c = -c;
-	
-	if (a < 0) 
-		d = -a;
-	else if (a > 0) 
-		d = a;
-	else 
-	{
-		if (b < 0) d = -b;
-		else if (b > 0) d = b;
-		else return( 0.0 );
-	}
-	
-	return ( c / d  );
-}
-
-
-int is_the_same( unsigned long int a, unsigned long int b) 
-{
-	return( is_the_same( (double)a, (double)b ) );
-}
-
-int is_the_same( double a, double b) 
-{
-	double c;
-	double d;
-	double seuil = 0.00001;
-	
-	c = a-b;
-	if (c < 0) 
-		c = -c;
-	
-	if (a < 0) 
-		d = -a;
-	else if (a > 0) 
-		d = a;
-	else 
-	{
-		if (b < 0) d = -b;
-		else if (b > 0) d = b;
-		else return(1);
-	}
-	
-	if ( c / d  > seuil ) 
-		return(0);
-	else 
-		return(1);
-}
-
 /**************************************************/
 /* MAIN                                           */
 /**************************************************/
