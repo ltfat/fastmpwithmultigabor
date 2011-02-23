@@ -34,13 +34,10 @@ case $PIPOL_IMAGE in
 		    make ExperimentalConfigure
 		    ## 4.2) build
 		    make ExperimentalBuild
-		    ## 4.3) build
+		    ## 4.3) install
 		    make install
 			if expr $PIPOL_IMAGE : ".*linux.*"; then 
-		  	echo "<<<<<<<<<< ICI >>>>>>>>>>>>>>>"
 		    	ldconfig /usr/local/lib
-			else
-		  		echo "<<<<<<<<<< PAS ICI >>>>>>>>>>>>>>>"
 			fi
 		    ## 4.4) test
 		    make ExperimentalTest
