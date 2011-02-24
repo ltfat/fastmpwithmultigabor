@@ -201,9 +201,9 @@ int main( int argc, char **argv )
 		return(-1);
     } 
 
-    dirConv->compute_IP( input, inputLen, chanIdx, &outputDir1 );
-    fftConv->compute_IP( input, inputLen, chanIdx, &outputFft1 );
-    fasConv->compute_IP( input, inputLen, chanIdx, &outputFas1 );
+    dirConv->compute_IP( input, inputLen, (unsigned short int)chanIdx, &outputDir1 );
+    fftConv->compute_IP( input, inputLen, (unsigned short int)chanIdx, &outputFft1 );
+    fasConv->compute_IP( input, inputLen, (unsigned short int)chanIdx, &outputFas1 );
 
     /* Comparison to the true result */
     dirMaxRelErr = 0.0;
