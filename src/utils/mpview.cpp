@@ -312,7 +312,7 @@ int main( int argc, char **argv )
 	else 
 	{
 		if ( MPVIEW_VERBOSE ) 
-			mp_info_msg( func, "Reading the book from file [%s]...", bookFileName );
+			mp_info_msg( func, "Reading the book from file [%s]...\n", bookFileName );
 		if ( book->load( bookFileName ) == 0 ) 
 		{
 			mp_error_msg( func, "No atoms were found in the book file [%s].\n", bookFileName );
