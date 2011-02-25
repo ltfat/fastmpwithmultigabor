@@ -219,3 +219,41 @@ else
   echo "                         diff -I 'glockenspiel' -I 'dic_mdct_two_scales' -I 'WARNING' $currentpath/log_gpd_glockenspiel.log $refsourcepath/log_gpd_glockenspiel.ref"
   exit 1
 fi
+
+#
+# check mpview
+#
+echo "=============================="
+echo "#                            #"
+echo "#      checking mpview       #"
+echo "#                            #"
+echo "=============================="
+
+if [ -f "$binpath/mpview" ]; then
+	echo "The executable file named mpview is located under : $binpath/mpview"
+else
+	echo "You should probably build mpview before running the tests..."
+	exit 1		
+fi
+
+echo "--------------------------------------------------"
+echo " mpview command to Makes a time-frequency pixmap  "
+echo "--------------------------------------------------"
+
+cmd="$binpath/mpview --verbose -C $mptkpath/path.xml $refbinpath/book/exampleBook.bin $currentpath/test_mpview.flt >& $currentpath/log_mpview.log;"
+echo $cmd
+eval $cmd
+
+echo "--------------------------------------------------"
+echo " diff command to differentiate the log files      "
+echo "--------------------------------------------------"
+
+diff -I 'exampleBook' -I 'test_mpview' -I 'WARNING' $currentpath/log_mpview.log $refsourcepath/log_mpview.ref > /dev/null 2> /dev/null
+if test $? -eq 0; then
+  echo "  mpview -- test -- The current log is similar to the reference log. Test passed successfully."
+else
+  echo "  mpview -- test ERROR -- The current log differs from the reference log."
+  echo "                       For details, execute:"
+  echo "                         diff -I 'exampleBook' -I 'test_mpview' -I 'WARNING' $currentpath/log_mpview.log $refsourcepath/log_mpview.ref"
+  exit 1
+fi
