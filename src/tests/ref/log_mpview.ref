@@ -1,0 +1,16 @@
+mptk INFO -- mpview - -------------------------------------
+mptk INFO -- mpview - MPVIEW - MATCHING PURSUIT DISPLAY    
+mptk INFO -- mpview - -------------------------------------
+mptk INFO -- mpview - The command line was:
+/Users/rleboulc/bar/bin/mpview --verbose -C /Users/rleboulc/bar/mptk/path.xml /Users/rleboulc/bar/mptk/reference/book/exampleBook.bin /Users/rleboulc/bar/current/test_mpview.flt 
+mptk INFO -- mpview - End command line.
+mptk INFO -- mpview - Displaying book [/Users/rleboulc/bar/mptk/reference/book/exampleBook.bin] to pixmap [/Users/rleboulc/bar/current/test_mpview.flt].
+mptk INFO -- mpview - Reading the book from file [/Users/rleboulc/bar/mptk/reference/book/exampleBook.bin]...
+mptk INFO -- mpview - Done.
+mptk INFO -- mpview - Initializing the pixmap...mptk INFO -- mpview - Done.
+mptk INFO -- mpview - Filling the pixmap...mptk INFO -- mpview - Done.
+mptk INFO -- mpview - Dumping the pixmap to file [/Users/rleboulc/bar/current/test_mpview.flt]...
+mptk INFO -- mpview - Done.
+mptk INFO -- mpview - The resulting pixmap has size [640 x 480] pixels and [1] channel(s).
+mptk INFO -- mpview - Have a nice day !
+ 
