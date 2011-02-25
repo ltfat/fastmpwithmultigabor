@@ -148,12 +148,12 @@ int parse_args(int argc, char **argv)
 				mp_debug_msg( MP_DEBUG_PARSE_ARGS, func, "Read config-file name [%s].\n", configFileName );
 				break;
 			case 'd':
-				mp_debug_msg(MP_DEBUG_PARSE_ARGS,  func, "mpr DEBUG -- switch -d : optarg is [%s].\n", optarg );
+				mp_debug_msg(MP_DEBUG_PARSE_ARGS,  func, "switch -d : optarg is [%s].\n", optarg );
 				if (optarg == NULL) 
 				{
-					mp_error_msg( func, "mpr error -- After switch -d/--deemp= :\n" );
-					mp_error_msg( func, "mpr error -- the argument is NULL.\n" );
-					mp_error_msg( func, "mpr error -- (Did you use --deemp without the '=' character ?).\n" );
+					mp_error_msg( func, "After switch -d/--deemp= :\n" );
+					mp_error_msg( func, "the argument is NULL.\n" );
+					mp_error_msg( func, "(Did you use --deemp without the '=' character ?).\n" );
 					fflush( stderr );
 					return( ERR_ARG );
 				}
@@ -161,57 +161,57 @@ int parse_args(int argc, char **argv)
 					MPR_DEEMP = strtod(optarg, &p);
 				if ( (p == optarg) || (*p != 0) ) 
 				{
-					mp_error_msg( func, "mpr error -- After switch -d/--deemp= :\n" );
-					mp_error_msg( func, "mpr error -- failed to convert argument [%s] to a double value.\n", optarg );
+					mp_error_msg( func, "After switch -d/--deemp= :\n" );
+					mp_error_msg( func, "failed to convert argument [%s] to a double value.\n", optarg );
 					return( ERR_ARG );
 				}
-				mp_debug_msg( MP_DEBUG_PARSE_ARGS, func, "mpr DEBUG -- Read deemp coeff [%g].\n", MPR_DEEMP );
+				mp_debug_msg( MP_DEBUG_PARSE_ARGS, func, "Read deemp coeff [%g].\n", MPR_DEEMP );
 				break;
 			case 'h':
 				usage();
 				break;
 			case 'q':
 				MPR_QUIET = MPR_TRUE;
-				mp_debug_msg( MP_DEBUG_PARSE_ARGS, func, "mpr DEBUG -- MPR_QUIET is TRUE.\n" );
+				mp_debug_msg( MP_DEBUG_PARSE_ARGS, func, "MPR_QUIET is TRUE.\n" );
 				break;
 			case 'v':
 				MPR_VERBOSE = MPR_TRUE;
-				mp_debug_msg( MP_DEBUG_PARSE_ARGS, func, "mpr DEBUG -- MPR_VERBOSE is TRUE.\n" );
+				mp_debug_msg( MP_DEBUG_PARSE_ARGS, func, "MPR_VERBOSE is TRUE.\n" );
 				break;
 			case 'V':
 				fprintf(stdout, "mpr -- Matching Pursuit library version %s -- mpr %s\n", VERSION, cvsid);
 				exit(0);
 				break;
 			default:
-				mp_error_msg( func, "mpr error -- The command line contains the unrecognized option [%s].\n", argv[optind-1] );
+				mp_error_msg( func, "The command line contains the unrecognized option [%s].\n", argv[optind-1] );
 				return( ERR_ARG );
 		} /* end switch */
 	} /* end while */
 
-	mp_debug_msg( MP_DEBUG_PARSE_ARGS, func, "mpr DEBUG -- When exiting getopt, optind is [%d].\n", optind );
-	mp_debug_msg( MP_DEBUG_PARSE_ARGS, func, "mpr DEBUG -- (argc is [%d].)\n", argc );
+	mp_debug_msg( MP_DEBUG_PARSE_ARGS, func, "When exiting getopt, optind is [%d].\n", optind );
+	mp_debug_msg( MP_DEBUG_PARSE_ARGS, func, "(argc is [%d].)\n", argc );
 
 	/* Check if some file names are following the options */
 	if ( (argc-optind) < 1 ) 
 	{
-		fprintf(stderr, "mpr error -- You must indicate a file name (or - for stdin) for the book to use.\n");
+		fprintf(stderr, "You must indicate a file name (or - for stdin) for the book to use.\n");
 		return( ERR_ARG );
 	}
 	if ( (argc-optind) < 2 ) 
 	{
-		fprintf(stderr, "mpr error -- You must indicate a file name (or - for stdout) for the rebuilt signal.\n");
+		fprintf(stderr, "You must indicate a file name (or - for stdout) for the rebuilt signal.\n");
 		return( ERR_ARG );
 	}
 
 	/* Read the file names after the options */
 	bookFileName = argv[optind++];
-	mp_debug_msg( MP_DEBUG_PARSE_ARGS, func, "mpr DEBUG -- Read book file name [%s].\n", bookFileName );
+	mp_debug_msg( MP_DEBUG_PARSE_ARGS, func, "Read book file name [%s].\n", bookFileName );
 	sigFileName = argv[optind++];
-	mp_debug_msg( MP_DEBUG_PARSE_ARGS, func, "mpr DEBUG -- Read rebuilt signal file name [%s].\n", sigFileName );
+	mp_debug_msg( MP_DEBUG_PARSE_ARGS, func, "Read rebuilt signal file name [%s].\n", sigFileName );
 	if (optind < argc) 
 	{
 		resFileName = argv[optind++];
-		mp_debug_msg( MP_DEBUG_PARSE_ARGS, func, "mpr DEBUG -- Read residual file name [%s].\n", resFileName );
+		mp_debug_msg( MP_DEBUG_PARSE_ARGS, func, "Read residual file name [%s].\n", resFileName );
 	}
 
   /***********************/
@@ -219,7 +219,7 @@ int parse_args(int argc, char **argv)
   /* Can't have quiet AND verbose (make up your mind, dude !) */
 	if ( MPR_QUIET && MPR_VERBOSE ) 
 	{
-		mp_error_msg( func, "mpr error -- Choose either one of --quiet or --verbose.\n");
+		mp_error_msg( func, "Choose either one of --quiet or --verbose.\n");
 		return( ERR_ARG );
 	}
 	return(0);
@@ -253,17 +253,18 @@ int main( int argc, char **argv )
 	/* Report */
 	if ( !MPR_QUIET ) 
 	{
-		mp_info_msg( func, "mpr msg -- -------------------------------------\n" );
-		mp_info_msg( func, "mpr msg -- MPR - MATCHING PURSUIT RECONSTRUCTION\n" );
-		mp_info_msg( func, "mpr msg -- -------------------------------------\n" );
-		mp_info_msg( func, "mpr msg -- The command line was:\n" );
+		mp_info_msg( func, "-------------------------------------\n" );
+		mp_info_msg( func, "MPR - MATCHING PURSUIT RECONSTRUCTION\n" );
+		mp_info_msg( func, "-------------------------------------\n" );
+		mp_info_msg( func, "The command line was:\n" );
 		for ( i = 0; i < argc; i++ ) 
 			fprintf( stderr, "%s ", argv[i] );
-		fprintf( stderr, "\nmpr msg -- End command line.\n" );
+		fprintf( stderr, "\n");
+		mp_info_msg( func, "End command line.\n" );
 		if ( resFileName ) 
-			fprintf( stderr, "mpr msg -- Rebuilding signal [%s] from book [%s] plus residual [%s].\n", sigFileName, bookFileName, resFileName );
+			mp_info_msg( func, "Rebuilding signal [%s] from book [%s] plus residual [%s].\n", sigFileName, bookFileName, resFileName );
 		else               
-			fprintf( stderr, "mpr msg -- Rebuilding signal [%s] from book [%s] (no residual given).\n", sigFileName, bookFileName );
+			mp_info_msg( func, "Rebuilding signal [%s] from book [%s] (no residual given).\n", sigFileName, bookFileName );
 		fflush( stderr );
 	}
   
@@ -271,7 +272,7 @@ int main( int argc, char **argv )
 	book = MP_Book_c::create();
 	if ( book == NULL ) 
 	{
-		mp_error_msg( func, "mpr error -- Can't create a new book.\n" );
+		mp_error_msg( func, "Can't create a new book.\n" );
 		fflush( stderr );
 		return( ERR_BOOK );
 	}
@@ -280,10 +281,10 @@ int main( int argc, char **argv )
 	if ( !strcmp( bookFileName, "-" ) ) 
 	{
 		if ( MPR_VERBOSE ) 
-			mp_info_msg( func, "mpr msg -- Reading the book from stdin...\n" );
+			mp_info_msg( func, "Reading the book from stdin...\n" );
 		if ( book->load(stdin) == 0 ) 
 		{
-			mp_error_msg( func, "mpr error -- No atoms were found in stdin.\n" );
+			mp_error_msg( func, "No atoms were found in stdin.\n" );
 			fflush( stderr );
 			return( ERR_BOOK );
 		}
@@ -291,10 +292,10 @@ int main( int argc, char **argv )
 	else 
 	{
     if ( MPR_VERBOSE ) 
-		mp_info_msg( func, "mpr msg -- Reading the book from file [%s]...\n", bookFileName );
+		mp_info_msg( func, "Reading the book from file [%s]...\n", bookFileName );
 		if ( book->load( bookFileName ) == 0 ) 
 		{
-			mp_error_msg( func, "mpr error -- No atoms were found in the book file [%s].\n", bookFileName );
+			mp_error_msg( func, "No atoms were found in the book file [%s].\n", bookFileName );
 			fflush( stderr );
 			return( ERR_BOOK );
 		}
@@ -308,14 +309,14 @@ int main( int argc, char **argv )
 		if ( MPR_VERBOSE ) 
 		{
 			if ( !strcmp( resFileName, "-" ) ) 
-				mp_info_msg( func, "mpr msg -- Reading the residual from stdin...\n" );
+				mp_info_msg( func, "Reading the residual from stdin...\n" );
 			else                               
-				mp_info_msg( func, "mpr msg -- Reading the residual from file [%s]...\n", resFileName );
+				mp_info_msg( func, "Reading the residual from file [%s]...\n", resFileName );
 		}
 		sig = MP_Signal_c::init( resFileName );
 		if ( sig == NULL ) 
 		{
-			mp_error_msg( func, "mpr error -- Can't read a residual signal from file [%s].\n", resFileName );
+			mp_error_msg( func, "Can't read a residual signal from file [%s].\n", resFileName );
 			fflush( stderr );
 			return( ERR_RES );
 		}
@@ -330,7 +331,7 @@ int main( int argc, char **argv )
 		sig = MP_Signal_c::init( book->numChans, book->numSamples, book->sampleRate );
 		if ( sig == NULL ) 
 		{
-			mp_error_msg( func, "mpr error -- Can't make a new signal.\n" );
+			mp_error_msg( func, "Can't make a new signal.\n" );
 			fflush( stderr );
 			return( ERR_SIG );
 		}
@@ -338,10 +339,10 @@ int main( int argc, char **argv )
 
 	/* Reconstruct in addition to the residual */
 	if ( MPR_VERBOSE ) 
-		mp_info_msg( func, "mpr msg -- Rebuilding the signal...\n" );
+		mp_info_msg( func, "Rebuilding the signal...\n" );
 	if ( book->substract_add( NULL, sig, NULL ) == 0 ) 
 	{
-		mp_error_msg( func, "mpr error -- No atoms were found in the book to rebuild the signal.\n" );
+		mp_error_msg( func, "No atoms were found in the book to rebuild the signal.\n" );
 		fflush( stderr );
 		return( ERR_BUILD );
 	}
@@ -353,7 +354,7 @@ int main( int argc, char **argv )
 	{
 		if ( MPR_VERBOSE ) 
 		{ 
-			mp_info_msg( func, "mpd msg -- De-emphasizing the signal...\n" ); 
+			mp_info_msg( func, "De-emphasizing the signal...\n" ); 
 			fflush( stderr ); 
 		}
 		sig->deemp( MPR_DEEMP );
@@ -367,13 +368,13 @@ int main( int argc, char **argv )
 	if ( MPR_VERBOSE ) 
 	{
 		if ( !strcmp( sigFileName, "-" ) ) 
-			mp_info_msg( func, "mpr msg -- Writing the rebuilt signal to stdout...\n" );
+			mp_info_msg( func, "Writing the rebuilt signal to stdout...\n" );
  		else                               
-			mp_info_msg( func, "mpr msg -- Writing the rebuilt signal to file [%s]...\n", sigFileName );
+			mp_info_msg( func, "Writing the rebuilt signal to file [%s]...\n", sigFileName );
 	}
 	if ( sig->wavwrite(sigFileName) == 0 ) 
 	{
-		mp_error_msg( func, "mpr error -- Can't write rebuilt signal to file [%s].\n", sigFileName );
+		mp_error_msg( func, "Can't write rebuilt signal to file [%s].\n", sigFileName );
 		fflush( stderr );
 		return( ERR_WRITE );
 	}
@@ -383,8 +384,8 @@ int main( int argc, char **argv )
 	/* End report */
 	if ( !MPR_QUIET ) 
 	{
-		mp_info_msg( func, "mpr msg -- The resulting signal has [%lu] samples in [%d] channels, with sample rate [%d]Hz.\n", book->numSamples, book->numChans, book->sampleRate );
-		mp_info_msg( func, "mpr msg -- Have a nice day !\n" );
+		mp_info_msg( func, "The resulting signal has [%lu] samples in [%d] channels, with sample rate [%d]Hz.\n", book->numSamples, book->numChans, book->sampleRate );
+		mp_info_msg( func, "Have a nice day !\n" );
 	}
 	fflush( stderr );
 	fflush( stdout );
