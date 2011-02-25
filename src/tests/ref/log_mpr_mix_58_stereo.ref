@@ -1,17 +1,17 @@
-mptk INFO -- mpr - mpr msg -- -------------------------------------
-mptk INFO -- mpr - mpr msg -- MPR - MATCHING PURSUIT RECONSTRUCTION
-mptk INFO -- mpr - mpr msg -- -------------------------------------
-mptk INFO -- mpr - mpr msg -- The command line was:
+mptk INFO -- mpr - -------------------------------------
+mptk INFO -- mpr - MPR - MATCHING PURSUIT RECONSTRUCTION
+mptk INFO -- mpr - -------------------------------------
+mptk INFO -- mpr - The command line was:
 /Users/rleboulc/bar/bin/mpr --verbose -C /Users/rleboulc/bar/mptk/path.xml /Users/rleboulc/bar/current/book_mix_58_stereo.bin /Users/rleboulc/bar/current/reconst_obt_mix_58_stereo.wav /Users/rleboulc/MPTKSVN/mptk/trunk/src/tests/ref/res_mix_58_stereo.wav.ref 
-mpr msg -- End command line.
-mpr msg -- Rebuilding signal [/Users/rleboulc/bar/current/reconst_obt_mix_58_stereo.wav] from book [/Users/rleboulc/bar/current/book_mix_58_stereo.bin] plus residual [/Users/rleboulc/MPTKSVN/mptk/trunk/src/tests/ref/res_mix_58_stereo.wav.ref].
-mptk INFO -- mpr - mpr msg -- Reading the book from file [/Users/rleboulc/bar/current/book_mix_58_stereo.bin]...
+mptk INFO -- mpr - End command line.
+mptk INFO -- mpr - Rebuilding signal [/Users/rleboulc/bar/current/reconst_obt_mix_58_stereo.wav] from book [/Users/rleboulc/bar/current/book_mix_58_stereo.bin] plus residual [/Users/rleboulc/MPTKSVN/mptk/trunk/src/tests/ref/res_mix_58_stereo.wav.ref].
+mptk INFO -- mpr - Reading the book from file [/Users/rleboulc/bar/current/book_mix_58_stereo.bin]...
 mptk INFO -- mpr - Done.
-mptk INFO -- mpr - mpr msg -- Reading the residual from file [/Users/rleboulc/MPTKSVN/mptk/trunk/src/tests/ref/res_mix_58_stereo.wav.ref]...
+mptk INFO -- mpr - Reading the residual from file [/Users/rleboulc/MPTKSVN/mptk/trunk/src/tests/ref/res_mix_58_stereo.wav.ref]...
 mptk INFO -- mpr - Done.
-mptk INFO -- mpr - mpr msg -- Rebuilding the signal...
+mptk INFO -- mpr - Rebuilding the signal...
 mptk INFO -- mpr - Done.
-mptk INFO -- mpr - mpr msg -- Writing the rebuilt signal to file [/Users/rleboulc/bar/current/reconst_obt_mix_58_stereo.wav]...
+mptk INFO -- mpr - Writing the rebuilt signal to file [/Users/rleboulc/bar/current/reconst_obt_mix_58_stereo.wav]...
 mptk INFO -- mpr - Done.
-mptk INFO -- mpr - mpr msg -- The resulting signal has [19200] samples in [2] channels, with sample rate [8000]Hz.
-mptk INFO -- mpr - mpr msg -- Have a nice day !
+mptk INFO -- mpr - The resulting signal has [19200] samples in [2] channels, with sample rate [8000]Hz.
+mptk INFO -- mpr - Have a nice day !
