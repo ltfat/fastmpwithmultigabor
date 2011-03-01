@@ -180,3 +180,78 @@ if ERRORLEVEL== 0 (
   echo "                         diff -b %currentpath%/log_mpf_book_mix_58_stereo.bin.log %refsourcepath%/log_mpf_book_mix_58_stereo.bin.ref"
   exit 1
 )
+
+::#
+::# check gpd
+::#
+echo "=============================="
+echo "#                            #"
+echo "#       checking gpd         #"
+echo "#                            #"
+echo "=============================="
+
+if exist "%binpath%/gpd.exe" (
+	echo "The executable file named gpd is located under : %binpath%/gpd.exe"
+) else (
+	echo "You should probably build gpd before running the tests..."
+	exit 1		
+)
+
+echo "--------------------------------------------------"
+echo " gpd command to create a book and a log           "
+echo "--------------------------------------------------"
+
+echo "%binpath%/gpd.exe --verbose -s 10 -R 10 -C %mptkpath%/path.xml -D %refbinpath%/dictionary/dic_mdct_two_scales.xml %refbinpath%/signal/glockenspiel.wav %currentpath%/book_gpd_glockenspiel.bin %currentpath%/res_gpd_glockenspiel.wav > %currentpath%/log_gpd_glockenspiel.log 2>&1"
+%binpath%/gpd.exe --verbose -s 10 -R 10 -C %mptkpath%/path.xml -D %refbinpath%/dictionary/dic_mdct_two_scales.xml %refbinpath%/signal/glockenspiel.wav %currentpath%/book_gpd_glockenspiel.bin %currentpath%/res_gpd_glockenspiel.wav > %currentpath%/log_gpd_glockenspiel.log 2>&1
+
+
+echo "--------------------------------------------------"
+echo " diff command to differentiate the log files      "
+echo "--------------------------------------------------"
+
+diff -b -I 'glockenspiel' -I 'dic_mdct_two_scales' -I 'WARNING' %currentpath%/log_gpd_glockenspiel.log %refsourcepath%/log_gpd_glockenspiel.ref > NUL 2> NUL
+if ERRORLEVEL== 0 (
+  echo "  gpd -- test -- The current log is similar to the reference log. Test passed successfully."
+) else (
+  echo "  gpd -- test ERROR -- The current log differs from the reference log."
+  echo "                       For details, execute:"
+  echo "                         diff -b -I 'glockenspiel' -I 'dic_mdct_two_scales' -I 'WARNING' %currentpath%/log_gpd_glockenspiel.log %refsourcepath%/log_gpd_glockenspiel.ref"
+  exit 1
+)
+
+::#
+::# check mpview
+::#
+echo "=============================="
+echo "#                            #"
+echo "#      checking mpview       #"
+echo "#                            #"
+echo "=============================="
+
+if exist "%binpath%/mpview.exe" (
+	echo "The executable file named mpview is located under : %binpath%/mpview.exe"
+) else (
+	echo "You should probably build mpview before running the tests..."
+	exit 1		
+)
+
+echo "--------------------------------------------------"
+echo " mpview command to Makes a time-frequency pixmap  "
+echo "--------------------------------------------------"
+
+echo "%binpath%/mpview.exe --verbose -C %mptkpath%/path.xml %refbinpath%/book/exampleBook.bin %currentpath%/test_mpview.flt > %currentpath%/log_mpview.log 2>&1"
+%binpath%/mpview.exe --verbose -C %mptkpath%/path.xml %refbinpath%/book/exampleBook.bin %currentpath%/test_mpview.flt > %currentpath%/log_mpview.log 2>&1
+
+echo "--------------------------------------------------"
+echo " diff command to differentiate the log files      "
+echo "--------------------------------------------------"
+
+diff -b -I 'exampleBook' -I 'test_mpview' -I 'WARNING' %currentpath%/log_mpview.log %refsourcepath%/log_mpview.ref > NUL 2> NUL
+if ERRORLEVEL== 0 (
+  echo "  mpview -- test -- The current log is similar to the reference log. Test passed successfully."
+) else (
+  echo "  mpview -- test ERROR -- The current log differs from the reference log."
+  echo "                       For details, execute:"
+  echo "                         diff -b -I 'exampleBook' -I 'test_mpview' -I 'WARNING' %currentpath%/log_mpview.log %refsourcepath%/log_mpview.ref"
+  exit 1
+)
