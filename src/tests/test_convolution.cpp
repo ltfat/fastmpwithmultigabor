@@ -153,7 +153,7 @@ int main( int argc, char **argv )
 		return(-1);
 	}
 
-	if ( fread ( &filterShift, sizeof(unsigned long int), 1, fid) != 1 ) 
+	if ( fread ( &filterShift, sizeof(uint32_t), 1, fid) != 1 ) 
 	{
 		mp_error_msg(func, "Cannot read the filterShift from the file [%s].\n", resFile1 );
 		fclose(fid);
@@ -262,7 +262,7 @@ int main( int argc, char **argv )
 		return(-1);
 	}
 
-	if ( fread ( &filterShift, sizeof(unsigned long int), 1, fid) != 1 ) 
+	if ( fread ( &filterShift, sizeof(uint32_t), 1, fid) != 1 ) 
 	{
 		mp_error_msg(func, "Cannot read the filterShift from the file [%s].\n", resFile2 );
 		fclose(fid);
@@ -289,7 +289,7 @@ int main( int argc, char **argv )
 		fclose(fid);
 		return(-1);
     }
-    if ( fread ( trueIdx2, sizeof(unsigned long int), numFrames, fid) != numFrames ) 
+    if ( fread ( trueIdx2, sizeof(uint32_t), numFrames, fid) != numFrames ) 
 	{
 		mp_error_msg(func, "Cannot read the [%lu] indices from the file [%s].\n", numFrames, resFile2 );
 		fclose(fid);
@@ -414,7 +414,7 @@ int main( int argc, char **argv )
 		return(-1);
 	}
 
-    if ( fread ( &filterShift, sizeof(unsigned long int), 1, fid) != 1 ) 
+    if ( fread ( &filterShift, sizeof(uint32_t), 1, fid) != 1 ) 
 	{
 		mp_error_msg(func, "Cannot read the filterShift from the file [%s].\n", resFile3 );
 		fclose(fid);
@@ -439,7 +439,7 @@ int main( int argc, char **argv )
 		fclose(fid);
 		return(-1);
     }
-    if ( fread ( trueIdx3, sizeof(unsigned long int), numFrames, fid) != numFrames ) 
+    if ( fread ( trueIdx3, sizeof(uint32_t), numFrames, fid) != numFrames ) 
 	{
 		mp_error_msg(func, "Cannot read the [%lu] indices from the file [%s].\n", numFrames, resFile3 );
 		fclose(fid);
