@@ -51,7 +51,7 @@ case $PIPOL_IMAGE in
 		    ## 4.3) install
 		    sudo make install
 			if expr $PIPOL_IMAGE : ".*linux.*"; then 
-		    	ldconfig /usr/local/lib
+		    	sudo ldconfig /usr/local/lib
 			fi
 		    ## 4.4) test
 		    make NightlyTest
