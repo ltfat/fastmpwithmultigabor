@@ -48,21 +48,21 @@ case $PIPOL_IMAGE in
 		    make NightlyConfigure
 		    ## 4.2) build
 		    make NightlyBuild
-		    ## 4.3) install
+		    ## 4.3) packaging
+		    cpack -DCPACK_OUTPUT_FILE_PATH=$PIPOL_WDIR/MPTK_Build
+		    ## 4.4) install
 		    sudo make install
 			if expr $PIPOL_IMAGE : ".*linux.*"; then 
 		    	sudo ldconfig /usr/local/lib
 			fi
-		    ## 4.4) test
+		    ## 4.5) test
 		    make NightlyTest
-		    ## 4.5) coverage
+		    ## 4.6) coverage
 		    make NightlyCoverage
-		    ## 4.6) Mem check
+		    ## 4.7) Mem check
 	   		make NightlyMemCheck
-		    ## 4.7) Submit
+		    ## 4.8) Submit
 		    make NightlySubmit
-		    ## 4.8) packaging
-		    cpack -DCPACK_OUTPUT_FILE_PATH=$PIPOL_WDIR/MPTK_Build
 		    ## 4.9) copying
 			cp $PIPOL_WDIR/MPTK_Build/MPTK-binary-* $PIPOL_HOMEDIR/packages/
 		}; cd -
