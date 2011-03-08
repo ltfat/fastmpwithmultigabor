@@ -29,9 +29,9 @@ INCLUDE(${MPTK_SOURCE_DIR}/CMake/CMakeGenerateMPTKHeader.cmake)
 #Set the list of header files
 #------------------------------------------------
 SET(HEADER_FILE 
-    ${CMAKE_SOURCE_DIR}/src/libmptk/mp_types.h 
+  	${CMAKE_SOURCE_DIR}/src/libmptk/mp_types.h 
 	${CMAKE_SOURCE_DIR}/src/libmptk/mp_messaging.h   
-    ${CMAKE_SOURCE_DIR}/src/libmptk/dll.h     
+  	${CMAKE_SOURCE_DIR}/src/libmptk/dll.h     
 	${CMAKE_SOURCE_DIR}/src/libmptk/win_server.h        
 	${CMAKE_SOURCE_DIR}/src/libmptk/fft_interface.h     
 	${CMAKE_SOURCE_DIR}/src/libmptk/dct_interface.h     
