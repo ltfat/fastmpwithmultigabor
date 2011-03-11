@@ -275,9 +275,16 @@ switch(op)
         warningMsg = '';
         % Find which parameters have been set
         for i=1:numParams
-            name      = get(H_PARAM(i).name,'String');
-            value      = get(H_PARAM(i).value,'String');
-            usedefault = get(H_PARAM(i).default,'value');
+            name		= get(H_PARAM(i).name,'String');
+			type		= get(H_PARAM(i).value,'Style');
+			if strcmp(type,'popupmenu')
+				valueList		= get(H_PARAM(i).value,'String');
+				valueListIndex	= get(H_PARAM(i).value,'Value');
+				value			= valueList{valueListIndex};
+			else
+				value		= get(H_PARAM(i).value,'String');
+			end
+            usedefault	= get(H_PARAM(i).default,'value');
 	    % Each parameter must have been specified as either the default or a user chose value
             if((~usedefault) && (length(value)==0))
 	        warningMsg = ['Please fill in parameter "' name '".'];
@@ -407,15 +414,14 @@ switch(op)
                      'String',paramDefaultStr{i},...
                      'Position',paramFillPos);
              elseif strcmp(paramNameStr{i},'windowtype')
-                 for i=1:length(mptkinfo.windows)
-                     popupStr{i} = mptkinfo.windows(i).type;
-                 end
-                 H_PARAM(i).value = uicontrol( ...
+				for l = 1:length(mptkinfo.windows)
+					popupStr{l} = mptkinfo.windows(l).type;
+				end
+				H_PARAM(i).value = uicontrol( ...
                      'Style','popupmenu', ...
                      'Units','normalized', ...
                      'BackgroundColor',fgcolor,...
                      'String',popupStr,...
-                     'Value',1,...
                      'Position',paramFillPos);
              elseif strcmp(paramNameStr{i},'tableFileName')
                  H_PARAM(i).value = uicontrol( ...
