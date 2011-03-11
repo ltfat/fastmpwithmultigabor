@@ -203,10 +203,12 @@ ENDIF(UNIX)
 #--------------------------
 SET(MPTK_DEFAULT_GABORDICT_FILENAME dictionary/dic_gabor_two_scales.xml)
 SET(MPTK_DEFAULT_MDCTDICT_FILENAME dictionary/dic_mdct_two_scales.xml)
+SET(MPTK_DEFAULT_DIRAC_FILENAME dictionary/dic_dirac.xml)
+SET(MPTK_DEFAULT_CHIRP_FILENAME dictionary/dic_chirp.xml)
 # Useful for Matlab script test
 SET(MPTK_DEFAULT_GABORDICT_FILENAMEBIS dictionary/dic_gabor_two_scalesBis.xml)
 
-SET(DictionaryList GABORDICT MDCTDICT)
+SET(DictionaryList GABORDICT MDCTDICT DIRAC CHIRP)
 FOREACH(defaultDict ${DictionaryList})
 	SET(MPTK_DEFAULT_${defaultDict}_FILE          ${MPTK_REFERENCE_PATH}/${MPTK_DEFAULT_${defaultDict}_FILENAME})
 	SET(MPTK_DEFAULT_${defaultDict}_FILE_INSTALL  ${MPTK_REFERENCE_PATH_INSTALL}/${MPTK_DEFAULT_${defaultDict}_FILENAME})
