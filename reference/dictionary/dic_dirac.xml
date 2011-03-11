@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<dict>
+    <libVersion>0.6.0</libVersion>
+    <block>
+        <param name="type" value="dirac" />
+    </block>
+</dict>
