@@ -187,7 +187,7 @@ unsigned long int MP_TF_Map_c::dump_to_file( const char *fName , char flagUpside
 	MP_Tfmap_t *endStorage = storage + ( numChans*numCols*numRows );
 
 	// Open the file in write mode
-	if ( ( fid = fopen( fName, "w" ) ) == NULL ) 
+	if ( ( fid = fopen( fName, "wb" ) ) == NULL ) 
 	{
 		mp_error_msg( func, "Can't open file [%s] for writing a tfmap.\n", fName );
 		return( 0 );
