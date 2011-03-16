@@ -143,9 +143,9 @@ while (quitTutorial == 0)
 			disp('Each of them is a description of a dictionary, and can be loaded into Matlab using:');
 			disp('   dict = dictread(filename)')
 			disp('For example let us try');
-			disp(['   dict = dictread(''' mptkInfo.path.reference '/@MPTK_DEFAULT_GABORDICT_FILENAME@'')']);
+			disp(['   dict = dictread(''' mptkInfo.path.reference '/dictionary/@MPTK_DEFAULT_GABORDICT_FILENAME@'')']);
 			disp('(press enter to continue)');pause;
-			dict = dictread([mptkInfo.path.reference '/@MPTK_DEFAULT_GABORDICT_FILENAME@'])
+			dict = dictread([mptkInfo.path.reference '/dictionary/@MPTK_DEFAULT_GABORDICT_FILENAME@'])
 			disp('Similarly, a dictionary stored as a variable in Matlab can be written to a file using');
 			disp('   dictwrite(dict,filename)')
 			disp('The dictionary we have just read contains two ''blocks'' that happen to describe large collections');

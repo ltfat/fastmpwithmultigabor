@@ -36,8 +36,8 @@ if exist('@MPTK_BINARY_DIR@/mptk/reference/@MPTK_EXAMPLE_SIGNAL_FILENAME@') == 0
 end
 
 disp('... Verifying the presence of the dictionary example...');
-if exist('@MPTK_BINARY_DIR@/mptk/reference/@MPTK_DEFAULT_GABORDICT_FILENAME@') == 0
-	disp('Error : The following dictionary example file does not exist : @MPTK_BINARY_DIR@/mptk/reference/@MPTK_DEFAULT_GABORDICT_FILENAME@')
+if exist('@MPTK_BINARY_DIR@/mptk/reference/dictionary/@MPTK_DEFAULT_GABORDICT_FILENAME@') == 0
+	disp('Error : The following dictionary example file does not exist : @MPTK_BINARY_DIR@/mptk/reference/dictionary/@MPTK_DEFAULT_GABORDICT_FILENAME@')
 	exit;
 end
 
@@ -50,7 +50,7 @@ catch err
 end
 
 try
-	dict = dictread('@MPTK_BINARY_DIR@/mptk/reference/@MPTK_DEFAULT_GABORDICT_FILENAME@')
+	dict = dictread('@MPTK_BINARY_DIR@/mptk/reference/dictionary/@MPTK_DEFAULT_GABORDICT_FILENAME@')
 catch err
 	disp('Error during the "dictread" test')
 	exit;

@@ -199,30 +199,11 @@ ENDIF(UNIX)
 # Setting DEFAULT REFERENCE FILES
 ##############################################################################
 #--------------------------
-# Copy dictionary files
-#--------------------------
-SET(MPTK_DEFAULT_GABORDICT_FILENAME dictionary/dic_gabor_two_scales.xml)
-SET(MPTK_DEFAULT_MDCTDICT_FILENAME dictionary/dic_mdct_two_scales.xml)
-SET(MPTK_DEFAULT_DIRAC_FILENAME dictionary/dic_dirac.xml)
-SET(MPTK_DEFAULT_CHIRP_FILENAME dictionary/dic_chirp.xml)
-# Useful for Matlab script test
-SET(MPTK_DEFAULT_GABORDICT_FILENAMEBIS dictionary/dic_gabor_two_scalesBis.xml)
-
-SET(DictionaryList GABORDICT MDCTDICT DIRAC CHIRP)
-FOREACH(defaultDict ${DictionaryList})
-	SET(MPTK_DEFAULT_${defaultDict}_FILE          ${MPTK_REFERENCE_PATH}/${MPTK_DEFAULT_${defaultDict}_FILENAME})
-	SET(MPTK_DEFAULT_${defaultDict}_FILE_INSTALL  ${MPTK_REFERENCE_PATH_INSTALL}/${MPTK_DEFAULT_${defaultDict}_FILENAME})
-	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/${MPTK_DEFAULT_${defaultDict}_FILENAME} ${MPTK_DEFAULT_${defaultDict}_FILE} COPYONLY)
-	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/${MPTK_DEFAULT_${defaultDict}_FILENAME}  ${MPTK_BINARY_DIR}/install/mptk/reference/${MPTK_DEFAULT_${defaultDict}_FILENAME} COPYONLY)
-ENDFOREACH(defaultDict)
-
-#--------------------------
 # Copy default other files
 #--------------------------
 SET(MPTK_DEFAULT_MIXER_FILENAME  mixer/mix_58_mixer.txt)
-SET(MPTK_DEFAULT_ANYWAVETABLE_DATA_FILENAME wavetable/defaultWaveTableData.bin)
 
-FOREACH(defaultOther MIXER ANYWAVETABLE_DATA)
+FOREACH(defaultOther MIXER )
 	SET(MPTK_DEFAULT_${defaultOther}_FILE          ${MPTK_REFERENCE_PATH}/${MPTK_DEFAULT_${defaultOther}_FILENAME})
 	SET(MPTK_DEFAULT_${defaultOther}_FILE_INSTALL  ${MPTK_REFERENCE_PATH_INSTALL}/${MPTK_DEFAULT_${defaultOther}_FILENAME})
 	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/${MPTK_DEFAULT_${defaultOther}_FILENAME} ${MPTK_DEFAULT_${defaultOther}_FILE} COPYONLY)
@@ -249,19 +230,56 @@ FOREACH(example BOOK SIGNAL STEREOSIGNAL)
 	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/${MPTK_EXAMPLE_${example}_FILENAME}  ${MPTK_BINARY_DIR}/install/mptk/reference/${MPTK_EXAMPLE_${example}_FILENAME} COPYONLY)
 ENDFOREACH(example)
 
-#--------------------------
-# Generated default files
+# ----------------------------
+# Configure AnywaveTable files
+# ----------------------------
+SET(MPTK_DEFAULT_ANYWAVETABLE_FILENAME wavetable/defaultWaveTable.xml)
+SET(MPTK_DEFAULT_ANYWAVETABLE_DATA_FILENAME wavetable/defaultWaveTableData.bin)
+CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/${MPTK_DEFAULT_ANYWAVETABLE_DATA_FILENAME} ${MPTK_REFERENCE_PATH}/${MPTK_DEFAULT_ANYWAVETABLE_DATA_FILENAME} COPYONLY)
+CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/${MPTK_DEFAULT_ANYWAVETABLE_DATA_FILENAME} ${MPTK_BINARY_DIR}/install/mptk/reference/${MPTK_DEFAULT_ANYWAVETABLE_DATA_FILENAME} COPYONLY)
+SET(MPTK_DEFAULT_ANYWAVETABLE_DATA_FILE ${MPTK_REFERENCE_PATH}/${MPTK_DEFAULT_ANYWAVETABLE_DATA_FILENAME})
+SET(MPTK_DEFAULT_ANYWAVETABLE_DATA_FILE_INSTALL ${MPTK_REFERENCE_PATH_INSTALL}/${MPTK_DEFAULT_ANYWAVETABLE_DATA_FILENAME})
+CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/${MPTK_DEFAULT_ANYWAVETABLE_FILENAME}.in ${MPTK_REFERENCE_PATH}/${MPTK_DEFAULT_ANYWAVETABLE_FILENAME} @ONLY)
+CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/${MPTK_DEFAULT_ANYWAVETABLE_FILENAME}.install ${MPTK_BINARY_DIR}/install/mptk/reference/${MPTK_DEFAULT_ANYWAVETABLE_FILENAME} @ONLY)
+SET(MPTK_DEFAULT_ANYWAVETABLE_FILE ${MPTK_REFERENCE_PATH}/${MPTK_DEFAULT_ANYWAVETABLE_FILENAME})
+SET(MPTK_DEFAULT_ANYWAVETABLE_FILE_INSTALL ${MPTK_REFERENCE_PATH_INSTALL}/${MPTK_DEFAULT_ANYWAVETABLE_FILENAME})
+
+#----------------------------------------------------
+# Retrieving automatically the dictionaries and copy
+#----------------------------------------------------
+FILE(GLOB DICT_PATHS "${MPTK_SOURCE_DIR}/reference/dictionary/dic_*.xml*")
+FOREACH(dictcount ${DICT_PATHS})
+	GET_FILENAME_COMPONENT(DICT_FILE_NAME ${dictcount} NAME_WE)
+	GET_FILENAME_COMPONENT(DICT_FILE_EXT ${dictcount} EXT)
+	IF(${DICT_FILE_EXT} STREQUAL ".xml.in")
+		CONFIGURE_FILE(${dictcount} ${MPTK_REFERENCE_PATH}/dictionary/${DICT_FILE_NAME}.xml @ONLY)
+		SET(MPTK_DEFAULT_ANYWAVEDICT_FILE ${MPTK_REFERENCE_PATH}/dictionary/${DICT_FILE_NAME}.xml)
+		SET(dictcountCompil ${dictcountCompil} ${MPTK_REFERENCE_PATH}/dictionary/${DICT_FILE_NAME}.xml)
+	ELSEIF(${DICT_FILE_EXT} STREQUAL ".xml.install")
+		CONFIGURE_FILE(${dictcount} ${MPTK_BINARY_DIR}/install/mptk/reference/dictionary/${DICT_FILE_NAME}.xml @ONLY)
+		SET(MPTK_DEFAULT_ANYWAVEDICT_FILE_INSTALL ${MPTK_REFERENCE_PATH_INSTALL}/dictionary/${DICT_FILE_NAME}.xml)
+		SET(dictcountInstall ${dictcountInstall} ${MPTK_BINARY_DIR}/install/mptk/reference/dictionary/${DICT_FILE_NAME}.xml)
+	ELSE()
+		CONFIGURE_FILE(${dictcount} ${MPTK_REFERENCE_PATH}/dictionary/${DICT_FILE_NAME}${DICT_FILE_EXT} COPYONLY)
+		CONFIGURE_FILE(${dictcount} ${MPTK_BINARY_DIR}/install/mptk/reference/dictionary/${DICT_FILE_NAME}${DICT_FILE_EXT} COPYONLY)
+		SET(dictcountCompil ${dictcountCompil} ${MPTK_REFERENCE_PATH}/dictionary/${DICT_FILE_NAME}${DICT_FILE_EXT})
+		SET(dictcountInstall ${dictcountInstall} ${MPTK_BINARY_DIR}/install/mptk/reference/dictionary/${DICT_FILE_NAME}${DICT_FILE_EXT})
+	ENDIF()
+	IF(${dictcount} MATCHES "gabor")
+		SET(MPTK_DEFAULT_GABORDICT_FILE ${MPTK_REFERENCE_PATH}/dictionary/${DICT_FILE_NAME}${DICT_FILE_EXT})
+		SET(MPTK_DEFAULT_GABORDICT_FILE_INSTALL ${MPTK_REFERENCE_PATH_INSTALL}/dictionary/${DICT_FILE_NAME}${DICT_FILE_EXT})
+		SET(MPTK_DEFAULT_GABORDICT_FILENAME ${DICT_FILE_NAME}${DICT_FILE_EXT})
+	ENDIF(${dictcount} MATCHES "gabor")
+ENDFOREACH(dictcount)
+
+# --------------------------
+# Configure DictList file
 # --------------------------
 SET(MPTK_DEFAULT_DICT_LIST_FILENAME  dictionary/dict-list.txt)
-SET(MPTK_DEFAULT_ANYWAVETABLE_FILENAME wavetable/defaultWaveTable.xml)
-SET(MPTK_DEFAULT_ANYWAVEDICT_FILENAME dictionary/dic_anywave.xml)
-
-FOREACH(default DICT_LIST ANYWAVETABLE ANYWAVEDICT)
-	SET(MPTK_DEFAULT_${default}_FILE          ${MPTK_REFERENCE_PATH}/${MPTK_DEFAULT_${default}_FILENAME})
-	SET(MPTK_DEFAULT_${default}_FILE_INSTALL  ${MPTK_REFERENCE_PATH_INSTALL}/${MPTK_DEFAULT_${default}_FILENAME})
-	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/${MPTK_DEFAULT_${default}_FILENAME}.in ${MPTK_DEFAULT_${default}_FILE} @ONLY)
-	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/${MPTK_DEFAULT_${default}_FILENAME}.install ${MPTK_BINARY_DIR}/install/mptk/reference/${MPTK_DEFAULT_${default}_FILENAME} @ONLY)
-ENDFOREACH(default)
+CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/${MPTK_DEFAULT_DICT_LIST_FILENAME}.in ${MPTK_REFERENCE_PATH}/${MPTK_DEFAULT_DICT_LIST_FILENAME} @ONLY)
+CONFIGURE_FILE(${MPTK_SOURCE_DIR}/reference/${MPTK_DEFAULT_DICT_LIST_FILENAME}.install ${MPTK_BINARY_DIR}/install/mptk/reference/${MPTK_DEFAULT_DICT_LIST_FILENAME} @ONLY)
+SET(MPTK_DEFAULT_DICT_LIST_FILE ${MPTK_REFERENCE_PATH}/${MPTK_DEFAULT_DICT_LIST_FILENAME})
+SET(MPTK_DEFAULT_DICT_LIST_FILE_INSTALL ${MPTK_REFERENCE_PATH_INSTALL}/${MPTK_DEFAULT_DICT_LIST_FILENAME})
 
 ##############################################################################
 # Depending on compiler+IDE (Make/Xcode/Visual), need to specify postfix for build type
@@ -535,12 +553,12 @@ IF(BUILD_TESTING)
 	ADD_TEST(COMPIL_BEHAVIOUR_IN_NOISE, ${MPTK_BINARY_DIR}/bin/test_behaviour_in_noise  ${MPTK_BINARY_DIR}/mptk/path.xml)
 	ADD_TEST(COMPIL_CONVOLUTION, ${MPTK_BINARY_DIR}/bin/test_convolution ${MPTK_BINARY_DIR}/mptk/path.xml)
 	ADD_TEST(COMPIL_FFT, ${MPTK_BINARY_DIR}/bin/test_fft ${MPTK_BINARY_DIR}/mptk/path.xml)
-	ADD_TEST(COMPIL_GPD, ${MPTK_BINARY_DIR}/bin/gpd -C ${MPTK_BINARY_DIR}/mptk/path.xml -D ${MPTK_DEFAULT_MDCTDICT_FILE} -n 10 ${MPTK_REFERENCE_PATH}/signal/glockenspiel.wav ${MPTK_TMP_PATH}/test_gpd.bin)
 	ADD_TEST(COMPIL_MESSAGE, ${MPTK_BINARY_DIR}/bin/test_messaging)
-	FOREACH(defaultDict ${DictionaryList})
-		ADD_TEST(COMPIL_MPD_${defaultDict}, ${MPTK_BINARY_DIR}/bin/mpd -C ${MPTK_BINARY_DIR}/mptk/path.xml -D ${MPTK_DEFAULT_${defaultDict}_FILE} -n 10 ${MPTK_REFERENCE_PATH}/signal/glockenspiel.wav ${MPTK_TMP_PATH}/test_mpd${defaultDict}.bin)
+	FOREACH(defaultDict ${dictcountCompil})
+		GET_FILENAME_COMPONENT(DICT_FILE_NAME ${defaultDict} NAME_WE)
+		ADD_TEST(COMPIL_MPD_${DICT_FILE_NAME}, ${MPTK_BINARY_DIR}/bin/mpd -C ${MPTK_BINARY_DIR}/mptk/path.xml -D ${defaultDict} -n 10 ${MPTK_REFERENCE_PATH}/signal/glockenspiel.wav ${MPTK_TMP_PATH}/test_mpd${DICT_FILE_NAME}.bin)
+		ADD_TEST(COMPIL_GPD_${DICT_FILE_NAME}, ${MPTK_BINARY_DIR}/bin/gpd -C ${MPTK_BINARY_DIR}/mptk/path.xml -D ${defaultDict} -n 10 ${MPTK_REFERENCE_PATH}/signal/glockenspiel.wav ${MPTK_TMP_PATH}/test_gpd${DICT_FILE_NAME}.bin)
 	ENDFOREACH(defaultDict)
-	ADD_TEST(COMPIL_MPD_ANYWAVEDICT, ${MPTK_BINARY_DIR}/bin/mpd -C ${MPTK_BINARY_DIR}/mptk/path.xml -D ${MPTK_DEFAULT_ANYWAVEDICT_FILE} -n 10 ${MPTK_REFERENCE_PATH}/signal/glockenspiel.wav ${MPTK_TMP_PATH}/test_mpdanywave.bin)
 	ADD_TEST(COMPIL_MPD_DEMIX, ${MPTK_BINARY_DIR}/bin/mpd_demix -C ${MPTK_BINARY_DIR}/mptk/path.xml -D ${MPTK_DEFAULT_DICT_LIST_FILE} -M ${MPTK_DEFAULT_MIXER_FILE} -n 10 ${MPTK_EXAMPLE_STEREOSIGNAL_FILE} ${MPTK_TMP_PATH}/test_demix.bin)	
 	ADD_TEST(COMPIL_MPF, ${MPTK_BINARY_DIR}/bin/mpf -C ${MPTK_BINARY_DIR}/mptk/path.xml --Freq=[0:110] --len=[0:256] ${MPTK_EXAMPLE_BOOK_FILE} ${MPTK_TMP_PATH}/test_mpf_bookYes.bin ${MPTK_TMP_PATH}/test_mpf_bookNo.bin)
 	ADD_TEST(COMPIL_MPR, ${MPTK_BINARY_DIR}/bin/mpr -C ${MPTK_BINARY_DIR}/mptk/path.xml ${MPTK_EXAMPLE_BOOK_FILE} ${MPTK_TMP_PATH}/test_mpr.wav)
@@ -549,11 +567,11 @@ IF(BUILD_TESTING)
 	ADD_TEST(COMPIL_SCRIPT_EXEC, ${MPTK_BINARY_DIR}/bin/script/TestExecCycle${BATCHEXT})
 	ADD_TEST(COMPIL_TEST_MP, ${MPTK_BINARY_DIR}/bin/test_mp  ${MPTK_BINARY_DIR}/mptk/path.xml)
 
-	ADD_TEST(INSTALL_GPD, ${CMAKE_INSTALL_PREFIX}/bin/gpd -C ${CMAKE_INSTALL_PREFIX}/mptk/path.xml -D ${MPTK_DEFAULT_MDCTDICT_FILE} -n 10 ${MPTK_REFERENCE_PATH}/signal/glockenspiel.wav ${MPTK_TMP_PATH}/test_gpd.bin)
-	FOREACH(defaultDict ${DictionaryList})
-		ADD_TEST(INSTALL_MPD_${defaultDict}, ${CMAKE_INSTALL_PREFIX}/bin/mpd -C ${CMAKE_INSTALL_PREFIX}/mptk/path.xml -D ${MPTK_DEFAULT_${defaultDict}_FILE} -n 10 ${MPTK_REFERENCE_PATH}/signal/glockenspiel.wav ${MPTK_TMP_PATH}/test_mpd${defaultDict}.bin)
+	FOREACH(defaultDict ${dictcountInstall})
+		GET_FILENAME_COMPONENT(DICT_FILE_NAME ${defaultDict} NAME_WE)
+		ADD_TEST(INSTALL_MPD_${DICT_FILE_NAME}, ${CMAKE_INSTALL_PREFIX}/bin/mpd -C ${CMAKE_INSTALL_PREFIX}/mptk/path.xml -D ${defaultDict} -n 10 ${MPTK_REFERENCE_PATH}/signal/glockenspiel.wav ${MPTK_TMP_PATH}/test_mpd${DICT_FILE_NAME}.bin)
+		ADD_TEST(INSTALL_GPD_${DICT_FILE_NAME}, ${CMAKE_INSTALL_PREFIX}/bin/gpd -C ${CMAKE_INSTALL_PREFIX}/mptk/path.xml -D ${defaultDict} -n 10 ${MPTK_REFERENCE_PATH}/signal/glockenspiel.wav ${MPTK_TMP_PATH}/test_gpd${DICT_FILE_NAME}.bin)
 	ENDFOREACH(defaultDict)
-	ADD_TEST(INSTALL_MPD_ANYWAVEDICT, ${CMAKE_INSTALL_PREFIX}/bin/mpd -C ${CMAKE_INSTALL_PREFIX}/mptk/path.xml -D ${MPTK_DEFAULT_ANYWAVEDICT_FILE} -n 10 ${MPTK_REFERENCE_PATH}/signal/glockenspiel.wav ${MPTK_TMP_PATH}/test_mpdanywave.bin)
 	ADD_TEST(INSTALL_MPD_DEMIX, ${CMAKE_INSTALL_PREFIX}/bin/mpd_demix -C ${CMAKE_INSTALL_PREFIX}/mptk/path.xml -D ${MPTK_DEFAULT_DICT_LIST_FILE} -M ${MPTK_DEFAULT_MIXER_FILE} -n 10 ${MPTK_EXAMPLE_STEREOSIGNAL_FILE} ${MPTK_TMP_PATH}/test_demix.bin)	
 	ADD_TEST(INSTALL_MPF, ${CMAKE_INSTALL_PREFIX}/bin/mpf -C ${CMAKE_INSTALL_PREFIX}/mptk/path.xml --Freq=[0:110] --len=[0:256] ${MPTK_EXAMPLE_BOOK_FILE} ${MPTK_TMP_PATH}/test_mpf_bookYes.bin ${MPTK_TMP_PATH}/test_mpf_bookNo.bin)
 	ADD_TEST(INSTALL_MPR, ${CMAKE_INSTALL_PREFIX}/bin/mpr -C ${CMAKE_INSTALL_PREFIX}/mptk/path.xml ${MPTK_EXAMPLE_BOOK_FILE} ${MPTK_TMP_PATH}/test_mpr.wav)
