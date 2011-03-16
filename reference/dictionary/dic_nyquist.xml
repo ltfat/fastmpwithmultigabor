@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<dict>
+    <libVersion>0.6.0</libVersion>
+    <block>
+        <param name="type" value="nyquist" />
+        <param name="windowLen" value="64" />
+        <param name="windowShift" value="512" />
+    </block>
+    <block>
+        <param name="type" value="nyquist" />
+        <param name="windowLen" value="256" />
+        <param name="windowShift" value="512" />
+    </block>
+    <block>
+        <param name="type" value="nyquist" />
+        <param name="windowLen" value="1024" />
+        <param name="windowShift" value="512" />
+    </block>
+    <block>
+        <param name="type" value="nyquist" />
+        <param name="windowLen" value="16384" />
+        <param name="windowShift" value="512" />
+    </block>
+</dict>
