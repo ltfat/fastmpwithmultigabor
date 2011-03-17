@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<dict>
+    <libVersion>0.6.0</libVersion>
+    <block>
+        <param name="blockOffset" value="0" />
+        <param name="type" value="constant" />
+        <param name="windowLen" value="1024" />
+        <param name="windowShift" value="512" />
+    </block>
+</dict>
