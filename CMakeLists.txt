@@ -400,7 +400,8 @@ ADD_SUBDIRECTORY (src/matlab)
 # Go to compile python Files
 ADD_SUBDIRECTORY (src/python)
 # Go to compile mptk plugin
-ADD_SUBDIRECTORY (src/plugin)
+ADD_SUBDIRECTORY (src/plugin/base)
+ADD_SUBDIRECTORY (src/plugin/contrib)
 
 # Compile the executable if requested by the end-user
 IF(BUILD_EXECUTABLE)
