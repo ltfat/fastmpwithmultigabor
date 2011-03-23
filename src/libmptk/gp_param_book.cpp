@@ -151,8 +151,12 @@ GP_Param_Book_c* GP_Param_Book_c::get_range_book(unsigned long int minPos,
 void GP_Param_Book_c::reset(void){
 	paramBookMap::iterator end(paramBookMap::end());
 	for(paramBookMap::iterator iter(paramBookMap::begin());iter!=end;iter++)
+	{
+		if (iter->first)
+			delete(iter->first);
 		if (iter->second)
 			delete(iter->second);
+	}
 	clear();
 }
 
