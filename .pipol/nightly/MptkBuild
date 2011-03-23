@@ -1,12 +1,12 @@
 #!/bin/bash
  
-#PIPOL ubuntu-hardy 1:00 
-#PIPOL ubuntu-intrepid 1:00 
-#PIPOL ubuntu-jaunty 1:00 
-#PIPOL ubuntu-karmic 1:00 
-#PIPOL ubuntu-lucid 1:00 
-#PIPOL debian-lenny 1:00 
-#PIPOL fedora 3:00 
+#PIPOL ubuntu-hardy 3:00 
+#PIPOL ubuntu-intrepid 3:00 
+#PIPOL ubuntu-jaunty 3:00 
+#PIPOL ubuntu-karmic 3:00 
+#PIPOL ubuntu-lucid 3:00 
+#PIPOL debian-lenny 3:00 
+#PIPOL fedora 4:00 
 #PIPOL windows 3:00 --root
 #PIPOL mac 3:00
 
