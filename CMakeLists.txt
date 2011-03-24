@@ -295,23 +295,22 @@ IF(WIN32)
 		SET(MPTK_DEBUG_RELEASE "release")
 		SET(MPTK_LIB_DIR ${MPTK_BINARY_DIR}/lib/release)
     ENDIF (BUILD_DEBUG)
+	SET(MPTK_LIB_DIR_INSTALL ${CMAKE_INSTALL_PREFIX}/mptk/plugins)
 ELSE(WIN32)
-  # Case of Xcode
-  IF( CMAKE_GENERATOR STREQUAL "Xcode")
-    # We would like to select a single build mode, would we ?
-    # or to select it dynamically there is the CMAKE_CFG_INTDIR stuff
-    IF (BUILD_DEBUG)
-    	SET(MPTK_LIB_DIR ${MPTK_BINARY_DIR}/lib/Debug)
-    	SET(MPTK_LIB_DIR_INSTALL ${CMAKE_INSTALL_PREFIX}/lib)
-    ELSE (BUILD_DEBUG)
-    	SET(MPTK_LIB_DIR ${MPTK_BINARY_DIR}/lib/Release)
-    	SET(MPTK_LIB_DIR_INSTALL ${CMAKE_INSTALL_PREFIX}/lib)
-    ENDIF (BUILD_DEBUG)
-  ELSE( CMAKE_GENERATOR STREQUAL "Xcode")
-    # Generic case
-    SET(MPTK_LIB_DIR ${MPTK_BINARY_DIR}/lib)
-    SET(MPTK_LIB_DIR_INSTALL ${CMAKE_INSTALL_PREFIX}/lib)
-  ENDIF(CMAKE_GENERATOR STREQUAL "Xcode") 
+	# Case of Xcode
+	IF( CMAKE_GENERATOR STREQUAL "Xcode")
+    	# We would like to select a single build mode, would we ?
+	    # or to select it dynamically there is the CMAKE_CFG_INTDIR stuff
+	    IF (BUILD_DEBUG)
+    		SET(MPTK_LIB_DIR ${MPTK_BINARY_DIR}/lib/Debug)
+	    ELSE (BUILD_DEBUG)
+    		SET(MPTK_LIB_DIR ${MPTK_BINARY_DIR}/lib/Release)
+	    ENDIF (BUILD_DEBUG)
+	ELSE( CMAKE_GENERATOR STREQUAL "Xcode")
+	    # Generic case
+	    SET(MPTK_LIB_DIR ${MPTK_BINARY_DIR}/lib)
+	ENDIF(CMAKE_GENERATOR STREQUAL "Xcode") 
+    SET(MPTK_LIB_DIR_INSTALL ${CMAKE_INSTALL_PREFIX}/mptk/plugins)
 ENDIF(WIN32)
 
 #------------------
@@ -428,8 +427,11 @@ INSTALL(FILES ${MPTK_BINARY_DIR}/install/include/mptk.h DESTINATION include)
 # --------------------------------
 # setting path configuration file
 # --------------------------------
-CONFIGURE_FILE(${MPTK_SOURCE_DIR}/path.xml.in ${MPTK_BINARY_DIR}/mptk/path.xml @ONLY)
-CONFIGURE_FILE(${MPTK_SOURCE_DIR}/path.xml.install ${MPTK_BINARY_DIR}/install/path.xml @ONLY)
+SET(ADDINSTALL "")
+CONFIGURE_FILE(${MPTK_SOURCE_DIR}/path.xml.in ${MPTK_BINARY_DIR}/mptk/path.xml)
+SET(ADDINSTALL "_INSTALL")
+CONFIGURE_FILE(${MPTK_SOURCE_DIR}/path.xml.in ${MPTK_BINARY_DIR}/install/path.xml)
+SET(ADDINSTALL "")
 INSTALL(FILES ${MPTK_BINARY_DIR}/install/path.xml DESTINATION mptk)
 
 ##############################################################################

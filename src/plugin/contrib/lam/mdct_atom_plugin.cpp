@@ -241,33 +241,9 @@ int MP_Mdct_Atom_Plugin_c::write( FILE *fid, const char mode )
 /* OTHER METHODS           */
 /***************************/
 
-///** Get the identifying parameters of the block to use with sorted books
-//  */
-//
-//map<string, string, mp_ltstring>* MP_Mdct_Atom_Plugin_c::get_block_param( void ){
-//    char buffer[100];
-//    map<string, string, mp_ltstring>* res = new map<string, string, mp_ltstring>;
-//
-//    res->insert(pair<const string,string>(string("name"), string("mdct")));
-//
-//    sprintf(buffer,"%lu",support[0].len);
-//    res->insert(pair<const string,string>(string("filterLen"), string(buffer)));
-//
-//    sprintf(buffer,"%c",windowType);
-//    res-> insert(pair<const string,string>(string("windowType"), string(buffer)));
-//
-//    sprintf(buffer, "%f", windowOption);
-//    res->insert(pair<const string,string>(string("windowOption"), string(buffer)));
-//
-//    return res;
-//}
-   
-/** Get the identifying parameters of the atom inside a block to use with sorted books
-   */
-    
+/** Get the identifying parameters of the atom inside a block to use with sorted books */
 MP_Atom_Param_c* MP_Mdct_Atom_Plugin_c::get_atom_param( void )const{
-  //cerr << "Mdct_atom->get_atom_param\t" << "freq = " << freq << endl;
-  return new MP_Freq_Atom_Param_c(freq);
+	return new MP_Freq_Atom_Param_c(freq);
 }
 
 

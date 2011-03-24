@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <configpath>
-	<path name="dll_directory" path="@MPTK_LIB_DIR@" />
-	<path name="fftw_wisdomfile" path="@MPTK_FFTW_WISDOM_FILE@"/>
-	<path name="reference" path="@MPTK_REFERENCE_PATH@"/>
-	<path name="tmp" path="@MPTK_TMP_PATH@"/>
-	<path name="defaultDict" path="@MPTK_DEFAULT_GABORDICT_FILE@"/>
-	<path name="defaultAnyWaveDict" path="@MPTK_DEFAULT_ANYWAVEDICT_FILE@"/>
-	<path name="defaultAnyWaveTable" path="@MPTK_DEFAULT_ANYWAVETABLE_FILE@"/>
-	<path name="defaultAnyWaveTableData" path="@MPTK_DEFAULT_ANYWAVETABLE_DATA_FILE@"/>
-	<path name="defaultAnyWaveResult1" path="@MPTK_ANYWAVE_RESULT_1@"/>
-	<path name="defaultAnyWaveResult2" path="@MPTK_ANYWAVE_RESULT_2@"/>
-	<path name="defaultAnyWaveResult3" path="@MPTK_ANYWAVE_RESULT_3@"/>
-	<path name="defaultMixer" path="@MPTK_DEFAULT_MIXER_FILE@"/>
-	<path name="defaultDictList" path="@MPTK_DEFAULT_DICT_LIST_FILE@"/>
-	<path name="exampleBook" path="@MPTK_EXAMPLE_BOOK_FILE@"/>
-	<path name="exampleSignal" path="@MPTK_EXAMPLE_SIGNAL_FILE@"/>
-	<path name="exampleStereoSignal" path="@MPTK_EXAMPLE_STEREOSIGNAL_FILE@"/>
+	<path name="dll_directory" path="${MPTK_LIB_DIR${ADDINSTALL}}" />
+	<path name="fftw_wisdomfile" path="${MPTK_FFTW_WISDOM_FILE${ADDINSTALL}}"/>
+	<path name="reference" path="${MPTK_REFERENCE_PATH${ADDINSTALL}}"/>
+	<path name="tmp" path="${MPTK_TMP_PATH}"/>
+	<path name="defaultDict" path="${MPTK_DEFAULT_GABORDICT_FILE${ADDINSTALL}}"/>
+	<path name="defaultAnyWaveDict" path="${MPTK_DEFAULT_ANYWAVEDICT_FILE${ADDINSTALL}}"/>
+	<path name="defaultAnyWaveTable" path="${MPTK_DEFAULT_ANYWAVETABLE_FILE${ADDINSTALL}}"/>
+	<path name="defaultAnyWaveTableData" path="${MPTK_DEFAULT_ANYWAVETABLE_DATA_FILE${ADDINSTALL}}"/>
+	<path name="defaultAnyWaveResult1" path="${MPTK_ANYWAVE_RESULT_1${ADDINSTALL}}"/>
+	<path name="defaultAnyWaveResult2" path="${MPTK_ANYWAVE_RESULT_2${ADDINSTALL}}"/>
+	<path name="defaultAnyWaveResult3" path="${MPTK_ANYWAVE_RESULT_3${ADDINSTALL}}"/>
+	<path name="defaultMixer" path="${MPTK_DEFAULT_MIXER_FILE${ADDINSTALL}}"/>
+	<path name="defaultDictList" path="${MPTK_DEFAULT_DICT_LIST_FILE${ADDINSTALL}}"/>
+	<path name="exampleBook" path="${MPTK_EXAMPLE_BOOK_FILE${ADDINSTALL}}"/>
+	<path name="exampleSignal" path="${MPTK_EXAMPLE_SIGNAL_FILE${ADDINSTALL}}"/>
+	<path name="exampleStereoSignal" path="${MPTK_EXAMPLE_STEREOSIGNAL_FILE}"/>
 </configpath>

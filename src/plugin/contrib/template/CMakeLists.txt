@@ -1,5 +1,5 @@
 # This is a template CmakeList.txt file for MPTK plugins. It won't work unless the directory name is different from "template"
-#   1) Copy all the files contained in the template directory in a new folder under "contrib->NewFolder"
+#   1) Copy all the files contained in the template directory in a new folder under "contrib->NewDirectory"
 #   2) Change the names of the files template_(atom/block)_plugin.(h/cpp) with your own choice (for example newMethod_(atom/block)_plugin.(h/cpp))
 #   3) Change all the the "template" & "TEMPLATE" parts above with the correct strings (for example "newMethod" & "NEWMETHOD")
 
