@@ -385,9 +385,9 @@ CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/libmptk/dict.in.cpp ${MPTK_BINARY_DIR}/src
 CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/libmptk/atom.in.cpp ${MPTK_BINARY_DIR}/src/libmptk/atom.cpp)  
 ENDIF(BUILD_MULTITHREAD)
 
-#-----------------------------------------------------------------------------
+##############################################################################
 ##header for configuration tests.
-#############################
+##############################################################################
 INCLUDE(${MPTK_SOURCE_DIR}/CMake/CMakeGenerateMPTKHeader.cmake)
 
 
