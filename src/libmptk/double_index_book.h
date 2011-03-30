@@ -114,21 +114,6 @@ public:
   
   MPTK_LIB_EXPORT unsigned long int append( GP_Double_Index_Book_c *newBook );
 
-  //TODO: provide a faster implementation thanks to the sorted index
-  /** \brief Returns the atom which is the closest to a given 
-   *  time-frequency location, as well as its index in the book->atom[] array
-   *  Masked atoms are not considered.
-   * \param time the time-location, in sample coordinates
-   * \param freq the frequency-location, between 0 and 0.5
-   * \param chanIdx the considered channel
-   * \param mask a mask indicating which atoms are considered (set it to NULL to consider all atoms)
-   * \param n points to the index of the resulting atom in the book->atom[] array. Meaningless if no matching atom is found.
-   * \return atom, the closest atom, NULL if no matching atom is found
-   */
-  //MPTK_LIB_EXPORT MP_Atom_c *get_closest_atom(MP_Real_t time,MP_Real_t freq,
-  //		      MP_Chan_t chanIdx, MP_Mask_c *mask,
-  //		      unsigned long int *n);
-  
   /** \brief get the sub-book containing the neighbours of a given atom in the time domain
    * \param the central atom
    * \return the neighbourhood sub-book
