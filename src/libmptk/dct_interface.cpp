@@ -40,28 +40,28 @@
 /***************************/
 /* FACTORY METHOD          */
 /***************************/
-MP_DCT_Interface_c* MP_DCT_Interface_c::init(const unsigned long int setDctSize){
-  MP_DCT_Interface_c* dct = NULL;
+MP_DCT_Interface_c* MP_DCT_Interface_c::init(const unsigned long int setDctSize)
+{
+	MP_DCT_Interface_c* dct = NULL;
+	
+	// Create the adequate FFT and check the returned address
 
-  /* Create the adequate FFT and check the returned address */
 #ifdef USE_FFTW3
-  dct = (MP_DCT_Interface_c*) new MP_DCTW_Interface_c(setDctSize);
-  if ( dct == NULL ) mp_error_msg( "MP_DCT_Interface_c::init()",
-                                     "Instanciation of DCTW_Interface failed."
-                                     " Returning a NULL fft object.\n" );
+	dct = (MP_DCT_Interface_c*) new MP_DCTW_Interface_c(setDctSize);
+	if ( dct == NULL ) 
+		mp_error_msg( "MP_DCT_Interface_c::init()", "Instanciation of DCTW_Interface failed. Returning a NULL fft object.\n" );
 #else
 #  error "No FFT implementation was found !"
 #endif
 
-  if ( dct == NULL){ 
-    mp_error_msg( "MP_DCT_Interface_c::init()",
-                    "DCT window is NULL. Returning a NULL dct object.\n");
-  	return( NULL );
-  
-  }
+	if ( dct == NULL)
+	{ 
+		mp_error_msg( "MP_DCT_Interface_c::init()", "DCT window is NULL. Returning a NULL dct object.\n");
+		return( NULL );
+	}
 
-  /* If everything went OK, just pop it ! */
-  return( dct );
+	// If everything went OK, just pop it !
+	return( dct );
 }
 
 /***************************/
@@ -70,19 +70,20 @@ MP_DCT_Interface_c* MP_DCT_Interface_c::init(const unsigned long int setDctSize)
 
 /***********************************/
 /* Constructor with a typed window */
-MP_DCT_Interface_c::MP_DCT_Interface_c(const unsigned long int setDctSize){
-
-  /* Set values */
-  dctSize = setDctSize;
-  buffer = new MP_Real_t[dctSize];
+MP_DCT_Interface_c::MP_DCT_Interface_c(const unsigned long int setDctSize)
+{
+	// Set values
+	dctSize = setDctSize;
+	buffer = new MP_Real_t[dctSize];
 }
 
 
 /**************/
 /* Destructor */
-MP_DCT_Interface_c::~MP_DCT_Interface_c( ){
-    if (buffer)
-        delete[] buffer;
+MP_DCT_Interface_c::~MP_DCT_Interface_c( )
+{
+	if (buffer)
+		delete[] buffer;
 }
 
 /***************************/
@@ -97,21 +98,20 @@ MP_DCT_Interface_c::~MP_DCT_Interface_c( ){
 /* Get the magnitude only */
 void MP_DCT_Interface_c::exec_mag( MP_Real_t *in, MP_Real_t *mag )
 {
+	unsigned long int i;
+	MP_Real_t coef;
 
-  unsigned long int i;
-  MP_Real_t coef;
+	// Simple buffer check
+	assert( in  != NULL );
+	assert( mag != NULL );
 
-  /* Simple buffer check */
-  assert( in  != NULL );
-  assert( mag != NULL );
+	// Execute the FFT
+	exec_dct( in, buffer );
 
-  /* Execute the FFT */
-  exec_dct( in, buffer );
-
-  /* Get the resulting magnitudes */
-  for ( i=0; i<dctSize; i++ )
+	// Get the resulting magnitudes
+	for ( i=0; i<dctSize; i++ )
     {
-        coef = *(buffer+i);
+		coef = *(buffer+i);
         
 #ifdef MP_MAGNITUDE_IS_SQUARED
       *(mag+i) = (MP_Real_t)( coef*coef );
@@ -119,7 +119,6 @@ void MP_DCT_Interface_c::exec_mag( MP_Real_t *in, MP_Real_t *mag )
       *(mag+i) = (MP_Real_t)( fabs(coef) );
 #endif
     }
-
 }
 
 /*********************************/
@@ -127,73 +126,65 @@ void MP_DCT_Interface_c::exec_mag( MP_Real_t *in, MP_Real_t *mag )
 /*             GENERIC TEST      */
 /*                               */
 /*********************************/
-int MP_DCT_Interface_c::test( const double precision,
-                              const unsigned long int setDctSize ,
-                              MP_Real_t *samples)
+int MP_DCT_Interface_c::test( const double precision, const unsigned long int setDctSize, MP_Real_t *samples)
 {
+	MP_DCT_Interface_c* dct = MP_DCT_Interface_c::init( setDctSize );
+	unsigned long int i;
+	MP_Real_t amp,energy1,energy2,tmp;
+	MP_Real_t* buffer = new MP_Real_t[setDctSize];
 
-  MP_DCT_Interface_c* dct = MP_DCT_Interface_c::init( setDctSize );
-  unsigned long int i;
-  MP_Real_t amp,energy1,energy2,tmp;
-  MP_Real_t* buffer = new MP_Real_t[setDctSize];
-
-  /* -1- Compute the energy of the analyzed signal multiplied by the analysis window */
-  energy1 = 0.0;
-  for (i=0; i < setDctSize; i++)
+	// -1- Compute the energy of the analyzed signal multiplied by the analysis window
+	energy1 = 0.0;
+	for (i=0; i < setDctSize; i++)
     {
-      amp = samples[i];
-      energy1 += amp*amp;
-      buffer[i] = 0;
+		amp = samples[i];
+		energy1 += amp*amp;
+		buffer[i] = 0;
     }
-  /* -2- The resulting DCT should be of the same energy multiplied by setDctSize */
-  energy2 = 0.0;
-  dct->exec_dct(samples,buffer);
-  //dct->exec_dct(buffer, samples);
+	// -2- The resulting DCT should be of the same energy multiplied by setDctSize
+	energy2 = 0.0;
+	dct->exec_dct(samples,buffer);
   
-  energy2 = 0;
-  for (i=0; i<setDctSize; i++)
+	energy2 = 0;
+	for (i=0; i<setDctSize; i++)
     {
-	  buffer[i] = buffer[i]*dct->scale;
-      energy2 += buffer[i]*buffer[i];
+		buffer[i] = buffer[i]*dct->scale;
+		energy2 += buffer[i]*buffer[i];
     }
 
-  tmp = energy2/energy1 - 1;
-  delete[] buffer;
-  if ( tmp < precision )
+	tmp = energy2/energy1 - 1;
+	delete[] buffer;
+	if ( tmp < precision )
     {
-      mp_info_msg( "MP_DCT_Interface_c::test()","SUCCESS for DCT size [%ld] energy in/out = 1+/-%g\n",
-             setDctSize,tmp);
-      return(0);
+		mp_info_msg( "MP_DCT_Interface_c::test()","SUCCESS for DCT size [%ld] energy in/out = 1+/-%g\n", setDctSize,tmp);
+		return(0);
     }
-  else
+	else
     {
-     mp_error_msg( "MP_DCT_Interface_c::test()",
-                        "FAILURE for DCT size [%ld] energy |in/out-1|= %g > %g\n",
-             setDctSize, tmp, precision);
-      return(1);
+		mp_error_msg( "MP_DCT_Interface_c::test()", "FAILURE for DCT size [%ld] energy |in/out-1|= %g > %g\n", setDctSize, tmp, precision);
+		return(1);
     }
-return 0;
+	return 0;
 }
 
 /***************************/
 /* CONSTRUCTORS/DESTRUCTOR */
 /***************************/
 
+#ifdef USE_FFTW3
 /****/
 /* Constructor where the window is actually generated */
-MP_DCTW_Interface_c::MP_DCTW_Interface_c( const unsigned long int setDctSize )
-    :MP_DCT_Interface_c( setDctSize )
+MP_DCTW_Interface_c::MP_DCTW_Interface_c( const unsigned long int setDctSize ):MP_DCT_Interface_c( setDctSize )
 {
+	// FFTW takes integer FFT sizes => check if the cast (int)(fftCplxSize) will overflow
+	assert( dctSize <= INT_MAX );
+	// Allocate the necessary buffers
+	inPrepared =       (double*) fftw_malloc( sizeof(double)       * dctSize );
+	out        = (double*) fftw_malloc( sizeof(double) * dctSize );
 
-  /* FFTW takes integer FFT sizes => check if the cast (int)(fftCplxSize) will overflow. */
-  assert( dctSize <= INT_MAX );
-  /* Allocate the necessary buffers */
-  inPrepared =       (double*) fftw_malloc( sizeof(double)       * dctSize );
-  out        = (double*) fftw_malloc( sizeof(double) * dctSize );
-
-  /* Create plans */
-  p = fftw_plan_r2r_1d( (int)(dctSize), inPrepared, out, FFTW_REDFT11, FFTW_MEASURE );
-  scale = 1/sqrt(2*(double)dctSize);
+	// Create plans
+	p = fftw_plan_r2r_1d( (int)(dctSize), inPrepared, out, FFTW_REDFT11, FFTW_MEASURE );
+	scale = 1/sqrt(2*(double)dctSize);
 }
 
 /**************/
@@ -211,115 +202,111 @@ MP_DCTW_Interface_c::~MP_DCTW_Interface_c()
 
 /**************************/
 /* Get the complex result */
-
 void MP_DCTW_Interface_c::exec_dct( MP_Real_t *in, MP_Real_t *outBuffer )
 {
+	unsigned long int i;
+	
+	// Simple buffer check
+	assert( in != NULL );
+	assert( outBuffer != NULL );
 
-  unsigned long int i;
-
-  /* Simple buffer check */
-  assert( in != NULL );
-  assert( outBuffer != NULL );
-
-  /* Copy and window the input signal */
-  for ( i=0; i<dctSize; i++ )
+	// Copy and window the input signal
+	for ( i=0; i<dctSize; i++ )
     {
-      *(inPrepared+i) = (double)(*(in+i));
+		*(inPrepared+i) = (double)(*(in+i));
     }
 
-  /* Execute the FFT described by plan "p"
-     (which itself points to the right input/ouput buffers,
-     such as buffer inPrepared etc.) */
-  fftw_execute( p );
+	// Execute the FFT described by plan "p" (which itself points to the right input/ouput buffers, such as buffer inPrepared etc.)
+	fftw_execute( p );
 
-  /* Cast and copy the result */
-  for ( i=0; i<dctSize; i++ )
+	// Cast and copy the result
+	for ( i=0; i<dctSize; i++ )
     {
-      outBuffer[i] = (MP_Real_t)(out[i]);
+		outBuffer[i] = (MP_Real_t)(out[i]);
     }
 }
+#endif
 
 bool MP_DCT_Interface_c::init_dct_library_config()
 {
 #ifdef USE_FFTW3
-  const char * func =  "MP_DCT_Interface_c::init_fft_library_config()";
-  int wisdom_status;
-  FILE * wisdomFile = NULL;
+	const char		*func =  "MP_DCT_Interface_c::init_fft_library_config()";
+	int				wisdom_status;
+	FILE			*wisdomFile = NULL;
+	const char		*filename;
 
-  /* Check if file path is defined in env variable */
-  const char *filename = MPTK_Env_c::get_env()->get_config_path("fftw_wisdomfile");
+	filename = MPTK_Env_c::get_env()->get_config_path("fftw_wisdomfile");
 	
-  if (NULL != filename)
-    wisdomFile= fopen(filename,"r");
-  /* Check if file exists */
-  if (wisdomFile!=NULL)
+	if (NULL != filename)
+		wisdomFile= fopen(filename,"r");
+	
+	// Check if file exists
+	if (wisdomFile!=NULL)
     {
-      /* Try to load the wisdom file for creating fftw plan */
-      wisdom_status = fftw_import_wisdom_from_file(wisdomFile);
+		// Try to load the wisdom file for creating fftw plan
+		wisdom_status = fftw_import_wisdom_from_file(wisdomFile);
       
-      /* Check if wisdom file is well formed */
-      if (wisdom_status==0)
+		// Check if wisdom file is well formed
+		if (wisdom_status==0)
         {
-          mp_error_msg( func, "wisdom file is ill formed\n");
-          /* Close the file anyway */
-          fclose(wisdomFile);
-          return false;
+			mp_error_msg( func, "wisdom file is ill formed\n");
+			// Close the file anyway
+			fclose(wisdomFile);
+			return false;
         }
-      else
-        {MPTK_Env_c::get_env()->set_fftw_wisdom_loaded();
-          /* Close the file  */
-          fclose(wisdomFile);
-          return true;
+		else
+        {
+			MPTK_Env_c::get_env()->set_fftw_wisdom_loaded();
+			// Close the file
+			fclose(wisdomFile);
+			return true;
         }
-
     }
-   
-  else{  
-    mp_warning_msg( func, "fftw wisdom file with path %s  doesn't exist.\n", filename);
-    mp_warning_msg( func, "It will be created.\n");
-    mp_warning_msg( func, "NB: An fftw wisdom file allows MPTK to run slighty faster,\n");
-    mp_warning_msg( func, "    however its absence is otherwise harmless.\n");
-    mp_warning_msg( func, "    YOU CAN SAFELY IGNORE THIS WARNING MESSAGE.\n");
-  	return false;
+	else
+	{
+		mp_warning_msg( func, "fftw wisdom file with path %s  doesn't exist.\n", filename);
+		mp_warning_msg( func, "It will be created.\n");
+		mp_warning_msg( func, "NB: An fftw wisdom file allows MPTK to run slighty faster,\n");
+		mp_warning_msg( func, "    however its absence is otherwise harmless.\n");
+		mp_warning_msg( func, "    YOU CAN SAFELY IGNORE THIS WARNING MESSAGE.\n");
+		return false;
 	}
 #else
-
-  return false;
+	return false;
 #endif
-
-
 }
 
 bool MP_DCT_Interface_c::save_dct_library_config()
 {
 #ifdef USE_FFTW3
-
-  FILE * wisdomFile = NULL;
-  /* Check if fftw wisdom file has to be saved
-   * and if the load of this files  succeed when init the fft library config */
-   const char *filename = MPTK_Env_c::get_env()->get_config_path("fftw_wisdomfile");
-  if (NULL!=filename && !MPTK_Env_c::get_env()->get_fftw_wisdom_loaded() )
-    wisdomFile = fopen(filename,"w");
-  /* Check if file exists or if the files could be created */
-  if (wisdomFile!=NULL)
+	FILE		*wisdomFile = NULL;
+	const char	*filename;
+	
+	// Check if fftw wisdom file has to be saved and if the load of this files  succeed when init the fft library config
+	filename = MPTK_Env_c::get_env()->get_config_path("fftw_wisdomfile");
+	if (NULL!=filename && !MPTK_Env_c::get_env()->get_fftw_wisdom_loaded())
+		wisdomFile = fopen(filename,"w");
+	// Check if file exists or if the files could be created
+	if (wisdomFile!=NULL)
     {
-      /* Export the actual wisdom to the file */
-      fftw_export_wisdom_to_file(wisdomFile);
-      /* Close the file */
-      fclose(wisdomFile);
-      return true;
+		// Export the actual wisdom to the file
+		fftw_export_wisdom_to_file(wisdomFile);
+		// Close the file
+		fclose(wisdomFile);
+		return true;
     }
-  else
+	else
     {
-
-      return false;
+		return false;
     }
 #else
-  return false;
+	return false;
 #endif
-
 }
 
-MP_Real_t MP_DCTW_Interface_c::test(){
-    return 0;
+#ifdef USE_FFTW3
+MP_Real_t MP_DCTW_Interface_c::test()
+{
+	return 0;
 }
+#endif
