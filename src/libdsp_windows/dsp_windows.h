@@ -193,7 +193,7 @@
   * filterorder = (integer part)/-100 and  damping = (fractional part)*1000
   * e.g. -425.00714 -> damping = 7.14 and filterorder = 4.25
   *
-  * f$\lambda\f$ damping factor, \f$n\f$ filterorder 
+  * \f$\lambda\f$ damping factor, \f$n\f$ filterorder 
   * 
   * \f[
   * w[n] \propto n^{c-1}e^{-\lambda n}
