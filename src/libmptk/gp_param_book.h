@@ -144,19 +144,6 @@ class GP_Param_Book_c:public GP_Book_c, public paramBookMap{
 
   MPTK_LIB_EXPORT GP_Param_Book_c& operator =(const GP_Param_Book_c&);
   
-  /** \brief Substract/add all the atoms in a given frame from / to a multichannel signal
-   *  with amplitudes proportional to their correlations with the residual.
-   *
-   * \param dict: the dictionary used to interprete this book
-   * \param step: the gradient step
-   * \param sigSub signal from which the atom waveform is to be removed
-   * \param sigAdd signal to which the atom waveform is to be added
-   *
-   * \remark Passing sigSub == NULL or sigAdd == NULL skips the corresponding substraction / addition.
-   */
- //MPTK_LIB_EXPORT void substract_add_grad(MP_Dict_c* dict, MP_Real_t step, 
- //                                        MP_Signal_c* sigSub, MP_Signal_c* sigAdd);
- 
   /** \brief rebuild the waveform of the combination of all atoms in the book
    * 
    * \param dict: the dictionary used to interprete the book
