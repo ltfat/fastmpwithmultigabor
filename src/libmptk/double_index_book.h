@@ -115,11 +115,12 @@ public:
   MPTK_LIB_EXPORT unsigned long int append( GP_Double_Index_Book_c *newBook );
 
   /** \brief get the sub-book containing the neighbours of a given atom in the time domain
-   * \param the central atom
+   * \param atom the central atom
+   * \param dict the dictionary used to interprete the book
    * \return the neighbourhood sub-book
    * */
    
-   MPTK_LIB_EXPORT GP_Pos_Range_Sub_Book_c* get_neighbours (MP_Atom_c*, MP_Dict_c*);
+   MPTK_LIB_EXPORT GP_Pos_Range_Sub_Book_c* get_neighbours (MP_Atom_c *atom, MP_Dict_c *dict);
 };
 
 
