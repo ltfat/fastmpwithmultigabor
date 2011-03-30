@@ -72,13 +72,7 @@ class MP_DCT_Interface_c
 		/** \brief The method which should be called to instantiate an FFT_Interface object
 		 * for a given window (specified by its type and size) and FFT resolution.
 		 *
-		 * \param windowSize size of the window
-		 * \param windowType type of the window
-		 * \param windowOption optional shaping parameter of the window
-		 * \param fftSize size of the performed FFT. For speed reasons it might be
-		 * preferable to set fftSize = \f$2^n\f$ for some integer n.
-		 *
-		 * \sa make_window(), exec_complex().
+		 * \param dctSize size of the performed, including zero padding.
 		 */
 		MPTK_LIB_EXPORT static MP_DCT_Interface_c* init(const unsigned long int dctSize);
 
