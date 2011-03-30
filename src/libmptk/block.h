@@ -179,13 +179,22 @@ class MP_Block_c {
  
 		/** \brief Build concatenated waveforms corresponding to each channel of an atom. 
 		 * \param outBuffer the array of size \b totalChanLen which is filled with the  concatenated waveforms of all channels.
+		 * \param book the book to concatenate with
 		 * \return the length of the built waveform. */
 		MPTK_LIB_EXPORT virtual unsigned long int build_subbook_waveform_amp(GP_Book_c* book, MP_Real_t *outBuffer );
 		MPTK_LIB_EXPORT virtual unsigned long int build_subbook_waveform_corr(GP_Book_c* book, MP_Real_t *outBuffer );
 
+		/** \brief Build concatenated frames corresponding to each channel of an atom. 
+		 * \param outBuffer the array of size \b totalChanLen which is filled with the  concatenated frames of all channels.
+		 * \param frame the frame to concatenate with
+		 * \return the length of the built frame. */
 		MPTK_LIB_EXPORT virtual unsigned long int build_frame_waveform_amp(GP_Param_Book_c* frame, MP_Real_t *outBuffer );
 		MPTK_LIB_EXPORT virtual unsigned long int build_frame_waveform_corr(GP_Param_Book_c* frame, MP_Real_t *outBuffer );
 	
+		/** \brief Build concatenated atoms corresponding to each channel of an atom. 
+		 * \param outBuffer the array of size \b totalChanLen which is filled with the  concatenated atoms of all channels.
+		 * \param atom the atom to concatenate with
+		 * \return the length of the built atom. */
 		MPTK_LIB_EXPORT virtual unsigned long int build_atom_waveform_amp(MP_Atom_c *atom,MP_Real_t *outBuffer );
 		MPTK_LIB_EXPORT virtual unsigned long int build_atom_waveform_corr(MP_Atom_c *atom,MP_Real_t *outBuffer );
 		MPTK_LIB_EXPORT virtual unsigned long int build_atom_waveform_norm(MP_Atom_c *atom,MP_Real_t *outBuffer );
