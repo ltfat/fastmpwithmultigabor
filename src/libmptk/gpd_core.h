@@ -96,15 +96,28 @@ class GPD_Core_c:public MP_Abstract_Core_c
     /* CONSTRUCTORS/DESTRUCTOR */
     /***************************/
   public:
-    /** \brief A factory function for the MP_Gpd_Core_c
-     * \param signal the signal to decompose
-     * \param setBook the book to stock the atoms
-     * \param setDict the dict to rule the decomposition
-     */
-    MPTK_LIB_EXPORT static GPD_Core_c* create( MP_Signal_c *setSignal, MP_Dict_c *setDict );
-    MPTK_LIB_EXPORT static GPD_Core_c* create( MP_Signal_c *setSignal, GP_Double_Index_Book_c *setBook );
-    MPTK_LIB_EXPORT static GPD_Core_c* create( MP_Signal_c *setSignal, GP_Double_Index_Book_c *setBook, MP_Dict_c *setDict );
-    MPTK_LIB_EXPORT static GPD_Core_c* create( MP_Signal_c *setSignal, GP_Double_Index_Book_c *setBook, MP_Signal_c* setApproximant );
+	  /** \brief A factory function for the MP_Gpd_Core_c
+	   * \param setSignal the signal to decompose
+	   * \param setDict the dict to rule the decomposition
+	   */
+	  MPTK_LIB_EXPORT static GPD_Core_c* create( MP_Signal_c *setSignal, MP_Dict_c *setDict );
+	  /** \brief A factory function for the MP_Gpd_Core_c
+	   * \param setSignal the signal to decompose
+	   * \param setBook the book where to stock the atoms
+	   */
+	  MPTK_LIB_EXPORT static GPD_Core_c* create( MP_Signal_c *setSignal, GP_Double_Index_Book_c *setBook );
+	  /** \brief A factory function for the MP_Gpd_Core_c
+	   * \param setSignal the signal to decompose
+	   * \param setBook the book where to stock the atoms
+	   * \param setDict the dict to rule the decomposition
+	   */
+	  MPTK_LIB_EXPORT static GPD_Core_c* create( MP_Signal_c *setSignal, GP_Double_Index_Book_c *setBook, MP_Dict_c *setDict );
+	  /** \brief A factory function for the MP_Gpd_Core_c
+	   * \param setSignal the signal to decompose
+	   * \param setBook the book to stock the atoms
+	   * \param setApproximant an approximant to reconstruct the signal
+	   */
+	  MPTK_LIB_EXPORT static GPD_Core_c* create( MP_Signal_c *setSignal, GP_Double_Index_Book_c *setBook, MP_Signal_c* setApproximant );
   
   private:
     /** \brief a private constructor */
@@ -191,6 +204,7 @@ class GPD_Core_c:public MP_Abstract_Core_c
      * create the patch and append it to the book, and substract it from the analyzed signal).
      *
      * \param book The book where to append the selected atom
+     * \param dict The dictionary to rule the decomposition
      * \param sigRecons A signal where to add the selected atom for online reconstruction
      * \return one upon success, zero otherwise
      * \remark Pass sigRecons == NULL to skip the reconstruction step
