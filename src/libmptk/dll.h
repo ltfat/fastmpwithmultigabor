@@ -120,7 +120,7 @@ class MP_Dll_Manager_c
     void get_dll(const char *fname);
     
     /** \brief Method load the symbol with sym_name name
-    *   \param void ** handle on the symbol of library, NULL if open failed
+    *   \param v handle on the symbol of library, NULL if open failed
     *   \param sym_name : name of the symbol to load
 	*   \return true if sym_name was found, in which case *v != NULL; false otherwise
     */   
