@@ -106,7 +106,7 @@ public:
    * \param  fid A readable stream
    * \param  mode The reading mode (MP_TEXT or MP_BINARY) 
    *
-   * \remark in MP_TEXT mode, NO enclosing XML tag <atom type="*"> ... </atom> is looked for
+   * \remark in MP_TEXT mode, NO enclosing XML tag &lt;atom type="*"&gt; ... &lt;/atom&gt; is looked for
    * \sa read_atom()
    */
 
@@ -114,8 +114,6 @@ public:
   /** \brief Factory function that allocates storage space for the harmonicity as well as
    * the amplitudes and phases of both the fundamental and the partials 
    * \param setNumChans the desired number of channels
-   * \param setWindowType the type of window (e.g. Gauss, Hamming, ... )
-   * \param setWindowOption an optional parameter for Gauss, generalized Hamming and exponential windows
    * \param setNumPartials the desired number of partials in the atom
    * \remark By default \b harmonicity[k-1] is initialized to the value k.
    * \warning \a setNumPartials must be at least two, otherwise the behaviour is undefined
