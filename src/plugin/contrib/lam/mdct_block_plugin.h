@@ -99,7 +99,6 @@ protected:
   /** \brief an initializer for the parameters which ARE NOT related to the signal
    *  \param setFilterLen the length of the signal window, in number of samples
    *  \param setFilterShift the window shift, in number of samples
-   *  \param setFftSize the size of the FFT, including zero padding
    *  \param setWindowType the window type (see the doc of libdsp_windows.h)
    *  \param setWindowOption the optional window parameter.
    *  \param setBlockOffset the block offset
@@ -115,7 +114,6 @@ protected:
 /** \brief an initializer for the parameters which ARE NOT related to the signal in a parameter map
    *  \param setFilterLen the length of the signal window, in number of samples
    *  \param setFilterShift the window shift, in number of samples
-   *  \param setFftSize the size of the FFT, including zero padding
    *  \param setWindowType the window type (see the doc of libdsp_windows.h)
    *  \param setWindowOption the optional window parameter.
    *  \param setBlockOffset the block offset
