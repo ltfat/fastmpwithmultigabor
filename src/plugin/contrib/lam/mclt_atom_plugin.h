@@ -96,7 +96,7 @@ public:
    * \param  fid A readable stream
    * \param  mode The reading mode (MP_TEXT or MP_BINARY) 
    *
-   * \remark in MP_TEXT mode, NO enclosing XML tag <atom type="*"> ... </atom> is looked for
+   * \remark in MP_TEXT mode, NO enclosing XML tag &lt;atom type="*"&gt; ... &lt;/atom&gt; is looked for
    * \sa read_atom()
    */
   static MP_Atom_c* create( FILE *fid, const char mode );
