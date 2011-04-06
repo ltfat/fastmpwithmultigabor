@@ -250,7 +250,7 @@ class MP_Dict_c
     /* MISC METHODS            */
     /***************************/
 
-    /** \tiny XML related method
+    /** \brief tiny XML related method
     */
 
     /** \brief Parse the properties xml block and load it into a map of properties map
