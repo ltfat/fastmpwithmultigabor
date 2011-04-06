@@ -187,7 +187,7 @@ class MP_Atom_c
 		 * \param  mode The writing mode (MP_TEXT or MP_BINARY)
 		 * \return The number of items written to the stream 
 		 *
-		 * \remark in MP_TEXT mode, NO enclosing XML tag &gt;atom type="*"&lt; ... &gt;/atom&lt; is written
+		 * \remark in MP_TEXT mode, NO enclosing XML tag &lt;atom type="*"&gt; ... &lt;/atom&gt; is written
 		 * \sa write_atom()
 		 */
 		MPTK_LIB_EXPORT virtual int write( FILE *fid, const char mode );
