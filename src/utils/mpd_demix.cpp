@@ -618,7 +618,7 @@ int main( int argc, char **argv )
   int posDot;
   char * pch;
   pch=strrchr(mixerFileName,'.');
-  posDot = pch-mixerFileName+1;
+  posDot = (int)(pch-mixerFileName+1);
   char last[10] = "not";
   strncpy( last, mixerFileName + posDot, 3 );
 if ( !strcmp( last ,"txt" ) ) mixer = MP_Mixer_c::creator_from_txt_file( mixerFileName );

@@ -224,9 +224,9 @@ int MP_Mdct_Atom_Plugin_c::write( FILE *fid, const char mode )
       /* Window name */
       nItem += fprintf( fid, "%s\n", window_name(windowType) );
       /* Window option */
-      nItem += mp_fwrite( &windowOption,  sizeof(double), 1, fid );
+      nItem += (int)mp_fwrite( &windowOption,  sizeof(double), 1, fid );
       /* Binary parameters */
-      nItem += mp_fwrite( &freq,  sizeof(MP_Real_t), 1, fid );
+      nItem += (int)mp_fwrite( &freq,  sizeof(MP_Real_t), 1, fid );
       break;
 
     default:
@@ -286,14 +286,12 @@ int MP_Mdct_Atom_Plugin_c::info()
   unsigned int i = 0;
   int nChar = 0;
 
-  nChar += mp_info_msg( "MDCT ATOM", "%s window (window opt=%g)\n", window_name(windowType), windowOption );
-  nChar += mp_info_msg( "        |-", "[%d] channel(s)\n", numChans );
-  nChar += mp_info_msg( "        |-", "Freq %g\n", (double)freq);
+  nChar += (int)mp_info_msg( "MDCT ATOM", "%s window (window opt=%g)\n", window_name(windowType), windowOption );
+  nChar += (int)mp_info_msg( "        |-", "[%d] channel(s)\n", numChans );
+  nChar += (int)mp_info_msg( "        |-", "Freq %g\n", (double)freq);
   for ( i=0; i<numChans; i++ )
     {
-      nChar += mp_info_msg( "        |-", "(%d/%d)\tSupport= %lu %lu\tAmp %g\n",
-                            i+1, numChans, support[i].pos, support[i].len,
-                            (double)amp[i]);
+      nChar += (int)mp_info_msg( "        |-", "(%d/%d)\tSupport= %lu %lu\tAmp %g\n", i+1, numChans, support[i].pos, support[i].len, (double)amp[i]);
     }
   return( nChar );
 }

@@ -178,12 +178,10 @@ int MP_Nyquist_Atom_Plugin_c::info()
   unsigned int i = 0;
   int nChar = 0;
 
-  nChar += mp_info_msg( "NYQUIST ATOM", "[%d] channel(s)\n", numChans );
+  nChar += (int)mp_info_msg( "NYQUIST ATOM", "[%d] channel(s)\n", numChans );
   for ( i=0; i<numChans; i++ )
     {
-      nChar += mp_info_msg( "        |-", "(%d/%d)\tSupport= %lu %lu\tAmp %g\n",
-                            i+1, numChans, support[i].pos, support[i].len,
-                            (double)amp[i] );
+      nChar += (int)mp_info_msg( "        |-", "(%d/%d)\tSupport= %lu %lu\tAmp %g\n", i+1, numChans, support[i].pos, support[i].len, (double)amp[i] );
     }
   return( nChar );
 }

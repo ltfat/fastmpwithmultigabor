@@ -170,18 +170,17 @@ int MP_Dirac_Atom_Plugin_c::info( FILE *fid ) {
 
 /**********************/
 /* Readable text dump */
-int MP_Dirac_Atom_Plugin_c::info() {
+int MP_Dirac_Atom_Plugin_c::info() 
+{
+	unsigned int i = 0;
+	int nChar = 0;
 
-  unsigned int i = 0;
-  int nChar = 0;
-
-  nChar += mp_info_msg( "DIRAC ATOM", "[%d] channel(s)\n", numChans );
-  for ( i=0; i<numChans; i++ ) {
-    nChar += mp_info_msg( "        |-", "(%d/%d)\tSupport= %lu %lu\tAmp %g\n",
-			  i+1, numChans, support[i].pos, support[i].len,
-			  (double)amp[i] );
-  }
-  return( nChar );
+	nChar += (int)mp_info_msg( "DIRAC ATOM", "[%d] channel(s)\n", numChans );
+	for ( i=0; i<numChans; i++ ) 
+	{	
+		nChar += (int)mp_info_msg( "        |-", "(%d/%d)\tSupport= %lu %lu\tAmp %g\n", i+1, numChans, support[i].pos, support[i].len, (double)amp[i] );
+	}
+	return( nChar );
 }
 
 /********************/

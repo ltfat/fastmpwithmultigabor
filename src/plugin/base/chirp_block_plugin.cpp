@@ -506,21 +506,14 @@ const char* MP_Chirp_Block_Plugin_c::type_name()
 /* Readable text dump */
 int MP_Chirp_Block_Plugin_c::info( FILE* fid )
 {
+	int nChar = 0;
 
-  int nChar = 0;
+	nChar += (int)mp_info_msg( fid, "CHIRP BLOCK", "%s window (window opt=%g) of length [%lu], shifted by [%lu] samples,\n", window_name( fft->windowType ), fft->windowOption, filterLen, filterShift );
+	nChar += (int)mp_info_msg( fid, "         |-", "projected on [%lu] frequencies;\n", numFilters );
+	nChar += (int)mp_info_msg( fid, "         |-", "numFitPoints is [%u], numIter is [%u];\n", numFitPoints, numIter );
+	nChar += (int)mp_info_msg( fid, "         O-", "The number of frames for this block is [%lu], the search tree has [%lu] levels.\n", numFrames, numLevels );
 
-  nChar += mp_info_msg( fid, "CHIRP BLOCK", "%s window (window opt=%g) of length [%lu],"
-                        " shifted by [%lu] samples,\n",
-                        window_name( fft->windowType ), fft->windowOption,
-                        filterLen, filterShift );
-  nChar += mp_info_msg( fid, "         |-", "projected on [%lu] frequencies;\n",
-                        numFilters );
-  nChar += mp_info_msg( fid, "         |-", "numFitPoints is [%u], numIter is [%u];\n",
-                        numFitPoints, numIter );
-  nChar += mp_info_msg( fid, "         O-", "The number of frames for this block is [%lu],"
-                        " the search tree has [%lu] levels.\n",
-                        numFrames, numLevels );
-  return ( nChar );
+	return ( nChar );
 }
 
 

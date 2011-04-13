@@ -293,10 +293,8 @@ int MP_Nyquist_Block_Plugin_c::info( FILE* fid )
 
   int nChar = 0;
 
-  nChar += mp_info_msg( fid, "NYQUIST BLOCK", "window of length [%lu], shifted by [%lu] samples,\n",
-                        filterLen, filterShift );
-  nChar += mp_info_msg( fid, "         O-", "The number of frames for this block is [%lu], "
-                        "the search tree has [%lu] levels.\n", numFrames, numLevels );
+  nChar += (int)mp_info_msg( fid, "NYQUIST BLOCK", "window of length [%lu], shifted by [%lu] samples,\n", filterLen, filterShift );
+  nChar += (int)mp_info_msg( fid, "         O-", "The number of frames for this block is [%lu], the search tree has [%lu] levels.\n", numFrames, numLevels );
 
   return ( nChar );
 }

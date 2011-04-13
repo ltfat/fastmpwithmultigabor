@@ -526,43 +526,21 @@ const char* MP_Harmonic_Block_Plugin_c::type_name()
 /* Readable text dump */
 int MP_Harmonic_Block_Plugin_c::info( FILE *fid )
 {
+	int nChar = 0;
 
-  int nChar = 0;
-
-  nChar += mp_info_msg( fid, "HARMONIC BLOCK",
-                        "%s window (window opt=%g) of length [%lu], shifted by [%lu] samples;\n",
-                        window_name( fft->windowType ), fft->windowOption,
-                        filterLen, filterShift );
-  nChar += mp_info_msg( fid, "            |-",
-                        "projected on [%lu] frequencies"
-                        " and [%lu] fundamental frequencies for a total of [%lu] filters;\n",
-                        fft->numFreqs, numFundFreqIdx, numFilters );
-  nChar += mp_info_msg( fid, "            |-",
-                        "fundamental frequency in the index range [%lu %lu]\n",
-                        minFundFreqIdx, minFundFreqIdx+numFundFreqIdx-1 );
-  nChar += mp_info_msg( fid, "            |-",
-                        "                       (normalized range [%lg %lg]);\n",
-                        ((double)minFundFreqIdx)/((double)fft->fftSize),
-                        ((double)(minFundFreqIdx+numFundFreqIdx-1))/((double)fft->fftSize) );
-  if ( s != NULL )
+	nChar += (int)mp_info_msg( fid, "HARMONIC BLOCK", "%s window (window opt=%g) of length [%lu], shifted by [%lu] samples;\n", window_name( fft->windowType ), fft->windowOption, filterLen, filterShift );
+	nChar += (int)mp_info_msg( fid, "            |-", "projected on [%lu] frequencies and [%lu] fundamental frequencies for a total of [%lu] filters;\n", fft->numFreqs, numFundFreqIdx, numFilters );
+	nChar += (int)mp_info_msg( fid, "            |-", "fundamental frequency in the index range [%lu %lu]\n", minFundFreqIdx, minFundFreqIdx+numFundFreqIdx-1 );
+	nChar += (int)mp_info_msg( fid, "            |-", "                       (normalized range [%lg %lg]);\n", ((double)minFundFreqIdx)/((double)fft->fftSize), ((double)(minFundFreqIdx+numFundFreqIdx-1))/((double)fft->fftSize) );
+	if ( s != NULL )
     {
-      nChar += mp_info_msg( fid, "            |-",
-                            "                       (Hertz range      [%lg %lg]);\n",
-                            (double)minFundFreqIdx * (double)s->sampleRate / (double)fft->fftSize,
-                            (double)(minFundFreqIdx+numFundFreqIdx-1) * (double)s->sampleRate
-                            / (double)fft->fftSize );
+		nChar += (int)mp_info_msg( fid, "            |-", "                       (Hertz range      [%lg %lg]);\n", (double)minFundFreqIdx * (double)s->sampleRate / (double)fft->fftSize, (double)(minFundFreqIdx+numFundFreqIdx-1) * (double)s->sampleRate / (double)fft->fftSize );
     }
-  nChar += mp_info_msg( fid, "            |-",
-                        "                       (Original range   [%lg %lg]);\n",
-                        f0Min, f0Max );
-  nChar += mp_info_msg( fid, "            |-",
-                        "maximum number of partials %u;\n",
-                        maxNumPartials );
-  nChar += mp_info_msg( fid, "            O-",
-                        "The number of frames for this block is [%lu],"
-                        " the search tree has [%lu] levels.\n",
-                        numFrames, numLevels );
-  return( nChar );
+	nChar += (int)mp_info_msg( fid, "            |-", "                       (Original range   [%lg %lg]);\n", f0Min, f0Max );
+	nChar += (int)mp_info_msg( fid, "            |-", "maximum number of partials %u;\n", maxNumPartials );
+	nChar += (int)mp_info_msg( fid, "            O-", "The number of frames for this block is [%lu], the search tree has [%lu] levels.\n", numFrames, numLevels );
+	
+	return( nChar );
 }
 
 

@@ -224,9 +224,9 @@ MP_Anywave_Table_c *mp_create_anywave_table_from_mxAnywaveTable(const mxArray *m
 		return(NULL);
 	}
 	mwDimension = mxGetDimensions(mxTempMatrix);
-	AnyTable->filterLen = mwDimension[0];
-	AnyTable->numChans = mwDimension[1];
-	AnyTable->numFilters = mwDimension[2];
+	AnyTable->filterLen = (unsigned long int)mwDimension[0];
+	AnyTable->numChans = (MP_Chan_t)mwDimension[1];
+	AnyTable->numFilters = (unsigned long int)mwDimension[2];
   
 	// Getting the wave field
 	AnyTable->wave = (MP_Real_t***)mxMalloc(AnyTable->numFilters*sizeof(MP_Real_t**));

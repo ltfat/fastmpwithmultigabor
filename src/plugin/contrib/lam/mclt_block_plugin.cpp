@@ -370,14 +370,9 @@ int MP_Mclt_Block_Plugin_c::info( FILE *fid )
 
   int nChar = 0;
 
-  nChar += mp_info_msg( fid, "MCLT BLOCK", "%s window (window opt=%g)"
-                        " of length [%lu], shifted by [%lu] samples,\n",
-                        window_name( fft->windowType ), fft->windowOption,
-                        filterLen, filterShift );
-  nChar += mp_info_msg( fid, "         |-", "projected on [%lu] frequencies;\n",
-                        numFilters );
-  nChar += mp_info_msg( fid, "         O-", "The number of frames for this block is [%lu], "
-                        "the search tree has [%lu] levels.\n", numFrames, numLevels );
+  nChar += (int)mp_info_msg( fid, "MCLT BLOCK", "%s window (window opt=%g) of length [%lu], shifted by [%lu] samples,\n", window_name( fft->windowType ), fft->windowOption, filterLen, filterShift );
+  nChar += (int)mp_info_msg( fid, "         |-", "projected on [%lu] frequencies;\n", numFilters );
+  nChar += (int)mp_info_msg( fid, "         O-", "The number of frames for this block is [%lu], the search tree has [%lu] levels.\n", numFrames, numLevels );
 
   return( nChar );
 }

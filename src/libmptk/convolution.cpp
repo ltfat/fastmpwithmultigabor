@@ -1835,7 +1835,7 @@ void MP_Convolution_FFT_c::compute_IP( MP_Real_t* input, unsigned long int input
     numFramesNew = 0;
 
     firstFrameSample = nextFirstFrameSample;
-    nextFirstFrameSample = p - pNextSlice;    
+    nextFirstFrameSample = (unsigned long int)(p - pNextSlice);    
 
     while ((p < pNextSlice + anywaveTable->filterLen)&&(p < (pInputEnd))) {
       numFramesNew ++;

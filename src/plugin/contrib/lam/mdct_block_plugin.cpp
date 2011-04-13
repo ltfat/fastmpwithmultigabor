@@ -252,8 +252,7 @@ int MP_Mdct_Block_Plugin_c::init_parameters (const unsigned long int setFilterLe
 	return (0);
 }
 
-int
-MP_Mdct_Block_Plugin_c::init_parameter_map (const unsigned long int setFilterLen,
+int MP_Mdct_Block_Plugin_c::init_parameter_map (const unsigned long int setFilterLen,
 		const unsigned long int setFilterShift,
 		const unsigned char setWindowType,
 		const double setWindowOption,
@@ -309,8 +308,7 @@ MP_Mdct_Block_Plugin_c::init_parameter_map (const unsigned long int setFilterLen
 
 /*******************************************************/
 /* Initialization of signal-dependent block parameters */
-int
-MP_Mdct_Block_Plugin_c::plug_signal (MP_Signal_c * setSignal)
+int MP_Mdct_Block_Plugin_c::plug_signal (MP_Signal_c * setSignal)
 {
 
 	const char* func = "MP_mdct_Block_c::plug_signal( signal )";
@@ -343,8 +341,7 @@ MP_Mdct_Block_Plugin_c::plug_signal (MP_Signal_c * setSignal)
 
 /**************************************************/
 /* Nullification of the signal-related parameters */
-void
-MP_Mdct_Block_Plugin_c::nullify_signal (void)
+void MP_Mdct_Block_Plugin_c::nullify_signal (void)
 {
 	if ( mag ) {
 		free(mag);
@@ -386,39 +383,28 @@ MP_Mdct_Block_Plugin_c::~MP_Mdct_Block_Plugin_c (){
 
 /********/
 /* Type */
-const char *
-MP_Mdct_Block_Plugin_c::type_name ()
+const char *MP_Mdct_Block_Plugin_c::type_name ()
 {
 	return ("mdct");
 }
 
 /**********************/
 /* Readable text dump */
-int
-MP_Mdct_Block_Plugin_c::info (FILE * fid)
+int MP_Mdct_Block_Plugin_c::info (FILE * fid)
 {
 
 	int nChar = 0;
 
-	nChar += mp_info_msg (fid, "MDCT BLOCK", "%s window (window opt=%g)"
-			" of length [%lu], shifted by [%lu] samples,\n",
-			window_name (windowType), windowOption,
-			filterLen, filterShift);
-	nChar +=
-			mp_info_msg (fid, "         |-", "projected on [%lu] frequencies;\n",
-					numFilters);
-	nChar +=
-			mp_info_msg (fid, "         O-",
-					"The number of frames for this block is [%lu], "
-					"the search tree has [%lu] levels.\n", numFrames, numLevels);
+	nChar += (int)mp_info_msg (fid, "MDCT BLOCK", "%s window (window opt=%g) of length [%lu], shifted by [%lu] samples,\n", window_name (windowType), windowOption, filterLen, filterShift);
+	nChar += (int)mp_info_msg (fid, "         |-", "projected on [%lu] frequencies;\n", numFilters);
+	nChar += (int)mp_info_msg (fid, "         O-", "The number of frames for this block is [%lu], the search tree has [%lu] levels.\n", numFrames, numLevels);
 
 	return (nChar);
 }
 
 /********************************************/
 /* Frame-based update of the inner products */
-void
-MP_Mdct_Block_Plugin_c::update_frame (unsigned long int frameIdx,
+void MP_Mdct_Block_Plugin_c::update_frame (unsigned long int frameIdx,
 		MP_Real_t * maxCorr,
 		unsigned long int *maxFilterIdx)
 {
@@ -498,8 +484,7 @@ MP_Mdct_Block_Plugin_c::update_frame (unsigned long int frameIdx,
 
 /********************************************/
 /* Frame-based update of the inner products */
-void
-MP_Mdct_Block_Plugin_c::update_frame (unsigned long int frameIdx,
+void MP_Mdct_Block_Plugin_c::update_frame (unsigned long int frameIdx,
 		MP_Real_t * maxCorr,
 		unsigned long int *maxFilterIdx,
 		GP_Param_Book_c * touchBook)
@@ -645,8 +630,7 @@ MP_Mdct_Block_Plugin_c::update_frame (unsigned long int frameIdx,
 
 /***************************************/
 /* Output of the ith atom of the block */
-unsigned int
-MP_Mdct_Block_Plugin_c::create_atom (MP_Atom_c ** atom,
+unsigned int MP_Mdct_Block_Plugin_c::create_atom (MP_Atom_c ** atom,
 		const unsigned long int frameIdx,
 		const unsigned long int freqIdx)
 {
@@ -905,8 +889,7 @@ unsigned long int MP_Mdct_Block_Plugin_c::build_atom_waveform_norm(MP_Atom_c* at
 
 /*********************************************/
 /* get Paramater type map defining the block */
-void
-MP_Mdct_Block_Plugin_c::get_parameters_type_map (map < string, string,
+void MP_Mdct_Block_Plugin_c::get_parameters_type_map (map < string, string,
 		mp_ltstring >
 *parameterMapType)
 {
@@ -932,8 +915,7 @@ MP_Mdct_Block_Plugin_c::get_parameters_type_map (map < string, string,
 
 /***********************************/
 /* get Info map defining the block */
-void
-MP_Mdct_Block_Plugin_c::get_parameters_info_map (map < string, string,
+void MP_Mdct_Block_Plugin_c::get_parameters_info_map (map < string, string,
 		mp_ltstring >
 *parameterMapInfo)
 {
@@ -962,8 +944,7 @@ MP_Mdct_Block_Plugin_c::get_parameters_info_map (map < string, string,
 
 /***********************************/
 /* get default map defining the block */
-void
-MP_Mdct_Block_Plugin_c::get_parameters_default_map (map < string, string,
+void MP_Mdct_Block_Plugin_c::get_parameters_default_map (map < string, string,
 		mp_ltstring >
 *parameterMapDefault)
 {
