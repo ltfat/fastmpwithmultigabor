@@ -404,11 +404,11 @@ int MP_Harmonic_Atom_Plugin_c::write( FILE *fid, const char mode )
 
     case MP_BINARY:
       /* Number of partials */
-      nItem += mp_fwrite( &numPartials,  sizeof(unsigned int), 1, fid );
+      nItem += (int)mp_fwrite( &numPartials,  sizeof(unsigned int), 1, fid );
       /* Binary parameters */
-      nItem += mp_fwrite( harmonicity,   sizeof(MP_Real_t), numPartials, fid );
-      nItem += mp_fwrite( partialAmpStorage,   sizeof(MP_Real_t), numChans*numPartials, fid );
-      nItem += mp_fwrite( partialPhaseStorage, sizeof(MP_Real_t), numChans*numPartials, fid );
+      nItem += (int)mp_fwrite( harmonicity,   sizeof(MP_Real_t), numPartials, fid );
+      nItem += (int)mp_fwrite( partialAmpStorage,   sizeof(MP_Real_t), numChans*numPartials, fid );
+      nItem += (int)mp_fwrite( partialPhaseStorage, sizeof(MP_Real_t), numChans*numPartials, fid );
 
       break;
 
@@ -459,27 +459,23 @@ int MP_Harmonic_Atom_Plugin_c::info( FILE *fid )
 /* Readable text dump */
 int MP_Harmonic_Atom_Plugin_c::info()
 {
+	unsigned int i = 0;
+	int nChar = 0;
+	unsigned int j;
 
-  unsigned int i = 0;
-  int nChar = 0;
-  unsigned int j;
-
-  nChar += mp_info_msg( "HARMONIC ATOM", "%s window (window opt=%g)\n",
-                        window_name(windowType), windowOption );
-  nChar += mp_info_msg( "        |-", "[%d] channel(s), [%u] partials\n", numChans, numPartials );
-  nChar += mp_info_msg( "        |-", "Freq %g\tChirp %g\n", (double)freq, (double)chirp);
-  for ( i=0; i<numChans; i++ )
+	nChar += (int)mp_info_msg( "HARMONIC ATOM", "%s window (window opt=%g)\n", window_name(windowType), windowOption );
+	nChar += (int)mp_info_msg( "        |-", "[%d] channel(s), [%u] partials\n", numChans, numPartials );
+	nChar += (int)mp_info_msg( "        |-", "Freq %g\tChirp %g\n", (double)freq, (double)chirp);
+	for ( i=0; i<numChans; i++ )
     {
-      nChar += mp_info_msg( "        |-", "(%d/%d)\tSupport= %lu %lu\tAmp %g\tPhase %g\n",
-                            i+1, numChans, support[i].pos, support[i].len,
-                            (double)amp[i], (double)phase[i] );
-      for ( j=0; j<numPartials; j++)
+		nChar += (int)mp_info_msg( "        |-", "(%d/%d)\tSupport= %lu %lu\tAmp %g\tPhase %g\n", i+1, numChans, support[i].pos, support[i].len, (double)amp[i], (double)phase[i] );
+		for ( j=0; j<numPartials; j++)
         {
-          nChar += mp_info_msg( "        |-", "\t[%g]\tAmp %g\tPhase %g\n",
-                                (double)harmonicity[j], (double)partialAmp[i][j], (double)partialPhase[i][j] );
+			nChar += (int)mp_info_msg( "        |-", "\t[%g]\tAmp %g\tPhase %g\n", (double)harmonicity[j], (double)partialAmp[i][j], (double)partialPhase[i][j] );
         }
     }
-  return( nChar );
+	
+	return( nChar );
 }
 
 /********************/
