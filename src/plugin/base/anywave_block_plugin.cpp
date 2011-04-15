@@ -428,6 +428,99 @@ MP_Support_t MP_Anywave_Block_Plugin_c::update_ip( const MP_Support_t *touch ) {
   return( frameSupport );
 }
 
+MP_Support_t MP_Anywave_Block_Plugin_c::update_ip( const MP_Support_t *touch, GP_Pos_Book_c* book ) {
+	
+	unsigned long int fromFrame; /* first frameIdx to be touched, included */
+	unsigned long int toFrame;   /* last  frameIdx to be touched, INCLUDED */
+	unsigned long int tmpFromFrame, tmpToFrame;
+	unsigned long int fromSample;
+	unsigned long int toSample;
+	unsigned long int tmp;
+	
+	unsigned long int signalLen;
+	unsigned long int numTouchedFrames;
+	
+	unsigned short int chanIdx;
+	
+	MP_Support_t frameSupport;
+	
+	const char* func = "MP_Anywave_Block_c::update_ip"; 
+	if ( s == NULL ) {
+		mp_error_msg( func, "The signal s shall have been allocated before calling this function. Now, it is NULL. Exiting from this function.\n");
+		/* Return a null mono-channel support */
+		frameSupport.pos = 0;
+		frameSupport.len = 0;
+		return( frameSupport );
+	}
+	
+	/*---------------------------*/
+	/* Computes the interval [fromFrame,toFrame] where
+     the frames need an IP+maxCorr update
+     
+     WARNING: toFrame is INCLUDED. See the LOOP below.
+	 
+     THIS IS CRITICAL CODE. MODIFY WITH CARE.
+	 
+     Here, the inner products are recomputed for the same length of
+     signal on all the channels
+	 */
+	
+	/* -- If touch is NULL, we ask for a full update: */
+	if ( touch == NULL ) {
+		fromFrame = 0;
+		toFrame   = numFrames - 1;
+		fromSample = 0;
+		toSample = s->numSamples - 1;
+		signalLen = s->numSamples;
+		numTouchedFrames = numFrames;
+	}
+	/* -- If touch is not NULL, we specify a touched support: */
+	else {
+		/* Initialize fromFrame and toFrame using the support on channel 0 */
+		if (blockOffset>touch[0].pos) {
+			tmp = 0;
+		} else {
+			tmp = touch[0].pos-blockOffset;
+		}
+		fromFrame = len2numFrames( tmp, filterLen, filterShift );
+		
+		toFrame = ( touch[0].pos + touch[0].len - 1 ) / filterShift;
+		
+		if ( toFrame >= numFrames )  toFrame = numFrames - 1;
+		
+		/* Adjust fromFrame and toFrame with respect to supports on the subsequent channels */
+		for ( chanIdx = 1; chanIdx < s->numChans; chanIdx++ ) {
+			if (blockOffset>touch[chanIdx].pos) {
+				tmp = 0;
+			} else {
+				tmp = touch[chanIdx].pos-blockOffset;
+			}
+			tmpFromFrame = len2numFrames( tmp, filterLen, filterShift );
+			if ( tmpFromFrame < fromFrame ) fromFrame = tmpFromFrame;
+			
+			tmpToFrame  = ( touch[chanIdx].pos + touch[chanIdx].len - 1 ) / filterShift ;
+			if ( tmpToFrame >= numFrames )  tmpToFrame = numFrames - 1;
+			if ( tmpToFrame > toFrame ) toFrame = tmpToFrame;
+		}
+		fromSample = fromFrame * filterShift + blockOffset;    
+		toSample = toFrame * filterShift + filterLen - 1 + blockOffset;
+	}
+	signalLen = toSample - fromSample + 1;
+	numTouchedFrames = toFrame - fromFrame + 1;
+	
+	/*---------------------------*/
+	
+	convolution->compute_max_IP(s, signalLen, fromSample, maxIPValueInFrame + fromFrame, maxIPIdxInFrame + fromFrame, book);
+	cerr << "Max IP = " << *(maxIPValueInFrame + fromFrame) << endl;
+	
+	/* Return a mono-channel support */
+	frameSupport.pos = fromFrame;
+	frameSupport.len = numTouchedFrames;
+	
+	
+	return( frameSupport );
+}
+
 
 /***************************************/
 /* Output of the ith atom of the block */

@@ -199,7 +199,8 @@ class MP_Convolution_c {
    **/
   MPTK_LIB_EXPORT virtual void compute_IP( MP_Real_t* input, unsigned long int inputLen, unsigned short int chanIdx, double** output ) = 0;
 
-  MPTK_LIB_EXPORT virtual void compute_max_IP( MP_Signal_c* s, unsigned long int inputLen, unsigned long int fromSample, MP_Real_t* ampOutput, unsigned long int* idxOutput ) = 0;
+	MPTK_LIB_EXPORT virtual void compute_max_IP( MP_Signal_c* s, unsigned long int inputLen, unsigned long int fromSample, MP_Real_t* ampOutput, unsigned long int* idxOutput ) = 0;
+	MPTK_LIB_EXPORT virtual void compute_max_IP( MP_Signal_c* s, unsigned long int inputLen, unsigned long int fromSample, MP_Real_t* ampOutput, unsigned long int* idxOutput, GP_Pos_Book_c* book ) = 0;
 
 };
 
@@ -394,6 +395,7 @@ class MP_Convolution_Fastest_c:public MP_Convolution_c {
   MPTK_LIB_EXPORT virtual double compute_hilbert_IP( MP_Real_t* input, unsigned long int filterIdx, unsigned short int chanIdx );
 
   MPTK_LIB_EXPORT virtual void compute_max_IP( MP_Signal_c* s, unsigned long int inputLen, unsigned long int fromSample, MP_Real_t* ampOutput, unsigned long int* idxOutput );
+	MPTK_LIB_EXPORT virtual void compute_max_IP( MP_Signal_c* s, unsigned long int inputLen, unsigned long int fromSample, MP_Real_t* ampOutput, unsigned long int* idxOutput, GP_Pos_Book_c* book );
 
   MPTK_LIB_EXPORT virtual void compute_max_hilbert_IP( MP_Signal_c* s, unsigned long int inputLen, unsigned long int fromSample, MP_Real_t* ampOutput, unsigned long int* idxOutput );
 
@@ -528,6 +530,7 @@ class MP_Convolution_Direct_c:public MP_Convolution_c {
   MPTK_LIB_EXPORT virtual double compute_hilbert_IP( MP_Real_t* input, unsigned long int filterIdx, unsigned short int chanIdx );
 
   MPTK_LIB_EXPORT virtual void compute_max_IP( MP_Signal_c* s, unsigned long int inputLen, unsigned long int fromSample, MP_Real_t* ampOutput, unsigned long int* idxOutput );
+	MPTK_LIB_EXPORT virtual void compute_max_IP( MP_Signal_c* s, unsigned long int inputLen, unsigned long int fromSample, MP_Real_t* ampOutput, unsigned long int* idxOutput, GP_Pos_Book_c* book );
 
 };
 
@@ -963,6 +966,7 @@ class MP_Convolution_FFT_c:public MP_Convolution_c {
    * \remark inputLen shall not be lower than anywaveTable->filterLen
    **/
   MPTK_LIB_EXPORT virtual void compute_max_IP( MP_Signal_c* s, unsigned long int inputLen, unsigned long int fromSample, MP_Real_t* ampOutput, unsigned long int* idxOutput );
+	MPTK_LIB_EXPORT virtual void compute_max_IP( MP_Signal_c* s, unsigned long int inputLen, unsigned long int fromSample, MP_Real_t* ampOutput, unsigned long int* idxOutput, GP_Pos_Book_c* book );
 
   MPTK_LIB_EXPORT virtual void compute_max_hilbert_IP( MP_Signal_c* s, unsigned long int inputLen, unsigned long int fromSample, MP_Real_t* ampOutput, unsigned long int* idxOutput );
 

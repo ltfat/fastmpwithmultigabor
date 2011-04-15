@@ -378,8 +378,8 @@ unsigned short int GPD_Core_c::step() {
 	if (touchBook)
 		delete touchBook;
 	touchBook = book->get_neighbours(atom, dict);
-	//cerr << "touchBook->begin() = " << endl;
-	//touchBook->begin()->info(stderr);
+//	cerr << "touchBook->begin() = " << endl;
+//	touchBook->begin()->info(stderr);
 
 	gradSupport.len = touchBook->build_waveform_corr(dict, gradient, tmpBuffer);
 
@@ -410,6 +410,10 @@ unsigned short int GPD_Core_c::step() {
 			enGrad = enGrad + gradient[t+offset]*gradient[t+offset];
 
 		alpha = enCorr/enGrad;
+		cerr << "enCorr = " << enCorr << endl;
+		cerr << "enGrad = " << enGrad << endl;
+		
+		cerr << "alpha = " << alpha << endl;
 
 		// dump the gradient
 //

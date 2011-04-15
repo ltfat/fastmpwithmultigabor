@@ -821,3 +821,16 @@ MP_Real_t MP_Atom_c::dist_to_tfpoint( MP_Real_t /* time */, MP_Real_t /* freq */
 {
   return(1e6);
 }
+
+// TODO: make normalised waveforms the default for all atoms
+void MP_Atom_c::build_waveform_norm(MP_Real_t *outBuffer )
+{
+	build_waveform(outBuffer);
+	// Parcours du tableau outBuffer pour effectuer le calcul de norme
+	for (int c = 0; c < numChans; c++){
+		unsigned long int offset = c*support[c].len;
+		for (unsigned int iIndex = 0; iIndex < support[c].len; iIndex++)
+			outBuffer[iIndex+offset] = outBuffer[iIndex+offset]/amp[c];
+	}
+}
+

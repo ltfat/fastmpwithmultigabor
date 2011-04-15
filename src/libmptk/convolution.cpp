@@ -581,6 +581,12 @@ void MP_Convolution_Fastest_c::compute_max_IP( MP_Signal_c* s, unsigned long int
 
 }
 
+void MP_Convolution_Fastest_c::compute_max_IP( MP_Signal_c* s, unsigned long int inputLen, unsigned long int fromSample, MP_Real_t* ampOutput, unsigned long int* idxOutput, GP_Pos_Book_c* book ) {
+	
+	methods[ find_fastest_method( inputLen) ]->compute_max_IP(s, inputLen, fromSample, ampOutput, idxOutput, book);
+	
+}
+
 void MP_Convolution_Fastest_c::compute_max_hilbert_IP( MP_Signal_c* s, unsigned long int inputLen, unsigned long int fromSample, MP_Real_t* ampOutput, unsigned long int* idxOutput ) {
 
   if ( (anywaveRealTable == NULL) || (anywaveHilbertTable == NULL) ){
@@ -968,6 +974,162 @@ void MP_Convolution_Direct_c::compute_max_IP( MP_Signal_c* s, unsigned long int 
   if (pSignal != NULL) {
     free( pSignal );
   }
+}
+
+void MP_Convolution_Direct_c::compute_max_IP( MP_Signal_c* s, unsigned long int inputLen, unsigned long int fromSample, MP_Real_t* ampOutput, unsigned long int* idxOutput, GP_Pos_Book_c* book ) {
+	
+	unsigned short int chanIdx;
+	
+	
+	unsigned long int numFrames;
+	unsigned long int frameIdx;
+	unsigned long int sampleIdx;
+	
+	MP_Real_t** pSignal;
+	
+	double tmp;
+	double* pAmp;
+	unsigned long int* pIdx;
+	
+	double doubleTmp;
+	
+	unsigned long int filterIdx;
+	GP_Param_Book_Iterator_c iter;
+	GP_Param_Book_c* subBook;
+	
+	if (!book){
+		compute_max_IP( s, inputLen, fromSample, ampOutput, idxOutput);
+		return;
+	}
+	
+	if (anywaveTable == NULL) {
+		mp_error_msg( "MP_Convolution_Direct_c::compute_max_IP", "Can't compute the inner products because the anywave table does not exists... aborting\n");
+		exit(1);
+	}
+	
+	if ( fromSample > s->numSamples) {
+		mp_error_msg( "MP_Convolution_Direct_c::compute_IP","Inputs ask to process a slice of signal beginning at sample [%lu], whereas the signal contains only [%lu] samples... aborting\n", fromSample, s->numSamples);
+		return;
+	}
+	if ( inputLen > s->numSamples - fromSample ) {
+		mp_error_msg( "MP_Convolution_Direct_c::compute_IP","Inputs ask to process the slice of signal beginning at sample [%lu], of length [%lu], whereas the signal contains only [%lu] samples... aborting\n", fromSample, inputLen, s->numSamples);
+		return;
+	}
+	
+	if( inputLen < anywaveTable->filterLen ) {
+		mp_error_msg( "MP_Convolution_Direct_c::compute_IP","Can't compute inner products because the input signal is smaller than the filter\n inputLen=%lu - filterLen=%lu... aborting\n", inputLen, anywaveTable->filterLen);
+		return;
+	}
+	
+	if ( ( inputLen == 0 ) || ( anywaveTable->filterLen == 0 ) ) {
+		mp_error_msg( "MP_Convolution_Direct_c::compute_IP","Can't compute inner products because the input or filter length has not been filled in :\n inputLen=%lu - filterLen=%lu  ... aborting\n", inputLen, anywaveTable->filterLen);
+		return;
+	}
+	
+	if ( inputLen == MP_MAX_UNSIGNED_LONG_INT ) {
+		mp_error_msg( "MP_Convolution_Direct_c::compute_IP", "inputLen [%lu] is equal to the max for an unsigned long int [%lu]. Cannot initialize the number of slices. Exiting from compute_IP()\n", inputLen, MP_MAX_UNSIGNED_LONG_INT );
+		return;
+	}
+	
+	numFrames = ((inputLen - anywaveTable->filterLen)/filterShift) + 1;
+	
+	if ( (double)MP_MAX_UNSIGNED_LONG_INT / (double)anywaveTable->numFilters / (double)numFrames <= 1.0) {
+		mp_error_msg( "MP_Convolution_Direct_c::compute_IP", "anywaveTable->numFilters [%lu] . numFrames [%lu] is greater than the max for an unsigned long int [%lu]. Cannot initialize local variable. Exiting from compute_IP().\n", anywaveTable->numFilters, numFrames, MP_MAX_UNSIGNED_LONG_INT);
+		return;
+	}
+	
+	pAmp = ampOutput;
+	pIdx = idxOutput;
+	
+	if ( (pSignal = (MP_Real_t**) malloc( sizeof(MP_Real_t*) * s->numChans ) ) == NULL ) {
+		mp_error_msg( "MP_Convolution_FFT_c::initialize", "Can't allocate an array of [%lu] MP_Real_t* elements"
+					 " for the pSignal array using malloc. This pointer will remain NULL.\n", s->numChans );
+	} else {
+		for ( chanIdx = 0;
+			 chanIdx < s->numChans;
+			 chanIdx ++ ) {
+			pSignal[chanIdx] = s->channel[chanIdx] + fromSample;
+		}
+	}
+	
+	for (frameIdx = 0, sampleIdx = fromSample;
+		 frameIdx < numFrames;
+		 frameIdx ++, sampleIdx += filterShift) {
+		
+		*pAmp = 0.0;
+		*pIdx = 0;
+		
+		subBook = subBook->get_pos_book(sampleIdx);
+		if (!subBook){
+			for (filterIdx = 0;
+				 filterIdx < anywaveTable->numFilters; 
+				 filterIdx ++) {
+				
+				doubleTmp = 0.0;
+				
+				for ( chanIdx = 0;
+					 chanIdx < s->numChans;
+					 chanIdx ++ ) {
+					if (s->numChans == anywaveTable->numChans){
+						doubleTmp += compute_IP( pSignal[chanIdx], filterIdx, chanIdx );
+					} else {
+						tmp = compute_IP( pSignal[chanIdx], filterIdx, 0 );
+						doubleTmp += tmp * tmp;
+					}
+				}
+				if (s->numChans == anywaveTable->numChans){
+					doubleTmp *= doubleTmp;
+				}	
+				
+				if (doubleTmp > *pAmp) {
+					*pAmp = (MP_Real_t)doubleTmp;
+					*pIdx = filterIdx;
+				}
+			}
+		}
+		else{
+			for (filterIdx = 0, iter = subBook->begin();
+				 filterIdx < anywaveTable->numFilters; 
+				 filterIdx ++) {
+				
+				doubleTmp = 0.0;
+				
+				for ( chanIdx = 0;
+					 chanIdx < s->numChans;
+					 chanIdx ++ ) {
+					tmp = compute_IP( pSignal[chanIdx], filterIdx, chanIdx );
+					if (s->numChans == anywaveTable->numChans)
+						doubleTmp += tmp;
+					else 
+						doubleTmp += tmp * tmp;
+					if (iter != book->end() && iter->get_field(MP_ANYWAVE_IDX_PROP, 0) == filterIdx){
+						iter->corr[chanIdx] = tmp;
+						++iter;
+					}
+				}
+				if (s->numChans == anywaveTable->numChans){
+					doubleTmp *= doubleTmp;
+				}	
+				
+				if (doubleTmp > *pAmp) {
+					*pAmp = (MP_Real_t)doubleTmp;
+					*pIdx = filterIdx;
+				}
+			}
+		}
+		
+		pAmp ++;
+		pIdx ++;
+		for ( chanIdx = 0;
+			 chanIdx < s->numChans;
+			 chanIdx ++ ) {
+			pSignal[chanIdx] += filterShift;
+		}    
+	}
+	
+	if (pSignal != NULL) {
+		free( pSignal );
+	}
 }
 
 
@@ -2137,6 +2299,334 @@ void MP_Convolution_FFT_c::compute_max_IP( MP_Signal_c* s, unsigned long int inp
   if ( pNextSlice != NULL ) {
     free( pNextSlice );
   }
+}
+
+void MP_Convolution_FFT_c::compute_max_IP( MP_Signal_c* s, unsigned long int inputLen, unsigned long int fromSample, MP_Real_t* ampOutput, unsigned long int* idxOutput, GP_Pos_Book_c* book ) {
+	
+	unsigned short int chanIdx;
+	
+	unsigned long int sliceIdx;
+	
+	unsigned long int numFrames;
+	unsigned long int frameIdx;
+	
+	unsigned long int numFramesAdd;
+	unsigned long int numFramesNew;
+	unsigned long int maxNumFramesPerSlice;
+	unsigned long int firstFrameSample;
+	unsigned long int nextFirstFrameSample;
+	unsigned long int numSlices;
+	
+	MP_Real_t** pSlice;
+	MP_Real_t** pNextSlice;
+	MP_Real_t** pInputEnd;
+	
+	unsigned long int tmp;
+	unsigned long int tmpMax;
+	double* pAmp;
+	unsigned long int* pIdx;
+	
+	double doubleTmp;
+	
+	double* outputAdd;
+	double* outputNew;
+	double* pOutputAdd;
+	double* pOutputNew;
+	
+	double*** accessOutputAdd;
+	double*** accessOutputNew;
+	double*** accessSwitch;
+	
+	unsigned long int filterIdx;
+	unsigned long int sampleIdx;
+	GP_Param_Book_Iterator_c iter;
+	GP_Param_Book_c* subBook;
+	
+	if(!book){
+		compute_max_IP( s, inputLen, fromSample, ampOutput, idxOutput);
+		return;
+	}
+	
+	if (anywaveTable == NULL) {
+		mp_error_msg( "MP_Convolution_FFT_c::compute_max_IP", "Can't compute the inner products because the anywave table does not exists... aborting\n");
+		exit(1);
+	}
+	
+	if ( fromSample > s->numSamples) {
+		mp_error_msg( "MP_Convolution_FFT_c::compute_IP","Inputs ask to process a slice of signal beginning at sample [%lu], whereas the signal contains only [%lu] samples... aborting\n", fromSample, s->numSamples);
+		return;
+	}
+	if ( inputLen > s->numSamples - fromSample ) {
+		mp_error_msg( "MP_Convolution_FFT_c::compute_IP","Inputs ask to process the slice of signal beginning at sample [%lu], of length [%lu], whereas the signal contains only [%lu] samples... aborting\n", fromSample, inputLen, s->numSamples);
+		return;
+	}
+	
+	if( inputLen < anywaveTable->filterLen ) {
+		mp_error_msg( "MP_Convolution_FFT_c::compute_IP","Can't compute inner products because the input signal is smaller than the filter\n inputLen=%lu - filterLen=%lu... aborting\n", inputLen, anywaveTable->filterLen);
+		return;
+	}
+	
+	if ( ( inputLen == 0 ) || ( anywaveTable->filterLen == 0 ) ) {
+		mp_error_msg( "MP_Convolution_FFT_c::compute_IP","Can't compute inner products because the input or filter length has not been filled in :\n inputLen=%lu - filterLen=%lu  ... aborting\n", inputLen, anywaveTable->filterLen);
+		return;
+	}
+	
+	if ( inputLen == MP_MAX_UNSIGNED_LONG_INT ) {
+		mp_error_msg( "MP_Convolution_FFT_c::compute_IP", "inputLen [%lu] is equal to the max for an unsigned long int [%lu]. Cannot initialize the number of slices. Exiting from compute_IP()\n", inputLen, MP_MAX_UNSIGNED_LONG_INT );
+		return;
+	}
+	numFrames = ((inputLen - anywaveTable->filterLen)/filterShift) + 1;
+	numSlices = ( inputLen / anywaveTable->filterLen ) + 1;
+	
+	pAmp = ampOutput;
+	pIdx = idxOutput;
+	
+	/* inits pSlice to the first sample of input */
+	numFramesAdd = 0;
+	
+	numFramesNew = 1;
+	nextFirstFrameSample = anywaveTable->filterLen-1;
+	tmp = nextFirstFrameSample;
+	tmpMax = inputLen;
+	
+	tmp += filterShift;
+	tmp -= anywaveTable->filterLen;
+	tmpMax -= anywaveTable->filterLen;
+	maxNumFramesPerSlice = ( (anywaveTable->filterLen - 1) / filterShift) + 1;
+	
+	if ( (double)MP_MAX_SIZE_T / (double)anywaveTable->numFilters / (double)maxNumFramesPerSlice / (double)s->numChans / (double)sizeof(double) <= 1.0) {
+		mp_error_msg( "MP_Convolution_FFT_c::compute_max_IP", "anywaveTable->numFilters [%lu] . maxNumFramesPerSlice [%lu] . s->numChans [%lu] is greater than the max for a size_t [%lu]. Cannot initialize local variable. Exiting from compute_max_IP().\n", anywaveTable->numFilters, maxNumFramesPerSlice, s->numChans, MP_MAX_SIZE_T);
+		return;
+	} else {
+		if ( (outputAdd = (double*) calloc( maxNumFramesPerSlice * anywaveTable->numFilters * s->numChans, sizeof(double) ) ) == NULL ) {
+			mp_error_msg( "MP_Convolution_FFT_c::compute_max_IP", "Can't allocate an array of [%lu] double elements"
+						 " for the outputAdd array using malloc. This pointer will remain NULL.\n", maxNumFramesPerSlice * anywaveTable->numFilters * s->numChans );
+		}
+		if ( (outputNew = (double*) calloc( maxNumFramesPerSlice * anywaveTable->numFilters * s->numChans, sizeof(double) ) ) == NULL ) {
+			mp_error_msg( "MP_Convolution_FFT_c::compute_max_IP", "Can't allocate an array of [%lu] double elements"
+						 " for the outputNew array using malloc. This pointer will remain NULL.\n", maxNumFramesPerSlice * anywaveTable->numFilters * s->numChans );
+		}    
+	}
+	
+	if ( (accessOutputAdd = (double***) malloc( sizeof(double**) * anywaveTable->numFilters ) ) == NULL ) {
+		mp_error_msg( "MP_Convolution_FFT_c::compute_max_IP", "Can't allocate an array of [%lu] double elements"
+					 " for the accessOutputAdd array using malloc. This pointer will remain NULL.\n", anywaveTable->numFilters );
+	} else {
+		for (filterIdx = 0, pOutputAdd = outputAdd;
+			 filterIdx < anywaveTable->numFilters; 
+			 filterIdx ++) {
+			if ( (accessOutputAdd[filterIdx] = (double**) malloc( sizeof(double*) * s->numChans ) ) == NULL ) {
+				mp_error_msg( "MP_Convolution_FFT_c::compute_max_IP", "Can't allocate an array of [%lu] double elements"
+							 " for the accessOutputAdd[%lu] array using malloc. This pointer will remain NULL.\n", s->numChans, filterIdx );
+			} else {
+				for ( chanIdx = 0;
+					 chanIdx < s->numChans;
+					 chanIdx ++, pOutputAdd += maxNumFramesPerSlice ) {
+					accessOutputAdd[filterIdx][chanIdx] = pOutputAdd;
+				}
+			}
+		}
+	}
+	if ( (accessOutputNew = (double***) malloc( sizeof(double**) * anywaveTable->numFilters ) ) == NULL ) {
+		mp_error_msg( "MP_Convolution_FFT_c::compute_max_IP", "Can't allocate an array of [%lu] double elements"
+					 " for the accessOutputNew array using malloc. This pointer will remain NULL.\n", anywaveTable->numFilters );
+	} else {
+		for (filterIdx = 0, pOutputNew = outputNew;
+			 filterIdx < anywaveTable->numFilters; 
+			 filterIdx ++) {
+			if ( (accessOutputNew[filterIdx] = (double**) malloc( sizeof(double*) * s->numChans ) ) == NULL ) {
+				mp_error_msg( "MP_Convolution_FFT_c::compute_max_IP", "Can't allocate an array of [%lu] double elements"
+							 " for the accessOutputNew[%lu] array using malloc. This pointer will remain NULL.\n", s->numChans, filterIdx );
+			} else {
+				for ( chanIdx = 0;
+					 chanIdx < s->numChans;
+					 chanIdx ++, pOutputNew += maxNumFramesPerSlice ) {
+					accessOutputNew[filterIdx][chanIdx] = pOutputNew;
+				}
+			}
+		}
+	}   
+	
+	if ( (pSlice = (MP_Real_t**) malloc( sizeof(MP_Real_t*) * s->numChans ) ) == NULL ) {
+		mp_error_msg( "MP_Convolution_FFT_c::compute_max_IP", "Can't allocate an array of [%lu] MP_Real_t* elements"
+					 " for the pSlice array using malloc. This pointer will remain NULL.\n", s->numChans );
+	}
+	if ( (pInputEnd = (MP_Real_t**) malloc( sizeof(MP_Real_t*) * s->numChans ) ) == NULL ) {
+		mp_error_msg( "MP_Convolution_FFT_c::compute_max_IP", "Can't allocate an array of [%lu] MP_Real_t* elements"
+					 " for the pInputEnd array using malloc. This pointer will remain NULL.\n", s->numChans );
+	}
+	if ( (pNextSlice = (MP_Real_t**) malloc( sizeof(MP_Real_t*) * s->numChans ) ) == NULL ) {
+		mp_error_msg( "MP_Convolution_FFT_c::compute_max_IP", "Can't allocate an array of [%lu] MP_Real_t* elements"
+					 " for the pNextSlice array using malloc. This pointer will remain NULL.\n", s->numChans );
+	}
+	
+	for (chanIdx = 0;
+		 chanIdx < s->numChans;
+		 chanIdx ++) {
+		pSlice[chanIdx] = s->channel[chanIdx] + fromSample;
+		pInputEnd[chanIdx] = pSlice[chanIdx] + inputLen;
+		pNextSlice[chanIdx] = pSlice[chanIdx] + anywaveTable->filterLen;
+	}
+	
+	/* loop on the slices of size anywaveTable->filterLen */
+	for (sliceIdx = 0;
+		 sliceIdx < numSlices;
+		 sliceIdx ++) {
+		
+		accessSwitch = accessOutputAdd;
+		accessOutputAdd = accessOutputNew;    
+		accessOutputNew = accessSwitch;
+		
+		numFramesAdd = numFramesNew;
+		numFramesNew = 0;
+		
+		firstFrameSample = nextFirstFrameSample;
+		nextFirstFrameSample = tmp;    
+		
+		while ((tmp < anywaveTable->filterLen)&&(tmp < tmpMax)) {
+			numFramesNew ++;
+			tmp += filterShift;
+		}
+		if (tmp >= (inputLen - anywaveTable->filterLen + 1)) {
+			tmp -= inputLen + anywaveTable->filterLen - 1;
+		} else {
+			tmp -= anywaveTable->filterLen;
+			tmpMax -= anywaveTable->filterLen;
+		}
+		
+		for ( chanIdx = 0;
+			 chanIdx < s->numChans;
+			 chanIdx ++ ) {
+			
+			if ( pNextSlice[chanIdx] > pInputEnd[chanIdx] ) {      
+				pNextSlice[chanIdx] = pInputEnd[chanIdx];
+			}
+			
+			for (filterIdx = 0, pOutputNew = outputNew;
+				 filterIdx < anywaveTable->numFilters; 
+				 filterIdx ++) {
+				outputRealBufferAdd[filterIdx] = accessOutputAdd[filterIdx][chanIdx];
+				outputRealBufferNew[filterIdx] = accessOutputNew[filterIdx][chanIdx];
+			}
+			
+			if (s->numChans == anywaveTable->numChans){
+				circular_convolution( pSlice[chanIdx], pNextSlice[chanIdx], chanIdx, firstFrameSample, numFramesAdd, numFramesNew );
+			} else {
+				circular_convolution( pSlice[chanIdx], pNextSlice[chanIdx], 0, firstFrameSample, numFramesAdd, numFramesNew );
+			}
+			
+			pSlice[chanIdx] += anywaveTable->filterLen;
+			pNextSlice[chanIdx] += anywaveTable->filterLen;
+			
+		}
+		/* computes the inner products and find the max */
+		
+		for (frameIdx = 0, sampleIdx = fromSample;
+			 frameIdx < numFramesAdd;
+			 frameIdx ++, sampleIdx += filterShift ) {
+			*pAmp = 0.0;
+			*pIdx = 0;
+			
+			subBook = book->get_pos_book(sampleIdx);
+			
+			if (!subBook){
+				for (filterIdx = 0;
+					 filterIdx < anywaveTable->numFilters; 
+					 filterIdx ++) {
+					
+					doubleTmp = 0.0;
+					
+					for ( chanIdx = 0;
+						 chanIdx < s->numChans;
+						 chanIdx ++ ) {
+						
+						if (s->numChans == anywaveTable->numChans){
+							doubleTmp += accessOutputAdd[filterIdx][chanIdx][frameIdx];
+						} else {
+							doubleTmp += accessOutputAdd[filterIdx][chanIdx][frameIdx] * accessOutputAdd[filterIdx][chanIdx][frameIdx];
+						}
+					}
+					if (s->numChans == anywaveTable->numChans){
+						doubleTmp *= doubleTmp;
+					}	
+					
+					if (doubleTmp > *pAmp) {
+						*pAmp = (MP_Real_t)doubleTmp;
+						*pIdx = filterIdx;
+					}
+				}
+			}
+			else{
+				for (filterIdx = 0, iter = subBook->begin();
+					 filterIdx < anywaveTable->numFilters; 
+					 filterIdx ++) {
+					
+					doubleTmp = 0.0;
+					
+					for ( chanIdx = 0;
+						 chanIdx < s->numChans;
+						 chanIdx ++ ) {
+						
+						if (s->numChans == anywaveTable->numChans){
+							doubleTmp += accessOutputAdd[filterIdx][chanIdx][frameIdx];
+						} else {
+							doubleTmp += accessOutputAdd[filterIdx][chanIdx][frameIdx] * accessOutputAdd[filterIdx][chanIdx][frameIdx];
+						}
+						if(iter!=subBook->end() && iter->get_field(MP_ANYWAVE_IDX_PROP, 0) == filterIdx){
+							iter->corr[chanIdx] = accessOutputAdd[filterIdx][chanIdx][frameIdx];
+							++iter;
+						}
+					}
+					if (s->numChans == anywaveTable->numChans){
+						doubleTmp *= doubleTmp;
+					}	
+					
+					if (doubleTmp > *pAmp) {
+						*pAmp = (MP_Real_t)doubleTmp;
+						*pIdx = filterIdx;
+					}
+				}
+			}			
+			pAmp ++;
+			pIdx ++;
+		}
+	}
+	
+	/* clean the house */
+	
+	if ( outputAdd ) { free (outputAdd); }
+	if ( outputNew ) { free (outputNew); }
+	
+	if ( accessOutputAdd) {
+		for (filterIdx = 0;
+			 filterIdx < anywaveTable->numFilters; 
+			 filterIdx ++) {
+			if ( accessOutputAdd[filterIdx] ) {
+				free( accessOutputAdd[filterIdx] );
+			}
+		}
+		free( accessOutputAdd );
+	}
+	if ( accessOutputNew) {
+		for (filterIdx = 0;
+			 filterIdx < anywaveTable->numFilters; 
+			 filterIdx ++) {
+			if ( accessOutputNew[filterIdx] ) {
+				free( accessOutputNew[filterIdx] );
+			}
+		}
+		free( accessOutputNew );
+	}
+	
+	if ( pSlice != NULL ) {
+		free( pSlice );
+	}
+	if ( pInputEnd != NULL ) {
+		free( pInputEnd );
+	}
+	if ( pNextSlice != NULL ) {
+		free( pNextSlice );
+	}
 }
 
 void MP_Convolution_FFT_c::compute_max_hilbert_IP( MP_Signal_c* s, unsigned long int inputLen, unsigned long int fromSample, MP_Real_t* ampOutput, unsigned long int* idxOutput ) {

@@ -398,6 +398,46 @@ void MP_Anywave_Atom_Plugin_c::build_waveform( MP_Real_t *outBuffer )
     }
 }
 
+/********************/
+/* Waveform builder */
+void MP_Anywave_Atom_Plugin_c::build_waveform_norm( MP_Real_t *outBuffer )
+{
+	MP_Real_t *atomBuffer;
+	MP_Chan_t chanIdx;
+	unsigned long int len;
+	MP_Real_t* waveBuffer;
+	unsigned long int t;
+	
+	if ( outBuffer == NULL )
+    {
+		mp_error_msg( "MP_Anywave_Atom_c::build_waveform", "The output buffer shall have been allocated before calling this function. Now, it is NULL. Exiting from this function.\n");
+		return;
+    }
+	
+	for (chanIdx = 0, atomBuffer = outBuffer ; chanIdx < numChans ; chanIdx++)
+    {
+		/* Dereference the atom length in the current channel once and for all */
+		len = support[chanIdx].len;
+
+		
+		if (numChans == anywaveTable->numChans)
+        {
+			/* multichannel filter */
+			waveBuffer = anywaveTable->wave[anywaveIdx][chanIdx];
+        }
+		else
+        {
+			/* monochannel filter */
+			waveBuffer = anywaveTable->wave[anywaveIdx][0];
+        }
+		for ( t = 0 ; t < len ; t++, atomBuffer++, waveBuffer++)
+        {
+			/* Compute the waveform samples */
+			(*atomBuffer) = (*waveBuffer);
+        }
+    }
+}
+
 
 /* Adds a pseudo Wigner-Ville of the atom to a time-frequency map */
 int MP_Anywave_Atom_Plugin_c::add_to_tfmap( MP_TF_Map_c *tfmap, const char tfmapType  )
@@ -492,4 +532,8 @@ bool MP_Anywave_Atom_Plugin_c::read_filename_bin( FILE* fid, char* outputStr)
 	}
 	outputStr[numChar-1] = '\0';
 	return(true);
+}
+
+MP_Atom_Param_c* MP_Anywave_Atom_Plugin_c::get_atom_param( void )const{
+	return new MP_Index_Atom_Param_c(anywaveIdx);
 }

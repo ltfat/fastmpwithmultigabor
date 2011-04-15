@@ -244,14 +244,15 @@ class MP_Atom_c
 		 * \param outBuffer the array of size \b totalChanLen which is filled with the  concatenated 
 		 * waveforms of all channels. 
 		 */ 
-		MPTK_LIB_EXPORT virtual void build_waveform( MP_Real_t *outBuffer ) = 0;
-		/** \brief Adds a pseudo Wigner-Ville of the atom to a time-frequency map 
-		 * \param tfmap the time-frequency map to which the atom distribution will be plotted
-		 * \param tfmapType an indicator of what to put in the tfmap, to be chosen among
-		 * MP_TFMAP_SUPPORTS or MP_TFMAP_PSEUDO_WIGNER (see tfmap.h for more).
-		 * \return one if the atom printed something into the map, zero otherwise
-		 */
-		MPTK_LIB_EXPORT virtual int add_to_tfmap( MP_TF_Map_c *tfmap, const char tfmapType ) = 0;
+	MPTK_LIB_EXPORT virtual void build_waveform( MP_Real_t *outBuffer ) = 0;
+	MPTK_LIB_EXPORT virtual void build_waveform_norm( MP_Real_t *outBuffer );
+	/** \brief Adds a pseudo Wigner-Ville of the atom to a time-frequency map 
+	 * \param tfmap the time-frequency map to which the atom distribution will be plotted
+	 * \param tfmapType an indicator of what to put in the tfmap, to be chosen among
+	 * MP_TFMAP_SUPPORTS or MP_TFMAP_PSEUDO_WIGNER (see tfmap.h for more).
+	 * \return one if the atom printed something into the map, zero otherwise
+	 */
+	MPTK_LIB_EXPORT virtual int add_to_tfmap( MP_TF_Map_c *tfmap, const char tfmapType ) = 0;
 		MPTK_LIB_EXPORT virtual MP_Real_t dist_to_tfpoint( MP_Real_t time, MP_Real_t freq , MP_Chan_t chanIdx );
 		/** \brief Tests if a field of an atom satisfies a property on a given channel 
 		 * \param field the type of the property (ex: MP_AMP_PROP, MP_FREQ_PROP, ...)

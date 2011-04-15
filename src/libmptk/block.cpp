@@ -781,7 +781,8 @@ unsigned long int MP_Block_c::build_subbook_waveform_corr(GP_Book_c* thisBook, M
 	// Calcul de la longueur finale;
 	for (iter = thisBook->begin().copy(); *iter != thisBook->end(); iter->go_to_next_frame())
 		thisPosition = (*iter)->support[0].pos;
-	delete iter;
+	if (iter)
+		delete iter;
 
 	size = thisPosition-thisFirstPosition+filterLen;
 
@@ -803,7 +804,8 @@ unsigned long int MP_Block_c::build_subbook_waveform_corr(GP_Book_c* thisBook, M
 		}
 	}
 
-	delete iter;
+	if (iter)
+		delete iter;
 	return size;
 }
 
@@ -818,14 +820,12 @@ unsigned long int MP_Block_c::build_frame_waveform_amp(GP_Param_Book_c* thisFram
 			outBuffer[iIndex] += outBufferTemp[iIndex];
 	}
 
-	delete []outBufferTemp;
 	return filterLen;
 }
 
 unsigned long int MP_Block_c::build_frame_waveform_corr(GP_Param_Book_c* thisFrame, MP_Real_t *outBuffer )
 {
 	GP_Param_Book_Iterator_c iter;
-	cout << "Generic" << endl;
 	// Parcours de la frame pour reconstruction
 	for (iter = thisFrame->begin(); iter != thisFrame->end(); ++iter)	
 	{
@@ -834,7 +834,6 @@ unsigned long int MP_Block_c::build_frame_waveform_corr(GP_Param_Book_c* thisFra
 			outBuffer[iIndex] += outBufferTemp[iIndex];
 	}
 
-	delete []outBufferTemp;
 	return filterLen;
 }
 
@@ -846,12 +845,12 @@ unsigned long int MP_Block_c::build_atom_waveform_amp(MP_Atom_c *thisAtom,MP_Rea
 
 unsigned long int MP_Block_c::build_atom_waveform_corr(MP_Atom_c *thisAtom,MP_Real_t *outBuffer )
 {
-	thisAtom->build_waveform(outBuffer);
+	thisAtom->build_waveform_norm(outBuffer);
 	// Parcours du tableau outBuffer pour effectuer le calcul de corr�lation
 	for (int c = 0; c < s->numChans; c++){
 		unsigned long int offset = c*filterLen;
 		for (unsigned int iIndex = 0; iIndex < filterLen; iIndex++)
-			outBuffer[iIndex+offset] = (outBuffer[iIndex+offset]/thisAtom->amp[c])*thisAtom->corr[c];
+			outBuffer[iIndex+offset] = outBuffer[iIndex+offset]*thisAtom->corr[c];
 	}
 	return filterLen;
 }
