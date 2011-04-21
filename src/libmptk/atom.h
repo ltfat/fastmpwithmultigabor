@@ -246,6 +246,7 @@ class MP_Atom_c
 		 */ 
 	MPTK_LIB_EXPORT virtual void build_waveform( MP_Real_t *outBuffer ) = 0;
 	MPTK_LIB_EXPORT virtual void build_waveform_norm( MP_Real_t *outBuffer );
+	MPTK_LIB_EXPORT virtual void build_waveform_corr( MP_Real_t *outBuffer );
 	/** \brief Adds a pseudo Wigner-Ville of the atom to a time-frequency map 
 	 * \param tfmap the time-frequency map to which the atom distribution will be plotted
 	 * \param tfmapType an indicator of what to put in the tfmap, to be chosen among

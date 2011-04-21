@@ -410,10 +410,10 @@ unsigned short int GPD_Core_c::step() {
 			enGrad = enGrad + gradient[t+offset]*gradient[t+offset];
 
 		alpha = enCorr/enGrad;
-		cerr << "enCorr = " << enCorr << endl;
-		cerr << "enGrad = " << enGrad << endl;
+		//cerr << "enCorr = " << enCorr << endl;
+		//cerr << "enGrad = " << enGrad << endl;
 		
-		cerr << "alpha = " << alpha << endl;
+		//cerr << "alpha = " << alpha << endl;
 
 		// dump the gradient
 //
