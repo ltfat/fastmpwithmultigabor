@@ -57,119 +57,127 @@
 
 MP_Block_c* MP_Anywave_Block_Plugin_c::create( MP_Signal_c *setSignal, map<string, string, mp_ltstring> *paramMap )
 {
-
-  const char* func = "MP_Gabor_Block_Plugin_c::create( MP_Signal_c *setSignal, map<const char*, const char*, mp_ltstring> *paramMap )";
-  MP_Anywave_Block_Plugin_c *newBlock = NULL;
-  char*  convertEnd;
-  char * anywaveTableFilename = NULL;
-  unsigned long int filterShift =0 ;
-  unsigned long int blockOffset = 0;
+	const char					*func = "MP_Gabor_Block_Plugin_c::create( MP_Signal_c *setSignal, map<const char*, const char*, mp_ltstring> *paramMap )";
+	MP_Anywave_Block_Plugin_c	*newBlock = NULL;
+	char						*anywaveTableFilename = NULL;
   
-  /* Instantiate and check */
-  newBlock = new MP_Anywave_Block_Plugin_c();
-  if ( newBlock == NULL )
+	// Analyse the parameter map
+	if (strcmp((*paramMap)["type"].c_str(),"anywave"))
     {
-      mp_error_msg( func, "Failed to create a new Anywave block.\n" );
-      return( NULL );
-    }
-  /* Analyse the parameter map */
-  if (strcmp((*paramMap)["type"].c_str(),"anywave"))
-    {
-      mp_error_msg( func, "Parameter map does not define a Anywave block.\n" );
-      return( NULL );
+		mp_error_msg( func, "Parameter map does not define a Anywave block.\n" );
+		return( NULL );
     }
 
-
-  if ((*paramMap)["windowShift"].size()>0)
+	// Instantiate and check
+	newBlock = new MP_Anywave_Block_Plugin_c();
+	if ( newBlock == NULL )
     {
-      /*Convert windowShift*/
-      filterShift=strtol((*paramMap)["windowShift"].c_str(), &convertEnd, 10);
-      if (*convertEnd != '\0')
-        {
-          mp_error_msg( func, "cannot convert parameter windowShift in unsigned long int.\n");
-          return( NULL );
-        }
+		mp_error_msg( func, "Failed to create a new Anywave block.\n" );
+		return( NULL );
     }
 
-  else
+	if ((*paramMap)["tableFileName"].size() > 1)
     {
-      mp_error_msg( func, "No parameter windowShift in the parameter map.\n" );
-      return( NULL );
+		anywaveTableFilename = (char*) malloc ((strlen((*paramMap)["tableFileName"].c_str())+1 ) * sizeof(char));
+		strcpy (anywaveTableFilename,(*paramMap)["tableFileName"].c_str());
+
+		// Set the block parameters (that are independent from the signal)
+		if (newBlock->init_parameters(paramMap, anywaveTableFilename))
+		{
+			mp_error_msg( func, "Failed to initialize some block parameters in the new Anywave block.\n" );
+			delete( newBlock );
+			return( NULL );
+		}
+
+		// Set the block parameter map (that are independent from the signal) */
+		if ( newBlock->init_parameter_map( newBlock->filterShift, anywaveTableFilename , newBlock->blockOffset ) )
+		{
+			mp_error_msg( func, "Failed to initialize parameters map in the new Anywave block.\n" );
+			delete( newBlock );
+			return( NULL );
+		} 
+
+		// Set the signal-related parameters */
+		if ( newBlock->plug_signal( setSignal ) )
+		{
+			mp_error_msg( func, "Failed to plug a signal in the new Anywave block.\n" );
+			delete( newBlock );
+			return( NULL );
+		}
+	}
+	else
+    {
+		// Set the block parameters (that are independent from the signal)
+		if ( newBlock->init_parameters( paramMap, NULL ) )
+		{
+			mp_error_msg( func, "Failed to initialize some block parameters in the new Anywave block.\n" );
+			delete( newBlock );
+			return( NULL );
+		}
     }
 
-  if ((*paramMap)["tableFileName"].size() > 1)
-    {
-      anywaveTableFilename = (char*) malloc ((strlen((*paramMap)["tableFileName"].c_str())+1 ) * sizeof(char));
-      strcpy (anywaveTableFilename,(*paramMap)["tableFileName"].c_str());
-    }
-  else
-    {
-      mp_error_msg( func, "No parameter tableFileName in the parameter map.\n" );
-      return( NULL );
-    }
-
-     if ((*paramMap)["blockOffset"].size()>0)
-    {
-      /*Convert windowShift*/
-      blockOffset=strtol((*paramMap)["blockOffset"].c_str(), &convertEnd, 10);
-      if (*convertEnd != '\0')
-        {
-          mp_error_msg( func, "cannot convert parameter windowShift in unsigned long int.\n");
-          return( NULL );
-        }
-    }
-  /* Set the block parameters (that are independent from the signal) */
-  if ( newBlock->init_parameters( filterShift, anywaveTableFilename , blockOffset ) )
-    {
-      mp_error_msg( func, "Failed to initialize some block parameters in the new Anywave block.\n" );
-      delete( newBlock );
-      return( NULL );
-    }
-
-   /* Set the block parameter map (that are independent from the signal) */
-  if ( newBlock->init_parameter_map( filterShift, anywaveTableFilename , blockOffset ) )
-                                   {
-      mp_error_msg( func, "Failed to initialize parameters map in the new Anywave block.\n" );
-      delete( newBlock );
-      return( NULL );
-    } 
-
-
-  /* Set the signal-related parameters */
-  if ( newBlock->plug_signal( setSignal ) )
-    {
-      mp_error_msg( func, "Failed to plug a signal in the new Gabor block.\n" );
-      delete( newBlock );
-      return( NULL );
-    }
-if(anywaveTableFilename) free (anywaveTableFilename);
-  return( (MP_Block_c*)newBlock );
+	if(anywaveTableFilename) 
+		free (anywaveTableFilename);
+  
+	return( (MP_Block_c*)newBlock );
 }
 
 /*********************************************************/
 /* Initialization of signal-independent block parameters */
-int MP_Anywave_Block_Plugin_c::init_parameters( const unsigned long int setFilterShift,
-    char* anywaveTableFilename,
-    const unsigned long int setBlockOffset )
+int MP_Anywave_Block_Plugin_c::init_parameters( map<string, string, mp_ltstring> *paramMap, char* anywaveTableFilename)
 {
-  const char* func = "MP_Anywave_Block_c::init_parameters(...)";
+	const char			*func = "MP_Anywave_Block_c::init_parameters(...)";
+	char				*convertEnd;
+	unsigned long int	filterShift =0 ;
+	unsigned long int	blockOffset = 0;
 
-  /* Load the table */
-  tableIdx = MPTK_Server_c::get_anywave_server()->add(anywaveTableFilename);
-  if ( tableIdx >= MPTK_Server_c::get_anywave_server()->maxNumTables )
+	if ((*paramMap)["windowShift"].size()>0)
     {
-      /* if the addition of a anywave table in the anywave server failed */
-      mp_error_msg( func,"The anywave table can't be added to the anywave server. The anywave table remain NULL" );
-      tableIdx = 0;
-      return(1);
+		// Convert windowShift
+		filterShift=strtol((*paramMap)["windowShift"].c_str(), &convertEnd, 10);
+		if (*convertEnd != '\0')
+        {
+			mp_error_msg( func, "cannot convert parameter windowShift in unsigned long int.\n");
+			return( NULL );
+        }
     }
-  else
+	else
     {
-      anywaveTable = MPTK_Server_c::get_anywave_server()->tables[tableIdx];
+		mp_error_msg( func, "No parameter windowShift in the parameter map.\n" );
+		return( NULL );
+    }
+
+    if ((*paramMap)["blockOffset"].size()>0)
+    {
+		// Convert windowShift
+		blockOffset=strtol((*paramMap)["blockOffset"].c_str(), &convertEnd, 10);
+		if (*convertEnd != '\0')
+        {
+			mp_error_msg( func, "cannot convert parameter windowShift in unsigned long int.\n");
+			return( NULL );
+        }
+    }
+
+	// Load the table using "anywaveTableFilename" (old xml file) or the "paramMap" (new xml file)
+	if(anywaveTableFilename != NULL)
+		tableIdx = MPTK_Server_c::get_anywave_server()->add(anywaveTableFilename);
+	else
+		tableIdx = MPTK_Server_c::get_anywave_server()->add(paramMap);
+
+	if ( tableIdx >= MPTK_Server_c::get_anywave_server()->maxNumTables )
+    {
+		// if the addition of a anywave table in the anywave server failed */
+		mp_error_msg( func,"The anywave table can't be added to the anywave server. The anywave table remain NULL" );
+		tableIdx = 0;
+		return(1);
+    }
+	else
+    {
+		anywaveTable = MPTK_Server_c::get_anywave_server()->tables[tableIdx];
     }
 
   /* Go up the inheritance graph */
-  if ( MP_Block_c::init_parameters( anywaveTable->filterLen, setFilterShift, anywaveTable->numFilters, setBlockOffset ) ) 
+  if ( MP_Block_c::init_parameters( anywaveTable->filterLen, filterShift, anywaveTable->numFilters, blockOffset ) ) 
     {
       mp_error_msg( func, "Failed to init the block-level parameters in the new Anywave block.\n" );
       return( 1 );
@@ -180,7 +188,7 @@ int MP_Anywave_Block_Plugin_c::init_parameters( const unsigned long int setFilte
     {
       delete(convolution);
     }
-  if ( ( convolution = new MP_Convolution_Fastest_c( anywaveTable, setFilterShift ) ) == NULL )
+  if ( ( convolution = new MP_Convolution_Fastest_c( anywaveTable, filterShift ) ) == NULL )
     {
       return(1);
     }

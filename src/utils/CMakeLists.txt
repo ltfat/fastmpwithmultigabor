@@ -17,6 +17,26 @@ SET_TARGET_PROPERTIES(getopt PROPERTIES
 	OUTPUT_NAME "libgetopt" )
 
 #------------------------------------------------
+# Build base64 library
+#------------------------------------------------
+ADD_SUBDIRECTORY (libbase64)
+
+#------------------------------------------------
+# Build dsp_windows library
+#------------------------------------------------
+ADD_SUBDIRECTORY (libdsp_windows)
+
+#------------------------------------------------
+# Build tiny_xml library
+#------------------------------------------------
+ADD_SUBDIRECTORY (libtinyxml)
+
+#------------------------------------------------
+# Build md5sum library
+#------------------------------------------------
+ADD_SUBDIRECTORY (libmd5sum)
+
+#------------------------------------------------
 # Build main executables      
 #------------------------------------------------
 FOREACH(target mpd mpd_demix mpr mpf mpcat mpview gpd)

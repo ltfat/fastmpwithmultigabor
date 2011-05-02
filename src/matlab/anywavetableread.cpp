@@ -82,14 +82,20 @@ void mexFunction(int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[])
 	//-------------------
 	// Loading the table
 	//-------------------
-	mpTable = new MP_Anywave_Table_c(szFileName);
-	if (!mpTable) 
+	mpTable = new MP_Anywave_Table_c();
+	if (mpTable == NULL ) 
+	{
+		mexPrintf("Failed to create an anywave table.\n");
+		mexErrMsgTxt("Aborting");
+		return;
+	} 
+	if(!mpTable->AnywaveCreator(szFileName))
 	{
 		mexPrintf("Failed to create an anywave table from binary file [%s].\n", szFileName);
 		mexErrMsgTxt("Aborting");
 		mxFree(szFileName);
 		return;
-	}
+	} 
 
 	//-----------------------------------------------
 	// Loading dictionary object in Matlab structure

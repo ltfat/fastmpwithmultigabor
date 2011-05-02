@@ -63,6 +63,7 @@ class MP_Anywave_Table_c
 	/* DATA */
 	/********/
 	public:
+		char *szKeyTable;
 		/** \brief Name of the file containing the waveform table (text
 		 * file, extension .xml)
 		 *
@@ -158,11 +159,6 @@ class MP_Anywave_Table_c
 	public:
 		/** \brief Default constructor */
 		MPTK_LIB_EXPORT MP_Anywave_Table_c( void );
-		/** \brief Constructor using a filename
-		 * \param fileName A string containing the name of the file that
-		 * describes the anywave table ("PATH/anywave.xml" in the example)
-		 */
-		MPTK_LIB_EXPORT MP_Anywave_Table_c( char* fileName );
 		/** \brief Default destructor */
 		MPTK_LIB_EXPORT virtual ~MP_Anywave_Table_c( void );
 
@@ -170,6 +166,12 @@ class MP_Anywave_Table_c
 	/* I/O METHODS             */
 	/***************************/
 	public:
+		/** \brief Constructor using a filename
+		 * \param fileName A string containing the name of the file that
+		 * describes the anywave table ("PATH/anywave.xml" in the example)
+		 */
+		MPTK_LIB_EXPORT bool AnywaveCreator( char* fileName );
+		MPTK_LIB_EXPORT bool AnywaveCreator( map<string, string, mp_ltstring> *paramMap );
 		/** \brief Print the table structure to a stream
 		 *
 		 * the output is empty
@@ -201,7 +203,8 @@ class MP_Anywave_Table_c
 		 *
 		 * \return true for success, false for failure
 		 **/
-		MPTK_LIB_EXPORT bool load_data( void );
+		MPTK_LIB_EXPORT bool load_data_anywave( void );
+		MPTK_LIB_EXPORT bool load_data_anywave( char *szInputDatas );
 		/** \brief creates a copy of this table (with all allocations needed)
 		 * \return the copied anywave table
 		 */
@@ -228,8 +231,6 @@ class MP_Anywave_Table_c
 		 * \param filename The file to test in string
 		 */
 		MPTK_LIB_EXPORT static bool test( char* filename );
-		/** \brief Initialize all the members */
-		MPTK_LIB_EXPORT void set_null( void );
 		/** \brief Re-initialize all the members */
 		MPTK_LIB_EXPORT void reset( void );
 		/** \brief Normalize the waveforms and update the flag \a normalize
@@ -251,6 +252,7 @@ class MP_Anywave_Table_c
 		 * \return pointer to the string \a dataFileName
 		*/
 		MPTK_LIB_EXPORT char* set_data_file_name( const char* fileName );
+		MPTK_LIB_EXPORT char* set_key_table( const char* szKeyTable );
 	private:  
 		/** \brief Allocate the pointers array \a wave, using the dimensions
 		 * \a numFilters and \a numChans

@@ -273,7 +273,6 @@ class MP_Dict_c
     *
     * \return the number of created block
     */
-    
     MPTK_LIB_EXPORT int create_block(MP_Signal_c* setSignal , map<string, string, mp_ltstring>* setPropertyMap);
     
     /** \brief Parse the xml block and create it using eventually a map of properties stocked in the properties map

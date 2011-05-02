@@ -56,35 +56,30 @@
 
 MP_Dict_c* MP_Dict_c::init(  const char *dictFileName )
 {
+	const char* func = "MP_Dict_c::init(dictFileName)";
+	MP_Dict_c *newDict = NULL;
 
-  const char* func = "MP_Dict_c::init(dictFileName)";
-  MP_Dict_c *newDict = NULL;
-
-  /* Instantiate and check */
-
-  newDict = new MP_Dict_c();
-  if ( newDict == NULL )
+	// Instantiate and check
+	newDict = new MP_Dict_c();
+	if ( newDict == NULL )
     {
-      mp_error_msg( func, "Failed to create a new dictionary.\n" );
-      return( NULL );
+		mp_error_msg( func, "Failed to create a new dictionary.\n" );
+		return( NULL );
+    }
+	
+	// Add some blocks read from the dict file
+	newDict->add_blocks( dictFileName );
+	// Note: with a NULL signal, add_blocks will build all the signal-independent parts of the blocks. 
+	// It is then necessary to run a dict.copy_signal(sig)
+	// or a dict.plug_signal(sig) to actually use the dictionary.
+	if ( newDict->numBlocks == 0 )
+    {
+		mp_error_msg( func, "The dictionary scanned from file [%s] contains no recognized blocks.\n",dictFileName );
+		if ( newDict ) delete( newDict );
+		return( NULL );
     }
 
-  /* Add some blocks read from the dict file */
-
-  newDict->add_blocks( dictFileName );
-  /* Note: with a NULL signal, add_blocks will build all the signal-independent
-     parts of the blocks. It is then necessary to run a dict.copy_signal(sig)
-     or a dict.plug_signal(sig) to actually use the dictionary. */
-
-  if ( newDict->numBlocks == 0 )
-    {
-      mp_error_msg( func, "The dictionary scanned from file [%s] contains no recognized blocks.\n",
-                    dictFileName );
-      if ( newDict ) delete( newDict );
-      return( NULL );
-    }
-
-  return( newDict );
+	return( newDict );
 }
 
 
@@ -92,19 +87,18 @@ MP_Dict_c* MP_Dict_c::init(  const char *dictFileName )
 /* Plain initialization, with no data whatsoever */
 MP_Dict_c* MP_Dict_c::init( void )
 {
+	const char* func = "MP_Dict_c::init(void)";
+	MP_Dict_c *newDict = NULL;
 
-  const char* func = "MP_Dict_c::init(void)";
-  MP_Dict_c *newDict = NULL;
-
-  /* Instantiate and check */
-  newDict = new MP_Dict_c();
-  if ( newDict == NULL )
+	// Instantiate and check
+	newDict = new MP_Dict_c();
+	if ( newDict == NULL )
     {
-      mp_error_msg( func, "Failed to create a new dictionary.\n" );
-      return( NULL );
+		mp_error_msg( func, "Failed to create a new dictionary.\n" );
+		return( NULL );
     }
 
-  return( newDict );
+	return( newDict );
 }
 
 
@@ -112,25 +106,22 @@ MP_Dict_c* MP_Dict_c::init( void )
 /* NULL constructor */
 MP_Dict_c::MP_Dict_c()
 {
-  const char* func = "MP_Dict_c::MP_Dict_c()";
+	const char* func = "MP_Dict_c::MP_Dict_c()";
 
-  mp_debug_msg( MP_DEBUG_CONSTRUCTION, func,
-                "Constructing dict...\n" );
-
-  signal = NULL;
-  sigMode = MP_DICT_NULL_SIGNAL;
-  numBlocks = 0;
-  block = NULL;
-  blockWithMaxIP = UINT_MAX;
-  touch = NULL;
-  maxFilterLen = 0;
+	mp_debug_msg( MP_DEBUG_CONSTRUCTION, func, "Constructing dict...\n" );
+	signal = NULL;
+	sigMode = MP_DICT_NULL_SIGNAL;
+	numBlocks = 0;
+	block = NULL;
+	blockWithMaxIP = UINT_MAX;
+	touch = NULL;
+	maxFilterLen = 0;
 #ifdef MULTITHREAD
-threads = NULL;
-tasks = NULL;
-bar = NULL;
+	threads = NULL;
+	tasks = NULL;
+	bar = NULL;
 #endif
-  mp_debug_msg( MP_DEBUG_CONSTRUCTION, func,
-                "Done.\n" );
+	mp_debug_msg( MP_DEBUG_CONSTRUCTION, func, "Done.\n" );
 }
 
 
@@ -138,54 +129,60 @@ bar = NULL;
 /* Destructor */
 MP_Dict_c::~MP_Dict_c()
 {
+	unsigned int i;
+	const char* func = "MP_Dict_c::~MP_Dict_c()";
+  
+	mp_debug_msg( MP_DEBUG_DESTRUCTION, func, "Deleting dict...\n" );
 
-  unsigned int i;
-  const char* func = "MP_Dict_c::~MP_Dict_c()";
-  mp_debug_msg( MP_DEBUG_DESTRUCTION, func,
-                "Deleting dict...\n" );
-
-  if ( (sigMode == MP_DICT_INTERNAL_SIGNAL) && ( signal != NULL ) ) delete signal;
-  if ( block )
+	// Deleting the signal
+	if ( (sigMode == MP_DICT_INTERNAL_SIGNAL) && ( signal != NULL ) ) 
+		delete signal;
+	// Deleting the block
+	if ( block )
     {
-      for ( i=0; i<numBlocks; i++ )
+		for ( i=0; i<numBlocks; i++ )
         {
-          if ( block[i] ) delete( block[i] );
+			if ( block[i] ) 
+				delete( block[i] );
         }
-      free( block );
+		free( block ); block = NULL;
     }
 #ifdef MULTITHREAD
-  //Cancel all Threads
-  if (bar && numBlocks > 0) for (i = 0; i < numBlocks; ++i)
+	//Cancel all Threads
+	if (bar && numBlocks > 0) for (i = 0; i < numBlocks; ++i)
     {
-      tasks[i].exit = true ;
+		 tasks[i].exit = true ;
     }
-   if (bar && numBlocks > 0) bar[0]->wait();
-  if (bar && numBlocks > 0) for (i = 0; i < numBlocks; ++i)
+	if (bar && numBlocks > 0) 
+		bar[0]->wait();
+	if (bar && numBlocks > 0) for (i = 0; i < numBlocks; ++i)
     {
-      if (pthread_join(threads[i], NULL))
+		if (pthread_join(threads[i], NULL))
         {
-          //To do:Create message if cancelation of threads failed
-          mp_error_msg( func, "Failed to cancel threads.\n" );
+			//To do:Create message if cancelation of threads failed
+			mp_error_msg( func, "Failed to cancel threads.\n" );
         }
     }
 
-   if (threads && numBlocks > 0) delete [] threads;
-  if (bar && numBlocks > 0){  for (i = 0; i < 2; ++i)
-    {
-        if (bar[i]) delete  bar[i];
-    }
-    delete [] bar;
-    }
+	if (threads && numBlocks > 0) 
+	   delete [] threads;
+	if (bar && numBlocks > 0)
+	{  
+		for (i = 0; i < 2; ++i)
+		{
+			if (bar[i]) 
+				delete  bar[i];
+		}
+		delete [] bar;
+   }
    if (numBlocks > 0) delete [] val;
    if (numBlocks > 0) delete [] tasks ;
 
 #else
 #endif
   if ( touch ) free( touch );
-  mp_debug_msg( MP_DEBUG_DESTRUCTION, func,
-                "Done.\n" );
+  mp_debug_msg( MP_DEBUG_DESTRUCTION, func, "Done.\n" );
 }
-
 
 
 /***************************/
@@ -193,68 +190,96 @@ MP_Dict_c::~MP_Dict_c()
 /***************************/
 /*************************************************************************/
 /* Parse the described blocks of a dictionary   */
-int MP_Dict_c::parse_xml_file(TiXmlDocument doc){
-	
-  const char* func = "MP_Dict_c::parse_xml_file(TiXmlDocument doc)";
-  TiXmlNode * node = NULL;
-  TiXmlElement * properties = NULL;
-  map<string, PropertiesMap, mp_ltstring>* propertyMap = new map<string, PropertiesMap, mp_ltstring>();
-  int count = 0;
-  int finalcount = 0;
+int MP_Dict_c::parse_xml_file(TiXmlDocument doc)
+{
+	const char		*func = "MP_Dict_c::parse_xml_file(TiXmlDocument doc)";
+	TiXmlNode		*nodeBlockProperties = NULL;
+	TiXmlNode		*nodeBlock = NULL;
+	TiXmlElement	*elementDict = NULL;
+	TiXmlElement	*elementVersion = NULL;
+	TiXmlHandle		handleDict = NULL;
+	map<string, PropertiesMap, mp_ltstring> *propertyMap = new map<string, PropertiesMap, mp_ltstring>();
+	int				count = 0;
+	int				finalcount = 0;
+	string			libVersion;
   
-  TiXmlHandle hdl(&doc);
-  properties = hdl.FirstChildElement("dict").FirstChildElement("libVersion").Element();
-  string libVersion = properties->GetText();
-  node = hdl.FirstChild("dict").FirstChild("blockproperties").ToNode();
-  if (node != NULL)
+	// Get a handle on the document
+	TiXmlHandle hdl(&doc);
+	
+	// Get a handle on the tags "dict"
+	elementDict = hdl.FirstChildElement("dict").Element();
+	if (elementDict == NULL)
     {
-      while (node != NULL)
-	{
-	  
-	  if (!parse_property(node,propertyMap))
-	    {
-	      mp_error_msg( func, "Error while processing properties for block.\n");
-	      delete(propertyMap);
-	      return  0;
-	    }
-	  node = node->NextSibling("blockproperties");
+		mp_error_msg( func, "Error, cannot find the xml property :\"dict\".\n");
+		return -1;
 	}
-    }
-      else
-  {
-  delete(propertyMap);
-  propertyMap = NULL;
-  mp_debug_msg( MP_DEBUG_CONSTRUCTION, func,
-                "No properties tag for block.\n" );
-   }
-
-  node = hdl.FirstChild("dict").FirstChild("block").ToNode();
-
-  if (node != NULL)
+	// save this for later
+	handleDict=TiXmlHandle(elementDict);
+		
+	//----------------------------------
+	// 1) Retrieving the library version
+	//----------------------------------
+	// Get a handle on the tags "libVersion"
+	elementVersion = handleDict.FirstChildElement("libVersion").Element();
+	if (elementVersion == NULL)
     {
-      while(node != NULL)
+		mp_error_msg( func, "Error, cannot find the xml property :\"libVersion\".\n");
+		return -1;
+	}
+	libVersion = elementVersion->GetText();
+
+	//--------------------------------------------
+	// 2) Retrieving the block properties if exist
+	//--------------------------------------------
+	nodeBlockProperties = handleDict.FirstChild("blockproperties").ToNode();
+	if (nodeBlockProperties != NULL)
+    {
+		while (nodeBlockProperties != NULL)
+		{
+			if (!parse_property(nodeBlockProperties,propertyMap))
+			{
+				mp_error_msg( func, "Error while processing properties for block.\n");
+				if (propertyMap) delete(propertyMap);
+				return  -1;
+			}
+			nodeBlockProperties = nodeBlockProperties->NextSibling("blockproperties");
+		}
+    }
+	else
+	{
+		if (propertyMap) delete(propertyMap);
+		propertyMap = NULL;
+		mp_debug_msg( MP_DEBUG_CONSTRUCTION, func,"No properties tag for block.\n" );
+	}
+
+	//---------------------------------
+	// 3) Retrieving the block if exist
+	//---------------------------------
+	nodeBlock = handleDict.FirstChild("block").ToNode();
+	if (nodeBlock != NULL)
+    {
+		while(nodeBlock != NULL)
         {
-	  count= 0;
-	  count = parse_block(node,propertyMap);
-	  finalcount += count;
-	  if (0 == count )
+			count= 0;
+			count = parse_block(nodeBlock,propertyMap);
+			finalcount += count;
+			if (0 == count )
             {
-              mp_error_msg( func, 
-			    "Error while processing block.processing the remaining block\n");
+				mp_error_msg( func, "Error while processing block.processing the remaining block\n");
             } 
-	  node = node->NextSibling("block");
+			nodeBlock = nodeBlock->NextSibling("block");
         }
     }
-  else
+	else
     {
-
-      mp_error_msg( func, "No block node in the dictionnary structure file.\n");
-      if (propertyMap) delete(propertyMap);
-      return 0;
+		mp_error_msg( func, "No block node in the dictionnary structure file.\n");
+		if (propertyMap) delete(propertyMap);
+		return -1;
     }
 
-  if (propertyMap) delete(propertyMap);
-  return finalcount;
+	if (propertyMap) delete(propertyMap);
+  
+	return finalcount;
 }
 
 /*************************************************************************/
@@ -495,162 +520,147 @@ bool MP_Dict_c::parse_property(TiXmlNode * pParent, map<string, PropertiesMap, m
   return true;
 
 }
+
 /*Create a block*/
-int MP_Dict_c::create_block(MP_Signal_c * setSignal , map<string, string, mp_ltstring> * setPropertyMap){
-          
-           const char* func = "MP_Dict_c::create_block(MP_signal_c * setSignal , map<string, PropertiesMap, mp_ltstring> *setPropertyMap)";
-          MP_Block_c *newBlock = NULL;
-          /*call the block creator*/
-          MP_Block_c* (*blockCreator)( MP_Signal_c *setSignal, map<string, string, mp_ltstring> * paramMap ) = NULL;
-          blockCreator = MP_Block_Factory_c::get_block_factory()->get_block_creator((*setPropertyMap)["type"].c_str());
+int MP_Dict_c::create_block(MP_Signal_c * setSignal , map<string, string, mp_ltstring> * setPropertyMap)
+{
+	const char* func = "MP_Dict_c::create_block(MP_signal_c * setSignal , map<string, PropertiesMap, mp_ltstring> *setPropertyMap)";
+	MP_Block_c *newBlock = NULL;
+	// Call the block creator
+	MP_Block_c* (*blockCreator)( MP_Signal_c *setSignal, map<string, string, mp_ltstring> * paramMap ) = NULL;
+	blockCreator = MP_Block_Factory_c::get_block_factory()->get_block_creator((*setPropertyMap)["type"].c_str());
 
-          if (NULL == setPropertyMap)
-            {
-              mp_error_msg( func, "The %s block type is not registred in the atom factory.\n",(*setPropertyMap)["type"].c_str() );
-              delete(setPropertyMap);
-              return 0;
-            }
-            
-              if (NULL == blockCreator)
-            {
-              mp_error_msg( func, "The %s block creator is not type is not registred in the block factory.\n",(*setPropertyMap)["type"].c_str() );
-              return 0;
-            }
-          /*Create a new block*/  
-          newBlock =  blockCreator(setSignal, setPropertyMap);
+	if (NULL == setPropertyMap)
+	{
+		mp_error_msg( func, "The %s block type is not registred in the atom factory.\n",(*setPropertyMap)["type"].c_str() );
+		delete(setPropertyMap);
+		return 0;
+	}
+	if (NULL == blockCreator)
+	{
+		mp_error_msg( func, "The %s block creator is not type is not registred in the block factory.\n",(*setPropertyMap)["type"].c_str() );
+		return 0;
+	}
+	//Create a new block
+	newBlock =  blockCreator(setSignal, setPropertyMap);
 
-          /*Test if new block is NULL*/ 
-          if (NULL != newBlock)
-            {
-              /*Test if new block has been added*/ 
-              if ( add_block( newBlock ) != 1 )
-                {
-                  mp_warning_msg( func, "Failed to add the block of type %s ."
-                                  " Proceeding with the remaining blocks.\n",
-                                  (*setPropertyMap)["type"].c_str()
-                                );
-              
-              delete(setPropertyMap);
-              return 0;
-                }               
-              delete(setPropertyMap);
-             
-              return 1;
-            }
-          else
-            {
-              mp_warning_msg( func, "Failed to add the block of type %s ."
-                              " Proceeding with the remaining blocks.\n",
-                              (*setPropertyMap)["type"].c_str()
-                            );
-              delete(setPropertyMap);              
-              return 0;
-            }
+	// Test if new block is NULL
+	if (NULL != newBlock)
+	{
+		// Test if new block has been added
+		if ( add_block( newBlock ) != 1 )
+		{
+			mp_warning_msg( func, "Failed to add the block of type %s . Proceeding with the remaining blocks.\n", (*setPropertyMap)["type"].c_str());
+			delete(setPropertyMap);
+			return 0;
+		}               
+		delete(setPropertyMap);          
+		return 1;
+	}
+	else
+	{
+		mp_warning_msg( func, "Failed to add the block of type %s . Proceeding with the remaining blocks.\n",(*setPropertyMap)["type"].c_str());
+		delete(setPropertyMap);              
+		return 0;
+	}
 }
 
 /*Parse the block properties and create the associate blocks*/
 int MP_Dict_c::parse_block(TiXmlNode * pParent, map<string, PropertiesMap, mp_ltstring> *setPropertyMap)
 {
-  const char* func = "MP_Dict_c::parse_block(TiXmlNode * pParent, map<const char*, PropertiesMap, mp_ltstring> *setPropertyMap)";
-  TiXmlElement * varParam;
-  TiXmlElement * param;
-  TiXmlElement * properties;
-  int count =0;
-  map<string, string, mp_ltstring> * blockMap;
-  map<string, list<string>, mp_ltstring> varParamMap;
-  map<string, list<string>, mp_ltstring>::iterator varParamListIterator;
-  /*Test if Attribute "uses" exists to refer to the correct blockproperties map*/
+	const char* func = "MP_Dict_c::parse_block(TiXmlNode * pParent, map<const char*, PropertiesMap, mp_ltstring> *setPropertyMap)";
+	TiXmlElement * varParam;
+	TiXmlElement * param;
+	TiXmlElement * properties;
+	int count =0;
+	map<string, string, mp_ltstring> * blockMap;
+	map<string, list<string>, mp_ltstring> varParamMap;
+	map<string, list<string>, mp_ltstring>::iterator varParamListIterator;
+	
+	//Test if Attribute "uses" exists to refer to the correct blockproperties map*/
     if ( !pParent )
-    {mp_error_msg( func, "pParent pointer is NULL" );
-      return 0;
-      
-    }
-  if (pParent->ToElement()->Attribute("uses")!=0 && setPropertyMap != NULL )
     {
-
-      if ( (*setPropertyMap)[pParent->ToElement()->Attribute("uses")].size()>0 )
+		mp_error_msg( func, "pParent pointer is NULL" );
+		return 0;
+    }
+	if (pParent->ToElement()->Attribute("uses")!=0 && setPropertyMap != NULL )
+    {
+		if ( (*setPropertyMap)[pParent->ToElement()->Attribute("uses")].size()>0 )
         {
-          /*create the block map using the correct blockproperties map */
-          blockMap = new map<string, string, mp_ltstring> ((*setPropertyMap)[pParent->ToElement()->Attribute("uses")]);
-
+			//create the block map using the correct blockproperties map
+			blockMap = new map<string, string, mp_ltstring> ((*setPropertyMap)[pParent->ToElement()->Attribute("uses")]);
         }
-      else
+		else
         {
-          /*create an empty block map and warn*/	
-          blockMap = new map<string, string, mp_ltstring> ();
-          mp_warning_msg(func,"block properties [%s] used is not define .\n", pParent->ToElement()->Attribute("uses") );
-
+			//create an empty block map and warn
+			blockMap = new map<string, string, mp_ltstring> ();
+			mp_warning_msg(func,"block properties [%s] used is not define .\n", pParent->ToElement()->Attribute("uses") );
         }
     }
-  else
+	else
     {
-      blockMap = new map<string, string, mp_ltstring> ();
+		blockMap = new map<string, string, mp_ltstring> ();
     }
 
-  /* over ride values in the map*/
-
-  param = pParent->FirstChildElement("param");
-  if (param!=0)
+	// over ride values in the map*/
+	param = pParent->FirstChildElement("param");
+	if (param!=0)
     {
-      while (param!=0) 
+		while (param!=0) 
         {
-          (*blockMap)[param->Attribute("name")]= param->Attribute("value");
-	  param = param->NextSiblingElement("param");
+			(*blockMap)[param->Attribute("name")]= param->Attribute("value");
+			param = param->NextSiblingElement("param");
         }
-
     }
-/*test if block parameters have varparam*/
-  varParam = pParent->FirstChildElement("varparam");
-  if (varParam!=0)
+	//test if block parameters have varparam
+	varParam = pParent->FirstChildElement("varparam");
+	if (varParam!=0)
     {
-      while(varParam !=0)
+		while(varParam !=0)
         {
-          if (varParam->Attribute("name")!= 0)
+			if (varParam->Attribute("name")!= 0)
             {
-              list<string> paramList;
-              properties = varParam->FirstChildElement("var");
-	      while(properties != 0)
+				list<string> paramList;
+				properties = varParam->FirstChildElement("var");
+				while(properties != 0)
                 {
-                  paramList.push_back(properties->GetText());
-		  properties = properties->NextSiblingElement("var");
+					paramList.push_back(properties->GetText());
+					properties = properties->NextSiblingElement("var");
                 }
-              varParamMap[varParam->Attribute("name")] = paramList;
+				varParamMap[varParam->Attribute("name")] = paramList;
             }
-          else
+			else
             {
-              mp_error_msg(func,"variable parameter name not define in the parsed block.\n");
-              delete(blockMap);
-              return 0;
+				mp_error_msg(func,"variable parameter name not define in the parsed block.\n");
+				delete(blockMap);
+				return 0;
             }
-	  varParam = varParam->NextSiblingElement("varparam");
+			varParam = varParam->NextSiblingElement("varparam");
         }
 
-      /* Parse recursivly the list of parameters to create all the block */
-
-      count = parse_param_list(varParamMap, blockMap );
-      if (count ==0) mp_error_msg( func, "No bloc added.\n");
-      delete(blockMap);
-      return count;
-
+		// Parse recursivly the list of parameters to create all the block
+		count = parse_param_list(varParamMap, blockMap );
+		if (count ==0) mp_error_msg( func, "No bloc added.\n");
+		delete(blockMap);
+		return count;
     }
-  else
+	else
     {
-      /* Create the block with parameter defines by uses tag */
-      if ((*blockMap)["type"].c_str() != 0)
+		// Create the block with parameter defines by uses tag
+		if ((*blockMap)["type"].c_str() != 0)
         {
- count+=  create_block(signal , blockMap);
- if (count == 0)  mp_error_msg( func, "Cannot create block.\n");
- return count;
+			count+=  create_block(signal , blockMap);
+			if (count == 0)  
+				mp_error_msg( func, "Cannot create block.\n");
+			return count;
         }
-      else
+		else
         {
-          mp_error_msg( func, "Bloc type not define in dictionary structure file.\n");
-          delete(blockMap);
-          return 0;
-
+			mp_error_msg( func, "Bloc type not define in dictionary structure file.\n");
+			delete(blockMap);
+			return 0;
         }
     }
-
 }
 
 /*Parse the varparam list of a block and create each associate blocks*/

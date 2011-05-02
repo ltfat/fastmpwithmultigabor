@@ -126,9 +126,7 @@ public:
 
 protected:
   /** \brief an initializer for the parameters which ARE NOT related to the signal */
-  virtual int init_parameters( const unsigned long int setFilterShift,
-			       char* anywaveTableFileName,
-			       const unsigned long int setBlockOffset );
+  virtual int init_parameters( map<string, string, mp_ltstring> *paramMap, char* anywaveTableFileName);
 
   /** \brief an initializer for the parameters which ARE NOT related to the signal in a parameter map */			       
 	virtual int init_parameter_map( const unsigned long int setFilterShift,

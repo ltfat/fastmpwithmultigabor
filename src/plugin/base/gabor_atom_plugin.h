@@ -64,117 +64,113 @@
  * \sa build_waveform()
  */
 class MP_Gabor_Atom_Plugin_c:public MP_Atom_c {
-	
-	/********/
-	/* DATA */
-	/********/
-	
+
+  /********/
+  /* DATA */
+  /********/
+
 public:
-	/** \brief The shape of the atom window 
-	 * \sa make_window() */
-	unsigned char windowType;
-	
-	/** \brief The optional window parameter (applicable to the Gauss,
-	 * generalized Hamming and exponential windows)
-	 * \sa make_window() */
-	double windowOption;
-	
-	/** \brief The normalized frequency of the atom on all channels.
-	 *  When between 0 and 0.5 there should be no aliasing. */
-	MP_Real_t freq;
-	/** \brief The chirprate of the atom on all channels. */
-	MP_Real_t chirp;
-	/** \brief The phase of the atom on each channel. */
-	MP_Real_t *phase;
-	MP_Real_t* corr_phase;
-	
-	
-	/***********/
-	/* METHODS */
-	/***********/
-	
-	/***************************/
-	/* CONSTRUCTORS/DESTRUCTOR */
-	/***************************/
-	
+  /** \brief The shape of the atom window 
+   * \sa make_window() */
+  unsigned char windowType;
+
+  /** \brief The optional window parameter (applicable to the Gauss,
+   * generalized Hamming and exponential windows)
+   * \sa make_window() */
+  double windowOption;
+
+  /** \brief The normalized frequency of the atom on all channels.
+   *  When between 0 and 0.5 there should be no aliasing. */
+  MP_Real_t freq;
+  /** \brief The chirprate of the atom on all channels. */
+  MP_Real_t chirp;
+  /** \brief The phase of the atom on each channel. */
+  MP_Real_t *phase;
+
+
+  /***********/
+  /* METHODS */
+  /***********/
+
+  /***************************/
+  /* CONSTRUCTORS/DESTRUCTOR */
+  /***************************/
+
 public:
-	
-	/** \brief a void Factory function that allocates storage space
-	 */
-	
-	static MP_Atom_c  * gabor_atom_create_empty(void);
-	
-	/** \brief A factory function that reads from a file
-	 *
-	 * \param  fid A readable stream
-	 * \param  mode The reading mode (MP_TEXT or MP_BINARY) 
-	 *
-	 * \remark in MP_TEXT mode, NO enclosing XML tag &lt;atom type="*"&gt; ... &lt;/atom&gt; is looked for
-	 * \sa read_atom()
-	 */
-	
-	static MP_Atom_c* create( FILE *fid, const char mode );
+
+  /** \brief a void Factory function that allocates storage space
+   */
+
+  static MP_Atom_c  * gabor_atom_create_empty(void);
+  
+  /** \brief A factory function that reads from a file
+   *
+   * \param  fid A readable stream
+   * \param  mode The reading mode (MP_TEXT or MP_BINARY) 
+   *
+   * \remark in MP_TEXT mode, NO enclosing XML tag &lt;atom type="*"&gt; ... &lt;/atom&gt; is looked for
+   * \sa read_atom()
+   */
+
+  static MP_Atom_c* create( FILE *fid, const char mode );
 protected:
-	
-	/** \brief Void constructor */
-	MP_Gabor_Atom_Plugin_c( void );
-	
-	
-	
-	
-	
-	/** \brief File reader */
-	virtual int read( FILE *fid, const char mode );
-	
+
+  /** \brief Void constructor */
+  MP_Gabor_Atom_Plugin_c( void );
+
+
+
+
+
+  /** \brief File reader */
+  virtual int read( FILE *fid, const char mode );
+
 public:
-	
-	/* Destructor */
-	virtual ~MP_Gabor_Atom_Plugin_c( void );
-	
+
+  /* Destructor */
+  virtual ~MP_Gabor_Atom_Plugin_c( void );
+  
     /** \brief Internal allocations of the local vectors */
-	virtual int alloc_gabor_atom_param( const MP_Chan_t setNumChans );
-	
-	/** \brief Internal allocations of all the vectors */
-	// virtual int global_alloc( const MP_Chan_t setNumChans );
-	
-	/***************************/
-	/* OUTPUT METHOD           */
-	/***************************/
-	virtual int write( FILE *fid, const char mode );
-	
-	
-	/***************************/
-	/* OTHER METHODS           */
-	/***************************/
-	MPTK_LIB_EXPORT virtual MP_Atom_Param_c* get_atom_param( void )const;
-	
-	virtual const char * type_name( void );
-	
-	virtual int info( FILE *fid );
-	virtual int info();
-	
-	/** \brief Build concatenated waveforms corresponding to each channel of a Gabor atom. 
-	 *
-	 * \param outBuffer the array of size \b totalChanLen which is filled with the  concatenated 
-	 * waveforms of all channels.
-	 *
-	 * For each channel \a chanIdx, the waveform is given by the expression
-	 * \f[
-	 * \mbox{amp} \cdot \mbox{window}(t) \cdot \cos\left(2\pi \left(\mbox{chirp} \cdot
-	 * \frac{t^2}{2} + \mbox{freq} \cdot t\right)+ \mbox{phase}\right)
-	 * \f]
-	 */
-	virtual void build_waveform( MP_Real_t *outBuffer );
-	virtual void build_waveform_corr( MP_Real_t *outBuffer );
-	
-	virtual int       has_field( int field );
-	virtual MP_Real_t get_field( int field , MP_Chan_t chanIdx);
-	
-	/** \brief Adds the representation of a Gabor atom to a time-frequency map */
-	virtual int add_to_tfmap( MP_TF_Map_c *tfmap, const char tfmapType );
-	
-	virtual MP_Real_t dist_to_tfpoint( MP_Real_t time, MP_Real_t freq , MP_Chan_t chanIdx );
-	
+  virtual int alloc_gabor_atom_param( const MP_Chan_t setNumChans );
+  
+  /** \brief Internal allocations of all the vectors */
+ // virtual int global_alloc( const MP_Chan_t setNumChans );
+
+  /***************************/
+  /* OUTPUT METHOD           */
+  /***************************/
+  virtual int write( FILE *fid, const char mode );
+
+
+  /***************************/
+  /* OTHER METHODS           */
+  /***************************/
+  virtual const char * type_name( void );
+
+  virtual int info( FILE *fid );
+  virtual int info();
+
+  /** \brief Build concatenated waveforms corresponding to each channel of a Gabor atom. 
+   *
+   * \param outBuffer the array of size \b totalChanLen which is filled with the  concatenated 
+   * waveforms of all channels.
+   *
+   * For each channel \a chanIdx, the waveform is given by the expression
+   * \f[
+   * \mbox{amp} \cdot \mbox{window}(t) \cdot \cos\left(2\pi \left(\mbox{chirp} \cdot
+   * \frac{t^2}{2} + \mbox{freq} \cdot t\right)+ \mbox{phase}\right)
+   * \f]
+   */
+  virtual void build_waveform( MP_Real_t *outBuffer );
+
+  virtual int       has_field( int field );
+  virtual MP_Real_t get_field( int field , MP_Chan_t chanIdx);
+
+  /** \brief Adds the representation of a Gabor atom to a time-frequency map */
+  virtual int add_to_tfmap( MP_TF_Map_c *tfmap, const char tfmapType );
+
+  virtual MP_Real_t dist_to_tfpoint( MP_Real_t time, MP_Real_t freq , MP_Chan_t chanIdx );
+
 };
 
 

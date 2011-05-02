@@ -195,7 +195,15 @@ int MP_Anywave_Hilbert_Atom_Plugin_c::init_tables( void )
     }
 
   /* create the real table if needed */
-  strcpy(str, MPTK_Server_c::get_anywave_server()->get_filename( tableIdx ));
+  //********************
+  //********************
+  //********************
+  // AAAA VOIR
+    //********************
+  //********************
+  //********************
+
+/*  strcpy(str, MPTK_Server_c::get_anywave_server()->get_filename( tableIdx ));
   str = strcat(str,"_real");
   realTableIdx = MPTK_Server_c::get_anywave_server()->get_index( str );
   if (realTableIdx == MPTK_Server_c::get_anywave_server()->numTables)
@@ -210,14 +218,22 @@ int MP_Anywave_Hilbert_Atom_Plugin_c::init_tables( void )
     {
       anywaveRealTable = MPTK_Server_c::get_anywave_server()->tables[realTableIdx];
     }
-
+*/
   /* create the hilbert table if needed */
-  strcpy(str, MPTK_Server_c::get_anywave_server()->get_filename( tableIdx ));
+  //********************
+  //********************
+  //********************
+  // AAAA VOIR
+    //********************
+  //********************
+  //********************
+
+  strcpy(str, MPTK_Server_c::get_anywave_server()->get_keyname( tableIdx ));
   str = strcat(str,"_hilbert");
   hilbertTableIdx = MPTK_Server_c::get_anywave_server()->get_index( str );
   if (hilbertTableIdx == MPTK_Server_c::get_anywave_server()->numTables)
     {
-      /* need to create a new table */
+      // need to create a new table 
       anywaveHilbertTable = anywaveTable->create_hilbert_dual(str);
       anywaveHilbertTable->normalize();
       hilbertTableIdx = MPTK_Server_c::get_anywave_server()->add( anywaveHilbertTable );

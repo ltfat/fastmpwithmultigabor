@@ -341,7 +341,9 @@ ENDIF(LIBRARY_OUTPUT_PATH)
 # FINDING EXTERNAL LIBRARIES
 ##############################################################################
 # Setting path to libraries and modules for apps
-SET(LIBDSP_INCLUDE_DIR  ${MPTK_SOURCE_DIR}/src/libdsp_windows)
+SET(LIBDSP_INCLUDE_DIR  ${MPTK_SOURCE_DIR}/src/utils/libdsp_windows)
+SET(LIBTINYXML_INCLUDE_DIR ${MPTK_SOURCE_DIR}/src/utils/libtinyxml)   	# TO INCLUDE TinyXML code
+
 SET(UTILS_SOURCE_DIR ${MPTK_SOURCE_DIR}/src/utils )
 SET(GUI_SOURCE_DIR ${MPTK_SOURCE_DIR}/src/gui )
 
@@ -356,18 +358,20 @@ LINK_DIRECTORIES( ${PTHREAD_LIBRARY_PATH}
                   ${FFTW3_LIBRARY_PATH})
 #set the include directories paths for building
 INCLUDE_DIRECTORIES(/usr/include 
-		${MPTK_SOURCE_DIR}               	# TO INCLUDE mp_system.h
-   		${MPTK_SOURCE_DIR}/src/tinyxml   	# TO INCLUDE TinyXML code
-		${MPTK_BINARY_DIR}               	# TO INCLUDE config.h
-		${PTHREAD_INCLUDE_DIR}				# AUTOMATICALLY CREATED IN FindPThread
+		${MPTK_SOURCE_DIR}               	          # TO INCLUDE mp_system.h
+		${MPTK_BINARY_DIR}               	          # TO INCLUDE config.h
+		${PTHREAD_INCLUDE_DIR}				              # AUTOMATICALLY CREATED IN FindPThread
 		${MPTK_SOURCE_DIR}/src/libmptk
-		${MPTK_BINARY_DIR}/src/libmptk/ 	# TO INCLUDE regression_constant.h and mptk.h, automatically generated 
-		${LIBDSP_INCLUDE_DIR} 
+		${MPTK_BINARY_DIR}/src/libmptk/ 	          # TO INCLUDE regression_constant.h and mptk.h, automatically generated 
+		${LIBDSP_INCLUDE_DIR}
+		${LIBTINYXML_INCLUDE_DIR}                   # TO INCLUDE TinyXML code
 		${FFTW3_INCLUDE_DIR} 
 		${SNDFILE_INCLUDE_DIR} 
 		${MPTK_SOURCE_DIR}/src/plugin/base/
-		${MPTK_SOURCE_DIR}/src/plugin/contrib/lam/)
-
+		${MPTK_SOURCE_DIR}/src/plugin/contrib/lam/
+   	${MPTK_SOURCE_DIR}/src/utils/libbase64   	    # TO INCLUDE base64 code
+   	${MPTK_SOURCE_DIR}/src/utils/libmd5sum   	    # TO INCLUDE md5sum code
+    )
 ##############################################################################
 ##Platform configuration tests.
 ##############################################################################
@@ -394,14 +398,8 @@ INCLUDE(${MPTK_SOURCE_DIR}/CMake/CMakeGenerateMPTKHeader.cmake)
 ##############################################################################
 ## ADDING CONFIGURATION TO SUBFOLDERS
 ##############################################################################
-# Go to compile tinyxml library
-ADD_SUBDIRECTORY (src/tinyxml)
 # Go to compile mptk libraries
 ADD_SUBDIRECTORY (src/libmptk)
-# Go to compile libdsp_windows
-ADD_SUBDIRECTORY (src/libdsp_windows)
-# Go to compile mptk utils
-#ADD_SUBDIRECTORY (src/utils)
 # Go to compile matlab API in MEX Files
 ADD_SUBDIRECTORY (src/matlab)
 # Go to compile python Files

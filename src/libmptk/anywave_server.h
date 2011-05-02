@@ -107,11 +107,6 @@ public:
    **/
   MPTK_LIB_EXPORT static bool test( void );
 
-  /** \brief Destroy all the tables stored in the server and release
-   * all the memory
-   **/
-  MPTK_LIB_EXPORT void release( void );
-
   /** \brief Add a waveform table to the server
    *
    * \return the number of the added table
@@ -124,18 +119,25 @@ public:
    **/
   MPTK_LIB_EXPORT unsigned long int add( char* filename );
 
+  MPTK_LIB_EXPORT unsigned long int add( map<string, string, mp_ltstring> *paramMap );
+
+	  MPTK_LIB_EXPORT bool reallocate(void);
+
   /** \brief Get the filename associated to the table number \a index
    *
    *  \return the filename corresponding to the table number \a index
    *  or NULL if not found
    **/
-  MPTK_LIB_EXPORT char* get_filename( unsigned long int index );
+  MPTK_LIB_EXPORT char* get_keyname( unsigned long int index );
 
+  MPTK_LIB_EXPORT int get_keyname_size(void);
   /** \brief Get the table number associated to \a filename 
    *
    * \return the table number, or \a numTables if not found
    */
   MPTK_LIB_EXPORT unsigned long int get_index( char* filename );
+
+	MPTK_LIB_EXPORT void encodeMd5(char *szInputEncode, int iInputSize, char *OutputEncode);
 
 };
 

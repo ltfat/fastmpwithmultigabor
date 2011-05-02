@@ -122,15 +122,87 @@ void MP_Convolution_c::add_real_and_hilbert_tables( MP_Anywave_Table_c* setAnywa
 
 }
 
-void MP_Convolution_c::add_real_and_hilbert_tables( void ) {
-	unsigned long int tableIdx;
-	char* str;
+void MP_Convolution_c::add_real_and_hilbert_tables( void ) 
+{
+	const char			*func = "MP_Anywave_Hilbert_Atom_c::init_tables()";
+	int					iKeyNameSize = 0;
+	char				*szBeforeEncodage;
+	char				*szAfterEncodage;
+	unsigned long int	hilbertTableIdx;
+	unsigned long int	realTableIdx;
 
-	if ( ( str = (char*) malloc( MP_MAX_STR_LEN * sizeof(char) ) ) == NULL ) 
+
+	delete_real_and_hilbert_tables();
+
+	/* create the real table if needed */
+	iKeyNameSize = MPTK_Server_c::get_anywave_server()->get_keyname_size();
+
+	if ( ( szBeforeEncodage = (char*) calloc( iKeyNameSize , sizeof(char) ) ) == NULL )
+    {
+      mp_error_msg( func,"The string szStrBeforeEncodage cannot be allocated.\n" );
+	  return;
+    }
+	if ( ( szAfterEncodage = (char*) calloc( iKeyNameSize , sizeof(char) ) ) == NULL )
+    {
+      mp_error_msg( func,"The string szStrAfterEncodage cannot be allocated.\n" );
+	  return;
+    }
+
+	// Retrieve the keyName
+	memcpy(szBeforeEncodage, anywaveTable->szKeyTable,iKeyNameSize);
+	// Encode the szBeforeEncodage to szAfterEncodage
+	MPTK_Server_c::get_anywave_server()->encodeMd5( szBeforeEncodage, iKeyNameSize, szAfterEncodage );
+	// Get the new encoded string index	
+	realTableIdx = MPTK_Server_c::get_anywave_server()->get_index( szAfterEncodage );
+	// If the new encoded string does not exist
+	if (realTableIdx == MPTK_Server_c::get_anywave_server()->numTables)
+    {
+      anywaveRealTable = anywaveTable->copy();
+      anywaveRealTable->center_and_denyquist();
+      anywaveRealTable->normalize();
+      anywaveRealTable->set_key_table(szAfterEncodage);
+      realTableIdx = MPTK_Server_c::get_anywave_server()->add( anywaveRealTable );
+    }
+	else
+    {
+      anywaveRealTable = MPTK_Server_c::get_anywave_server()->tables[realTableIdx];
+    }
+
+	// Retrieve the keyName
+	memcpy(szBeforeEncodage, szAfterEncodage,iKeyNameSize);
+	memset(szAfterEncodage, 0,iKeyNameSize);
+	// Encode the szBeforeEncodage to szAfterEncodage
+	MPTK_Server_c::get_anywave_server()->encodeMd5( szBeforeEncodage, iKeyNameSize, szAfterEncodage );
+	// Get the new encoded string index	
+	hilbertTableIdx = MPTK_Server_c::get_anywave_server()->get_index( szAfterEncodage );
+	if (hilbertTableIdx == MPTK_Server_c::get_anywave_server()->numTables)
+    {
+		/* need to create a new table */
+		anywaveHilbertTable = anywaveTable->create_hilbert_dual(szAfterEncodage);
+		anywaveHilbertTable->normalize();
+		hilbertTableIdx = MPTK_Server_c::get_anywave_server()->add( anywaveHilbertTable );
+    }
+	else
+    {
+		anywaveHilbertTable = MPTK_Server_c::get_anywave_server()->tables[hilbertTableIdx];
+    }
+
+	if (szBeforeEncodage != NULL) 
 	{
-		mp_error_msg( "MP_Convolution::add_real_and_hilbert_tables()","The string str cannot be allocated.\n" );    
-		return;
+		free(szBeforeEncodage);
+		szBeforeEncodage = NULL;
 	}
+	if (szAfterEncodage != NULL) 
+	{
+		free(szAfterEncodage);
+		szAfterEncodage = NULL;
+	}
+	return;
+
+
+
+
+/*	unsigned long int tableIdx;
 
 	delete_real_and_hilbert_tables();
 
@@ -140,17 +212,15 @@ void MP_Convolution_c::add_real_and_hilbert_tables( void ) {
 		return;
 	}
 
-	/* create the real table if needed */  
-	strcpy(str, anywaveTable->tableFileName);
-	str = strcat(str,"_real");
-	tableIdx = MPTK_Server_c::get_anywave_server()->get_index( str );
+	// create the real table if needed
+	tableIdx = MPTK_Server_c::get_anywave_server()->get_index( anywaveTable->szKeyTable );
 	if (tableIdx == MPTK_Server_c::get_anywave_server()->numTables) 
 	{
-		/* need to create a new table */
+		// need to create a new table
 		anywaveRealTable = anywaveTable->copy();
 		anywaveRealTable->center_and_denyquist();
 		anywaveRealTable->normalize();
-		anywaveRealTable->set_table_file_name(str);
+		anywaveRealTable->set_key_table(anywaveTable->szKeyTable);
 		MPTK_Server_c::get_anywave_server()->add( anywaveRealTable );
 	}
 	else 
@@ -158,22 +228,19 @@ void MP_Convolution_c::add_real_and_hilbert_tables( void ) {
 		anywaveRealTable = MPTK_Server_c::get_anywave_server()->tables[tableIdx];
 	}
 
-	/* create the hilbert table if needed */
-	strcpy(str, anywaveTable->tableFileName);
-	str = strcat(str,"_hilbert");
-	tableIdx = MPTK_Server_c::get_anywave_server()->get_index( str );
+	// create the hilbert table if needed
+	tableIdx = MPTK_Server_c::get_anywave_server()->get_index( anywaveTable->szKeyTable );
 	if (tableIdx == MPTK_Server_c::get_anywave_server()->numTables) 
 	{
-		/* need to create a new table */
-		anywaveHilbertTable = anywaveTable->create_hilbert_dual(str);
+		// need to create a new table
+		anywaveHilbertTable = anywaveTable->create_hilbert_dual(anywaveTable->szKeyTable);
 		anywaveHilbertTable->normalize();    
 		MPTK_Server_c::get_anywave_server()->add( anywaveHilbertTable );
 	}
 	else 
 	{
 		anywaveHilbertTable = MPTK_Server_c::get_anywave_server()->tables[tableIdx];
-	}
-	free(str); str = NULL;
+	}*/
 }
 
 void MP_Convolution_c::delete_real_and_hilbert_tables( void ) {
@@ -995,7 +1062,7 @@ void MP_Convolution_Direct_c::compute_max_IP( MP_Signal_c* s, unsigned long int 
 	
 	unsigned long int filterIdx;
 	GP_Param_Book_Iterator_c iter;
-	GP_Param_Book_c* subBook;
+	GP_Param_Book_c* subBook = NULL;
 	
 	if (!book){
 		compute_max_IP( s, inputLen, fromSample, ampOutput, idxOutput);
@@ -1059,7 +1126,8 @@ void MP_Convolution_Direct_c::compute_max_IP( MP_Signal_c* s, unsigned long int 
 		*pAmp = 0.0;
 		*pIdx = 0;
 		
-		subBook = subBook->get_pos_book(sampleIdx);
+		if(subBook)
+			subBook = subBook->get_pos_book(sampleIdx);
 		if (!subBook){
 			for (filterIdx = 0;
 				 filterIdx < anywaveTable->numFilters; 

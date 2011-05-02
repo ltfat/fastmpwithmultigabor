@@ -166,7 +166,6 @@ MP_Anywave_Table_c *mp_create_anywave_table_from_mxAnywaveTable(const mxArray *m
 	// Creating the Anywave table
 	//----------------------------
 	AnyTable = new MP_Anywave_Table_c();
-	AnyTable->set_null();
 	
 	//-------------------------------------
 	// Getting fields of the Anywave table

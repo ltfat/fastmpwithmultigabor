@@ -134,7 +134,17 @@ int main( int argc, char **argv )
 	//-----------------------------------
 	// Initiating the Anywave parameters                      
 	//-----------------------------------
-	anywaveTable = new MP_Anywave_Table_c((char *)anywaveTableFileName);
+	anywaveTable = new MP_Anywave_Table_c();
+	if (anywaveTable == NULL) 
+	{
+		mp_error_msg( func, "Can't create a anywave table - Returning false.\n");
+		return -1;
+	} 
+	if(!anywaveTable->AnywaveCreator((char *)anywaveTableFileName))
+	{
+		mp_error_msg( func, "Can't initialise a anywave table from paramMap - Returning false.\n");
+		return -1;
+	} 
 	signal = MP_Signal_c::init(signalFileName);
 	input = signal->channel[0];
 	

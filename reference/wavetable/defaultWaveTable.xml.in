@@ -4,7 +4,5 @@
 	<param name="numChans" value="1"/>	
 	<param name="filterLen" value="128"/>	
 	<param name="numFilters" value="4"/>
-	<param name="normalized" value="0"/>
-	<param name="centeredAndDenyquisted" value="0"/>
 	<param name="data" value="${MPTK_DEFAULT_ANYWAVETABLE_DATA_FILE${ADDINSTALL}}"/>
 </table>
