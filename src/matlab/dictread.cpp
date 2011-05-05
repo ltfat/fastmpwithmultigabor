@@ -43,53 +43,61 @@
 
 void mexFunction(int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[])
 {
-  InitMPTK4Matlab(mexFunctionName());
+	InitMPTK4Matlab(mexFunctionName());
 
-  // Check input arguments
-  if (nrhs !=1) {
-    mexPrintf("%s error -- bad number of input arguments\n",mexFunctionName());
-    mexPrintf("    see help %s\n",mexFunctionName());
-    mexErrMsgTxt("Aborting");
-    return;
-  }
-  if ( !mxIsChar(prhs[0])) {
-    mexPrintf("%s error -- the argument filename should be a string\n",mexFunctionName());
-    mexPrintf("    see help %s\n",mexFunctionName());
-    mexErrMsgTxt("Aborting");
-    return;        
-  }
-  // Check output arguments
-  if (nlhs>1) {
-    mexPrintf("%s error -- bad number of output arguments\n",mexFunctionName());
-    mexPrintf("    see help %s\n",mexFunctionName());
-    mexErrMsgTxt("Aborting");
-    return;
-  }
+	// Check input arguments
+	if (nrhs !=1) 
+	{
+		mexPrintf("%s error -- bad number of input arguments\n",mexFunctionName());
+		mexPrintf("    see help %s\n",mexFunctionName());
+		mexErrMsgTxt("Aborting");
+		return;
+	}
+	if ( !mxIsChar(prhs[0])) 
+	{
+		mexPrintf("%s error -- the argument filename should be a string\n",mexFunctionName());
+		mexPrintf("    see help %s\n",mexFunctionName());
+		mexErrMsgTxt("Aborting");
+		return;        
+	}
+	// Check output arguments
+	if (nlhs>1) 
+	{
+		mexPrintf("%s error -- bad number of output arguments\n",mexFunctionName());
+		mexPrintf("    see help %s\n",mexFunctionName());
+		mexErrMsgTxt("Aborting");
+		return;
+	}
   
-  // Get the filename 
-  char *fileName = mxArrayToString(prhs[0]);
-  if (NULL==fileName) {
-    mexErrMsgTxt("The file name could not be retrieved from the input. Aborting.");
-    return;
-  }
-  // Try to load the dictionary
-  MP_Dict_c *dict = MP_Dict_c::init(fileName);
-  if (NULL==dict) {
-    mexPrintf("Failed to create a dictionary from XML file [%s].\n", fileName);
-    // Clean the house
-    mxFree(fileName);
-    mexErrMsgTxt("Aborting");
-    return;
-  }
-  // Clean the house
-  mxFree(fileName);
+	// Get the filename 
+	char *fileName = mxArrayToString(prhs[0]);
+	if (NULL==fileName) 
+	{
+		mexErrMsgTxt("The file name could not be retrieved from the input. Aborting.");
+		return;
+	}
+	// Try to load the dictionary
+	MP_Dict_c *dict = MP_Dict_c::init(fileName);
+	if (NULL==dict) 
+	{
+		mexPrintf("Failed to create a dictionary from XML file [%s].\n", fileName);
+		// Clean the house
+		mxFree(fileName);
+		mexErrMsgTxt("Aborting");
+		return;
+	}
 
-  // Load dict object in Matlab structure
-  mxArray *mxDict = mp_create_mxDict_from_dict(dict);
-  if(NULL==mxDict) {
-    mexPrintf("Failed to convert a dictionary from MPTK to Matlab.\n");
-    mexErrMsgTxt("Aborting");
-    return;
-  }
-  if (nlhs>0) plhs[0] = mxDict;
+	// Clean the house
+	mxFree(fileName);
+
+	// Load dict object in Matlab structure
+	mxArray *mxDict = mp_create_mxDict_from_dict(dict);
+	if(NULL==mxDict) 
+	{
+		mexPrintf("Failed to convert a dictionary from MPTK to Matlab.\n");
+		mexErrMsgTxt("Aborting");
+		return;
+	}
+	if (nlhs>0) 
+plhs[0] = mxDict;
 }

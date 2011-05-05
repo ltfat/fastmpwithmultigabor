@@ -45,7 +45,6 @@ mxArray *mp_create_mxAnywaveTable_from_anywave_table(const MP_Anywave_Table_c *A
     int					numBookFieldNames = 0;
     unsigned long int	filterIdx, chanIdx, sampleIdx;
 	mxArray				*mxReturnTable;
-	mxArray				*mxTempMatrix;
 	mxArray				*mxWaveArray;
 	mwSize				*mwDimension;
 	
@@ -58,62 +57,9 @@ mxArray *mp_create_mxAnywaveTable_from_anywave_table(const MP_Anywave_Table_c *A
 		return(NULL);
 	}
   
-	//--------------------------
-	// Creating output arguments
-	//--------------------------
-	// Allocate Output book structure
-	const char *bookFieldNames[] = {"tableFileName","dataFileName","normalized","centeredAndDenyquisted","wave"};
-	numBookFieldNames = 5;
-	mxReturnTable = mxCreateStructMatrix((mwSize)1,(mwSize)1,numBookFieldNames,bookFieldNames);
-	if(!mxReturnTable)
-	{
-		mp_error_msg(func,"could not create the table\n");
-		return(NULL);
-	}
-  
 	//-----------------------------------------
 	// Adding the datas into the output matrix
 	//-----------------------------------------
-	// Adding the table filename to the return table
-	mxTempMatrix = mxCreateString(AnyTable->tableFileName);
-	if(!mxTempMatrix)	
-	{
-		mp_error_msg(func,"could not read the table file name\n");
-		mxDestroyArray(mxReturnTable);
-		return(NULL);
-	}
-	mxSetField(mxReturnTable,0,"tableFileName",mxTempMatrix);
-	
-	// Adding the datas filename to the return table
-	mxTempMatrix = mxCreateString(AnyTable->dataFileName);
-	if(!mxTempMatrix)
-	{
-		mp_error_msg(func,"could not read the data file name\n");
-		mxDestroyArray(mxReturnTable);
-		return(NULL);
-	}
-	mxSetField(mxReturnTable,0,"dataFileName",mxTempMatrix);
-  
-	// Adding the normalised datas to the return table
-	mxTempMatrix = mxCreateDoubleScalar(AnyTable->normalized);
-	if(!mxTempMatrix)
-	{
-		mp_error_msg(func,"could not read the normalised datas\n");
-		mxDestroyArray(mxReturnTable);
-		return(NULL);
-	}
-	mxSetField(mxReturnTable,0,"normalized",mxTempMatrix);
-	
-	// Adding the centered and deny quisted datas to the return table
-	mxTempMatrix = mxCreateDoubleScalar(AnyTable->centeredAndDenyquisted);
-	if(!mxTempMatrix)
-	{
-		mp_error_msg(func,"could not read the normalised datas\n");
-		mxDestroyArray(mxReturnTable);
-		return(NULL);
-	}
-	mxSetField(mxReturnTable,0,"centeredAndDenyquisted",mxTempMatrix);
-  
 	// Create the waveform array
 	mwDimension = new mwSize[3];
 	mwDimension[0] = AnyTable->filterLen;
@@ -133,13 +79,10 @@ mxArray *mp_create_mxAnywaveTable_from_anywave_table(const MP_Anywave_Table_c *A
 			for (sampleIdx = 0; sampleIdx < AnyTable->filterLen ; sampleIdx++)
 				mxGetPr(mxWaveArray)[(filterIdx*AnyTable->numChans + chanIdx)*AnyTable->filterLen +  sampleIdx] = (double) (AnyTable->wave[filterIdx][chanIdx][sampleIdx]);
   
-	// Adding the waveform array
-	mxSetField(mxReturnTable, 0, "wave", mxWaveArray);
-  
 	// Clean the house
 	delete[]mwDimension;
 
-	return mxReturnTable;
+	return mxWaveArray;
 }
 
 /********************************************************************************/
@@ -155,12 +98,12 @@ mxArray *mp_create_mxAnywaveTable_from_anywave_table(const MP_Anywave_Table_c *A
 MP_Anywave_Table_c *mp_create_anywave_table_from_mxAnywaveTable(const mxArray *mxTable)
 {
     const char				*func = "mp_create_anywave_table_from_mxAnywaveTable";
-	char					*szString;
 	MP_Anywave_Table_c		*AnyTable;
 	mxArray					*mxTempMatrix;
 	const mwSize			*mwDimension;
 	unsigned long int		iFilterIdx, iSampleIdx;
 	MP_Chan_t				iChanIdx;
+	int						iIndexStorage = 0;
 
 	//----------------------------
 	// Creating the Anywave table
@@ -170,52 +113,8 @@ MP_Anywave_Table_c *mp_create_anywave_table_from_mxAnywaveTable(const mxArray *m
 	//-------------------------------------
 	// Getting fields of the Anywave table
 	//-------------------------------------
-	// Getting the table filename field
-	mxTempMatrix = mxGetField(mxTable,0,"tableFileName");
-	if (!mxTempMatrix) 
-	{
-		mp_error_msg(func,"the table.tableFileName field is missing\n");
-		delete AnyTable;
-		return(NULL);
-	}
-	szString = mxArrayToString(mxTempMatrix);
-	strcpy(AnyTable->tableFileName, szString);
-	mxFree(szString);
-  
-	// Getting the datas filename field
-	mxTempMatrix = mxGetField(mxTable,0,"dataFileName");
-	if (!mxTempMatrix) 
-	{
-		mp_error_msg(func,"the table.dataFileName field is missing\n");
-		delete AnyTable;
-		return(NULL);
-	}
-	szString = mxArrayToString(mxTempMatrix);
-	strcpy(AnyTable->dataFileName, szString);
-	mxFree(szString);
-
-	// Getting the normalized field
-	mxTempMatrix = mxGetField(mxTable,0,"normalized");
-	if (!mxTempMatrix) 
-	{
-		mp_error_msg(func,"the table.normalized field is missing\n");
-		delete AnyTable;
-		return(NULL);
-	}
-	AnyTable->normalized = (unsigned long int) mxGetScalar(mxTempMatrix);
-	
-	// Getting the centered and deny quisted field
-	mxTempMatrix = mxGetField(mxTable,0,"centeredAndDenyquisted");
-	if (!mxTempMatrix) 
-	{
-		mp_error_msg(func,"the table.centeredAndDenyquisted field is missing\n");
-		delete AnyTable;
-		return(NULL);
-	}
-	AnyTable->centeredAndDenyquisted = (unsigned long int) mxGetScalar(mxTempMatrix);
-	
 	// Getting the wave field
-	mxTempMatrix = mxGetField(mxTable,0,"wave");
+	mxTempMatrix = mxGetField(mxTable,0,"data");
 	if (!mxTempMatrix) 
 	{
 		mp_error_msg(func,"the table.wave field is missing\n");
@@ -252,5 +151,13 @@ MP_Anywave_Table_c *mp_create_anywave_table_from_mxAnywaveTable(const mxArray *m
 				AnyTable->wave[iFilterIdx][iChanIdx][iSampleIdx] = mxGetPr(mxTempMatrix)[(iFilterIdx * AnyTable->numChans + iChanIdx) * AnyTable->filterLen + iSampleIdx];
 		}
 	}
+
+	// Getting the storage field
+	AnyTable->storage = (MP_Real_t*)mxMalloc(AnyTable->numFilters*AnyTable->filterLen*AnyTable->numChans*sizeof(MP_Real_t));
+    for (iFilterIdx = 0 ; iFilterIdx < AnyTable->numFilters ; iFilterIdx++)
+		for (iChanIdx = 0 ; iChanIdx < AnyTable->numChans ; iChanIdx++)
+			for (iSampleIdx = 0; iSampleIdx < AnyTable->filterLen ; iSampleIdx++)
+				AnyTable->storage[iIndexStorage++] = AnyTable->wave[iFilterIdx][iChanIdx][iSampleIdx];
+
     return AnyTable;
 }

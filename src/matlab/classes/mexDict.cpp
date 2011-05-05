@@ -28,189 +28,336 @@
 
 mxArray * mp_create_mxDict_from_dict(MP_Dict_c *dict)
 {
-  const char *func = "mp_create_mxDict_from_dict";
+	const char						*func = "mp_create_mxDict_from_dict";
+	map<string,string,mp_ltstring>	*paramMap;
+	mxArray							*mxBlockCell;
+	mxArray							*mxBlock;
+	mxArray							*mxDict;
+	mxArray							*mxTable;
+	MP_Block_c						*block;
+	int								numDictFieldNames;
+	int								iFieldNumber;
+	const char						*dictFieldNames[] = {"block"};
   
-  // Case of a NULL input
-  if(NULL==dict) {
-    mp_error_msg(func,"the input is NULL\n");
-    return(NULL);
-  }
+	// Case of a NULL input
+	if(NULL==dict) 
+	{
+	    mp_error_msg(func,"the input is NULL\n");
+	    return(NULL);
+	}
   
-  // Create the block cell
-  mxArray *mxBlockCell = mxCreateCellMatrix((mwSize)dict->numBlocks,(mwSize)1);
-  if(NULL==mxBlockCell) {
-    mp_error_msg(func,"could not create block cell\n");
-    return(NULL);
-  }
-  // Loop to create each block
-  for (unsigned int i=0; i < dict->numBlocks; i++)  {
-    MP_Block_c *block = dict->block[i];
-    if(NULL==block) {
-      mp_error_msg(func,"block 0<=i=%d<%d is NULL\n",i,dict->numBlocks);
-      mxDestroyArray(mxBlockCell);
-      return(NULL);
-    }
-    map<string,string,mp_ltstring> *paramMap = block->get_block_parameters_map();
-    if (NULL==paramMap) {
-      mp_error_msg(func,"empty paramMap for block 0<=i=%d<%d\n", i,dict->numBlocks);
-      mxDestroyArray(mxBlockCell);
-      return(NULL);
-    }
-    // Create mxBlock
-    mxArray *mxBlock = mxCreateStructMatrix((mwSize)1,(mwSize)1,0,NULL);
-    if(NULL==mxBlock) {
-      mp_error_msg(func,"could not create block 0<=i=%d<%d\n",i,dict->numBlocks);
-      mxDestroyArray(mxBlockCell);
-      return(NULL);
-    }
-    // Add all fields
-    map<string, string, mp_ltstring>::const_iterator iter;
-    for ( iter = (*paramMap).begin(); iter != (*paramMap).end(); iter++ ) {
-      // Add the field
-      mxAddField(mxBlock,iter->first.c_str());
-      // Set the field value
-      // TODO: Here we may want to convert according to type of value
-      mxArray *mxTmp = mxCreateString(iter->second.c_str());
-      if(NULL==mxTmp) {
-	mp_error_msg(func,"could not create field %s in block 0<=i=%d<%d\n",iter->second.c_str(),i,dict->numBlocks);
-	mxDestroyArray(mxBlockCell);
-	return(NULL);
-      }
-      mxSetField(mxBlock,0,iter->first.c_str(),mxTmp);
-    }
-    // Put the mxBlock in the mxBlockCell
-    mxSetCell(mxBlockCell,i,mxBlock);
-    // Delete tmp variables 
-    delete paramMap;
-  }
-  // Create the output information structure 
-  // dict.block{numBlocks}
-  int numDictFieldNames    = 1;
-  const char *dictFieldNames[] = {"block"};
-  mxArray *mxDict = mxCreateStructMatrix((mwSize)1,(mwSize)1,numDictFieldNames,dictFieldNames);
-  if(NULL==mxDict) {
-    mp_error_msg(func,"could not create dict\n");
-    mxDestroyArray(mxBlockCell);
-    return(NULL);
-  }
-  mxSetField(mxDict,0,"block",mxBlockCell);
-  return(mxDict);
+	// Create the block cell
+	mxBlockCell = mxCreateCellMatrix((mwSize)dict->numBlocks,(mwSize)1);
+	if(mxBlockCell == NULL) 
+	{
+		mp_error_msg(func,"could not create block cell\n");
+		return(NULL);
+	}
+	// Loop to create each block
+	for (unsigned int i=0; i < dict->numBlocks; i++)  
+	{
+		block = dict->block[i];
+		if(block == NULL) 
+		{
+			mp_error_msg(func,"block 0<=i=%d<%d is NULL\n",i,dict->numBlocks);
+			mxDestroyArray(mxBlockCell);
+			return(NULL);
+		}
+		paramMap = block->get_block_parameters_map();
+		if (NULL==paramMap) 
+		{
+			mp_error_msg(func,"empty paramMap for block 0<=i=%d<%d\n", i,dict->numBlocks);
+			mxDestroyArray(mxBlockCell);
+			return(NULL);
+		}
+		// Create mxBlock
+		mxBlock = mxCreateStructMatrix((mwSize)1,(mwSize)1,0,NULL);
+		if(mxBlock == NULL) 
+		{
+			mp_error_msg(func,"could not create block 0<=i=%d<%d\n",i,dict->numBlocks);
+			mxDestroyArray(mxBlockCell);
+			return(NULL);
+		}
+		// Add all fields
+		map<string, string, mp_ltstring>::const_iterator iter;
+		for ( iter = (*paramMap).begin(); iter != (*paramMap).end(); iter++ ) 
+		{
+			if(!strcmp(iter->first.c_str(),"data"))
+			{
+				// Adding the table Field		
+				mxAddField(mxBlock,"data");
+				if((mxTable = anywaveTableRead(paramMap, NULL)) == NULL) 
+				{
+					mp_error_msg(func,"could not load the anywaveTable %s\n",iter->second.c_str());
+					mxDestroyArray(mxBlockCell);
+					return(NULL);
+				}
+				iFieldNumber = mxGetFieldNumber(mxBlock, "data");
+				mxSetCell(mxBlock,iFieldNumber,mxTable);
+			}	
+			else
+			{
+				// Add the field
+				mxAddField(mxBlock,iter->first.c_str());
+				// Set the field value
+				mxArray *mxTmp = mxCreateString(iter->second.c_str());
+				if(NULL==mxTmp) 
+				{
+					mp_error_msg(func,"could not create field %s in block 0<=i=%d<%d\n",iter->second.c_str(),i,dict->numBlocks);
+					mxDestroyArray(mxBlockCell);
+					return(NULL);
+				}
+				mxSetField(mxBlock,0,iter->first.c_str(),mxTmp);
+				// If the paramMap contains a file link to xml, then go search it !
+				if(!strcmp(iter->first.c_str(),"tableFileName"))
+				{
+					// Adding the table Field		
+					mxAddField(mxBlock,"data");
+					if((mxTable = anywaveTableRead(paramMap, (char *)iter->second.c_str())) == NULL) 
+					{
+						mp_error_msg(func,"could not load the anywaveTable %s\n",iter->second.c_str());
+						mxDestroyArray(mxBlockCell);
+						return(NULL);
+					}
+					iFieldNumber = mxGetFieldNumber(mxBlock, "data");
+					mxSetCell(mxBlock,iFieldNumber,mxTable);
+				}	
+			}
+		}
+		// Put the mxBlock in the mxBlockCell
+		mxSetCell(mxBlockCell,i,mxBlock);
+		// Delete tmp variables 
+		delete paramMap;
+	}
+	// Create the output information structure 
+	// dict.block{numBlocks}
+	numDictFieldNames = 1;
+	mxDict = mxCreateStructMatrix((mwSize)1,(mwSize)1,numDictFieldNames,dictFieldNames);
+	if(NULL==mxDict) 
+	{
+		mp_error_msg(func,"could not create dict\n");
+		mxDestroyArray(mxBlockCell);
+		return(NULL);
+	}
+	mxSetField(mxDict,0,"block",mxBlockCell);
+	return(mxDict);
 }
 
 
 MP_Dict_c * mp_create_dict_from_mxDict(const mxArray *mxDict)
 {
-  const char *func = "mp_create_dict_from_mxDict";
-  MP_Dict_c *dict = NULL;
+	const char						*func = "mp_create_dict_from_mxDict";
+	const char						*fieldName;
+	map<string,string,mp_ltstring>	*paramMap;
+	MP_Dict_c						*dict = NULL;
+	mxArray							*mxBlockCell;
+	mxArray							*mxBlock;
+	mxArray							*mxTmp;
+	size_t							numFields;
+	int								nBlocks;
+	char							*fieldValue;
+	MP_Anywave_Table_c				*mpTable;
+	mxArray							*mxTable;
+	string							szDataString;
+	string							szReturnString;
+				
 
-  if (NULL==mxDict) {
-    mp_error_msg(func,"input is NULL\n");
-    return(NULL);
-  }
+	if (NULL==mxDict) 
+	{
+	    mp_error_msg(func,"input is NULL\n");
+	    return(NULL);
+	}
 	
-  // Check that the input dictionary structure has the right fields
-  mxArray *mxBlockCell = mxGetField(mxDict,0,"block");
-  if (NULL==mxBlockCell) {
-    mp_error_msg(func,"the dict.block field is missing\n");
-    return(NULL);
-  }
-  int nBlocks = (int)mxGetNumberOfElements(mxBlockCell);
-  if (0==nBlocks) {
-    mp_error_msg(func,"the number of blocks should be at least one\n");
-    return(NULL);
-  }
-  if(!mxIsCell(mxBlockCell)) {
-    mp_error_msg(func,"the dict.block is not a cell array\n");
-    return(NULL);
-  }
-  // Reach all blocks 
-  for (int i = 0; i < nBlocks; i++ ) {
-    mxArray *mxBlock = mxGetCell(mxBlockCell,i);
-    if (NULL==mxBlock) { // This should never happen
-      mp_error_msg(func,"dict.block{%d} could not be retrieved\n",i+1);
-      // Clean the house
-      if(NULL!=dict) delete dict; 
-      return(NULL);
-    }
-    size_t numFields = mxGetNumberOfFields(mxBlock);
-    if (0==numFields) {
-      mp_error_msg(func,"the number of fields %d should be at least one in dict.block{%d}\n",numFields,i+1);
-      // Clean the house
-      if(NULL!=dict) delete dict; 
-      return(NULL);
-    }
+	// Check that the input dictionary structure has the right fields
+	mxBlockCell = mxGetField(mxDict,0,"block");
+	if (NULL==mxBlockCell) 
+	{
+		mp_error_msg(func,"the dict.block field is missing\n");
+		return(NULL);
+	}
+	nBlocks = (int)mxGetNumberOfElements(mxBlockCell);
+	if (0==nBlocks) 
+	{
+		mp_error_msg(func,"the number of blocks should be at least one\n");
+		return(NULL);
+	}
+	if(!mxIsCell(mxBlockCell)) 
+	{
+		mp_error_msg(func,"the dict.block is not a cell array\n");
+		return(NULL);
+	}
+	// Reach all blocks 
+	for (int i = 0; i < nBlocks; i++ ) 
+	{
+		mxBlock = mxGetCell(mxBlockCell,i);
+		if (NULL==mxBlock) 
+		{ 
+			// This should never happen
+			mp_error_msg(func,"dict.block{%d} could not be retrieved\n",i+1);
+			// Clean the house
+			if(NULL!=dict) delete dict; 
+			return(NULL);
+		}
+		numFields = mxGetNumberOfFields(mxBlock);
+		if (0==numFields) 
+		{
+			mp_error_msg(func,"the number of fields %d should be at least one in dict.block{%d}\n",numFields,i+1);
+			// Clean the house
+			if(NULL!=dict) delete dict; 
+			return(NULL);
+		}
     
-    // Reach all fields of the block and put them in a map
-    map<string,string,mp_ltstring> *paramMap = new map<string, string, mp_ltstring>();
-    if(NULL==paramMap) {
-      mp_error_msg(func,"could not allocate paramMap\n");
-      // Clean the house
-      if(NULL!=dict) delete dict; 
-      return(NULL);
-    }
-    for (unsigned int j= 0; j <numFields ; j++) {
-      const char * fieldName = mxGetFieldNameByNumber(mxBlock,j);
-      if (NULL==fieldName) {
-	mp_error_msg(func,"field number %d in dict.block{%d} could not be retrieved\n",j+1,i+1);
-	// Clean the house
-	if(NULL!=dict) delete dict; 
-	return(NULL);
-      }
-      // Retrieve the field value 
-      mxArray *mxTmp = mxGetField(mxBlock,0,fieldName);
-      if(NULL==mxTmp) {
-	mp_error_msg(func,"value of field number %d in dict.block{%d} could not be retrieved\n",j+1,i+1);
-	// Clean the house
-	if(NULL!=dict) delete dict; 
-	return(NULL);
-      }
-      char * fieldValue = mxArrayToString(mxTmp);
-      if(NULL==fieldValue) {
-	mp_error_msg(func,"string value of field number %d in dict.block{%d} could not be retrieved\n",j+1,i+1);
-	// Clean the house
-	if(NULL!=dict) delete dict; 
-	return(NULL);
-      }
-      // Store it in the map and free 
-      (*paramMap)[string(fieldName)]=string(fieldValue);
-      mxFree(fieldValue);
-      fieldValue = NULL;
-    }
+		// Reach all fields of the block and put them in a map
+		paramMap = new map<string, string, mp_ltstring>();
+		if(NULL==paramMap) 
+		{
+			mp_error_msg(func,"could not allocate paramMap\n");
+			// Clean the house
+			if(NULL!=dict) delete dict; 
+			return(NULL);
+		}
+		for (unsigned int j= 0; j <numFields ; j++) 
+		{
+			fieldName = mxGetFieldNameByNumber(mxBlock,j);
+			if (fieldName == NULL) 
+			{
+				mp_error_msg(func,"field number %d in dict.block{%d} could not be retrieved\n",j+1,i+1);
+				// Clean the house
+				if(NULL!=dict) delete dict; 
+				return(NULL);
+			}
+			// If the field name value is "data" then
+			if(!strcmp(fieldName,"data"))
+			{
+				// Loading dictionary object in Matlab structure
+				mpTable = mp_create_anywave_table_from_mxAnywaveTable(mxBlock);
+				if(!mpTable) 
+				{
+					mexPrintf("Failed to convert an anywave table from MPTK to Matlab.\n");
+					mexErrMsgTxt("Aborting");
+					return NULL;
+				}
+				// Encode the datas into base64 string
+				szDataString = mpTable->encodeBase64((char *)mpTable->storage,mpTable->filterLen*mpTable->numChans*mpTable->numFilters*sizeof(MP_Real_t));
+				// Store it in the map and free 
+				(*paramMap)[string(fieldName)]=szDataString;
+			}
+			else
+			{
+				// Retrieve the field value 
+				mxTmp = mxGetField(mxBlock,0,fieldName);
+				if(mxTmp == NULL) 
+				{
+					mp_error_msg(func,"value of field number %d in dict.block{%d} could not be retrieved\n",j+1,i+1);
+					// Clean the house
+					if(NULL!=dict) delete dict; 
+					return(NULL);
+				}
+				fieldValue = mxArrayToString(mxTmp);
+				if(fieldValue == NULL) 
+				{
+					mp_error_msg(func,"string value of field number %d in dict.block{%d} could not be retrieved\n",j+1,i+1);
+					// Clean the house
+					if(NULL!=dict) delete dict; 
+					return(NULL);
+				}
+				// Store it in the map and free 
+				(*paramMap)[string(fieldName)]=string(fieldValue);
+				mxFree(fieldValue);
+				fieldValue = NULL;
+			}
+		}
     
-    // Retrieve the block creator
-    MP_Block_c* (*blockCreator)( MP_Signal_c *setSignal, map<string, string, mp_ltstring> * paramMap ) = NULL;
-    blockCreator = MP_Block_Factory_c::get_block_factory()->get_block_creator((*paramMap)["type"].c_str());
-    if (NULL == blockCreator) {
-      mp_error_msg(func,"the block factory does not contain type %s of dict.block{%d}\n",(*paramMap)["type"].c_str(),i+1);
-      // Clean the house
-      if(NULL!=dict) delete dict; 
-      delete paramMap;
-      return(NULL);
-    }
-    // Create the block 
-    MP_Block_c *block =  blockCreator(NULL, paramMap);
-    if (NULL == block) {
-      mp_error_msg(func,"the dict.block{%d}, of type %s was not successfully created\n",i+1,(*paramMap)["type"].c_str());
-      // Clean the house
-      if(NULL!=dict) delete dict; 
-      delete paramMap;
-      return(NULL);
-    }
-    
-    // Create the dictionary if needed (i.e. when adding first block)
-    if (NULL==dict) {
-      dict = MP_Dict_c::init();
-      if (NULL==dict) {
-	mp_error_msg(func,"Failed to create an empty dictionary\n");
-	delete paramMap;
-	delete block;
-	return(NULL);
-      }
-    }
-    // Add the block to the dictionary 
-    dict->add_block(block);
-    delete paramMap;
-  }
-  return(dict);
+		// Retrieve the block creator
+		MP_Block_c* (*blockCreator)( MP_Signal_c *setSignal, map<string, string, mp_ltstring> * paramMap ) = NULL;
+		blockCreator = MP_Block_Factory_c::get_block_factory()->get_block_creator((*paramMap)["type"].c_str());
+		if (NULL == blockCreator) 
+		{
+			mp_error_msg(func,"the block factory does not contain type %s of dict.block{%d}\n",(*paramMap)["type"].c_str(),i+1);
+			// Clean the house
+			if(NULL!=dict) delete dict; 
+			delete paramMap;
+			return(NULL);
+		}
+		// Create the block 
+		MP_Block_c *block =  blockCreator(NULL, paramMap);
+		if (NULL == block) 
+		{
+			mp_error_msg(func,"the dict.block{%d}, of type %s was not successfully created\n",i+1,(*paramMap)["type"].c_str());
+			// Clean the house
+			if(NULL!=dict) delete dict; 
+			delete paramMap;
+			return(NULL);
+		}
+    	// Create the dictionary if needed (i.e. when adding first block)
+		if (NULL==dict) 
+		{
+			dict = MP_Dict_c::init();
+			if (NULL==dict) 
+			{
+				mp_error_msg(func,"Failed to create an empty dictionary\n");
+				delete paramMap;
+				delete block;
+				return(NULL);
+			}
+		}
+		// Add the block to the dictionary 
+		dict->add_block(block);
+		free(mpTable);
+		delete paramMap;
+	}
+	return(dict);
 }
 
+
+
+mxArray *anywaveTableRead(map<string, string, mp_ltstring> *paramMap, char *szFileName)
+{
+	MP_Anywave_Table_c	*mpTable;
+	mxArray				*mxTable;
+	
+	//-------------------
+	// Loading the table
+	//-------------------
+	mpTable = new MP_Anywave_Table_c();
+	if (mpTable == NULL ) 
+	{
+		mexPrintf("Failed to create an anywave table.\n");
+		mexErrMsgTxt("Aborting");
+		return NULL;
+	} 
+	if (szFileName == NULL) 
+	{
+		if(!mpTable->AnywaveCreator(paramMap))
+		{
+			mexPrintf("Failed to create an anywave table from binary file [%s].\n", szFileName);
+			mexErrMsgTxt("Aborting");
+			mxFree(szFileName);
+			return NULL;
+		} 
+	}
+	else
+	{
+		if(!mpTable->AnywaveCreator(szFileName))
+		{
+			mexPrintf("Failed to create an anywave table from binary file [%s].\n", szFileName);
+			mexErrMsgTxt("Aborting");
+			mxFree(szFileName);
+			return NULL;
+		} 
+	}
+
+	//-----------------------------------------------
+	// Loading dictionary object in Matlab structure
+	//-----------------------------------------------
+	mxTable = mp_create_mxAnywaveTable_from_anywave_table(mpTable);
+	if(!mxTable) 
+	{
+		mexPrintf("Failed to convert an anywave table from MPTK to Matlab.\n");
+		mexErrMsgTxt("Aborting");
+		return NULL;
+	}
+
+	free(mpTable);
+	return mxTable;
+}

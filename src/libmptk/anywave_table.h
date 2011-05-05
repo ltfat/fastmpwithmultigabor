@@ -253,6 +253,8 @@ class MP_Anywave_Table_c
 		*/
 		MPTK_LIB_EXPORT char* set_data_file_name( const char* fileName );
 		MPTK_LIB_EXPORT char* set_key_table( const char* szKeyTable );
+		MPTK_LIB_EXPORT string MP_Anywave_Table_c::encodeBase64( char *szStorage, int iSizeToEncode );
+
 	private:  
 		/** \brief Allocate the pointers array \a wave, using the dimensions
 		 * \a numFilters and \a numChans

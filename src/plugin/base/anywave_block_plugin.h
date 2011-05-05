@@ -140,9 +140,7 @@ protected:
 	 * \param anywaveTableFileName the name of the file containing the anywave table
 	 * \param setBlockOffset the block offset
 	 */			       
-	virtual int init_parameter_map( const unsigned long int setFilterShift,
-								   char* anywaveTableFileName,
-								   const unsigned long int setBlockOffset );
+	virtual int init_parameter_map( map<string, string, mp_ltstring> *paramMap );
 	
 	/** \brief an initializer for the parameters which ARE related to the signal 
 	 *

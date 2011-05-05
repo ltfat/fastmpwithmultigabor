@@ -876,3 +876,10 @@ MP_Anywave_Table_c* MP_Anywave_Table_c::create_hilbert_dual( char* name )
   }
   return(newTable);
 }
+
+
+/* Free the pointer array wave */
+string MP_Anywave_Table_c::encodeBase64( char *szStorage, int iSizeToEncode)
+{
+	return base64_encode((const unsigned char *)szStorage,iSizeToEncode);
+}

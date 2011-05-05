@@ -102,22 +102,6 @@ MP_Block_c* MP_Anywave_Hilbert_Block_Plugin_c::create(MP_Signal_c *setSignal, ma
 			delete( newBlock );
 			return( NULL );
 		}
-
-		// Set the block parameter map (that are independent from the signal) */
-		if ( newBlock->init_parameter_map( newBlock->filterShift, anywaveTableFilename , newBlock->blockOffset ) )
-		{
-			mp_error_msg( func, "Failed to initialize parameters map in the new Anywave hilbert block.\n" );
-			delete( newBlock );
-			return( NULL );
-		} 
-
-		// Set the signal-related parameters */
-		if ( newBlock->plug_signal( setSignal ) )
-		{
-			mp_error_msg( func, "Failed to plug a signal in the new AnywaveHilbert block.\n" );
-			delete( newBlock );
-			return( NULL );
-		}
 	}
 	else
     {
@@ -129,6 +113,21 @@ MP_Block_c* MP_Anywave_Hilbert_Block_Plugin_c::create(MP_Signal_c *setSignal, ma
 			return( NULL );
 		}
     }
+	// Set the block parameter map (that are independent from the signal) */
+	if ( newBlock->init_parameter_map( paramMap ) )
+	{
+		mp_error_msg( func, "Failed to initialize parameters map in the new Anywave hilbert block.\n" );
+		delete( newBlock );
+		return( NULL );
+	} 
+
+	// Set the signal-related parameters */
+	if ( newBlock->plug_signal( setSignal ) )
+	{
+		mp_error_msg( func, "Failed to plug a signal in the new AnywaveHilbert block.\n" );
+		delete( newBlock );
+		return( NULL );
+	}
 
 	if(anywaveTableFilename) 
 		free (anywaveTableFilename);
@@ -214,35 +213,26 @@ int MP_Anywave_Hilbert_Block_Plugin_c::init_parameters( map<string, string, mp_l
 
 /*************************************************************/
 /* Initialization of signal-independent block parameters map */
-int MP_Anywave_Hilbert_Block_Plugin_c::init_parameter_map( const unsigned long int setFilterShift,
-    char* anywaveTableFilename,
-    const unsigned long int setBlockOffset )
+int MP_Anywave_Hilbert_Block_Plugin_c::init_parameter_map( map<string, string, mp_ltstring> *paramMap)
 {
-const char* func = "MP_Anywave_Hilbert_Block_c::init_parameter_map(...)";
-
-parameterMap = new map< string, string, mp_ltstring>();
+	const char* func = "MP_Anywave_Hilbert_Block_c::init_parameter_map(...)";
+	
+	parameterMap = new map< string, string, mp_ltstring>();
    
-/*Create a stream for convert number into string */
-std::ostringstream oss;
-
-(*parameterMap)["type"] = type_name();
-
-if (!(oss << setFilterShift)) { mp_error_msg( func, "Cannot convert windowShift in string for parameterMap.\n" 
-                     );
-      return( 1 );
-      }
-(*parameterMap)["windowShift"] = oss.str();
-oss.str("");
-(*parameterMap)["tableFileName"] = anywaveTableFilename;
-
-if (!(oss << setBlockOffset)) { mp_error_msg( func, "Cannot convert blockOffset in string for parameterMap.\n" 
-                     );
-      return( 1 );
-      }
-(*parameterMap)["blockOffset"] = oss.str();
-oss.str("");
-
-return (0);
+	(*parameterMap)["type"] = (*paramMap)["type"];
+	(*parameterMap)["windowShift"] = (*paramMap)["windowShift"];
+	(*parameterMap)["blockOffset"] = (*paramMap)["blockOffset"];
+	if((*paramMap)["tableFileName"].size() > 0)
+		(*parameterMap)["tableFileName"] = (*paramMap)["tableFileName"];
+	if((*paramMap)["data"].size() > 0)
+		(*parameterMap)["data"] = (*paramMap)["data"];
+	if((*paramMap)["numChans"].size() > 0)
+		(*parameterMap)["numChans"] = (*paramMap)["numChans"];
+	if((*paramMap)["numFilters"].size() > 0)
+		(*parameterMap)["numFilters"] = (*paramMap)["numFilters"];
+	if((*paramMap)["filterLen"].size() > 0)
+		(*parameterMap)["filterLen"] = (*paramMap)["filterLen"];
+	return (0);
 }
 
 void MP_Anywave_Hilbert_Block_Plugin_c::init_tables( void )
