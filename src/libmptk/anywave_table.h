@@ -63,9 +63,12 @@ class MP_Anywave_Table_c
 	/* DATA */
 	/********/
 	public:
+		/** \brief Unique key string reprensenting either :
+		 * 1) The path of the dictionary file for dictionaries of ancient format
+		 * 2) The datas of the block dictionary for dictionaries of new format 
+		 */
 		char *szKeyTable;
-		/** \brief Name of the file containing the waveform table (text
-		 * file, extension .xml)
+		/** \brief Name of the file containing the waveform table (text file, extension .xml)
 		 *
 		 * To import the waveforms of the anywave atoms (e.g. generated with Matlab) in MPTK, you need to save them in two files as described below :
 		 * - a xml file (text mode), describing all the parameters of the waveforms
@@ -167,57 +170,39 @@ class MP_Anywave_Table_c
 	/***************************/
 	public:
 		/** \brief Constructor using a filename
-		 * \param fileName A string containing the name of the file that
-		 * describes the anywave table ("PATH/anywave.xml" in the example)
+		 * \param fileName A string containing the name of the file that describes the anywave table
+		 * \return true for success, false for failure
 		 */
 		MPTK_LIB_EXPORT bool AnywaveCreator( char* fileName );
+		
+		/** \brief Constructor using a filename
+		 * \param paramMap A map of strings containing all the datas of the dictionary
+		 * \return true for success, false for failure
+		 */
 		MPTK_LIB_EXPORT bool AnywaveCreator( map<string, string, mp_ltstring> *paramMap );
-		/** \brief Print the table structure to a stream
-		 *
-		 * the output is empty
-		 * \param fidTable A writeable stream
-		 * \param szDatasName The table data file name associated with the table file
-		 * \remark DO NOT WRITE THE DATA TO the file \a szDatasName
-		 */
-		MPTK_LIB_EXPORT void writeTable ( FILE *fidTable, const char *szDatasName );
-		/** \brief Print the table structure to a stream
-		 *
-		 * the output is the same as the file tableFileName
-		 *
-		 * \param fidDatas A writeable stream
-		 * \remark DO NOT WRITE THE DATA TO the file \a dataFileName
-		 */
-		MPTK_LIB_EXPORT void writeDatas ( FILE *fidDatas );
-		/** \brief Print the table structure to a file
-		 *
-		 * the output is the same as the file tableFileName
-		 *
-		 * \param szTableName The Anywave table file name string
-		 * \param szDatasName The Anywave table data file name string
-		 * \return The number of printed characters
-		 * \remark DO NOT WRITE THE DATA TO the file \a dataFileName
-		 */
-		MPTK_LIB_EXPORT unsigned long int write( const char *szTableName, const char *szDatasName );
-		/** \brief load the data contained in dataFileName, store it in
-		 * storage and update the pointers in wave
-		 *
+		
+		/** \brief load the data contained in dataFileName, store it in storage and update the pointers in wave
 		 * \return true for success, false for failure
 		 **/
 		MPTK_LIB_EXPORT bool load_data_anywave( void );
+
+		/** \brief load the data contained in the szInputDatas, store it in storage and update the pointers in wave
+		 * \return true for success, false for failure
+		 **/
 		MPTK_LIB_EXPORT bool load_data_anywave( char *szInputDatas );
+
 		/** \brief creates a copy of this table (with all allocations needed)
 		 * \return the copied anywave table
 		 */
 		MPTK_LIB_EXPORT MP_Anywave_Table_c* copy( void );
+
 		/** \brief creates the dual table, named name, containing, for each filter, its hilbert transform
-		 *
-		 * \param name The hilbert file name string
+		 * \param szkeyTableName The hilbert keyname string
 		 * \return The created (hilbert) anywave table
 		 */
-		MPTK_LIB_EXPORT MP_Anywave_Table_c* create_hilbert_dual( char* name );
+		MPTK_LIB_EXPORT MP_Anywave_Table_c* create_hilbert_dual( char* szkeyTableName );
 	private:
 		/** \brief Parse the xml file fName that describes the table
-		 *
 		 * \return true for success, false for failure
 		 */
 		bool parse_xml_file(const char* fName);
@@ -227,38 +212,46 @@ class MP_Anywave_Table_c
 	/***************************/
 	public:
 		/** \brief Test function, called by the test executable test_anywave
-		 *
 		 * \param filename The file to test in string
 		 */
 		MPTK_LIB_EXPORT static bool test( char* filename );
+		
 		/** \brief Re-initialize all the members */
 		MPTK_LIB_EXPORT void reset( void );
+		
 		/** \brief Normalize the waveforms and update the flag \a normalize
-		 *
 		 * \returns 1 if succeed or 2 if an error occured
 		 */
 		MPTK_LIB_EXPORT unsigned long int normalize( void );
-		/** \brief Sets the mean and the nyquist component of the waveforms
-		 * to 0, and update the flag \a centeredAndDenyquisted
-		 *
+		
+		/** \brief Sets the mean and the nyquist component of the waveforms to 0, and update the flag \a centeredAndDenyquisted
 		 * \returns 1 if succeed or 2 if an error occured
 		 */
 		MPTK_LIB_EXPORT unsigned long int center_and_denyquist( void );
+		
 		/** \brief set the \a tableFileName member to  \a fileName
 		 * \return pointer to the string \a tableFileName
 		 */
 		MPTK_LIB_EXPORT char* set_table_file_name( const char* fileName );
+		
 		/** \brief set the \a dataFileName member to \a fileName
 		 * \return pointer to the string \a dataFileName
 		*/
 		MPTK_LIB_EXPORT char* set_data_file_name( const char* fileName );
-		MPTK_LIB_EXPORT char* set_key_table( const char* szKeyTable );
+		
+		/** \brief set the \a szKeyTable member to \a szkeyTableName
+		 * \return pointer to the string \a szKeyTable
+		*/
+		MPTK_LIB_EXPORT char* set_key_table( const char* szkeyTableName );
+
+		/** \brief Encodes the input storage
+		 * \return the encoded string
+		*/
 		MPTK_LIB_EXPORT string encodeBase64( char *szStorage, int iSizeToEncode );
 
 	private:  
 		/** \brief Allocate the pointers array \a wave, using the dimensions
 		 * \a numFilters and \a numChans
-		 * 
 		 * \return false if failed, true if succeed
 		 **/
 		bool alloc_wave( void );

@@ -88,8 +88,11 @@ MP_Anywave_Server_c::~MP_Anywave_Server_c()
 /* OTHER METHODS           */
 /***************************/
 
-/* Test */
-bool MP_Anywave_Server_c::test( void ) 
+//-------------------------------//
+// Function : Test(void)
+// Usage	: Test
+//-------------------------------//
+bool MP_Anywave_Server_c::test(void) 
 {
 	unsigned long int tableIdx;
 	unsigned long int numTablesToSet = 5;
@@ -148,7 +151,10 @@ bool MP_Anywave_Server_c::test( void )
 	return( true );
 }
 
-/* Add a waveform table from a table */
+//---------------------------------------------//
+// Function : add( MP_Anywave_Table_c* table )
+// Usage	: Add a waveform table from a table
+//---------------------------------------------//
 unsigned long int MP_Anywave_Server_c::add( MP_Anywave_Table_c* table )
 {
 	const char			*func =  "MP_Anywave_Server_c::add( MP_Anywave_Table_c* table )";
@@ -187,7 +193,10 @@ unsigned long int MP_Anywave_Server_c::add( MP_Anywave_Table_c* table )
 	return( numTables - 1 );
 }
 
-/* Add a waveform table from a file */
+//---------------------------------------------//
+// Function : add( char* filename )
+// Usage	: Add a waveform table from a file
+//---------------------------------------------//
 unsigned long int MP_Anywave_Server_c::add( char* filename )
 {
 	const char			*func =  "MP_Anywave_Server_c::add(char *)";
@@ -233,7 +242,10 @@ unsigned long int MP_Anywave_Server_c::add( char* filename )
 }
 
 
-/* Add a waveform table from a file */
+//-------------------------------------------------------------//
+// Function : add( map<string, string, mp_ltstring> *paramMap )
+// Usage	: Add a waveform table from a map
+//-------------------------------------------------------------//
 unsigned long int MP_Anywave_Server_c::add( map<string, string, mp_ltstring> *paramMap )
 {
 	const char			*func =  "MP_Anywave_Server_c::add(char *)";
@@ -279,7 +291,10 @@ unsigned long int MP_Anywave_Server_c::add( map<string, string, mp_ltstring> *pa
 	return add(table);
 }
 
-/* Reallocate memory if we arrive at the maximum of the num tables */
+//---------------------------------------------------------------------------//
+// Function : reallocate( void )
+// Usage	: Reallocate memory if we arrive at the maximum of the num tables
+//---------------------------------------------------------------------------//
 bool MP_Anywave_Server_c::reallocate(void)
 {
 	const char			*func =  "MP_Anywave_Server_c::reallocate(char *)";
@@ -309,7 +324,10 @@ bool MP_Anywave_Server_c::reallocate(void)
 
 
 
-/* Get filename associated to the table number "index" */
+//---------------------------------------------------------------------------//
+// Function : get_keyname( unsigned long int index ) 
+// Usage	: Get filename associated to the table number "index"
+//---------------------------------------------------------------------------//
 char* MP_Anywave_Server_c::get_keyname( unsigned long int index ) 
 {
 	if (index < numTables) 
@@ -321,12 +339,19 @@ char* MP_Anywave_Server_c::get_keyname( unsigned long int index )
 	}
 }
 
+//---------------------------------------------------------------------------//
+// Function : get_keyname_size(void) 
+// Usage	: Return the keyname size
+//---------------------------------------------------------------------------//
 int MP_Anywave_Server_c::get_keyname_size(void)
 {
 	return MD5_ALLOC_SIZE;
 }
 
-/* Get the table number associated to szKeyTable */
+//---------------------------------------------------------------------------//
+// Function : get_index ( char* szKeyTableName )
+// Usage	: Get the table number associated to szKeyTable
+//---------------------------------------------------------------------------//
 unsigned long int MP_Anywave_Server_c::get_index( char* szKeyTableName ) 
 {
 	unsigned long int n = 0;
@@ -346,6 +371,10 @@ unsigned long int MP_Anywave_Server_c::get_index( char* szKeyTableName )
   return(n);
 }
 
+//-------------------------------------------------------------------------------//
+// Function : encodeMd5 (char *szInputEncode, int iInputSize, char *OutputEncode)
+// Usage	: Encode an input string into md5
+//-------------------------------------------------------------------------------//
 void MP_Anywave_Server_c::encodeMd5(char *szInputEncode, int iInputSize, char *OutputEncode)
 {
 	md5_encode((unsigned char *)szInputEncode, iInputSize, (unsigned char *)OutputEncode);

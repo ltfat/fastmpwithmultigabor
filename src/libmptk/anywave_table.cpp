@@ -80,7 +80,10 @@ MP_Anywave_Table_c::~MP_Anywave_Table_c()
 /***************************/
 /* OTHER METHODS           */
 /***************************/
-/* Test */
+//-------------------------------//
+// Function : Test(char* filename )
+// Usage	: Test
+//-------------------------------//
 bool MP_Anywave_Table_c::test( char* filename )
 {
 	unsigned long int sampleIdx;
@@ -133,8 +136,10 @@ bool MP_Anywave_Table_c::test( char* filename )
 
 }
 
-/************************/
-/* fileName Creator		*/
+//----------------------------------------------//
+// Function : AnywaveCreator(char* filename )
+// Usage	: Create an anywaveTable from a file
+//----------------------------------------------//
 bool MP_Anywave_Table_c::AnywaveCreator( char* fileName )
 {
 	const char	*func = "MP_Anywave_Table_c::MP_Anywave_Table_c";
@@ -160,8 +165,10 @@ bool MP_Anywave_Table_c::AnywaveCreator( char* fileName )
 }
 
 
-/************************/
-/* paramMap Creator		*/
+//---------------------------------------------------------------------//
+// Function : AnywaveCreator(map<string, string, mp_ltstring> *paramMap)
+// Usage	: Create an anywaveTable from a map
+//---------------------------------------------------------------------//
 bool MP_Anywave_Table_c::AnywaveCreator( map<string, string, mp_ltstring> *paramMap )
 {
 	const char		*func = "MP_Anywave_Table_c::MP_Anywave_Table_c";
@@ -196,7 +203,10 @@ bool MP_Anywave_Table_c::AnywaveCreator( map<string, string, mp_ltstring> *param
 	return true;
 }
 
-/* load the data contained in dataFileName, store it in storage and update the pointers in wave */
+//---------------------------------------------------------------------------------------------------------//
+// Function : load_data_anywave(void)
+// Usage	: load the data contained in dataFileName, store it in storage and update the pointers in wave
+//---------------------------------------------------------------------------------------------------------//
 bool MP_Anywave_Table_c::load_data_anywave( void )
 {
 	const char			*func = "MP_Anywave_Table_c::load_data_anywave(void)";
@@ -272,7 +282,10 @@ bool MP_Anywave_Table_c::load_data_anywave( void )
 	return true;
 }
 
-/* load the data contained in the szInputDatas, store it in storage and update the pointers in wave */
+//---------------------------------------------------------------------------------------------------------//
+// Function : load_data_anywave(char *szInputDatas)
+// Usage	: load the data contained in the szInputDatas, store it in storage and update the pointers in wave
+//---------------------------------------------------------------------------------------------------------//
 bool MP_Anywave_Table_c::load_data_anywave( char *szInputDatas )
 {
 	const char			*func = "MP_Anywave_Table_c::load_data_anywave(char *szInputDatas)";
@@ -336,7 +349,10 @@ bool MP_Anywave_Table_c::load_data_anywave( char *szInputDatas )
 	return true;
 }
 
-/*Allocate the pointers array wave, using the dimensions numFilters and numChans */
+//-------------------------------------------------------------------------------------------//
+// Function : alloc_wave(void)
+// Usage	: Allocate the pointers array wave, using the dimensions numFilters and numChans
+//-------------------------------------------------------------------------------------------//
 bool MP_Anywave_Table_c::alloc_wave( void )
 {
 	const char			*func = "MP_Anywave_Table_c::alloc_wave(void)";
@@ -375,7 +391,10 @@ bool MP_Anywave_Table_c::alloc_wave( void )
   return true;
 }
 
-/* Free the pointer array wave */
+//------------------------------------------//
+// Function : free_wave(void)
+// Usage	: Free the pointer array wave
+//------------------------------------------//
 void MP_Anywave_Table_c::free_wave( void )
 {
 	unsigned long int filterIdx;
@@ -396,7 +415,10 @@ void MP_Anywave_Table_c::free_wave( void )
 	return;
 }
 
-/* Re-initialize all the members */
+//------------------------------------------//
+// Function : reset(void)
+// Usage	: Re-initialize all the members
+//------------------------------------------//
 void MP_Anywave_Table_c::reset( void )
 {
 	mp_debug_msg( MP_DEBUG_DESTRUCTION, "MP_Anywave_Table_c::reset()", "Entering...\n" );
@@ -424,6 +446,10 @@ void MP_Anywave_Table_c::reset( void )
 	return;
 }
 
+//--------------------------------------------------------------//
+// Function : parse_xml_file(const char* fName)
+// Usage	: Parse the xml file fName that describes the table
+//--------------------------------------------------------------//
 bool MP_Anywave_Table_c::parse_xml_file(const char* fName)
 {
 	const char		*func = "MP_Anywave_Table_c::parse_xml_file(const char* fName)";
@@ -525,7 +551,10 @@ bool MP_Anywave_Table_c::parse_xml_file(const char* fName)
 	return true;
 }
 
-/* Normalization of the waveforms */
+//------------------------------------------//
+// Function : normalize(void)
+// Usage	: Normalise of the waveforms
+//------------------------------------------//
 unsigned long int MP_Anywave_Table_c::normalize( void )
 {
 	unsigned long int filterIdx = 0;
@@ -551,7 +580,10 @@ unsigned long int MP_Anywave_Table_c::normalize( void )
 	return(normalized);
 }
 
-/* Sets the mean and the nyquist component of the waveforms to zero */
+//----------------------------------------------------------------------------//
+// Function : center_and_denyquist(void)
+// Usage	: Sets the mean and the nyquist component of the waveforms to zero
+//----------------------------------------------------------------------------//
 unsigned long int MP_Anywave_Table_c::center_and_denyquist( void )
 {
   unsigned long int filterIdx = 0;
@@ -621,88 +653,42 @@ unsigned long int MP_Anywave_Table_c::center_and_denyquist( void )
   return(centeredAndDenyquisted);
 }
 
-/* set the tableFileName property to filename */
+//---------------------------------------------------------//
+// Function : set_table_file_name( const char* filename )
+// Usage	: Sets the tableFileName property from filename
+//---------------------------------------------------------//
 char* MP_Anywave_Table_c::set_table_file_name( const char* filename )
 {
 	strcpy( tableFileName, filename );
 	return(tableFileName);
 }
 
-/* set the dataFileName property to filename */
+
+//---------------------------------------------------------//
+// Function : set_data_file_name( const char* filename )
+// Usage	: Sets the dataFileName property from filename
+//---------------------------------------------------------//
 char* MP_Anywave_Table_c::set_data_file_name( const char* filename )
 {
 	strcpy( dataFileName, filename );
 	return(dataFileName);
 }
 
-/* set the dataFileName property to filename */
+
+//---------------------------------------------------------//
+// Function : set_key_table( const char* szkeyTableName )
+// Usage	: Sets the szKeyTable property from szkeyTableName
+//---------------------------------------------------------//
 char* MP_Anywave_Table_c::set_key_table( const char* szkeyTableName )
 {
 	memcpy(szKeyTable,szkeyTableName,MD5_ALLOC_SIZE*sizeof(char));
 	return(szKeyTable);
 }
 
-
-/* printing to a stream */
-void MP_Anywave_Table_c::writeTable( FILE *fidTable, const char *szDatasName )
-{
-	/* Print the xml declaration */
-	fprintf( fidTable, "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n" );
-	/* Print opening <table> tag */
-	fprintf( fidTable, "<table>\n" );
-	/* Print the lib version */
-	fprintf( fidTable, "<libVersion>%s</libVersion>\n", VERSION );
-	/* Print the parameters */
-	fprintf( fidTable, "\t<param name=\"numChans\" value=\"%i\"/>\n", numChans );
-	fprintf( fidTable, "\t<param name=\"filterLen\" value=\"%li\"/>\n", filterLen );
-	fprintf( fidTable, "\t<param name=\"numFilters\" value=\"%li\"/>\n", numFilters );
-	fprintf( fidTable, "\t<param name=\"normalized\" value=\"%li\"/>\n", normalized );
-	fprintf( fidTable, "\t<param name=\"centeredAndDenyquisted\" value=\"%li\"/>\n", centeredAndDenyquisted );
-	fprintf( fidTable, "\t<param name=\"data\" value=\"%s\"/>\n", szDatasName );
-	/* Print the closing </table> tag */
-	fprintf( fidTable, "</table>\n");
-	return;
-}
-
-/* printing to a stream */
-void MP_Anywave_Table_c::writeDatas( FILE *fidDatas )
-{
-	unsigned long int iFilterIdx, iChanIdx;
-	
-	for (iFilterIdx = 0 ; iFilterIdx < numFilters ; iFilterIdx++)
-		for(iChanIdx = 0 ; iChanIdx < numChans ; iChanIdx++)
-			fwrite(wave[iFilterIdx][iChanIdx], sizeof(double), filterLen, fidDatas);
-
-	return;
-}
-
-/**********************/
-/* Printing to a file */
-unsigned long int MP_Anywave_Table_c::write( const char *szTableName, const char *szDatasName )
-{
-
-	FILE *fidTable, *fidDatas;
-
-	if((fidTable = fopen(szTableName,"wb")) == NULL)
-    {
-		mp_error_msg( "MP_Anywave_Table_c::print", "Could not open file %s to write a table\n",szTableName);
-		return(false);
-    }
-	writeTable(fidTable, szDatasName);
-	fclose (fidTable);
-	
-	if((fidDatas = fopen(szDatasName,"wb")) == NULL)
-    {
-		mp_error_msg( "MP_Anywave_Table_c::print", "Could not open file %s to write the wave datas\n",szDatasName);
-		return(false);
-	}
-	writeDatas(fidDatas);
-	fclose (fidDatas);
-	
-  return(true);
-
-}
-
+//---------------------------------------------------------//
+// Function : copy(void)
+// Usage	: Returns a new table copied from the internal table
+//---------------------------------------------------------//
 MP_Anywave_Table_c* MP_Anywave_Table_c::copy( void )
 {
 	size_t numBytes;
@@ -769,7 +755,11 @@ MP_Anywave_Table_c* MP_Anywave_Table_c::copy( void )
 }
 
 
-MP_Anywave_Table_c* MP_Anywave_Table_c::create_hilbert_dual( char* name )
+//---------------------------------------------------------//
+// Function : create_hilbert_dual(name)
+// Usage	: Returns a new table copied from the internal table
+//---------------------------------------------------------//
+MP_Anywave_Table_c* MP_Anywave_Table_c::create_hilbert_dual( char* szkeyTableName )
 {
 
   unsigned long int filterIdx;
@@ -812,7 +802,7 @@ MP_Anywave_Table_c* MP_Anywave_Table_c::create_hilbert_dual( char* name )
       return(NULL);
     }
 
-  newTable->set_key_table( name );
+  newTable->set_key_table( szkeyTableName );
 
   fftLen = filterLen / 2 + 1;
   nyquistPresent = ( (fftLen-1)*2  == filterLen);
@@ -874,7 +864,10 @@ MP_Anywave_Table_c* MP_Anywave_Table_c::create_hilbert_dual( char* name )
 }
 
 
-/* Free the pointer array wave */
+//---------------------------------------------------------//
+// Function : create_hilbert_dual(name)
+// Usage	: Returns a new table copied from the internal table
+//---------------------------------------------------------//
 string MP_Anywave_Table_c::encodeBase64( char *szStorage, int iSizeToEncode)
 {
 	return base64_encode((const unsigned char *)szStorage,iSizeToEncode);
