@@ -42,8 +42,7 @@
 mxArray *mp_create_mxAnywaveTable_from_anywave_table(const MP_Anywave_Table_c *AnyTable) 
 {
 	const char			*func = "mp_create_mxAnywaveTable_from_anywave_table";
-    int					numBookFieldNames = 0;
-    unsigned long int	filterIdx, chanIdx, sampleIdx;
+  unsigned long int	filterIdx, chanIdx, sampleIdx;
 	mxArray				*mxReturnTable;
 	mxArray				*mxWaveArray;
 	mwSize				*mwDimension;
