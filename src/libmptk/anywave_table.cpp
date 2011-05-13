@@ -427,17 +427,13 @@ void MP_Anywave_Table_c::reset( void )
 bool MP_Anywave_Table_c::parse_xml_file(const char* fName)
 {
 	const char		*func = "MP_Anywave_Table_c::parse_xml_file(const char* fName)";
-	TiXmlNode		*nodeFinal = NULL;
+	TiXmlNode		  *nodeFinal = NULL;
 	TiXmlElement	*paramTable = NULL;
 	TiXmlElement	*elementTable = NULL;
-	TiXmlElement	*elementFinal = NULL;
 	TiXmlElement	*elementVersion = NULL;
 	TiXmlHandle		handleFinal = NULL;
-	char			*convertEnd;
-	bool			numChansIsSet = false;
-	bool			filterLenIsSet = false;
-	bool			numFiltersIsSet = false;
-	string			libVersion;
+	char			    *convertEnd;
+	string			  libVersion;
 
 	// Get a handle on the document
 	TiXmlDocument doc(fName);
