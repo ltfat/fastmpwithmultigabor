@@ -43,7 +43,6 @@ mxArray *mp_create_mxAnywaveTable_from_anywave_table(const MP_Anywave_Table_c *A
 {
 	const char			*func = "mp_create_mxAnywaveTable_from_anywave_table";
   unsigned long int	filterIdx, chanIdx, sampleIdx;
-	mxArray				*mxReturnTable;
 	mxArray				*mxWaveArray;
 	mwSize				*mwDimension;
 	
@@ -68,7 +67,6 @@ mxArray *mp_create_mxAnywaveTable_from_anywave_table(const MP_Anywave_Table_c *A
 	if(!mxWaveArray)
 	{
 		mp_error_msg(func,"could not create waveform array\n");
-		mxDestroyArray(mxReturnTable);
 		return(NULL);
 	}
   
