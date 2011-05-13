@@ -150,7 +150,7 @@ MP_Dict_c * mp_create_dict_from_mxDict(const mxArray *mxDict)
 	const char						*fieldName;
 	map<string,string,mp_ltstring>	*paramMap;
 	MP_Dict_c						*dict = NULL;
-	mxArray							*mxBlockCell,*mxBlock,*mxTmp,*mxTable;
+	mxArray							*mxBlockCell,*mxBlock,*mxTmp;
 	mwSize							mwNumDimension;
 	const mwSize					*mwDimension;
 	size_t							numFields;
