@@ -150,16 +150,15 @@ MP_Dict_c * mp_create_dict_from_mxDict(const mxArray *mxDict)
 	const char						*fieldName;
 	map<string,string,mp_ltstring>	*paramMap;
 	MP_Dict_c						*dict = NULL;
-	mxArray							*mxBlockCell;
-	mxArray							*mxBlock;
-	mxArray							*mxTmp;
+	mxArray							*mxBlockCell,*mxBlock,*mxTmp,*mxTable;
+	mwSize							mwNumDimension;
+	const mwSize					*mwDimension;
 	size_t							numFields;
 	int								nBlocks;
+	int								iSizeOfTable,iDimensions,iIndexDimension,iDimension;
 	char							*fieldValue;
-	MP_Anywave_Table_c				*mpTable;
-	mxArray							*mxTable;
-	string							szDataString;
-	string							szReturnString;
+	double							*dTable = NULL;
+	string							szDataString,szReturnString;
 				
 
 	if (NULL==mxDict) 
@@ -226,33 +225,46 @@ MP_Dict_c * mp_create_dict_from_mxDict(const mxArray *mxDict)
 				if(NULL!=dict) delete dict; 
 				return(NULL);
 			}
-			// If the field name value is "data" then
-			if(!strcmp(fieldName,"data"))
+
+			// Retrieve the field value 
+			mxTmp = mxGetField(mxBlock,0,fieldName);
+			if(mxTmp == NULL) 
 			{
-				// Loading dictionary object in Matlab structure
-				mpTable = mp_create_anywave_table_from_mxAnywaveTable(mxBlock);
-				if(!mpTable) 
-				{
-					mexPrintf("Failed to convert an anywave table from MPTK to Matlab.\n");
-					mexErrMsgTxt("Aborting");
-					return NULL;
-				}
-				// Encode the datas into base64 string
-				szDataString = mpTable->encodeBase64((char *)mpTable->storage,mpTable->filterLen*mpTable->numChans*mpTable->numFilters*sizeof(MP_Real_t));
-				// Store it in the map and free 
-				(*paramMap)[string(fieldName)]=szDataString;
+				mp_error_msg(func,"value of field number %d in dict.block{%d} could not be retrieved\n",j+1,i+1);
+				// Clean the house
+				if(NULL!=dict) delete dict; 
+				return(NULL);
 			}
-			else
+
+			if(mxIsDouble(mxTmp)) 
 			{
-				// Retrieve the field value 
-				mxTmp = mxGetField(mxBlock,0,fieldName);
-				if(mxTmp == NULL) 
+				// Retrieve the dimension of the double
+				mwNumDimension = mxGetNumberOfDimensions(mxTmp);
+				mwDimension = mxGetDimensions(mxTmp);
+				iDimension = 1;
+				for(iIndexDimension = 0; iIndexDimension < mwNumDimension; iIndexDimension++)
+					iDimension *= mwDimension[iIndexDimension];
+				// Add the dimension of a double
+				iDimension = iDimension * sizeof(double);
+				// Getting the storage field
+				if((dTable = (MP_Real_t*)malloc(iDimension)) == NULL)
 				{
-					mp_error_msg(func,"value of field number %d in dict.block{%d} could not be retrieved\n",j+1,i+1);
+					mp_error_msg(func,"The double storage has not been allocaed\n");
+					return(NULL);
+				}
+				// Loading the mxArray
+				if((dTable = mp_get_anywave_datas_from_mxAnywaveTable(mxBlock)) == NULL)
+				{
+					mp_error_msg(func,"A double value has been found but could not be retrieved\n");
 					// Clean the house
 					if(NULL!=dict) delete dict; 
 					return(NULL);
 				}
+				// Store it in the map and free 
+				(*paramMap)["doubledata"] = string((char *)dTable, iDimension);	
+			}
+			else
+			{
 				fieldValue = mxArrayToString(mxTmp);
 				if(fieldValue == NULL) 
 				{
@@ -303,7 +315,8 @@ MP_Dict_c * mp_create_dict_from_mxDict(const mxArray *mxDict)
 		}
 		// Add the block to the dictionary 
 		dict->add_block(block);
-		free(mpTable);
+
+		if(dTable) free(dTable);
 		delete paramMap;
 	}
 	return(dict);

@@ -89,6 +89,6 @@ MPTK_LIB_EXPORT extern mxArray *mp_create_mxAnywaveTable_from_anywave_table(cons
  * \param mxTable the Matlab structre
  * \return the created MTPK object, NULL in case of problem
  */
-MPTK_LIB_EXPORT extern MP_Anywave_Table_c *mp_create_anywave_table_from_mxAnywaveTable(const mxArray *mxTable);
+MPTK_LIB_EXPORT extern double *mp_get_anywave_datas_from_mxAnywaveTable(const mxArray *mxTable);
 
 

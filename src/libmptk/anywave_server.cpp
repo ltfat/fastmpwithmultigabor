@@ -241,6 +241,19 @@ unsigned long int MP_Anywave_Server_c::add( map<string, string, mp_ltstring> *pa
 	MP_Anywave_Table_c	*table = NULL;
 	char				szkeyTableName[MD5_ALLOC_SIZE] = "";
 
+	// Creates an empty new table
+	table = new MP_Anywave_Table_c();
+	if (NULL == table ) 
+	{
+		mp_error_msg( func, "Can't create a anywave table - Returning index maxNumTables (= max + 1).\n");
+		return( maxNumTables );
+	} 
+
+	// Testing the "doubledata" parameter
+	if((*paramMap)["doubledata"].size() > 0)
+			// Encode the datas into base64 string
+			(*paramMap)["data"] = table->encodeBase64((char *)(*paramMap)["doubledata"].c_str(),(*paramMap)["doubledata"].size());
+
 	// Transform the filename string into mp5 checksum
 	encodeMd5((char *)(*paramMap)["data"].c_str(), (*paramMap)["data"].size(), szkeyTableName);
 
@@ -251,12 +264,6 @@ unsigned long int MP_Anywave_Server_c::add( map<string, string, mp_ltstring> *pa
 	if (n < numTables) 
 		return( n );
 	// create the table
-	table = new MP_Anywave_Table_c();
-	if (NULL == table ) 
-	{
-		mp_error_msg( func, "Can't create a anywave table - Returning index maxNumTables (= max + 1).\n");
-		return( maxNumTables );
-	} 
 	if(!table->AnywaveCreator(paramMap))
 	{
 		mp_error_msg( func, "Can't initialise a anywave table from paramMap - Returning index maxNumTables (= max + 1).\n");
