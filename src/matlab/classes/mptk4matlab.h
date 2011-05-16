@@ -53,7 +53,6 @@ MPTK_LIB_EXPORT extern MP_Dict_c *mp_create_dict_from_mxDict(const mxArray *mxDi
  * \return the created MTPK object, NULL in case of problem
  */
 MPTK_LIB_EXPORT extern mxArray *anywaveTableRead(map<string, string, mp_ltstring> *paramMap, char *szFileName);
-MPTK_LIB_EXPORT extern char *anywaveDataRead(mxArray *mxBlock);
 
 /** \brief Converts a MP_Signal_c object to a Matlab structure 
  * \param signal the MPTK object
