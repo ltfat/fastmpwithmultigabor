@@ -155,7 +155,7 @@ MP_Dict_c * mp_create_dict_from_mxDict(const mxArray *mxDict)
 	const mwSize					*mwDimension;
 	size_t							numFields;
 	int								nBlocks;
-	int								iSizeOfTable,iDimensions,iIndexDimension,iDimension;
+	int								iIndexDimension,iDimension;
 	char							*fieldValue;
 	double							*dTable = NULL;
 	string							szDataString,szReturnString;
@@ -242,7 +242,7 @@ MP_Dict_c * mp_create_dict_from_mxDict(const mxArray *mxDict)
 				mwNumDimension = mxGetNumberOfDimensions(mxTmp);
 				mwDimension = mxGetDimensions(mxTmp);
 				iDimension = 1;
-				for(iIndexDimension = 0; iIndexDimension < mwNumDimension; iIndexDimension++)
+				for(iIndexDimension = 0; iIndexDimension < (int)mwNumDimension; iIndexDimension++)
 					iDimension *= mwDimension[iIndexDimension];
 				// Add the dimension of a double
 				iDimension = iDimension * sizeof(double);

@@ -100,9 +100,8 @@ double *mp_get_anywave_datas_from_mxAnywaveTable(const mxArray *mxTable)
 	unsigned long int		iFilterIdx, iSampleIdx;
 	MP_Chan_t				iChanIdx;
 	int						iIndexStorage = 0;
-	int						iFilterLen = 0;
-	int						iNumChans = 0;
-	int						iNumFilters = 0;
+	unsigned long int		iFilterLen = 0, iNumFilters = 0;
+	MP_Chan_t				iNumChans = 0;
 	MP_Real_t				*dTable;
 
 	//-------------------------------------
