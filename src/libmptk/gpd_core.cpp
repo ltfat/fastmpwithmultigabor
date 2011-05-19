@@ -315,11 +315,9 @@ void GPD_Core_c::save_result() {
 
 /*************************/
 /* Make one GP iteration */
-unsigned short int GPD_Core_c::step() {
-
-	//fprintf( stdout, " GPD_Core_c::step()\n" );
+unsigned short int GPD_Core_c::step() 
+{
 	const char* func = "GPD_Core_c::step()";
-	//int chanIdx;
 	MP_Atom_c *atom;
 	unsigned int numAtoms, size;
 	unsigned long int t, offset;
@@ -336,15 +334,13 @@ unsigned short int GPD_Core_c::step() {
 	mp_debug_msg( MP_DEBUG_MPD_LOOP, func, "Next report hit is [%lu].\n", nextReportHit );
 	mp_debug_msg( MP_DEBUG_MPD_LOOP, func, "Next save hit is   [%lu].\n", nextSaveHit );
 	mp_debug_msg( MP_DEBUG_MPD_LOOP, func, "Next snr hit is    [%lu].\n", nextSnrHit );
-	mp_debug_msg( MP_DEBUG_MPD_LOOP, func, "SNR is [%g]/[%g].\n",
-			10*log10(currentSnr), 10*log10(stopAfterSnr) );
+	mp_debug_msg( MP_DEBUG_MPD_LOOP, func, "SNR is [%g]/[%g].\n", 10*log10(currentSnr), 10*log10(stopAfterSnr) );
 
 	/* Check if a signal is present */
 	if ( residual == NULL )
 	{
-		mp_error_msg( func, "There is no signal in the dictionary. You must"
-				" plug or copy a signal before you can iterate.\n" );
-		return( 1 );
+		state = ( state | MP_ERROR_RESIDUAL );
+		return 1;
 	}
 
 	/* 1/ refresh the inner products
@@ -359,30 +355,24 @@ unsigned short int GPD_Core_c::step() {
 
 	/** 2/ Create the max atom and store it in the book */
 	numAtoms = dict->create_max_gp_atom( &atom );
-//	cerr << endl << "found atom = " << endl;
-//	atom->info();
 	if ( numAtoms == 0 )
 	{
-		mp_error_msg( func, "The Gradient Pursuit iteration failed. Dictionary, book"
-				" and signal are left unchanged.\n" );
-		return( 1 );
+		state = ( state | MP_ERROR_NUMATOMS );
+		return 1;
 	}
 
 	if ( book->append( atom ) != 1 )
 	{
-		mp_error_msg( func, "Failed to append the max atom to the book.\n" );
-		return( 1 );
+		state = ( state | MP_ERROR_BOOKAPPEND );
+		return 1;
 	}
 
 	/* 3/ compute gradient*/
 	if (touchBook)
 		delete touchBook;
 	touchBook = book->get_neighbours(atom, dict);
-//	cerr << "touchBook->begin() = " << endl;
-//	touchBook->begin()->info(stderr);
 
 	gradSupport.len = touchBook->build_waveform_corr(dict, gradient, tmpBuffer);
-
 	gradSupport.pos = residual->numSamples;
 	size = 0;
 	for (iter = touchBook->begin(); iter !=touchBook->end(); iter.go_to_next_frame()){
@@ -510,8 +500,7 @@ unsigned short int GPD_Core_c::step() {
 	mp_debug_msg( MP_DEBUG_MPD_LOOP, func, "Next report hit is [%lu].\n", nextReportHit );
 	mp_debug_msg( MP_DEBUG_MPD_LOOP, func, "Next save hit is   [%lu].\n", nextSaveHit );
 	mp_debug_msg( MP_DEBUG_MPD_LOOP, func, "Next snr hit is    [%lu].\n", nextSnrHit );
-	mp_debug_msg( MP_DEBUG_MPD_LOOP, func, "SNR is [%g]/[%g].\n",
-			10*log10(currentSnr), 10*log10(stopAfterSnr) );
+	mp_debug_msg( MP_DEBUG_MPD_LOOP, func, "SNR is [%g]/[%g].\n", 10*log10(currentSnr), 10*log10(stopAfterSnr) );
 
 	return( state );
 }

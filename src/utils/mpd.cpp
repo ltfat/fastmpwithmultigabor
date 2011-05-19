@@ -47,15 +47,16 @@ const char* func = "mpd";
 /********************/
 /* Error types      */
 /********************/
-#define ERR_ARG        1
-#define ERR_BOOK       2
-#define ERR_DICT       3
-#define ERR_SIG        4
-#define ERR_CORE       5
-#define ERR_DECAY      6
-#define ERR_OPEN       7
-#define ERR_WRITE      8
-#define ERR_LOADENV    9
+#define ERR_ARG			1
+#define ERR_BOOK		2
+#define ERR_DICT		3
+#define ERR_SIG			4
+#define ERR_CORE		5
+#define ERR_DECAY		6
+#define ERR_OPEN		7
+#define ERR_WRITE		8
+#define ERR_LOADENV		9
+#define ERR_RUN			10
 
 /********************/
 /* Global variables */
@@ -600,8 +601,12 @@ int main( int argc, char **argv )
 	mpdCore->run();
 
 	if ( !MPD_QUIET ) 
-		mpdCore->info_state();
-
+		if(mpdCore->info_state() == false)
+		{
+			mp_error_msg( func, "Failed to run the matching pursuit calculation\n");
+			return ERR_RUN;
+		}
+	
 
 	/**************************************************/
 	/* FINAL SAVES AND CLEANUP                        */

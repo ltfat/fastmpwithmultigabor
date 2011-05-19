@@ -42,15 +42,18 @@
 #define MP_CORE_H_
 
 /* Returned events */
-#define MP_NULL_CONDITION          0
-#define MP_ITER_CONDITION_REACHED  1
-#define MP_SNR_CONDITION_REACHED  (1 << 1)
-#define MP_NEG_ENERGY_REACHED     (1 << 2)
-#define MP_INCREASING_ENERGY      (1 << 3)
-#define MP_SAVE_HIT_REACHED       (1 << 4)
-#define MP_REPORT_HIT_REACHED     (1 << 5)
-#define MP_ITER_EXHAUSTED         (1 << 6)
-#define MP_FORCED_STOP            (1 << 7)
+#define MP_NULL_CONDITION			0
+#define MP_ITER_CONDITION_REACHED	1
+#define MP_SNR_CONDITION_REACHED	(1 << 1)
+#define MP_NEG_ENERGY_REACHED		(1 << 2)
+#define MP_INCREASING_ENERGY		(1 << 3)
+#define MP_SAVE_HIT_REACHED			(1 << 4)
+#define MP_REPORT_HIT_REACHED		(1 << 5)
+#define MP_ITER_EXHAUSTED			(1 << 6)
+#define MP_FORCED_STOP				(1 << 7)
+#define MP_ERROR_RESIDUAL			(1 << 8)
+#define MP_ERROR_NUMATOMS			(1 << 9)
+#define MP_ERROR_BOOKAPPEND			(1 << 10)
 
 /* Initialization modes */
 #define MP_WITH_APPROXIMANT MP_TRUE
@@ -347,22 +350,34 @@ class MP_Abstract_Core_c
 			// Reset the state info
 			state = 0;
 			// Loop while the return state is NULL
-			while ( step() == 0 );
-			// Return the last state
-			return( numIter );
+			while (step() == 0 );
+			return numIter;
 		}
 
 		/**\brief info on the state of the core */
-		void info_state( void )
+		bool info_state( void )
 		{
 			const char* func = "Current state";
 
-			if ( state & MP_ITER_CONDITION_REACHED )  mp_info_msg( func, "Reached the target number of iterations [%lu].\n", numIter );
-			if ( state & MP_SNR_CONDITION_REACHED )  mp_info_msg( func, "The current SNR [%g] reached or passed the target SNR [%g] in [%lu] iterations.\n", 10*log10( currentSnr ), 10*log10( stopAfterSnr ), numIter );
-			if ( state & MP_NEG_ENERGY_REACHED )  mp_info_msg( func, "The current residual energy [%g] has gone negative after [%lu] iterations.\n", residualEnergy, numIter );
-			if ( state & MP_INCREASING_ENERGY )  mp_info_msg( func, "The residual energy is increasing [%g -> %g] after [%lu] iterations.\n", residualEnergyBefore, residualEnergy, numIter );
-			if ( state & MP_ITER_EXHAUSTED ) mp_info_msg( func, "Reached the absolute maximum number of iterations [%lu].\n", numIter );
-			if ( state & MP_FORCED_STOP ) mp_info_msg( func, "Forced stop at iteration [%lu].\n", numIter );
+			if ( state & MP_ITER_CONDITION_REACHED )  
+				{mp_info_msg( func, "Reached the target number of iterations [%lu].\n", numIter );return true;}
+			if ( state & MP_SNR_CONDITION_REACHED )  
+				{mp_info_msg( func, "The current SNR [%g] reached or passed the target SNR [%g] in [%lu] iterations.\n", 10*log10( currentSnr ), 10*log10( stopAfterSnr ), numIter );return true;}
+			if ( state & MP_NEG_ENERGY_REACHED )  
+				{mp_info_msg( func, "The current residual energy [%g] has gone negative after [%lu] iterations.\n", residualEnergy, numIter );return true;}
+			if ( state & MP_INCREASING_ENERGY )  
+				{mp_info_msg( func, "The residual energy is increasing [%g -> %g] after [%lu] iterations.\n", residualEnergyBefore, residualEnergy, numIter );return true;}
+			if ( state & MP_ITER_EXHAUSTED ) 
+				{mp_info_msg( func, "Reached the absolute maximum number of iterations [%lu].\n", numIter );return true;}
+			if ( state & MP_FORCED_STOP ) 
+				{mp_info_msg( func, "Forced stop at iteration [%lu].\n", numIter ); return true;}
+			if ( state & MP_ERROR_RESIDUAL ) 
+				{mp_error_msg( func, "There is no signal in the dictionary. You must plug or copy a signal before you can iterate.\n" );return false;}
+			if ( state & MP_ERROR_NUMATOMS ) 
+				{mp_error_msg( func, "The Gradient Pursuit iteration failed. Dictionary, book and signal are left unchanged.\n" );return false;}
+			if ( state & MP_ERROR_BOOKAPPEND ) 
+				{mp_error_msg( func, "Failed to append the max atom to the book.\n" );return false;}
+			
 		}
 
 		// Misc

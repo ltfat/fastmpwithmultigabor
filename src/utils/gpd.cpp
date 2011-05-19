@@ -49,14 +49,15 @@ const char* func = "gpd";
 /********************/
 /* Error types      */
 /********************/
-#define ERR_ARG        1
-#define ERR_BOOK       2
-#define ERR_DICT       3
-#define ERR_SIG        4
-#define ERR_CORE       5
-#define ERR_DECAY      6
-#define ERR_OPEN       7
-#define ERR_WRITE      8
+#define ERR_ARG			1
+#define ERR_BOOK		2
+#define ERR_DICT		3
+#define ERR_SIG			4
+#define ERR_CORE		5
+#define ERR_DECAY		6
+#define ERR_OPEN		7
+#define ERR_WRITE		8
+#define ERR_RUN			9
 
 /********************/
 /* Global variables */
@@ -630,13 +631,15 @@ int main( int argc, char **argv )
       mp_info_msg( func, "The initial signal energy is : %g\n", calculator->get_initial_energy() );
       mp_info_msg( func, "STARTING TO ITERATE\n" );
     }
-  calculator->run();
-
+	calculator->run(); 
+	
   /* Report */
-  if ( !GPD_QUIET ) calculator->info_state();
-
-
-  /*********************/
+  if ( !GPD_QUIET ) 
+	  if(calculator->info_state() == false)
+	  {
+		  mp_error_msg( func, "Failed to run the matching pursuit calculation\n");
+		  return ERR_RUN;
+	  }
 
 
   /**************************************************/
