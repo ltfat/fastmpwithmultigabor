@@ -86,8 +86,7 @@ public:
 	 **/
 	MP_Anywave_Table_c* anywaveTable;
 	
-	/** \brief Indice of the anywave table in the global MP_Anywave_Server_c
-	 * object MP_GLOBAL_ANYWAVE_SERVER.
+	/** \brief Indice of the anywave table in the global MP_Anywave_Server_c object MP_GLOBAL_ANYWAVE_SERVER.
 	 *
 	 * In order to save room, the anywave table is stored in the global
 	 * MP_Anywave_Server_c object, MP_GLOBAL_ANYWAVE_SERVER, and all the
@@ -239,9 +238,7 @@ public:
 	 *
 	 * \return 1 for success and 0 for failure
 	 **/
-	unsigned int create_atom( MP_Atom_c **atom,
-							 const unsigned long int frameIdx,
-							 const unsigned long int filterIdx );
+	unsigned int create_atom( MP_Atom_c **atom, const unsigned long int frameIdx, const unsigned long int filterIdx );
 	
 	/** \brief Set only for compatibility with inheritance-related
 	 * classes - Never used
@@ -249,9 +246,7 @@ public:
 	 * It is empty and will never be called because update_ip is
 	 * inherited in this class
 	 **/
-	virtual void update_frame( unsigned long int frameIdx, 
-							  MP_Real_t *maxCorr, 
-							  unsigned long int *maxFilterIdx ); 
+	virtual void update_frame( unsigned long int frameIdx,  MP_Real_t *maxCorr,  unsigned long int *maxFilterIdx ); 
 	
 	
 	/** \brief Field a map with the parameter type of the block, the creation and destruction of the map is done by the calling method 

@@ -198,12 +198,12 @@ public:
 	
 	/** \brief returns the type of the atom : "anywave"
 	 * \return the string "anywave"
-	 **/
+	 */
 	virtual const char * type_name(void);
 	
 	/** \brief Print the details of the anywave atom to the stream
 	 * \param fid the stream
-	 **/
+	 */
 	virtual int info( FILE *fid );
 	virtual int info();
 	
@@ -218,19 +218,17 @@ public:
 	 * waveform, multiplied by the amplitude of the channel \a
 	 * amp[chanIdx].
 	 *
-	 * \param outBuffer the buffer containing the samples of the output
-	 * waveform, channel after channel
+	 * \param outBuffer the buffer containing the samples of the output waveform, channel after channel
 	 **/
 	virtual void build_waveform( MP_Real_t *outBuffer );
 	virtual void build_waveform_norm( MP_Real_t *outBuffer );
 	
-	/** \brief NOT IMPLEMENTED
-	 **/
+	/** \brief NOT IMPLEMENTED */
 	virtual int add_to_tfmap( MP_TF_Map_c *tfmap, const char tfmapType );
 	
-	/** \brief Get the identifying parameters of the atom inside a block to use with sorted books
-	 *	
-	 * \return a pointer to a map containing the parameters */
+	/** \brief Get the identifying parameters of the atom inside a block to use with sorted books	
+	 * \return a pointer to a map containing the parameters 
+	 */
 	virtual MP_Atom_Param_c* get_atom_param( void )const;
 	
 	
@@ -243,12 +241,10 @@ public:
 	 * - MP_ANYWAVE_IDX_PROP (anywaveIdx)
 	 * - MP_AMP_PROP (amp)
 	 *
-	 * \param field the field to check, eg, MP_TABLE_IDX_PROP for the
-	 * member tableIdx
-	 *
+	 * \param field the field to check, eg, MP_TABLE_IDX_PROP for the member tableIdx
 	 * \return MP_TRUE if the field exists, MP_FALSE else
 	 **/
-	virtual int       has_field( int field );
+	virtual int has_field( int field );
 	
 	/** \brief Get the value of the field \a field on the channel \a chanIdx
 	 *
@@ -262,32 +258,23 @@ public:
 	 * - MP_AMP_PROP (amp)
 	 *
 	 * \param field the field 
-	 *
 	 * \param chanIdx the index of the channel
-	 *
 	 * \return the value of the field on the specified channel
 	 **/
 	virtual MP_Real_t get_field( int field , MP_Chan_t chanIdx );
 	
 private:
 	/** \brief Read the string containing the filename in the line, and copy it to str
-	 *
 	 * \param line the string line from the file
-	 *
 	 * \param pattern the pattern preceding the string containing the filename, eg, "\t\t\<par type=\"filename\"\>%s"
-	 *
 	 * \param str the string containing the filename
-	 *
 	 * \return true for success, and false for failure
 	 **/
 	static bool read_filename_txt( const char* line, const char* pattern, char* str);
 	
 	/** \brief Read the string containing the filename in the stream, and copy it to str
-	 *
 	 * \param fid the stream
-	 *
 	 * \param str the string containing the filename
-	 *
 	 * \return true for success, and false for failure
 	 **/
 	static bool read_filename_bin( FILE* fid, char* str);
