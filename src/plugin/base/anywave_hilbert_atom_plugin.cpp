@@ -60,196 +60,185 @@
 
 /************************/
 /* Factory function     */
-MP_Atom_c  * MP_Anywave_Hilbert_Atom_Plugin_c::anywave_hilbert_atom_create_empty(void){
-return new MP_Anywave_Hilbert_Atom_Plugin_c;
+MP_Atom_c  * MP_Anywave_Hilbert_Atom_Plugin_c::anywave_hilbert_atom_create_empty(void)
+{
+	return new MP_Anywave_Hilbert_Atom_Plugin_c;
 }
-
 
 /*************************/
 /* File factory function */
 MP_Atom_c* MP_Anywave_Hilbert_Atom_Plugin_c::create( FILE *fid, const char mode )
 {
+	const char* func = "MP_Anywave_Hilbert_Atom_c::init(fid,mode)";
 
-  const char* func = "MP_Anywave_Hilbert_Atom_c::init(fid,mode)";
+	MP_Anywave_Hilbert_Atom_Plugin_c* newAtom = NULL;
 
-  MP_Anywave_Hilbert_Atom_Plugin_c* newAtom = NULL;
-
-  /* Instantiate and check */
-  newAtom = new MP_Anywave_Hilbert_Atom_Plugin_c();
-  if ( newAtom == NULL )
+	// Instantiate and check
+	newAtom = new MP_Anywave_Hilbert_Atom_Plugin_c();
+	if ( newAtom == NULL )
     {
-      mp_error_msg( func, "Failed to create a new atom.\n" );
-      return( NULL );
+		mp_error_msg( func, "Failed to create a new atom.\n" );
+		return( NULL );
     }
 
-  /* Read and check */
-  if ( newAtom->read( fid, mode ) )
+	// Read and check
+	if ( newAtom->read( fid, mode ) )
     {
-      mp_error_msg( func, "Failed to read the new Anywave atom.\n" );
-      delete( newAtom );
-      return( NULL );
+		mp_error_msg( func, "Failed to read the new Anywave atom.\n" );
+		delete( newAtom );
+		return( NULL );
     }
-
-  return( (MP_Atom_c*)newAtom );
+	return( (MP_Atom_c*)newAtom );
 }
 
 /********************/
 /* Void constructor */
-MP_Anywave_Hilbert_Atom_Plugin_c::MP_Anywave_Hilbert_Atom_Plugin_c( void )
-    :MP_Anywave_Atom_Plugin_c()
+MP_Anywave_Hilbert_Atom_Plugin_c::MP_Anywave_Hilbert_Atom_Plugin_c( void ):MP_Anywave_Atom_Plugin_c()
 {
-  realPart = NULL;
-  hilbertPart = NULL;
-
-  anywaveRealTable = NULL;
-  realTableIdx = 0;
-  anywaveHilbertTable = NULL;
-  hilbertTableIdx = 0;
+	realPart = NULL;
+	hilbertPart = NULL;
+	anywaveRealTable = NULL;
+	anywaveHilbertTable = NULL;
+	realTableIdx = 0;
+	hilbertTableIdx = 0;
 }
 
 /************************/
 /* Global allocations   */
 int MP_Anywave_Hilbert_Atom_Plugin_c::alloc_hilbert_atom_param( const MP_Chan_t setNumChans )
 {
-
- // const char* func = "MP_Anywave_Hilbert_Atom_c::alloc_hilbert_atom_param(numChans)";
-
-  if ( init_parts() )
-    {
-      return( 1 );
-    }
-
-  return( 0 );
+  if (init_parts())
+      return 1;
+  return 0;
 }
 
 
 int MP_Anywave_Hilbert_Atom_Plugin_c::init_parts(void)
 {
+	unsigned short int chanIdx;
 
-  unsigned short int chanIdx;
-
-  if ((double)MP_MAX_SIZE_T / (double)numChans / (double)sizeof(MP_Real_t) <= 1.0)
+	if ((double)MP_MAX_SIZE_T / (double)numChans / (double)sizeof(MP_Real_t) <= 1.0)
     {
-      mp_error_msg( "MP_Anywave_Hilbert_Atom_c::MP_Anywave_Hilbert_Atom_c",
-                    "numChans [%lu] . sizeof(MP_Real_t) [%lu] is greater than the max for a size_t [%lu].Cannot use malloc for allocating space for the realPart and the hilbertPart array. realPart and hilbertPart are set to NULL\n",
-                    numChans, sizeof(MP_Real_t), MP_MAX_SIZE_T);
-      realPart = NULL;
-      hilbertPart = NULL;
-      return(1);
+		mp_error_msg( "MP_Anywave_Hilbert_Atom_c::MP_Anywave_Hilbert_Atom_c","numChans [%lu] . sizeof(MP_Real_t) [%lu] is greater than the max for a size_t [%lu].Cannot use malloc for allocating space for the realPart and the hilbertPart array. realPart and hilbertPart are set to NULL\n", numChans, sizeof(MP_Real_t), MP_MAX_SIZE_T);
+		realPart = NULL;
+		hilbertPart = NULL;
+		return(1);
     }
-  else
+	if ( (realPart = (MP_Real_t*)malloc( numChans*sizeof(MP_Real_t)) ) == NULL )
     {
-      if ( (realPart = (MP_Real_t*)malloc( numChans*sizeof(MP_Real_t)) ) == NULL )
-        {
-          mp_error_msg( "MP_Anywave_Hilbert_Atom_c::MP_Anywave_Hilbert_Atom_c()","Can't allocate the realPart array for a new atom;"
-                        " amp stays NULL.\n" );
-          return(1);
-        }
-      if ( (hilbertPart = (MP_Real_t*)malloc( numChans*sizeof(MP_Real_t)) ) == NULL )
-        {
-          mp_error_msg( "MP_Anywave_Hilbert_Atom_c::MP_Anywave_Hilbert_Atom_c()","Can't allocate the hilbertPart array for a new atom;"
-                        " amp stays NULL.\n" );
-          return(1);
-        }
+		mp_error_msg( "MP_Anywave_Hilbert_Atom_c::MP_Anywave_Hilbert_Atom_c()","Can't allocate the realPart array for a new atom; amp stays NULL.\n" );
+		return(1);
+    }
+	if ( (hilbertPart = (MP_Real_t*)malloc( numChans*sizeof(MP_Real_t)) ) == NULL )
+    {
+		mp_error_msg( "MP_Anywave_Hilbert_Atom_c::MP_Anywave_Hilbert_Atom_c()","Can't allocate the hilbertPart array for a new atom; amp stays NULL.\n" );
+		return(1);
     }
 
-  /* Initialize */
-  if ( (realPart!=NULL) )
+	// Initialize
+	if ( (realPart!=NULL) )
     {
-      for (chanIdx = 0; chanIdx<numChans; chanIdx++)
+		for (chanIdx = 0; chanIdx<numChans; chanIdx++)
         {
-          *(realPart +chanIdx) = 0.0;
+			*(realPart +chanIdx) = 0.0;
         }
     }
-  else
+	else
     {
-      mp_error_msg( "MP_Anywave_Hilbert_Atom_c::MP_Anywave_Hilbert_Atom_c()","The parameter realPart"
-                    " for the new atom are left un-initialized.\n" );
-      return(1);
+		mp_error_msg( "MP_Anywave_Hilbert_Atom_c::MP_Anywave_Hilbert_Atom_c()","The parameter realPart for the new atom are left un-initialized.\n" );
+		return 1;
     }
-  if ( (hilbertPart!=NULL) )
+	if ( (hilbertPart!=NULL) )
     {
-      for (chanIdx = 0; chanIdx<numChans; chanIdx++)
+		for (chanIdx = 0; chanIdx<numChans; chanIdx++)
         {
-          *(hilbertPart +chanIdx) = 0.0;
+			*(hilbertPart +chanIdx) = 0.0;
         }
     }
-  else
+	else
     {
-      mp_error_msg( "MP_Anywave_Hilbert_Atom_c::MP_Anywave_Hilbert_Atom_c()","The parameter hilbertPart"
-                    " for the new atom are left un-initialized.\n" );
-      return(1);
+		mp_error_msg( "MP_Anywave_Hilbert_Atom_c::MP_Anywave_Hilbert_Atom_c()","The parameter hilbertPart for the new atom are left un-initialized.\n" );
+		return 1;
     }
-  return(0);
+	return 0;
 }
 
 int MP_Anywave_Hilbert_Atom_Plugin_c::init_tables( void )
 {
-  const char *func = "MP_Anywave_Hilbert_Atom_c::init_tables()";
-  char* str;
+	const char	*func = "MP_Anywave_Hilbert_Atom_Plugin_c::init_tables()";
+	int			iKeyNameSize = 0;
+	char		*szBeforeEncodage;
+	char		*szAfterEncodage;
 
-  if ( ( str = (char*) malloc( MP_MAX_STR_LEN * sizeof(char) ) ) == NULL )
+	/* create the real table if needed */
+	iKeyNameSize = MPTK_Server_c::get_anywave_server()->get_keyname_size();
+
+	if ( ( szBeforeEncodage = (char*) calloc( iKeyNameSize , sizeof(char) ) ) == NULL )
     {
-      mp_error_msg( func,"The string str cannot be allocated.\n" );
-      return(1);
+      mp_error_msg( func,"The string szStrBeforeEncodage cannot be allocated.\n" );
+	  return 1;
+    }
+	if ( ( szAfterEncodage = (char*) calloc( iKeyNameSize , sizeof(char) ) ) == NULL )
+    {
+      mp_error_msg( func,"The string szStrAfterEncodage cannot be allocated.\n" );
+	  return 1;
     }
 
-  /* create the real table if needed */
-  //********************
-  //********************
-  //********************
-  // AAAA VOIR
-    //********************
-  //********************
-  //********************
-
-/*  strcpy(str, MPTK_Server_c::get_anywave_server()->get_filename( tableIdx ));
-  str = strcat(str,"_real");
-  realTableIdx = MPTK_Server_c::get_anywave_server()->get_index( str );
-  if (realTableIdx == MPTK_Server_c::get_anywave_server()->numTables)
+	// Retrieve the keyName
+	memcpy(szBeforeEncodage, MPTK_Server_c::get_anywave_server()->get_keyname( tableIdx ),iKeyNameSize);
+	// Encode the szBeforeEncodage to szAfterEncodage
+	MPTK_Server_c::get_anywave_server()->encodeMd5( szBeforeEncodage, iKeyNameSize, szAfterEncodage );
+	// Get the new encoded string index	
+	realTableIdx = MPTK_Server_c::get_anywave_server()->get_index( szAfterEncodage );
+	// If the new encoded string does not exist
+	if (realTableIdx == MPTK_Server_c::get_anywave_server()->numTables)
     {
       anywaveRealTable = anywaveTable->copy();
       anywaveRealTable->center_and_denyquist();
       anywaveRealTable->normalize();
-      anywaveRealTable->set_table_file_name(str);
+      anywaveRealTable->set_key_table(szAfterEncodage);
       realTableIdx = MPTK_Server_c::get_anywave_server()->add( anywaveRealTable );
     }
-  else
+	else
     {
       anywaveRealTable = MPTK_Server_c::get_anywave_server()->tables[realTableIdx];
     }
-*/
-  /* create the hilbert table if needed */
-  //********************
-  //********************
-  //********************
-  // AAAA VOIR
-    //********************
-  //********************
-  //********************
 
-  strcpy(str, MPTK_Server_c::get_anywave_server()->get_keyname( tableIdx ));
-  str = strcat(str,"_hilbert");
-  hilbertTableIdx = MPTK_Server_c::get_anywave_server()->get_index( str );
-  if (hilbertTableIdx == MPTK_Server_c::get_anywave_server()->numTables)
+	// Retrieve the keyName
+	memcpy(szBeforeEncodage, szAfterEncodage,iKeyNameSize);
+	memset(szAfterEncodage, 0,iKeyNameSize);
+	// Encode the szBeforeEncodage to szAfterEncodage
+	MPTK_Server_c::get_anywave_server()->encodeMd5( szBeforeEncodage, iKeyNameSize, szAfterEncodage );
+	// Get the new encoded string index	
+	hilbertTableIdx = MPTK_Server_c::get_anywave_server()->get_index( szAfterEncodage );
+	if (hilbertTableIdx == MPTK_Server_c::get_anywave_server()->numTables)
     {
-      // need to create a new table 
-      anywaveHilbertTable = anywaveTable->create_hilbert_dual(str);
-      anywaveHilbertTable->normalize();
-      hilbertTableIdx = MPTK_Server_c::get_anywave_server()->add( anywaveHilbertTable );
+		/* need to create a new table */
+		anywaveHilbertTable = anywaveTable->create_hilbert_dual(szAfterEncodage);
+		anywaveHilbertTable->normalize();
+		hilbertTableIdx = MPTK_Server_c::get_anywave_server()->add( anywaveHilbertTable );
     }
-  else
+	else
     {
-      anywaveHilbertTable = MPTK_Server_c::get_anywave_server()->tables[hilbertTableIdx];
+		anywaveHilbertTable = MPTK_Server_c::get_anywave_server()->tables[hilbertTableIdx];
     }
 
-  return(0);
+	if (szBeforeEncodage != NULL) 
+	{
+		free(szBeforeEncodage);
+		szBeforeEncodage = NULL;
+	}
+	if (szAfterEncodage != NULL) 
+	{
+		free(szAfterEncodage);
+		szAfterEncodage = NULL;
+	}
+	return 0;
 }
 
 /********************/
 /* File reader      */
-int MP_Anywave_Hilbert_Atom_Plugin_c::read( FILE *fid,
-                                     const char mode )
+int MP_Anywave_Hilbert_Atom_Plugin_c::read( FILE *fid, const char mode )
 {
  const char *func = "MP_Anywave_Hilbert_Atom_c::read";
   double fidParam;
