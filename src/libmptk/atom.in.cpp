@@ -61,6 +61,7 @@ MP_Atom_c::MP_Atom_c( void ) {
   corr = NULL;
   totalChanLen = 0;
   blockIdx = 0;
+  dict = NULL;
 }
 
 
