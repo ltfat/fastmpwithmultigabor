@@ -377,7 +377,7 @@ class MP_Abstract_Core_c
 				{mp_error_msg( func, "The Gradient Pursuit iteration failed. Dictionary, book and signal are left unchanged.\n" );return false;}
 			if ( state & MP_ERROR_BOOKAPPEND ) 
 				{mp_error_msg( func, "Failed to append the max atom to the book.\n" );return false;}
-			
+			return false;
 		}
 
 		// Misc

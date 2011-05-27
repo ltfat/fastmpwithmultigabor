@@ -92,7 +92,7 @@ mxArray *mp_create_mxAnywaveTable_from_anywave_table(const MP_Anywave_Table_c *A
 /*		+ MP_Anywave_Table_c *AnyTable : The output Anywave table				*/
 /*																				*/
 /********************************************************************************/
-double *mp_get_anywave_datas_from_mxAnywaveTable(const mxArray *mxTable)
+bool mp_get_anywave_datas_from_mxAnywaveTable(const mxArray *mxTable, MP_Real_t *dTable)
 {
     const char				*func = "mp_create_anywave_table_from_mxAnywaveTable";
 	mxArray					*mxTempMatrix;
@@ -102,7 +102,6 @@ double *mp_get_anywave_datas_from_mxAnywaveTable(const mxArray *mxTable)
 	int						iIndexStorage = 0;
 	unsigned long int		iFilterLen = 0, iNumFilters = 0;
 	MP_Chan_t				iNumChans = 0;
-	MP_Real_t				*dTable;
 
 	//-------------------------------------
 	// Getting fields of the Anywave table
@@ -112,7 +111,7 @@ double *mp_get_anywave_datas_from_mxAnywaveTable(const mxArray *mxTable)
 	if (!mxTempMatrix) 
 	{
 		mp_error_msg(func,"the table.wave field is missing\n");
-		return(NULL);
+		return false;
 	}
 	mwDimension = mxGetDimensions(mxTempMatrix);
 	iFilterLen = (unsigned long int)mwDimension[0];
@@ -124,5 +123,5 @@ double *mp_get_anywave_datas_from_mxAnywaveTable(const mxArray *mxTable)
 			for (iSampleIdx = 0; iSampleIdx < iFilterLen ; iSampleIdx++)
 				dTable[iIndexStorage++] = mxGetPr(mxTempMatrix)[(iFilterIdx * iNumChans + iChanIdx) * iFilterLen + iSampleIdx];
 
-    return dTable;
+    return true;
 }

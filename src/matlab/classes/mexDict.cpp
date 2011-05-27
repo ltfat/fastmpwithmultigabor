@@ -253,7 +253,7 @@ MP_Dict_c * mp_create_dict_from_mxDict(const mxArray *mxDict)
 					return(NULL);
 				}
 				// Loading the mxArray
-				if((dTable = mp_get_anywave_datas_from_mxAnywaveTable(mxBlock)) == NULL)
+				if(!mp_get_anywave_datas_from_mxAnywaveTable(mxBlock,dTable))
 				{
 					mp_error_msg(func,"A double value has been found but could not be retrieved\n");
 					// Clean the house

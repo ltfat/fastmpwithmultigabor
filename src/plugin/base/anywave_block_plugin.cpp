@@ -198,8 +198,6 @@ int MP_Anywave_Block_Plugin_c::init_parameters( map<string, string, mp_ltstring>
 /* Initialization of signal-independent block parameters map */
 int MP_Anywave_Block_Plugin_c::init_parameter_map( map<string, string, mp_ltstring> *paramMap)
 {
-	const char* func = "MP_Gabor_Block_c::init_parameter_map(...)";
-
 	parameterMap = new map< string, string, mp_ltstring>();
    
 	(*parameterMap)["type"] = (*paramMap)["type"];
