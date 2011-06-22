@@ -82,12 +82,12 @@ int MPD_USE_SNR					= MP_FALSE;
 double MPD_PREEMP				= 0.0;
 
 /* Input/output file names: */
-const char	*dictFileName	= NULL;
-const char	*sndFileName	= NULL;
-const char	*bookFileName	= NULL;
-const char	*resFileName	= NULL;
-const char	*decayFileName	= NULL;
-const char	*configFileName = NULL;
+const char	*dictFileName		= NULL;
+const char	*sndFileName		= NULL;
+const char	*bookFileName		= NULL;
+const char	*resFileName		= NULL;
+const char	*decayFileName		= NULL;
+const char	*configFileName		= NULL;
 
 
 /**************************************************/
@@ -429,29 +429,34 @@ int parse_args(int argc, char **argv)
 /**************************************************/
 /* PARSING OF THE ARGUMENTS                       */
 /**************************************************/
-const char *checkRelativeDictFile(const char *szInputDictFile)
+MP_Bool_t checkRelativeDictFile(const char *szInputDictFile, char *szOutputDictFile, int iSizeOfDictFile)
 {
-	FILE		*fid1,*fid2;
-	const char	*szModifiedDictFile;
+	FILE		*fid;
 	
 	// 1) If the input file exist, return it !
-	fid1 = fopen( szInputDictFile, "rb" );
-    if( fid1 != NULL )
+	fid = fopen( szInputDictFile, "rb" );
+    if( fid != NULL )
     {
-        fclose( fid1 );
-        return szInputDictFile;
+        fclose( fid );
+		strcpy(szOutputDictFile,szInputDictFile);
+        return true;
     }
 	
     // 2) If the input file + an append of reference path exit
-	szModifiedDictFile = strcat((char *)MPTK_Env_c::get_env()->get_config_path("reference"),szInputDictFile);
-	fid2 = fopen(szModifiedDictFile, "rb" );
-    if( fid2 != NULL )
+	strcpy(szOutputDictFile,(char *)MPTK_Env_c::get_env()->get_config_path("reference"));
+	if (strlen(szInputDictFile) + 1 > iSizeOfDictFile - strlen(szOutputDictFile))
+			mp_error_msg( func, "The file [%s] is too long and would be truncated if the reference path\n", szInputDictFile);
+	
+	strncat(szOutputDictFile, szInputDictFile, iSizeOfDictFile - strlen(szOutputDictFile) - 1);
+	
+	fid = fopen(szOutputDictFile, "rb" );
+    if( fid != NULL )
     {
-        fclose( fid2 );
-        return szModifiedDictFile;
+        fclose( fid );
+        return true;
     }
-	mp_error_msg( func, "The file [%s] does not exist\n", szModifiedDictFile);
- 	return NULL;
+	mp_error_msg( func, "The file [%s] does not exist\n", szOutputDictFile);
+ 	return false;
 }
 
 /**************************************************/
@@ -480,6 +485,7 @@ int main( int argc, char **argv )
 	MP_Book_c			*book = NULL;
 	MP_Mpd_Core_c		*mpdCore = NULL;
 	unsigned long int	i = 0;
+	char				newDictFileName[512];
 
   /**************************************************/
   /* PRELIMINARIES                                  */
@@ -516,7 +522,7 @@ int main( int argc, char **argv )
     }
       
 	if(MPD_USE_RELATIVEDICT) 
-		if((dictFileName =  checkRelativeDictFile(dictFileName)) == NULL)
+		if(!checkRelativeDictFile(dictFileName,newDictFileName, sizeof(newDictFileName)))
 			return ERR_DICT;
 
 	//-----------------------
@@ -528,10 +534,10 @@ int main( int argc, char **argv )
 	if ( !MPD_QUIET ) 
 		mp_info_msg( func, "(In the following, spurious output of dictionary pieces would be a symptom of parsing errors.)\n" );
 
-	dict = MP_Dict_c::init( dictFileName );
+	dict = MP_Dict_c::init((MPD_USE_RELATIVEDICT)?newDictFileName:dictFileName );
 	if ( dict == NULL )
     {
-		mp_error_msg( func, "Failed to create a dictionary from XML file [%s].\n", dictFileName );
+		mp_error_msg( func, "Failed to create a dictionary from XML file [%s].\n", (MPD_USE_RELATIVEDICT)?newDictFileName:dictFileName );
 		free_mem( dict, book, sig, mpdCore );
 		return( ERR_DICT );
     }
@@ -630,7 +636,7 @@ int main( int argc, char **argv )
 	if ( !MPD_QUIET )
     {
 		mp_info_msg( func, "-------------------------\n" );
-		mp_info_msg( func, "Starting Matching Pursuit on signal [%s] with dictionary [%s].\n", sndFileName, dictFileName );
+		mp_info_msg( func, "Starting Matching Pursuit on signal [%s] with dictionary [%s].\n", sndFileName, (MPD_USE_RELATIVEDICT)?newDictFileName:dictFileName );
 		mp_info_msg( func, "-------------------------\n" );
 		mpdCore->info_conditions();
     }
