@@ -70,23 +70,24 @@ int MPD_QUIET      = MP_FALSE;
 int MPD_VERBOSE    = MP_FALSE;
 
 
-#define MPD_DEFAULT_NUM_ITER   ULONG_MAX
-unsigned long int MPD_NUM_ITER = MPD_DEFAULT_NUM_ITER;
-int MPD_USE_ITER = MP_FALSE;
+#define MPD_DEFAULT_NUM_ITER	ULONG_MAX
+unsigned long int MPD_NUM_ITER	= MPD_DEFAULT_NUM_ITER;
+int MPD_USE_ITER				= MP_FALSE;
+int MPD_USE_RELATIVEDICT		= MP_FALSE;
 
-#define MPD_DEFAULT_SNR        0.0
-double MPD_SNR  = MPD_DEFAULT_SNR;
-int MPD_USE_SNR = MP_FALSE;
+#define MPD_DEFAULT_SNR			0.0
+double MPD_SNR					= MPD_DEFAULT_SNR;
+int MPD_USE_SNR					= MP_FALSE;
 
-double MPD_PREEMP = 0.0;
+double MPD_PREEMP				= 0.0;
 
 /* Input/output file names: */
-const char *dictFileName  = NULL;
-const char *sndFileName   = NULL;
-const char *bookFileName = NULL;
-const char *resFileName   = NULL;
-const char *decayFileName = NULL;
-const char *configFileName = NULL;
+const char	*dictFileName	= NULL;
+const char	*sndFileName	= NULL;
+const char	*bookFileName	= NULL;
+const char	*resFileName	= NULL;
+const char	*decayFileName	= NULL;
+const char	*configFileName = NULL;
 
 
 /**************************************************/
@@ -96,7 +97,7 @@ void usage( void )
 {
 	fprintf( stdout, " \n" );
 	fprintf( stdout, " Usage:\n" );
-	fprintf( stdout, "     mpd [options] -D dictFILE.xml (-n N|-s SNR) (sndFILE.wav|-) (bookFILE.bin|-) [residualFILE.wav]\n" );
+	fprintf( stdout, "     mpd [options] (-D|-d) dictFILE.xml -n N [-s SNR] (sndFILE.wav|-) (bookFILE.bin|-) [residualFILE.wav]\n" );
 	fprintf( stdout, " \n" );
 	fprintf( stdout, " Synopsis:\n" );
 	fprintf( stdout, "     Iterates Matching Pursuit on signal sndFILE.wav with dictionary dictFILE.xml\n" );
@@ -104,20 +105,17 @@ void usage( void )
 	fprintf( stdout, "     after N iterations or after reaching the signal-to-residual ratio SNR.\n" );
 	fprintf( stdout, " \n" );
 	fprintf( stdout, " Mandatory arguments:\n" );
-	fprintf( stdout, "     -D<FILE>, --dictionary=<FILE>  Read the dictionary from xml file FILE.\n" );
-	fprintf( stdout, " \n" );
-	fprintf( stdout, "     -n<N>, --num-iter=<N>|--num-atoms=<N>    Stop after N iterations.\n" );
-	fprintf( stdout, "AND/OR -s<SNR>, --snr=<SNR>                   Stop when the SNR value SNR is reached.\n" );
-	fprintf( stdout, "                                              If both options are used together, the algorithm stops\n" );
-	fprintf( stdout, "                                              as soon as either one is reached.\n" );
-	fprintf( stdout, " \n" );
-	fprintf( stdout, "     (sndFILE.wav|-)                          The signal to analyze or stdin (in WAV format).\n" );
-	fprintf( stdout, "     (bookFILE.bin|-)                         The file to store the resulting book of atoms, or stdout.\n" );
+	fprintf( stdout, "      -D <FILE>, --FullDictionary=<FILE>          Read the dictionary from xml file FILE (full path).\n" );
+	fprintf( stdout, "      OR -d <FILE>, --RelativeDictionary=<FILE>   Or through \"reference\" tag of path.xml (relative path).\n" );
+	fprintf( stdout, "      -n<N>, --num-iter=<N>|--num-atoms=<N>       Stop after N iterations.\n" );
+	fprintf( stdout, "      -s<SNR>, --snr=<SNR>                        Stop when the SNR value <SNR> is reached.\n" );
+	fprintf( stdout, "      Information : If both options (-n and -s) are used together, the algorithm stops when one is reached.\n" );
+	fprintf( stdout, "      (sndFILE.wav|-)                             The signal to analyze or stdin (in WAV format).\n" );
+	fprintf( stdout, "      (bookFILE.bin|-)                            The file to store the resulting book of atoms, or stdout.\n" );
 	fprintf( stdout, " \n" );
 	fprintf( stdout, " Optional arguments:\n" );
-	fprintf( stdout, "     -C<FILE>, --config-file=<FILE>  Use the specified configuration file, \n" );
-	fprintf( stdout, "                                     otherwise the MPTK_CONFIG_FILENAME environment variable will be\n" );
-	fprintf( stdout, "                                     used to find the configuration file and set up the MPTK environment.\n" );
+	fprintf( stdout, "     -C<FILE>, --config-file=<FILE>   Use the specified configuration file, otherwise the MPTK_CONFIG_FILENAME environment\n" );
+	fprintf( stdout, "                                      variable will be used to find the configuration file and set up the MPTK environment.\n" );
 	fprintf( stdout, "     -E<FILE>, --energy-decay=<FILE>  Save the energy decay as doubles to file FILE.\n" );
 	fprintf( stdout, "     -R<N>,    --report-hit=<N>       Report some progress info (in stderr) every N iterations.\n" );
 	fprintf( stdout, "     -S<N>,    --save-hit=<N>         Save the output files every N iterations.\n" );
@@ -125,12 +123,12 @@ void usage( void )
 	fprintf( stdout, " \n" );
 	fprintf( stdout, "     -p<double>, --preemp=<double>    Pre-emphasize the input signal with coefficient <double>.\n" );
 	fprintf( stdout, " \n" );
-	fprintf( stdout, "     residualFILE.wav                The residual signal after subtraction of the atoms.\n" );
+	fprintf( stdout, "     residualFILE.wav                 The residual signal after subtraction of the atoms.\n" );
 	fprintf( stdout, " \n" );
-	fprintf( stdout, "     -q, --quiet                    No text output.\n" );
-	fprintf( stdout, "     -v, --verbose                  Verbose.\n" );
-	fprintf( stdout, "     -V, --version                  Output the version and exit.\n" );
-	fprintf( stdout, "     -h, --help                     This help.\n" );
+	fprintf( stdout, "     -q, --quiet                      No text output.\n" );
+	fprintf( stdout, "     -v, --verbose                    Verbose.\n" );
+	fprintf( stdout, "     -V, --version                    Output the version and exit.\n" );
+	fprintf( stdout, "     -h, --help                       This help.\n" );
 	fprintf( stdout, " \n" );
 	exit(0);
 }
@@ -146,29 +144,30 @@ int parse_args(int argc, char **argv)
 
 	struct option longopts[] =
     {
-		{"config-file",  required_argument, NULL, 'C'},
-        {"dictionary",   required_argument, NULL, 'D'},
-        {"energy-decay", required_argument, NULL, 'E'},
-        {"report-hit",   required_argument, NULL, 'R'},
-        {"save-hit",     required_argument, NULL, 'S'},
-        {"snr-hit",      required_argument, NULL, 'T'},
+		{"config-file",			required_argument, NULL, 'C'},
+        {"FullDictionary",		required_argument, NULL, 'D'},
+        {"RelativeDictionary",	required_argument, NULL, 'd'},
+        {"energy-decay",		required_argument, NULL, 'E'},
+        {"report-hit",			required_argument, NULL, 'R'},
+        {"save-hit",			required_argument, NULL, 'S'},
+        {"snr-hit",				required_argument, NULL, 'T'},
 
-        {"num-atoms",    required_argument, NULL, 'n'},
-        {"num-iter",     required_argument, NULL, 'n'},
-        {"preemp",       required_argument, NULL, 'p'},
-        {"snr",          required_argument, NULL, 's'},
+        {"num-atoms",			required_argument, NULL, 'n'},
+        {"num-iter",			required_argument, NULL, 'n'},
+        {"preemp",				required_argument, NULL, 'p'},
+        {"snr",					required_argument, NULL, 's'},
 
-        {"quiet",   no_argument, NULL, 'q'},
-        {"verbose", no_argument, NULL, 'v'},
-        {"version", no_argument, NULL, 'V'},
-        {"help",    no_argument, NULL, 'h'},
+        {"quiet",				no_argument, NULL, 'q'},
+        {"verbose",				no_argument, NULL, 'v'},
+        {"version",				no_argument, NULL, 'V'},
+        {"help",				no_argument, NULL, 'h'},
         {0, 0, 0, 0}
 	};
 
 	opterr = 0;
 	optopt = '!';
 
-	while ((c = getopt_long(argc, argv, "C:D:E:R:S:T:n:p:s:qvVh", longopts, &i)) != -1 )
+	while ((c = getopt_long(argc, argv, "C:D:d:E:R:S:T:n:p:s:qvVh", longopts, &i)) != -1 )
     {
 		switch (c)
         { 
@@ -189,13 +188,27 @@ int parse_args(int argc, char **argv)
 				mp_debug_msg( MP_DEBUG_PARSE_ARGS, func, "switch -D : optarg is [%s].\n", optarg );
 				if (optarg == NULL)
 				{
-					mp_error_msg( func, "After switch -D or switch --dictionary=.\n" );
+					mp_error_msg( func, "After switch -D or switch --FullDictionary=.\n" );
 					mp_error_msg( func, "the argument is NULL.\n" );
-					mp_error_msg( func, "(Did you use --dictionary without the '=' character ?).\n" );
+					mp_error_msg( func, "(Did you use --FullDictionary without the '=' character ?).\n" );
 					return( ERR_ARG );
 				}
 				else 
 					dictFileName = optarg;
+				mp_debug_msg( MP_DEBUG_PARSE_ARGS, func, "Read dictionary file name [%s].\n", dictFileName );
+				break;
+			case 'd':
+				mp_debug_msg( MP_DEBUG_PARSE_ARGS, func, "switch -d : optarg is [%s].\n", optarg );
+				if (optarg == NULL)
+				{
+					mp_error_msg( func, "After switch -d or switch --RelativeDictionary=.\n" );
+					mp_error_msg( func, "the argument is NULL.\n" );
+					mp_error_msg( func, "(Did you use --RelativeDictionary without the '=' character ?).\n" );
+					return( ERR_ARG );
+				}
+				else 
+					dictFileName = optarg;
+				MPD_USE_RELATIVEDICT = MP_TRUE;
 				mp_debug_msg( MP_DEBUG_PARSE_ARGS, func, "Read dictionary file name [%s].\n", dictFileName );
 				break;
 			case 'E':
@@ -414,6 +427,34 @@ int parse_args(int argc, char **argv)
 
 
 /**************************************************/
+/* PARSING OF THE ARGUMENTS                       */
+/**************************************************/
+const char *checkRelativeDictFile(const char *szInputDictFile)
+{
+	FILE		*fid1,*fid2;
+	const char	*szModifiedDictFile;
+	
+	// 1) If the input file exist, return it !
+	fid1 = fopen( szInputDictFile, "rb" );
+    if( fid1 != NULL )
+    {
+        fclose( fid1 );
+        return szInputDictFile;
+    }
+	
+    // 2) If the input file + an append of reference path exit
+	szModifiedDictFile = strcat((char *)MPTK_Env_c::get_env()->get_config_path("reference"),szInputDictFile);
+	fid2 = fopen(szModifiedDictFile, "rb" );
+    if( fid2 != NULL )
+    {
+        fclose( fid2 );
+        return szModifiedDictFile;
+    }
+	mp_error_msg( func, "The file [%s] does not exist\n", szModifiedDictFile);
+ 	return NULL;
+}
+
+/**************************************************/
 /* GLOBAL FUNCTIONS                               */
 /**************************************************/
 void free_mem(MP_Dict_c* dict, MP_Book_c* book, MP_Signal_c* sig, MP_Mpd_Core_c* mpdCore )
@@ -434,11 +475,11 @@ void free_mem(MP_Dict_c* dict, MP_Book_c* book, MP_Signal_c* sig, MP_Mpd_Core_c*
 /**************************************************/
 int main( int argc, char **argv )
 {
-	MP_Dict_c *dict = NULL;
-	MP_Signal_c *sig = NULL;
-	MP_Book_c *book = NULL;
-	MP_Mpd_Core_c *mpdCore = NULL;
-	unsigned long int i = 0;
+	MP_Dict_c			*dict = NULL;
+	MP_Signal_c			*sig = NULL;
+	MP_Book_c			*book = NULL;
+	MP_Mpd_Core_c		*mpdCore = NULL;
+	unsigned long int	i = 0;
 
   /**************************************************/
   /* PRELIMINARIES                                  */
@@ -474,6 +515,10 @@ int main( int argc, char **argv )
 		mp_info_msg( func, "End command line.\n" );
     }
       
+	if(MPD_USE_RELATIVEDICT) 
+		if((dictFileName =  checkRelativeDictFile(dictFileName)) == NULL)
+			return ERR_DICT;
+
 	//-----------------------
 	// Load the dictionary
 	//-----------------------
