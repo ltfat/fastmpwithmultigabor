@@ -113,12 +113,18 @@ int MP_Block_c::plug_signal( MP_Signal_c *setSignal )
 		/* Set frame count */
 		if ( blockOffset > s->numSamples )
 		{
-			mp_error_msg( func, "The block offset can't be superior to the signal length.\n");
+			mp_error_msg( func, "The block offset [%li] can't be superior to the signal length [%li].\n",blockOffset,s->numSamples);
+			return 1;
 		}
-		else
+		if(filterLen > s->numSamples)
 		{
-			numFrames = len2numFrames( s->numSamples - blockOffset, filterLen, filterShift );
+			mp_error_msg( func, "The block filter length [%li] can't be superior to the signal length[%li].\n",filterLen,s->numSamples);
+			return 1;
 		}
+
+		// Calculating the numFrames
+		numFrames = len2numFrames( s->numSamples - blockOffset, filterLen, filterShift );
+
 
 		/* Parameters for the research of the max */
 		maxIPValue = -1.0;
