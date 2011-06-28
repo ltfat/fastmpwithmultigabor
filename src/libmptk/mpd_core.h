@@ -134,7 +134,7 @@ class MP_Mpd_Core_c:public MP_Abstract_Core_c
     /* Control object*/
 
     /** \brief Set the dictionary */
-    MPTK_LIB_EXPORT MP_Dict_c* change_dict( MP_Dict_c* setDict );
+	MPTK_LIB_EXPORT MP_Bool_t change_dict( MP_Dict_c *newDict );
     /** \brief Set a void dictionary */
     MPTK_LIB_EXPORT void init_dict();
     /** \brief Plug dictionary to a signal */

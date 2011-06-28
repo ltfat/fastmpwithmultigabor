@@ -103,7 +103,7 @@ MP_Mpd_Core_c* MP_Mpd_Core_c::create( MP_Signal_c *setSignal, MP_Book_c *setBook
 		return NULL;
 	}
 
-	if(!newCore->change_dict(setDict) && !newCore->dict )
+	if(!newCore->change_dict(setDict))
 		return NULL;	
 	
 	return( newCore );
@@ -156,30 +156,30 @@ MP_Mpd_Core_c::~MP_Mpd_Core_c() {
 
 /************/
 /* Set dict */
-MP_Dict_c* MP_Mpd_Core_c::change_dict( MP_Dict_c *setDict ) 
+MP_Bool_t MP_Mpd_Core_c::change_dict( MP_Dict_c *newDict ) 
 {
 	const char	*func = "MP_Mpd_Core_c::change_dict( MP_Dict_c * )";
 	MP_Dict_c	*oldDict = dict;
-
-	if ( setDict->signal == NULL ) 
+	
+	if ( newDict->signal == NULL ) 
 	{
 		// If there was a non-NULL dictionary before, detach the residual to avoid its destruction:
 		if ( oldDict ) 
 			residual = oldDict->detach_signal();
 			
 		// Set the new dictionary:
-		dict = setDict;
+		dict = newDict;
    
 		// Plug dictionary to signal:
 		if(!plug_dict_to_signal())
-			return NULL;
+			return false;
   
-		return( oldDict );
+		return true;
 	}
 	else
 	{ 
 		mp_error_msg( func, "Could not set a dictionary with a pluged signal.\n" );
-		return NULL;
+		return false;
 	}
 }
 
