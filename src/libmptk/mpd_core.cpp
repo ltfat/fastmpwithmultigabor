@@ -150,45 +150,58 @@ MP_Mpd_Core_c::~MP_Mpd_Core_c() {
 
 /************/
 /* Set dict */
-MP_Dict_c* MP_Mpd_Core_c::change_dict( MP_Dict_c *setDict ) {
+MP_Dict_c* MP_Mpd_Core_c::change_dict( MP_Dict_c *setDict ) 
+{
+	const char	*func = "MP_Mpd_Core_c::change_dict( MP_Dict_c * )";
+	MP_Dict_c	*oldDict = dict;
 
-  const char* func = "MP_Mpd_Core_c::change_dict( MP_Dict_c * )";
-  
-  MP_Dict_c* oldDict = dict;
-  if ( setDict->signal == NULL ) {
-    /* If there was a non-NULL dictionary before, detach the residual
-       to avoid its destruction: */
-    if ( oldDict ) residual = oldDict->detach_signal();
+	if ( setDict->signal == NULL ) 
+	{
+		// If there was a non-NULL dictionary before, detach the residual to avoid its destruction:
+		if ( oldDict ) 
+			residual = oldDict->detach_signal();
 
-    /* Set the new dictionary: */
-    dict = setDict;
+		// Set the new dictionary:
+		dict = setDict;
    
-    /* Plug dictionary to signal: */
-    plug_dict_to_signal();
+		// Plug dictionary to signal:
+		if(!plug_dict_to_signal())
+			return NULL;
   
-    return( oldDict );}
-  
-  else{ mp_error_msg( func, "Could not set a dictionary with a pluged signal.\n" );
-    return( NULL );}
+		return( oldDict );
+	}
+	else
+	{ 
+		mp_error_msg( func, "Could not set a dictionary with a pluged signal.\n" );
+		return( NULL );
+	}
 }
 
-void MP_Mpd_Core_c::plug_dict_to_signal(){
+MP_Bool_t MP_Mpd_Core_c::plug_dict_to_signal(void)
+{
+	const char* func = "MP_Mpd_Core_c::plug_dict_to_signal()";
 	
-  const char* func = "MP_Mpd_Core_c::plug_dict_to_signal()";
-  /* If the new dictionary is not NULL, replug the residual: */
-  if ( dict ) { 
-    if (residual){ 
-      dict->plug_signal( residual );
-    } else mp_error_msg( func, "Could not plug a dictionary with a null signal.\n" );
-  } else mp_error_msg( func, "Could not plug a null dictionary .\n" );
-
-  /* Note:
-     - if a NULL dictionary is given, the residual is kept alive
-     in the residual variable;
-     - at the first use of set_dict(dict), the oldDict is NULL and
-     the residual is copy-constructed from the signal at
-     the mpdCore->init(signal,book) pahse. */
-
+	// If the new dictionary is not NULL, replug the residual:
+	if (!dict) 
+	{
+		mp_error_msg( func, "Could not plug a null dictionary .\n" );
+		return false;
+	}
+	if(!residual)
+	{
+		mp_error_msg( func, "Could not plug a dictionary with a null signal.\n" );
+		return false;		
+	}
+	if(dict->plug_signal( residual ) == 1)
+	{
+		mp_error_msg( func, "Could not plug this dictionary into the signal.\n" );
+		return false;		
+	}
+	
+	/* Note:
+     - if a NULL dictionary is given, the residual is kept alive in the residual variable;
+     - at the first use of set_dict(dict), the oldDict is NULL and the residual is copy-constructed from the signal at the mpdCore->init(signal,book) pahse. */
+	return true;
 }
 
 

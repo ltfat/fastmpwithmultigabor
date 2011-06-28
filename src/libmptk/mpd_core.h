@@ -138,7 +138,7 @@ class MP_Mpd_Core_c:public MP_Abstract_Core_c
     /** \brief Set a void dictionary */
     MPTK_LIB_EXPORT void init_dict();
     /** \brief Plug dictionary to a signal */
-    MPTK_LIB_EXPORT void plug_dict_to_signal();
+    MPTK_LIB_EXPORT MP_Bool_t plug_dict_to_signal(void);
     /** \brief add custom block to a dictionnary
      * \param setPropertyMap a map containing the parameter of the block
      *  */
