@@ -86,21 +86,27 @@ MP_Mpd_Core_c* MP_Mpd_Core_c::create( MP_Signal_c *setSignal, MP_Book_c *setBook
 }
 
 /* - signal+approximant+dict */
-MP_Mpd_Core_c* MP_Mpd_Core_c::create( MP_Signal_c *setSignal, MP_Book_c *setBook, MP_Dict_c *setDict ) {
-  
-  const char* func = "MP_Mpd_Core_c::init(3 args)";
-  MP_Mpd_Core_c* newCore;
-  newCore = MP_Mpd_Core_c::create( setSignal, setBook );
-  if ( newCore == NULL ) {
-    mp_error_msg( func, "Failed to create a new mpd core.\n" );
-    return( NULL );}
-    
-  if ( setDict ) newCore->change_dict(setDict);
-  else {
-    mp_error_msg( func, "Could not use a NULL dictionary.\n" );
-    return( NULL );}
- 
-  return( newCore );
+MP_Mpd_Core_c* MP_Mpd_Core_c::create( MP_Signal_c *setSignal, MP_Book_c *setBook, MP_Dict_c *setDict ) 
+{
+	const char		*func = "MP_Mpd_Core_c::init(3 args)";
+	MP_Mpd_Core_c	*newCore;
+	
+	newCore = MP_Mpd_Core_c::create( setSignal, setBook );
+	if ( newCore == NULL ) 
+	{
+		mp_error_msg( func, "Failed to create a new mpd core.\n" );
+		return NULL;
+	}
+    if ( setDict == NULL) 
+	{
+		mp_error_msg( func, "Could not use a NULL dictionary.\n" );
+		return NULL;
+	}
+
+	if(!newCore->change_dict(setDict) && !newCore->dict )
+		return NULL;	
+	
+	return( newCore );
 }
 
 MP_Mpd_Core_c* MP_Mpd_Core_c::create( MP_Signal_c *setSignal, MP_Book_c *setBook, MP_Signal_c* setApproximant )
@@ -160,7 +166,7 @@ MP_Dict_c* MP_Mpd_Core_c::change_dict( MP_Dict_c *setDict )
 		// If there was a non-NULL dictionary before, detach the residual to avoid its destruction:
 		if ( oldDict ) 
 			residual = oldDict->detach_signal();
-
+			
 		// Set the new dictionary:
 		dict = setDict;
    
@@ -173,7 +179,7 @@ MP_Dict_c* MP_Mpd_Core_c::change_dict( MP_Dict_c *setDict )
 	else
 	{ 
 		mp_error_msg( func, "Could not set a dictionary with a pluged signal.\n" );
-		return( NULL );
+		return NULL;
 	}
 }
 
