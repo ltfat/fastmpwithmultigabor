@@ -136,13 +136,13 @@ int MP_Anywave_Block_Plugin_c::init_parameters( map<string, string, mp_ltstring>
 		if (*convertEnd != '\0')
         {
 			mp_error_msg( func, "cannot convert parameter windowShift in unsigned long int.\n");
-			return( NULL );
+			return 1;
         }
     }
 	else
     {
 		mp_error_msg( func, "No parameter windowShift in the parameter map.\n" );
-		return( NULL );
+		return 1;
     }
 
     if ((*paramMap)["blockOffset"].size()>0)
@@ -152,7 +152,7 @@ int MP_Anywave_Block_Plugin_c::init_parameters( map<string, string, mp_ltstring>
 		if (*convertEnd != '\0')
         {
 			mp_error_msg( func, "cannot convert parameter windowShift in unsigned long int.\n");
-			return( NULL );
+			return 1;
         }
     }
 
@@ -167,7 +167,7 @@ int MP_Anywave_Block_Plugin_c::init_parameters( map<string, string, mp_ltstring>
 		// if the addition of a anywave table in the anywave server failed */
 		mp_error_msg( func,"The anywave table can't be added to the anywave server. The anywave table remain NULL" );
 		tableIdx = 0;
-		return(1);
+		return 1;
     }
 	else
     {
@@ -178,7 +178,7 @@ int MP_Anywave_Block_Plugin_c::init_parameters( map<string, string, mp_ltstring>
   if ( MP_Block_c::init_parameters( anywaveTable->filterLen, filterShift, anywaveTable->numFilters, blockOffset ) ) 
     {
       mp_error_msg( func, "Failed to init the block-level parameters in the new Anywave block.\n" );
-      return( 1 );
+      return 1;
     }
 
   /* Create the convolution object */
@@ -188,7 +188,7 @@ int MP_Anywave_Block_Plugin_c::init_parameters( map<string, string, mp_ltstring>
     }
   if ( ( convolution = new MP_Convolution_Fastest_c( anywaveTable, filterShift ) ) == NULL )
     {
-      return(1);
+      return 1;
     }
 
   return( 0 );

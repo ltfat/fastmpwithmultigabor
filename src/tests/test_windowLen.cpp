@@ -48,11 +48,9 @@ void usage( void )
 int main( int argc, char ** argv ) 
 {
 	const char		*func = "test_windowLen";
-	unsigned int	numIter = 0;
-	double			precision = 0;
 	char			*szConfigFile, *szDictFile, *szSndFile;
 	FILE			*fid = NULL;
-	int				iIndex = 0, iWaveLen = 0, iDictMaxWindowLen = 0;
+	int				iIndex = 0;
 	MP_Dict_c		*dict = NULL;
 	MP_Signal_c		*sig = NULL;
 	MP_Book_c		*book = NULL;
