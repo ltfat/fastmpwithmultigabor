@@ -26,7 +26,6 @@ echo "---------------------------------------------------"
 echo "Mise à jour de MacPort..."
 echo "---------------------------------------------------"
 sudo /opt/local/bin/port selfupdate
-sudo /opt/local/bin/port upgrade outdated
 echo "---------------------------------------------------"
 echo "Installation de la librairie libsndfile..."
 echo "---------------------------------------------------"
