@@ -1,7 +1,6 @@
 if(COMMAND cmake_policy)
       cmake_policy(SET CMP0003 NEW)
 endif(COMMAND cmake_policy)
-CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/utils/readme.txt ${MPTK_BINARY_DIR}/bin/readme.txt COPYONLY)
 
 #------------------------------------------------
 # Build getopt library
