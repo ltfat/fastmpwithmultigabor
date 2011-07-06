@@ -95,7 +95,6 @@ ENDIF(WIN32)
 #------------------------------------------------
 # Define install target:
 #------------------------------------------------
-INSTALL(FILES "${MPTK_BINARY_DIR}/bin/readme.txt" DESTINATION bin)
 #Install dll in the destination folder for Win32 plateform
 IF(WIN32)
 	INSTALL(FILES "${MPTK_BINARY_DIR}/bin/${MPTK_DEBUG_RELEASE}/pthreadVC2.dll" DESTINATION bin)
