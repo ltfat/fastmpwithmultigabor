@@ -627,7 +627,7 @@ int main( int argc, char **argv )
 	MP_Mask_c			*maskYes = NULL, *maskNo = NULL;
 	MP_Book_c			*book;
 	
-	/* Parse the command line */
+	// 1) Parse the command line
 	if ( argc == 1 ) 
 		usage();
 	if ( parse_args( argc, argv ) ) 
@@ -636,31 +636,44 @@ int main( int argc, char **argv )
 			exit( ERR_ARG );
 	}
 	
-	/* Load the MPTK environment */
+	// 2) Load the MPTK environment
 	if(! (MPTK_Env_c::get_env()->load_environment_if_needed(configFileName)) ) 
 	{
 		exit(ERR_LOADENV);
 	}
 	
-	/* Load the book */
-	if ( !strcmp( bookInName, "-" ) ) 
-		book = MP_Book_c::create( stdin );
-	else 
-	{         
-		fid = fopen(bookInName,"rb");
-		if ( fid == NULL )
-		{
-			mp_error_msg( "Open book","Could not open file %s to read a dictionary\n",bookInName );    
-		}
-		book = MP_Book_c::create( fid );
-	}
-  	
+	// 3) Create the book
+	book = MP_Book_c::create();
 	if ( book == NULL ) 
 	{
 		mp_error_msg( func, "Can't create a new book.\n" );
+		fflush( stderr );
 		return( ERR_BOOK );
 	}
-	
+
+	// 4) Load the book
+	if ( !strcmp( bookInName, "-" ) ) 
+	{
+		book = MP_Book_c::create( stdin );
+		if ( MPF_VERBOSE ) 
+			mp_info_msg( func, "Reading the book from stdin...\n" );
+		if ( book->load(stdin) == 0 ) 
+		{
+			mp_error_msg( func, "No atoms were found in stdin.\n" );
+			fflush( stderr );
+			return( ERR_BOOK );
+		}
+	}
+	else 
+	{         
+		if (!book->load( bookInName ))
+		{
+			mp_error_msg( func, "No atoms were found in the book file [%s].\n", bookInName );
+			fflush( stderr );
+			return( ERR_BOOK );
+		}
+	}
+  	
 	/* Rectify the min/max if asking for non-normed values */
 	if ( MPF_USE_UCF && MPF_USE[MP_FREQ_PROP] ) 
 	{
@@ -723,14 +736,14 @@ int main( int argc, char **argv )
 	{
 		if ( !strcmp( bookYesName, "-" ) ) 
 		{
-			n = book->print( stdout, MP_TEXT, maskYes );
+			n = book->print( stdout, MP_TEXT, maskYes, NULL);
 			fflush( stdout );
 			if ( MPF_VERBOSE ) 
 				mp_info_msg( func, "[%lu] atoms were written to stdout.\n", n );
 		}
 		else 
 		{
-			n = book->print( bookYesName, MP_BINARY, maskYes );
+			n = book->print( bookYesName, MP_BINARY, maskYes, NULL);
 			if ( MPF_VERBOSE ) 
 				mp_info_msg( func, "[%lu] atoms were written to file [%s].\n", n, bookYesName );
 		}
@@ -740,7 +753,7 @@ int main( int argc, char **argv )
 	if ( bookNoName ) 
 	{
 		/* Write the book */
-		n = book->print( bookNoName, MP_BINARY, maskNo );
+		n = book->print( bookNoName, MP_BINARY, maskNo, NULL);
 		/* Report */
 		if ( MPF_VERBOSE ) 
 			mp_info_msg( func, "[%lu] atoms were written to file [%s].\n", n, bookNoName );

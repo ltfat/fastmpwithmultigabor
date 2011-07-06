@@ -61,7 +61,7 @@ MP_Atom_c* MP_Harmonic_Atom_Plugin_c::harmonic_atom_create_empty (void)
 
 /*************************/
 /* File factory function */
-MP_Atom_c* MP_Harmonic_Atom_Plugin_c::create( FILE *fid, const char mode )
+MP_Atom_c* MP_Harmonic_Atom_Plugin_c::create( FILE *fid, MP_Dict_c *dict, const char mode )
 {
 
   const char* func = "MP_Harmonic_Atom_c::init(fid,mode)";
@@ -76,7 +76,10 @@ MP_Atom_c* MP_Harmonic_Atom_Plugin_c::create( FILE *fid, const char mode )
       return( NULL );
     }
 
-  /* Read and check */
+	if ( dict->numBlocks != 0 )
+		newAtom->dict = dict;
+
+	/* Read and check */
   if ( newAtom->read( fid, mode ) )
     {
       mp_error_msg( func, "Failed to read the new Harmonic atom.\n" );

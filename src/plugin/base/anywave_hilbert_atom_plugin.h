@@ -131,7 +131,7 @@ class MP_Anywave_Hilbert_Atom_Plugin_c: public MP_Anywave_Atom_Plugin_c {
    *
    * \param mode MP_TEXT or MP_BINARY
    **/
-  static MP_Atom_c* create( FILE *fid, const char mode );
+  static MP_Atom_c* create( FILE *fid, MP_Dict_c *dict, const char mode );
 
   /** \brief Default destructor 
    **/

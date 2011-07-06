@@ -93,7 +93,7 @@ public:
    * \remark in MP_TEXT mode, NO enclosing XML tag &lt;atom type="*"&gt; ... &lt;/atom&gt; is looked for
    * \sa read_atom()
    */
-  static MP_Atom_c* create( FILE *fid, const char mode );
+  static MP_Atom_c* create( FILE *fid, MP_Dict_c *dict, const char mode );
   
  protected:
 

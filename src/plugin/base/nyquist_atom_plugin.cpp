@@ -63,7 +63,7 @@ MP_Atom_c* MP_Nyquist_Atom_Plugin_c::nyquist_atom_create_empty(void)
 /* File factory function */
 /*****************************/
 /* Specific factory function */
-MP_Atom_c* MP_Nyquist_Atom_Plugin_c::create( FILE *fid, const char mode )
+MP_Atom_c* MP_Nyquist_Atom_Plugin_c::create( FILE *fid, MP_Dict_c *dict, const char mode )
 {
 
   const char* func = "MP_Nyquist_Atom_c::init(numChans)";
@@ -76,6 +76,9 @@ MP_Atom_c* MP_Nyquist_Atom_Plugin_c::create( FILE *fid, const char mode )
       mp_error_msg( func, "Failed to create a new Nyquist atom.\n" );
       return( NULL );
     }
+
+  	if ( dict->numBlocks != 0 )
+		newAtom->dict = dict;
 
    /* Read and check */
   if ( newAtom->read( fid, mode ) ) {

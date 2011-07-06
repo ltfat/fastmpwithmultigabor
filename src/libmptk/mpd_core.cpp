@@ -242,59 +242,89 @@ void MP_Mpd_Core_c::plug_approximant( MP_Signal_c *setApproximant  ) {
 
 /********************************/
 /* Save the book/residual/decay */
-void MP_Mpd_Core_c::save_result() {
+void MP_Mpd_Core_c::save_result() 
+{
+	const char			*func = "Save info";
+    unsigned long int	nWrite;
 
-  const char* func = "Save info";
-
-  /* - Save the book: */
-  if(bookFileName)
+	// 1) Save the book
+	if(bookFileName)
     {
-      if ( (strcmp( bookFileName, "-" ) != 0) )
+		if ( (strcmp( bookFileName, "-" ) != 0) )
+		{
+			if ( (strstr( bookFileName, ".bin" ) != NULL) )
+				book->print( bookFileName, MP_BINARY);
+			else if ( (strstr( bookFileName, ".xml" ) != NULL) )
+				book->print( bookFileName, MP_TEXT);
+			else
+				mp_error_msg( func, "The book [%s] has an incorrect extension (xml or bin).\n", bookFileName );
+
+			if ( verbose ) 
+			{ 
+				if (numIter >0 ) 
+					mp_info_msg( func, "At iteration [%lu] : saved the book to file [%s].\n", numIter, bookFileName );  
+				else 
+					mp_info_msg( func, "Saved the book to file [%s]...\n", bookFileName ); 
+			}  
+		}
+		else
+		{
+				book->print( stdout, MP_TEXT );
+				fflush( stdout );
+				if ( verbose ) 
+					mp_info_msg( func, "Sent the book to stdout in text mode.\n" );
+		}
+	}
+  
+	// 2) Save the approximant
+	if ( approxFileName && approximant ) 
 	{
-	  book->print( bookFileName, MP_BINARY);
-	  if ( verbose ) { if (numIter >0 ) mp_info_msg( func, "At iteration [%lu] : saved the book to file [%s].\n", numIter, bookFileName );  
-	    else mp_info_msg( func, "Saved the book to file [%s]...\n", bookFileName ); 
-	  }  
+		if (approximant->wavwrite( approxFileName ) == 0 ) 
+			mp_error_msg( func, "Can't write approximant signal to file [%s].\n", approxFileName );
+		else
+		{
+			if ( verbose )
+			{ 
+				if (numIter >0 ) 
+					mp_info_msg( func, "At iteration [%lu] : saved the approximant to file [%s].\n", numIter , approxFileName );
+				else 
+				{
+					mp_info_msg( func, "Saved the approximant signal to file [%s]...\n", approxFileName );
+					mp_info_msg( func, "The resulting signal has [%lu] samples in [%d] channels, with sample rate [%d]Hz.\n", book->numSamples, book->numChans, book->sampleRate );
+				}
+			}
+		}
 	}
-    }
-  /* - Save the approximant: */
-  if ( approxFileName && approximant ) {
-    if (approximant->wavwrite( approxFileName ) == 0 ) {
-      mp_error_msg( func, "Can't write approximant signal to file [%s].\n", approxFileName );
-    } else
-    
-      if ( verbose ){ if (numIter >0 ) mp_info_msg( func, "At iteration [%lu] : saved the approximant to file [%s].\n", numIter , approxFileName );
-	else {mp_info_msg( func, "Saved the approximant signal to file [%s]...\n", approxFileName );
-	  mp_info_msg( func, "The resulting signal has [%lu] samples in [%d] channels, with sample rate [%d]Hz.\n",
-		       book->numSamples, book->numChans, book->sampleRate );
-    
+
+	// 3) Save the residual
+	if ( resFileName ) 
+	{
+		if ( residual->wavwrite( resFileName ) == 0 ) 
+			mp_error_msg( func, "Can't write residual signal to file [%s].\n", resFileName );
+		else
+		{
+			if ( verbose ) 
+			{
+				if (numIter >0 ) 
+					mp_info_msg( func, "At iteration [%lu] : saved the residual signal to file [%s].\n", numIter , resFileName );
+  				else 
+					mp_info_msg( func, "Saved the residual signal to file [%s]...\n", resFileName );
+			}
+		}
 	}
-    
-      }
-  }
 
-  /* - Save the residual: */
-  if ( resFileName ) {
-    if ( residual->wavwrite( resFileName ) == 0 ) {
-      mp_error_msg( func, "Can't write residual signal to file [%s].\n", resFileName );
-    } else
-      if ( verbose ) {if (numIter >0 ) mp_info_msg( func, "At iteration [%lu] : saved the residual signal to file [%s].\n", numIter , resFileName );
-  	else mp_info_msg( func, "Saved the residual signal to file [%s]...\n", resFileName );
-  	
-      }
-  	
-  }
-  /* - the decay: */
-  if ( decayFileName ) {
-    unsigned long int nWrite;
-    nWrite = save_decay(decayFileName);
-    if( nWrite != (numIter+1) ) {
-      mp_warning_msg( func, "Wrote less than the expected number of doubles to the energy decay file.\n" );
-      mp_warning_msg( func, "([%lu] expected, [%lu] written.)\n", numIter+1, nWrite );
-    }
-    if ( verbose ) mp_info_msg( func, "At iteration [%lu] : saved the energy decay to file [%s].\n", numIter , decayFileName );	  
-  }
-
+	// 4) Save the decay
+	if ( decayFileName ) 
+	{
+		nWrite = save_decay(decayFileName);
+		if( nWrite != (numIter+1) ) 
+		{
+			mp_warning_msg( func, "Wrote less than the expected number of doubles to the energy decay file.\n" );
+			mp_warning_msg( func, "([%lu] expected, [%lu] written.)\n", numIter+1, nWrite );
+		}
+		if ( verbose ) 
+			mp_info_msg( func, "At iteration [%lu] : saved the energy decay to file [%s].\n", numIter , decayFileName );	  
+	}
 }
 
 /*************************/
@@ -314,8 +344,7 @@ unsigned short int MP_Mpd_Core_c::step() {
 		10*log10(currentSnr), 10*log10(stopAfterSnr) );
 
   /* 1) Iterate: */
-  dict->iterate_mp( book , approximant ); /* Note: if approximant is NULL, no computation
-					     will be performed on it. */
+  dict->iterate_mp( book , approximant ); /* Note: if approximant is NULL, no computation will be performed on it. */
   residualEnergyBefore = residualEnergy;
   residualEnergy = (double)dict->signal->energy;
   if ( useDecay ) decay.append( residualEnergy );
@@ -441,32 +470,32 @@ void MP_Mpd_Core_c::info_result( void )
   mp_info_msg( func, "The SNR is now [%g].\n", 10*log10( initialEnergy / residualEnergy ) );
 }
 
-void MP_Mpd_Core_c::set_save_hit( const unsigned long int setSaveHit,
-				  const char* setBookFileName,   
-				  const char* setResFileName,
-				  const char* setDecayFileName )
+void MP_Mpd_Core_c::set_save_hit( const unsigned long int setSaveHit, const char* setBookFileName, const char* setResFileName, const char* setDecayFileName )
 {
-  const char* func = "set_save_hit";
-  char* newBookFileName = NULL;
-  char* newResFileName = NULL;
-  char* newDecayFileName =NULL;
+	const char* func = "set_save_hit";
+	char* newBookFileName = NULL;
+	char* newResFileName = NULL;
+	char* newDecayFileName =NULL;
   
-  if (setSaveHit>0)saveHit = setSaveHit;
-  if (setSaveHit>0)nextSaveHit = numIter + setSaveHit;
+	if (setSaveHit>0)
+		saveHit = setSaveHit;
+	if (setSaveHit>0)
+		nextSaveHit = numIter + setSaveHit;
   
-  /*reallocate memory and copy name */
-  if (setBookFileName && strlen(setBookFileName) > 1 ) {
-    newBookFileName = (char*) realloc((void *)bookFileName  , ((strlen(setBookFileName)+1 ) * sizeof(char)));
-    if ( newBookFileName == NULL )
-      {
-	mp_error_msg( func,"Failed to re-allocate book file name to store book [%s] .\n",
-		      setBookFileName );                 
-      }
-    else bookFileName = newBookFileName;
-    strcpy(bookFileName, setBookFileName);
+ 	// Reallocate memory and copy name
+	if (setBookFileName && strlen(setBookFileName) >= 1 ) 
+	{
+		newBookFileName = (char*) realloc((void *)bookFileName  , ((strlen(setBookFileName)+1 ) * sizeof(char)));
+		if ( newBookFileName == NULL )
+		{
+			mp_error_msg( func,"Failed to re-allocate book file name to store book [%s] .\n", setBookFileName );                 
+		}
+		else 
+			bookFileName = newBookFileName;
+		strcpy(bookFileName, setBookFileName);
   }
- 
-  if ( setResFileName && strlen(setResFileName) > 1 ){ 
+
+if ( setResFileName && strlen(setResFileName) > 1 ){ 
     newResFileName = (char*) realloc((void *)resFileName  , ((strlen(setResFileName)+1 ) * sizeof(char)));
     if ( newResFileName == NULL )
       {

@@ -110,7 +110,7 @@ public:
    * \sa read_atom()
    */
 
-  static MP_Atom_c* create( FILE *fid, const char mode );
+  static MP_Atom_c* create( FILE *fid, MP_Dict_c *dict, const char mode );
   /** \brief Factory function that allocates storage space for the harmonicity as well as
    * the amplitudes and phases of both the fundamental and the partials 
    * \param setNumChans the desired number of channels

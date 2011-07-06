@@ -64,7 +64,7 @@ class MP_Atom_Factory_c
     static bool instanceFlag;
  
 	  /** \brief Hash map to store the atom name and the file creation atom method pointer */
-	map<const char*, MP_Atom_c*(*)(FILE *fid, const char mode),mp_ltstring> atom;
+	map<const char*, MP_Atom_c*(*)(FILE *fid, MP_Dict_c *dict, const char mode),mp_ltstring> atom;
     /** \brief Hash map to store the atom name and the empty atom method pointer */
 	map<const char*, MP_Atom_c*(*)(void),mp_ltstring> atom_empty;
 
@@ -98,7 +98,7 @@ class MP_Atom_Factory_c
      *  \param atomName: name of the atom to register
      *  \param createAtomFunctionPointer: a pointer on the function used to create an atom from a file
      */
-   MPTK_LIB_EXPORT void register_new_atom(const char* atomName, MP_Atom_c*(*createAtomFunctionPointer)(FILE *fid, const char mode));
+   MPTK_LIB_EXPORT void register_new_atom(const char* atomName, MP_Atom_c*(*createAtomFunctionPointer)(FILE *fid, MP_Dict_c *dict, const char mode));
 
     /** \brief Method to register a new method to create empty atom
      *  \param atomName: name of the atom to register
@@ -117,7 +117,7 @@ class MP_Atom_Factory_c
      *   \param atomName: name of the atom to create
      *   \return a pointer on a method able to create an atom from a file
     */
-    MPTK_LIB_EXPORT MP_Atom_c*(*get_atom_creator( const char* atomName ))(FILE *fid, const char mode);
+    MPTK_LIB_EXPORT MP_Atom_c*(*get_atom_creator( const char* atomName ))(FILE *fid, MP_Dict_c *dict, const char mode);
 
     /** \brief Method to fill a vector with the name of all the atoms registred in the atom factory
     *   \param nameVector : pointer on the vector which has to be fill with the name of blocks 

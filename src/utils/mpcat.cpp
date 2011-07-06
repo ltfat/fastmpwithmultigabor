@@ -109,224 +109,201 @@ void usage( void ) {
 /**************************************************/
 /* PARSING OF THE ARGUMENTS                       */
 /**************************************************/
-int parse_args(int argc, char **argv) {
-/*
- *  -q, --quiet               don't do any text output
- *  -v, --verbose             output processing info to stderr
- *  -V, --version             print version number
- *  -h, --help
- */
+int parse_args(int argc, char **argv) 
+{
+	int c, i;
+	FILE *fid;
 
-  int c, i;
-  FILE *fid;
+	struct option longopts[] = 
+	{
+		{"config-file",  required_argument, NULL, 'C'},
+		{"force",   no_argument, NULL, 'f'},
+		{"quiet",   no_argument, NULL, 'q'},
+		{"verbose", no_argument, NULL, 'v'},
+		{"version", no_argument, NULL, 'V'},
+		{"help",    no_argument, NULL, 'h'},
+		{0, 0, 0, 0}
+	};
 
-  struct option longopts[] = {
-  	{"config-file",  required_argument, NULL, 'C'},
-    {"force",   no_argument, NULL, 'f'},
-    {"quiet",   no_argument, NULL, 'q'},
-    {"verbose", no_argument, NULL, 'v'},
-    {"version", no_argument, NULL, 'V'},
-    {"help",    no_argument, NULL, 'h'},
-    {0, 0, 0, 0}
-  };
+	opterr = 0;
+	optopt = '!';
 
-  opterr = 0;
-  optopt = '!';
+	while ((c = getopt_long(argc, argv, "C:fqvVh", longopts, &i)) != -1 ) 
+	{
+		switch (c) 
+		{
+			case 'C':
+				mp_debug_msg( MP_DEBUG_PARSE_ARGS, func, "switch -C : optarg is [%s].\n", optarg );
+				if (optarg == NULL)
+				{
+					mp_error_msg( func, "After switch -C or switch --config-file=.\n" );
+					mp_error_msg( func, "the argument is NULL.\n" );
+					mp_error_msg( func, "(Did you use --config-file without the '=' character ?).\n" );
+					return( ERR_ARG );
+				}
+				else 
+					configFileName = optarg;
+				mp_debug_msg( MP_DEBUG_PARSE_ARGS, func, "Read config-file name [%s].\n", configFileName );
+				break;
+			case 'h':
+				usage();
+				break;
+			case 'f':
+				MPC_FORCE = MPC_TRUE;
+				mp_debug_msg( MP_DEBUG_PARSE_ARGS, func, "MPC_FORCE is TRUE.\n" );
+				break;
+			case 'q':
+				MPC_QUIET = MPC_TRUE;
+				mp_debug_msg( MP_DEBUG_PARSE_ARGS, func, "MPC_QUIET is TRUE.\n" );
+				break;
+			case 'v':
+				MPC_VERBOSE = MPC_TRUE;
+				mp_debug_msg( MP_DEBUG_PARSE_ARGS, func, "MPC_VERBOSE is TRUE.\n" );
+				break;
+			case 'V':
+				fprintf(stdout, "mpcat -- Matching Pursuit library version %s -- mpcat %s\n", VERSION, cvsid);
+				exit(0);
+				break;
+			default:
+				mp_error_msg( func, "The command line contains the unrecognized option [%s].\n", argv[optind-1] );
+				return( ERR_ARG );
+		} // end switch
+	} // end while
 
-  while ((c = getopt_long(argc, argv, "C:fqvVh", longopts, &i)) != -1 ) {
+	mp_debug_msg( MP_DEBUG_PARSE_ARGS, func, "When exiting getopt, optind is [%d].\n", optind);
+	mp_debug_msg( MP_DEBUG_PARSE_ARGS, func, "(argc is [%d].)\n", argc);
 
-    switch (c) {
-   
-    case 'C':
-          mp_debug_msg( MP_DEBUG_PARSE_ARGS, func, "switch -C : optarg is [%s].\n", optarg );
-          if (optarg == NULL)
-            {
-              mp_error_msg( func, "After switch -C or switch --config-file=.\n" );
-              mp_error_msg( func, "the argument is NULL.\n" );
-              mp_error_msg( func, "(Did you use --config-file without the '=' character ?).\n" );
-              return( ERR_ARG );
-            }
-          else configFileName = optarg;
-          mp_debug_msg( MP_DEBUG_PARSE_ARGS, func, "Read config-file name [%s].\n", configFileName );
-          break;
+	// Check if some books are following the options
+	if ( (argc-optind) < 3 ) 
+	{
+		mp_error_msg(func, "There must be at least two books (or - for stdin) to concatenate, plus a file name (or - for stdout) for the output book.\n");
+		return ERR_ARG;
+	}
 
-    case 'h':
-      usage();
-      break;
+	// Read the first book file name after the options
+	bookOutFileName = argv[argc-1];
+	mp_debug_msg( MP_DEBUG_PARSE_ARGS, func, "Read output book file name [%s].\n", bookOutFileName );
 
-    case 'f':
-      MPC_FORCE = MPC_TRUE;
-#ifndef NDEBUG
-      fprintf( stderr, "mpcat DEBUG -- MPC_FORCE is TRUE.\n" );
-#endif
-      break;
+	//-----------------------
+	// Basic options check 
+	//-----------------------
+	// Prevent an accidental erasing of an input file
+	if ( strcmp( bookOutFileName, "-" ) && (!MPC_FORCE) ) 
+	{
+		if ( (fid = fopen( bookOutFileName, "rb" )) != NULL ) 
+		{
+			fclose( fid );
+			mp_error_msg(func, "Output file [%s] exists. Delete it manually or use -f/--force if you want to overwrite it.\n", bookOutFileName );
+			return ERR_ARG;      
+		}
+	}
 
-    case 'q':
-      MPC_QUIET = MPC_TRUE;
-#ifndef NDEBUG
-      fprintf( stderr, "mpcat DEBUG -- MPC_QUIET is TRUE.\n" );
-#endif
-      break;
+	// Can't have quiet AND verbose (make up your mind, dude !)
+	if ( MPC_QUIET && MPC_VERBOSE ) 
+	{
+		mp_error_msg(func, "Choose either one of --quiet or --verbose.\n");
+		return( ERR_ARG );
+	}
 
-    case 'v':
-      MPC_VERBOSE = MPC_TRUE;
-#ifndef NDEBUG
-      fprintf( stderr, "mpcat DEBUG -- MPC_VERBOSE is TRUE.\n" );
-#endif
-      break;
-
-
-    case 'V':
-      fprintf(stdout, "mpcat -- Matching Pursuit library version %s -- mpcat %s\n", VERSION, cvsid);
-      exit(0);
-      break;
-
-
-    default:
-      fprintf( stderr, "mpcat error -- The command line contains the unrecognized option [%s].\n",
-	       argv[optind-1] );
-      return( ERR_ARG );
-
-    } /* end switch */
-
-  } /* end while */
-
-
-#ifndef NDEBUG
-  fprintf( stderr, "mpcat DEBUG -- When exiting getopt, optind is [%d].\n", optind );
-  fprintf( stderr, "mpcat DEBUG -- (argc is [%d].)\n", argc );
-#endif
-
-  /* Check if some books are following the options */
-  if ( (argc-optind) < 3 ) {
-    fprintf(stderr, "mpcat error -- There must be at least two books (or - for stdin) to concatenate,"
-	    " plus a file name (or - for stdout) for the output book.\n");
-    return( ERR_ARG );
-  }
-  
-  /* Read the first book file name after the options */
-  bookOutFileName = argv[argc-1];
-#ifndef NDEBUG
-  fprintf( stderr, "mpcat DEBUG -- Read output book file name [%s].\n", bookOutFileName );
-#endif
-
-  /***********************/
-  /* Basic options check */
-
-  /* Prevent an accidental erasing of an input file */
-  if ( strcmp( bookOutFileName, "-" ) && (!MPC_FORCE) ) {
-    if ( (fid = fopen( bookOutFileName, "rb" )) != NULL ) {
-      fclose( fid );
-      fprintf ( stderr, "mpcat error -- Output file [%s] exists. Delete it manually "
-		"or use -f/--force if you want to overwrite it.\n",
-		bookOutFileName );
-      return( ERR_ARG );      
-    }
-  }
-
-  /* Can't have quiet AND verbose (make up your mind, dude !) */
-  if ( MPC_QUIET && MPC_VERBOSE ) {
-    fprintf(stderr, "mpcat error -- Choose either one of --quiet or --verbose.\n");
-    return( ERR_ARG );
-  }
-
-  return(0);
+	return(0);
 }
 
 
 /**************************************************/
 /* MAIN                                           */
 /**************************************************/
-int main( int argc, char **argv ) {
-
-
-  MP_Book_c *book;
-
-  int numBooks = 0;
-  unsigned long int n; /* number of read atoms */
+int main( int argc, char **argv ) 
+{
+	MP_Book_c			*book;
+	int					numBooks = 0;
+	int					iIndexNumAtomsPerBook = 0;
+	unsigned long int	*nAtomRead;
  
-  
-  /* Parse the command line */
-  if ( argc == 1 ) usage();
-  if ( parse_args( argc, argv ) ) {
-      mp_error_msg( func, "Please check the syntax of your command line."
-                    " (Use --help to get some help.)\n" );
-      exit( ERR_ARG );
-  }
-  
-  /* Load the MPTK environment */
-  if(! (MPTK_Env_c::get_env()->load_environment_if_needed(configFileName)) ) {
-    exit(ERR_LOADENV);
-  }
-
-  /* Make the book */
-  book = MP_Book_c::create();
-  
-  if ( book == NULL ) {
-      fprintf( stderr, "mpr error -- Can't create a new book.\n" );
-      fflush( stderr );
-      return( ERR_BOOK );
-  }
-
-
-
-  /* Load all the books and appends them to the first one: */
-  while ( optind < (argc-1) ) {
-    bookInFileName = argv[optind++];
-    numBooks++;
-
-#ifndef NDEBUG
-  fprintf( stderr, "mpcat DEBUG -- Read book file name [%s] for book number [%d].\n",
-	   bookInFileName, numBooks );
-#endif
-
-    if ( !strcmp( bookInFileName, "-" ) ) {
-      if ( (n = book->load( stdin )) == 0 ) {
-	if ( !MPC_QUIET ) {
-	  fprintf ( stderr, "mpcat warning -- Can't read atoms for book number [%d] from stdin. I'm skipping this book.\n",
-		    numBooks );
-	  fflush( stderr );
+	// Parse the command line
+	if ( argc == 1 ) 
+		usage();
+	if ( parse_args( argc, argv ) ) 
+	{
+		mp_error_msg( func, "Please check the syntax of your command line. (Use --help to get some help.)\n" );
+		exit( ERR_ARG );
 	}
-      }
-      if ( MPC_VERBOSE ) fprintf ( stderr, "mpcat msg -- Loaded [%lu] atoms for book number [%d] from stdin.\n",
-				   n, numBooks );
+  
+	// Load the MPTK environment
+	if(! (MPTK_Env_c::get_env()->load_environment_if_needed(configFileName)) )
+		exit(ERR_LOADENV);
 
-    }
-    else {
-      if ( (n = book->load( bookInFileName )) == 0 ) {
-	if ( !MPC_QUIET ) {
-	  fprintf ( stderr, "mpcat warning -- Can't read atoms for book number [%d] from file [%s]. I'm skipping this book.\n",
-		    numBooks, bookInFileName );
-	  fflush( stderr );
+	// Make the book
+	if((book = MP_Book_c::create()) == NULL)
+    {
+		mp_error_msg( func, "Can't create a new book.\n" );
+		fflush( stderr );
+		return( ERR_BOOK );
 	}
-      }
-      if ( MPC_VERBOSE ) fprintf ( stderr, "mpcat msg -- Loaded [%lu] atoms for book number [%d] from file [%s].\n",
-				   n, numBooks, bookInFileName );
-    }
-  }
 
-  /* Write the book */
-  if ( !strcmp( bookOutFileName, "-" ) ) {
-    if ( book->print( stdout, MP_TEXT, NULL ) == 0 ) {
-      fprintf ( stderr, "mpcat error -- No atoms could be written to stdout.\n" );
-      return( ERR_WRITE );
-    }
-  }
-  else {
-    if ( book->print( bookOutFileName, MP_BINARY, NULL ) == 0 ) {
-      fprintf ( stderr, "mpcat error -- No atoms could be written to file [%s].\n",
-		bookOutFileName );
-      return( ERR_WRITE );
-    }
-  }
-  if ( MPC_VERBOSE ) {
-    fprintf( stderr, "mpcat msg -- The resulting book contains [%lu] atoms.\n", book->numAtoms );
-  }
+	// Allocation of the book Atoms read number
+	nAtomRead = (unsigned long *)calloc(argc - 2,sizeof(unsigned long int));
+	// Beginning the table index
+	iIndexNumAtomsPerBook = 0;
 
-  /* Clean the house */
+	// Load all the books and appends them to the first one:
+	while ( optind < (argc-1) ) 
+	{
+		bookInFileName = argv[optind++];
+		numBooks++;
+		mp_debug_msg(MP_DEBUG_GENERAL, func, "Read book file name [%s] for book number [%d].\n",bookInFileName, numBooks );
 
+		if ( !strcmp( bookInFileName, "-" ) ) 
+		{
+			if ( (nAtomRead[iIndexNumAtomsPerBook++] = book->load( stdin )) == 0 ) 
+			{
+				if ( !MPC_QUIET ) 
+				{
+					fprintf ( stderr, "mpcat warning -- Can't read atoms for book number [%d] from stdin. I'm skipping this book.\n",numBooks );
+					fflush( stderr );
+				}
+			}
+			if ( MPC_VERBOSE ) 
+				fprintf ( stderr, "mpcat msg -- Loaded [%lu] atoms for book number [%d] from stdin.\n",nAtomRead, numBooks );
+		}
+		else 
+		{
+			if ( (nAtomRead[iIndexNumAtomsPerBook++] = book->load( bookInFileName )) == 0 ) 
+			{
+				if ( !MPC_QUIET ) 
+				{
+					fprintf ( stderr, "mpcat warning -- Can't read atoms for book number [%d] from file [%s]. I'm skipping this book.\n",numBooks, bookInFileName );
+					fflush( stderr );
+				}
+			}
+			if ( MPC_VERBOSE ) 
+				fprintf ( stderr, "mpcat msg -- Loaded [%lu] atoms for book number [%d] from file [%s].\n",nAtomRead, numBooks, bookInFileName );
+		}
+	}
+
+	// Write the book
+	if ( !strcmp( bookOutFileName, "-" ) ) 
+	{
+		if ( book->print( stdout, MP_TEXT, NULL, nAtomRead ) == 0 ) 
+		{
+			fprintf ( stderr, "mpcat error -- No atoms could be written to stdout.\n" );
+			return( ERR_WRITE );
+		}
+	}
+	else 
+	{
+		if ( book->print( bookOutFileName, MP_BINARY, NULL, nAtomRead ) == 0 ) 
+		{
+			fprintf ( stderr, "mpcat error -- No atoms could be written to file [%s].\n", bookOutFileName );
+			return( ERR_WRITE );
+		}
+	}
+	if ( MPC_VERBOSE ) 
+	    fprintf( stderr, "mpcat msg -- The resulting book contains [%lu] atoms.\n", book->numAtoms );
+
+  // Clean the house
   delete( book );
-  /* Release Mptk environnement */
+  // Release Mptk environnement
   MPTK_Env_c::get_env()->release_environment();
-  return(0);
+  
+  return 0;
 }

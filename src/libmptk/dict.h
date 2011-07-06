@@ -215,6 +215,8 @@ class MP_Dict_c
      * \return zero if succed.
      */
     MPTK_LIB_EXPORT int print( const char *fName );
+	MPTK_LIB_EXPORT bool print(FILE *fid);
+	MPTK_LIB_EXPORT bool printMultiDict(const char *fName );
 
     /** \brief Add a few blocks which structure is determined by the dictionary structure file
       * \param fName a dictionary structure file name where the structure is read from

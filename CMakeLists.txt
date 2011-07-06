@@ -557,25 +557,55 @@ IF(BUILD_TESTING)
 	ENABLE_TESTING()
 	INCLUDE(CTest)
 	INCLUDE(CTestConfig.cmake)
-	# TEST with CTest:
-	ADD_TEST(COMPIL_ANYWAVE, ${MPTK_BINARY_DIR}/bin/test_anywave ${MPTK_REFERENCE_PATH}/signal/glockenspiel.wav ${MPTK_DEFAULT_ANYWAVETABLE_FILE} ${MPTK_DEFAULT_ANYWAVEDICT_FILE})
-	ADD_TEST(COMPIL_BEHAVIOUR_IN_NOISE, ${MPTK_BINARY_DIR}/bin/test_behaviour_in_noise  ${MPTK_BINARY_DIR}/mptk/path.xml)
-	ADD_TEST(COMPIL_CONVOLUTION, ${MPTK_BINARY_DIR}/bin/test_convolution ${MPTK_BINARY_DIR}/mptk/path.xml)
-	ADD_TEST(COMPIL_FFT, ${MPTK_BINARY_DIR}/bin/test_fft ${MPTK_BINARY_DIR}/mptk/path.xml)
-	ADD_TEST(COMPIL_MESSAGE, ${MPTK_BINARY_DIR}/bin/test_messaging)
+
+	#-------------------------------
+	# Help test
+	#-------------------------------
+	ADD_TEST(HELP_MPD, ${MPTK_BINARY_DIR}/bin/mpd)
+	ADD_TEST(HELP_GPD, ${MPTK_BINARY_DIR}/bin/gpd)
+	ADD_TEST(HELP_MPR, ${MPTK_BINARY_DIR}/bin/mpr)
+	ADD_TEST(HELP_MPF, ${MPTK_BINARY_DIR}/bin/mpf)
+	ADD_TEST(HELP_MPCAT, ${MPTK_BINARY_DIR}/bin/mpcat)
+	ADD_TEST(HELP_MPVIEW, ${MPTK_BINARY_DIR}/bin/mpview)
+	ADD_TEST(HELP_MPDDEMIX, ${MPTK_BINARY_DIR}/bin/mpd_demix)
+	
+	#-------------------------------
+	# Scratch test
+	#-------------------------------
+	ADD_TEST(SCRATCH_MPD_RELATIVE, ${MPTK_BINARY_DIR}/bin/mpd -C ${MPTK_BINARY_DIR}/mptk/path.xml -d /dictionary/${MPTK_DEFAULT_GABORDICT_FILENAME} -n 10 ${MPTK_REFERENCE_PATH}/signal/glockenspiel.wav -)
+	ADD_TEST(SCRATCH_MPD_REPORT, ${MPTK_BINARY_DIR}/bin/mpd -C ${MPTK_BINARY_DIR}/mptk/path.xml -D ${MPTK_DEFAULT_GABORDICT_FILE} -n 100 -R 50 ${MPTK_REFERENCE_PATH}/signal/glockenspiel.wav -)
+	ADD_TEST(SCRATCH_WINDOWLEN, ${MPTK_BINARY_DIR}/bin/test_windowLen ${MPTK_BINARY_DIR}/mptk/path.xml ${MPTK_DEFAULT_GABORDICT_FILE} ${MPTK_REFERENCE_PATH}/signal/glockenspiel.wav)
+	ADD_TEST(SCRATCH_ANYWAVE, ${MPTK_BINARY_DIR}/bin/test_anywave ${MPTK_REFERENCE_PATH}/signal/glockenspiel.wav ${MPTK_DEFAULT_ANYWAVETABLE_FILE} ${MPTK_DEFAULT_ANYWAVEDICT_FILE})
+	ADD_TEST(SCRATCH_BEHAVIOUR_IN_NOISE, ${MPTK_BINARY_DIR}/bin/test_behaviour_in_noise  ${MPTK_BINARY_DIR}/mptk/path.xml)
+	ADD_TEST(SCRATCH_CONVOLUTION, ${MPTK_BINARY_DIR}/bin/test_convolution ${MPTK_BINARY_DIR}/mptk/path.xml)
+	ADD_TEST(SCRATCH_FFT, ${MPTK_BINARY_DIR}/bin/test_fft ${MPTK_BINARY_DIR}/mptk/path.xml)
+	ADD_TEST(SCRATCH_MESSAGE, ${MPTK_BINARY_DIR}/bin/test_messaging)
+	ADD_TEST(SCRATCH_PARABOLIC_REGRESSION, ${MPTK_BINARY_DIR}/bin/test_parabolic_regression)
+	ADD_TEST(SCRATCH_TEST_MP, ${MPTK_BINARY_DIR}/bin/test_mp  ${MPTK_BINARY_DIR}/mptk/path.xml)
+
+	#-------------------------------
+	# Compilation test
+	#-------------------------------
 	FOREACH(defaultDict ${dictcountCompil})
 		GET_FILENAME_COMPONENT(DICT_FILE_NAME ${defaultDict} NAME_WE)
-		ADD_TEST(COMPIL_MPD_${DICT_FILE_NAME}, ${MPTK_BINARY_DIR}/bin/mpd -C ${MPTK_BINARY_DIR}/mptk/path.xml -D ${defaultDict} -n 10 ${MPTK_REFERENCE_PATH}/signal/glockenspiel.wav ${MPTK_TMP_PATH}/test_mpd${DICT_FILE_NAME}.bin)
+		ADD_TEST(COMPIL_MPD_BIN_${DICT_FILE_NAME}, ${MPTK_BINARY_DIR}/bin/mpd -C ${MPTK_BINARY_DIR}/mptk/path.xml -D ${defaultDict} -n 10 ${MPTK_REFERENCE_PATH}/signal/glockenspiel.wav ${MPTK_TMP_PATH}/test_mpd_bin_${DICT_FILE_NAME}.bin)
+		ADD_TEST(COMPIL_MPD_TXT_${DICT_FILE_NAME}, ${MPTK_BINARY_DIR}/bin/mpd -C ${MPTK_BINARY_DIR}/mptk/path.xml -D ${defaultDict} -n 10 ${MPTK_REFERENCE_PATH}/signal/glockenspiel.wav ${MPTK_TMP_PATH}/test_mpd_txt_${DICT_FILE_NAME}.xml)
 		ADD_TEST(COMPIL_GPD_${DICT_FILE_NAME}, ${MPTK_BINARY_DIR}/bin/gpd -C ${MPTK_BINARY_DIR}/mptk/path.xml -D ${defaultDict} -n 10 ${MPTK_REFERENCE_PATH}/signal/glockenspiel.wav ${MPTK_TMP_PATH}/test_gpd${DICT_FILE_NAME}.bin)
-		ADD_TEST(COMPIL_MPR_${DICT_FILE_NAME}, ${MPTK_BINARY_DIR}/bin/mpr -C ${MPTK_BINARY_DIR}/mptk/path.xml  ${MPTK_TMP_PATH}/test_mpd${DICT_FILE_NAME}.bin ${MPTK_TMP_PATH}/test_mpr${DICT_FILE_NAME}.wav)
+		ADD_TEST(COMPIL_MPR_BIN_${DICT_FILE_NAME}, ${MPTK_BINARY_DIR}/bin/mpr -C ${MPTK_BINARY_DIR}/mptk/path.xml  ${MPTK_TMP_PATH}/test_mpd_bin_${DICT_FILE_NAME}.bin ${MPTK_TMP_PATH}/test_mpr_bin_${DICT_FILE_NAME}.wav)
+		ADD_TEST(COMPIL_MPR_TXT_${DICT_FILE_NAME}, ${MPTK_BINARY_DIR}/bin/mpr -C ${MPTK_BINARY_DIR}/mptk/path.xml  ${MPTK_TMP_PATH}/test_mpd_txt_${DICT_FILE_NAME}.xml ${MPTK_TMP_PATH}/test_mpr_txt_${DICT_FILE_NAME}.wav)
+		SET(bookCompilBin ${bookCompilBin} ${MPTK_TMP_PATH}/test_mpd_bin_${DICT_FILE_NAME}.bin)
+		SET(bookCompilTxt ${bookCompilTxt} ${MPTK_TMP_PATH}/test_mpd_txt_${DICT_FILE_NAME}.xml)
 	ENDFOREACH(defaultDict)
 	ADD_TEST(COMPIL_MPD_DEMIX, ${MPTK_BINARY_DIR}/bin/mpd_demix -C ${MPTK_BINARY_DIR}/mptk/path.xml -D ${MPTK_DEFAULT_DICT_LIST_FILE} -M ${MPTK_DEFAULT_MIXER_FILE} -n 10 ${MPTK_EXAMPLE_STEREOSIGNAL_FILE} ${MPTK_TMP_PATH}/test_demix.bin)	
 	ADD_TEST(COMPIL_MPF, ${MPTK_BINARY_DIR}/bin/mpf -C ${MPTK_BINARY_DIR}/mptk/path.xml --Freq=[0:110] --len=[0:256] ${MPTK_EXAMPLE_BOOK_FILE} ${MPTK_TMP_PATH}/test_mpf_bookYes.bin ${MPTK_TMP_PATH}/test_mpf_bookNo.bin)
 	ADD_TEST(COMPIL_MPVIEW, ${MPTK_BINARY_DIR}/bin/mpview -C ${MPTK_BINARY_DIR}/mptk/path.xml ${MPTK_EXAMPLE_BOOK_FILE} ${MPTK_TMP_PATH}/test_mpview.flt)
-	ADD_TEST(COMPIL_PARABOLIC_REGRESSION, ${MPTK_BINARY_DIR}/bin/test_parabolic_regression)
 	ADD_TEST(COMPIL_SCRIPT_EXEC, ${MPTK_BINARY_DIR}/bin/script/TestExecCycle${BATCHEXT})
-	ADD_TEST(COMPIL_TEST_MP, ${MPTK_BINARY_DIR}/bin/test_mp  ${MPTK_BINARY_DIR}/mptk/path.xml)
+	ADD_TEST(COMPIL_MPCAT_BIN, ${MPTK_BINARY_DIR}/bin/mpcat ${bookCompilBin} ${MPTK_TMP_PATH}/test_bin_concatene.bin)
+	ADD_TEST(COMPIL_MPCAT_TXT, ${MPTK_BINARY_DIR}/bin/mpcat ${bookCompilTxt} ${MPTK_TMP_PATH}/test_txt_concatene.xml)
 
+	#-------------------------------
+	# Installation test
+	#-------------------------------
 	FOREACH(defaultDict ${dictcountInstall})
 		GET_FILENAME_COMPONENT(DICT_FILE_NAME ${defaultDict} NAME_WE)
 		ADD_TEST(INSTALL_MPD_${DICT_FILE_NAME}, ${CMAKE_INSTALL_PREFIX}/bin/mpd -C ${CMAKE_INSTALL_PREFIX}/mptk/path.xml -D ${defaultDict} -n 10 ${MPTK_REFERENCE_PATH}/signal/glockenspiel.wav ${MPTK_TMP_PATH}/test_mpd${DICT_FILE_NAME}.bin)
@@ -586,10 +616,9 @@ IF(BUILD_TESTING)
 	ADD_TEST(INSTALL_MPF, ${CMAKE_INSTALL_PREFIX}/bin/mpf -C ${CMAKE_INSTALL_PREFIX}/mptk/path.xml --Freq=[0:110] --len=[0:256] ${MPTK_EXAMPLE_BOOK_FILE} ${MPTK_TMP_PATH}/test_mpf_bookYes.bin ${MPTK_TMP_PATH}/test_mpf_bookNo.bin)
 	ADD_TEST(INSTALL_MPVIEW, ${CMAKE_INSTALL_PREFIX}/bin/mpview -C ${CMAKE_INSTALL_PREFIX}/mptk/path.xml ${MPTK_EXAMPLE_BOOK_FILE} ${MPTK_TMP_PATH}/test_mpview.flt)
 
-	ADD_TEST(SCRATCH_MPD_RELATIVE, ${MPTK_BINARY_DIR}/bin/mpd -C ${MPTK_BINARY_DIR}/mptk/path.xml -d /dictionary/${MPTK_DEFAULT_GABORDICT_FILENAME} -n 10 ${MPTK_REFERENCE_PATH}/signal/glockenspiel.wav -)
-	ADD_TEST(SCRATCH_MPD_REPORT, ${MPTK_BINARY_DIR}/bin/mpd -C ${MPTK_BINARY_DIR}/mptk/path.xml -D ${MPTK_DEFAULT_GABORDICT_FILE} -n 100 -R 50 ${MPTK_REFERENCE_PATH}/signal/glockenspiel.wav -)
-	ADD_TEST(SCRATCH_WINDOWLEN, ${MPTK_BINARY_DIR}/bin/test_windowLen ${MPTK_BINARY_DIR}/mptk/path.xml ${MPTK_DEFAULT_GABORDICT_FILE} ${MPTK_REFERENCE_PATH}/signal/glockenspiel.wav)
-
+	#-------------------------------
+	# Matlab test
+	#-------------------------------
 	IF(NOT PIPOL_IMAGE)
 		ADD_TEST(MATLABGETMPTKINFO,  ${MPTK_BINARY_DIR}/bin/script/TestMatlab${BATCHEXT})
 	ENDIF(NOT PIPOL_IMAGE)

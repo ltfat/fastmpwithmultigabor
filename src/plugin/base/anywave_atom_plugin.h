@@ -134,7 +134,7 @@ public:
 	 *
 	 * \param mode MP_TEXT or MP_BINARY
 	 **/
-	static MP_Atom_c* create( FILE *fid, const char mode );
+	static MP_Atom_c* create( FILE *fid, MP_Dict_c *dict, const char mode );
 	
 	/** \brief File reader */
 	virtual int read( FILE *fid, const char mode );

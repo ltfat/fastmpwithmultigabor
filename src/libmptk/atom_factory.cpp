@@ -91,7 +91,7 @@ MP_Atom_c*(*MP_Atom_Factory_c::get_empty_atom_creator( const char* atomName ))(v
 }
 
 /* Method to obtain a create function for atom initialised from a file */
-MP_Atom_c*(*MP_Atom_Factory_c::get_atom_creator( const char* atomName ))(FILE *fid, const char mode)
+MP_Atom_c*(*MP_Atom_Factory_c::get_atom_creator( const char* atomName ))(FILE *fid, MP_Dict_c *dict, const char mode)
 {
 
   return MP_Atom_Factory_c::get_atom_factory()->atom[atomName];
@@ -99,7 +99,7 @@ MP_Atom_c*(*MP_Atom_Factory_c::get_atom_creator( const char* atomName ))(FILE *f
 }
 
 /* Register new empty Atom create function in the hash map */
-void MP_Atom_Factory_c::register_new_atom(const char* nameplug, MP_Atom_c*(*createAtomFunctionPointer)(FILE *fid, const char mode))
+void MP_Atom_Factory_c::register_new_atom(const char* nameplug, MP_Atom_c*(*createAtomFunctionPointer)(FILE *fid, MP_Dict_c *dict, const char mode))
 {
   const char *func = "MP_Atom_Factory_c::register_new_atom()";
   if  (NULL == MP_Atom_Factory_c::get_atom_factory()->atom[nameplug])

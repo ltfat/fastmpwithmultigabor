@@ -660,15 +660,6 @@ int main( int argc, char **argv )
   /* Global save at the end: */
   calculator->save_result();
 
-  /* If the book has to be sent to stdin: */
-  if ( strcmp( bookFileName, "-" ) == 0 )
-  
-    {
-      book->print( stdout, MP_TEXT );
-      fflush( stdout );
-      if ( GPD_VERBOSE ) mp_info_msg( func, "Sent the book to stdout in text mode.\n" );
-    }
-
   /*******************/
   /* Clean the house */
    

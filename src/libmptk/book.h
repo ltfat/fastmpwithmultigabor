@@ -111,9 +111,12 @@ class MP_Book_c
 	 * \return The number of atoms actually printed to the stream 
 	 * \remark Passing mask == NULL forces all atoms to be used. 
 	 */
-	MPTK_LIB_EXPORT unsigned long int print( FILE *fid , const char mode, MP_Mask_c* mask);
+	MPTK_LIB_EXPORT unsigned long int printDict( const char *fName, FILE *fid, unsigned long int *nAtomRead); 
+	MPTK_LIB_EXPORT unsigned long int printBook( FILE *fid , const char mode, MP_Mask_c* mask); 
 	/** \brief Same as MP_Book_c::print (FILE *fid, const char mode, char* mask) but with a file name */
-	MPTK_LIB_EXPORT unsigned long int print( const char *fName, const char mode, MP_Mask_c* mask);
+	MPTK_LIB_EXPORT unsigned long int print( FILE *fid , const char mode, MP_Mask_c* mask, unsigned long int *nAtomRead); 
+	MPTK_LIB_EXPORT unsigned long int print( const char *fName , const char mode, MP_Mask_c* mask, unsigned long int *nAtomRead); 
+
 	/** \brief Same as MP_Book_c::print( FILE *fid, const char mode, char *mask) with mask == NULL */
 	MPTK_LIB_EXPORT unsigned long int print( FILE *fid, const char mode );
 	/** \brief Same as MP_Book_c::print (FILE *fid, const char mode) but with a file name */

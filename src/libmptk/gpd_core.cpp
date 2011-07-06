@@ -264,13 +264,30 @@ void GPD_Core_c::save_result() {
 
 	/* - Save the book: */
 	if(bookFileName)
-	{
+    {
 		if ( (strcmp( bookFileName, "-" ) != 0) )
 		{
-			book->print( bookFileName, MP_BINARY);
-			if ( verbose ) { if (numIter >0 ) mp_info_msg( func, "At iteration [%lu] : saved the book to file [%s].\n", numIter, bookFileName );
-			else mp_info_msg( func, "Saved the book to file [%s]...\n", bookFileName );
-			}
+			if ( (strstr( bookFileName, ".bin" ) != NULL) )
+				book->print( bookFileName, MP_BINARY);
+			else if ( (strstr( bookFileName, ".xml" ) != NULL) )
+				book->print( bookFileName, MP_TEXT);
+			else
+				mp_error_msg( func, "The book [%s] has an incorrect extension (xml or bin).\n", bookFileName );
+
+			if ( verbose ) 
+			{ 
+				if (numIter >0 ) 
+					mp_info_msg( func, "At iteration [%lu] : saved the book to file [%s].\n", numIter, bookFileName );  
+				else 
+					mp_info_msg( func, "Saved the book to file [%s]...\n", bookFileName ); 
+			}  
+		}
+		else
+		{
+				book->print( stdout, MP_TEXT );
+				fflush( stdout );
+				if ( verbose ) 
+					mp_info_msg( func, "Sent the book to stdout in text mode.\n" );
 		}
 	}
 	/* - Save the approximant: */
@@ -675,28 +692,28 @@ void GPD_Core_c::info_result( void )
 	mp_info_msg( func, "The SNR is now [%g].\n", 10*log10( initialEnergy / residualEnergy ) );
 }
 
-void GPD_Core_c::set_save_hit( const unsigned long int setSaveHit,
-		const char* setBookFileName,
-		const char* setResFileName,
-		const char* setDecayFileName )
+void GPD_Core_c::set_save_hit( const unsigned long int setSaveHit, const char* setBookFileName, const char* setResFileName, const char* setDecayFileName )
 {
 	const char* func = "set_save_hit";
 	char* newBookFileName = NULL;
 	char* newResFileName = NULL;
 	char* newDecayFileName =NULL;
 
-	if (setSaveHit>0)saveHit = setSaveHit;
-	if (setSaveHit>0)nextSaveHit = numIter + setSaveHit;
+	if (setSaveHit>0)
+		saveHit = setSaveHit;
+	if (setSaveHit>0)
+		nextSaveHit = numIter + setSaveHit;
 
-	/*reallocate memory and copy name */
-	if (setBookFileName && strlen(setBookFileName) > 1 ) {
+	// reallocate memory and copy name
+	if (setBookFileName && strlen(setBookFileName) >= 1 ) 
+	{
 		newBookFileName = (char*) realloc((void *)bookFileName  , ((strlen(setBookFileName)+1 ) * sizeof(char)));
 		if ( newBookFileName == NULL )
 		{
-			mp_error_msg( func,"Failed to re-allocate book file name to store book [%s] .\n",
-					setBookFileName );
+			mp_error_msg( func,"Failed to re-allocate book file name to store book [%s] .\n", setBookFileName );
 		}
-		else bookFileName = newBookFileName;
+		else 
+			bookFileName = newBookFileName;
 		strcpy(bookFileName, setBookFileName);
 	}
 

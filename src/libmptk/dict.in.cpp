@@ -355,53 +355,135 @@ int MP_Dict_c::add_blocks( TiXmlDocument doc )
 /**********************/
 /* Printing to a file */
 int MP_Dict_c::print( const char *fName )
-{    FILE *fid;
-	 fid = fopen(fName,"w");
-	  map< string, string, mp_ltstring>* paramMap = NULL; 
-  if ( fid == NULL )  {
-      mp_error_msg( "MP_Dict_c::print(fileName)",
-                    "Could not open file %s to write a dictionary\n",
-                    fName );
-      return( 1 );
+{    
+	const char	*func = "MP_Dict_c::print( const char *fName )";
+	FILE		*fid;
+
+	if((fid = fopen(fName,"w")) == NULL)
+	{
+		mp_error_msg( func,"Could not open file %s to write a dictionary\n",fName );
+		return 1;
     }
-  
+	if(!print(fid))
+	{
+		mp_error_msg( func,"Could not write the dictionary datas into the file %s\n",fName );
+		return 1;
+    }
+
+	fclose ( fid );  
+	return 0;
+}
+
+/**********************/
+/* Printing to a file */
+bool MP_Dict_c::print( FILE *fid )
+{    
+	const char	*func = "MP_Dict_c::print( FILE *fid )";
+	map< string, string, mp_ltstring>* paramMap = NULL; 
+	map< string, string, mp_ltstring>::iterator iter; 	
 	TiXmlDocument doc;
 	TiXmlElement* version;
 	TiXmlElement* blockElement;
 	TiXmlElement* paramElement;
-	TiXmlDeclaration* decl = new TiXmlDeclaration( "1.0", "ISO-8859-1", "" );  
+	TiXmlDeclaration* decl;  
+	TiXmlElement *root;
+
+	// Declaring the header
+	decl = new TiXmlDeclaration( "1.0", "ISO-8859-1", "" );  
 	doc.LinkEndChild( decl );  
-	TiXmlElement * root = new TiXmlElement( "dict" );  
+
+	// Declaring the "dict" tag
+	root = new TiXmlElement( "dict" );  
 	doc.LinkEndChild( root ); 
 	 
+	// Declaring the "libversion" tag
 	version = new TiXmlElement( "libVersion" );  
 	version->LinkEndChild( new TiXmlText( VERSION ));
 	root->LinkEndChild(version);
-		  for ( unsigned int i = 0; i < numBlocks; i++ )
-    { blockElement = new TiXmlElement( "block" ); 
-      root->LinkEndChild(blockElement);
-      paramMap = block[i]->get_block_parameters_map();
-      if (paramMap) {
-  map< string, string, mp_ltstring>::iterator iter; 
-  
-  for( iter = (*paramMap).begin(); iter != (*paramMap).end(); iter++ ) {
-  	paramElement = new TiXmlElement( "param" ); 
-  	blockElement->LinkEndChild(paramElement);
-  	paramElement->SetAttribute("name", iter->first.c_str());
-    paramElement->SetAttribute("value", iter->second.c_str());
-    }
-    } else {  mp_error_msg( "MP_Dict_c::print(fileName)","paramMap illformed for block number %u \n",i);
-    return( 1 );
-    }
-     } 
-	if (!doc.SaveFile( fid )){ mp_error_msg( "MP_Dict_c::print(fileName)",
-                    "Could not open file %s to write a dictionary\n",
-                    fName );
-                    return( 1 );}
-   
-	fclose ( fid );  
-	return( 0 ); 
+	
+	// Declaring all the "block" tags
+	for ( unsigned int i = 0; i < numBlocks; i++ )
+    { 
+		blockElement = new TiXmlElement( "block" ); 
+		root->LinkEndChild(blockElement);
+		paramMap = block[i]->get_block_parameters_map();
+		if (paramMap) 
+		{
+			for( iter = (*paramMap).begin(); iter != (*paramMap).end(); iter++ ) 
+			{
+  				paramElement = new TiXmlElement( "param" ); 
+  				blockElement->LinkEndChild(paramElement);
+  				paramElement->SetAttribute("name", iter->first.c_str());
+				paramElement->SetAttribute("value", iter->second.c_str());
+			}
+		} 
+		else 
+		{  
+			mp_error_msg( func,"paramMap illformed for block number %u \n",i);
+			return false;
+		}
+	} 
+	if (!doc.SaveFile( fid ))
+	{ 
+		mp_error_msg( func,"Could not save the file\n");
+		return false;
+	}
+	return true;
+}
 
+/**********************/
+/* Printing to a file */
+bool MP_Dict_c::printMultiDict( const char *fName )
+{    
+    TiXmlDocument	doc;
+	TiXmlNode		*nodeBlock = NULL;
+	TiXmlHandle		handleDict = NULL;
+	TiXmlElement	*elementDict = NULL;
+	TiXmlElement	*elementBlock = NULL;
+	TiXmlElement	*paramElement = NULL;
+	map< string, string, mp_ltstring>* paramMap = NULL; 
+	map< string, string, mp_ltstring>::iterator iter; 	
+	bool			loadOkay;
+	
+	loadOkay = doc.LoadFile(fName);
+
+    if ( loadOkay )
+    {
+		// Get a handle on the document
+		TiXmlHandle hdl(&doc);
+		
+		// Get a handle on the tags "dict"
+		elementDict = hdl.FirstChildElement("dict").Element();
+		if (elementDict == NULL)
+		{
+			mp_error_msg( "Test", "Error, cannot find the xml property :\"dict\".\n");
+			return false;
+		}
+
+		// Declaring all the "block" tags
+		for ( unsigned int i = 0; i < numBlocks; i++ )
+		{ 
+			elementBlock = new TiXmlElement( "block" ); 
+			elementDict->LinkEndChild(elementBlock);
+			paramMap = block[i]->get_block_parameters_map();
+			if (paramMap) 
+			{
+				for( iter = (*paramMap).begin(); iter != (*paramMap).end(); iter++ ) 
+				{
+					paramElement = new TiXmlElement( "param" ); 
+					elementBlock->LinkEndChild(paramElement);
+					paramElement->SetAttribute("name", iter->first.c_str());
+					paramElement->SetAttribute("value", iter->second.c_str());
+				}
+			} 
+		}
+		if (!doc.SaveFile( fName ))
+		{ 
+			mp_error_msg( "Test","Could not save the file\n");
+			return false;
+		}
+	}
+	return true;
 }
 
 int MP_Dict_c::add_default_block( const char* blockName ){

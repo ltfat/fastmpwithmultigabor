@@ -54,14 +54,14 @@
 /********************/
 /* Void constructor */
 MP_Atom_c::MP_Atom_c( void ) {
-  numChans = 0;
-  support = NULL;
-  numSamples = 0;
-  amp = NULL;
-  corr = NULL;
-  totalChanLen = 0;
-  blockIdx = 0;
-  dict = NULL;
+	numChans = 0;
+	support = NULL;
+	numSamples = 0;
+	 amp = NULL;
+	corr = NULL;
+	totalChanLen = 0;
+	blockIdx = 0;
+	dict = dict->init();
 }
 
 

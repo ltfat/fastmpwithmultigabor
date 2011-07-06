@@ -342,6 +342,7 @@ int parse_args(int argc, char **argv)
 				break;
 			case 'h':
 				usage();
+				break;
 			case 'q':
 				MPD_QUIET = MP_TRUE;
 				mp_debug_msg( MP_DEBUG_PARSE_ARGS, func, "MPD_QUIET is TRUE.\n" );
@@ -674,15 +675,6 @@ int main( int argc, char **argv )
 	// Global save at the end:
 	//-----------------------
 	mpdCore->save_result();
-
-	/* If the book has to be sent to stdin: */
-	if ( strcmp( bookFileName, "-" ) == 0 )
-	{
-		book->print( stdout, MP_TEXT );
-		fflush( stdout );
-		if ( MPD_VERBOSE ) 
-			mp_info_msg( func, "Sent the book to stdout in text mode.\n" );
-    }
 
 	//-----------------------
 	// Clean the house

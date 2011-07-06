@@ -60,7 +60,7 @@ MP_Atom_c* MP_Mdct_Atom_Plugin_c::mdct_atom_create_empty(void)
 
 /*************************/
 /* File factory function */
-MP_Atom_c* MP_Mdct_Atom_Plugin_c::create( FILE *fid, const char mode )
+MP_Atom_c* MP_Mdct_Atom_Plugin_c::create( FILE *fid, MP_Dict_c *dict, const char mode )
 {
 
 	const char* func = "MP_Mdct_Atom_Plugin_c::init(fid,mode)";
@@ -74,6 +74,9 @@ MP_Atom_c* MP_Mdct_Atom_Plugin_c::create( FILE *fid, const char mode )
 		mp_error_msg( func, "Failed to create a new atom.\n" );
 		return( NULL );
 	}
+
+	if ( dict->numBlocks != 0 )
+		newAtom->dict = dict;
 
 	/* Read and check */
 	if ( newAtom->read( fid, mode ) )
@@ -300,7 +303,7 @@ int MP_Mdct_Atom_Plugin_c::info()
 /* Waveform builder */
 void MP_Mdct_Atom_Plugin_c::build_waveform( MP_Real_t *outBuffer )
 {
-	if (dict) // we have a block available for fast synthesis
+	if (dict->block[blockIdx]->s) // we have a block available for fast synthesis
 		dict->block[blockIdx]->build_atom_waveform_amp(this, outBuffer);
 	else{ // turtle mode
 		MP_Real_t *window;

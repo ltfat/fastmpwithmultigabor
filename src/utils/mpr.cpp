@@ -235,7 +235,7 @@ int main( int argc, char **argv )
 	MP_Signal_c *sig;
 	int			i;
 
-	/* Parse the command line */
+	// Parse the command line
 	if ( argc == 1 ) 
 		usage();
 	if ( parse_args( argc, argv ) ) 
@@ -244,13 +244,11 @@ int main( int argc, char **argv )
 		exit( ERR_ARG );
 	}
 
-	/* Load the MPTK environment */
+	// Load the MPTK environment
 	if(! (MPTK_Env_c::get_env()->load_environment_if_needed(configFileName)) ) 
-	{
 		exit(ERR_LOADENV);
-	}
   
-	/* Report */
+	// Report
 	if ( !MPR_QUIET ) 
 	{
 		mp_info_msg( func, "-------------------------------------\n" );
@@ -268,7 +266,7 @@ int main( int argc, char **argv )
 		fflush( stderr );
 	}
   
-	/* Make the book */
+	// Make the book
 	book = MP_Book_c::create();
 	if ( book == NULL ) 
 	{
@@ -277,7 +275,7 @@ int main( int argc, char **argv )
 		return( ERR_BOOK );
 	}
 
-	/* Read the book */
+	// Read the book
 	if ( !strcmp( bookFileName, "-" ) ) 
 	{
 		if ( MPR_VERBOSE ) 
