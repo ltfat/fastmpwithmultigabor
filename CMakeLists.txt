@@ -599,8 +599,8 @@ IF(BUILD_TESTING)
 	ADD_TEST(COMPIL_MPF, ${MPTK_BINARY_DIR}/bin/mpf -C ${MPTK_BINARY_DIR}/mptk/path.xml --Freq=[0:110] --len=[0:256] ${MPTK_EXAMPLE_BOOK_FILE} ${MPTK_TMP_PATH}/test_mpf_bookYes.bin ${MPTK_TMP_PATH}/test_mpf_bookNo.bin)
 	ADD_TEST(COMPIL_MPVIEW, ${MPTK_BINARY_DIR}/bin/mpview -C ${MPTK_BINARY_DIR}/mptk/path.xml ${MPTK_EXAMPLE_BOOK_FILE} ${MPTK_TMP_PATH}/test_mpview.flt)
 	ADD_TEST(COMPIL_SCRIPT_EXEC, ${MPTK_BINARY_DIR}/bin/script/TestExecCycle${BATCHEXT})
-	ADD_TEST(COMPIL_MPCAT_BIN, ${MPTK_BINARY_DIR}/bin/mpcat ${bookCompilBin} ${MPTK_TMP_PATH}/test_bin_concatene.bin)
-	ADD_TEST(COMPIL_MPCAT_TXT, ${MPTK_BINARY_DIR}/bin/mpcat ${bookCompilTxt} ${MPTK_TMP_PATH}/test_txt_concatene.xml)
+	ADD_TEST(COMPIL_MPCAT_BIN, ${MPTK_BINARY_DIR}/bin/mpcat -C ${MPTK_BINARY_DIR}/mptk/path.xml ${bookCompilBin} ${MPTK_TMP_PATH}/test_bin_concatene.bin)
+	ADD_TEST(COMPIL_MPCAT_TXT, ${MPTK_BINARY_DIR}/bin/mpcat -C ${MPTK_BINARY_DIR}/mptk/path.xml ${bookCompilTxt} ${MPTK_TMP_PATH}/test_txt_concatene.xml)
 
 	#-------------------------------
 	# Installation test
