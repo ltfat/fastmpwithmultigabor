@@ -1,0 +1,77 @@
+#!/bin/bash
+#
+#############################################################################
+##                                                                         ##
+##                               TestStdin.sh                              ##
+##                                                                         ##
+##                      Matching Pursuit Testing Suite                     ##
+##                                                                         ##
+## Rémi Gribonval                                                          ##
+## Sacha Krstulovic                                        Mon Feb 21 2005 ##
+## ----------------------------------------------------------------------- ##
+##                                                                         ##
+##  Copyright (C) 2005 IRISA                                               ##
+##                                                                         ##
+##  This program is free software; you can redistribute it and/or modify   ##
+##  it under the terms of the GNU General Public License as published by   ##
+##  the Free Software Foundation; either version 2, or (at your option)    ##
+##  any later version.                                                     ##
+##                                                                         ##
+##  This program is distributed in the hope that it will be useful,        ##
+##  but WITHOUT ANY WARRANTY; without even the implied warranty of         ##
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          ##
+##  GNU General Public License for more details.                           ##
+##                                                                         ##
+##  You should have received a copy of the GNU General Public License      ##
+##  along with this program; if not, write to the Free Software            ##
+##  Foundation, Inc., 59 Temple Place - Suite 330,                         ##
+##  Boston, MA 02111-1307, USA.                                            ##
+##                                                                         ##
+#############################################################################
+## 
+## SVN log:
+##
+##   $Author: rleboulc $
+##   $Date: 2010-11-23 16:17:29 +0100 (Mon, 20 Feb 2006) $
+##   $Revision: 505 $
+##
+
+binarypath=@MPTK_BINARY_DIR@
+binpath=@MPTK_BINARY_DIR@/bin
+currentpath=@MPTK_BINARY_DIR@/current
+mptkpath=@MPTK_BINARY_DIR@/mptk
+refbinpath=@MPTK_BINARY_DIR@/mptk/reference
+refsourcepath=@MPTK_SOURCE_DIR@/src/tests/ref
+
+cd $binarypath;
+mkdir current;
+
+#
+# check mpd & mpr
+#
+echo "==============================================="
+echo "#                                             #"
+echo "#       checking mpd & mpr with stdin         #"
+echo "#                                             #"
+echo "==============================================="
+
+if [ -f "$binpath/mpd" ]; then
+	echo "The executable file named mpd is located under : $binpath/mpd"
+else
+	echo "You should probably build mpd before running the tests..."
+	exit 1		
+fi
+if [ -f "$binpath/mpr" ]; then
+	echo "The executable file named mpd is located under : $binpath/mpr"
+else
+	echo "You should probably build mpr before running the tests..."
+	exit 1		
+fi
+
+echo "--------------------------------------------------------------"
+echo " mpd command to create a book and export it into stdin for mpr"
+echo "--------------------------------------------------------------"
+
+cmd="$binpath/mpd  -C $mptkpath/path.xml -D $refbinpath/dictionary/dic_gabor_two_scales.xml -n 10 $refbinpath/signal/glockenspiel.wav - | $binpath/mpr -C $mptkpath/path.xml - currentpath/test_mpdmpr_bin_stdin.wav;"
+echo $cmd
+eval $cmd

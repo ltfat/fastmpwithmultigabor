@@ -581,6 +581,7 @@ IF(BUILD_TESTING)
 	ADD_TEST(SCRATCH_MESSAGE, ${MPTK_BINARY_DIR}/bin/test_messaging)
 	ADD_TEST(SCRATCH_PARABOLIC_REGRESSION, ${MPTK_BINARY_DIR}/bin/test_parabolic_regression)
 	ADD_TEST(SCRATCH_TEST_MP, ${MPTK_BINARY_DIR}/bin/test_mp  ${MPTK_BINARY_DIR}/mptk/path.xml)
+	ADD_TEST(SCRATCH_STDIN, ${MPTK_BINARY_DIR}/bin/script/TestStdin${BATCHEXT})
 
 	#-------------------------------
 	# Compilation test

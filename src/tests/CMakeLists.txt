@@ -28,7 +28,7 @@ ENDFOREACH(MPTK_MATLABTESTS)
 #------------------------------------------------
 # Generate the tests scripts
 #------------------------------------------------
-FOREACH(MPTK_SCRIPTS TestExecCycle TestMatlab)
+FOREACH(MPTK_SCRIPTS TestExecCycle TestMatlab TestStdin)
 	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/tests/script/${MPTK_SCRIPTS}${BATCHEXT}.in ${MPTK_BINARY_DIR}/bin/script/${MPTK_SCRIPTS}${BATCHEXT} @ONLY)
 ENDFOREACH(MPTK_SCRIPTS)
 
