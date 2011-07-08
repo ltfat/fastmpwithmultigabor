@@ -436,7 +436,6 @@ bool MP_Dict_c::print( FILE *fid )
 bool MP_Dict_c::printMultiDict( const char *fName )
 {    
     TiXmlDocument	doc;
-	TiXmlNode		*nodeBlock = NULL;
 	TiXmlHandle		handleDict = NULL;
 	TiXmlElement	*elementDict = NULL;
 	TiXmlElement	*elementBlock = NULL;

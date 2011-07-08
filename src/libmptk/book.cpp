@@ -273,9 +273,7 @@ unsigned long int MP_Book_c::printDict( const char *fName, FILE *fid, unsigned l
 unsigned long int MP_Book_c::printBook( FILE *fid , const char mode, MP_Mask_c* mask) 
 {
 	const char			*func = "MP_Book_c::print(fid,mask)";
-	unsigned long int	iIndexAtom = 0;		
 	unsigned long int	nAtom = 0;
-	unsigned long int	iIndexAtomRead = 0;
 	unsigned long int	i;
 
 	// determine how many atoms the printed book will contain
@@ -507,7 +505,6 @@ unsigned long int MP_Book_c::load( const char *fName )
 {
 	const char				*func = "MP_Book_c::load(const char *fName)";
 	FILE					*fid;
-	unsigned long int		nAtom = 0;
 	unsigned int			fidNumChans;
 	int						fidSampleRate;
 	unsigned long int		i, fidNumAtoms, fidNumSamples;
