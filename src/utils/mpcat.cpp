@@ -263,7 +263,7 @@ int main( int argc, char **argv )
 				}
 			}
 			if ( MPC_VERBOSE ) 
-				fprintf ( stderr, "mpcat msg -- Loaded [%lu] atoms for book number [%d] from stdin.\n",nAtomRead, numBooks );
+				fprintf ( stderr, "mpcat msg -- Loaded [%lu] atoms for book number [%d] from stdin.\n",nAtomRead[iIndexNumAtomsPerBook], numBooks );
 		}
 		else 
 		{
@@ -276,7 +276,7 @@ int main( int argc, char **argv )
 				}
 			}
 			if ( MPC_VERBOSE ) 
-				fprintf ( stderr, "mpcat msg -- Loaded [%lu] atoms for book number [%d] from file [%s].\n",nAtomRead, numBooks, bookInFileName );
+				fprintf ( stderr, "mpcat msg -- Loaded [%lu] atoms for book number [%d] from file [%s].\n",nAtomRead[iIndexNumAtomsPerBook], numBooks, bookInFileName );
 		}
 	}
 

@@ -119,7 +119,7 @@ int MP_Anywave_Atom_Plugin_c::read( FILE *fid, const char mode )
 				return 1;
 			}
 			// Try to read the block index of the atom
-			if ( ( fgets( line, MP_MAX_STR_LEN, fid ) == NULL ) || ( sscanf( line, "\t\t<par type=\"blockIdx\">%lu</par>\n", &blockIdx ) != 1 ) )
+			if ( ( fgets( line, MP_MAX_STR_LEN, fid ) == NULL ) || ( sscanf( line, "\t\t<par type=\"blockIdx\">%u</par>\n", &blockIdx ) != 1 ) )
 			{
 				mp_error_msg( "MP_Anywave_Atom_c::MP_Anywave_Atom_c","Failed to scan the block index.\n");
 				return 1;
@@ -325,7 +325,7 @@ int MP_Anywave_Atom_Plugin_c::write( FILE *fid, const char mode )
 			/* Filename of the table containing the waveform */
 			nItem += fprintf( fid, "\t\t<par type=\"filename\">%s</par>\n", anywaveTable->tableFileName );
 			/* Block index */
-			nItem += fprintf( fid, "\t\t<par type=\"blockIdx\">%li</par>\n", blockIdx );
+			nItem += fprintf( fid, "\t\t<par type=\"blockIdx\">%u</par>\n", blockIdx );
 			/* print the anywaveIdx */
 			nItem += fprintf( fid, "\t\t<par type=\"filterIdx\">%li</par>\n",  anywaveIdx );
 			break;

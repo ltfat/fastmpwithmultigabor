@@ -623,7 +623,6 @@ int main( int argc, char **argv )
 	int					k;
 	unsigned long int	numPositive = 0;
 	unsigned long int	n;
-	FILE				*fid;
 	MP_Mask_c			*maskYes = NULL, *maskNo = NULL;
 	MP_Book_c			*book;
 	
