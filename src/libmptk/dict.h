@@ -168,7 +168,8 @@ class MP_Dict_c
      * It is mandatory to call dict.copy_signal( signal ) or
      * dict.plug_signal( signal ) before starting to iterate.
      */
-   MPTK_LIB_EXPORT static MP_Dict_c* init( const char* dictFileName );
+	  MPTK_LIB_EXPORT static MP_Dict_c* init( const char* dictFileName );
+	  MPTK_LIB_EXPORT static MP_Dict_c* init(FILE *fid);
 
     /** \brief Factory function which creates an empty dictionary.
      *
@@ -199,7 +200,8 @@ class MP_Dict_c
     *  \param fName A string containing the file name
     * \return an error number
     */
-    MPTK_LIB_EXPORT int load_xml_file(const char* fName);
+	  MPTK_LIB_EXPORT int load_xml_file(const char* fName);
+	  MPTK_LIB_EXPORT int load_xml_file(FILE *fid);
     
     /** \brief Parse dictionary in xml format using
     * tiny XML library.
@@ -207,7 +209,7 @@ class MP_Dict_c
     *  \param doc A TiXmlDocument
     *  \return an error number
     */
-    MPTK_LIB_EXPORT int parse_xml_file(TiXmlDocument doc);
+	  MPTK_LIB_EXPORT int parse_xml_file(TiXmlDocument doc);
 
     /** \brief Print the dictionary structure to a file, in an xml form which can be used by add_blocks()
      *
@@ -222,7 +224,8 @@ class MP_Dict_c
       * \param fName a dictionary structure file name where the structure is read from
       * \return the number of added blocks
       */
-    MPTK_LIB_EXPORT int add_blocks( const char *fName );
+	  MPTK_LIB_EXPORT int add_blocks( const char *fName );
+	  MPTK_LIB_EXPORT int add_blocks( FILE *fid );
     
        /** \brief Add a few blocks which structure is determined by the dictionary structure file
       * \param doc a dictionary structure file in xml where the structure is read from

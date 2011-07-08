@@ -44,7 +44,6 @@
 #include "mptk.h"
 #include "mp_system.h"
 
-
 /***************************/
 /* CONSTRUCTORS/DESTRUCTOR */
 /***************************/
@@ -423,21 +422,30 @@ unsigned long int MP_Book_c::load( FILE *fid )
 	int						fidSampleRate;
 	unsigned long int		i, fidNumAtoms, fidNumSamples;
 	unsigned long int		nRead = 0;
-	char					mode = MP_BINARY;
+	char					mode;
 	char					line[MP_MAX_STR_LEN];
 	char					str[MP_MAX_STR_LEN];
 	MP_Atom_c				*newAtom = NULL;
-MP_Dict_c *dict;
-  	// Go to the book part (squeeze the dict part)
-	do
-	{
-		if ( fgets( line,MP_MAX_STR_LEN,fid) == NULL ) 
-		{
-			mp_error_msg( func, "Cannot get the format line. This book will remain un-changed.\n" );
-			return 0;	
-		}
+	MP_Dict_c				*dict;
+
+	// Retrieve the dictionary
+	if((dict = MP_Dict_c::init( fid )) == NULL)
+    {
+		mp_error_msg( func, "Failed to create a dictionary from XML stdin.\n");
+		// TODO LIB2RER DICT
+		return  1;
 	}
-	while(strcmp( line, "bin\n" ));
+	
+	if ( fgets( line,MP_MAX_STR_LEN,fid) == NULL ) 
+	{
+		mp_error_msg( func, "Cannot get the format line. This book will remain un-changed.\n" );
+		return 0;	
+	}
+
+	if(!strcmp(line,"bin\n"))
+		mode = MP_BINARY;
+	if(!strcmp(line,"txt\n"))
+		mode = MP_TEXT;
 
 	// Read the header
 	if ( ( fgets( line,MP_MAX_STR_LEN,fid) == NULL ) || (sscanf( line, "<book nAtom=\"%lu\" numChans=\"%d\" numSamples=\"%lu\" sampleRate=\"%d\" libVersion=\"%[0-9a-z.]\">\n", &fidNumAtoms, &fidNumChans, &fidNumSamples, &fidSampleRate, str ) != 5 )) 
@@ -445,13 +453,31 @@ MP_Dict_c *dict;
 		mp_error_msg( func, "Cannot scan the book header. This book will remain un-changed.\n" );
 		return( 0 );
 	}
-
 	// Read the atoms
 	for ( i=0; i<fidNumAtoms; i++ )
 	{
-		if ( (  fgets( line, MP_MAX_STR_LEN, fid ) == NULL ) || ( sscanf( line, "%[a-z]\n", str ) != 1 ) ) 
-			mp_error_msg( func, "Cannot scan the atom type (in binary mode).\n");
-
+		switch ( mode )
+		{
+			case MP_TEXT:
+				if ( (  fgets( line, MP_MAX_STR_LEN, fid ) == NULL ) ||( sscanf( line, "\t<atom type=\"%[a-z]\">\n", str ) != 1 ) )
+				{
+					mp_error_msg( func, "Cannot scan the atom type (in text mode).\n");
+					return 0;
+				}
+				break;
+				
+			case MP_BINARY:
+				if ( (  fgets( line, MP_MAX_STR_LEN, fid ) == NULL ) ||( sscanf( line, "%[a-z]\n", str ) != 1 ) ) 
+				{
+					mp_error_msg( func, "Cannot scan the atom type (in binary mode).\n");
+					return 0;
+				}
+				break;
+			default:
+				mp_error_msg( func, "Unknown read mode in read_atom().\n");
+				return 0;
+		}
+		
 		// Scan the hash map to get the create function of the atom
 		MP_Atom_c* (*createAtom)( FILE *fid, MP_Dict_c *dict, const char mode ) = MP_Atom_Factory_c::get_atom_factory()->get_atom_creator( str );
 		// Scan the hash map to get the create function of the atom
@@ -461,6 +487,17 @@ MP_Dict_c *dict;
 		else 
 			mp_error_msg( func, "Cannot read atoms of type '%s'\n",str);
 	  
+		// In text mode...
+		if ( mode == MP_TEXT ) 
+		{
+			// ... try to read the closing atom tag
+			if ( ( fgets( line, MP_MAX_STR_LEN, fid ) == NULL ) ||( strcmp( line, "\t</atom>\n" ) ) ) 
+			{
+				mp_error_msg( func, "Failed to read the </atom> tag.\n");
+				if ( newAtom ) newAtom = NULL ;
+			}
+		}
+		
 		if ( newAtom == NULL )  
 			mp_error_msg( func, "Failed to create an atom of type[%s].\n", str);
 		else 

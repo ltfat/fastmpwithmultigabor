@@ -75,13 +75,42 @@ MP_Dict_c* MP_Dict_c::init(  const char *dictFileName )
 	if ( newDict->numBlocks == 0 )
     {
 		mp_error_msg( func, "The dictionary scanned from file [%s] contains no recognized blocks.\n",dictFileName );
-		if ( newDict ) delete( newDict );
+		if ( newDict ) 
+			delete( newDict );
 		return( NULL );
     }
 
 	return( newDict );
 }
 
+MP_Dict_c* MP_Dict_c::init(FILE *fid )
+{
+	const char* func = "MP_Dict_c::init(fid)";
+	MP_Dict_c *newDict = NULL;
+	
+	// Instantiate and check
+	newDict = new MP_Dict_c();
+	if ( newDict == NULL )
+    {
+		mp_error_msg( func, "Failed to create a new dictionary.\n" );
+		return( NULL );
+    }
+	
+	// Add some blocks read from the dict file
+	newDict->add_blocks( fid );
+	// Note: with a NULL signal, add_blocks will build all the signal-independent parts of the blocks. 
+	// It is then necessary to run a dict.copy_signal(sig)
+	// or a dict.plug_signal(sig) to actually use the dictionary.
+	if ( newDict->numBlocks == 0 )
+    {
+		mp_error_msg( func, "The dictionary scanned from stdin contains no recognized blocks.\n");
+		if ( newDict ) 
+			delete( newDict );
+		return( NULL );
+    }
+	
+	return( newDict );
+}
 
 /*************************************************/
 /* Plain initialization, with no data whatsoever */
@@ -287,9 +316,9 @@ int MP_Dict_c::parse_xml_file(TiXmlDocument doc)
 int MP_Dict_c::load_xml_file(const char* fName)
 {
   const char* func = "MP_Dict_c::load_xml_file(const char* fName)";
-  TiXmlDocument doc(fName);
+  TiXmlDocument doc;
 
-  if (!doc.LoadFile())
+  if (!doc.LoadFile(fName))
     {
       mp_error_msg( func, "Error while loading the dictionary file [%s].\n", fName );
       mp_error_msg( func, "Error ID: %u .\n", doc.ErrorId() );
@@ -299,6 +328,38 @@ int MP_Dict_c::load_xml_file(const char* fName)
 
   else return parse_xml_file(doc);
 
+}
+
+/*************************************************************************/
+/* Load a dictionary file in xml format and parse the described blocks   */
+int MP_Dict_c::load_xml_file(FILE *fid)
+{
+	const char	*func = "MP_Dict_c::load_xml_file(FILE *fid)";
+	char					line[MP_MAX_STR_LEN];
+	char		szBuffer[10000];
+	
+	TiXmlDocument doc;
+ 
+	do
+	{
+		if ( fgets( line,MP_MAX_STR_LEN,fid) == NULL ) 
+		{
+			mp_error_msg( func, "Cannot get the format line. This book will remain un-changed.\n" );
+			return 0;	
+		}
+		strcat(szBuffer,line);
+	}
+	while(strcmp(line,"</dict>\n"));
+	
+	if (!doc.Parse(szBuffer))
+    {
+		mp_error_msg( func, "Error while loading the stdin dictionary.\n");
+		mp_error_msg( func, "Error ID: %u .\n", doc.ErrorId() );
+		mp_error_msg( func, "Error description: %s .\n", doc.ErrorDesc());
+		return  0;
+    }
+	else 
+		return parse_xml_file(doc);
 }
 
 /******************************/
@@ -345,6 +406,15 @@ int MP_Dict_c::add_blocks( const char *fName )
 {
   return(  load_xml_file(fName) );
 }
+
+/************************/
+/* Scanning from a file */
+
+int MP_Dict_c::add_blocks(FILE *fid)
+{
+	return(load_xml_file(fid) );
+}
+
 /************************/
 /* Scanning from a tinyXML doc*/
 int MP_Dict_c::add_blocks( TiXmlDocument doc )

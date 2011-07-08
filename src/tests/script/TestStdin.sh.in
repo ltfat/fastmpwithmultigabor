@@ -72,6 +72,6 @@ echo "--------------------------------------------------------------"
 echo " mpd command to create a book and export it into stdin for mpr"
 echo "--------------------------------------------------------------"
 
-cmd="$binpath/mpd  -C $mptkpath/path.xml -D $refbinpath/dictionary/dic_gabor_two_scales.xml -n 10 $refbinpath/signal/glockenspiel.wav - | $binpath/mpr -C $mptkpath/path.xml - currentpath/test_mpdmpr_bin_stdin.wav;"
+cmd="$binpath/mpd  -C $mptkpath/path.xml -D $refbinpath/dictionary/dic_gabor_two_scales.xml -n 10 $refbinpath/signal/glockenspiel.wav - | $binpath/mpr -C $mptkpath/path.xml - $currentpath/test_mpdmpr_bin_stdin.wav;"
 echo $cmd
 eval $cmd
