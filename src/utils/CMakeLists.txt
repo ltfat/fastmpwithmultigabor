@@ -3,19 +3,6 @@ if(COMMAND cmake_policy)
 endif(COMMAND cmake_policy)
 
 #------------------------------------------------
-# Build getopt library
-#------------------------------------------------
-SET(GETOPT_SOURCES
-	${UTILS_SOURCE_DIR}/getopt.c
-    	${UTILS_SOURCE_DIR}/getopt1.c
-    	${UTILS_SOURCE_DIR}/getopt.h )
-ADD_LIBRARY(getopt STATIC ${GETOPT_SOURCES})
-SET_TARGET_PROPERTIES(getopt PROPERTIES
-	COMPILE_FLAGS "${EXECUTABLE_C_COMPILE_FLAGS}"
-	PREFIX ""
-	OUTPUT_NAME "libgetopt" )
-
-#------------------------------------------------
 # Build base64 library
 #------------------------------------------------
 ADD_SUBDIRECTORY (libbase64)
@@ -34,6 +21,11 @@ ADD_SUBDIRECTORY (libtinyxml)
 # Build md5sum library
 #------------------------------------------------
 ADD_SUBDIRECTORY (libmd5sum)
+
+#------------------------------------------------
+# Build getopt library
+#------------------------------------------------
+ADD_SUBDIRECTORY (libgetopt)
 
 #------------------------------------------------
 # Build main executables      
