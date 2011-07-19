@@ -36,7 +36,7 @@
  */
 
 #include <mptk.h>
-#include "getopt.h"
+#include "libgetopt/getopt.h"
 
 static const char *cvsid = "$Revision: 1145 $";
 

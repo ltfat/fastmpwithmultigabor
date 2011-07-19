@@ -38,9 +38,7 @@
 #include <mptk.h>
 #include <sstream>
 #include <string>
-
-#include "mp_system.h"
-#include "getopt.h"
+#include "libgetopt/getopt.h"
 
 const char* func = "mpd_demix";
 
