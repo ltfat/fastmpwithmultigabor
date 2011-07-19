@@ -97,7 +97,7 @@ void usage( void )
 {
 	fprintf( stdout, " \n" );
 	fprintf( stdout, " Usage:\n" );
-	fprintf( stdout, "     mpd [options] (-D|-d) dictFILE.xml -n N [-s SNR] (sndFILE.wav|-) (bookFILE.bin|-) [residualFILE.wav]\n" );
+	fprintf( stdout, "     mpd [options] (-D|-d) dictFILE.xml -n N [-s SNR] (sndFILE.wav|-) (bookFILE.bin|bookFile.xml|-) [residualFILE.wav]\n" );
 	fprintf( stdout, " \n" );
 	fprintf( stdout, " Synopsis:\n" );
 	fprintf( stdout, "     Iterates Matching Pursuit on signal sndFILE.wav with dictionary dictFILE.xml\n" );
@@ -111,7 +111,7 @@ void usage( void )
 	fprintf( stdout, "      -s<SNR>, --snr=<SNR>                        Stop when the SNR value <SNR> is reached.\n" );
 	fprintf( stdout, "      Information : If both options (-n and -s) are used together, the algorithm stops when one is reached.\n" );
 	fprintf( stdout, "      (sndFILE.wav|-)                             The signal to analyze or stdin (in WAV format).\n" );
-	fprintf( stdout, "      (bookFILE.bin|-)                            The file to store the resulting book of atoms, or stdout.\n" );
+	fprintf( stdout, "      (bookFILE.bin|bookFile.xml|-)               The file to store the resulting book of atoms, or stdout.\n" );
 	fprintf( stdout, " \n" );
 	fprintf( stdout, " Optional arguments:\n" );
 	fprintf( stdout, "     -C<FILE>, --config-file=<FILE>   Use the specified configuration file, otherwise the MPTK_CONFIG_FILENAME environment\n" );
