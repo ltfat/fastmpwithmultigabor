@@ -84,16 +84,13 @@ void usage( void ) {
   fprintf( stdout, " Synopsis:\n" );
   fprintf( stdout, "     Concatenates the N books book1.bin...bookN.bin into the book file bookOut.bin.\n" );
   fprintf( stdout, " \n" );
-  fprintf( stdout, " Mandatory arguments:\n" );
+  fprintf( stdout, " Main arguments:\n" );
   fprintf( stdout, "     (bookN.bin|-)        At least 2 books (or stdin) to concatenate.\n" );
   fprintf( stdout, "     (bookOut.bin|-)      A book where to store the concatenated books, or stdout\n" );
   fprintf( stdout, " \n" );
   fprintf( stdout, " Optional arguments:\n" );
-  fprintf( stdout, "     -C<FILE>, --config-file=<FILE>  Use the specified configuration file, \n" );
-  fprintf( stdout, "                                     otherwise the MPTK_CONFIG_FILENAME environment variable will be\n" );
-  fprintf( stdout, "                                     used to find the configuration file and set up the MPTK environment.\n" );
+  fprintf( stdout, "     -C<FILE>, --config-file=<FILE>   Use the specified configuration file, otherwise the MPTK_CONFIG_FILENAME environment\n" );
   fprintf( stdout, "     -f, --force          Force the overwriting of bookOut.bin.\n" );
-  fprintf( stdout, " \n" );
   fprintf( stdout, "     -q, --quiet          No text output.\n" );
   fprintf( stdout, "     -v, --verbose        Verbose.\n" );
   fprintf( stdout, "     -V, --version        Output the version and exit.\n" );

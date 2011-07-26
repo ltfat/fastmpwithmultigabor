@@ -105,11 +105,11 @@ void usage( void )
 	fprintf( stdout, " \n" );
 	fprintf( stdout, " Main arguments:\n" );
 	fprintf( stdout, "      (-D|-d) <dictFILE.xml>                The full/relative dictionary path (relative to \"reference\" tag of path.xml).\n" );
-	fprintf( stdout, "      -n<N>, --num-iter=<N>|--num-atoms=<N> Stop after N iterations.\n" );
-	fprintf( stdout, "      -s<SNR>, --snr=<SNR>                  OPTIONAL : Stop when the SNR value <SNR> is reached.\n" );
+	fprintf( stdout, "      -n<N>, --num-iter=<N>|--num-atoms=<N> Stop after N iterations or N atom founded.\n" );
+	fprintf( stdout, "      -s<SNR>, --snr=<SNR>                  OPTIONAL: Stop when the SNR value <SNR> is reached.\n" );
 	fprintf( stdout, "      (sndFILE.wav|-)                       The signal to analyze or stdin (in WAV format).\n" );
 	fprintf( stdout, "      (bookFILE.bin|bookFile.xml|-)         The file to store the resulting book of atoms, or stdout.\n" );
-	fprintf( stdout, "      residualFILE.wav                      OPTIONAL : The residual signal after subtraction of the atoms.\n" );
+	fprintf( stdout, "      residualFILE.wav                      OPTIONAL: The residual signal after subtraction of the atoms.\n" );
 	fprintf( stdout, " \n" );
 	fprintf( stdout, " Optional arguments:\n" );
 	fprintf( stdout, "     -C<FILE>, --config-file=<FILE>   Use the specified configuration file, otherwise the MPTK_CONFIG_FILENAME environment\n" );
@@ -124,8 +124,8 @@ void usage( void )
 	fprintf( stdout, "     -h, --help                       This help.\n" );
 	fprintf( stdout, " \n" );
 	fprintf( stdout, " Examples:\n" );
-	fprintf( stdout, "     mpd -D /Users/rleboulc/bar/mptk/reference/dictionary/dic_gabor_two_scales.xml -n 10 /Users/rleboulc/bar/mptk/reference/signal/glockenspiel.wav bookTest.bin\n" );
-	fprintf( stdout, "     mpd -d /dictionary/dic_gabor_two_scales.xml -n 10 -s 2.5 /Users/rleboulc/bar/mptk/reference/signal/glockenspiel.wav bookTest.xml\n" );
+	fprintf( stdout, "     mpd -D /Users/rleboulc/bar/mptk/reference/dictionary/dic_gabor_two_scales.xml -n 10 glockenspiel.wav bookTest.bin\n" );
+	fprintf( stdout, "     mpd -d /dictionary/dic_gabor_two_scales.xml -n 10 -s 2.5 glockenspiel.wav bookTest.xml\n" );
 	exit(0);
 }
 
