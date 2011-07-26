@@ -90,8 +90,8 @@ the signal on which they operate. It can search across all the blocks (i.e.,
 all the scales and all the bases) for the atom which brings the most energy to
 the analyzed signal.
 
-\paragraph{Book --} A book is a collection of atoms. Summing all the atoms in
-a book gives a signal.
+\paragraph{Book --} A book is a collection of atoms and its corresponding dictionaries. 
+Summing all the atoms in a book gives a signal.
 
 \bigskip
 
@@ -149,6 +149,7 @@ command-line help.
 \smallskip
 
 Some typical processing chains include:
+
 \begin{itemize}
 \item Signal approximation with N atoms: \\
       \mbox{\tt mpd -D dictionary -n N soundFile.wav book.bin;} \\
@@ -207,69 +208,69 @@ the environment variable \verb+MPTK_CONFIG_FILENAME+ to determine
 which file to use for setting up the MPTK environment.
 
 
+\clearpage
 %%%%%%%%%
-\clearpage
-\subsection{mpd: signal decomposition}
+\subsection{mpd: matching pursuit signal decomposition}
+%%%%%%%%%
+\begin{center}
+	\begin{minipage}{0.8\linewidth} 
+		\input{CommandUsage/mpd_Usage}
+	\end{minipage}
+\end{center}
 
-\subsubsection*{Usage:}
-\begin{verbatim}
-mpd [options] -D dictFILE.txt (-n N|-s SNR) (sndFILE.wav|-) (bookFILE.bin|-) ...
-              ... [residualFILE.wav]
-\end{verbatim}
+\subsection{gpd: gradient pursuit signal decomposition}
+%%%%%%%%%
+\begin{center}
+	\begin{minipage}{0.8\linewidth} 
+		\input{CommandUsage/gpd_Usage}
+	\end{minipage}
+\end{center}
 
-\subsubsection*{Synopsis:}
-Iterates Matching Pursuit on signal sndFILE.wav with dictionary dictFILE.txt
-and gives the resulting book bookFILE.bin (and an optional residual signal)
-after N iterations or after reaching the signal-to-residual ratio SNR.  See
-section~\ref{dict_format} for a description of the syntax of the dictionary
-files.
+%%%%%%%%%
+\subsection{mpf: filtering of the book files}
+%%%%%%%%%
+\begin{center}
+	\begin{minipage}{0.8\linewidth} 
+		\input{CommandUsage/mpf_Usage}
+	\end{minipage}
+\end{center}
 
+%%%%%%%%%
+\subsection{mpcat: concatenation of book files}
+%%%%%%%%%
+\begin{center}
+	\begin{minipage}{0.8\linewidth} 
+		\input{CommandUsage/mpcat_Usage}
+	\end{minipage}
+\end{center}
 
-\subsubsection*{Mandatory arguments:}
-\begin{verbatim}
-     -D<FILE>, --dictionary=<FILE>  Read the dictionary from text file FILE.
+%%%%%%%%%
+\subsection{mpr: signal reconstruction}
+%%%%%%%%%
+\begin{center}
+	\begin{minipage}{0.8\linewidth} 
+		\input{CommandUsage/mpr_Usage}
+	\end{minipage}
+\end{center}
 
-     -n<N>, --num-iter=<N>|--num-atoms=<N>    Stop after N iterations.
-AND/OR -s<SNR>, --snr=<SNR>                   Stop when the SNR value SNR
-                                              is reached. If both options are
-                                              used together, the algorithm stops
-                                              as soon as either one is reached.
+%%%%%%%%%
+\subsection{mpd\_demix: blind source separation with a known mixing matrix}
+%%%%%%%%%
+\begin{center}
+	\begin{minipage}{0.8\linewidth} 
+		\input{CommandUsage/mpd_demix_Usage}
+	\end{minipage}
+\end{center}
 
-     (sndFILE.wav|-)                          The signal to analyze or stdin
-                                              (in WAV format).
-     (bookFILE.bin|-)                         The file to store the resulting
-                                              book of atoms, or stdout.
-\end{verbatim}
+%%%%%%%%%
+\subsection{mpview: generation of a time-frequency map from a book}
+%%%%%%%%%
+\begin{center}
+	\begin{minipage}{0.8\linewidth} 
+		\input{CommandUsage/mpview_Usage}
+	\end{minipage}
+\end{center}
 
-\subsubsection*{Optional arguments:}
-\begin{verbatim}
-     -C<FILE>, -config-file=<FILE>  Use the specified configuration file,
-                                    otherwise the MPTK_CONFIG_FILENAME environment
-                                    variable will be used to find the configuration
-                                    file and set up the MPTK environment
-     -E<FILE>, --energy-decay=<FILE>  Save the energy decay as doubles
-                                      to file FILE.
-     -R<N>,    --report-hit=<N>       Report some progress info (in stderr)
-                                      every N iterations.
-     -S<N>,    --save-hit=<N>         Save the output files every N iterations.
-     -T<N>,    --snr-hit=<N>          Test the SNR every N iterations only
-                                      (instead of each iteration).
-
-     -p<double>, --preemp=<double>    Pre-emphasize the input signal with
-                                      coefficient <double>.
-
-     residualFILE.wav                The residual signal after subtraction
-                                     of the atoms.
-
-     -q, --quiet                    No text output.
-     -v, --verbose                  Verbose.
-     -V, --version                  Output the version and exit.
-     -h, --help                     This help.
-\end{verbatim}
-
-
-
-\clearpage
 %%%%%%%%%
 \subsection{Format of the dictionary files \label{dict_format}}
 %%%%%%%%%
@@ -678,276 +679,6 @@ An example of a generalized MCLT dictionnary is:
      </block>
 </dict>
 \end{verbatim}
-
-%%%%%%%%%
-\clearpage
-\subsection{mpf: filtering of the book files}
-
-\subsubsection*{Usage:}
-\begin{verbatim}
-     mpf --PROPERTY1=[min:max] ... --PROPERTY_N=[min:max] (bookIn.bin|-) ...
-         [bookYes.bin|-] [bookNo.bin]
-\end{verbatim}
-
-\subsubsection*{Synopsis:}
-Filters the atoms contained in bookIn.bin (or stdin), stores those which
-satisfy the indicated properties in bookYes.bin (or stdout) and the others in
-bookNo.bin.
-
-\subsubsection*{Mandatory arguments:}
-\begin{verbatim}
-  (bookIn.bin|-)      A book of input atoms, or stdin.
-\end{verbatim}
-
-\subsubsection*{Optional arguments:}
-\begin{verbatim}
-  (bookYes.bin|-)     A file (or stdout) to store the book of atoms which
-                      satisfy the indicates properties.
-  bookNo.bin          A file to store a book of atoms which do not satisfy
-                      the indicated properties.
-  If no output files are given, the atoms are just counted and their number
-  is reported in stderr.
-
-  One or more of the following switches:
-  --index=[min:max]    / -i [min:max] : keep the atoms ordered from min to max
-                                        in the book
-  --length=[min:max]   / -l [min:max] : keep a specific range of atom lengths
-                                        (in number of samples)
-  --Length=[min:max]   / -L [min:max] : keep a specific range of atom lengths
-                                        (in seconds)
-  --position=[min:max] / -p [min:max] : keep a specific range of atom positions
-                                        (in number of samples)
-  --Position=[min:max] / -P [min:max] : keep a specific range of atom positions
-                                        (in seconds)
-  --freq=[min:max]     / -f [min:max] : keep a specific frequency range (in
-                                        normalized values between 0 and 0.5)
-  --Freq=[min:max]     / -F [min:max] : keep a specific frequency range (in Hz)
-  --amp=[min:max]      / -a [min:max] : keep a specific range of amplitudes
-  --chirp=[min:max]    / -c [min:max] : keep a specific range of chirp factors
-
-  The intervals can exclude the min or max value by using reverted braces,
-  e.g. ]min:max] will exclude the min value.
-  The intervals can be negated with prepending the '^' character,
-  e.g. ^[min:max].
-
-  The atom's type can be tested with:
-
-  --type=gabor|harmonic|dirac|anywave / -t gabor|harmonic|dirac|anywave
-  (The chirp type is not provided: a chirp atom is a gabor atom with
-   a non-null chirp rate.)
-
- Other optional arguments are:
-  -C<FILE>, -config-file=<FILE>  Use the specified configuration file,
-                                 otherwise the MPTK_CONFIG_FILENAME environment
-                                 variable will be used to find the configuration
-                                 file and set up the MPTK environment
-  -q, --quiet          No text output.
-  -v, --verbose        Verbose.
-  -V, --version        Output the version and exit.
-  -h, --help           This help.
-\end{verbatim}
-
-\subsubsection*{Example:}
-Take all the atoms with a frequency lower than 50Hz and higher than 1000Hz
-among the first 100 atoms of bookIn.bin, store them in bookYes.bin and store
-all the others in bookNo.bin:
-\begin{verbatim}
-  mpf --index=[0:100[ --Freq=^[50:1000] bookIn.bin bookYes.bin bookNo.bin
-\end{verbatim}
-
-\subsubsection*{Note:}
-Only one instance of each property is allowed. More complicated domains can be
-elaborated using pipes.
-
-
-%%%%%%%%%
-\clearpage
-\subsection{mpcat: concatenation of book files}
-
-\subsubsection*{Usage:}
-\begin{verbatim}
-     mpcat (book1.bin|-) (book2.bin|-) ... (bookN.bin|-) (bookOut.bin|-)
-\end{verbatim}
-
-\subsubsection*{Synopsis:}
-Concatenates the N books book1.bin...bookN.bin into the book file bookOut.bin.
-
-\subsubsection*{Mandatory arguments:}
-\begin{verbatim}
-     (bookN.bin|-)        At least 2 books (or stdin) to concatenate.
-     (bookOut.bin|-)      A book where to store the concatenated books,
-                          or stdout
-\end{verbatim}
-
-\subsubsection*{Optional arguments:}
-\begin{verbatim}
-     -C<FILE>, -config-file=<FILE>  Use the specified configuration file,
-                                    otherwise the MPTK_CONFIG_FILENAME environment
-                                    variable will be used to find the configuration
-                                    file and set up the MPTK environment.
-     -f, --force          Force the overwriting of bookOut.bin.
-
-     -q, --quiet          No text output.
-     -v, --verbose        Verbose.
-     -V, --version        Output the version and exit.
-     -h, --help           This help.
-\end{verbatim}
-
-
-%%%%%%%%%
-\clearpage
-\subsection{mpr: signal reconstruction}
-
-\subsubsection*{Usage:}
-\begin{verbatim}
-     mpr (bookFILE.bin|-) (reconsFILE.wav|-) [residualFILE.wav]
-\end{verbatim}
-
-\subsubsection*{Synopsis:}
-Rebuilds a signal reconsFile.wav from the atoms contained in the book file
-bookFile.bin.  An optional residual can be added.
-
-\subsubsection*{Mandatory arguments:}
-\begin{verbatim}
-     (bookFILE.bin|-)     A book of atoms, or stdin.
-     (reconsFILE.wav|-)   A file to store the rebuilt signal, or stdout
-                          (in WAV format).
-\end{verbatim}
-
-\subsubsection*{Optional arguments:}
-\begin{verbatim}
-    -C<FILE>, -config-file=<FILE>  Use the specified configuration file,
-                                   otherwise the MPTK_CONFIG_FILENAME environment
-                                   variable will be used to find the configuration
-                                   file and set up the MPTK environment.
-    residualFILE.wav     A residual signal that was obtained from
-                         a Matching Pursuit decomposition.
-
-     -q, --quiet          No text output.
-     -v, --verbose        Verbose.
-     -V, --version        Output the version and exit.
-     -h, --help           This help.
-\end{verbatim}
-
-
-%%%%%%%%%
-\clearpage
-\subsection{mpd\_demix: blind source separation with a known mixing matrix}
-
-\subsubsection*{Usage:}
-\begin{verbatim}
-     mpd_demix [options] -D dictFILE.txt -M matrix.txt (-n N|-s SNR) ...
-               (sndFILE.wav|-) (bookFILE) [residualFILE.wav]
-\end{verbatim}
-
-\subsubsection*{Synopsis:}
-Performs Blind Source Separation on signal sndFILE.wav with dictionary
-dictFile.txt and with the known mixer matrix mixFILE.txt. The result is stored
-in as many books as estimated sources (plus an optional residual signal), after
-N iterations or after reaching the signal-to-residual ratio SNR.
-
-\subsubsection*{Mandatory arguments:}
-\begin{verbatim}
-  -M<FILE>, --mix-matrix=<FILE>  Read the mixer matrix from text file FILE.
-                                 The first line of the file should indicate
-                                 the number of rows and the number of columns,
-                                 and the following lines should give space
-                                 separated values, with a line break after
-                                 each row.
-                                 EXAMPLE:
-                                  2 3
-                                  0.92  0.38  0.71
-                                  0.71  0.77  1.85
-
-  -n<N>, --num-iter=<N>|--num-atoms=<N>    Stop after N iterations.
-AND/OR -s<SNR>, --snr=<SNR>                Stop when the SNR value SNR
-                                           is reached.
-                                           If both options are used together,
-                                           the algorithm stops as soon as
-                                           either one is reached.
-
-  (sndFILE.wav|-)                          The signal to analyze or stdin
-                                           (in WAV format).
-  (bookFILE)                               The base name of the files to store
-                                           the books of atoms_n corresponding
-                                           to the N estimated sources. These
-                                           N books will be named bookFILE_n.bin,
-                                           n=[0,...,N-1].
-  
-
-\end{verbatim}
-
-\subsubsection*{Optional arguments:}
-\begin{verbatim}
-  -C<FILE>, -config-file=<FILE>    Use the specified configuration file,
-                                   otherwise the MPTK_CONFIG_FILENAME environment
-                                   variable will be used to find the configuration
-                                   file and set up the MPTK environment.
-  -D<FILE>, --dictionary=<FILE>    Read the dictionary from text file FILE.
-                                   If no dictionary is given, a default
-                                   dictionary is used.
-                                   (Use -v to see the structure of the default
-                                   dictionary reported in the verbose information.)
-  -E<FILE>, --energy-decay=<FILE>  Save the energy decay as doubles to file FILE.
-  -Q<FILE>, --src-sequence=<FILE>  Save the source sequence as unsigned short ints
-                                   to file FILE.
-  -R<N>,    --report-hit=<N>       Report some progress info (in stderr) every
-                                   N iterations.
-  -S<N>,    --save-hit=<N>         Save the output files every N iterations.
-  -T<N>,    --snr-hit=<N>          Test the SNR every N iterations only
-                                   (instead of each iteration).
-
-  residualFILE.wav                 The residual signal after subtraction
-                                   of the atoms.
-
-  -q, --quiet                      No text output.
-  -v, --verbose                    Verbose.
-  -V, --version                    Output the version and exit.
-  -h, --help                       This help.
-\end{verbatim}
-
-
-%%%%%%%%%
-\clearpage
-\subsection{mpview: generation of a time-frequency map from
-  a book}
-
-\subsubsection*{Usage:}
-\begin{verbatim}
-  mpview [options] (bookFILE.bin|-) tfmapFILE.flt
-\end{verbatim}
-
-\subsubsection*{Synopsis:}
-Makes a time-frequency pixmap fill it with the time-frequency representation of
-the atoms contained in the book file bookFile.bin and write it to the file
-tfmapFILE.flt as a raw sequence of floats. The pixmap size is 640x480 pixels
-unless option --size is used.
-
-\subsubsection*{Mandatory arguments:}
-\begin{verbatim}
- Mandatory arguments:
-     (bookFILE.bin|-)     A book of atoms, or stdin.
-     tfmapFILE.flt        The file where to write the pixmap in float.
-\end{verbatim}
-
-\subsubsection*{Optional arguments:}
-\begin{verbatim}
-     -C<FILE>, -config-file=<FILE>    Use the specified configuration file,
-                                      otherwise the MPTK_CONFIG_FILENAME environment
-                                      variable will be used to find the configuration
-                                      file and set up the MPTK environment.
-     -s, --size=<numCols>x<numRows> : change the size of the pixmap.
-     -q, --quiet          No text output.
-     -v, --verbose        Verbose.
-     -V, --version        Output the version and exit.
-     -h, --help           This help.
-\end{verbatim}
-
-
-\subsubsection*{Synopsis:}
-Displays a book in a pixmap of numCols x numRows pixels Returns nonzero in case
-of failure, zero otherwise
-
 
 %%%%%%%%%
 \clearpage

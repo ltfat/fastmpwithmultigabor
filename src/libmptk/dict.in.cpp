@@ -334,11 +334,10 @@ int MP_Dict_c::load_xml_file(const char* fName)
 /* Load a dictionary file in xml format and parse the described blocks   */
 int MP_Dict_c::load_xml_file(FILE *fid)
 {
-	const char	*func = "MP_Dict_c::load_xml_file(FILE *fid)";
-	char					line[MP_MAX_STR_LEN];
-	char		szBuffer[10000];
-	
-	TiXmlDocument doc;
+	const char		*func = "MP_Dict_c::load_xml_file(FILE *fid)";
+	char			line[MP_MAX_STR_LEN];
+	char			szBuffer[10000];
+	TiXmlDocument	doc;
  
 	do
 	{

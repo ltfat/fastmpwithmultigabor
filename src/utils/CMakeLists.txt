@@ -30,15 +30,17 @@ ADD_SUBDIRECTORY (libgetopt)
 #------------------------------------------------
 # Build main executables      
 #------------------------------------------------
-FOREACH(target mpd mpd_demix mpr mpf mpcat mpview gpd)
-	SET(${target}_EXE_SOURCES
-    		${UTILS_SOURCE_DIR}/${target}.cpp
+SET(EXECUTABLES mpd mpd_demix mpr mpf mpcat mpview gpd)
+SET(EXEC_TARGETS ${EXECUTABLES} PARENT_SCOPE)
+FOREACH(LoopTargets ${EXECUTABLES})
+	SET(${LoopTargets}_EXE_SOURCES
+    		${UTILS_SOURCE_DIR}/${LoopTargets}.cpp
     		${MPTK_BINARY_DIR}/src/libmptk/mptk.h )
-	ADD_EXECUTABLE(${target} ${${target}_EXE_SOURCES})
-	SET_TARGET_PROPERTIES(${target} PROPERTIES COMPILE_FLAGS "${CMAKE_CXX_FLAGS}")
-	TARGET_LINK_LIBRARIES(${target} mptk dsp_windows getopt)
-	INSTALL(TARGETS ${target} RUNTIME DESTINATION bin)
-ENDFOREACH(target)
+	ADD_EXECUTABLE(${LoopTargets} ${${LoopTargets}_EXE_SOURCES})
+	SET_TARGET_PROPERTIES(${LoopTargets} PROPERTIES COMPILE_FLAGS "${CMAKE_CXX_FLAGS}")
+	TARGET_LINK_LIBRARIES(${LoopTargets} mptk dsp_windows getopt)
+	INSTALL(TARGETS ${LoopTargets} RUNTIME DESTINATION bin)
+ENDFOREACH(LoopTargets)
 
 #------------------------------------------------
 # Build experimental      

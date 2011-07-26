@@ -410,7 +410,7 @@ ADD_SUBDIRECTORY (src/plugin/contrib)
 
 # Compile the executable if requested by the end-user
 IF(BUILD_EXECUTABLE)
-	ADD_SUBDIRECTORY (src/utils )
+	ADD_SUBDIRECTORY (src/utils)
 ENDIF(BUILD_EXECUTABLE)
 
 # Compile the documentation if requested by the end-user
