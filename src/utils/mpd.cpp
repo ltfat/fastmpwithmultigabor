@@ -124,8 +124,8 @@ void usage( void )
 	fprintf( stdout, "     -h, --help                       This help.\n" );
 	fprintf( stdout, " \n" );
 	fprintf( stdout, " Examples:\n" );
-	fprintf( stdout, "     mpd -C /Users/rleboulc/bar/mptk/path.xml -D /Users/rleboulc/bar/mptk/reference/dictionary/dic_gabor_two_scales.xml -n 10 /Users/rleboulc/bar/mptk/reference/signal/glockenspiel.wav -\n" );
-	fprintf( stdout, "     mpd -C /Users/rleboulc/bar/mptk/path.xml -d /dictionary/dic_gabor_two_scales.xml -n 10 -s 2.5 /Users/rleboulc/bar/mptk/reference/signal/glockenspiel.wav -\n" );
+	fprintf( stdout, "     mpd -D /Users/rleboulc/bar/mptk/reference/dictionary/dic_gabor_two_scales.xml -n 10 /Users/rleboulc/bar/mptk/reference/signal/glockenspiel.wav bookTest.bin\n" );
+	fprintf( stdout, "     mpd -d /dictionary/dic_gabor_two_scales.xml -n 10 -s 2.5 /Users/rleboulc/bar/mptk/reference/signal/glockenspiel.wav bookTest.xml\n" );
 	exit(0);
 }
 
