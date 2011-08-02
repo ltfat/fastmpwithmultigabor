@@ -207,8 +207,6 @@ with the \verb+-C<FILE>, -config-file=<FILE>+ for utilities or MPTK library call
 the environment variable \verb+MPTK_CONFIG_FILENAME+ to determine
 which file to use for setting up the MPTK environment.
 
-
-\clearpage
 %%%%%%%%%
 \subsection{mpd: matching pursuit signal decomposition}
 %%%%%%%%%
@@ -218,11 +216,21 @@ which file to use for setting up the MPTK environment.
 	\end{minipage}
 \end{center}
 
+%%%%%%%%%
 \subsection{gpd: gradient pursuit signal decomposition}
 %%%%%%%%%
 \begin{center}
 	\begin{minipage}{0.8\linewidth} 
 		\input{CommandUsage/gpd_Usage}
+	\end{minipage}
+\end{center}
+
+%%%%%%%%%
+\subsection{mpr: signal reconstruction}
+%%%%%%%%%
+\begin{center}
+	\begin{minipage}{0.8\linewidth} 
+		\input{CommandUsage/mpr_Usage}
 	\end{minipage}
 \end{center}
 
@@ -245,15 +253,6 @@ which file to use for setting up the MPTK environment.
 \end{center}
 
 %%%%%%%%%
-\subsection{mpr: signal reconstruction}
-%%%%%%%%%
-\begin{center}
-	\begin{minipage}{0.8\linewidth} 
-		\input{CommandUsage/mpr_Usage}
-	\end{minipage}
-\end{center}
-
-%%%%%%%%%
 \subsection{mpd\_demix: blind source separation with a known mixing matrix}
 %%%%%%%%%
 \begin{center}
@@ -272,8 +271,8 @@ which file to use for setting up the MPTK environment.
 \end{center}
 
 %%%%%%%%%
-\subsection{Format of the dictionary files \label{dict_format}}
-%%%%%%%%%
+\clearpage
+\section{Format of the dictionary files \label{dict_format}}
 The dictionary files use a XML syntax, with tags enclosed between
 angle brackets. Strict XML compliance is now mandatory.
 \footnote{Uh, that is, if a DTD get ready someday.}.
@@ -284,8 +283,7 @@ A dictionary should include, in the following order:
 \item an optional XML declaration line;
 \item a mandatory dictionary opening tag;
 \item an optional library version tag;
-\item a list of blocks with their parameters (some parameters being mandatory,
-  some admitting default values);
+\item a list of blocks with their parameters (some mandatory, some admitting default values);
 \item a dictionary closing tag.
 \end{enumerate}
 Any text included after the dictionary closing tag will be ignored. Blank
@@ -300,7 +298,7 @@ pieces will therefore show up in stderr.
 \begin{itemize}
 
 
-\item \verb+<?xml version="1.0" encoding="ISO-8859-1"?>+ [optional]: the XML
+\item \verb+<?xml version="1.0" encoding="ISO-8859-1"?>+: the XML
   declaration line.
   
 \item \verb+<dict>+List of blocks\verb+</dict>+: the opening and closing tags
@@ -402,115 +400,96 @@ pieces will therefore show up in stderr.
 
 \subsubsection*{Example}
 
-\begin{verbatim}
-<?xml version="1.0" encoding="ISO-8859-1"?>        <= The optional XML
-                                                      declaration line.
-<dict>                                             <= The dictionary opening tag.
-<libVersion>0.2</libVersion>                       <= The optional library version.
+\tiny\begin{verbatim}
+          <?xml version="1.0" encoding="ISO-8859-1"?>                      <= The optional XML declaration line.
+          <dict>                                                           <= The dictionary opening tag.
+                    <libVersion>0.2</libVersion>                           <= The optional library version.
+                    <blockproperties name="GAUSS-WINDOW">	                  <= A new block properties.
+                              <param name="windowtype" value="gauss"/>
+                              <param name="windowopt" value="0.02"/>       <= Gauss windows need a parameter.
+                    </blockproperties>
+                    <blockproperties name="HAMMING-WINDOW">                <= Another block properties.
+                              <param name="windowtype" value="hamming"/>
+                              <param name="windowopt" value="0"/>          <= The hamming window ignores the opt="0" attribute.
+                    </blockproperties>
+                    <block uses="GAUSS-WINDOW">                            <= A new block using GAUSS-WINDOW block properties.
+                              <param name="type" value="gabor"/>
+                              <param name="windowLen" value="32"/>
+                              <param name="windowShift" value="32"/>
+                              <param name="fftSize" value="32"/>
+                    </block>
+                    <blockproperties name="GAUSS-WINDOW-BIS" refines="GAUSS-WINDOW">
+                              <param name="windowopt" value="0.02"/>       <= A new block properties overriding the GAUSS-WINDOW block properties.
+                    </blockproperties>
+                    <block uses="GAUSS-WINDOW-BIS">                        <= A new block using GAUSS-WINDOW-BIS block properties.
+                              <param name="type" value="gabor"/>
+                              <param name="windowLen" value="32"/>
+                              <param name="windowRate" value="0.25"/>      <= This is equivalent to setting windowShift=16.
+                              <param name="fftSize" value="64"/>
+                    </block>
+                    <blockproperties name="WINDOW-SHIFT">                  <= A new block properties.
+                              <param name="windowShift" value="32"/>       <= A value for the window shift.
+                    </blockproperties>
+                    <block uses="WINDOW-SHIFT">
+                              <param name="windowLen" value="128"/>
+<!--                        <param name="windowShift" value="32"/>         <= These 2 lines are commented out. This block will use the default
+                              <param name="fftSize" value="128"/>   -->       windowShift from WINDOW-SHIFT, and will default fftSize to windowLen.                               
+                    </block>
+                    <block uses="GAUSS-WINDOW">
+                              <param name="type" value="gabor"/>	
+                              <varparam name="fftSize">                    <= A variable parameter list.
+                                        <var>64</var>                           a list of block for each value
+                                        <var>32</var>                           of the variable parameter list.
+                                        <var>16</var> 
+                                        <var>8</var>
+                              </varparam>
+                              <param name="windowLen" value="8"/>
+                              <varparam name="windowShift">                <= Another variable parameter list.
+                                        <var>64</var>                           a list of block for each value
+                                        <var>32</var>                           of the variable parameter list,
+                                        <var>16</var>                           combined with the list of block 
+                              </varparam>                                     defined above.
+                    </block>
+                    <block uses="GAUSS-WINDOW-BIS">
+                              <param name="type" value="harmonic"/>        <= A harmonic block.
+                              <param name="fftSize" value="256"/>
+                              <param name="windowLen" value="256"/> 
+                              <param name="windowShift" value="128"/> 
+                              <param name="f0Min" value="340"/> 
+                              <param name="f0Max" value="1000"/>
+                              <param name="numPartials" value="5"/>
+                    </block>
+                    <block uses="GAUSS-WINDOW"> 
+                              <param name="type" value="chirp"/>           <= A chirp block.
+                              <param name="fftSize" value="1024"/>
+                              <param name="windowLen" value="1024"/> 
+                              <param name="windowShift" value="128"/> 
+                              <param name="numFitPoints" value="2"/> 
+                              <param name="numIter" value="1"/>
+                    </block>
+                    <block>
+                              <param name="type" value="anywave"/>         <= An anywave block.
+                              <param name="tableFileName" value="/udd/toto/table.xml"/>
+                              <param name="windowShift" value="1"/>
+                    </block>
+                    <block>
+                              <param name="type" value="dirac"/>           <= A dirac block.
+                    </block>
+                    <block>
+                              <param name="type" value="constant"/>        <= A constant block.
+                              <param name="windowLen" value="512"/>
+                              <param name="windowShift" value="32"/>
+                    </block>
+                    <block>
+                              <param name="type" value="nyquist"/>         <= A nyquist block.
+                              <param name="windowLen" value="512"/>
+                              <param name="windowShift" value="32"/>
+                    </block>
+          </dict>
+This is that great dictionary I used for obtaining these wonderful         <= This text is ignored by the parser.
+experimental results thanks to the Matching Pursuit Library ...            
 
-        <blockproperties name="GAUSS-WINDOW">      <= A new block properties.
-                <param name="windowtype" value="gauss"/>
-                <param name="windowopt" value="0.02"/> <= Gauss windows need
-                                                             a parameter.
-        </blockproperties>
-        <blockproperties name="HAMMING-WINDOW">    <= Another block properties.
-                <param name="windowtype" value="hamming"/>
-                <param name="windowopt" value="0"/> <= The hamming window
-                                                       ignores the opt="0"
-                                                       attribute.
-        </blockproperties>
-
-        <block uses="GAUSS-WINDOW">                 <= A new block using
-                                                       GAUSS-WINDOW block properties.
-                <param name="type" value="gabor"/>
-                <param name="windowLen" value="32"/>
-                <param name="windowShift" value="32"/>
-                <param name="fftSize" value="32"/>
-        </block>
-
-        <blockproperties name="GAUSS-WINDOW-BIS" refines="GAUSS-WINDOW">
-                <param name="windowopt" value="0.02"/> <= A new block properties overriding
-                                                          the GAUSS-WINDOW block properties.
-        </blockproperties>
-
-        <block uses="GAUSS-WINDOW-BIS">             <= A new block using
-                                                       GAUSS-WINDOW-BIS block properties.
-                <param name="type" value="gabor"/>
-                <param name="windowLen" value="32"/>
-                <param name="windowRate" value="0.25"/>   <= This is equivalent to
-                                                       setting windowShift=16.
-                <param name="fftSize" value="64"/>
-        </block>
-        <blockproperties name="WINDOW-SHIFT">           <= A new block properties.
-                <param name="windowShift" value="32"/>  <= A value for the
-                                                        window shift.
-        </blockproperties>
-
-        <block uses="WINDOW-SHIFT">
-                <param name="windowLen" value="128"/>
-<!--            <param name="windowShift" value="32"/>     <= These lines are
-                <param name="fftSize" value="128"/>   -->  commented out.
-                                                           This block will use
-                                                           the default
-                                                           windowShift from
-                                                           WINDOW-SHIFT, and will default
-                                                           fftSize to windowLen.
-        </block>
-        <block uses="GAUSS-WINDOW">
-                <param name="type" value="gabor"/>	
-                <varparam name="fftSize">                 <= A variable parameter list.
-                        <var>64</var>                        a list of block for each value
-                        <var>32</var>                        of the variable parameter list.
-                        <var>16</var> 
-                        <var>8</var>
-                </varparam>
-                <param name="windowLen" value="8"/>
-                <varparam name="windowShift">            <= Another variable parameter list.
-                        <var>64</var>                        a list of block for each value
-                        <var>32</var>                        of the variable parameter list,
-                        <var>16</var>                        combined with the list of block 
-                </varparam>                                  defined above.
-        </block>
-        <block uses="GAUSS-WINDOW-BIS">
-                <param name="type" value="harmonic"/>    <= A harmonic block.
-                <param name="fftSize" value="256"/>
-                <param name="windowLen" value="256"/> 
-                <param name="windowShift" value="128"/> 
-                <param name="f0Min" value="340"/> 
-                <param name="f0Max" value="1000"/>
-                <param name="numPartials" value="5"/>
-        </block>
-        <block uses="GAUSS-WINDOW"> 
-                <param name="type" value="chirp"/>       <= A chirp block.
-                <param name="fftSize" value="1024"/>
-                <param name="windowLen" value="1024"/> 
-                <param name="windowShift" value="128"/> 
-                <param name="numFitPoints" value="2"/> 
-                <param name="numIter" value="1"/>
-        </block>
-        <block>
-                <param name="type" value="anywave"/>       <= An anywave block.
-                <param name="tableFileName" value="/udd/toto/table.xml"/>
-                <param name="windowShift" value="1"/>
-        </block>
-        <block>
-                <param name="type" value="dirac"/>         <= A dirac block.
-        </block>
-        <block>
-                <param name="type" value="constant"/>      <= A constant block.
-                <param name="windowLen" value="512"/>
-                <param name="windowShift" value="32"/>
-        </block>
-        <block>
-                <param name="type" value="nyquist"/>      <= A nyquist block.
-                <param name="windowLen" value="512"/>
-                <param name="windowShift" value="32"/>
-        </block>
-</dict>
-This is that great dictionary I used for obtaining        <= This text is ignored
-these wonderful experimental results thanks to the           by the parser.
-Matching Pursuit Library ...
-\end{verbatim}
+\end{verbatim}\normalsize
 
 \subsubsection*{Anywave table}
 
@@ -567,22 +546,20 @@ channel after the other. The following scheme is for two channels and four
 waveforms: {\center |w1c1|w1c2|w2c1|w2c2|w3c1|w3c2|w4c1|w4c2| }
 
 \subsubsection*{Example of an anywave table}
-\begin{verbatim}
-<?xml version="1.0" encoding="ISO-8859-1"?>        <= The optional XML
-                                                      declaration line.
-<table>                                           <= The table opening tag
-                                                     (only one table per file
-        <libVersion>0.4beta</libVersion>          <= The optional library version.
-        <param name="numChans" value="1"/>
-        <param name="filterLen" value="64"/>
-        <param name="numFilters" value="20"/>
-        <param name="data" value="/udd/toto/table_data_001.bin"/>
-</table>                                          <= The table closing tag.
-\end{verbatim}
+\tiny\begin{verbatim}
+        <?xml version="1.0" encoding="ISO-8859-1"?>        <= The optional XML declaration line.
+        <table>                                            <= The table opening tag (only one table per file)
+                <libVersion>0.4beta</libVersion>           <= The optional library version.
+                <param name="numChans" value="1"/>
+                <param name="filterLen" value="64"/>
+                <param name="numFilters" value="20"/>
+                <param name="data" value="/udd/toto/table_data_001.bin"/>
+        </table>                                           <= The table closing tag.
+\end{verbatim}\normalsize
 
 \subsubsection*{MDCT/MDST/MCLT}
 
-\textbf{Definition} The Modified Discrete Cosine Transform (MDCT) and the Modified Discrete Sine Transform (MDST) are two orthogonal transforms based on local cosine functions. The Modulated Complex Lapped Transform (MCLT) is the complex extension such as $MCLT=MDCT+i*MDST$. The atoms corresponding to the MCLT of a signal of length $N=PL$ and a window length of $2L$, are defined as:
+\textbf{Definition:} The Modified Discrete Cosine Transform (MDCT) and the Modified Discrete Sine Transform (MDST) are two orthogonal transforms based on local cosine functions. The Modulated Complex Lapped Transform (MCLT) is the complex extension such as $MCLT=MDCT+i*MDST$. The atoms corresponding to the MCLT of a signal of length $N=PL$ and a window length of $2L$, are defined as:
 \begin{equation}
 x_{p,k}(n) = w(n-pL) exp \left[ i \frac{\pi}{L} \left( (n-pL) + \frac{1}{2} + \frac{L}{2} \right) \left( k + \frac{1}{2} \right) \right]
 \end{equation} 
@@ -652,33 +629,33 @@ with $n=0,..,N-1$, $k=0,..,Nfft/2-1$, $p=0,..,P-1$ and m is even with $m>=2$.
 \end{itemize}
 
 A default MDCT/MDST/MCLT block is defined using 2 parameters, the window length and the window type. The window type must be \verb+rectangle+, \verb+cosine+ or \verb+kbd+. An example of a MDCT dictionnary is:
-\begin{verbatim}
+\tiny\begin{verbatim}
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<dict>
-<libVersion>0.2</libVersion>
-     <block>
-          <param name="type" value="mdct"/>
-          <param name="windowLen" value="2048"/>
-          <param name="windowtype" value="kbd"/>
-          <param name="windowopt" value="5"/>
-     </block>
-</dict>
-\end{verbatim}
+        <dict>
+        <libVersion>0.2</libVersion>
+                <block>
+                        <param name="type" value="mdct"/>
+                        <param name="windowLen" value="2048"/>
+                        <param name="windowtype" value="kbd"/>
+                        <param name="windowopt" value="5"/>
+                </block>
+        </dict>
+\end{verbatim}\normalsize
 
 An example of a generalized MCLT dictionnary is:
-\begin{verbatim}
+\tiny\begin{verbatim}
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<dict>
-<libVersion>0.2</libVersion>
-     <block>
-          <param name="type" value="mdct"/>
-          <param name="windowLen" value="2048"/>
-          <param name="fftSize" value="4096"/>
-          <param name="windowtype" value="cosine"/>
-          <param name="windowopt" value="0"/>
-     </block>
-</dict>
-\end{verbatim}
+        <dict>
+        <libVersion>0.2</libVersion>
+                <block>
+                        <param name="type" value="mdct"/>
+                        <param name="windowLen" value="2048"/>
+                        <param name="fftSize" value="4096"/>
+                        <param name="windowtype" value="cosine"/>
+                        <param name="windowopt" value="0"/>
+                </block>
+        </dict>
+\end{verbatim}\normalsize
 
 %%%%%%%%%
 \clearpage
