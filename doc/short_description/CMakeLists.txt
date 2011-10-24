@@ -27,7 +27,7 @@ IF(LATEX_COMPILER)
       COMMENT   "ps2pdf"
     )
 
-    ADD_CUSTOM_TARGET(short_description_LaTeXDocument ALL echo
+    ADD_CUSTOM_TARGET(short_description ALL echo
       DEPENDS   ${MPTK_BINARY_DIR}/doc/short_description/short_description.pdf
     )
 INSTALL(FILES ${MPTK_BINARY_DIR}/doc/short_description/short_description.pdf DESTINATION doc)   

@@ -1,29 +1,25 @@
 function varargout = bookedit( book, channel, bwfactor )
-%function BOOKEDIT Interface for plotting and editing a Matching Pursuit book
+% Usage :
+%   bookedit
+%   bookedit(‘mptkBook.bin’)
+%   bookedit(book,chan)
 %
-%    BOOKEDIT 
-%    with no arguments asks the user for a MPTK binary book file and plot
-%    You can set a '.mat' variable called 'MPTKdir.mat' containing 
-%    the full path to your book directory:
-%       bookdir = '/my/path/to/mptk/book/';
-%       save 'MPTKdir.mat' bookdir
+% Synopsis :
+%   Interface for plotting and editing a Matching Pursuit book
 %
-%    BOOKEDIT('mptkBook.bin')
-%    with a string to a book load the book 
+% Detailed description :
+%   * bookedit asks the user for a MPTK binary book file and plots it. You can set a ‘.mat’ 
+%     variable called ‘MPTKdir.mat’ containing the full path to your book directory:
+%        – bookdir = ‘/pathToMptk/book/’;
+%        – save ‘MPTKdir.mat’ bookdir
+%   * bookedit(‘mptkBook.bin’) loads the book“mptkbook.bin”
+%   * bookedit(book,chan) reads the channel number “chan” of a “book” structure in the 
+%       current axes. If it is a string, it is understood as a filename and the book is read 
+%       from the corresponding file. Books can be read separately using the bookread utility.
 %
-%    BOOKEDIT( book, chan ) Read bookplots the channel number chan
-%    of a MPTK book structure in the current axes.
-%    If book is a string, it is understood as a filename and
-%    the book is read from the corresponding file. Books
-%    can be read separately using the BOOKREAD utility.
-%
-%    The patches delimit the support of the atoms. Their
-%    color is proportional to the atom's amplitudes,
-%    mapped to the current colormap and the current caxis.
-%
-%    See also bookread, bookwrite, mprecons and
-%    the patch handle graphics properties.
-%
+% Notes :
+%   The patches delimit the support of the atoms. Their color is proportional to the atom’s
+% amplitudes, mapped to the current colormap and the current caxis.
 
 %% Authors:
 % Gilles Gonon

@@ -1,5 +1,5 @@
 function dictcreate_gui(op)
-% 
+% Usage:
 %  Build a dictionary for MPTK using graphical tools
 %  usage : dictcreate_gui;
 %

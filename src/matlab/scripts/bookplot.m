@@ -1,31 +1,26 @@
 function [gaborP,mdctP, harmP,diracL] = bookplot( book, channel, bwfactor )
 
-% BOOKPLOT  Plot a Matching Pursuit book in the current axes
+% Usage :
+%   bookplot(book)
+%   bookplot(book,chan)
+%   bookplot(book,chan,bwfactor)
 %
-%    BOOKPLOT( book, chan ) plots the channel number chan
-%    of a MPTK book structure in the current axes.
-%    If book is a string, it is understood as a filename and
-%    the book is read from the corresponding file. Books
-%    can be read separately using the BOOKREAD utility.
+% Synopsis :
+%   Plots a Matching Pursuit book in the current axes
 %
-%    BOOKPLOT( book ) defaults to the first channel.
+% Detailed description :
+%   * bookplot(book) plots the default channel (first channel).
+%   * bookplot(book,chan) plots the channel number chan of a MPTK book structure in
+%     the current axes. If book is a string, it is understood as a filename and the 
+%     book is read from the corresponding file. Books can be read separately using 
+%     the bookread utility.
+%   * bookplot(book,chan,bwfactor) allows to specify the bandwidths of the atoms, 
+%     calculated as: bw = ( fs / (atom.length(channel)/2) ) / bwfactor; where fs is 
+%     the signal sample frequency. When omitted, bwfactor defaults to 2.
 %
-%    [gaborP,harmP,diracP] = BOOKPLOT( book, chan ) returns
-%    handles on the created objects. Gabor and Harmonic atoms
-%    are plotted as patches, and Dirac atoms as a blue line.
-%
-%    The patches delimit the support of the atoms. Their
-%    color is proportional to the atom's amplitudes,
-%    mapped to the current colormap and the current caxis.
-%
-%    BOOKPLOT( book, chan, bwfactor ) allows to specify
-%    the bandwidths of the atoms, calculated as:
-%      bw = ( fs / (atom.length(channel)/2) ) / bwfactor;
-%    where fs is the signal sample frequency. When omitted,
-%    bwfactor defaults to 2.
-%
-%    See also BOOKREAD, BOOKOVER, COLORMAP, CAXIS and
-%    the patch handle graphics properties.
+% Notes :
+%    The patches delimit the support of the atoms. Their color is proportional to the atom’s
+% amplitudes, mapped to the current colormap and the current axis.
 
 %%
 %% Authors:

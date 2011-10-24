@@ -1,24 +1,25 @@
-% MPTK - Matlab interface
-% Imports a signal from a file to Matlab, using MPTK
-% 
-% Usage: [signal,sampleRate] = sigread(filename)
+
+% Usage :
+%   [signal,sampleRate] = sigread(filename)
 %
-% Input: 
-% filename : the filename where to read the signal
+% Synopsis:
+%   Reads an imports signal “filename” of any format supported by libsndfile library 
+%   to Matlab and gives a matrix “signal” (numSamples x numChans) and the sampling 
+%   frequency of the read signal “sampleRate”.
+%
+% Input :
+%   filename   : The filename where to read the signal
 %
 % Output:
-% signal     : a matrix numSamples x numChans
+%   signal     : A matrix numSamples x numChans
+%   sampleRate : The sampling frequency of the read signal
+
+%% Authors:
+% Emmanuel Ravelli (LAM, Paris, France)
+% Gilles Gonon (IRISA, Rennes, France)
+% Remi Gribonval (IRISA, Rennes, France)
 %
-% sampleRate : the sampling frequency of the read signal
+% Copyright (C) 2008 IRISA
+% This script is part of the Matching Pursuit Library package,
+% distributed under the General Public License.
 %
-% See also : sigwrite
-%
-% Note : sigwrite always writes to the WAV format
-%        sigread reads from any format supported by libsndfile
-%
-% Author : 
-% Remi Gribonval (IRISA, Rennes, France), July 2008
-%
-% Distributed under the General Public License.
-%                                       
-%#mex

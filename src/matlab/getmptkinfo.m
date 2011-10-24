@@ -1,35 +1,35 @@
-% MPTK - Matlab interface
-% Gets various information on MTPK plugins and configuration into Matlab
-% 
-% Usage :  info = getmptkinfo() 
-% 
+
+%   Usage :  
+%     info = getmptkinfo() 
+%
+% Synopsis :
+%     Getting started example under Matlab to help using MPTK
+%
 % Output :
-% info : a structure with the information
-%      info.atoms
-%      info.blocks
-%      info.windows
-%      info.path
+%     The structure “info” has the following informations
+%         * info.atoms
+%             - atoms.type
+%         * info.blocks
+%             - blocks.type
+%             - blocks.info
+%             - blocks.default
+%         * info.windows
+%             - windows.type
+%             - windows.needsOption
+%         * info.path
 %
-%      where 
-%  atoms :
-%      atoms.type{}
-%  blocks :
-%      blocks.type{}
-%      blocks.info{}
-%      blocks.default{}
+% Info :
+%     The structure path has different fields taken from the configuration file, for example
+%         - path.reference
+%         - path.dll_directory
+%         - path.fftw_wisdom_file
+
+%% Authors:
+% Emmanuel Ravelli (LAM, Paris, France)
+% Gilles Gonon (IRISA, Rennes, France)
+% Remi Gribonval (IRISA, Rennes, France)
 %
-%  windows :
-%      windows.type{}
-%      windows.needsOption{}
+% Copyright (C) 2008 IRISA
+% This script is part of the Matching Pursuit Library package,
+% distributed under the General Public License.
 %
-%  path : has different fields taken from the configuration file, for example
-%      path.reference
-%      path.dll_directory
-%      path.fftw_wisdom_file
-%
-% Author : 
-% Remi Gribonval (IRISA, Rennes, France), July 2008
-%
-% Distributed under the General Public License.
-%                                       
-%#mex

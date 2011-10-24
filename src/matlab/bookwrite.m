@@ -1,24 +1,24 @@
-% MPTK - Matlab interface
-% Exports a binary Matching Pursuit book from Matlab, using MPTK
+
+% Usage : 
+%   bookwrite(book,filename[,writeMode]) 
 %
-% Usage : bookwrite(book,filename[,writeMode]) 
+% Synopsis:
+%   Exports a binary Matching Pursuit book “book” from Matlab, and writes it either in binary format or in txt format under the directory “filename”
 %
 % Input : 
-% book     : a book structure with the following structure
-%    TODO
-% filename : the filename where to read the book
+%   * book : A book structure
+%   * filename : The filename where to read the book
+%   * writeMode : OPTIONAL The book write mode ('binary' by default or 'txt')
 %
-% writeMode: optional, 'binary' (default) or 'txt' 
+% Known limitations : 
+%   * Only the following atom types are supported :
+%       - gabor, harmonic, mdct, mclt, dirac.
+
+%% Authors:
+% Gilles Gonon
+% Remi Gribonval
+% Copyright (C) 2008 IRISA
 %
-% Known limitations : only the following atom types are supported: 
-%    gabor, harmonic, mdct, mclt, dirac.
+% This script is part of the Matching Pursuit Library package,
+% distributed under the General Public License.
 %
-% See also : bookread bookedit
-%
-% Authors:
-% Emmanuel Ravelli (LAM, Paris, France)
-% Gilles Gonon, Remi Gribonval (IRISA, Rennes, France)
-% 
-% Distributed under the General Public License.
-%                                       
-%#mex

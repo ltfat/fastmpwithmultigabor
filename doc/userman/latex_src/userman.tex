@@ -1,9 +1,58 @@
-\documentclass[11pt,a4paper]{article}
+\documentclass[11pt,a4paper]{report}
 
+%--------------------------------------------------------------
+% Modifying the items
+%--------------------------------------------------------------
+\newenvironment{my_itemize}
+{
+	\begin{itemize}
+		\setlength{\itemsep}{0pt}
+		\setlength{\parskip}{0pt}
+		\setlength{\parsep}{0pt}}
+	{\end{itemize}
+}
+
+\newenvironment{my_enumerate}
+{
+	\begin{enumerate}
+		\setlength{\itemsep}{0pt}
+		\setlength{\parskip}{0pt}
+		\setlength{\parsep}{0pt}}
+	{\end{enumerate}
+}
+
+
+\makeatletter
+\renewcommand{\@makechapterhead}[1]{%
+\vspace*{0 pt}%
+{\setlength{\parindent}{0pt} \raggedright \normalfont
+\bfseries\Huge\thechapter.\ #1
+\par\nobreak\vspace{12 pt}}}
+\makeatother
+
+%--------------------------------------------------------------
+% Modifying the items
+%--------------------------------------------------------------
+\newcommand{\mypart}[1]{}
+
+%--------------------------------------------------------------
+% Modifying the relative paths
+%--------------------------------------------------------------
+\newcommand{\relativePath}{../GettingStarted/Images/}
+
+%--------------------------------------------------------------
+% Adding the packages
+%--------------------------------------------------------------
 \usepackage{a4wide}
 \usepackage{epsfig}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{color}
+\usepackage{colortbl}
+\usepackage{alltt}
 
-\title{The Matching Pursuit Tool Kit \\ User Manual and Developer's Notes}
+\title{The Matching Pursuit Tool Kit \\ User Manual}
 
 \author{Sacha Krstulovi\'c and R\'emi Gribonval}
 \date{\today, $Revision: 1107 $}
@@ -20,119 +69,447 @@
 
 \clearpage
 
-\noindent This document aims at describing the basic principles of the Matching
-Pursuit Tool Kit, and some basic guidelines about how to use it.  The appendix
-also provides the potential contributor with notes about the insides of our
-implementation, plus guidelines about some of the development conventions that
-we have adopted. For a more detailed documentation of the code, see the
-automatically generated reference manual.
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+% Part 1 : Getting Started
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+\part{Getting Started \label{getSrtd}}
+\clearpage
+\vspace*{\stretch{1}}
+\begin{center}
+	\noindent \emph{\textbf{Abstract} \\~~\\~~This part of the document describes how to begin with Matching
+	Pursuit Tool Kit. It provides informations about how to simply download, install and configure this library on 
+	every architecture from a released binary file. It also describes, in the case that the user have installed Matlab,
+	the basic functions available and their usage.}
+\end{center}
+\vspace*{\stretch{1}}
 
-%%%%%%%%%
-\section{General principles \label{gen}}
-%%%%%%%%%
+\input{../GettingStarted/GettingStartedContent}
 
-%%%%%%%%%
-\subsection{Terminology \label{term}}
-%%
-\paragraph{Atom --} An elementary piece of signal. An atom is characterized by
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+% Part 2 : User Manual
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+\part{User Manual \label{usrMan}}
+
+\clearpage
+\vspace*{\stretch{1}}
+\begin{center}
+	\noindent \emph{\textbf{Abstract} \\~~\\~~This part of the document describes the basic principles of the Matching
+	Pursuit Tool Kit, and some basic guidelines about how to use it.  The appendix
+	also provides the potential contributor with notes about the insides of our
+	implementation, plus guidelines about some of the development conventions that
+	we have adopted. For a more detailed documentation of the code, see the
+	automatically generated reference manual.}
+\end{center}
+\vspace*{\stretch{1}}
+
+
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+% Section 1 : Basic understanding
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+\chapter{Basic understanding \label{basicUndstd}}
+
+%--------------------------------------------------------------
+% Section 1.1 : Terminology
+%--------------------------------------------------------------
+\section{Terminology \label{term}}
+
+\noindent \textit{Atom --} An elementary piece of signal. An atom is characterized by
 its class (e.g., Gabor atoms, harmonic atoms etc.) and a set of parameters
 (e.g., for a Gabor atom, its time location and length, its frequency, its
 amplitude, a chirp factor and a given shaping window). In our code, the
 corresponding object knows how to subtract itself from a signal, and how to
 generate its own waveform.
 
-\paragraph{Block --} A block computes the correlations (inner products) between
+\vspace{0,2 cm}
+
+\noindent \textit{Block --} A block computes the correlations (inner products) between
 a signal to analyze and a set of atoms for which the computation of the
 correlations can be factorized in an efficient manner, along the whole support
-of a signal.
-
-For instance, the inner products can stem from a time-frequency transform, such
+of a signal. For instance, the inner products can stem from a time-frequency transform, such
 as the Fourier Transform or a wavelet transform, provided the transform can be
 interpreted as a set of correlations between the signal and a set of atoms
 which cover the time-frequency plane.
 
 Each block object can search for the location of the maximum correlation
-between the atoms and the signal, and can thus deduce which atom contributes
+between the atoms and the signal, and can deduce which atom contributes
 the most energy to the analyzed signal. Several blocks corresponding to various
 scales or various transforms can be concurrently applied to the same signal,
 thus providing for multi-scale or multiple-basis analysis.
 
-For the moment, the following blocks are implemented:
-\begin{itemize}
-\item Gabor blocks, based on Short-Time Fourier Transforms, which compute the
-  correlations with windowed sinusoids having a ``flat'' frequency (chirp rate
-  == 0). In this case, one block is conceptually equivalent to one STFT with a
-  given scale;
-\item Harmonic blocks, based on the harmonic grouping of Gabor atoms, and
-  inheriting from the Gabor block;
-\item Chirp blocks, based on a post-processing of the Gabor atoms and aimed at
-  optimizing the chirp rate;
-\item AnyWave blocks, based on a fast convolution algorithm to compute some
-  correlations with arbitrary waveforms.
-\item MDCT/MDST/MCLT blocks. They are transforms based on local cosine functions.
-\item Dirac blocks,which provide no particular time-frequency
-  transform, but just find the signal samples which have a high
-  energy
-\item Constant blocks, which are an extension of the Dirac blocks.
-  Constant atoms are rectangular windows, defined by a length and a
-  shift between atoms. A constant atom catches the mean of a signal on
-  the specified frame.
-\item Nyquist blocks. They are defined by a length and a shift between
-  atoms, and the waveform is a normalized succession of 1 and -1. A
-  Nyquist atom catches the greatest frequency that can be
-  distinguished (called the Nyquist frequency if the support is even)
-  of the specified frame.
-\end{itemize}
+\vspace{0,2 cm}
+
+\noindent  \textit{The following blocks are implemented at the present time :}
+
+\begin{my_itemize}
+	\item \textbf{Gabor} : Based on Short-Time Fourier Transforms, which compute the 
+	correlations with windowed sinusoids having a ``flat'' frequency (chirp rate 
+	== 0). In this case, one block is conceptually equivalent to one STFT with a 
+	given scale.
+	\item \textbf{Harmonic} : Based on the grouping of fundamental and multiples Gabor atoms.
+	\item \textbf{Chirp} : Based on the Gabor atom with (linear) time variable frequency.
+	\item \textbf{AnyWave} : Based on a fast convolution algorithm to compute some correlations with arbitrary waveforms.
+	\item \textbf{MDCT/MDST/MCLT} : Transforms based on local cosine functions.
+	\item \textbf{Dirac} : Find the signal samples which have a high energy
+	\item \textbf{Constant} :  Rectangular windows, defined by a length and a  
+	shift between atoms. A constant atom catches the mean of a signal on the specified frame.
+	\item \textbf{Nyquist} : Defined by a length and a shift between 
+	atoms, and the waveform is a normalized succession of 1 and -1. A 
+	Nyquist atom catches the greatest distinguished frequency (called  
+	the Nyquist frequency if the support is even) of the specified frame.
+\end{my_itemize}
 In the future, blocks based on fast wavelet transforms should also be designed.
 
-\paragraph{Dictionary --} A dictionary contains a collection of blocks plus
+\vspace{0,2 cm}
+
+\textit{Dictionary --} A dictionary contains a collection of blocks plus
 the signal on which they operate. It can search across all the blocks (i.e.,
 all the scales and all the bases) for the atom which brings the most energy to
 the analyzed signal.
 
-\paragraph{Book --} A book is a collection of atoms and its corresponding dictionaries. 
-Summing all the atoms in a book gives a signal.
+\vspace{0,5 cm}
 
-\bigskip
+\textit{Book --} A book is a collection of atoms and its corresponding dictionaries. 
+Summing all the atoms in a book gives a signal. The \textit{Figure~\ref{mpcycle}} illustrates the fact 
+that a dictionary contains a signal and a collection of blocks, and that a books contains a 
+collection of atoms.  The algorithm linking these objects will be explained in the next section.
 
-\noindent Figure~\ref{mpcycle} illustrates the fact that a dictionary contains
-a signal and a collection of blocks, and that a books contains a collection of
-atoms.  The algorithm linking these objects will be explained in the next
-section.
+%--------------------------------------------------------------
+% Section 1.2 : Algorithm
+%--------------------------------------------------------------
+\section{Algorithm \label{algo}}
 
-
-%%%%%%%%%
-\subsection{Algorithm \label{algo}}
-%%
-Our implementation of the Matching Pursuit algorithm uses roughly 3 steps, as
-illustrated in figure~\ref{mpcycle}:
+Our implementation of the Matching Pursuit algorithm uses roughly 3 steps, as illustrated in figure~\ref{mpcycle}:
 \begin{enumerate}
-\item update the correlations in the blocks, by applying the relevant
-  correlation computation algorithm to the analyzed signal, and find the
-  maximum correlation in the same loop;
-\item create the atom which corresponds to the maximum correlation with the
-  signal (and store this atom in the book);
-\item subtract the created atom from the analyzed signal, thus obtaining a
-  residual signal, and re-iterate the analysis on this residual.
+	\item Update the correlations in the blocks, by applying the relevant 
+	correlation computation algorithm to the analyzed signal, and find the 
+	maximum correlation in the same loop
+	\item Create the atom which corresponds to the maximum correlation with the
+	signal (and store this atom in the book)
+	\item Subtract the created atom from the analyzed signal, thus obtaining a
+	residual signal, and re-iterate the analysis on this residual
 \end{enumerate}
+
 At each step, the original signal can be rebuilt exactly by summing all the
 atoms of the book and adding them to the residual signal.
 
-\begin{figure}[hbp]
-\vspace{2em}
-\centerline{\psfig{figure=mpcycle.eps, height=10cm}}
-\caption{\label{mpcycle}Our implementation of Matching Pursuit. (See
-  sections~\ref{term} and~\ref{algo} for a detailed explanation.)}
+\begin{figure}[H]
+	\centering
+	\includegraphics[width = 15cm, height=9cm]{mpcycle.eps}
+	\textit{\caption{\label{mpcycle} Description of Matching Pursuit. (See sections~\ref{term}/\ref{algo} for more explanations)}}
 \end{figure}
 
-
-%%%%%%%%%
 \clearpage
-\section{User manual for the standalone utilities \label{man}}
-%%%%%%%%%
 
-%%%%%%%%%
-\subsection{Introduction}
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+% Section 2 : Download & install from sources
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+\chapter{Download \& install from source}
+
+%--------------------------------------------------------------
+% Section 2.1 : Installation under Windows
+%--------------------------------------------------------------
+\section{Installation under Windows}
+
+% Section 2.1.1 : Required tools
+
+\subsection{Required tools}
+\begin{my_itemize}
+	\item \underline{Necessary :}
+	\begin{my_itemize}
+		\item Cmake (tested with version 2.8.3)
+		\item Microsoft Visual Studio (tested with Visual C++ 2008 Express)
+	\end{my_itemize}
+	\item \underline{Optional (if Matlab is needed) :}
+	\begin{my_itemize}
+		\item Matlab at least version R2006 (\textbf{Caution} install Matlab in the default directory) :
+		\begin{my_itemize}
+			\item C:\textbackslash Program Files\textbackslash MATLAB
+		\end{my_itemize}
+	\end{my_itemize}
+\end{my_itemize}
+
+If the required tools are installed as mentioned, you should be able to generate 
+a build system using the basic build settings.
+
+% Section 2.1.2 : Required packages
+
+\subsection{Required packages}
+\begin{my_itemize}
+	\item MPTK source archives : ``MPTK-Source-v.v.v.tar.gz'' (last version is 0.6.0)
+	\item MPTK packaging utilities : NSIS Nullsoft packager (tested with version 2.46)
+\end{my_itemize}
+
+% Section 2.1.3 : Pre-configuration using cmake
+
+\subsection{Pre-configuration using cmake}
+
+Suppose you unzip MPTK-Source-v.v.v.tar.gz in directory c:\textbackslash foo and you want to build MPTK 
+files in c:\textbackslash bar (you may choose to build in a temporary location which differ 
+from the place where you will eventually install MPTK). Use CMake to generate the build 
+system, use the Make icons from the program menu to launch the CMake configuration application :
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width = 7cm, height=4cm]{WindowsCmake.eps}
+	\textit{\caption{\label{WindowsCmake} Cmake view under windows}}
+\end{figure}
+
+Set the ``Where is the source code'' text box with the path of the directory where the source files are 
+located (c:\textbackslash foo) and the ``Where to build the binaries'' with the path of the directory 
+where you want to build the library and executable files (c:\textbackslash bar).
+
+When clicking for the first time on the [Configure] button, CMake will ask for the build tool you want to use. 
+The build system type depends on the builder you want to use, in our case this is the Visual Studio 9 chain tools :
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width = 7cm, height=4cm]{VisualStudioCmake.eps}
+	\textit{\caption{\label{VisualStudioCmake} Cmake configuration using Visual Studio}}
+\end{figure}
+
+When pressing again the [Configure] button to configure the build system, CMake performs a list of tests 
+to determine the system configuration and manage the build system. If the configuration is correct then no 
+pop-up will appears during the tests and CMake finally shows the various options of the build underlaid in grey. 
+In case of a configuration issue, a pop up window warns you about this issue indicating which test has failed, 
+in this case the build option in the CMake application software will be underlaid in red. We will discuss in 
+section~\ref{install_trouble} ``Installation Troubleshooting'' what to do in such a case, but let us for the moment assume that 
+everything ran smoothly.
+
+\vspace{0,7 cm}
+
+Once the build system is configured then generated, you have to build MPTK using Visual.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width = 7cm, height=4cm]{WindowsCmake2.eps}
+	\textit{\caption{\label{WindowsCmake2} Cmake build system view for MPTK}}
+\end{figure}
+
+% Section 2.1.4 : Basic build
+
+\subsection{Basic build}
+Once the project is generated using Cmake, the build directory (ex : C:/bar)  contains a Visual solution 
+(MPTK.sln).  When you double click on this file, Visual Studio software starts and opens the differents 
+projects associated with this solution.
+
+Right clicking on the project ``ALL\_BUILD'' located on the left tab of Visual Studio, then selecting 
+``Generate'' will compile all the MPTK binary files.
+
+% Section 2.1.5 : Basic installation
+
+\subsection{Basic installation}
+Right clicking on the project  ``INSTALL'' located on the left tab of Visual Studio, then selecting
+``This Project'' $\mapsto$ ``Generate only INSTALL'' will install MPTK to the directory associated with
+ the ``MPTK\_INSTALL\_PREFIX'' variable of Cmake.
+ 
+ 
+%--------------------------------------------------------------
+% Section 2.2 : Installation under Unix & MacOS
+%--------------------------------------------------------------
+\section{Installation under Unix \& MacOS}
+If the required libraries are installed as the appendix \ref{GetLibsndfile} and \ref{GetFftw} indicate it, you should be able 
+to generate a build system using the basic build settings.
+
+% Section 2.2.1 : Required tools
+
+\subsection{Required tools}
+\begin{my_itemize}
+	\item \underline{Necessary :}
+	\begin{my_itemize}
+		\item Cmake: (tested with version 2.8.3)
+	\end{my_itemize}
+	\item \underline{Optional (if Matlab is needed) :}
+	\begin{my_itemize}
+		\item Matlab at least version R2006 (\textbf{Caution} install Matlab in the default directory) :
+		\begin{my_itemize}
+			\item For Linux : /opt/MATLAB\_Ryyyyx or /soft/MATLAB\_Ryyyyx
+			\item For Mac : /Applications/MATLAB\_Ryyyyx (with yyyy = year, x=[a-z])
+		\end{my_itemize}
+	\end{my_itemize}
+\end{my_itemize}
+
+% Section 2.2.2 : Required packages
+
+\subsection{Required packages}
+
+\begin{my_itemize}
+	\item MPTK source archives : ``MPTK-Source-v.v.v.tar.gz'' (last version is 0.6.0)
+	\item Libsndfile pre-compiled library (tested with version 1.0.21) 
+	\item FFTW pre-compiled library (tested with version 3.2.2)
+	\item MPTK packaging utilities
+	\begin{my_itemize}
+		\item For Linux : RPM or DEB packaging tools (depending on Linux system)
+		\item For Mac : PackageMaker packaging tool
+	\end{my_itemize}
+\end{my_itemize}
+
+% Section 2.2.3 : Pre-configuration using cmake
+
+\subsection{Pre-configuration using cmake}
+Suppose you untar ``MPTK-Source-v.v.v.tar.gz'' in directory \verb+~+/foo and you want to build MPTK binary 
+and library files in \verb+~+/bar.
+
+The Command list you should use will look like this : \newline
+\begin{tt}
+    	bash-3.1\$ mkdir \verb+~+/bar \newline
+	bash-3.1\$ cd \verb+~+/bar \newline
+	bash-3.1\$ cmake \verb+~+/foo \newline
+\end{tt}
+	
+When using the cmake command to generate the build system, Cmake performs a list of tests to 
+determine the system configuration and manage the build system. If the configuration is correct 
+then the build system is generated and written. In this case the three last lines of the console log 
+of cmake command should be: \newline
+\begin{tt}
+	... \newline
+	-- Configuring done \newline
+	-- Generating done \newline
+	-- Build files have been written to: \verb+~+/bar
+\end{tt}
+
+% Section 2.2.4 : Basic build
+
+\subsection{Basic build}
+The command {\tt make} will compile the build files
+
+% Section 2.2.5 : Basic installation
+
+\subsection{Basic installation}
+The command {\tt sudo make install} will install in default directory /usr/local
+
+% Section 2.2.6 : Setting build and install options
+
+\subsection{Setting build and install options}
+The Cmake Graphical User Interface is automaticaly displayed under Windows OS, and is available with 
+the command {\tt ccmake} under Unix OS. It allows you to :
+\begin{my_itemize}
+	\item Specify build system options, such as either to enable the use of multiple threads to speed 
+		up the Matching Pursuit decomposition or to generate the doxygen documentation
+	\item Troubleshoot the various paths required to build MPTK
+	\item Display advanced build options via the advanced mode
+\end{my_itemize}
+
+% Section 2.2.7 : Main options 
+
+\subsection{Main options}
+This Graphical User Interface allows the user to set the build options for MPTK :
+\begin{my_itemize}
+	\item CMAKE\_INSTALL\_PREFIX : Path of the installation (by default: /usr/local/)
+	\item BUILD\_DOCUMENTATION : Generation of the doxygen documentation library. 
+		This operation can take a lot of time, be patient. (by default : OFF)
+	\item BUILD\_DOCUMENTATION\_GUI : Generation of the doxygen documentation for 
+		the Graphical User Interface. Careful, it can take a lot of time. (by default : OFF)
+	\item MULTITHREAD : Allow MPTK to use parrallel computing, this option allows to 
+		increase performance on multi-processor hardware architectures (by default : OFF)
+\end{my_itemize}
+
+\clearpage
+
+%--------------------------------------------------------------
+% Section 2.3 : Installation Troubleshooting
+%--------------------------------------------------------------
+\section{Installation Troubleshooting \label{install_trouble}}
+Let's see a more complex use of the Cmake GUI troubleshooting. Despite all the integrated 
+tests when Cmake manages to generate the build system of MPTK, sometimes Cmake cannot 
+determine some parameters of your configuration. When using the cmake command, Cmake 
+performs a list of tests on the build system configuration in order to generate it, if there is some 
+issue related to the configuration, the errors list is displayed at the end of the consol log. Here 
+we have 4 includes files or libraries that Cmake cannot found :
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width = 7cm, height=4cm]{FailedCmake.eps}
+	\textit{\caption{\label{FailedCmake} Example view of cmake libraries detection failed}}
+\end{figure}
+
+In this current case, {\tt FFTW3\_INCLUDE\_DIR}, {\tt FFTW3\_LIBRARY\_FILE}, {\tt SNDFILE\_INCLUDE\_DIR} 
+and {\tt SND\_LIBRARY\_FILE} fields must be set with the path to the directory containing 
+the FFTW and sndfile libraries. To set the fields values simply press [enter] while the cursor is on the 
+relevant field, and after editing press [enter] to escape the field edition.  
+
+\vspace{0,3 cm}
+
+\noindent \underline{Important note:} In the case of  include files, only the directory where this include files are located 
+is required. But in the case of library files, the entire path to the library including its name must be indicated 
+in the corresponding field.
+
+\vspace{0,3 cm}
+
+After choosing the options for the build and setting the required fields, press [c] to configure. The configuration 
+of the build system is checked again by Cmake, at the end of this check if the build settings are correct, you 
+can press [g] in order to generate the build system and quit the Cmake GUI.
+
+% Section 2.3.1 : Advanced options
+
+\subsection{Advanced options}
+You can display more information and all the configuration options by switching to the advanced mode, 
+which is set to off by defaut and can be toggled on by pressing [t].
+
+\vspace{0,3 cm}
+
+\noindent The list of the following options should be considered as advanced:
+\begin{my_itemize}
+	\item BUILD\_DEBUG : Compile in debug mode (by default: OFF = Release)
+	\item BUILD\_SHARED\_LIBS: Allows the construction of libraries (libdsp\_windows \& libmptk) 
+	in a lib directory and the include file (mptk.h) in an include directory (by default: ON)
+	\item BUILD\_TESTING: Allow to test executables using Dart server (by default : ON)
+	\item BUILD\_VERBOSE: Display various informations during the build (by default : ON)
+	\item BUILD\_EXECUTABLE: Build the executables (mpd, mpd\_demix, mpf, mpview, mpr, mpcat) in a bin directory (default value: ON)
+\end{my_itemize}
+
+\clearpage
+
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+% Section 3 : How to use MPTK command lines
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+\chapter{How to use MPTK command lines}
+
+%--------------------------------------------------------------
+% Section 3.1 : Beginning with command lines
+%--------------------------------------------------------------
+\section{Beginning with command lines}
+
+\noindent \underline{Unix \& MacOS: }
+
+\vspace{0,2 cm}
+
+The installation is supposed to copy the binary files (mpd, mpr, mpf...) 
+under ``/usr/local/bin'' and the library files under ``/usr/local/lib'' which are supposed to be under the 
+environment PATH destination. You should normaly be able to launch it directly using terminal command. 
+
+\vspace{0,2 cm}
+
+Try typing ``mpd'' under a terminal command and then you should see the help description.
+
+\vspace{0,3 cm}
+
+\noindent \underline{Windows: }
+
+\vspace{0,2 cm}
+
+The installation is supposed to copy the binary files (mpd, mpr, mpf...) and the library files 
+under ``C:\textbackslash Program Files\textbackslash MPTK\textbackslash bin''. In order to make it work, type 
+``cmd'' under the execute launcher. Then try typing ``C:\textbackslash Program Files\textbackslash 
+MPTK\textbackslash bin\textbackslash mpd.exe'' and then you should see the help description.
+
+%--------------------------------------------------------------
+% Section 3.2 : Introduction
+%--------------------------------------------------------------
+\section{Introduction}
 
 The Matching Pursuit standalone utilities are designed so that a typical
 processing task decomposes into a chain of commands which can be connected by
@@ -148,7 +525,7 @@ command-line help.
 
 \smallskip
 
-Some typical processing chains include:
+\noindent Some typical processing chains include:
 
 \begin{itemize}
 \item Signal approximation with N atoms: \\
@@ -169,27 +546,33 @@ Some typical processing chains include:
       \mbox{\tt mpd\_demix -D dictionary -M matrix.txt -n N mix.wav bookFile;} \\
       \mbox{\tt mpr bookFile\_3.bin approxOfSource3.wav}
 \end{itemize}
+
 Lots of other combinations are possible. The relevant utilities are described
 with more detail in the next sections.
 
-\paragraph{Note about the signal file formats} -- MPTK has been originally designed for sound
+\vspace{0,3 cm}
+
+\textbf{\emph{Note about the signal file formats:}} MPTK has been originally designed for sound
 processing, but it is applicable to any kind of signal.
 
 For input, we have mostly been using the WAV format, but any file format
 recognized by the \verb+libsndfile+ library (i.e., most audio formats, see
-\verb+http://www.mega-nerd.com/libsndfile/+) should work with the provided MPTK
-utilities.
+\underline{\textcolor{blue}{http://www.mega-nerd.com/libsndfile/}}) should work with 
+the provided MPTK utilities.
 
 The signal output is more specific: the MPTK binaries output signals in the WAV
-format only. {\em (WARNING: in the \verb+libsndfile+ implementation, this
-  format is not protected against clipping, which may happen for some books and
-  is not an artifact of the MPTK analysis.)} Nevertheless, the MPTK API also
+format only. {\em (WARNING: in the \verb+libsndfile+ implementation, this 
+format is not protected against clipping, which may happen for some books and 
+is not an artifact of the MPTK analysis.)} Nevertheless, the MPTK API also
 offers Matlab, raw \verb+double+ and raw \verb+float+ signal output formats:
 those could be quickly enabled by simple hacks of the relevant utilities. To
 enable other output formats, please contribute some code to the
 \verb+mp_signal.{h,cpp}+ API.
 
-\subsection{the MPTK environment}
+%--------------------------------------------------------------
+% Section 3.3 : The MPTK environment
+%--------------------------------------------------------------
+\section{The MPTK environment}
 In order to define the working environment of Matching Pursuit utilities, 
 An XML file is loaded before using Matching Pursuit. This XML file contains
 the configuration path \verb+<configpath>+ path\verb+</configpath>+ the syntax
@@ -207,85 +590,522 @@ with the \verb+-C<FILE>, -config-file=<FILE>+ for utilities or MPTK library call
 the environment variable \verb+MPTK_CONFIG_FILENAME+ to determine
 which file to use for setting up the MPTK environment.
 
-%%%%%%%%%
-\subsection{mpd: matching pursuit signal decomposition}
-%%%%%%%%%
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+% Section 4 : List of command lines functions
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+\chapter{List of command lines functions}
+
+%--------------------------------------------------------------
+% Section 4.1 : MPD
+%--------------------------------------------------------------
+\section{mpd: matching pursuit signal decomposition}
 \begin{center}
-	\begin{minipage}{0.8\linewidth} 
+	\begin{minipage}{1.1\linewidth} 
 		\input{CommandUsage/mpd_Usage}
 	\end{minipage}
 \end{center}
 
-%%%%%%%%%
-\subsection{gpd: gradient pursuit signal decomposition}
-%%%%%%%%%
+%--------------------------------------------------------------
+% Section 4.2 : GPD
+%--------------------------------------------------------------
+\section{gpd: gradient pursuit signal decomposition}
 \begin{center}
-	\begin{minipage}{0.8\linewidth} 
+	\begin{minipage}{1.1\linewidth} 
 		\input{CommandUsage/gpd_Usage}
 	\end{minipage}
 \end{center}
 
-%%%%%%%%%
-\subsection{mpr: signal reconstruction}
-%%%%%%%%%
+%--------------------------------------------------------------
+% Section 4.3 : MPR
+%--------------------------------------------------------------
+\section{mpr: signal reconstruction}
 \begin{center}
-	\begin{minipage}{0.8\linewidth} 
+	\begin{minipage}{1.1\linewidth} 
 		\input{CommandUsage/mpr_Usage}
 	\end{minipage}
 \end{center}
 
-%%%%%%%%%
-\subsection{mpf: filtering of the book files}
-%%%%%%%%%
+%--------------------------------------------------------------
+% Section 4.4 : MPF
+%--------------------------------------------------------------
+\section{mpf: filtering of the book files}
 \begin{center}
-	\begin{minipage}{0.8\linewidth} 
+	\begin{minipage}{1.1\linewidth} 
 		\input{CommandUsage/mpf_Usage}
 	\end{minipage}
 \end{center}
 
-%%%%%%%%%
-\subsection{mpcat: concatenation of book files}
-%%%%%%%%%
+%--------------------------------------------------------------
+% Section 4.5 : MPCAT
+%--------------------------------------------------------------
+\section{mpcat: concatenation of book files}
 \begin{center}
-	\begin{minipage}{0.8\linewidth} 
+	\begin{minipage}{1.1\linewidth} 
 		\input{CommandUsage/mpcat_Usage}
 	\end{minipage}
 \end{center}
 
-%%%%%%%%%
-\subsection{mpd\_demix: blind source separation with a known mixing matrix}
-%%%%%%%%%
+%--------------------------------------------------------------
+% Section 4.6 : MPD_DEMIX
+%--------------------------------------------------------------
+\section{mpd\_demix: blind source separation with a matrix}
 \begin{center}
-	\begin{minipage}{0.8\linewidth} 
+	\begin{minipage}{1.1\linewidth} 
 		\input{CommandUsage/mpd_demix_Usage}
 	\end{minipage}
 \end{center}
 
-%%%%%%%%%
-\subsection{mpview: generation of a time-frequency map from a book}
-%%%%%%%%%
+%--------------------------------------------------------------
+% Section 4.7 : MPVIEW
+%--------------------------------------------------------------
+\section{mpview: generation of a time-frequency map from a book}
 \begin{center}
-	\begin{minipage}{0.8\linewidth} 
+	\begin{minipage}{1.1\linewidth} 
 		\input{CommandUsage/mpview_Usage}
 	\end{minipage}
 \end{center}
 
-%%%%%%%%%
 \clearpage
-\section{Format of the dictionary files \label{dict_format}}
+
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+% Section 5: How to use MPTK with Matlab
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+\chapter{How to use MPTK with Matlab \label{use_matlab}}
+
+%--------------------------------------------------------------
+% Section 5.1 : Beginning with Matlab MEX commands
+%--------------------------------------------------------------
+\section{Beginning with Matlab MEX commands}
+
+\noindent \underline{Unix \& MacOS:} matlabMexPath = /usr/local/mptk/matlab
+
+\vspace{0,2 cm}
+
+\noindent \underline{Windows:} : matlabMexPath =  C:\textbackslash Program Files\textbackslash 
+MPTK\textbackslash mptk\textbackslash matlab
+
+\vspace{0,3 cm}
+	
+If Matlab is installed under your computer, follow these instructions in order to make Matlab MEX files work.
+
+\begin{my_enumerate}
+	\item Launch Mathworks Matlab
+	\item Select the current folder as ``matlabMexPath'' mentioned above. You should see the MexFiles related to your computer : 
+		\begin{center}
+			\begin{tabular}{lll}
+				- Mexw32 for Windows 32 bytes & - Mexw64 for Windows 64 bytes \\
+				- Mexmaci for Mac 32 bytes & - Mexmaci64 for Mac 64 bytes \\
+				- Mexglx for Linux 32 bytes & - Mexa64 for Linux 64 bytes \\
+			\end{tabular}
+		\end{center}
+	\item Run GettingStarted in order to test MPTK
+\end{my_enumerate}
+
+%--------------------------------------------------------------
+% Section 5.2 : Matlab book structure definition
+%--------------------------------------------------------------
+\section{Matlab book structure definition}
+
+The book structure has been fully rewritten to fit ``bookedit'' needs and to allow fast operations on atoms. 
+This structure is extensively used in ``GettingStarted.m'' so you can find many examples of processing a book with matlab.
+
+\vspace{0.2 cm}
+
+The original idea for the organization of the book is that atoms with the same sets of parameters (atoms 
+of the same type: gabor, dirac, mdct, constant, ....) are gathered in atom sub structures for fast group processing.
+
+\vspace{0.2 cm}
+
+In order to further ease common atom manipulations, this idea has evolved into also grouping atoms of the same 
+lengths. Now, in the book structure, there are as many ``atom'' as [atoms type*length]. This leads to ``book.atom'' 
+structures rather close to the different ``blocks'' in the MP\_dictionnary definition.
+
+\vspace{0.2 cm}
+
+\underline{The `book' structure contains the following fields:}
+\begin{my_itemize}
+	\item numAtoms : Number of atoms actually stored in the book
+	\item numChans : number of channels of the atoms 
+	\item numSamples : number of samples in each channel covered by the reconstructed book
+	\item sampleRate : signal sample rate
+	\item maxNumAtoms : Number of atoms that could fit in the storage space
+	\item atom:  [1 x Ntype struct]
+	\begin{my_itemize}
+		\item type : string
+		\item params: structure of atoms parameters arrays, whose field are type dependent
+	\end{my_itemize}
+\end{my_itemize}
+
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+% Section 6 : List of Matlab functions
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+\chapter{List of Matlab functions}
+Some Matlab utilities are bundled with the distribution to help loading and visualizing books under Matlab. They are automatically installed and can be found under mptk installation directory
+
+\vspace{0.3 cm}
+
+\noindent The stable included files are:
+\begin{my_itemize}
+	\item GettingStarted: A getting started example to use MPTK
+	\item bookread: to load a binary book into Matlab
+	\item bookwrite: to save a structured book into binary or txt format
+	\item dictread: to read a dicitonary
+	\item dictwrite: to write a dictionary
+	\item mpdecomp: to decompose a signal into a book
+	\item mprecons: to reconstruct a signal from a book
+	\item sigread: reads and inport into matlab format an audio signal
+	\item sigwrite: exports an audio signal from matlab to wav format
+\end{my_itemize}
+
+\noindent The non-stable included files are:
+\begin{my_itemize}
+	\item bookedit: to manually edit any book according to its structure
+	\item bookplot: to plot a book in a spectrogram-like fashion
+	\item bookover: to overlay a book plot on a STFT spectrogram
+\end{my_itemize}
+
+\clearpage
+
+%--------------------------------------------------------------
+% Section 6.1: Getting started
+%--------------------------------------------------------------
+\section{Getting Started}
+\begin{center}
+	\begin{minipage}{1.1\linewidth} 
+		\input{CommandUsage/getmptkinfo_Usage}
+	\end{minipage}
+\end{center}
+
+%--------------------------------------------------------------
+% Section 6.2: bookread
+%--------------------------------------------------------------
+\section{bookread}
+\begin{center}
+	\begin{minipage}{1.1\linewidth} 
+		\input{CommandUsage/bookread_Usage}
+	\end{minipage}
+\end{center}
+
+%--------------------------------------------------------------
+% Section 6.3: bookwrite
+%--------------------------------------------------------------
+\section{bookwrite}
+\begin{center}
+	\begin{minipage}{1.1\linewidth} 
+		\input{CommandUsage/bookwrite_Usage}
+	\end{minipage}
+\end{center}
+
+\clearpage
+
+%--------------------------------------------------------------
+% Section 6.4: bookedit
+%--------------------------------------------------------------
+\section{bookedit}
+\begin{center}
+	\begin{minipage}{1.1\linewidth} 
+		\input{CommandUsage/bookedit_Usage}
+	\end{minipage}
+\end{center}
+
+%--------------------------------------------------------------
+% Section 6.5: bookplot
+%--------------------------------------------------------------
+\section{bookplot}
+\begin{center}
+	\begin{minipage}{1.1\linewidth} 
+		\input{CommandUsage/bookplot_Usage}
+	\end{minipage}
+\end{center}
+
+%--------------------------------------------------------------
+% Section 6.6: bookover
+%--------------------------------------------------------------
+\section{bookover}
+\begin{center}
+	\begin{minipage}{1.1\linewidth} 
+		\input{CommandUsage/bookover_Usage}
+	\end{minipage}
+\end{center}
+
+\clearpage
+
+%--------------------------------------------------------------
+% Section 6.7: dictread
+%--------------------------------------------------------------
+\section{dictread}
+\begin{center}
+	\begin{minipage}{1.1\linewidth} 
+		\input{CommandUsage/dictread_Usage}
+	\end{minipage}
+\end{center}
+
+%--------------------------------------------------------------
+% Section 6.8: dictwrite
+%--------------------------------------------------------------
+\section{dictwrite}
+\begin{center}
+	\begin{minipage}{1.1\linewidth} 
+		\input{CommandUsage/dictwrite_Usage}
+	\end{minipage}
+\end{center}
+
+%--------------------------------------------------------------
+% Section 6.9: mpdecomp
+%--------------------------------------------------------------
+\section{mpdecomp}
+\begin{center}
+	\begin{minipage}{1.1\linewidth} 
+		\input{CommandUsage/mpdecomp_Usage}
+	\end{minipage}
+\end{center}
+
+\clearpage
+
+%--------------------------------------------------------------
+% Section 6.10: mprecons
+%--------------------------------------------------------------
+\section{mprecons}
+\begin{center}
+	\begin{minipage}{1.1\linewidth} 
+		\input{CommandUsage/mprecons_Usage}
+	\end{minipage}
+\end{center}
+	
+%--------------------------------------------------------------
+% Section 6.11: sigread
+%--------------------------------------------------------------
+\section{sigread}
+\begin{center}
+	\begin{minipage}{1.1\linewidth} 
+		\input{CommandUsage/sigread_Usage}
+	\end{minipage}
+\end{center}
+
+%--------------------------------------------------------------
+% Section 6.12: sigwrite
+%--------------------------------------------------------------
+\section{sigwrite}
+\begin{center}
+	\begin{minipage}{1.1\linewidth} 
+		\input{CommandUsage/sigwrite_Usage}
+	\end{minipage}
+\end{center}
+
+\clearpage
+
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+% Section 7: Matlab bookedit GUI
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+\chapter{Matlab bookedit GUI}
+
+This GUI makes intensive use of function\_handles (denoted @functionName). The differents callbacks 
+of the GUI are function handles which refer to sub functions. As a consequence, the code is divided in a large 
+number of subfunctions. A tip to navigate inside the code is to select the function name, right-click and ``open selection'' 
+or F4 to jump to the sub-function.
+
+The data (book info, selection info, figure handles and other variables) are organised in structure and are stored inside 
+the figure. The data structure is loaded at the beginning of many functions and saved back at their end using the commands:
+\begin{my_itemize}
+	\item data = get(gcbf,`UserData'); \% load data
+	\item set(gcbf,`UserData',data);   \% save data
+\end{my_itemize}
+
+%--------------------------------------------------------------
+% Section 7.1: Interface startup
+%--------------------------------------------------------------
+\section{Interface startup}
+
+The interface can be started under Matlab with “bookedit” command with different arguments:
+\begin{my_itemize}
+	\item No argument : At startup, a find file window asks the user for a valid MPTK book
+	\item bookname: a string with a valid MPTK book. In this case the book is loaded at startup
+\end{my_itemize}
+
+%--------------------------------------------------------------
+% Section 7.2: Overview and main functionalities
+%--------------------------------------------------------------
+\section{Overview and main functionalities}
+
+Bookedit is a matlab tool to edit MTPK books issued from decomposition. It implements plotting tools, basic 
+editing functions and audio transformations:
+\begin{my_itemize}
+	\item Plot atoms, toggle view per type and length
+	\item Select atoms, Move, Cut or apply a gain on selected atoms
+	\item Pitch Shifting and Time stretching of atoms
+	\item Load / Save the modified MPTK book in native MPTK format
+	\item Reconstruct and play the transformed/selected book
+\end{my_itemize}
+
+\noindent \underline{The following figure shows a snapshot of the interface:}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width = 12cm, height=7cm]{bookeditPage.eps}
+	\textit{\caption{\label{bookeditPage} bookedit main page description}}
+\end{figure}
+
+%--------------------------------------------------------------
+% Section 7.3: Toolbar functions
+%--------------------------------------------------------------
+\section{Toolbar functions}
+\begin{figure}[H]
+	\centering
+	\includegraphics[width = 10cm, height=3cm]{bookeditToolbar.eps}
+	\textit{\caption{\label{bookeditToolbar} bookedit file toolbar description}}
+\end{figure}
+
+\noindent \textbf{Atom selection:} When the atom selection is toggled on, you can directly drag a rectangle in the 
+plot to select an area. \newline
+\noindent \textbf{Important note:} when a zoom function is active (icon grey) the colormap cannot be edited. 
+
+%--------------------------------------------------------------
+% Section 7.4: File Menu functions
+%--------------------------------------------------------------
+\section{File Menu functions}
+\begin{figure}[H]
+	\centering
+	\includegraphics[width = 5cm, height=3cm]{bookeditFileToolbar.eps}
+	\textit{\caption{\label{bookeditFileToolbar} bookedit file toolbar description}}
+\end{figure}
+
+The `Edit' menu contains functions for editing the selected atoms.  It also has a `Refresh figure' 
+usefull in case the GUI gets lost.
+
+%--------------------------------------------------------------
+% Section 7.5: Edit Menu functions
+%--------------------------------------------------------------
+\subsection{Edit Menu functions}
+\begin{figure}[H]
+	\centering
+	\includegraphics[width = 5cm, height=3cm]{bookeditEditToolbar.eps}
+	\textit{\caption{\label{bookeditEditToolbar} bookedit edit toolbar description}}
+\end{figure}
+
+The `File' menu contains functions for loading and saving a book. It possible to either save only the selected 
+atoms or the visible part of the book.
+
+%--------------------------------------------------------------
+% Section 7.6: Transform Menu functions
+%--------------------------------------------------------------
+\subsection{Transform Menu functions}
+\begin{figure}[H]
+	\centering
+	\includegraphics[width = 5cm, height=3cm]{bookeditTransformToolbar.eps}
+	\textit{\caption{\label{bookeditTransformToolbar} bookedit transform toolbar description}}
+\end{figure}
+
+The `Transform' menu contains functions for typical processing of audio signals. Some functions are not 
+implemented and thus not accessible.
+
+\clearpage
+
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+% Section 8: Troubleshooting
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+\chapter{Troubleshooting / Help}
+If you experiment some issues during the usage of MPTK, if you would like to ensure that the executables 
+are working correctly, if you want to try new dictionaries, a series of tests are available on the source release.
+
+%--------------------------------------------------------------
+% Section 8.1 : Local tests using Ctest
+%--------------------------------------------------------------
+\section{Local tests using Ctest}
+
+CTest is a testing tool distributed as a part of CMake. It can be used to automate updating, configuring, 
+building, testing, performing memory checking, performing coverage, and submitting results to a CDash 
+or Dart dashboard system.
+
+You can run local tests on your machine using the command ``ctest'' if : 
+\begin{my_itemize}
+	\item MPTK has been successfully pre-compiled with cmake
+	\item MPTK has been successfully compiled
+	\item MPTK has been successfully installed
+\end{my_itemize}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width = 8cm, height=5cm]{cTestReport.eps}
+	\textit{\caption{\label{cTestReport} cTtest testing report description}}
+\end{figure}
+
+\clearpage
+
+%--------------------------------------------------------------
+% Section 8.2 : Fixing FFTW used plan with wisdom in FFTW configuration
+%--------------------------------------------------------------
+\section{Fixing FFTW used plan with wisdom in FFTW configuration}
+MPTK currently relies on FFTW to compute Fast Fourier Transforms. The principle of FFTW is to 
+adaptively select the fastest running codelet to perform a given FFT, which is good for performance. 
+However, this can lead to non deterministic behaviour of MPTK since two consecutive runs of the 
+same command (e.g. `mpd') with the same options on the same data can yield slightly different results. 
+To avoid this issue we have implemented a mechanism which allows MPTK to fix which FFT codelet 
+is used for a specific type of FFT computation. To do this, you just need to create and export a 
+environment variable called MPTK\_FFTW\_WISDOM and set this environnement variable with 
+the path of the file you want to use in order to save the FFTW configuration. MPTK will create 
+a ``wisdom'' file, that will be reloaded each time you use MPTK. It means that the codelets use 
+to compute FFTW plan will be the same between two successive decompositions with the same parameters.
+
+\vspace{0,3 cm}
+
+\noindent For bash or sh or ash:
+
+\vspace{0,2 cm}
+
+\noindent {\tt bash-3.1\$ export MPTK\_FFTW\_WISDOM=/usr/local/fftw\_wisdom\_file}
+
+\vspace{0,3 cm}
+
+If you want to fix permanently the used FFTW plan, just set this environment variable when the console 
+is launched, using for that the /etc/profile, ~/.profile or  .bashrc file, according to your system configuration. 
+
+\vspace{0,3 cm}
+
+\noindent For tcsh or csh : 
+
+\vspace{0,2 cm}
+
+\noindent {\tt bash-3.1\$ setenv MPTK\_FFTW\_WISDOM=/usr/local/fftw\_wisdom\_file}
+
+\vspace{0,3 cm}
+
+If you want to fix permanently the used FFTW plan, just set this environment variable when the console 
+is launched, using for that the  /etc/csh.cshrc file, according to your system configuration.
+
+\clearpage
+
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+% Section 9: Format of the dicitionary files
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+\chapter{Format of the dictionary files \label{dict_format}}
 The dictionary files use a XML syntax, with tags enclosed between
 angle brackets. Strict XML compliance is now mandatory.
 \footnote{Uh, that is, if a DTD get ready someday.}.
 
-\subsubsection*{General rules}
+%--------------------------------------------------------------
+% Section 9.1 : General rules
+%--------------------------------------------------------------
+\section{General rules \label{GenRules}}
 A dictionary should include, in the following order:
-\begin{enumerate}
-\item an optional XML declaration line;
-\item a mandatory dictionary opening tag;
-\item an optional library version tag;
-\item a list of blocks with their parameters (some mandatory, some admitting default values);
-\item a dictionary closing tag.
-\end{enumerate}
+\begin{my_enumerate}
+	\item An optional XML declaration line;
+	\item A mandatory dictionary opening tag;
+	\item An optional library version tag;
+	\item A list of blocks with their parameters (some mandatory, some admitting default values);
+	\item A dictionary closing tag.
+\end{my_enumerate}
 Any text included after the dictionary closing tag will be ignored. Blank
 spaces and line breaks are ignored. Any part of the file can be commented out
 either by enclosing it between \verb+<!--+ and \verb+-->+ (XML style) 
@@ -294,204 +1114,126 @@ in the event of syntax errors in a dictionary, some dictionary
 pieces will therefore show up in stderr.
 
 
-\subsubsection*{Valid tags}
-\begin{itemize}
+\subsubsection{Valid tags}
+\begin{scriptsize}
+	\begin{alltt}
+		\emph{<?xml version="1.0" encoding="ISO-8859-1"?>}
+		          The XML declaration line.
+		\emph{<dict>List of blocks</dict>}
+		          The opening and closing tags for the dictionary. Anything coming after the </dict> tag 
+		          will be ignored by the parser.
+		\emph{<libVersion>blah</libVersion> [optional]}
+		          The library version declaration. This is provided for backward compatibility if we ever 
+		         change the dictionary syntax. If absent, the library version is taken to be the current one.
+		\emph{<blockproperties name="PROPERTIES_NAME"> List of block parameters</blockproperties>}
+		          The opening and closing tags for a block properties list.
+		\emph{<block uses="PROPERTIES_NAME"> List of block parameters</block>}
+		          The opening and closing tags for a block. The block will be construct using the list of 
+		          parameters defined in PROPERTIES_NAME block properties.
+		\emph{<block>List of block parameters</block>}
+		          The opening and closing tags for a block. the list of block parameters should contains all 
+		          the mandatories parameters for this type of block
+		\emph{<param name="NAME" value="VALUE"/>}
+		          A block parameter. The NAME and corresponding VALUE value in string. The parameter 
+		          value is set to the corresponding type when the dictionary file is parsed. Note that when 
+		          using the <block uses="PROPERTIES_NAME">List of block parameters </block> syntax. 
+		          The block parameters defined in the block list override the parameters from 
+		          PROPERTIES_NAME block properties.	
+	\end{alltt}
+\end{scriptsize}
 
+\clearpage
 
-\item \verb+<?xml version="1.0" encoding="ISO-8859-1"?>+: the XML
-  declaration line.
-  
-\item \verb+<dict>+List of blocks\verb+</dict>+: the opening and closing tags
-  for the dictionary. Anything coming after the \verb+</dict>+ tag will be
-  ignored by the parser.
-  
-\item \verb+<libVersion>+blah\verb+</libVersion>+ [optional]: the library
-  version declaration. This is provided for backward compatibility if we ever
-  change the dictionary syntax. When absent, the library version is taken to be
-  the current one.
-  
-\item \verb+<blockproperties name="PROPERTIES_NAME">+List of block parameters\verb+</blockproperties>+: 
-  the opening and closing tags for a block properties list.this 
-  
-\item \verb+<block uses="PROPERTIES_NAME">+List of block parameters\verb+</block>+:
-  the opening and closing tags for a block. The block will be construct using the list of
-  parameters defined in \verb+PROPERTIES_NAME+ block properties.
-  
-\item \verb+<block>+List of block parameters\verb+</block>+:
-  the opening and closing tags for a block. the list of block parameters should
-  contains all the mandatories parameters for this type of block
-  
-\item \verb+<par type="NAME" value="VALUE"/>+ : a block
-  parameter. The \verb+NAME+ and corresponding \verb+VALUE+ value in string.
-  The parameter value is set to the corresponding type when the dictionary file is parsed.
+\noindent The parameters list for block types (\textbf{G}abor, \textbf{H}armonic, \textbf{C}hirp, \textbf{A}nywave, \textbf{C}onsTant, \textbf{N}yquist):
+\begin{my_itemize}
+	\item {\tt windowLen (G,H,C,CT,N)} 
+		\subitem Unsigned long int value: The atom length (i.e., the window length in the STFT)
+	\item {\tt windowShift (G,H,C,A,CT,N)}
+		\subitem Unsigned long int value: The atom shift (i.e., the window shift in the STFT)
+	\item {\tt windowRate (G,H,C)}
+		\subitem Double value between 0 and 1: An other way to specify the window shift, as a proportion 
+		of the {\tt windowLen}.  If both are present, {\tt windowShift} has precedence over {\tt windowRate}
+	\item {\tt fftSize (G,H,C)}
+		\subitem Unsigned long value: The frequency resolution in terms of FFT size. It has to be greater 
+		or equal to {\tt windowLen} if {\tt windowLen} is even, or $\geq$\verb2(windowLen+1)2 if \verb+windowLen+ 
+		is odd. If absent, defaults to \verb+windowLen+ (or \verb2windowLen+12).
+	\item  {\tt blockOffset (G,H,C,CT,N)} 
+		\subitem Unsigned long value: the block Offset, (i.e. the position of the first frame
+		If absent, defaults to 0
+	\item {\tt windowtype (G,H,C,CT,N)}
+		\subitem The window specification to be included among the block parameters
+    	\item {\tt windowopt (G,H,C,CT,N)} 
+		\subitem The optional parameter for window type parameter :
+		\begin{my_itemize}
+			\item Used for:  hamgen, gauss, exponential
+			\item Not used for:  rectangle, triangle, cosine, hanning, hamming, blackman, flattop, fof
+		\end{my_itemize}
+		The meaning of the optional parameter varies according to the window type
+	\item {\tt f0Min (H)} 
+		\subitem Double value: minimum frequency (in Hz) from which the fundamental frequency 
+		of the harmonic atoms is searched. Defaults to the first non-null FFT frequency
+	\item {\tt f0Max (H)} 
+		\subitem Double value: maximum frequency (in Hz) at which the fundamental frequency 
+		of the harmonic atoms is searched. Defaults to the Nyquist frequency of the considered signal
+	\item {\tt numPartials (H)} 
+		\subitem Unsigned int value: number of partials considered when tracking the harmonic atoms
+	\item {\tt numFitPoints (C)} 
+		\subitem (EXPERIMENTAL) Unsigned int value: number of polynomial fitting points considered 
+		for the chirp optimization algorithm. Defaults to 1.
+	\item {\tt numIter (C)} 
+		\subitem (EXPERIMENTAL) Unsigned int value: number of iterations considered for the chirp 
+		optimization algorithm. Defaults to 1.
+	\item {\tt tableFileName (A)} 
+		\subitem String: filename of the table containing the waveforms (ex: /udd/toto/table.bin ). 
+		Note that there is no {"} around the string.
+\end{my_itemize}
 
-  Note that when using the \verb+<block uses="PROPERTIES_NAME">+List of block parameters
-  \verb+</block>+ syntax. The block parameters defined in the block list override the parameters
-  from \verb+PROPERTIES_NAME+ block properties.
+\noindent \emph{Note :} The {\tt dirac} blocks don't need any parameter (they just match signal samples).
 
+\clearpage
 
-  The list of parameters for relevant block types (G==gabor, H==harmonic, C==Chirp, A==Anywave,
-  CT==constant, N==nyquist) are given below:
-  \begin{itemize}
+\subsubsection{Example}
+\begin{tiny}
+	\begin{alltt}
+	          <?xml version="1.0" encoding="ISO-8859-1"?>                      \emph{\textcolor{cyan}{:The optional XML declaration line.}}
+	          <dict>                                                           \emph{\textcolor{cyan}{:The dictionary opening tag.}}
+	               <libVersion>0.2</libVersion>                           \emph{\textcolor{cyan}{:The optional library version.}}
+	               <blockproperties name="GAUSS-WINDOW">	                  \emph{\textcolor{cyan}{:A new block properties.}}
+	                         <param name="windowtype" value="gauss"/>
+	                         <param name="windowopt" value="0.02"/>       \emph{\textcolor{cyan}{:Gauss windows need a parameter.}}
+	               </blockproperties>
+	               <block uses="GAUSS-WINDOW">                            \emph{\textcolor{cyan}{:New block using GAUSS-WINDOW.}} \emph
+	                         <param name="type" value="gabor"/>
+	                         <param name="windowLen" value="32"/>
+	                         <param name="windowShift" value="32"/>
+	                         <param name="fftSize" value="32"/>
+	               </block>
+	               <block>
+	                         <param name="type" value="anywave"/>         \emph{\textcolor{cyan}{:An anywave block.}}
+	                         <param name="tableFileName" value="/udd/toto/table.xml"/>
+	                         <param name="windowShift" value="1"/>
+	               </block>
+	               <block>
+	                         <param name="type" value="dirac"/>           \emph{\textcolor{cyan}{:A dirac block.}}
+	               </block>
+	               <block>
+	                         <param name="type" value="constant"/>        \emph{\textcolor{cyan}{:A constant block.}}
+	                         <param name="windowLen" value="512"/>
+	                         <param name="windowShift" value="32"/>
+	               </block>
+	               <block>
+	                         <param name="type" value="nyquist"/>         \emph{\textcolor{cyan}{:A nyquist block.}}
+	                         <param name="windowLen" value="512"/>
+	                         <param name="windowShift" value="32"/>
+	               </block>
+	          </dict>
+	\end{alltt}
+\end{tiny}
 
-  \item (G,H,C,CT,N) \verb+windowLen+ with an unsigned long int value: the atom length
-    (i.e., the window length in the STFT).
-
-  \item (G,H,C,A,CT,N) \verb+windowShift+ with an unsigned long int value: the atom
-    shift (i.e., the window shift in the STFT).
-    
-  \item (G,H,C) \verb+windowRate+ with a double value between 0.0 and 1.0: an
-    alternate way to specify the window shift, as a proportion of the
-    windowLen.  If both are present, \verb+windowShift+ has precedence over
-    \verb+windowRate+.
-    
-  \item (G,H,C) \verb+fftSize+ with an unsigned long value: the frequency
-    resolution in terms of FFT size. It has to be greater or equal to
-    \verb+windowLen+ if \verb+windowLen+ is even, or $\geq$\verb2(windowLen+1)2
-    if \verb+windowLen+ is odd. If absent, defaults to \verb+windowLen+ (or
-    \verb2windowLen+12).
-    
-  \item (G,H,C,CT,N) \verb+blockOffset+ with an unsigned long value: the block Offset, 
-    i.e. the position of the first frame. If absent, defaults to 0.
-    
-  \item (G,H,C,CT,N) \verb+windowtype+ the window specification to be included
-    among the block parameters.
-    
-  \item (G,H,C,CT,N) \verb+windowopt+ the optional parameter for window type:
- \begin{itemize}
-     
-  \item The following \verb+windowtype+s do not require the \verb+windowopt+
-  attribute: \\ \verb+rectangle+, \verb+triangle+, \verb+cosine+, \verb+hanning+,
-  \verb+hamming+, \verb+blackman+, \verb+flattop+, \verb+fof+.
-     
-  \item The following \verb+windowtype+s do require the \verb+windowopt+
-  attribute: \\ \verb+hamgen+, \verb+gauss+, \verb+exponential+. \\
-  The meaning of the optional parameter varies according to the window type.
-  See the reference manual for more info.
- \end{itemize}
-    
-  \item (H) \verb+f0Min+ with a double value: minimum frequency (in Hz) from
-    which the fundamental frequency of the harmonic atoms is searched. Defaults
-    to the first non-null FFT frequency.
-    
-  \item (H) \verb+f0Max+ with a double value: maximum frequency (in Hz) at
-    which the fundamental frequency of the harmonic atoms is searched.
-    Defaults to the Nyquist frequency of the considered signal.
-    
-  \item (H) \verb+numPartials+ with an unsigned int value: number of partials
-    considered when tracking the harmonic atoms.
-    
-  \item (C) \verb+numFitPoints+ (EXPERIMENTAL) with an unsigned int value:
-    number of polynomial fitting points considered for the chirp optimization
-    algorithm. Defaults to 1.
-    
-  \item (C) \verb+numIter+ (EXPERIMENTAL) with an unsigned int value: number of
-    iterations considered for the chirp optimization algorithm. Defaults to 1.
-    
-  \item (A) \verb+tableFileName+ with a string: filename of the table
-    containing the waveforms (ex: ---/udd/toto/table.bin--- ). Note that there
-    is no {"} around the string.
-
-  \end{itemize}
-  Note that the \verb+dirac+ blocks don't need any parameter (they just match
-  signal samples).
-
-\end{itemize}
-
-\subsubsection*{Example}
-
-\tiny\begin{verbatim}
-          <?xml version="1.0" encoding="ISO-8859-1"?>                      <= The optional XML declaration line.
-          <dict>                                                           <= The dictionary opening tag.
-                    <libVersion>0.2</libVersion>                           <= The optional library version.
-                    <blockproperties name="GAUSS-WINDOW">	                  <= A new block properties.
-                              <param name="windowtype" value="gauss"/>
-                              <param name="windowopt" value="0.02"/>       <= Gauss windows need a parameter.
-                    </blockproperties>
-                    <blockproperties name="HAMMING-WINDOW">                <= Another block properties.
-                              <param name="windowtype" value="hamming"/>
-                              <param name="windowopt" value="0"/>          <= The hamming window ignores the opt="0" attribute.
-                    </blockproperties>
-                    <block uses="GAUSS-WINDOW">                            <= A new block using GAUSS-WINDOW block properties.
-                              <param name="type" value="gabor"/>
-                              <param name="windowLen" value="32"/>
-                              <param name="windowShift" value="32"/>
-                              <param name="fftSize" value="32"/>
-                    </block>
-                    <blockproperties name="GAUSS-WINDOW-BIS" refines="GAUSS-WINDOW">
-                              <param name="windowopt" value="0.02"/>       <= A new block properties overriding the GAUSS-WINDOW block properties.
-                    </blockproperties>
-                    <block uses="GAUSS-WINDOW-BIS">                        <= A new block using GAUSS-WINDOW-BIS block properties.
-                              <param name="type" value="gabor"/>
-                              <param name="windowLen" value="32"/>
-                              <param name="windowRate" value="0.25"/>      <= This is equivalent to setting windowShift=16.
-                              <param name="fftSize" value="64"/>
-                    </block>
-                    <blockproperties name="WINDOW-SHIFT">                  <= A new block properties.
-                              <param name="windowShift" value="32"/>       <= A value for the window shift.
-                    </blockproperties>
-                    <block uses="WINDOW-SHIFT">
-                              <param name="windowLen" value="128"/>
-<!--                        <param name="windowShift" value="32"/>         <= These 2 lines are commented out. This block will use the default
-                              <param name="fftSize" value="128"/>   -->       windowShift from WINDOW-SHIFT, and will default fftSize to windowLen.                               
-                    </block>
-                    <block uses="GAUSS-WINDOW">
-                              <param name="type" value="gabor"/>	
-                              <varparam name="fftSize">                    <= A variable parameter list.
-                                        <var>64</var>                           a list of block for each value
-                                        <var>32</var>                           of the variable parameter list.
-                                        <var>16</var> 
-                                        <var>8</var>
-                              </varparam>
-                              <param name="windowLen" value="8"/>
-                              <varparam name="windowShift">                <= Another variable parameter list.
-                                        <var>64</var>                           a list of block for each value
-                                        <var>32</var>                           of the variable parameter list,
-                                        <var>16</var>                           combined with the list of block 
-                              </varparam>                                     defined above.
-                    </block>
-                    <block uses="GAUSS-WINDOW-BIS">
-                              <param name="type" value="harmonic"/>        <= A harmonic block.
-                              <param name="fftSize" value="256"/>
-                              <param name="windowLen" value="256"/> 
-                              <param name="windowShift" value="128"/> 
-                              <param name="f0Min" value="340"/> 
-                              <param name="f0Max" value="1000"/>
-                              <param name="numPartials" value="5"/>
-                    </block>
-                    <block uses="GAUSS-WINDOW"> 
-                              <param name="type" value="chirp"/>           <= A chirp block.
-                              <param name="fftSize" value="1024"/>
-                              <param name="windowLen" value="1024"/> 
-                              <param name="windowShift" value="128"/> 
-                              <param name="numFitPoints" value="2"/> 
-                              <param name="numIter" value="1"/>
-                    </block>
-                    <block>
-                              <param name="type" value="anywave"/>         <= An anywave block.
-                              <param name="tableFileName" value="/udd/toto/table.xml"/>
-                              <param name="windowShift" value="1"/>
-                    </block>
-                    <block>
-                              <param name="type" value="dirac"/>           <= A dirac block.
-                    </block>
-                    <block>
-                              <param name="type" value="constant"/>        <= A constant block.
-                              <param name="windowLen" value="512"/>
-                              <param name="windowShift" value="32"/>
-                    </block>
-                    <block>
-                              <param name="type" value="nyquist"/>         <= A nyquist block.
-                              <param name="windowLen" value="512"/>
-                              <param name="windowShift" value="32"/>
-                    </block>
-          </dict>
-This is that great dictionary I used for obtaining these wonderful         <= This text is ignored by the parser.
-experimental results thanks to the Matching Pursuit Library ...            
-
-\end{verbatim}\normalsize
-
-\subsubsection*{Anywave table}
+%--------------------------------------------------------------
+% Section 9.2 : Anywave table
+%--------------------------------------------------------------
+\section{Anywave table}
 
 Waveforms need have been loaded before using anywave atoms. That's the
 difference between parametric atoms, such as Dirac, Gabor, ... and anywave
@@ -502,133 +1244,114 @@ the parameters of the waveforms, and points to a binary ``anywave table data
 file'', that gives the data (/udd/toto/table\_data.bin in the example).
 
 Note that one table corresponds to one atom length, and one number of channels.
-To use several atom lengths, one must create several anywave tables, and define
+To use several atom lengths, create several anywave tables, and define
 several ``anywave'' blocks.
 
-The ``anywave table definition file'' is structured as follows:
-
-\begin{itemize}
-  
-\item \verb+<?xml version="1.0" encoding="ISO-8859-1"?>+ [optional]: the XML
-  declaration line. It is ignored by the parser.
-  
-\item \verb+<table>+List of table parameters\verb+</table>+: the opening and
-  closing tags for the table. Anything coming after the \verb+</table>+ tag
-  will be ignored by the parser.
-  
-\item \verb+<libVersion>+blah\verb+</libVersion>+ [optional]: the library
-  version declaration. This is provided for backward compatibility if we ever
-  change the dictionary syntax. When absent, the library version is taken to be
-  the current one.
-  
-\item \verb+<par type="NAME" value="VALUE"/>+ : a table parameter.
-  The \verb+NAME+ and corresponding \verb+VALUE+ value in string.
-  The parameter value is set to the corresponding type when the table parameter file is parsed.
-  The \verb+NAME+ and corresponding \verb+VALUE+s types are given below:
-  \begin{itemize}
-    
-  \item \verb+numChans+ with an unsigned short int value: the number of
-    channels of the atoms.
-  \item \verb+filterLen+ with an unsigned long int value: the length of the
-    anywave waveforms in the table.
-  \item \verb+numFilters+ with an unsigned long int value: the number of
-    anywave waveforms in the table.
-  \item \verb+data+ with a string: name of the file containing the waveforms
-    data (ex: ---/udd/toto/table\_data.bin--- ). Note that there is no {"}
-    around the string.
-
-  \end{itemize}
-\end{itemize}
+\subsubsection{Valid tags}
+\begin{scriptsize}
+	\begin{alltt}
+		\emph{<?xml version="1.0" encoding="ISO-8859-1"?>}
+		     The XML declaration line.
+		\emph{<dict>List of blocks</dict>}
+		     The opening and closing tags for the dictionary. Anything coming after the </dict> tag 
+		     will be ignored by the parser.
+		\emph{<libVersion>blah</libVersion> [optional]}
+		     The library version declaration. This is provided for backward compatibility if we ever 
+		     change the dictionary syntax. If absent, the library version is taken to be the current one.
+		\emph{<par type="NAME" value="VALUE"/>}
+		     A table parameter. The NAME and corresponding VALUE value in string. The parameter 
+		     value is set to the corresponding type when the table file is parsed. The NAME and 
+		     corresponding VALUE types are given below:	
+		          - {\tt numChans} (Unsigned short int): The number of channels of the atoms
+		          - {\tt filterLen} (Unsigned long int): The length of the anywave waveforms in the table
+		          - {\tt numFilters} (Unsigned long int): The number of anywave waveforms in the table
+		          - {\tt data} (String): Name of the file containing the waveforms
+	\end{alltt}
+\end{scriptsize}
 
 The ``anywave table data file'' is binary, and built as follows: all the
 waveforms are written in double type, one after the other, and for each, one
 channel after the other. The following scheme is for two channels and four
 waveforms: {\center |w1c1|w1c2|w2c1|w2c2|w3c1|w3c2|w4c1|w4c2| }
 
-\subsubsection*{Example of an anywave table}
-\tiny\begin{verbatim}
-        <?xml version="1.0" encoding="ISO-8859-1"?>        <= The optional XML declaration line.
-        <table>                                            <= The table opening tag (only one table per file)
-                <libVersion>0.4beta</libVersion>           <= The optional library version.
-                <param name="numChans" value="1"/>
-                <param name="filterLen" value="64"/>
-                <param name="numFilters" value="20"/>
-                <param name="data" value="/udd/toto/table_data_001.bin"/>
-        </table>                                           <= The table closing tag.
-\end{verbatim}\normalsize
+\subsubsection{Example of an anywave table}
+\begin{tiny}
+	\begin{alltt}
+		<?xml version="1.0" encoding="ISO-8859-1" ?>                         \emph{\textcolor{cyan}{:The optional XML declaration line.}}
+		<dict>
+		     <libVersion>0.6.0</libVersion>                             \emph{\textcolor{cyan}{:The optional library version.}}
+		     <block>
+		          <param name="blockOffset" value="" />
+		          <param name="data" value="+HxVeGKDh7946h9..." /> \emph{\textcolor{cyan}{:The binary datas encoded with base64 (text format)}}
+		          <param name="filterLen" value="128" />
+		          <param name="numChans" value="1" />
+		          <param name="numFilters" value="4" />
+		          <param name="windowShift" value="1" />
+		     </block>
+		</dict>
+	\end{alltt}
+\end{tiny}
 
-\subsubsection*{MDCT/MDST/MCLT}
+%--------------------------------------------------------------
+% Section 9.3 : MDCT/MDST/MCLT
+%--------------------------------------------------------------
+\section{MDCT/MDST/MCLT}
 
-\textbf{Definition:} The Modified Discrete Cosine Transform (MDCT) and the Modified Discrete Sine Transform (MDST) are two orthogonal transforms based on local cosine functions. The Modulated Complex Lapped Transform (MCLT) is the complex extension such as $MCLT=MDCT+i*MDST$. The atoms corresponding to the MCLT of a signal of length $N=PL$ and a window length of $2L$, are defined as:
+\subsubsection{Definition}
+The Modified Discrete Cosine Transform (MDCT) and the Modified Discrete Sine Transform (MDST) are two 
+orthogonal transforms based on local cosine functions. The Modulated Complex Lapped Transform (MCLT) 
+is the complex extension such as $MCLT=MDCT+i*MDST$. The atoms corresponding to the MCLT of a signal 
+of length $N=PL$ and a window length of $2L$, are defined as:
+
 \begin{equation}
-x_{p,k}(n) = w(n-pL) exp \left[ i \frac{\pi}{L} \left( (n-pL) + \frac{1}{2} + \frac{L}{2} \right) \left( k + \frac{1}{2} \right) \right]
+	x_{p,k}(n) = w(n-pL) exp \left[ i \frac{\pi}{L} \left( (n-pL) + \frac{1}{2} + \frac{L}{2} \right) \left( k + \frac{1}{2} \right) \right]
 \end{equation} 
 with $n=0,..,N-1$, $k=0,..,L-1$ and $p=0,..,P-1$. $w$ is a window which is complementary in energy i.e. it verifies $w^2 (n) + w^2 (n+L) = 1, n=0,..,L-1$.
 
-The atoms corresponding to the MDCT are defined as the real part of the previous formula and the atoms corresponding to the MDST the imaginary part of the previous formula.
-
-We also define a generalized MDCT/MDST/MCLT where the window shift, the window shape and the fft size are not constraint by the orthogonality property. The corresponding atoms for a signal of length $N=PS$, a window length of $2L$, a window shift of $S$, a fft size of $Nfft$ and a window $w$, are defined as:
+The atoms corresponding to the MDCT are defined as the real part of the previous formula and the atoms corresponding 
+to the MDST the imaginary part of the previous formula. We also define a generalized MDCT/MDST/MCLT where the window 
+shift, the window shape and the fft size are not constraint by the orthogonality property. The corresponding atoms for a signal 
+of length $N=PS$, a window length of $2L$, a window shift of $S$, a fft size of $Nfft$ and a window $w$, are defined as:
 \begin{eqnarray}
 x_{p,k}(n) = w(n-pS) exp \left[ i \frac{2\pi}{Nfft} \left( (n-pS) + \frac{1}{2} + \frac{L}{2} \right) \left( k + \frac{1}{2} \right) \right] \mbox{ if } Nfft=2L \\
 x_{p,k}(n) = w(n-pS) exp \left[ i \frac{2\pi}{Nfft} \left( (n-pS) + \frac{1}{2} + \frac{L}{2} \right) \left( k  \right) \right] \mbox{ if }Nfft=2mL
 \end{eqnarray}
 with $n=0,..,N-1$, $k=0,..,Nfft/2-1$, $p=0,..,P-1$ and m is even with $m>=2$.
 
-\textbf{Valid tags}
-\begin{itemize}
+\subsubsection{Valid tags}
+\begin{scriptsize}
+	\begin{alltt}
+	\emph{<?xml version="1.0" encoding="ISO-8859-1"?> [optional]}
+	     The XML declaration line.
+	\emph{<libVersion>blah</libVersion> [optional]}
+	     The library version declaration. This is provided for backward compatibility if we ever 
+	     change the dictionary syntax. If absent, the library version is taken to be the current one.
+	\emph{<dict>List of blocks</dict>}
+	     The opening and closing tags for the dictionary. Anything coming after the </dict> tag 
+	     will be ignored by the parser.
+	\emph{<par type="NAME" value="VALUE"/>}
+	     A table parameter. The NAME and corresponding VALUE value in string. The parameter
+	     value is set to the corresponding type when the table parameter file is parsed. The NAME 
+	     and corresponding VALUE types are given below:
+	          - windowLen (Unsigned long int): The atom length (window length). It has to be even
+	          - windowShift (Unsigned long int): The atom shift (window shift)
+	          - windowRate (Double between 0.0 and 1.0:): An alternate way to spe-cify the window 
+	            shift, as a proportion of the windowLen. If both are present, windowShift has precedence 
+	            over windowRate
+	          - fftSize (Unsigned long): The frequency resolution in terms of FFT size. It has to be equal
+	            to windowLen or a multiple of 2*windowLen
+	          - blockOffset (Unsigned long): The block Offset (position of the first frame). If absent, defaults to 0
+	          - windowtype (Unsigned char): The window specification to be included among the block parameters
+	          - windowopt (Double): The optional parameter for window type:
+	               * Used: hamgen, gauss, exponential, kbd
+	               * Not used: rectangle, triangle, cosine, hanning, hamming, blackman, flattop, fof
+	\end{alltt}
+ \end{scriptsize}
+   
 
-\item \verb+<?xml version="1.0" encoding="ISO-8859-1"?>+ [optional]: the XML
-  declaration line. It is ignored by the parser.
-  
-\item \verb+<libVersion>+blah\verb+</libVersion>+ [optional]: the library
-  version declaration. This is provided for backward compatibility if we ever
-  change the dictionary syntax. When absent, the library version is taken to be
-  the current one.
+A default MDCT/MDST/MCLT block is defined using 2 parameters, the window length and the window type. The window type must be \verb+rectangle+, \verb+cosine+ or \verb+kbd+. 
 
-\item \verb+<dict>+List of blocks\verb+</dict>+: the opening and closing tags
-  for the dictionary. Anything coming after the \verb+</dict>+ tag will be
-  ignored by the parser.
-  
-  The list of parameters for relevant block types (G==gabor, H==harmonic, C==Chirp, A==Anywave,
-  CT==constant, N==nyquist) are given below:
-  \begin{itemize}
-
-  \item \verb+windowLen+ with an unsigned long int value: the atom length
-    (i.e., the window length). It has to be even.
-
-  \item \verb+windowShift+ with an unsigned long int value: the atom
-    shift (i.e., the window shift).
-    
-  \item \verb+windowRate+ with a double value between 0.0 and 1.0: an
-    alternate way to specify the window shift, as a proportion of the
-    windowLen.  If both are present, \verb+windowShift+ has precedence over
-    \verb+windowRate+.
-    
-  \item \verb+fftSize+ with an unsigned long value: the frequency
-    resolution in terms of FFT size. It has to be equal to \verb+windowLen+ or a multiple of 2*\verb+windowLen+.
-    
-  \item \verb+blockOffset+ with an unsigned long value: the block Offset, 
-    i.e. the position of the first frame. If absent, defaults to 0.
-    
-  \item  \verb+windowtype+ the window specification to be included
-    among the block parameters.
-    
-  \item  \verb+windowopt+ the optional parameter for window type:
- \begin{itemize}
-     
-  \item The following \verb+windowtype+s do not require the \verb+opt=""+
-  attribute: \\ \verb+rectangle+, \verb+triangle+, \verb+cosine+, \verb+hanning+,
-  \verb+hamming+, \verb+blackman+, \verb+flattop+, \verb+fof+.
-     
-  \item The following \verb+windowtype+s do require the \verb+opt=""+
-  attribute: \\ \verb+hamgen+, \verb+gauss+, \verb+exponential+, \verb+kbd+. \\
-  The meaning of the optional parameter varies according to the window type.
-  See the reference manual for more info.
-\end{itemize}
-\end{itemize}
-\end{itemize}
-
-A default MDCT/MDST/MCLT block is defined using 2 parameters, the window length and the window type. The window type must be \verb+rectangle+, \verb+cosine+ or \verb+kbd+. An example of a MDCT dictionnary is:
+An example of a MDCT dictionnary is:
 \tiny\begin{verbatim}
 <?xml version="1.0" encoding="ISO-8859-1"?>
         <dict>
@@ -657,244 +1380,144 @@ An example of a generalized MCLT dictionnary is:
         </dict>
 \end{verbatim}\normalsize
 
-%%%%%%%%%
-\clearpage
-\section{The GUI \label{gui}}
-%%%%%%%%%
-A wxWidget-based Graphical User Interface is delivered as the \verb+MptkGuiApp+
-binary, in the \verb+./src/gui/+ directory. It is not compiled/installed by
-default: use \verb+--enable-gui+ with the \verb+configure+ script if you want
-to use it. The initial version of this GUI has been developed in the framework
-of an IFSIC/DIIC3 student project by: Nicolas Bonnet, Benjamin Boutier, Vincent
-Chapon and Sylvestre Cozic. (Thanks!)
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+% Section 10: Format of the book files
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+\chapter{Format of the book files \label{book_format}}
 
-This GUI takes up the functionality of \verb+mpd+ and \verb+mpr+ (no atom
-filtering implemented), and adds visualization/audio playback capabilities for
-the books and signals. Globally, it offers a friendlier control of the
-decomposition process. In its current state, it remains bug-prone and poorly
-documented, but it can help vizualizing and understanding the Matching Pursuit
-decomposition process in a nice way.
+The book files can be used either as a binary or XML files. They are divided into 
+two different parts. The first part (xml style) includes all the different dictionaries used during 
+the decomposition. The second part (xml or binary style) represents the differents atom
+founded during the decomposition.
 
+%--------------------------------------------------------------
+% Section 10.1 : General rules
+%--------------------------------------------------------------
+\section{General rules}
+A book should include, in the following order:
+\begin{my_enumerate}
+	\item An optional XML declaration line;
+	\item A dictionary XML structure (see section \ref{GenRules})
+	\item A `bin' or `txt' string refering to the following book structure
+	\item A book opening tag (including mandatory parameters)
+	\item A book closing tag.
+\end{my_enumerate}
 
-%%%%%%%%%
-\section{Extra utilities: visualization of MP books under Matlab \label{matlab}}
-%%%%%%%%%
+Any text included after the book closing tag will be ignored. Blank
+spaces and line breaks are ignored. Any part of the file can be commented out
+either by enclosing it between \verb+<!--+ and \verb+-->+ (XML style) 
+The parser will send any text it can't match to stderr with a error message:
+in the event of syntax errors in a dictionary, some dictionary
+pieces will therefore show up in stderr.
 
-Some Matlab utilities are bundled with the distribution to help loading and
-visualizing books under Matlab. They can be found in the ./extras/matlab/
-directory of the source tree. They are not automatically installed by the
-configure system: you should copy them manually to a location accessible to
-your MATLABPATH.
+% Section 10.1.1 : Valid tags
 
-\bigskip
-
-\noindent The included files are:
-\begin{itemize}
-\item bookread.m: to load a binary book into Matlab;
-\item bookplot.m: to plot a book in a spectrogram-like fashion;
-\item bookover.m: to overlay a book plot on a STFT spectrogram.
-\item dictread.m: under development. Don't use.
-\end{itemize}
-Each of these functions is equipped with some help info, e.g. to get help about
-bookplot use:\\
-\verb+    >> help bookplot+ \\
-under Matlab.
-
+\subsubsection{Valid tags}
+\begin{scriptsize}
+	\begin{alltt}
+		\emph{<?xml version="1.0" encoding="ISO-8859-1"?>}
+		          The XML declaration line.
+		\emph{<dict>List of blocks</dict>}
+		          The opening and closing tags for the dictionary. Anything coming after the </dict> tag 
+		          will be ignored by the parser.
+		\emph{<libVersion>blah</libVersion> [optional]}
+		          The library version declaration. This is provided for backward compatibility if we ever 
+		         change the dictionary syntax. If absent, the library version is taken to be the current one.
+		\emph{<blockproperties name="PROPERTIES_NAME"> List of block parameters</blockproperties>}
+		          The opening and closing tags for a block properties list.
+		\emph{<block uses="PROPERTIES_NAME"> List of block parameters</block>}
+		          The opening and closing tags for a block. The block will be construct using the list of 
+		          parameters defined in PROPERTIES_NAME block properties.
+		\emph{<block>List of block parameters</block>}
+		          The opening and closing tags for a block. the list of block parameters should contains all 
+		          the mandatories parameters for this type of block
+		\emph{<param name="NAME" value="VALUE"/>}
+		          A block parameter. The NAME and corresponding VALUE value in string. The parameter 
+		          value is set to the corresponding type when the dictionary file is parsed. Note that when 
+		          using the <block uses="PROPERTIES_NAME">List of block parameters </block> syntax. 
+		          The block parameters defined in the block list override the parameters from 
+		          PROPERTIES_NAME block properties.	
+		\emph{`bin' or `txt' string}
+		          A string describing if the following book structure is in binary format or in text (XML) format
+		\emph{<book nAtom=``x'' numChans=``x'' numSamples=``x'' sampleRate="x" libVersion="x.x.x">}
+		          The book opening tag. It includes the number of atoms founded, the number of channels of 
+		          the signal, the number of samples and the sample rate asked by the user and the library version
+		\emph{xwA&=<?#_8zk*é?gabor}
+                            An atom datas. It includes the binary datas (``xwA...'') and the name of the type of the atom used
+		\emph{</book>}
+                            The book closing tag.
+	\end{alltt}
+\end{scriptsize}
 
 %%%%%%%%%
 \appendix
 %%%%%%%%%
-
-%%%%%%%%%
 \clearpage
-\section{Development conventions}
 %%%%%%%%%
 
-%%%%%%%%%
-\subsection{Typographic conventions}
-Throughout the source code, the following typographic conventions are
-preferably adopted:
-\begin{itemize}
-\item {\bf myVar} for variables;
-\item {\bf my\_function} for functions;
-\item {\bf MP\_MY\_CONST} for constants (\#define) and for global variables;
-\item {\bf MP\_My\_Type\_t} for types;
-\item {\bf MP\_My\_Class\_c} for classes.
-\end{itemize}
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+% Section A : Gettting libsndfile
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+\chapter{Getting libsndfile \label{GetLibsndfile}}
 
-%%%%%%%%%
-\subsection{Memory allocation conventions}
-The arrays are allocated using malloc (NOT new[]) and freed using free (NOT
-delete[]). Conversely, the objects are created and deleted using new and
-delete.
+Libsndfile is a C library for reading and writing files containing sampled sound (such as MS 
+Windows WAV and the Apple/SGI AIFF format) through one standard library interface. It is released 
+in source code format under the Gnu Lesser General Public License. 
 
-%%%%%%%%%
-\subsection{Source code locations}
-From the source tree, the doc sources are stored in doc/, and the code sources
-in src/. Then\,:
-\begin{itemize}
-\item the bulk of the Matching Pursuit library is stored in src/libmptk/.
-  Specifically, the implementation of blocks and atoms related to specific
-  time-frequency transforms should be located in src/plugin/. As a
-  matter of fact, you should not have to modify other parts of the code when
-  adding new classes of blocks and atoms. Think of it as a sort of plugin
-  logic;
-\item a standalone library (in C) to compute standard signal processing windows
-  is stored in src/libdsp\_windows/;
-\item the applications are stored in src/utils/;
-\item a test suite is stored in src/tests/.
-\end{itemize}
-For the implementation of each class, we use one .h header file to declare the
-class, plus a corresponding .cpp source with the same base name to implement
-its methods. During a build, the .h headers are concatenated in one global
-mptk.h header which should be the one included in all the individual .cpp
-files.
+This library can be downloaded either through the web (for example via Mega-Nerd website) or in 
+the ``relased files'' section of the MPTK Gforge:
+\begin{my_itemize}
+	\item http://www.mega-nerd.com/libsndfile/
+	\item http://mptk.gforge.inria.fr/
+\end{my_itemize}
+
+Install this package on your computer using the instructions given on this web site will be easy an 
+will yield the following sequence of commands after unzipping the package: \newline
+\textcolor[rgb]{0.4,0.4,0.4}{./configure [options]} \newline
+\textcolor[rgb]{0.4,0.4,0.4}{make} \newline
+\textcolor[rgb]{0.4,0.4,0.4}{make install} \newline
 
 
-%%%%%%%%%
-\subsection{Building and portability}
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+% Section B : Gettting fftw
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+ \chapter{Getting fftw \label{GetFftw}}
 
-\paragraph{Building system --} We use the CMake build system
-to automatically adapt the building process to your particular flavor of Unix,
-MAC OS X or Windows Win32. Therefore, every system call should be performed 
-through the ``mp\_system.h''header file located at the top of the source tree.
+FFTW is a C subroutine library for computing the discrete Fourier transform (DFT) in one or more 
+dimensions, of arbitrary input size, and of both real and complex data (as well as of even/odd data, 
+i.e. the discrete cosine/sine transforms or DCT/DST). 
 
-\paragraph{Binary format and byte order --} The byte-order of any binary output
-is forced to be the LITTLE\_ENDIAN order, native on Intel ($\Rightarrow$ most
-PCs and the new Macs) and VAX\footnote{Dude, if you have a VAX alive, we would
-  sure like to know if MPTK runs on it.}, swapped on PowerPC ($\Rightarrow$
-Macintosh PPC), SPARC ($\Rightarrow$ SUN workstations) and Motorola.
+This library can be downloaded either through the web or in the ``relased file''” section of the MPTK Gforge:
+\begin{my_itemize}
+	\item http://www.fftw.org/install/windows.html
+	\item http://mptk.gforge.inria.fr/
+\end{my_itemize}
 
+Install this package on your computer using the instructions given on this web site will be easy an will 
+yield the following sequence of commands after unzipping the package: \newline
+\textcolor[rgb]{0.4,0.4,0.4}{./configure [options]} \newline
+\textcolor[rgb]{0.4,0.4,0.4}{make} \newline
+\textcolor[rgb]{0.4,0.4,0.4}{make install} \newline
 
-%%%%%%%%%
-\subsection{Installed files}
-\begin{itemize}
-\item Static libraries get installed in \verb+EPREFIX/lib+:
-\begin{itemize}
-\item \verb+libdsp_windows+: a standalone library to compute standard signal processing windows.
-\item \verb+libtinyxml+: a standalone library to parse XML dictionary structure file
-\end{itemize}
-\item Dynamic Link Libraries (DLL) get installed in \verb+EPREFIX/lib+:
-\begin{itemize}
-\item \verb+libmptk+: the MPT core library
-\item \verb+"ATOMNAME"Atom+: the \verb+"ATOMNAME"+ atom plugin, which is dynamically loaded
-when MPTK environment is loaded.
-\item \verb+"BLOCKNAME"Atom+: the \verb+"BLOCKNAME"+ block plugin, which is dynamically loaded
-when MPTK environment is loaded.
-\end{itemize}
-\item MPTK environment configuration file: \verb+pathµ.xml+ gets installed in \verb+PREFIX/bin+.
-\item Headers: \verb+mpth.h+ gets installed in \verb+PREFIX/include+.
-\item Binaries: \verb+mpd+, \verb+mpd_demix+, \verb+mpf+, \verb+mpr+, \verb+mpcat+,
-  \verb+mpview+ and optionally \verb+MptkGuiApp+ get installed in
-  \verb+EPREFIX/bin+. The binaries from \verb+./src/test/+ do not get installed.
-\item Documentation: the documentation is delivered in \verb+./doc+, both in
-  built form and source form, but does not get installed. Copy it manually to
-  your favorite location.
-\item Extras: matlab interface files are delivered in \verb+./extras/matlab+,
-  but do not get installed. Copy them manually to a location accessible from
-  your MATLABPATH.
-\end{itemize}
-
-
-%%%%%%%%%
-\clearpage
-\section{Development tricks and notes}
-%%%%%%%%%
-
-%%%%%%%%%
-\subsection{Class interfacing and code factorization}
-%%
-To allow the dictionary to manage every class of blocks (i.e., every different
-time-frequency transform) in the same way, every specific block class inherits
-from a generic block class which implements some mandatory methods.  Similarly,
-all the atoms inherit from a generic atom class, so that they can perform a
-certain number of standard operations and so that they can be stored in books.
-Please refer to the reference manual and code headers for more details.
-
-
-%%%%%%%%%
-\subsection{Speed tricks}
-%%
-Our general philosophy is to avoid as much as possible to compute the same
-operation twice.  For example, in the blocks, the update of the time-frequency
-transforms is executed only along the part of the signal that were modified by
-subtracting an atom at the previous step.
-
-\paragraph{Tree for the max search} -- The outcome of the time-frequency
-transforms is stored as a single dimension vector. After each update of the
-time-frequency transforms, the location of the maximum correlation can be
-anywhere along the vector. To avoid browsing the whole length of it each time
-we perform a max correlation search, we use a tree structure which keeps track
-of local maxima (figure~\ref{tree}).
-%
-\begin{figure}[hbp]
-\centerline{\psfig{figure=tree.eps, height=10cm}}
-\caption{\label{tree} Use of a tree to speed up the max search: at each
-  iteration, only the grey-shaded parts, modified by the previous atom
-  subtraction, are browsed.}
-\end{figure}
-
-\paragraph{Tabulations} -- The signal processing windows are tabulated
-in a window server (called by the blocks and the atoms) which has global scope
-over the whole code. The atom cross-correlations are computed and tabulated at
-block creation time.
-
-
-%%%%%%%%%
-\subsection{The parser for XML dictionaries: TinyXML}
-%%
-The parsing of the XML dictionary is implemented using tinyXML.
-TinyXML is a simple, small, C++ XML parser that can be easily integrating
-into other programs. TinyXML has evolved from community feedback and
-become the work of many contributors. It is a simple, stable, basic XML
-parser used by many open source and commercial products.
-
-%%%%%%%%%
-\subsection{Experimental hacks and limitations -- !!READ THIS!!}
-%%
-
-\paragraph{Harmonic block} -- {\sc In its current implementation, the harmonic block
-  allows for an increase of the signal energy for certain ``ill choosen''
-  values of f0Min (the lower authorized base frequency).}
-
-As a matter of fact, for low f0 values, the various Gabor atoms making the
-harmonic components are not strictly orthogonal, although they are treated as
-such when removing the whole harmonic atom from the analyzed signal. Various
-solutions are possible, such as subtracting the harmonic atom in a truly
-orthogonal way (implying the computation of the Gram-Schmidt matrix of the
-Gabor components), removing the Gabor components individually in an iterative,
-stepwise orthogonal way, or limiting f0Min on the basis of tabulated values
-(related to the window types and dimensions). None of these solutions has been
-implemented yet.
-
-\paragraph{Chirp block} -- The chirp optimization method is well understood
-at the theoretical level, but its practical behaviour needs to be studied in
-more detail. It has been observed that high chirp rates may lead to wrong
-correlations and an increase of the signal energy. To avoid pathological cases,
-three noteworthy tricks have been used:
-\begin{itemize}
-\item after each iteration of chirp rate estimation, it is verified that the
-  inner product (IP) with the signal is augmented. If not, the last valid ``IP
-  increasing'' chirp value is returned;
-\item at the relocation step in the chirp estimation process, the atom can not
-  jump further than 10 FFT bins from its current location (lines using
-  \verb+MP_FREQ_RELOC_RANGE+);
-\item the chirp rate estimate is arbitrarily bounded by a value of
-$0.5\cdot10^{-5}$ (code labelled \verb+/* BORK */+ in \verb+chirp_block.cpp+).
-This value should be made a block parameter and correlation behaviour at high
-chirp rates should be better explored.
-\end{itemize}
-In addition, the effect of the number of iterations and number of fit points
-deserves a deeper study. So far, 1 iteration with numFitPoints=1 seems to give
-acceptable results, so the usefulness of an iterative process is questionable.
-
-
-
-%%%%%%%%%
-\clearpage
-\section{References}
-%%%%%%%%%
-\paragraph{Algorithmic aspects} For more information about the algorithmic
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+% Section C : References
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+\chapter{References}
+\section{Algorithmic aspects} For more information about the algorithmic
 aspects of the Matching Pursuit algorithm, see: \newline \cite{Zhang93},
 \cite{MZ93}, \cite{PRK93}, \cite{Davis94}, \cite{Bergeaud},
 \cite{BM96}, \cite{HRP}, \cite{HRMP1}, \cite{HRMP2}, \cite{DMA97},
@@ -902,13 +1525,13 @@ aspects of the Matching Pursuit algorithm, see: \newline \cite{Zhang93},
 \cite{Grib2002a}, \cite{gribonval03:_harmon_decom_audio_signal_match_pursuit},
 \cite{SPIE03:GribA}, \cite{IC06MPTK}.
 
-\paragraph{Theoretic aspects} For more information about the theoretic aspects
+\section{Theoretic aspects} For more information about the theoretic aspects
 of the Matching Pursuit algorithm, see: \newline
 \cite{Grib2001b}, \cite{GN2001}, \cite{Grib2001c}, \cite{ICIP03:GN},
 \cite{gribonval03:_spars}, \cite{IRISA03:GV}, \cite{gribonval03:_highl},
 \cite{GribFig}.
 
-\paragraph{Experimental results and applications} Examples of experimental and
+\section{Experimental results and applications} Examples of experimental and
 applicative results obtained with MPTK can be found in: \newline
 \cite{WASPAA05}, \cite{LESAGE_ICA06}.
 

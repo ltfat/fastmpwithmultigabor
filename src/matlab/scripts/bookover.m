@@ -1,31 +1,23 @@
 function [h,gh,hh,dh] = bookover( book, x, chan );
 
-% BOOKOVER Overlays a book plot on a STFT spectrogram
+% Usage :
+%   bookover(book,sig)
+%   bookover(book,sig,chan)
 %
-%    BOOKOVER( book, sig, chan ) plots the given book over
-%    a STFT spectrogram of the given signal, for channel
-%    number chan.
-%    The book and/or the signal can be given as filenames
-%    (WAV format for the signal).
+% Synopsis :
+%   Overlays a book plot on a STFT spectrogram
 %
-%    BOOKOVER( book, sig ) defaults the channel to 1.
+% Detailed description :
+%   * bookover(book,sig) plots the given book over a STFT spectrogram of the given signal
+%     ÒsigÓ using the default channel (channel 1).
+%   * bookover(book,sig,chan) plots the given book over a STFT spectrogram of the given
+%     signal ÒsigÓ, for channel number ÒchanÓ. The book and/or the signal can be given as
+%     filenames (WAV format for the signal).
 %
-%    [sh,gh,hh,dh] = BOOKOVER( book, sig, chan ) return handles
-%    on the created objects:
-%       sh => spectrogram surf
-%       gh => gabor atoms patch
-%       hh => harmonic atoms patch
-%       dh => dirac atoms line
-%    The patches indicate the locations of the atom supports.
-%    The color indicates the energy level according to the JET
-%    colormap (more energy => closer to red, less energy =>
-%    closer to blue)
-%
-%    Notes:
-%    - BOOKOVER will resize the current axes to fit
-%      the spectrogram area.
-%
-%    See also BOOKPLOT, BOOKREAD.
+% Notes :
+%    bookover will resize the current axes to fit the spectrogram area.
+%    The patches indicate the locations of the atom supports. The color indicates the energy
+% level according to the JET colormap (more energy --> closer to red, less energy --> closer to blue)
 
 %%
 %% Authors:
@@ -42,37 +34,37 @@ function [h,gh,hh,dh] = bookover( book, x, chan );
 %%
 
 if nargin < 3,
-   chan = 1;
+chan = 1;
 end;
 
 if isstr(book),
-   disp('Loading the book...');
-   book = bookread( book );
-   disp('Done.');
+disp('Loading the book...');
+book = bookread( book );
+disp('Done.');
 end;
 
 if chan > book.numChans,
-   error('Book has %d channels. Can''t display channel number %d.', ...
-	       chan, book.numChans );
+error('Book has %d channels. Can''t display channel number %d.', ...
+	  chan, book.numChans );
 end;
 
 if isstr( x ),
-   disp('Loading the signal...');
-   [x,fs] = wavread( x );
-   disp('Done.');
-   if (fs ~= book.sampleRate),
-      warning('The signal sample frequency and the book sample frequency differ.');
-   end;
+disp('Loading the signal...');
+[x,fs] = wavread( x );
+disp('Done.');
+if (fs ~= book.sampleRate),
+warning('The signal sample frequency and the book sample frequency differ.');
+end;
 end;
 
 nSigChans = size(x,2);
 if chan > nSigChans,
-   error('Signal has %d channels. Can''t display channel numer %d.', ...
-	       chan, nSigChans );
+error('Signal has %d channels. Can''t display channel numer %d.', ...
+	  chan, nSigChans );
 end;
 
 if ~exist('fs'),
-   fs = book.sampleRate;
+fs = book.sampleRate;
 end;
 
 x=x(:,chan);

@@ -1,23 +1,26 @@
-% MPTK - Matlab interface
-% Imports a dictionary description from a file to Matlab, using MPTK
-% 
-% Usage: dict = dictread(filename)
+
+% Usage :
+%   dict = dictread(filename)
 %
-% Input: 
-% filename : the filename where to read the dictionary description in XML
+% Synopsis :
+%   Imports a dictionary description “dict” from a file “filename” to Matlab, using MPTK
 %
-% Output:
-% dict     : a dictionary description with the following structure
-%      dict.block{i} = block
-%  where, for example
-%      block.type = 'dirac'
-%  and block may have other field names
+% Input : 
+%   * filename : the filename where to read the dictionary
 %
-% See also : dictwrite
+% Output :
+%   * dict : a dictionary description
 %
-% Author : 
-% Remi Gribonval (IRISA, Rennes, France), July 2008
+% Detailed description :
+%   dict is a dictionary description with the following structure dict.block{i} = block 
+% where, for example block.type = dirac’ and block may have other field names
+
+%% Authors:
+% Emmanuel Ravelli (LAM, Paris, France)
+% Gilles Gonon (IRISA, Rennes, France)
+% Remi Gribonval (IRISA, Rennes, France)
 %
-% Distributed under the General Public License.
-%                                       
-%#mex
+% Copyright (C) 2008 IRISA
+% This script is part of the Matching Pursuit Library package,
+% distributed under the General Public License.
+%

@@ -57,14 +57,24 @@ FOREACH(file GettingStarted.m)
     INSTALL(FILES ${MPTK_BINARY_DIR}/install/mptk/matlab/${file} DESTINATION ${MPTK_MATLAB_INSTALL_DIR})
 ENDFOREACH(file)
 
-# SCRIPT FILES
 # List of stable script files to be copied and installed
-FOREACH(scriptfile bookover.m bookplot.m mpview.m bookedit.m dictcreate_gui.m  MPtoolbaricons.mat)
+SET(MATSCRIPT bookover bookplot mpview bookedit dictcreate_gui)
+SET(MATSCRIPT_EXEC ${MATSCRIPT} PARENT_SCOPE)
+FOREACH(scriptfile ${MATSCRIPT})
    # Copy the script
-   CONFIGURE_FILE(${MPTK_MATLAB_SRC_DIR}/scripts/${scriptfile} ${MPTK_MATLAB_OUTPUT_DIR}/${scriptfile} COPYONLY)
+   CONFIGURE_FILE(${MPTK_MATLAB_SRC_DIR}/scripts/${scriptfile}.m ${MPTK_MATLAB_OUTPUT_DIR}/${scriptfile}.m COPYONLY)
    # Set rule to install it
-   INSTALL(FILES ${MPTK_MATLAB_OUTPUT_DIR}/${scriptfile} DESTINATION ${MPTK_MATLAB_INSTALL_DIR})
+   INSTALL(FILES ${MPTK_MATLAB_OUTPUT_DIR}/${scriptfile}.m DESTINATION ${MPTK_MATLAB_INSTALL_DIR})
 ENDFOREACH(scriptfile)
+
+# List of stable matrix script files to be copied and installed
+SET(MATTOOLBAR MPtoolbaricons.mat)
+FOREACH(matscriptfile ${MATTOOLBAR})
+   # Copy the script
+   CONFIGURE_FILE(${MPTK_MATLAB_SRC_DIR}/scripts/${matscriptfile} ${MPTK_MATLAB_OUTPUT_DIR}/${matscriptfile} COPYONLY)
+   # Set rule to install it
+   INSTALL(FILES ${MPTK_MATLAB_OUTPUT_DIR}/${matscriptfile} DESTINATION ${MPTK_MATLAB_INSTALL_DIR})
+ENDFOREACH(matscriptfile)
 
 IF(BUILD_MATLAB_MEX_FILES_EXPERIMENTAL)
 # List of experimental script files to be copied and installed
@@ -115,7 +125,9 @@ INSTALL(TARGETS
 )
 
 # List of mex files to be compiled and installed
-FOREACH(target getmptkinfo dictread dictwrite sigread sigwrite bookread bookwrite mprecons mpdecomp)
+SET(MAT_EXECUTABLES getmptkinfo dictread dictwrite sigread sigwrite bookread bookwrite mprecons mpdecomp)
+SET(MAT_EXEC_TARGETS ${MAT_EXECUTABLES} PARENT_SCOPE)
+FOREACH(target ${MAT_EXECUTABLES})
    ADD_CUSTOM_TARGET(matlab_${target} 
    	             ALL echo
                      DEPENDS

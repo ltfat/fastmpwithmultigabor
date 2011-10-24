@@ -1,5 +1,6 @@
 function tf = mpview( fileName , varargin )
 
+%	Usage:
 % MPVIEW Displays a time-frequency plot of a Matching Pursuit book
 %        obtained using the command mpview from the Matching Pursuit Toolkit
 %
