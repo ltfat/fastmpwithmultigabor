@@ -68,7 +68,7 @@ IF(LATEX_COMPILER)
 	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/doc/userman/latex_src/Images/bookeditToolbar.eps ${MPTK_BINARY_DIR}/doc/userman/Images/bookeditToolbar.eps COPYONLY)
 	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/doc/userman/latex_src/Images/bookeditFileToolbar.eps ${MPTK_BINARY_DIR}/doc/userman/Images/bookeditFileToolbar.eps COPYONLY)
 	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/doc/userman/latex_src/Images/bookeditEditToolbar.eps ${MPTK_BINARY_DIR}/doc/userman/Images/bookeditEditToolbar.eps COPYONLY)
-	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/doc/userman/latex_src/Images/bookeditTransformToolbar.eps ${MPTK_BINARY_DIR}/doc/Images/userman/bookeditTransformToolbar.eps COPYONLY)
+	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/doc/userman/latex_src/Images/bookeditTransformToolbar.eps ${MPTK_BINARY_DIR}/doc/userman/Images/bookeditTransformToolbar.eps COPYONLY)
 	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/doc/userman/latex_src/Images/cTestReport.eps ${MPTK_BINARY_DIR}/doc/userman/Images/cTestReport.eps COPYONLY)
 
 	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/doc/userman/latex_src/biblio_MP.bib ${MPTK_BINARY_DIR}/doc/userman/biblio_MP.bib COPYONLY)
