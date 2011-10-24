@@ -1,0 +1,73 @@
+\documentclass[11pt,a4paper]{report}
+
+%--------------------------------------------------------------
+% Modifying the items
+%--------------------------------------------------------------
+\newenvironment{my_itemize}
+{
+	\begin{itemize}
+		\setlength{\itemsep}{0pt}
+		\setlength{\parskip}{0pt}
+		\setlength{\parsep}{0pt}}
+	{\end{itemize}
+}
+
+\newenvironment{my_enumerate}
+{
+	\begin{enumerate}
+		\setlength{\itemsep}{0pt}
+		\setlength{\parskip}{0pt}
+		\setlength{\parsep}{0pt}}
+	{\end{enumerate}
+}
+
+\makeatletter
+\renewcommand{\@makechapterhead}[1]{%
+\vspace*{0 pt}%
+{\setlength{\parindent}{0pt} \raggedright \normalfont
+\bfseries\Huge\thechapter.\ #1
+\par\nobreak\vspace{12 pt}}}
+\makeatother
+
+%--------------------------------------------------------------
+% Modifying the items
+%--------------------------------------------------------------
+\newcommand{\mypart}[1]{\part{#1}}
+
+%--------------------------------------------------------------
+% Modifying the relative paths
+%--------------------------------------------------------------
+\newcommand{\relativePath}{Images/}
+
+%--------------------------------------------------------------
+% Adding the packages
+%--------------------------------------------------------------
+\usepackage{a4wide}
+\usepackage{epsfig}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{color}
+\usepackage{colortbl}
+\usepackage{alltt}
+
+\title{Getting Started with the Matching Pursuit Toolkit}
+
+\author{Ronan Le Boulch \and Benjamin Roy \and Remi Gribonval}
+\date{\today, $Revision: 1107 $}
+
+\begin{document}
+
+\maketitle
+
+\vfill
+
+\tableofcontents
+
+\vfill
+
+\clearpage
+
+\input{GettingStartedContent}
+
+\end{document}
