@@ -66,7 +66,7 @@ echo "--------------------------------------------------"
 echo " mpd command to create a book and a log           "
 echo "--------------------------------------------------"
 
-cmd="$binpath/mpd  --verbose -s 10 -R 10 -C $mptkpath/path.xml -D $refbinpath/dictionary/dico_test.xml $refsourcepath/res_mix_58_stereo.wav.ref $currentpath/book_mix_58_stereo.bin $currentpath/reconst_mix_58_stereo.wav >& $currentpath/log_mpd_mix_58_stereo.log;"
+cmd="$binpath/mpd  --verbose -s 10 -R 10 -C $mptkpath/path.xml -D $refbinpath/dictionary/dic_test.xml $refsourcepath/res_mix_58_stereo.wav.ref $currentpath/book_mix_58_stereo.bin $currentpath/reconst_mix_58_stereo.wav >& $currentpath/log_mpd_mix_58_stereo.log;"
 echo $cmd
 eval $cmd
 

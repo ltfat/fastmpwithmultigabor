@@ -69,8 +69,8 @@ echo "--------------------------------------------------"
 echo " mpd command to create a book and a log           "
 echo "--------------------------------------------------"
 
-echo "%binpath%/mpd.exe  --verbose -s 10 -R 10 -C %mptkpath%/path.xml -D %refbinpath%/dictionary/dico_test.xml %refsourcepath%/res_mix_58_stereo.wav.ref %currentpath%/book_mix_58_stereo.bin %currentpath%/reconst_mix_58_stereo.wav > %currentpath%/log_mpd_mix_58_stereo.log 2>&1"
-%binpath%/mpd.exe  --verbose -s 10 -R 10 -C %mptkpath%/path.xml -D %refbinpath%/dictionary/dico_test.xml %refsourcepath%/res_mix_58_stereo.wav.ref %currentpath%/book_mix_58_stereo.bin %currentpath%/reconst_mix_58_stereo.wav > %currentpath%/log_mpd_mix_58_stereo.log 2>&1
+echo "%binpath%/mpd.exe  --verbose -s 10 -R 10 -C %mptkpath%/path.xml -D %refbinpath%/dictionary/dic_test.xml %refsourcepath%/res_mix_58_stereo.wav.ref %currentpath%/book_mix_58_stereo.bin %currentpath%/reconst_mix_58_stereo.wav > %currentpath%/log_mpd_mix_58_stereo.log 2>&1"
+%binpath%/mpd.exe  --verbose -s 10 -R 10 -C %mptkpath%/path.xml -D %refbinpath%/dictionary/dic_test.xml %refsourcepath%/res_mix_58_stereo.wav.ref %currentpath%/book_mix_58_stereo.bin %currentpath%/reconst_mix_58_stereo.wav > %currentpath%/log_mpd_mix_58_stereo.log 2>&1
 
 echo "--------------------------------------------------"
 echo " diff command to differentiate the log files      "
