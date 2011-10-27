@@ -37,7 +37,7 @@ ENDFOREACH(MPTK_SCRIPTS)
 # Copy necessary files for standard tests
 #------------------------------------------------
 # File used for test_mp
-CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/tests/signals/dico_test.xml ${MPTK_REFERENCE_PATH}/dictionary/dico_test.xml COPYONLY)
+CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/tests/signals/dic_test.xml ${MPTK_REFERENCE_PATH}/dictionary/dic_test.xml COPYONLY)
 # File used for test_fft
 CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/tests/signals/2_cosines.flt ${MPTK_REFERENCE_PATH}/signal/2_cosines.flt COPYONLY)
 # File used for test_convolution

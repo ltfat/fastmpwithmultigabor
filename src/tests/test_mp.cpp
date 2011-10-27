@@ -107,7 +107,7 @@ int main( int argc, char ** argv ) {
   
 	// Build a new dictionary
 	strAppDirectory = string(refdir);
-	strAppDirectory += "/dictionary/dico_test.xml";
+	strAppDirectory += "/dictionary/dic_test.xml";
   
 	dico = MP_Dict_c::init( strAppDirectory.c_str());
 	if ( dico == NULL )
