@@ -571,7 +571,7 @@ IF(BUILD_TESTING)
 	#-------------------------------
 	# Scratch test
 	#-------------------------------
-	ADD_TEST(SCRATCH_MPD_RELATIVE, ${MPTK_BINARY_DIR}/bin/mpd -C ${MPTK_BINARY_DIR}/mptk/path.xml -d /dictionary/${MPTK_DEFAULT_GABORDICT_FILENAME} -n 10 ${MPTK_REFERENCE_PATH}/signal/glockenspiel.wav -)
+	ADD_TEST(SCRATCH_MPD_RELATIVE, ${MPTK_BINARY_DIR}/bin/mpd -C ${MPTK_BINARY_DIR}/mptk/path.xml -d ${MPTK_DEFAULT_GABORDICT_FILENAME} -n 10 ${MPTK_REFERENCE_PATH}/signal/glockenspiel.wav -)
 	ADD_TEST(SCRATCH_MPD_REPORT, ${MPTK_BINARY_DIR}/bin/mpd -C ${MPTK_BINARY_DIR}/mptk/path.xml -D ${MPTK_DEFAULT_GABORDICT_FILE} -n 100 -R 50 ${MPTK_REFERENCE_PATH}/signal/glockenspiel.wav -)
 	ADD_TEST(SCRATCH_WINDOWLEN, ${MPTK_BINARY_DIR}/bin/test_windowLen ${MPTK_BINARY_DIR}/mptk/path.xml ${MPTK_DEFAULT_GABORDICT_FILE} ${MPTK_REFERENCE_PATH}/signal/glockenspiel.wav)
 	ADD_TEST(SCRATCH_ANYWAVE, ${MPTK_BINARY_DIR}/bin/test_anywave ${MPTK_REFERENCE_PATH}/signal/glockenspiel.wav ${MPTK_DEFAULT_ANYWAVETABLE_FILE} ${MPTK_DEFAULT_ANYWAVEDICT_FILE})
