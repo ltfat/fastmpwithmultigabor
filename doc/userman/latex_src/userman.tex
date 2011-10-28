@@ -1,4 +1,4 @@
-\documentclass[11pt,a4paper]{report}
+\documentclass[twoside,11pt,a4paper]{report}
 
 %--------------------------------------------------------------
 % Modifying the items
@@ -34,11 +34,13 @@
 % Modifying the items
 %--------------------------------------------------------------
 \newcommand{\mypart}[1]{}
+\newcommand{\myinput}[1]{}
 
 %--------------------------------------------------------------
 % Modifying the relative paths
 %--------------------------------------------------------------
-\newcommand{\relativePath}{../GettingStarted/Images/}
+\newcommand{\relativePath}{../GettingStarted/}
+\newcommand{\relativeImagePath}{../GettingStarted/Images/}
 
 %--------------------------------------------------------------
 % Adding the packages
@@ -51,23 +53,66 @@
 \usepackage{color}
 \usepackage{colortbl}
 \usepackage{alltt}
+\usepackage{fix-cm}
 
-\title{The Matching Pursuit Tool Kit \\ User Manual}
-
-\author{Sacha Krstulovi\'c and R\'emi Gribonval}
-\date{\today, $Revision: 1107 $}
-
+%--------------------------------------------------------------
+% Document
+%--------------------------------------------------------------
 \begin{document}
+\newcommand{\documentVersion}{1.0}
 
-\maketitle
+%--------------------------------------------------------------
+% Title page
+%--------------------------------------------------------------
+\newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
+\begin{titlepage}
+	\begin{center}
+		\includegraphics[width=0.7\textwidth]{Images/logo.eps}\\[1cm]    
+		\textsc{\Large METISS Team}\\[0.5cm]
+		% Title
+		\HRule \\[0.4cm]
+		{\huge \bfseries The Matching Pursuit Tool Kit\\[1cm] 
+		\fontsize{50}{70}\selectfont User Manual}\\[0.4cm]
+		\HRule \\[1.5cm]
+		% Author and supervisor
+		\begin{minipage}{0.4\textwidth}
+			\begin{flushleft} \large
+				\emph{Authors:}\\
+				Sacha \textsc{Krstulovi\'c}\\
+				R\'emi \textsc{Gribonval}
+			\end{flushleft}
+		\end{minipage}
+		\begin{minipage}{0.4\textwidth}
+			\begin{flushright} \large
+				\emph{Contributors:} \\
+				Ronan \textsc{Le Boulch}\\
+				Boris \textsc{Mailh\'e}\\
+				Benjamin \textsc{Roy}\\
+				Gilles \textsc{Gonon}\\
+			\end{flushright}
+		\end{minipage}\\[3cm]
+		\begin{flushleft}
+			\emph{MPTK version : ``x.x.x''}\\
+			\emph{Document version : ``\documentVersion"}
+		\end{flushleft}
+		\vfill
+		% Bottom of the page
+		{\large \today}
+	\end{center}
+\end{titlepage}
 
-\vfill
+\newpage
+\thispagestyle{empty}
+\setcounter{page}{0}
+\null
+\newpage
 
+%--------------------------------------------------------------
+% Table of contents
+%--------------------------------------------------------------
 \tableofcontents
 
-\vfill
-
-\clearpage
+\cleardoublepage
 
 %--------------------------------------------------------------
 %--------------------------------------------------------------
@@ -87,8 +132,10 @@
 \end{center}
 \vspace*{\stretch{1}}
 
+\input{usermanIntro}
 \input{../GettingStarted/GettingStartedContent}
 
+\cleardoublepage
 %--------------------------------------------------------------
 %--------------------------------------------------------------
 %--------------------------------------------------------------
@@ -212,17 +259,22 @@ atoms of the book and adding them to the residual signal.
 
 %--------------------------------------------------------------
 %--------------------------------------------------------------
-% Section 2 : Download & install from sources
+% Section 2 : Basic download & install from sources
 %--------------------------------------------------------------
 %--------------------------------------------------------------
-\chapter{Download \& install from source}
+\chapter{Basic download \& install from source \label{DownInstSources}}
 
 %--------------------------------------------------------------
-% Section 2.1 : Installation under Windows
+% Section 2.1 : Getting the sources
 %--------------------------------------------------------------
-\section{Installation under Windows}
+\section{Getting the sources}
 
-% Section 2.1.1 : Required tools
+%--------------------------------------------------------------
+% Section 2.2 : Basic installation under Windows
+%--------------------------------------------------------------
+\section{Basic installation under Windows}
+
+% Section 2.2.1 : Required tools
 
 \subsection{Required tools}
 \begin{my_itemize}
@@ -243,7 +295,7 @@ atoms of the book and adding them to the residual signal.
 If the required tools are installed as mentioned, you should be able to generate 
 a build system using the basic build settings.
 
-% Section 2.1.2 : Required packages
+% Section 2.2.2 : Required packages
 
 \subsection{Required packages}
 \begin{my_itemize}
@@ -251,7 +303,7 @@ a build system using the basic build settings.
 	\item MPTK packaging utilities : NSIS Nullsoft packager (tested with version 2.46)
 \end{my_itemize}
 
-% Section 2.1.3 : Pre-configuration using cmake
+% Section 2.2.3 : Pre-configuration using cmake
 
 \subsection{Pre-configuration using cmake}
 
@@ -297,7 +349,7 @@ Once the build system is configured then generated, you have to build MPTK using
 	\textit{\caption{\label{WindowsCmake2} Cmake build system view for MPTK}}
 \end{figure}
 
-% Section 2.1.4 : Basic build
+% Section 2.2.4 : Basic build
 
 \subsection{Basic build}
 Once the project is generated using Cmake, the build directory (ex : C:/bar)  contains a Visual solution 
@@ -307,7 +359,7 @@ projects associated with this solution.
 Right clicking on the project ``ALL\_BUILD'' located on the left tab of Visual Studio, then selecting 
 ``Generate'' will compile all the MPTK binary files.
 
-% Section 2.1.5 : Basic installation
+% Section 2.2.5 : Basic installation
 
 \subsection{Basic installation}
 Right clicking on the project Ê``INSTALL'' located on the left tab of Visual Studio, then selecting
@@ -316,13 +368,13 @@ Right clicking on the project Ê``INSTALL'' located on the left tab of Visual Stu
  
  
 %--------------------------------------------------------------
-% Section 2.2 : Installation under Unix & MacOS
+% Section 2.3 : Basic installation under Unix & MacOS
 %--------------------------------------------------------------
-\section{Installation under Unix \& MacOS}
+\section{Basic installation under Unix \& MacOS}
 If the required libraries are installed as the appendix \ref{GetLibsndfile} and \ref{GetFftw} indicate it, you should be able 
 to generate a build system using the basic build settings.
 
-% Section 2.2.1 : Required tools
+% Section 2.3.1 : Required tools
 
 \subsection{Required tools}
 \begin{my_itemize}
@@ -340,7 +392,7 @@ to generate a build system using the basic build settings.
 	\end{my_itemize}
 \end{my_itemize}
 
-% Section 2.2.2 : Required packages
+% Section 2.3.2 : Required packages
 
 \subsection{Required packages}
 
@@ -355,7 +407,7 @@ to generate a build system using the basic build settings.
 	\end{my_itemize}
 \end{my_itemize}
 
-% Section 2.2.3 : Pre-configuration using cmake
+% Section 2.3.3 : Pre-configuration using cmake
 
 \subsection{Pre-configuration using cmake}
 Suppose you untar ``MPTK-Source-v.v.v.tar.gz'' in directory \verb+~+/foo and you want to build MPTK binary 
@@ -379,17 +431,26 @@ of cmake command should be: \newline
 	-- Build files have been written to: \verb+~+/bar
 \end{tt}
 
-% Section 2.2.4 : Basic build
+% Section 2.3.4 : Basic build
 
 \subsection{Basic build}
 The command {\tt make} will compile the build files
 
-% Section 2.2.5 : Basic installation
+% Section 2.3.5 : Basic installation
 
 \subsection{Basic installation}
 The command {\tt sudo make install} will install in default directory /usr/local
 
-% Section 2.2.6 : Setting build and install options
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+% Section 3 : Advanced build & troubleshooting
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+\chapter{Advanced build \& troubleshooting}
+
+%--------------------------------------------------------------
+% Section 3.1 : Setting build and install options
+%--------------------------------------------------------------
 
 \subsection{Setting build and install options}
 The Cmake Graphical User Interface is automaticaly displayed under Windows OS, and is available with 
@@ -401,7 +462,7 @@ the command {\tt ccmake} under Unix OS. It allows you to :
 	\item Display advanced build options via the advanced mode
 \end{my_itemize}
 
-% Section 2.2.7 : Main options 
+% Section 2.3.7 : Main options 
 
 \subsection{Main options}
 This Graphical User Interface allows the user to set the build options for MPTK :
@@ -418,7 +479,7 @@ This Graphical User Interface allows the user to set the build options for MPTK 
 \clearpage
 
 %--------------------------------------------------------------
-% Section 2.3 : Installation Troubleshooting
+% Section 2.4 : Installation Troubleshooting
 %--------------------------------------------------------------
 \section{Installation Troubleshooting \label{install_trouble}}
 Let's see a more complex use of the Cmake GUI troubleshooting. Despite all the integrated 
@@ -451,7 +512,7 @@ After choosing the options for the build and setting the required fields, press 
 of the build system is checked again by Cmake, at the end of this check if the build settings are correct, you 
 can press [g] in order to generate the build system and quit the Cmake GUI.
 
-% Section 2.3.1 : Advanced options
+% Section 2.4.1 : Advanced options
 
 \subsection{Advanced options}
 You can display more information and all the configuration options by switching to the advanced mode, 
@@ -476,7 +537,7 @@ which is set to off by defaut and can be toggled on by pressing [t].
 % Section 3 : How to use MPTK command lines
 %--------------------------------------------------------------
 %--------------------------------------------------------------
-\chapter{How to use MPTK command lines}
+\chapter{How to use MPTK command lines \label{UseCmdLine}}
 
 %--------------------------------------------------------------
 % Section 3.1 : Beginning with command lines
@@ -595,7 +656,7 @@ which file to use for setting up the MPTK environment.
 % Section 4 : List of command lines functions
 %--------------------------------------------------------------
 %--------------------------------------------------------------
-\chapter{List of command lines functions}
+\chapter{List of command lines functions \label{ListCmdLine}}
 
 %--------------------------------------------------------------
 % Section 4.1 : MPD
@@ -674,7 +735,7 @@ which file to use for setting up the MPTK environment.
 % Section 5: How to use MPTK with Matlab
 %--------------------------------------------------------------
 %--------------------------------------------------------------
-\chapter{How to use MPTK with Matlab \label{use_matlab}}
+\chapter{How to use MPTK with Matlab \label{UseMatlabFunc}}
 
 %--------------------------------------------------------------
 % Section 5.1 : Beginning with Matlab MEX commands
@@ -745,7 +806,7 @@ structures rather close to the different ``blocks'' in the MP\_dictionnary defin
 % Section 6 : List of Matlab functions
 %--------------------------------------------------------------
 %--------------------------------------------------------------
-\chapter{List of Matlab functions}
+\chapter{List of Matlab functions \label{ListMatlabFunc}}
 Some Matlab utilities are bundled with the distribution to help loading and visualizing books under Matlab. They are automatically installed and can be found under mptk installation directory
 
 \vspace{0.3 cm}

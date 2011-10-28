@@ -1,0 +1,157 @@
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+% Section  5 : MPTK from within Matlab
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+\chapter{MPTK from within Matlab \label{MptkWithMatlab}}
+
+In the following, we assume that MPTK has been installed correctly, that the system path configuration has been set and that Matlab is installed.
+
+%--------------------------------------------------------------
+% Section  5.1 : Getting Started
+%--------------------------------------------------------------
+\section{Getting Started}
+
+\textcolor[rgb]{0.4,0.4,0.4}{\emph{\textbf{GettingStarted} command is used for a better understanding of MPTK functionalities. This script is divided in two parts. 
+The first part consists in retrieving the environment informations and the available plugins. The second part consists in describing several tutorials about MPTK utilities.}}
+
+\vspace{0.3 cm}
+
+\noindent \underline{\emph{1st part description : Example of available plugins and dictionaries}}
+
+\noindent Here is the list of types of atoms available in MPTK plugins:
+\begin{center}
+	\begin{tabular}{ll}
+			- anywave	 & - anywavehilbert \\
+			- constant	 & - dirac \\
+			- gabor	 & - harmonic \\
+			- mclt	 & - mdct \\
+			- mdst	 & - nyquist \\
+	\end{tabular}
+\end{center}
+
+\noindent As well as information on the path where reference files can be found:
+\begin{center}
+	- \emph{path\_to\_MPTK/mptk/reference}
+\end{center}
+
+which can be used to find examples of dictionaries:
+\begin{center}
+	\begin{tabular}{lll}
+			dic\_anywave.xml & dic\_constant.xml & dic\_harmonic.xml \\
+			dic\_mdst.xml & dic\_anywave\_modifie.xml & dic\_dirac.xml \\
+			dic\_mclt.xml & dic\_nyquist.xml & dic\_chirp.xml \\
+			dic\_gabor\_two\_scales.xml & dic\_mdct\_two\_scales.xml & dic\_test.xml \\
+	\end{tabular}
+\end{center}
+
+\vspace{0.3 cm}
+
+\noindent \underline{\emph{2nd part description : Description of the tutorials}}
+
+\noindent There are several tutorials on using MPTK4Matlab:
+\begin{my_enumerate}
+	\item Dictionaries
+	\item Books
+	\item Running Matching Pursuit Toolkit
+	\item Multichannel decompositions (in preparation) 
+	\item Anywave atoms (in preparation)
+	\item Demixing pursuit (in preparation)
+\end{my_enumerate}
+
+\noindent \underline{\emph{Dictionaries :}} How to read (\emph{dictread}), create (\emph{dictwrite}) a dictionary description \newline
+\noindent \underline{\emph{Books :}} What is a book (storage format for sparse signal representations) and how to read 
+(\emph{bookread}), save (\emph{bookwrite}) or plot any book (\emph{bookplot}, \emph{bookover}) \newline
+\noindent \underline{\emph{Running MPTK :}} Procedure to follow if you want to decompose a signal :
+\begin{my_itemize}
+	\item Read a signal (\emph{sigread})
+	\item Read a dictionary (\emph{dictread}) 
+	\item Decompose the signal (\emph{mpdecomp})
+\end{my_itemize}
+
+%--------------------------------------------------------------
+% Section  5.2 : Getting the environment information
+%--------------------------------------------------------------
+\section{Getting the environment information}
+
+\textcolor[rgb]{0.4,0.4,0.4}{\emph{\textbf{getmptkinfo} command is launched under the GettingStarted.m script, and is used to retrieve 
+the environment datas, such as : }}
+
+\begin{my_itemize}
+	\item \textcolor[rgb]{0.4,0.4,0.4}{The plugins atoms names available}
+	\item \textcolor[rgb]{0.4,0.4,0.4}{The block parameters needed to correctly define each atom}
+	\item \textcolor[rgb]{0.4,0.4,0.4}{The windows names that can be used to through the signal waveform}
+	\item \textcolor[rgb]{0.4,0.4,0.4}{The example or default environment paths}
+\end{my_itemize}
+
+\noindent $\mapsto$ mptkInfo = getmptkinfo();
+
+%--------------------------------------------------------------
+% Section  5.3 : Reading a signal
+%--------------------------------------------------------------
+\section{Reading a signal}
+
+\textcolor[rgb]{0.4,0.4,0.4}{\emph{\textbf{sigread} command reads an imports signal ``exampleSignal'' of any format supported by  libsndfile library 
+to Matlab and gives a matrix ``signal'' (numSamples x numChans) and the sampling frequency of the read signal ``sampleRate''.}}
+
+\vspace{0.2 cm}
+
+\noindent $\mapsto$ [signal sampleRate] = sigread(mptkInfo.path.exampleSignal);
+
+%--------------------------------------------------------------
+% Section  5.4 : Reading a dictionary
+%--------------------------------------------------------------
+\section{Reading a dictionary}
+
+\textcolor[rgb]{0.4,0.4,0.4}{\emph{\textbf{dictread} command imports a dictionary description ``defaultDict'' to Matlab and gives a dictionary 
+description with the following structure :
+		dict.block\{i\} = block       where, for example
+			block.type = `dirac'}}
+
+\vspace{0.2 cm}
+
+\noindent $\mapsto$ dict = dictread(mptkInfo.path.defaultDict);
+
+%--------------------------------------------------------------
+% Section  5.5 : Decomposing a signal
+%--------------------------------------------------------------
+\section{Decomposing a signal}
+
+\textcolor[rgb]{0.4,0.4,0.4}{\emph{\textbf{mpdecomp} command decompose a signal ``Signal'' using its sampling frequency ``sampleRate'', 
+a dictionary structure ``dict'' performing ``numIter'' iterations and  gives the resulting decomposition ``book'', the ``residual'' obtained after 
+the iterations and ``decay'', a vector with the energy of the residual after each iteration.}}
+
+\vspace{0.2 cm}
+
+\noindent $\mapsto$ [book residual decay] = mpdecomp(signal,sampleRate,dict,numIter);
+
+%--------------------------------------------------------------
+% Section  5.6 : Plotting a book
+%--------------------------------------------------------------
+\section{Plotting a book}
+
+\textcolor[rgb]{0.4,0.4,0.4}{\emph{\textbf{bookover} plots the given ``book'' over a STFT spectrogram of the given ``Signal'' for  channel ``numChan'' 
+(or 1 for default). The book and/or the signal can be given as  filenames (WAV format for the signal).}}
+
+\vspace{0.2 cm}
+
+\noindent $\mapsto$ figure(5);bookover(book,signal);
+
+%--------------------------------------------------------------
+% Section  5.7 : Reconstructing a signal
+%--------------------------------------------------------------
+\section{Reconstructing a signal}
+
+\textcolor[rgb]{0.4,0.4,0.4}{\emph{\textbf{mprecons} reconstructs the signal from the given ``book''.}}
+
+\vspace{0.2 cm}
+
+\noindent $\mapsto$ sigrec = mprecons(book);
+
+%--------------------------------------------------------------
+% Section  5.8 : Finding further informations on MPTK for Matlab
+%--------------------------------------------------------------
+\section{Finding further informations on MPTK for Matlab}
+
+\textbf{For further informations} on how to use MPTK Matlab functionalities please refer to the Chapter \ref{UseMatlabFunc} of the Usermanual situated under the  under the documentation directory (MPTK 
+UserManual) or under the gforge website (https://gforge.inria.fr/docman/?group\_id=36).

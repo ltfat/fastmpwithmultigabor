@@ -1,0 +1,52 @@
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+% Section 1 : Introduction
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+\chapter{Introduction}
+
+%--------------------------------------------------------------
+% Section 1.1 : Learning about MPTK
+%--------------------------------------------------------------
+\section{Learning about MPTK}
+	
+The Matching Pursuit Tool Kit (MPTK) provides a fast implementation of the Matching Pursuit algorithm for 
+the sparse decomposition of multichannel signals such as audio signals. It comprises a library, standalone 
+utilities and Matlab scripts.
+
+MPTK provides an implementation of Matching Pursuit which is: 
+
+\begin{my_itemize}
+	\item \textbf{FAST:} e.g., extract 1.5 million atoms from a 1 hour long, 16kHz audio signal (15dB extracted) in 0.25x 
+	real time on a Pentium IV@2.4GHz, out of a dictionary of 178M Gabor atoms. Such incredible speed makes it 
+	possible to process ``real world'' signals.
+	\item \textbf{FLEXIBLE:} multi-channel, various signal input formats, flexible syntax to describe the dictionaries 
+	$\mapsto$ reproducible results, cleaner experiments. 
+	\item OPEN: modular architecture $\mapsto$ add your own atoms ! Free distribution under the GPL. 
+\end{my_itemize}
+
+MPTK is mainly developed and maintained within the METISS Research Group \linebreak
+(http://www.irisa.fr/metiss/) on audio signal processing, at the INRIA Research 
+Institute (http://www.irisa.fr or http://www.inria.fr/rennes) in Rennes, France.
+
+%--------------------------------------------------------------
+% Section 1.2 : Reading this document
+%--------------------------------------------------------------
+\section{Reading this document}
+
+This document describes the basic principles about how to download, install and use the Matching Pursuit Tool Kit. 
+It is divided into two major sections : 
+
+\begin{my_itemize}
+	\item \textbf{\large Part \ref{getSrtd} : Getting started with MPTK}\\
+		\underline{\emph{For Windows users :}} Read chapter \ref{MptkForWin} to learn how to download \& install MPTK\\
+		\underline{\emph{For Linux users :}} Read chapter \ref{MptkForLin} to learn how to download \& install MPTK\\
+		\underline{\emph{For Mac users :}} Read chapter \ref{MptkForMac} to learn how to download \& install MPTK\\
+		$\mapsto$ You can skip to chapters \ref{MptkWithMatlab} \& \ref{MptkCmdLine} to understand the basic usage of MPTK
+	\item \textbf{\large Part \ref{usrMan} : Advanced User Manual}\\
+		Read chapter \ref{DownInstSources} to learn how to pre-build, build \& install MPTK from the source files\\
+		Read chapters \ref{UseCmdLine} \& \ref{ListCmdLine} to learn how to use MPTK with command line tools\\
+		Read chapters \ref{UseMatlabFunc} \& \ref{ListMatlabFunc} to learn how to use MPTK within Matlab
+\end{my_itemize}
+
+\clearpage

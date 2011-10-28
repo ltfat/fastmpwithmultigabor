@@ -70,11 +70,15 @@ IF(LATEX_COMPILER)
 	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/doc/userman/latex_src/Images/bookeditEditToolbar.eps ${MPTK_BINARY_DIR}/doc/userman/Images/bookeditEditToolbar.eps COPYONLY)
 	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/doc/userman/latex_src/Images/bookeditTransformToolbar.eps ${MPTK_BINARY_DIR}/doc/userman/Images/bookeditTransformToolbar.eps COPYONLY)
 	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/doc/userman/latex_src/Images/cTestReport.eps ${MPTK_BINARY_DIR}/doc/userman/Images/cTestReport.eps COPYONLY)
+	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/doc/userman/latex_src/Images/logo.eps ${MPTK_BINARY_DIR}/doc/userman/Images/logo.eps COPYONLY)
+
+	# Copying tex
+	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/doc/userman/latex_src/userman.tex ${MPTK_BINARY_DIR}/doc/userman/userman.tex COPYONLY)
+	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/doc/userman/latex_src/usermanIntro.tex ${MPTK_BINARY_DIR}/doc/userman/usermanIntro.tex COPYONLY)
 
 	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/doc/userman/latex_src/biblio_MP.bib ${MPTK_BINARY_DIR}/doc/userman/biblio_MP.bib COPYONLY)
 	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/doc/userman/latex_src/atom.ps ${MPTK_BINARY_DIR}/doc/userman/atom.ps COPYONLY)
 	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/doc/userman/latex_src/plonk.ps ${MPTK_BINARY_DIR}/doc/userman/plonk.ps COPYONLY)
-	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/doc/userman/latex_src/userman.tex ${MPTK_BINARY_DIR}/doc/userman/userman.tex COPYONLY)
 
 	IF(BIBTEX_COMPILER) 
 		ADD_CUSTOM_COMMAND(
@@ -108,7 +112,7 @@ IF(LATEX_COMPILER)
 		)
 
 		# Eventually trigger the whole process
-		ADD_CUSTOM_TARGET(userman ALL echo
+		ADD_CUSTOM_TARGET(userman1 ALL echo
 			DEPENDS   ${MPTK_BINARY_DIR}/doc/userman/userman.log
 		)
 	ENDIF(BIBTEX_COMPILER) 
@@ -117,7 +121,8 @@ IF(LATEX_COMPILER)
 		ADD_CUSTOM_COMMAND( 
 			OUTPUT    ${MPTK_BINARY_DIR}/doc/userman/userman.ps
 			COMMAND   ${DVIPS_CONVERTER}
-			ARGS      ${MPTK_BINARY_DIR}/doc/userman/userman.dvi -o ${MPTK_BINARY_DIR}/doc/userman/userman.ps
+			ARGS      ${MPTK_BINARY_DIR}/doc/userman/userman.dvi 
+					  -o ${MPTK_BINARY_DIR}/doc/userman/userman.ps
 			DEPENDS   ${MPTK_BINARY_DIR}/doc/userman/userman.dvi
 			COMMENT   "dvi2ps"
    		)
@@ -130,9 +135,10 @@ IF(LATEX_COMPILER)
 				COMMENT   "ps2pdf"
 			)
     
-			ADD_CUSTOM_TARGET(userman ALL echo
+			ADD_CUSTOM_TARGET(userman2 ALL echo
 				DEPENDS   ${MPTK_BINARY_DIR}/doc/userman/userman.pdf
     			)
+			
 			INSTALL(FILES ${MPTK_BINARY_DIR}/doc/userman/userman.pdf DESTINATION doc)
 		ENDIF(PS2PDF_CONVERTER)
 	ENDIF(DVIPS_CONVERTER)

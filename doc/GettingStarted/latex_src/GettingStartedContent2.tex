@@ -1,0 +1,145 @@
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+% Section 3 : MPTK for Linux
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+\chapter{MPTK for Linux \label{MptkForLin}}
+
+%--------------------------------------------------------------
+% Section 3.1 : Downloading MPTK
+%--------------------------------------------------------------
+\section{Downloading MPTK}
+
+The latest version of MPTK is available at (https://gforge.inria.fr/frs/?group\_id=36). Depending on the processor 
+architecture of your computer, download either the 32 bits package or the 64 bits package:
+\begin{my_itemize}
+	\item For RedHat, Suse, Fedora, Mandriva 
+	\begin{my_itemize}
+		\item 32 bits : ``MPTK-binary-v.v.v-i386-Linux.rpm''
+		\item 64 bits : ``MPTK-binary-v.v.v-x86\_64-Linux.rpm''
+	\end{my_itemize}
+	\item For Debian, Knoppix, Ubuntu 
+	\begin{my_itemize}
+		\item 32 bits : ``MPTK-binary-v.v.v-i386-Linux.deb''
+		\item 64 bits : ``MPTK-binary-v.v.v-x86\_64-Linux.deb"
+	\end{my_itemize}
+\end{my_itemize}
+
+\noindent \emph{\underline{Hint :} To find the processor architecture of your computer :}
+\begin{my_itemize}
+	\item \emph{Open a terminal command and use the following command : \textbf{uname -m}}
+	\begin{my_itemize}
+		\item \emph{If the answer is ``i386'' then your OS is 32 bits}
+		\item \emph{If the answer is ``x86\_64'' then your OS is 64 bits}
+	\end{my_itemize}
+\end{my_itemize}
+
+%--------------------------------------------------------------
+% Section 3.1 : Downloading MPTK
+%--------------------------------------------------------------
+\section{Obtaining additional required packages}
+
+Two additional packages are needed. Their installation require administrator privileges on the machine. 
+The ``sudo'' command may ask you to input administrator password :
+\begin{my_itemize}
+	\item Libsndfile (tested with version 1.0.23) pre compiled library
+	\item FFTW (tested with version 3.2.2) pre compiled library
+\end{my_itemize}
+
+\noindent \emph{You can see below some examples about how to download those libraries using terminal :}
+
+\vspace{0.3 cm}
+
+\begin{tabular}{|c|c|c|}
+	\hline
+	\rowcolor[gray]{0.35} \textcolor{white}{\emph{Ubuntu}} &  \textcolor{white}{\emph{Fedora}} &  \textcolor{white}{\emph{Mandriva}} \\
+	\hline \hline
+		\begin{tiny}
+			\emph{sudo apt-get install -y -qq libsndfile1-dev}
+		\end{tiny}
+		 & 
+		 \begin{tiny}
+		 	\emph{sudo yum -y -qq install libsndfile-devel}
+		\end{tiny}
+		& 
+		\begin{tiny}
+			\emph{sudo smart install -y -qq libsndfile1-dev}
+		\end{tiny} \\
+		\begin{tiny}
+			\emph{sudo apt-get install -y -qq libfftw3-dev}
+		\end{tiny}
+		 & 
+		 \begin{tiny}
+		 	\emph{sudo yum -y -qq install fftw-devel}
+		\end{tiny}
+		& 
+		\begin{tiny}
+			\emph{sudo smart install -y -qq libfftw3-dev}
+		\end{tiny} \\
+		& 
+		\begin{tiny}
+			\emph{sudo yum -y -qq install fftw-static}
+		\end{tiny}
+		& \\
+	\hline
+\end{tabular}
+
+%--------------------------------------------------------------
+% Section 3.2 : Installing MPTK
+%--------------------------------------------------------------
+\section{Installing MPTK}
+
+Depending on the type of Linux you have there ares two ways to install the packages : 
+\begin{my_itemize}
+	\item for ``rpm'' package : \textcolor[rgb]{0.4,0.4,0.4}{\emph{rpm -ivh MPTK-binary-v.v.v-(i386/x86\_64)-Linux.rpm}}
+	\item for ``deb'' package : \textcolor[rgb]{0.4,0.4,0.4}{\emph{dpkg -i MPTK-binary-v.v.v-(i386/x86\_64)-Linux.deb}}
+\end{my_itemize}
+%--------------------------------------------------------------
+% Section 3.3 : Configuring the path
+%--------------------------------------------------------------
+\section{Configuring the path}
+
+An environment variable called \begin{footnotesize}MPTK\_CONFIG\_FILENAME\end{footnotesize} needs to be set, either 
+temporarily, either permanently, with the path of the ``path.xml'' file located in the \emph{``path\_to\_MPTK/mptk''} directory. This 
+file defines the environment paths that MPTK needs to work properly.
+
+% Section 3.3.1 : Temporary path configuration
+
+\subsection{Temporary path configuration}
+	
+Here is the way to temporarily configure the \begin{footnotesize}MPTK\_CONFIG\_FILENAME\end{footnotesize} environment variable. 
+\textbf{Warning :} This is a temporary setting and it needs to be done at each reset of the computer.
+\begin{my_itemize}
+	\item \emph{With Bash shell :}
+	\begin{my_itemize}
+		\item \textcolor[rgb]{0.4,0.4,0.4}{\emph{export \begin{footnotesize}MPTK\_CONFIG\_FILENAME\end{footnotesize} =``path\_to\_MPTK/mptk/path.xml''}}
+	\end{my_itemize}
+	\item \emph{With C-shell :}
+	\begin{my_itemize}
+		\item \textcolor[rgb]{0.4,0.4,0.4}{\emph{setenv \begin{footnotesize}MPTK\_CONFIG\_FILENAME\end{footnotesize} ``path\_to\_MPTK/mptk/path.xml''}}
+	\end{my_itemize}
+	\item \emph{You can check if the environment variable is correctly set with :}
+	\begin{my_itemize}
+		\item \textcolor[rgb]{0.4,0.4,0.4}{\emph{echo \$\begin{footnotesize}MPTK\_CONFIG\_FILENAME\end{footnotesize}}}
+	\end{my_itemize}
+\end{my_itemize}
+
+% Section 3.3.1 : Temporary path configuration
+
+\subsection{Permanent path configuration}
+
+In order to permanently configure the \begin{footnotesize}MPTK\_CONFIG\_FILENAME\end{footnotesize} environment variable, 
+add  the bash shell (or the C-shell) configuration line to the ``.bashrc'' (or the ``.cshrc'') file situated under your home directory.
+
+% Section 3.3.1 : Temporary path configuration
+
+\subsection{Matlab path configuration}
+
+When launching Matlab, the user needs to configure Matlab to work with MPTK:
+\begin{my_itemize}
+	\item Configure the working path either by: 
+	\begin{my_itemize}
+		\item Selecting the current folder as \textcolor[rgb]{0.4,0.4,0.4}{\emph{``path\_to\_MPTK/mptk/matlab''}}
+		\item Adding the working path using \textcolor[rgb]{0.4,0.4,0.4}{\emph{addpath(``path\_to\_MPTK/mptk/matlab'')}}
+	\end{my_itemize}
+\end{my_itemize}

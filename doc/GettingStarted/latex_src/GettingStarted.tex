@@ -33,11 +33,13 @@
 % Modifying the items
 %--------------------------------------------------------------
 \newcommand{\mypart}[1]{\part{#1}}
+\newcommand{\myinput}[1]{\input{#1}}
 
 %--------------------------------------------------------------
 % Modifying the relative paths
 %--------------------------------------------------------------
-\newcommand{\relativePath}{Images/}
+\newcommand{\relativePath}{}
+\newcommand{\relativeImagePath}{Images/}
 
 %--------------------------------------------------------------
 % Adding the packages
@@ -50,24 +52,57 @@
 \usepackage{color}
 \usepackage{colortbl}
 \usepackage{alltt}
+\usepackage{fix-cm}
 
-\title{Getting Started with the Matching Pursuit Toolkit}
-
-\author{Ronan Le Boulch \and Benjamin Roy \and Remi Gribonval}
-\date{\today, $Revision: 1107 $}
-
+%--------------------------------------------------------------
+% Document
+%--------------------------------------------------------------
 \begin{document}
 
-\maketitle
+%--------------------------------------------------------------
+% Title page
+%--------------------------------------------------------------
+\newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
+\begin{titlepage}
+	\begin{center}
+		\includegraphics[width=0.7\textwidth]{Images/logo.eps}\\[1cm]    
+		\textsc{\Large METISS Team}\\[0.5cm]
+		% Title
+		\HRule \\[0.4cm]
+		{\huge \bfseries The Matching Pursuit Tool Kit\\[1cm] 
+		\fontsize{50}{70}\selectfont Getting Started}\\[0.4cm]
+		\HRule \\[1.5cm]
+		% Author and supervisor
+		\begin{minipage}{0.4\textwidth}
+			\begin{flushleft} \large
+				\emph{Authors:}\\
+				Sacha \textsc{Krstulovi\'c}\\
+				R\'emi \textsc{Gribonval}
+			\end{flushleft}
+		\end{minipage}
+		\begin{minipage}{0.4\textwidth}
+			\begin{flushright} \large
+				\emph{Contributors:} \\
+				Ronan \textsc{Le Boulch}\\
+				Benjamin \textsc{Roy}\\
+			\end{flushright}
+		\end{minipage}\\[3cm]
+		\vfill
+		% Bottom of the page
+		{\large \today}
+	\end{center}
+\end{titlepage}
 
-\vfill
-
+%--------------------------------------------------------------
+% Table of contents
+%--------------------------------------------------------------
 \tableofcontents
 
 \vfill
 
 \clearpage
 
+\input{GettingStartedIntro}
 \input{GettingStartedContent}
 
 \end{document}
