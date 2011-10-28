@@ -104,7 +104,7 @@ void usage( void )
 	fprintf( stdout, "     (and an optional residual signal) after N iterations or after reaching the signal-to-residual ratio SNR.\n" );
 	fprintf( stdout, " \n" );
 	fprintf( stdout, " Main arguments:\n" );
-	fprintf( stdout, "      (-D|-d) <dictFILE.xml>                The full/relative dictionary path (relative to \"reference\" tag of path.xml).\n" );
+	fprintf( stdout, "      (-D|-d) <dictFILE.xml>                The full/relative dictionary path (relative to \"path_to_mptk/mptk/reference/dictionary/\").\n" );
 	fprintf( stdout, "      -n<N>, --num-iter=<N>|--num-atoms=<N> Stop after N iterations or N atom founded.\n" );
 	fprintf( stdout, "      -s<SNR>, --snr=<SNR>                  OPTIONAL: Stop when the SNR value <SNR> is reached.\n" );
 	fprintf( stdout, "      (sndFILE.wav|-)                       The signal to analyze or stdin (in WAV format).\n" );
@@ -125,7 +125,7 @@ void usage( void )
 	fprintf( stdout, " \n" );
 	fprintf( stdout, " Examples:\n" );
 	fprintf( stdout, "     mpd -D /Users/rleboulc/bar/mptk/reference/dictionary/dic_gabor_two_scales.xml -n 10 glockenspiel.wav bookTest.bin\n" );
-	fprintf( stdout, "     mpd -d /dictionary/dic_gabor_two_scales.xml -n 10 -s 2.5 glockenspiel.wav bookTest.xml\n" );
+	fprintf( stdout, "     mpd -d dic_gabor_two_scales.xml -n 10 -s 2.5 glockenspiel.wav bookTest.xml\n" );
 	exit(0);
 }
 
@@ -429,6 +429,7 @@ int parse_args(int argc, char **argv)
 MP_Bool_t checkRelativeDictFile(const char *szInputDictFile, char *szOutputDictFile, int iSizeOfDictFile)
 {
 	FILE		*fid;
+	const char	*szDictPath = "/dictionary/";
 	
 	// 1) If the input file exist, return it !
 	fid = fopen( szInputDictFile, "rb" );
@@ -441,8 +442,22 @@ MP_Bool_t checkRelativeDictFile(const char *szInputDictFile, char *szOutputDictF
 	
     // 2) If the input file + an append of reference path exit
 	strcpy(szOutputDictFile,(char *)MPTK_Env_c::get_env()->get_config_path("reference"));
+
+    // 3) We're adding the /dictionary/ to the path
+	if (strlen(szDictPath) + 1 > iSizeOfDictFile - strlen(szOutputDictFile))
+	{
+		mp_error_msg( func, "The string [%s] cannot be added to [%s] because it is too long. It will be truncated\n", szDictPath, szOutputDictFile);
+		return false;
+	}
+	
+	strncat(szOutputDictFile, szDictPath, iSizeOfDictFile - strlen(szOutputDictFile) - 1);
+	
+	// 4) We're adding the input to the path
 	if (strlen(szInputDictFile) + 1 > iSizeOfDictFile - strlen(szOutputDictFile))
-			mp_error_msg( func, "The file [%s] is too long and would be truncated if the reference path\n", szInputDictFile);
+	{
+		mp_error_msg( func, "The string [%s] cannot be added to [%s] because it is too long. It will be truncated\n", szInputDictFile, szOutputDictFile);
+		return false;
+	}
 	
 	strncat(szOutputDictFile, szInputDictFile, iSizeOfDictFile - strlen(szOutputDictFile) - 1);
 	
