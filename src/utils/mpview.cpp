@@ -99,15 +99,13 @@ void usage( void ) {
 	fprintf( stdout, "     tfmapFILE.flt        The file where to write the pixmap in float.\n" );
 	fprintf( stdout, " \n" );
 	fprintf( stdout, " Optional arguments:\n" );
-	fprintf( stdout, "     -C<FILE>, --config-file=<FILE>  Use the specified configuration file, \n" );
-	fprintf( stdout, "                                     otherwise the MPTK_CONFIG_FILENAME environment variable will be\n" );
-	fprintf( stdout, "                                     used to find the configuration file and set up the MPTK environment.\n" );
-	fprintf( stdout, "     -s, --size=<numCols>x<numRows> : change the size of the pixmap.\n" );
-	fprintf( stdout, "     -w, --wigner : change the display mode.\n" );
-	fprintf( stdout, "     -q, --quiet          No text output.\n" );
-	fprintf( stdout, "     -v, --verbose        Verbose.\n" );
-	fprintf( stdout, "     -V, --version        Output the version and exit.\n" );
-	fprintf( stdout, "     -h, --help           This help.\n" );
+	fprintf( stdout, "     -C<FILE>, --config-file=<FILE>   Use the specified configuration file, otherwise MPTK_CONFIG_FILENAME\n" );
+	fprintf( stdout, "     -s, --size=<numCols>x<numRows>   Change the size of the pixmap.\n" );
+	fprintf( stdout, "     -w, --wigner						Change the display mode.\n" );
+	fprintf( stdout, "     -q, --quiet						No text output.\n" );
+	fprintf( stdout, "     -v, --verbose					Verbose.\n" );
+	fprintf( stdout, "     -V, --version					Output the version and exit.\n" );
+	fprintf( stdout, "     -h, --help						This help.\n" );
 	fprintf( stdout, " \n" );
 	exit(0);
 }

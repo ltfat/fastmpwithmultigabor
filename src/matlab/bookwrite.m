@@ -3,16 +3,14 @@
 %   bookwrite(book,filename[,writeMode]) 
 %
 % Synopsis:
-%   Exports a binary Matching Pursuit book “book” from Matlab, and writes it either in binary format or in txt format under the directory “filename”
+%   Exports a binary Matching Pursuit book file from Matlab, writes it under filename
+%   The exported file can be in binary format (filename.bin) or text format (filename.xml)
 %
 % Input : 
-%   * book : A book structure
-%   * filename : The filename where to read the book
+%   * book      : A book structure
+%   * filename  : The filename where to read the book
 %   * writeMode : OPTIONAL The book write mode ('binary' by default or 'txt')
 %
-% Known limitations : 
-%   * Only the following atom types are supported :
-%       - gabor, harmonic, mdct, mclt, dirac.
 
 %% Authors:
 % Gilles Gonon

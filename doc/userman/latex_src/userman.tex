@@ -54,6 +54,7 @@
 \usepackage{colortbl}
 \usepackage{alltt}
 \usepackage{fix-cm}
+\usepackage{multirow}
 
 %--------------------------------------------------------------
 % Document
@@ -92,7 +93,7 @@
 			\end{flushright}
 		\end{minipage}\\[3cm]
 		\begin{flushleft}
-			\emph{MPTK version : ``x.x.x''}\\
+			\emph{MPTK version : ``0.6.0''}\\
 			\emph{Document version : ``\documentVersion"}
 		\end{flushleft}
 		\vfill
@@ -269,6 +270,12 @@ atoms of the book and adding them to the residual signal.
 %--------------------------------------------------------------
 \section{Getting the sources}
 
+The MPTK sources archives can be found under the gforge website, where you will be able 
+to download any version of MPTK (https://gforge.inria.fr/frs/?group\_id=36) :
+\begin{my_itemize}	
+	\item MPTK source archives : ``MPTK-Source-v.v.v.tar.gz'' (current version is 0.6.0)
+\end{my_itemize}
+
 %--------------------------------------------------------------
 % Section 2.2 : Basic installation under Windows
 %--------------------------------------------------------------
@@ -280,12 +287,14 @@ atoms of the book and adding them to the residual signal.
 \begin{my_itemize}
 	\item \underline{Necessary :}
 	\begin{my_itemize}
-		\item Cmake (tested with version 2.8.3)
-		\item Microsoft Visual Studio (tested with Visual C++ 2008 Express)
+		\item Cmake (tested with version 2.8.3)\\
+		\emph{$\mapsto$ To obtain it : http://www.cmake.org/cmake/resources/software.html}
+		\item Microsoft Visual Studio (tested with free Visual C++ 2008 Express)\\
+		\emph{$\mapsto$ To obtain it : http://www.microsoft.com/express}
 	\end{my_itemize}
 	\item \underline{Optional (if Matlab is needed) :}
 	\begin{my_itemize}
-		\item Matlab at least version R2006 (\textbf{Caution} install Matlab in the default directory) :
+		\item Matlab at least version R2006, \textbf{preferably} installed in the default directory :
 		\begin{my_itemize}
 			\item C:\textbackslash Program Files\textbackslash MATLAB
 		\end{my_itemize}
@@ -294,14 +303,6 @@ atoms of the book and adding them to the residual signal.
 
 If the required tools are installed as mentioned, you should be able to generate 
 a build system using the basic build settings.
-
-% Section 2.2.2 : Required packages
-
-\subsection{Required packages}
-\begin{my_itemize}
-	\item MPTK source archives : ``MPTK-Source-v.v.v.tar.gz'' (last version is 0.6.0)
-	\item MPTK packaging utilities : NSIS Nullsoft packager (tested with version 2.46)
-\end{my_itemize}
 
 % Section 2.2.3 : Pre-configuration using cmake
 
@@ -380,7 +381,8 @@ to generate a build system using the basic build settings.
 \begin{my_itemize}
 	\item \underline{Necessary :}
 	\begin{my_itemize}
-		\item Cmake: (tested with version 2.8.3)
+		\item Cmake (tested with version 2.8.3)\\
+		\emph{$\mapsto$ To obtain it : http://www.cmake.org/cmake/resources/software.html}
 	\end{my_itemize}
 	\item \underline{Optional (if Matlab is needed) :}
 	\begin{my_itemize}
@@ -397,14 +399,8 @@ to generate a build system using the basic build settings.
 \subsection{Required packages}
 
 \begin{my_itemize}
-	\item MPTK source archives : ``MPTK-Source-v.v.v.tar.gz'' (last version is 0.6.0)
 	\item Libsndfile pre-compiled library (tested with version 1.0.21) 
 	\item FFTW pre-compiled library (tested with version 3.2.2)
-	\item MPTK packaging utilities
-	\begin{my_itemize}
-		\item For Linux : RPM or DEB packaging tools (depending on Linux system)
-		\item For Mac : PackageMaker packaging tool
-	\end{my_itemize}
 \end{my_itemize}
 
 % Section 2.3.3 : Pre-configuration using cmake
@@ -426,33 +422,46 @@ then the build system is generated and written. In this case the three last line
 of cmake command should be: \newline
 \begin{tt}
 	... \newline
-	-- Configuring done \newline
-	-- Generating done \newline
-	-- Build files have been written to: \verb+~+/bar
+	bash-3.1\$ -- Configuring done \newline
+	bash-3.1\$ -- Generating done \newline
+	bash-3.1\$ -- Build files have been written to: \verb+~+/bar
 \end{tt}
 
 % Section 2.3.4 : Basic build
 
 \subsection{Basic build}
-The command {\tt make} will compile the build files
+The command {\tt make} will compile the build files and should finish like : \newline
+\begin{tt}
+	... \newline
+	bash-3.1\$ Linking CXX executable ../../bin/test\_windowLen \newline
+	bash-3.1\$ [100\%] Built target test\_windowLen \newline
+\end{tt}
 
 % Section 2.3.5 : Basic installation
 
 \subsection{Basic installation}
-The command {\tt sudo make install} will install in default directory /usr/local
+The command {\tt sudo make install} will install in default directory ``path\_to\_MPTK``and should finish like : \newline
+\begin{tt}
+	... \newline
+	bash-3.1\$ -- Installing: /usr/local/lib/liblibmd5sum.a \newline
+	bash-3.1\$ -- Installing: /usr/local/lib/liblibgetopt.a \newline
+	bash-3.1\$ -- Installing: /usr/local/doc/short\_description.pdf \newline
+	bash-3.1\$ -- Installing: /usr/local/doc/GettingStarted.pdf \newline
+	bash-3.1\$ -- Installing: /usr/local/doc/userman.pdf \newline
+\end{tt}
+
 
 %--------------------------------------------------------------
 %--------------------------------------------------------------
-% Section 3 : Advanced build & troubleshooting
+% Section 3 : CMake options & troubleshooting
 %--------------------------------------------------------------
 %--------------------------------------------------------------
-\chapter{Advanced build \& troubleshooting}
+\chapter{CMake options \& troubleshoot}
 
 %--------------------------------------------------------------
-% Section 3.1 : Setting build and install options
+% Section 3.1 : Using ccmake to set build options
 %--------------------------------------------------------------
-
-\subsection{Setting build and install options}
+\section{Using ccmake to set build options}
 The Cmake Graphical User Interface is automaticaly displayed under Windows OS, and is available with 
 the command {\tt ccmake} under Unix OS. It allows you to :
 \begin{my_itemize}
@@ -462,9 +471,26 @@ the command {\tt ccmake} under Unix OS. It allows you to :
 	\item Display advanced build options via the advanced mode
 \end{my_itemize}
 
-% Section 2.3.7 : Main options 
+\begin{figure}[H]
+	\begin{minipage}[t]{.4\linewidth}
+	 	\begin{center}
+			\includegraphics[width = 7cm, height=5cm]{Images/WindowsCMakeGUI.eps}
+			\textit{\caption{\label{WindowsCMakeGUI} Windows CMake GUI}}
+		\end{center}
+	\end{minipage}
+	\hfill
+	\begin{minipage}[t]{.4\linewidth}
+		\begin{center}
+			\includegraphics[width = 7cm, height=5cm]{Images/UnixCMakeGUI.eps}
+			\textit{\caption{\label{UnixCMakeGUI} Unix CMake GUI}}
+		\end{center}
+	\end{minipage}
+\end{figure}
 
-\subsection{Main options}
+%--------------------------------------------------------------
+% Section 3.2 : Main options 
+%--------------------------------------------------------------
+\section{Main options}
 This Graphical User Interface allows the user to set the build options for MPTK :
 \begin{my_itemize}
 	\item CMAKE\_INSTALL\_PREFIX : Path of the installation (by default: /usr/local/)
@@ -479,9 +505,33 @@ This Graphical User Interface allows the user to set the build options for MPTK 
 \clearpage
 
 %--------------------------------------------------------------
-% Section 2.4 : Installation Troubleshooting
+% Section 3.3 : Advanced options
 %--------------------------------------------------------------
-\section{Installation Troubleshooting \label{install_trouble}}
+\section{Advanced options}
+You can display more information and all the configuration options by switching to the advanced mode, 
+which is set to off by defaut and can be toggled on by pressing [t].
+
+\vspace{0,3 cm}
+
+\noindent The list of the following options should be considered as advanced:
+\begin{my_itemize}
+	\item BUILD\_DEBUG : Compile in debug mode (by default: OFF = Release)
+	\item BUILD\_SHARED\_LIBS: Allows the construction of libraries (libdsp\_windows \& libmptk) 
+	in a lib directory and the include file (mptk.h) in an include directory (by default: ON)
+	\item BUILD\_TESTING: Allow to test executables using Dart server (by default : ON)
+	\item BUILD\_VERBOSE: Display various informations during the build (by default : ON)
+	\item BUILD\_EXECUTABLE: Build the executables mpd, mpf...  (by default: ON)
+\end{my_itemize}
+
+%--------------------------------------------------------------
+% Section 3.4 : Troubleshooting build issues
+%--------------------------------------------------------------
+\section{Troubleshooting build issues \label{install_trouble}}
+
+
+% Section 3.4.1 : Installation troubleshoot
+
+\subsection{CMake GUI issues}
 Let's see a more complex use of the Cmake GUI troubleshooting. Despite all the integrated 
 tests when Cmake manages to generate the build system of MPTK, sometimes Cmake cannot 
 determine some parameters of your configuration. When using the cmake command, Cmake 
@@ -512,23 +562,47 @@ After choosing the options for the build and setting the required fields, press 
 of the build system is checked again by Cmake, at the end of this check if the build settings are correct, you 
 can press [g] in order to generate the build system and quit the Cmake GUI.
 
-% Section 2.4.1 : Advanced options
 
-\subsection{Advanced options}
-You can display more information and all the configuration options by switching to the advanced mode, 
-which is set to off by defaut and can be toggled on by pressing [t].
+
+% Section 3.4.2 : Fixing FFTW used plan with wisdom in FFTW configuration
+
+\subsection{Fixing FFTW used plan with wisdom in FFTW configuration}
+MPTK currently relies on FFTW to compute Fast Fourier Transforms. The principle of FFTW is to 
+adaptively select the fastest running codelet to perform a given FFT, which is good for performance. 
+However, this can lead to non deterministic behaviour of MPTK since two consecutive runs of the 
+same command (e.g. `mpd') with the same options on the same data can yield slightly different results. 
+To avoid this issue we have implemented a mechanism which allows MPTK to fix which FFT codelet 
+is used for a specific type of FFT computation. To do this, you just need to create and export a 
+environment variable called MPTK\_FFTW\_WISDOM and set this environnement variable with 
+the path of the file you want to use in order to save the FFTW configuration. MPTK will create 
+a ``wisdom'' file, that will be reloaded each time you use MPTK. It means that the codelets use 
+to compute FFTW plan will be the same between two successive decompositions with the same parameters.
 
 \vspace{0,3 cm}
 
-\noindent The list of the following options should be considered as advanced:
-\begin{my_itemize}
-	\item BUILD\_DEBUG : Compile in debug mode (by default: OFF = Release)
-	\item BUILD\_SHARED\_LIBS: Allows the construction of libraries (libdsp\_windows \& libmptk) 
-	in a lib directory and the include file (mptk.h) in an include directory (by default: ON)
-	\item BUILD\_TESTING: Allow to test executables using Dart server (by default : ON)
-	\item BUILD\_VERBOSE: Display various informations during the build (by default : ON)
-	\item BUILD\_EXECUTABLE: Build the executables (mpd, mpd\_demix, mpf, mpview, mpr, mpcat) in a bin directory (default value: ON)
-\end{my_itemize}
+\noindent For bash or sh or ash:
+
+\vspace{0,2 cm}
+
+\noindent {\tt bash-3.1\$ export MPTK\_FFTW\_WISDOM=/usr/local/fftw\_wisdom\_file}
+
+\vspace{0,3 cm}
+
+If you want to fix permanently the used FFTW plan, just set this environment variable when the console 
+is launched, using for that the /etc/profile, ~/.profile or  .bashrc file, according to your system configuration. 
+
+\vspace{0,3 cm}
+
+\noindent For tcsh or csh : 
+
+\vspace{0,2 cm}
+
+\noindent {\tt bash-3.1\$ setenv MPTK\_FFTW\_WISDOM=/usr/local/fftw\_wisdom\_file}
+
+\vspace{0,3 cm}
+
+If you want to fix permanently the used FFTW plan, just set this environment variable when the console 
+is launched, using for that the  /etc/csh.cshrc file, according to your system configuration.
 
 \clearpage
 
@@ -616,13 +690,13 @@ with more detail in the next sections.
 \textbf{\emph{Note about the signal file formats:}} MPTK has been originally designed for sound
 processing, but it is applicable to any kind of signal.
 
-For input, we have mostly been using the WAV format, but any file format
-recognized by the \verb+libsndfile+ library (i.e., most audio formats, see
-\underline{\textcolor{blue}{http://www.mega-nerd.com/libsndfile/}}) should work with 
-the provided MPTK utilities.
+For input, we have mostly been using the WAV format, but any ``fees free'' file format
+recognized by the \texttt{libsndfile} library (OGG, AIFF, FLAC...) should work with 
+the provided MPTK utilities. MP3 is not supported for one very good reason, doing so requires 
+the payment of licensing fees.
 
 The signal output is more specific: the MPTK binaries output signals in the WAV
-format only. {\em (WARNING: in the \verb+libsndfile+ implementation, this 
+format only. {\em (WARNING: in the \texttt{libsndfile} implementation, this 
 format is not protected against clipping, which may happen for some books and 
 is not an artifact of the MPTK analysis.)} Nevertheless, the MPTK API also
 offers Matlab, raw \verb+double+ and raw \verb+float+ signal output formats:
@@ -662,72 +736,46 @@ which file to use for setting up the MPTK environment.
 % Section 4.1 : MPD
 %--------------------------------------------------------------
 \section{mpd: matching pursuit signal decomposition}
-\begin{center}
-	\begin{minipage}{1.1\linewidth} 
-		\input{CommandUsage/mpd_Usage}
-	\end{minipage}
-\end{center}
+\input{CommandUsage/mpd_Usage}
+\clearpage
 
 %--------------------------------------------------------------
 % Section 4.2 : GPD
 %--------------------------------------------------------------
 \section{gpd: gradient pursuit signal decomposition}
-\begin{center}
-	\begin{minipage}{1.1\linewidth} 
-		\input{CommandUsage/gpd_Usage}
-	\end{minipage}
-\end{center}
+\input{CommandUsage/gpd_Usage}
 
 %--------------------------------------------------------------
 % Section 4.3 : MPR
 %--------------------------------------------------------------
 \section{mpr: signal reconstruction}
-\begin{center}
-	\begin{minipage}{1.1\linewidth} 
-		\input{CommandUsage/mpr_Usage}
-	\end{minipage}
-\end{center}
+\input{CommandUsage/mpr_Usage}
+\clearpage
 
 %--------------------------------------------------------------
 % Section 4.4 : MPF
 %--------------------------------------------------------------
 \section{mpf: filtering of the book files}
-\begin{center}
-	\begin{minipage}{1.1\linewidth} 
-		\input{CommandUsage/mpf_Usage}
-	\end{minipage}
-\end{center}
+\input{CommandUsage/mpf_Usage}
+\clearpage
 
 %--------------------------------------------------------------
 % Section 4.5 : MPCAT
 %--------------------------------------------------------------
 \section{mpcat: concatenation of book files}
-\begin{center}
-	\begin{minipage}{1.1\linewidth} 
-		\input{CommandUsage/mpcat_Usage}
-	\end{minipage}
-\end{center}
+\input{CommandUsage/mpcat_Usage}
 
 %--------------------------------------------------------------
 % Section 4.6 : MPD_DEMIX
 %--------------------------------------------------------------
 \section{mpd\_demix: blind source separation with a matrix}
-\begin{center}
-	\begin{minipage}{1.1\linewidth} 
-		\input{CommandUsage/mpd_demix_Usage}
-	\end{minipage}
-\end{center}
+\input{CommandUsage/mpd_demix_Usage}
 
 %--------------------------------------------------------------
 % Section 4.7 : MPVIEW
 %--------------------------------------------------------------
 \section{mpview: generation of a time-frequency map from a book}
-\begin{center}
-	\begin{minipage}{1.1\linewidth} 
-		\input{CommandUsage/mpview_Usage}
-	\end{minipage}
-\end{center}
-
+\input{CommandUsage/mpview_Usage}
 \clearpage
 
 %--------------------------------------------------------------
@@ -738,24 +786,51 @@ which file to use for setting up the MPTK environment.
 \chapter{How to use MPTK with Matlab \label{UseMatlabFunc}}
 
 %--------------------------------------------------------------
-% Section 5.1 : Beginning with Matlab MEX commands
+% Section 5.1 : Beginning with Matlab 
 %--------------------------------------------------------------
-\section{Beginning with Matlab MEX commands}
+\section{Beginning with Matlab}
 
-\noindent \underline{Unix \& MacOS:} matlabMexPath = /usr/local/mptk/matlab
-
-\vspace{0,2 cm}
-
-\noindent \underline{Windows:} : matlabMexPath =  C:\textbackslash Program Files\textbackslash 
-MPTK\textbackslash mptk\textbackslash matlab
+MATLAB (MAtrix LABoratory) is a numerical computing environment. Developed by MathWorks, MATLAB allows matrix 
+manipulations, plotting of functions and data, implementation of algorithms, creation of user interfaces, and interfacing 
+with programs written in other languages, including C, C++, Java, and Fortran.
 
 \vspace{0,3 cm}
-	
+
+The first step to understand when using Matlab is the path configuration. In fact, it works as a terminal : The available 
+files are the ones present in the current selected path. When launching MATLAB, the default path is not the one required. 
+If the user wants to change it (in order to include MPTK path), there are three possibilities : 
+\begin{my_itemize}
+	\item Using the MATLAB native command ``addpath(path\_to\_MPTK/mptk/matlab)''
+	\item Using the folder selection situated in the top of MATLAB window interface
+	\item Using the terminal command ``cd path\_to\_MPTK/mptk/matlab''
+\end{my_itemize}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width = 13cm, height=8cm]{Images/MatlabPathSelect.eps}
+	\textit{\caption{\label{MatlabPathSelect} Description of Matlab selection path}}
+\end{figure}
+
+\clearpage
+
+%--------------------------------------------------------------
+% Section 5.2 : Understanding Matlab MEX commands
+%--------------------------------------------------------------
+\section{Understanding Matlab MEX commands}
+
+The second step consist understanding how the Matlab MEX files works. In fact, ``MEX'' stands for MATLAB Executable. 
+MEX-files are dynamically linked subroutines produced from C, C++ or Fortran source code that, when compiled, can be 
+run from within MATLAB in the same way as MATLAB files or built-in functions. 
+
+\vspace{0,3 cm}
+
+MPTK provides Matlab MEX files and the extension of these files depend on the architecture of the user system.
 If Matlab is installed under your computer, follow these instructions in order to make Matlab MEX files work.
 
 \begin{my_enumerate}
 	\item Launch Mathworks Matlab
-	\item Select the current folder as ``matlabMexPath'' mentioned above. You should see the MexFiles related to your computer : 
+	\item Select the current folder as ``path\_to\_MPTK/mptk/matlab''. You should see the MEX-files related to your computer, 
+		depending on their extension : 
 		\begin{center}
 			\begin{tabular}{lll}
 				- Mexw32 for Windows 32 bytes & - Mexw64 for Windows 64 bytes \\
@@ -767,7 +842,7 @@ If Matlab is installed under your computer, follow these instructions in order t
 \end{my_enumerate}
 
 %--------------------------------------------------------------
-% Section 5.2 : Matlab book structure definition
+% Section 5.3 : Matlab book structure definition
 %--------------------------------------------------------------
 \section{Matlab book structure definition}
 
@@ -783,7 +858,7 @@ of the same type: gabor, dirac, mdct, constant, ....) are gathered in atom sub s
 
 In order to further ease common atom manipulations, this idea has evolved into also grouping atoms of the same 
 lengths. Now, in the book structure, there are as many ``atom'' as [atoms type*length]. This leads to ``book.atom'' 
-structures rather close to the different ``blocks'' in the MP\_dictionnary definition.
+structures rather close to the different ``blocks'' in the MP\_dictionary definition.
 
 \vspace{0.2 cm}
 
@@ -831,134 +906,80 @@ Some Matlab utilities are bundled with the distribution to help loading and visu
 	\item bookover: to overlay a book plot on a STFT spectrogram
 \end{my_itemize}
 
-\clearpage
-
 %--------------------------------------------------------------
 % Section 6.1: Getting started
 %--------------------------------------------------------------
 \section{Getting Started}
-\begin{center}
-	\begin{minipage}{1.1\linewidth} 
-		\input{CommandUsage/getmptkinfo_Usage}
-	\end{minipage}
-\end{center}
+\input{CommandUsage/getmptkinfo_Usage}
+\clearpage
 
 %--------------------------------------------------------------
 % Section 6.2: bookread
 %--------------------------------------------------------------
 \section{bookread}
-\begin{center}
-	\begin{minipage}{1.1\linewidth} 
-		\input{CommandUsage/bookread_Usage}
-	\end{minipage}
-\end{center}
+\input{CommandUsage/bookread_Usage}
 
 %--------------------------------------------------------------
 % Section 6.3: bookwrite
 %--------------------------------------------------------------
 \section{bookwrite}
-\begin{center}
-	\begin{minipage}{1.1\linewidth} 
-		\input{CommandUsage/bookwrite_Usage}
-	\end{minipage}
-\end{center}
-
-\clearpage
+\input{CommandUsage/bookwrite_Usage}
 
 %--------------------------------------------------------------
 % Section 6.4: bookedit
 %--------------------------------------------------------------
 \section{bookedit}
-\begin{center}
-	\begin{minipage}{1.1\linewidth} 
-		\input{CommandUsage/bookedit_Usage}
-	\end{minipage}
-\end{center}
+\input{CommandUsage/bookedit_Usage}
+\clearpage
 
 %--------------------------------------------------------------
 % Section 6.5: bookplot
 %--------------------------------------------------------------
 \section{bookplot}
-\begin{center}
-	\begin{minipage}{1.1\linewidth} 
-		\input{CommandUsage/bookplot_Usage}
-	\end{minipage}
-\end{center}
+\input{CommandUsage/bookplot_Usage}
 
 %--------------------------------------------------------------
 % Section 6.6: bookover
 %--------------------------------------------------------------
 \section{bookover}
-\begin{center}
-	\begin{minipage}{1.1\linewidth} 
-		\input{CommandUsage/bookover_Usage}
-	\end{minipage}
-\end{center}
-
-\clearpage
+\input{CommandUsage/bookover_Usage}
 
 %--------------------------------------------------------------
 % Section 6.7: dictread
 %--------------------------------------------------------------
 \section{dictread}
-\begin{center}
-	\begin{minipage}{1.1\linewidth} 
-		\input{CommandUsage/dictread_Usage}
-	\end{minipage}
-\end{center}
+\input{CommandUsage/dictread_Usage}
+\clearpage
 
 %--------------------------------------------------------------
 % Section 6.8: dictwrite
 %--------------------------------------------------------------
 \section{dictwrite}
-\begin{center}
-	\begin{minipage}{1.1\linewidth} 
-		\input{CommandUsage/dictwrite_Usage}
-	\end{minipage}
-\end{center}
+\input{CommandUsage/dictwrite_Usage}
 
 %--------------------------------------------------------------
 % Section 6.9: mpdecomp
 %--------------------------------------------------------------
 \section{mpdecomp}
-\begin{center}
-	\begin{minipage}{1.1\linewidth} 
-		\input{CommandUsage/mpdecomp_Usage}
-	\end{minipage}
-\end{center}
-
-\clearpage
+\input{CommandUsage/mpdecomp_Usage}
 
 %--------------------------------------------------------------
 % Section 6.10: mprecons
 %--------------------------------------------------------------
 \section{mprecons}
-\begin{center}
-	\begin{minipage}{1.1\linewidth} 
-		\input{CommandUsage/mprecons_Usage}
-	\end{minipage}
-\end{center}
-	
+\input{CommandUsage/mprecons_Usage}
+
 %--------------------------------------------------------------
 % Section 6.11: sigread
 %--------------------------------------------------------------
 \section{sigread}
-\begin{center}
-	\begin{minipage}{1.1\linewidth} 
-		\input{CommandUsage/sigread_Usage}
-	\end{minipage}
-\end{center}
+\input{CommandUsage/sigread_Usage}
 
 %--------------------------------------------------------------
 % Section 6.12: sigwrite
 %--------------------------------------------------------------
 \section{sigwrite}
-\begin{center}
-	\begin{minipage}{1.1\linewidth} 
-		\input{CommandUsage/sigwrite_Usage}
-	\end{minipage}
-\end{center}
-
+\input{CommandUsage/sigwrite_Usage}
 \clearpage
 
 %--------------------------------------------------------------
@@ -970,7 +991,7 @@ Some Matlab utilities are bundled with the distribution to help loading and visu
 
 This GUI makes intensive use of function\_handles (denoted @functionName). The differents callbacks 
 of the GUI are function handles which refer to sub functions. As a consequence, the code is divided in a large 
-number of subfunctions. A tip to navigate inside the code is to select the function name, right-click and ``open selection'' 
+number of subfunctions. A tip to navigate inside the code is to select the function name, right-click and ``open selection''  
 or F4 to jump to the sub-function.
 
 The data (book info, selection info, figure handles and other variables) are organised in structure and are stored inside 
@@ -1005,6 +1026,8 @@ editing functions and audio transformations:
 	\item Load / Save the modified MPTK book in native MPTK format
 	\item Reconstruct and play the transformed/selected book
 \end{my_itemize}
+
+\clearpage
 
 \noindent \underline{The following figure shows a snapshot of the interface:}
 
@@ -1071,10 +1094,10 @@ implemented and thus not accessible.
 
 %--------------------------------------------------------------
 %--------------------------------------------------------------
-% Section 8: Troubleshooting
+% Section 8: Testing if everything works
 %--------------------------------------------------------------
 %--------------------------------------------------------------
-\chapter{Troubleshooting / Help}
+\chapter{Testing if everything works}
 If you experiment some issues during the usage of MPTK, if you would like to ensure that the executables 
 are working correctly, if you want to try new dictionaries, a series of tests are available on the source release.
 
@@ -1099,49 +1122,6 @@ You can run local tests on your machine using the command ``ctest'' if :
 	\includegraphics[width = 8cm, height=5cm]{Images/cTestReport.eps}
 	\textit{\caption{\label{cTestReport} cTtest testing report description}}
 \end{figure}
-
-\clearpage
-
-%--------------------------------------------------------------
-% Section 8.2 : Fixing FFTW used plan with wisdom in FFTW configuration
-%--------------------------------------------------------------
-\section{Fixing FFTW used plan with wisdom in FFTW configuration}
-MPTK currently relies on FFTW to compute Fast Fourier Transforms. The principle of FFTW is to 
-adaptively select the fastest running codelet to perform a given FFT, which is good for performance. 
-However, this can lead to non deterministic behaviour of MPTK since two consecutive runs of the 
-same command (e.g. `mpd') with the same options on the same data can yield slightly different results. 
-To avoid this issue we have implemented a mechanism which allows MPTK to fix which FFT codelet 
-is used for a specific type of FFT computation. To do this, you just need to create and export a 
-environment variable called MPTK\_FFTW\_WISDOM and set this environnement variable with 
-the path of the file you want to use in order to save the FFTW configuration. MPTK will create 
-a ``wisdom'' file, that will be reloaded each time you use MPTK. It means that the codelets use 
-to compute FFTW plan will be the same between two successive decompositions with the same parameters.
-
-\vspace{0,3 cm}
-
-\noindent For bash or sh or ash:
-
-\vspace{0,2 cm}
-
-\noindent {\tt bash-3.1\$ export MPTK\_FFTW\_WISDOM=/usr/local/fftw\_wisdom\_file}
-
-\vspace{0,3 cm}
-
-If you want to fix permanently the used FFTW plan, just set this environment variable when the console 
-is launched, using for that the /etc/profile, ~/.profile or  .bashrc file, according to your system configuration. 
-
-\vspace{0,3 cm}
-
-\noindent For tcsh or csh : 
-
-\vspace{0,2 cm}
-
-\noindent {\tt bash-3.1\$ setenv MPTK\_FFTW\_WISDOM=/usr/local/fftw\_wisdom\_file}
-
-\vspace{0,3 cm}
-
-If you want to fix permanently the used FFTW plan, just set this environment variable when the console 
-is launched, using for that the  /etc/csh.cshrc file, according to your system configuration.
 
 \clearpage
 

@@ -3,17 +3,15 @@
 %   book = bookread(filename)
 %
 % Synopsis:
-%   Imports a binary Matching Pursuit book file “filename” to Matlab, using MPTK and returns a structured book “book”.
+%   Imports a Matching Pursuit book file to Matlab, using MPTK and returns a structured book.
+%   The file can be either in binary mode (filename.bin) or in text mode (filename.xml)
 %
 % Input : 
-%   * filename : the filename where to read the book
+%   * filename : The filename where to read the book
 %
 % Output:
-%   * book : a book structure
+%   * book     : A book structure
 %
-% Known limitations : 
-%   * Only the following atom types are supported :
-%       - gabor, harmonic, mdct, mclt, dirac.
 
 %% Authors:
 % Gilles Gonon

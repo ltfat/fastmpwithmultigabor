@@ -103,61 +103,42 @@ const char *configFileName = NULL;
 /* --------------------------------------- */
 void usage( void )
 {
-  /* --------------------------------------- */
-
-  fprintf( stdout, " \n" );
-  fprintf( stdout, " Usage:\n" );
-  fprintf( stdout, "     mpd_demix [options] -D dictFILE.txt -M matrix.txt (-n N|-s SNR) (sndFILE.wav|-)"
-           " (bookFILE) [residualFILE.wav]\n" );
-  fprintf( stdout, " \n" );
-  fprintf( stdout, " Synopsis:\n" );
-  fprintf( stdout, "     Performs Blind Source Separation on signal sndFILE.wav with dictionary dictFile.txt\n" );
-  fprintf( stdout, "     and with the known mixer matrix mixFILE.txt. The result is stored in as many books\n" );
-  fprintf( stdout, "     as estimated sources (plus an optional residual signal), after N iterations\n" );
-  fprintf( stdout, "     or after reaching the signal-to-residual ratio SNR.\n" );
-  fprintf( stdout, " \n" );
-  fprintf( stdout, " Mandatory arguments:\n" );
-  fprintf( stdout, "     -M<FILE>, --mix-matrix=<FILE>  Read the mixer matrix from text file FILE.\n" );
-  fprintf( stdout, "                                    The first line of the file should indicate the number of rows\n" );
-  fprintf( stdout, "                                    and the number of columns, and the following lines should give\n" );
-  fprintf( stdout, "                                    space-separated values, with a line break after each row.\n" );
-  fprintf( stdout, "                                    EXAMPLE:\n" );
-  fprintf( stdout, "                                     2 3\n" );
-  fprintf( stdout, "                                     0.92  0.38  0.71\n" );
-  fprintf( stdout, "                                     0.71  0.77  1.85\n" );
-  fprintf( stdout, " \n" );
-  fprintf( stdout, "     -n<N>, --num-iter=<N>|--num-atoms=<N>    Stop after N iterations.\n" );
-  fprintf( stdout, "AND/OR -s<SNR>, --snr=<SNR>                   Stop when the SNR value SNR is reached.\n" );
-  fprintf( stdout, "                                              If both options are used together, the algorithm stops\n" );
-  fprintf( stdout, "                                              as soon as either one is reached.\n" );
-  fprintf( stdout, " \n" );
-  fprintf( stdout, "     (sndFILE.wav|-)                          The signal to analyze or stdin (in WAV format).\n" );
-  fprintf( stdout, "     (bookFILE)                               The base name of the files to store the books of atoms_n\n" );
-  fprintf( stdout, "                                              corresponding to the N estimated sources. These N books\n" );
-  fprintf( stdout, "                                              will be named bookFILE_n.bin, n=[0,...,N-1].\n" );
-  fprintf( stdout, " \n" );
-  fprintf( stdout, " Optional arguments:\n" );
-  fprintf( stdout, "     -C<FILE>, --config-file=<FILE>  Use the specified configuration file, \n" );
-  fprintf( stdout, "                                     otherwise the MPTK_CONFIG_FILENAME environment variable will be\n" );
-  fprintf( stdout, "                                     used to find the configuration file and set up the MPTK environment.\n" );
-  fprintf( stdout, "     -D<FILE>, --dictionary=<FILE>    Read the dictionary from text file FILE.\n" );
-  fprintf( stdout, "                                      If no dictionary is given, a default dictionary is used.\n" );
-  fprintf( stdout, "                                      (Use -v to see the structure of the default dictionary\n" );
-  fprintf( stdout, "                                       reported in the verbose information.)\n" );
-  fprintf( stdout, "     -E<FILE>, --energy-decay=<FILE>  Save the energy decay as doubles to file FILE.\n" );
-  fprintf( stdout, "     -Q<FILE>, --src-sequence=<FILE>  Save the source sequence as unsigned short ints to file FILE.\n" );
-  fprintf( stdout, "     -R<N>,    --report-hit=<N>       Report some progress info (in stderr) every N iterations.\n" );
-  fprintf( stdout, "     -S<N>,    --save-hit=<N>         Save the output files every N iterations.\n" );
-  fprintf( stdout, "     -T<N>,    --snr-hit=<N>          Test the SNR every N iterations only (instead of each iteration).\n" );
-  fprintf( stdout, " \n" );
-  fprintf( stdout, "     residualFILE.wav                The residual signal after subtraction of the atoms.\n" );
-  fprintf( stdout, " \n" );
-  fprintf( stdout, "     -q, --quiet                    No text output.\n" );
-  fprintf( stdout, "     -v, --verbose                  Verbose.\n" );
-  fprintf( stdout, "     -V, --version                  Output the version and exit.\n" );
-  fprintf( stdout, "     -h, --help                     This help.\n" );
-  fprintf( stdout, " \n" );
-
+	fprintf( stdout, " \n" );
+	fprintf( stdout, " Usage:\n" );
+	fprintf( stdout, "     mpd_demix [options] -D dictFILE.txt -M matrix.txt -n N [-s SNR] (sndFILE.wav|-) (bookFILE) [residualFILE.wav]\n" );
+	fprintf( stdout, " \n" );
+	fprintf( stdout, " Synopsis:\n" );
+	fprintf( stdout, "     Performs Blind Source Separation on signal sndFILE.wav with dictionary dictFile.txt\n" );
+	fprintf( stdout, "     and with the known mixer matrix mixFILE.txt. The result is stored in as many books\n" );
+	fprintf( stdout, "     as estimated sources (plus an optional residual signal), after N iterations\n" );
+	fprintf( stdout, "     or after reaching the signal-to-residual ratio SNR.\n" );
+	fprintf( stdout, " \n" );
+	fprintf( stdout, " Mandatory arguments:\n" );
+	fprintf( stdout, "     -M<FILE>, --mix-matrix=<FILE> Read the mixer matrix from text FILE. The first line of the file should indicate\n" );
+	fprintf( stdout, "                                   the number of rows and the number of columns, and the following lines should\n" );
+	fprintf( stdout, "                                   give space-separated values, with a line break after each row. Example :\n" );
+	fprintf( stdout, "                                          2 3\n" );
+	fprintf( stdout, "                                          0.92  0.38  0.71\n" );
+	fprintf( stdout, "                                          0.71  0.77  1.85\n" );
+	fprintf( stdout, "     -n<N>|--nIter=<N>|--nAtom=<N> Stop after N iterations or N atom founded.\n" );
+	fprintf( stdout, "     -s<SNR>, --snr=<SNR>          OPTIONAL: Stop when the SNR value <SNR> is reached.\n" );
+	fprintf( stdout, "     (sndFILE.wav|-)               The signal to analyze or stdin (in WAV format).\n" );
+	fprintf( stdout, "     (bookFILE)                    The base name of the files to store the books of atoms_n corresponding to the\n" );
+	fprintf( stdout, "                                   N estimated sources. These N books will be named bookFILE_n.bin, n=[0,...,N-1].\n" );
+	fprintf( stdout, " \n" );
+	fprintf( stdout, " Optional arguments:\n" );
+	fprintf( stdout, "     -C<FILE>, --config-file=<FILE>   Use the specified configuration file, otherwise MPTK_CONFIG_FILENAME\n" );
+	fprintf( stdout, "     -E<FILE>, --energy-decay=<FILE>  Save the energy decay as doubles to file FILE.\n" );
+	fprintf( stdout, "     -R<N>,    --report-hit=<N>       Report some progress info (in stderr) every N iterations.\n" );
+	fprintf( stdout, "     -S<N>,    --save-hit=<N>         Save the output files every N iterations.\n" );
+	fprintf( stdout, "     -T<N>,    --snr-hit=<N>          Test the SNR every N iterations only (instead of each iteration).\n" );
+	fprintf( stdout, "     -p<double>, --preemp=<double>    Pre-emphasize the input signal with coefficient <double>.\n" );
+	fprintf( stdout, "     -q, --quiet                      No text output.\n" );
+	fprintf( stdout, "     -v, --verbose                    Verbose.\n" );
+	fprintf( stdout, "     -V, --version                    Output the version and exit.\n" );
+	fprintf( stdout, "     -h, --help                       This help.\n" );
+	fprintf( stdout, " \n" );
+	
   exit(0);
 }
 

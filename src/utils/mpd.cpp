@@ -97,22 +97,23 @@ void usage( void )
 {
 	fprintf( stdout, " \n" );
 	fprintf( stdout, " Usage:\n" );
-	fprintf( stdout, "     mpd [options] (-D|-d) dictFILE.xml -n N [-s SNR] (sndFILE.wav|-) (bookFILE.bin|bookFILE.xml|-) [residualFILE.wav]\n" );
+	fprintf( stdout, "     mpd [options] (-D|-d) dictFILE.xml -n N [-s SNR] (sndFILE.wav|-) (bookFILE(.bin|.xml)|-) [residualFILE.wav]\n" );
 	fprintf( stdout, " \n" );
 	fprintf( stdout, " Synopsis:\n" );
-	fprintf( stdout, "     Iterates Matching Pursuit on signal sndFILE.wav with dictionary dictFILE.xml and gives the resulting book bookFILE\n");
-	fprintf( stdout, "     (and an optional residual signal) after N iterations or after reaching the signal-to-residual ratio SNR.\n" );
+	fprintf( stdout, "     Iterates Matching Pursuit on signal sndFILE.wav with dictionary dictFILE.xml\n");
+	fprintf( stdout, "     and gives the resulting book bookFILE (and an optional residual signal)\n");
+	fprintf( stdout, "     after N iterations or after reaching the signal-to-residual ratio SNR.\n" );
 	fprintf( stdout, " \n" );
 	fprintf( stdout, " Main arguments:\n" );
-	fprintf( stdout, "      (-D|-d) <dictFILE.xml>                The full/relative dictionary path (relative to \"path_to_mptk/mptk/reference/dictionary/\").\n" );
-	fprintf( stdout, "      -n<N>, --num-iter=<N>|--num-atoms=<N> Stop after N iterations or N atom founded.\n" );
-	fprintf( stdout, "      -s<SNR>, --snr=<SNR>                  OPTIONAL: Stop when the SNR value <SNR> is reached.\n" );
-	fprintf( stdout, "      (sndFILE.wav|-)                       The signal to analyze or stdin (in WAV format).\n" );
-	fprintf( stdout, "      (bookFILE.bin|bookFile.xml|-)         The file to store the resulting book of atoms, or stdout.\n" );
-	fprintf( stdout, "      residualFILE.wav                      OPTIONAL: The residual signal after subtraction of the atoms.\n" );
+	fprintf( stdout, "     (-D|-d) <dictFILE.xml>         The full/relative (\"path_to_mptk/mptk/reference/dictionary/\") dict path.\n" );
+	fprintf( stdout, "     -n<N>|--nIter=<N>|--nAtom=<N> Stop after N iterations or N atom founded.\n" );
+	fprintf( stdout, "     -s<SNR>, --snr=<SNR>           OPTIONAL: Stop when the SNR value <SNR> is reached.\n" );
+	fprintf( stdout, "     (sndFILE.wav|-)                The signal to analyze or stdin (in WAV format).\n" );
+	fprintf( stdout, "     (bookFILE.bin|bookFile.xml|-)  The file to store the resulting book of atoms, or stdout.\n" );
+	fprintf( stdout, "     residualFILE.wav               OPTIONAL: The residual signal after subtraction of the atoms.\n" );
 	fprintf( stdout, " \n" );
 	fprintf( stdout, " Optional arguments:\n" );
-	fprintf( stdout, "     -C<FILE>, --config-file=<FILE>   Use the specified configuration file, otherwise the MPTK_CONFIG_FILENAME environment\n" );
+	fprintf( stdout, "     -C<FILE>, --config-file=<FILE>   Use the specified configuration file, otherwise MPTK_CONFIG_FILENAME\n" );
 	fprintf( stdout, "     -E<FILE>, --energy-decay=<FILE>  Save the energy decay as doubles to file FILE.\n" );
 	fprintf( stdout, "     -R<N>,    --report-hit=<N>       Report some progress info (in stderr) every N iterations.\n" );
 	fprintf( stdout, "     -S<N>,    --save-hit=<N>         Save the output files every N iterations.\n" );
@@ -124,7 +125,7 @@ void usage( void )
 	fprintf( stdout, "     -h, --help                       This help.\n" );
 	fprintf( stdout, " \n" );
 	fprintf( stdout, " Examples:\n" );
-	fprintf( stdout, "     mpd -D /Users/rleboulc/bar/mptk/reference/dictionary/dic_gabor_two_scales.xml -n 10 glockenspiel.wav bookTest.bin\n" );
+	fprintf( stdout, "     mpd -D /user/local/mptk/reference/dictionary/dic_gabor_two_scales.xml -n 10 glockenspiel.wav bookTest.bin\n" );
 	fprintf( stdout, "     mpd -d dic_gabor_two_scales.xml -n 10 -s 2.5 glockenspiel.wav bookTest.xml\n" );
 	exit(0);
 }
@@ -148,8 +149,8 @@ int parse_args(int argc, char **argv)
         {"save-hit",			required_argument, NULL, 'S'},
         {"snr-hit",				required_argument, NULL, 'T'},
 
-        {"num-atoms",			required_argument, NULL, 'n'},
-        {"num-iter",			required_argument, NULL, 'n'},
+        {"nAtoms",				required_argument, NULL, 'n'},
+        {"nIter",				required_argument, NULL, 'n'},
         {"preemp",				required_argument, NULL, 'p'},
         {"snr",					required_argument, NULL, 's'},
 
@@ -281,21 +282,21 @@ int parse_args(int argc, char **argv)
 				mp_debug_msg( MP_DEBUG_PARSE_ARGS, func, "switch -n : optarg is [%s].\n", optarg );
 				if (optarg == NULL)
 				{
-					mp_error_msg( func, "After switch -n/--num-iter=/--num-atom= :\n" );
+					mp_error_msg( func, "After switch -n/--nIter=/--nAtom= :\n" );
 					mp_error_msg( func, "the argument is NULL.\n" );
-					mp_error_msg( func, "(Did you use --numiter or --numatom without the '=' character ?).\n" );
+					mp_error_msg( func, "(Did you use --nIter or --nAtom without the '=' character ?).\n" );
 					return( ERR_ARG );
 				}
 				else 
 					MPD_NUM_ITER = strtoul(optarg, &p, 10);
 				if ( (p == optarg) || (*p != 0) )
 				{
-					mp_error_msg( func, "After switch -n/--num-iter=/--num-atom= :\n" );
+					mp_error_msg( func, "After switch -n/--nIter=/--nAtom= :\n" );
 					mp_error_msg( func, "failed to convert argument [%s] to an unsigned long value.\n", optarg );
 					return( ERR_ARG );
 				}
 				MPD_USE_ITER = MP_TRUE;
-				mp_debug_msg( MP_DEBUG_PARSE_ARGS, func, "Read numIter [%lu].\n", MPD_NUM_ITER );
+				mp_debug_msg( MP_DEBUG_PARSE_ARGS, func, "Read nIter [%lu].\n", MPD_NUM_ITER );
 				break;
 			case 'p':
 				mp_debug_msg( MP_DEBUG_PARSE_ARGS, func, "switch -p : optarg is [%s].\n", optarg );

@@ -7,52 +7,56 @@ FOREACH(loopTargets ${EXEC_TARGETS})
 		RESULT_VARIABLE rv
 	)
 	FILE(READ ${MPTK_BINARY_DIR}/doc/userman/TempCmdUsage.tex TEMPUSAGE)
-	FILE(WRITE ${MPTK_BINARY_DIR}/doc/userman/CommandUsage/${loopTargets}_Usage.tex "\\tiny\\begin{verbatim}")
+	FILE(WRITE ${MPTK_BINARY_DIR}/doc/userman/CommandUsage/${loopTargets}_Usage.tex "\\fontsize{8}{10}\\begin{alltt}")
 	FILE(APPEND ${MPTK_BINARY_DIR}/doc/userman/CommandUsage/${loopTargets}_Usage.tex "${TEMPUSAGE}")
-	FILE(APPEND ${MPTK_BINARY_DIR}/doc/userman/CommandUsage/${loopTargets}_Usage.tex "\\end{verbatim}\\normalsize")
+	FILE(APPEND ${MPTK_BINARY_DIR}/doc/userman/CommandUsage/${loopTargets}_Usage.tex "\\end{alltt}\\normalsize")
 ENDFOREACH(loopTargets)
 
 IF(MATLAB_ROOT)
 	FOREACH(MatLoopTargets ${MAT_EXEC_TARGETS})
-		EXECUTE_PROCESS(
-			OUTPUT_FILE 	${MPTK_BINARY_DIR}/doc/userman/TempCmdUsage.tex
-			COMMAND 	matlab -nosplash -nojvm -nodesktop -r "help ${MPTK_SOURCE_DIR}/src/matlab/${MatLoopTargets}.m,exit"
-			RESULT_VARIABLE rv
-		)
-		# Getting the "Usage" offset
-		FILE(READ ${MPTK_BINARY_DIR}/doc/userman/TempCmdUsage.tex TEMPUSAGE)
-		STRING( FIND ${TEMPUSAGE} "Usage" POSITION)
-		STRING(LENGTH ${TEMPUSAGE} LENGTH)
-		MATH(EXPR ENDLENGTH ${LENGTH}-${POSITION}-8)
-		STRING(SUBSTRING ${TEMPUSAGE} ${POSITION} ${ENDLENGTH} LOLUSAGE)
-		IF(NOT ${POSITION} STREQUAL "-1")
-			FILE(WRITE ${MPTK_BINARY_DIR}/doc/userman/CommandUsage/${MatLoopTargets}_Usage.tex "\\tiny\\begin{verbatim}\n")
-			FILE(APPEND ${MPTK_BINARY_DIR}/doc/userman/CommandUsage/${MatLoopTargets}_Usage.tex "${LOLUSAGE}")
-			FILE(APPEND ${MPTK_BINARY_DIR}/doc/userman/CommandUsage/${MatLoopTargets}_Usage.tex "\\end{verbatim}\\normalsize")
-		ELSE(NOT ${POSITION} STREQUAL "-1")
-			MESSAGE("<<<<<<<<<<<<<<< Error, no \"Usage\" tag has been found in file ${MPTK_SOURCE_DIR}/src/matlab/${MatLoopTargets}.m >>>>>>>>>>>>")
-		ENDIF(NOT ${POSITION} STREQUAL "-1")
+		IF(NOT EXISTS ${MPTK_BINARY_DIR}/doc/userman/CommandUsage/${MatLoopTargets}_Usage.tex)
+			EXECUTE_PROCESS(
+				OUTPUT_FILE 	${MPTK_BINARY_DIR}/doc/userman/TempCmdUsage.tex
+				COMMAND 	matlab -nosplash -nojvm -nodesktop -r "help ${MPTK_SOURCE_DIR}/src/matlab/${MatLoopTargets}.m,exit"
+				RESULT_VARIABLE rv
+			)
+			# Getting the "Usage" offset
+			FILE(READ ${MPTK_BINARY_DIR}/doc/userman/TempCmdUsage.tex TEMPUSAGE)
+			STRING( FIND ${TEMPUSAGE} "Usage" POSITION)
+			STRING(LENGTH ${TEMPUSAGE} LENGTH)
+			MATH(EXPR ENDLENGTH ${LENGTH}-${POSITION}-8)
+			STRING(SUBSTRING ${TEMPUSAGE} ${POSITION} ${ENDLENGTH} LOLUSAGE)
+			IF(NOT ${POSITION} STREQUAL "-1")
+				FILE(WRITE ${MPTK_BINARY_DIR}/doc/userman/CommandUsage/${MatLoopTargets}_Usage.tex "\\fontsize{8}{10}\\begin{alltt}\n")
+				FILE(APPEND ${MPTK_BINARY_DIR}/doc/userman/CommandUsage/${MatLoopTargets}_Usage.tex "${LOLUSAGE}")
+				FILE(APPEND ${MPTK_BINARY_DIR}/doc/userman/CommandUsage/${MatLoopTargets}_Usage.tex "\\end{alltt}\\normalsize")
+			ELSE(NOT ${POSITION} STREQUAL "-1")
+				MESSAGE("<<<<<<<<<<<<<<< Error, no \"Usage\" tag has been found in file ${MPTK_SOURCE_DIR}/src/matlab/${MatLoopTargets}.m >>>>>>>>>>>>")
+			ENDIF(NOT ${POSITION} STREQUAL "-1")
+		ENDIF(NOT EXISTS ${MPTK_BINARY_DIR}/doc/userman/CommandUsage/${MatLoopTargets}_Usage.tex)
 	ENDFOREACH(MatLoopTargets)
 
 	FOREACH(MatScriptTargets ${MATSCRIPT_EXEC})
-		EXECUTE_PROCESS(
-			OUTPUT_FILE 	${MPTK_BINARY_DIR}/doc/userman/TempCmdUsage.tex
-			COMMAND 	matlab -nosplash -nojvm -nodesktop -r "help ${MPTK_SOURCE_DIR}/src/matlab/scripts/${MatScriptTargets}.m,exit"
-			RESULT_VARIABLE rv
-		)
-		# Getting the "Usage" offset
-		FILE(READ ${MPTK_BINARY_DIR}/doc/userman/TempCmdUsage.tex TEMPUSAGE)
-		STRING( FIND ${TEMPUSAGE} "Usage" POSITION)
-		STRING(LENGTH ${TEMPUSAGE} LENGTH)
-		MATH(EXPR ENDLENGTH ${LENGTH}-${POSITION}-8)
-		STRING(SUBSTRING ${TEMPUSAGE} ${POSITION} ${ENDLENGTH} LOLUSAGE)
-		IF(NOT ${POSITION} STREQUAL "-1")
-			FILE(WRITE ${MPTK_BINARY_DIR}/doc/userman/CommandUsage/${MatScriptTargets}_Usage.tex "\\tiny\\begin{verbatim}\n")
-			FILE(APPEND ${MPTK_BINARY_DIR}/doc/userman/CommandUsage/${MatScriptTargets}_Usage.tex "${LOLUSAGE}")
-			FILE(APPEND ${MPTK_BINARY_DIR}/doc/userman/CommandUsage/${MatScriptTargets}_Usage.tex "\\end{verbatim}\\normalsize")
-		ELSE(NOT ${POSITION} STREQUAL "-1")
-			MESSAGE("<<<<<<<<<<<<<<< Error, no \"Usage\" tag has been found in file ${MPTK_SOURCE_DIR}/src/matlab/scripts/${MatScriptTargets}.m >>>>>>>>>>>>")
-		ENDIF(NOT ${POSITION} STREQUAL "-1")
+		IF(NOT EXISTS ${MPTK_BINARY_DIR}/doc/userman/CommandUsage/${MatScriptTargets}_Usage.tex)
+			EXECUTE_PROCESS(
+				OUTPUT_FILE 	${MPTK_BINARY_DIR}/doc/userman/TempCmdUsage.tex
+				COMMAND 	matlab -nosplash -nojvm -nodesktop -r "help ${MPTK_SOURCE_DIR}/src/matlab/scripts/${MatScriptTargets}.m,exit"
+				RESULT_VARIABLE rv
+			)
+			# Getting the "Usage" offset
+			FILE(READ ${MPTK_BINARY_DIR}/doc/userman/TempCmdUsage.tex TEMPUSAGE)
+			STRING( FIND ${TEMPUSAGE} "Usage" POSITION)
+			STRING(LENGTH ${TEMPUSAGE} LENGTH)
+			MATH(EXPR ENDLENGTH ${LENGTH}-${POSITION}-8)
+			STRING(SUBSTRING ${TEMPUSAGE} ${POSITION} ${ENDLENGTH} LOLUSAGE)
+			IF(NOT ${POSITION} STREQUAL "-1")
+				FILE(WRITE ${MPTK_BINARY_DIR}/doc/userman/CommandUsage/${MatScriptTargets}_Usage.tex "\\fontsize{8}{10}\\begin{alltt}\n")
+				FILE(APPEND ${MPTK_BINARY_DIR}/doc/userman/CommandUsage/${MatScriptTargets}_Usage.tex "${LOLUSAGE}")
+				FILE(APPEND ${MPTK_BINARY_DIR}/doc/userman/CommandUsage/${MatScriptTargets}_Usage.tex "\\end{alltt}\\normalsize")
+			ELSE(NOT ${POSITION} STREQUAL "-1")
+				MESSAGE("<<<<<<<<<<<<<<< Error, no \"Usage\" tag has been found in file ${MPTK_SOURCE_DIR}/src/matlab/scripts/${MatScriptTargets}.m >>>>>>>>>>>>")
+			ENDIF(NOT ${POSITION} STREQUAL "-1")
+		ENDIF(NOT EXISTS ${MPTK_BINARY_DIR}/doc/userman/CommandUsage/${MatScriptTargets}_Usage.tex)
 	ENDFOREACH(MatScriptTargets)
 ENDIF(MATLAB_ROOT)
 
@@ -71,6 +75,9 @@ IF(LATEX_COMPILER)
 	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/doc/userman/latex_src/Images/bookeditTransformToolbar.eps ${MPTK_BINARY_DIR}/doc/userman/Images/bookeditTransformToolbar.eps COPYONLY)
 	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/doc/userman/latex_src/Images/cTestReport.eps ${MPTK_BINARY_DIR}/doc/userman/Images/cTestReport.eps COPYONLY)
 	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/doc/userman/latex_src/Images/logo.eps ${MPTK_BINARY_DIR}/doc/userman/Images/logo.eps COPYONLY)
+	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/doc/userman/latex_src/Images/UnixCMakeGUI.eps ${MPTK_BINARY_DIR}/doc/userman/Images/UnixCMakeGUI.eps COPYONLY)
+	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/doc/userman/latex_src/Images/WindowsCMakeGUI.eps ${MPTK_BINARY_DIR}/doc/userman/Images/WindowsCMakeGUI.eps COPYONLY)
+	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/doc/userman/latex_src/Images/MatlabPathSelect.eps ${MPTK_BINARY_DIR}/doc/userman/Images/MatlabPathSelect.eps COPYONLY)
 
 	# Copying tex
 	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/doc/userman/latex_src/userman.tex ${MPTK_BINARY_DIR}/doc/userman/userman.tex COPYONLY)

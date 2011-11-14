@@ -93,7 +93,7 @@ void usage( void )
 	fprintf( stdout, "     residualFILE.wav                 OPTIONAL: A residual signal obtained from a Matching Pursuit decomposition.\n" );
 	fprintf( stdout, " \n" );
 	fprintf( stdout, " Optional arguments:\n" );
-	fprintf( stdout, "     -C<FILE>, --config-file=<FILE>   Use the specified configuration file, otherwise the MPTK_CONFIG_FILENAME environment\n" );
+	fprintf( stdout, "     -C<FILE>, --config-file=<FILE>   Use the specified configuration file, otherwise MPTK_CONFIG_FILENAME\n" );
 	fprintf( stdout, "     -d<double>, --deemp=<double>     De-emphasize the signal with coefficient <double>.\n" );
 	fprintf( stdout, "     -q, --quiet                      No text output.\n" );
 	fprintf( stdout, "     -v, --verbose                    Verbose.\n" );

@@ -25,6 +25,31 @@ MPTK provides an implementation of Matching Pursuit which is:
 	\item OPEN: modular architecture $\mapsto$ add your own atoms ! Free distribution under the GPL. 
 \end{my_itemize}
 
+\begin{scriptsize}
+\begin{tabular}{|>{\columncolor[rgb]{0.37,0.66,0.86}}c|>{\columncolor[rgb]{0.37,0.66,0.86}}c||l|l|l|l|}
+	\hline
+	\multicolumn{1}{|>{\columncolor[rgb]{0.31,0.45,0.71}}c|}{\textcolor{white}{\textbf{Signal}}}		& \multicolumn{1}{>{\columncolor[rgb]{0.31,0.45,0.71}}c||}{\textcolor{white}{\textbf{Dictionary}}}	& \multicolumn{1}{>{\columncolor[rgb]{0.79,0.39,0.00}}c|}{}	& \multicolumn{1}{>{\columncolor[rgb]{0.79,0.39,0.00}}c|}{\textcolor{white}{\textbf{10dB SNR}}}	& \multicolumn{1}{>{\columncolor[rgb]{0.79,0.39,0.00}}c|}{\textcolor{white}{\textbf{20dB SNR}}}	& \multicolumn{1}{>{\columncolor[rgb]{0.79,0.39,0.00}}c|}{\textcolor{white}{\textbf{30dB SNR}}} \\ 
+	\hline
+																			& 																			& \cellcolor[rgb]{0.85,0.55,0.25}Short					& \cellcolor[rgb]{0.85,0.55,0.25} \underline{nAtoms :} 1.18 M								& \cellcolor[rgb]{0.85,0.55,0.25} \underline{nAtoms :} 4.75 M 								& \cellcolor[rgb]{0.85,0.55,0.25} \underline{nAtoms :} 10.61 M 	\\
+																			& 																			& \cellcolor[rgb]{0.85,0.55,0.25}						& \cellcolor[rgb]{0.85,0.55,0.25} \underline{Time :} 	1min									& \cellcolor[rgb]{0.85,0.55,0.25} \underline{Time :} 	4min 								& \cellcolor[rgb]{0.85,0.55,0.25} \underline{Time :} 10min	\\
+																			&	 																		& \cellcolor[rgb]{0.80,0.27,0.27}Long					& \cellcolor[rgb]{0.80,0.27,0.27} \underline{nAtoms :} 0.98 M								& \cellcolor[rgb]{0.80,0.27,0.27}\underline{nAtoms :} 5.49 M								& \cellcolor[rgb]{0.80,0.27,0.27}\underline{nAtoms :} 5.49 M	\\
+	\multirow{-4}{2.5 cm}{Radio broadcast 1h @ 8kHz}									& \multirow{-4}{*}{dic\_speech\_8k}													& \cellcolor[rgb]{0.80,0.27,0.27}						& \cellcolor[rgb]{0.80,0.27,0.27} \underline{Time :} 	6min									& \cellcolor[rgb]{0.80,0.27,0.27}\underline{Time :} 	23min 								& \cellcolor[rgb]{0.80,0.27,0.27}\underline{Time :} 167min	\\ 
+	\hline
+																			&																			& \cellcolor[rgb]{0.85,0.55,0.25}Short					& \cellcolor[rgb]{0.85,0.55,0.25} \underline{nAtoms :} 1.32 M								& \cellcolor[rgb]{0.85,0.55,0.25} \underline{nAtoms :} 6.08 M 								& \cellcolor[rgb]{0.85,0.55,0.25} \underline{nAtoms :} 11,75 M	\\
+																			& 																			& \cellcolor[rgb]{0.85,0.55,0.25}						& \cellcolor[rgb]{0.85,0.55,0.25} \underline{Time :} 	3min									& \cellcolor[rgb]{0.85,0.55,0.25} \underline{Time :} 	5min 								& \cellcolor[rgb]{0.85,0.55,0.25} \underline{Time :} 15min	\\
+																			&	 																		& \cellcolor[rgb]{0.80,0.27,0.27}Long					& \cellcolor[rgb]{0.80,0.27,0.27} \underline{nAtoms :} 1.28 M								& \cellcolor[rgb]{0.80,0.27,0.27}\underline{nAtoms :} 7.82 M 								& \cellcolor[rgb]{0.80,0.27,0.27}\underline{nAtoms :} 14.14 M	\\
+	\multirow{-4}{2.5 cm}{Radio broadcast 1h @ 16kHz}									& \multirow{-4}{*}{dic\_speech\_16k}													& \cellcolor[rgb]{0.80,0.27,0.27}						& \cellcolor[rgb]{0.80,0.27,0.27} \underline{Time :} 	11min								& \cellcolor[rgb]{0.80,0.27,0.27}\underline{Time :} 	73min 								& \cellcolor[rgb]{0.80,0.27,0.27}\underline{Time :} 212min 	\\ 
+	\hline
+																			& 																			& \cellcolor[rgb]{0.85,0.55,0.25}Short					& \cellcolor[rgb]{0.85,0.55,0.25} \underline{nAtoms :} 81 K								& \cellcolor[rgb]{0.85,0.55,0.25} \underline{nAtoms :} 544 K 								& \cellcolor[rgb]{0.85,0.55,0.25} \underline{nAtoms :} 1,81 M	\\
+																			& 																			& \cellcolor[rgb]{0.85,0.55,0.25}						& \cellcolor[rgb]{0.85,0.55,0.25} \underline{Time :} 	1min									& \cellcolor[rgb]{0.85,0.55,0.25} \underline{Time :} 	5min 								& \cellcolor[rgb]{0.85,0.55,0.25} \underline{Time :} 13min	\\
+																			&	 																		& \cellcolor[rgb]{0.80,0.27,0.27}Long					& \cellcolor[rgb]{0.80,0.27,0.27} \underline{nAtoms :} 69 K								& \cellcolor[rgb]{0.80,0.27,0.27}\underline{nAtoms :} 735 K 								& \cellcolor[rgb]{0.80,0.27,0.27}\underline{nAtoms :} 2.77 M	\\
+	\multirow{-4}{2.0 cm}{Music song 3min @ 44kHz}									& \multirow{-4}{*}{dic\_music\_44k}													& \cellcolor[rgb]{0.80,0.27,0.27}						& \cellcolor[rgb]{0.80,0.27,0.27} \underline{Time :} 	5min									& \cellcolor[rgb]{0.80,0.27,0.27}\underline{Time :} 	54min 								& \cellcolor[rgb]{0.80,0.27,0.27}\underline{Time :} 201min	\\ 
+	\hline
+\end{tabular}
+\end{scriptsize}
+
+\vspace{0.3 cm}
+
 MPTK is mainly developed and maintained within the METISS Research Group \linebreak
 (http://www.irisa.fr/metiss/) on audio signal processing, at the INRIA Research 
 Institute (http://www.irisa.fr or http://www.inria.fr/rennes) in Rennes, France.

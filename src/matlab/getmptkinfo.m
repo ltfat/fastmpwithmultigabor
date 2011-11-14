@@ -7,22 +7,18 @@
 %
 % Output :
 %     The structure “info” has the following informations
-%         * info.atoms
-%             - atoms.type
-%         * info.blocks
-%             - blocks.type
-%             - blocks.info
-%             - blocks.default
-%         * info.windows
-%             - windows.type
-%             - windows.needsOption
-%         * info.path
+%         * info.atoms(x,1), x is the position of the atom
+%             - type             The type of the atom (Anywave, Dirac...)
+%         * info.blocks(x,1).parameters, x is the position of the block 
+%             - name            The name of the block parameter (windowShift, blockOffset...)
+%             - type            The type of the block parameter (ulong, real...)
+%             - info            Details about the block parameter
+%             - default         Details about the block parameter
+%         * info.windows(x,1), x is the position of the info
+%             - type            The name of the window (hamming, flattop...)
+%             - needsOption     A boolean describing if otions are needed
+%         * info.path			Includes different path names used by MPTK
 %
-% Info :
-%     The structure path has different fields taken from the configuration file, for example
-%         - path.reference
-%         - path.dll_directory
-%         - path.fftw_wisdom_file
 
 %% Authors:
 % Emmanuel Ravelli (LAM, Paris, France)
