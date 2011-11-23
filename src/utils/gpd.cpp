@@ -40,8 +40,6 @@
 #include "libgetopt/getopt.h"
 
 
-static const char *cvsid = "$Revision: 1145 $";
-
 const char* func = "gpd";
 
 
@@ -355,7 +353,7 @@ int parse_args(int argc, char **argv)
 
 
         case 'V':
-          fprintf(stdout, "gpd -- Matching Pursuit library version %s -- gpd %s\n", VERSION, cvsid);
+          fprintf(stdout, "gpd -- Matching Pursuit library version %s\n", VERSION);
           exit(0);
           break;
 

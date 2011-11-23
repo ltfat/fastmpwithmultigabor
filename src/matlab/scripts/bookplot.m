@@ -10,10 +10,9 @@ function [gaborP,mdctP, harmP,diracL] = bookplot( book, channel, bwfactor )
 %
 % Detailed description :
 %   * bookplot(book) plots the default channel (first channel).
-%   * bookplot(book,chan) plots the channel number chan of a MPTK book structure in
-%     the current axes. If book is a string, it is understood as a filename and the 
-%     book is read from the corresponding file. Books can be read separately using 
-%     the bookread utility.
+%   * bookplot(book,chan) plots the channel number chan of a MPTK book structure in the current 
+%     axes. If book is a string, it is understood as a filename and the book is read from the 
+%     corresponding file. Books can be read separately using the bookread utility.
 %   * bookplot(book,chan,bwfactor) allows to specify the bandwidths of the atoms, 
 %     calculated as: bw = ( fs / (atom.length(channel)/2) ) / bwfactor; where fs is 
 %     the signal sample frequency. When omitted, bwfactor defaults to 2.

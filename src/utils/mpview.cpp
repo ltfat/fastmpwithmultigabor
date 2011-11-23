@@ -41,8 +41,6 @@
 #include "libgetopt/getopt.h"
 
 
-static const char *cvsid = "$Revision: 1112 $";
-
 const char* func = "mpview";
 
 /********************/
@@ -167,7 +165,7 @@ int parse_args(int argc, char **argv)
 				mp_debug_msg( MP_DEBUG_PARSE_ARGS, func, "MPVIEW_VERBOSE is TRUE.\n" );
 				break;
 			case 'V':
-				fprintf(stdout, "mpview -- Matching Pursuit library version %s -- mpview %s\n", VERSION, cvsid);
+				fprintf(stdout, "mpview -- Matching Pursuit library version %s\n", VERSION);
 				exit(0);
 				break;
 			case 's':

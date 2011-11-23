@@ -38,8 +38,6 @@
 #include <mptk.h>
 #include "libgetopt/getopt.h"
 
-static const char *cvsid = "$Revision: 1112 $";
-
 const char* func = "mpr";
 
 /********************/
@@ -173,7 +171,7 @@ int parse_args(int argc, char **argv)
 				mp_debug_msg( MP_DEBUG_PARSE_ARGS, func, "MPR_VERBOSE is TRUE.\n" );
 				break;
 			case 'V':
-				fprintf(stdout, "mpr -- Matching Pursuit library version %s -- mpr %s\n", VERSION, cvsid);
+				fprintf(stdout, "mpr -- Matching Pursuit library version %s\n", VERSION);
 				exit(0);
 				break;
 			default:

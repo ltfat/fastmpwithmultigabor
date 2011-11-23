@@ -57,6 +57,11 @@
 \usepackage{multirow}
 
 %--------------------------------------------------------------
+% Adding a font size
+%--------------------------------------------------------------
+\newcommand{\mySize}{\fontsize{6pt}{6pt}}
+
+%--------------------------------------------------------------
 % Document
 %--------------------------------------------------------------
 \begin{document}
@@ -93,8 +98,8 @@
 			\end{flushright}
 		\end{minipage}\\[3cm]
 		\begin{flushleft}
-			\emph{MPTK version : ``0.6.0''}\\
-			\emph{Document version : ``\documentVersion"}
+			\emph{MPTK version : \input{CommandUsage/MPTKVersion}}\\
+			\emph{Document version : \documentVersion}
 		\end{flushleft}
 		\vfill
 		% Bottom of the page
@@ -273,7 +278,7 @@ atoms of the book and adding them to the residual signal.
 The MPTK sources archives can be found under the gforge website, where you will be able 
 to download any version of MPTK (https://gforge.inria.fr/frs/?group\_id=36) :
 \begin{my_itemize}	
-	\item MPTK source archives : ``MPTK-Source-v.v.v.tar.gz'' (current version is 0.6.0)
+	\item MPTK source archives : ``MPTK-Source-v.v.v.tar.gz'' (current version is \input{CommandUsage/MPTKVersion})
 \end{my_itemize}
 
 %--------------------------------------------------------------
@@ -386,7 +391,7 @@ to generate a build system using the basic build settings.
 	\end{my_itemize}
 	\item \underline{Optional (if Matlab is needed) :}
 	\begin{my_itemize}
-		\item Matlab at least version R2006 (\textbf{Caution} install Matlab in the default directory) :
+		\item Matlab at least version R2006, \textbf{Preferably} installed in the default directory :
 		\begin{my_itemize}
 			\item For Linux : /opt/MATLAB\_Ryyyyx or /soft/MATLAB\_Ryyyyx
 			\item For Mac : /Applications/MATLAB\_Ryyyyx (with yyyy = year, x=[a-z])
@@ -440,7 +445,13 @@ The command {\tt make} will compile the build files and should finish like : \ne
 % Section 2.3.5 : Basic installation
 
 \subsection{Basic installation}
-The command {\tt sudo make install} will install in default directory ``path\_to\_MPTK``and should finish like : \newline
+The command {\tt sudo make install} will install in default directory ``path\_to\_MPTK`` and should finish like this : \newline
+\begin{tt}
+	... \newline
+	bash-3.1\$ -- Installing: /usr/local/lib/liblibmd5sum.a \newline
+	bash-3.1\$ -- Installing: /usr/local/lib/liblibgetopt.a \newline
+\end{tt}
+Or like this if the documentation has been generated using the option BUILD\_DOCUMENTATION of CMake :
 \begin{tt}
 	... \newline
 	bash-3.1\$ -- Installing: /usr/local/lib/liblibmd5sum.a \newline
@@ -450,13 +461,12 @@ The command {\tt sudo make install} will install in default directory ``path\_to
 	bash-3.1\$ -- Installing: /usr/local/doc/userman.pdf \newline
 \end{tt}
 
-
 %--------------------------------------------------------------
 %--------------------------------------------------------------
 % Section 3 : CMake options & troubleshooting
 %--------------------------------------------------------------
 %--------------------------------------------------------------
-\chapter{CMake options \& troubleshoot}
+\chapter{CMake options \& troubleshoot \label{CMakeTrouble}}
 
 %--------------------------------------------------------------
 % Section 3.1 : Using ccmake to set build options
@@ -790,15 +800,20 @@ which file to use for setting up the MPTK environment.
 %--------------------------------------------------------------
 \section{Beginning with Matlab}
 
-MATLAB (MAtrix LABoratory) is a numerical computing environment. Developed by MathWorks, MATLAB allows matrix 
-manipulations, plotting of functions and data, implementation of algorithms, creation of user interfaces, and interfacing 
-with programs written in other languages, including C, C++, Java, and Fortran.
+Quoting Wikipedia ``MATLAB (MAtrix LABoratory) is a numerical computing environment. Developed by MathWorks, MATLAB 
+allows matrix manipulations, plotting of functions and data, implementation of algorithms, creation of user interfaces, and 
+interfacing with programs written in other languages, including C, C++, Java, and Fortran.''
 
 \vspace{0,3 cm}
 
-The first step to understand when using Matlab is the path configuration. In fact, it works as a terminal : The available 
+The one thing to understand when using Matlab is the path configuration. In fact, it works as a terminal : The available 
 files are the ones present in the current selected path. When launching MATLAB, the default path is not the one required. 
-If the user wants to change it (in order to include MPTK path), there are three possibilities : 
+
+% Section 5.1.1 : Temporary path configuration
+
+\subsection{Temporary path configuration}
+
+If the user wants to temporary change the path (in order to include MPTK path), there are three possibilities : 
 \begin{my_itemize}
 	\item Using the MATLAB native command ``addpath(path\_to\_MPTK/mptk/matlab)''
 	\item Using the folder selection situated in the top of MATLAB window interface
@@ -807,42 +822,35 @@ If the user wants to change it (in order to include MPTK path), there are three 
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width = 13cm, height=8cm]{Images/MatlabPathSelect.eps}
+	\includegraphics[width = 11cm, height=7cm]{Images/MatlabPathSelect.eps}
 	\textit{\caption{\label{MatlabPathSelect} Description of Matlab selection path}}
 \end{figure}
 
 \clearpage
 
-%--------------------------------------------------------------
-% Section 5.2 : Understanding Matlab MEX commands
-%--------------------------------------------------------------
-\section{Understanding Matlab MEX commands}
+% Section 5.1.2 : Permanent path configuration
 
-The second step consist understanding how the Matlab MEX files works. In fact, ``MEX'' stands for MATLAB Executable. 
-MEX-files are dynamically linked subroutines produced from C, C++ or Fortran source code that, when compiled, can be 
-run from within MATLAB in the same way as MATLAB files or built-in functions. 
+\subsection{Permanent path configuration}
 
-\vspace{0,3 cm}
+When MATLAB is launched, it automatically executes the file ``matlabrc.m'' and, if it exists, ``startup.m''.
+\begin{my_itemize}
+	\item The file ``matlabrc.m'', under ``matlabroot/toolbox/local'', is reserved for MathWorks
+	\item The file ``startup.m'' is for you to specify startup options
+\end{my_itemize}
 
-MPTK provides Matlab MEX files and the extension of these files depend on the architecture of the user system.
-If Matlab is installed under your computer, follow these instructions in order to make Matlab MEX files work.
+For example, you can modify the default search path or pre-define variables in your workspace. 
+Use the following statements in a ``startup.m'' file to add the specified folder, ``path\_to\_MPTK/mptk/matlab'', to the search path.
 
-\begin{my_enumerate}
-	\item Launch Mathworks Matlab
-	\item Select the current folder as ``path\_to\_MPTK/mptk/matlab''. You should see the MEX-files related to your computer, 
-		depending on their extension : 
-		\begin{center}
-			\begin{tabular}{lll}
-				- Mexw32 for Windows 32 bytes & - Mexw64 for Windows 64 bytes \\
-				- Mexmaci for Mac 32 bytes & - Mexmaci64 for Mac 64 bytes \\
-				- Mexglx for Linux 32 bytes & - Mexa64 for Linux 64 bytes \\
-			\end{tabular}
-		\end{center}
-	\item Run GettingStarted in order to test MPTK
-\end{my_enumerate}
+\begin{tt}
+	addpath(path\_to\_MPTK/mptk/matlab)
+\end{tt}
+
+\vspace {0.3 cm}
+
+Place the ``startup.m'' file in the default or current startup folder, which is where MATLAB first looks for it.
 
 %--------------------------------------------------------------
-% Section 5.3 : Matlab book structure definition
+% Section 5.2 : Matlab book structure definition
 %--------------------------------------------------------------
 \section{Matlab book structure definition}
 
@@ -862,13 +870,19 @@ structures rather close to the different ``blocks'' in the MP\_dictionary defini
 
 \vspace{0.2 cm}
 
-\underline{The `book' structure contains the following fields:}
+\underline{The matlab `book' structure contains the following fields:}
 \begin{my_itemize}
+	\item format : Indicating the data format
 	\item numAtoms : Number of atoms actually stored in the book
 	\item numChans : number of channels of the atoms 
 	\item numSamples : number of samples in each channel covered by the reconstructed book
 	\item sampleRate : signal sample rate
-	\item maxNumAtoms : Number of atoms that could fit in the storage space
+	\item index: [ (4+numChans) x numAtoms matrix] : Index for reading/querying/sorting atoms with their occurrence in book\newline
+		1 : Atom number in book (1 to numAtoms)\newline
+		2 : Atom type\newline
+		3 : Atom number in atom(type) structure\newline
+		4 : Atom selected or not (used for saving part of a book)\newline
+		4+channel : Atom position for channel 'channel' (1 to numChans)\newline
 	\item atom:  [1 x Ntype struct]
 	\begin{my_itemize}
 		\item type : string
@@ -882,7 +896,8 @@ structures rather close to the different ``blocks'' in the MP\_dictionary defini
 %--------------------------------------------------------------
 %--------------------------------------------------------------
 \chapter{List of Matlab functions \label{ListMatlabFunc}}
-Some Matlab utilities are bundled with the distribution to help loading and visualizing books under Matlab. They are automatically installed and can be found under mptk installation directory
+Some Matlab utilities are bundled with the distribution to help loading and visualizing books. 
+They are automatically installed and can be found under mptk installation directory
 
 \vspace{0.3 cm}
 
@@ -928,7 +943,7 @@ Some Matlab utilities are bundled with the distribution to help loading and visu
 %--------------------------------------------------------------
 % Section 6.4: bookedit
 %--------------------------------------------------------------
-\section{bookedit}
+\section{bookedit (see also chapter \ref{MatlabGUI})}
 \input{CommandUsage/bookedit_Usage}
 \clearpage
 
@@ -949,7 +964,6 @@ Some Matlab utilities are bundled with the distribution to help loading and visu
 %--------------------------------------------------------------
 \section{dictread}
 \input{CommandUsage/dictread_Usage}
-\clearpage
 
 %--------------------------------------------------------------
 % Section 6.8: dictwrite
@@ -987,7 +1001,7 @@ Some Matlab utilities are bundled with the distribution to help loading and visu
 % Section 7: Matlab bookedit GUI
 %--------------------------------------------------------------
 %--------------------------------------------------------------
-\chapter{Matlab bookedit GUI}
+\chapter{Matlab bookedit GUI \label{MatlabGUI}}
 
 This GUI makes intensive use of function\_handles (denoted @functionName). The differents callbacks 
 of the GUI are function handles which refer to sub functions. As a consequence, the code is divided in a large 
@@ -1495,7 +1509,7 @@ pieces will therefore show up in stderr.
 %%%%%%%%%
 \appendix
 %%%%%%%%%
-\clearpage
+\cleardoublepage
 %%%%%%%%%
 
 %--------------------------------------------------------------
@@ -1523,7 +1537,6 @@ will yield the following sequence of commands after unzipping the package: \newl
 \textcolor[rgb]{0.4,0.4,0.4}{./configure [options]} \newline
 \textcolor[rgb]{0.4,0.4,0.4}{make} \newline
 \textcolor[rgb]{0.4,0.4,0.4}{make install} \newline
-
 
 %--------------------------------------------------------------
 %--------------------------------------------------------------

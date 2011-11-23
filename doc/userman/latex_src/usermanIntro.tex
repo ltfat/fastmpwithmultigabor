@@ -10,49 +10,48 @@
 %--------------------------------------------------------------
 \section{Learning about MPTK}
 	
-The Matching Pursuit Tool Kit (MPTK) provides a fast implementation of the Matching Pursuit algorithm for 
-the sparse decomposition of multichannel signals such as audio signals. It comprises a library, standalone 
-utilities and Matlab scripts.
-
-MPTK provides an implementation of Matching Pursuit which is: 
+The Matching Pursuit Tool Kit (MPTK) provides a fast implementation of the Matching Pursuit algorithm (see table below) for 
+the sparse decomposition of multichannel signals such as audio signals. MPTK is :
 
 \begin{my_itemize}
-	\item \textbf{FAST:} e.g., extract 1.5 million atoms from a 1 hour long, 16kHz audio signal (15dB extracted) in 0.25x 
-	real time on a Pentium IV@2.4GHz, out of a dictionary of 178M Gabor atoms. Such incredible speed makes it 
-	possible to process ``real world'' signals.
 	\item \textbf{FLEXIBLE:} multi-channel, various signal input formats, flexible syntax to describe the dictionaries 
 	$\mapsto$ reproducible results, cleaner experiments. 
-	\item OPEN: modular architecture $\mapsto$ add your own atoms ! Free distribution under the GPL. 
+	\item \textbf{OPEN:} modular architecture $\mapsto$ add your own atoms ! Free distribution under GPL. 
+	\item \textbf{FAST:} Extract million(M) or thousand(K) atoms from different audio signals on an Intel core 2 duo@2.9 GHz. 
+	The table below regroup the performance tests describing how fast MPTK extract atoms from radio or music signal. The 
+	dictionaries used varies according to window length and sampling frequencies.
 \end{my_itemize}
 
-\begin{scriptsize}
-\begin{tabular}{|>{\columncolor[rgb]{0.37,0.66,0.86}}c|>{\columncolor[rgb]{0.37,0.66,0.86}}c||l|l|l|l|}
+\begin{center}
+	\fontsize{7pt}{9pt}
+	\selectfont
+\begin{tabular}{|>{\columncolor[rgb]{0.37,0.66,0.86}}c|c||l|l|l|}
 	\hline
-	\multicolumn{1}{|>{\columncolor[rgb]{0.31,0.45,0.71}}c|}{\textcolor{white}{\textbf{Signal}}}		& \multicolumn{1}{>{\columncolor[rgb]{0.31,0.45,0.71}}c||}{\textcolor{white}{\textbf{Dictionary}}}	& \multicolumn{1}{>{\columncolor[rgb]{0.79,0.39,0.00}}c|}{}	& \multicolumn{1}{>{\columncolor[rgb]{0.79,0.39,0.00}}c|}{\textcolor{white}{\textbf{10dB SNR}}}	& \multicolumn{1}{>{\columncolor[rgb]{0.79,0.39,0.00}}c|}{\textcolor{white}{\textbf{20dB SNR}}}	& \multicolumn{1}{>{\columncolor[rgb]{0.79,0.39,0.00}}c|}{\textcolor{white}{\textbf{30dB SNR}}} \\ 
+	\multicolumn{1}{|>{\columncolor[rgb]{0.30,0.45,0.70}}c|}{\textcolor{white}{\textbf{Signal}}}	& \multicolumn{1}{>{\columncolor[rgb]{0.30,0.45,0.70}}c||}{\textcolor{white}{\textbf{Dictionary file}}}	& \multicolumn{1}{>{\columncolor[rgb]{0.79,0.39,0.00}}c|}{\textcolor{white}{\textbf{10dB SNR}}}	& \multicolumn{1}{>{\columncolor[rgb]{0.79,0.39,0.00}}c|}{\textcolor{white}{\textbf{20dB SNR}}}	& \multicolumn{1}{>{\columncolor[rgb]{0.79,0.39,0.00}}c|}{\textcolor{white}{\textbf{30dB SNR}}} \\ 
 	\hline
-																			& 																			& \cellcolor[rgb]{0.85,0.55,0.25}Short					& \cellcolor[rgb]{0.85,0.55,0.25} \underline{nAtoms :} 1.18 M								& \cellcolor[rgb]{0.85,0.55,0.25} \underline{nAtoms :} 4.75 M 								& \cellcolor[rgb]{0.85,0.55,0.25} \underline{nAtoms :} 10.61 M 	\\
-																			& 																			& \cellcolor[rgb]{0.85,0.55,0.25}						& \cellcolor[rgb]{0.85,0.55,0.25} \underline{Time :} 	1min									& \cellcolor[rgb]{0.85,0.55,0.25} \underline{Time :} 	4min 								& \cellcolor[rgb]{0.85,0.55,0.25} \underline{Time :} 10min	\\
-																			&	 																		& \cellcolor[rgb]{0.80,0.27,0.27}Long					& \cellcolor[rgb]{0.80,0.27,0.27} \underline{nAtoms :} 0.98 M								& \cellcolor[rgb]{0.80,0.27,0.27}\underline{nAtoms :} 5.49 M								& \cellcolor[rgb]{0.80,0.27,0.27}\underline{nAtoms :} 5.49 M	\\
-	\multirow{-4}{2.5 cm}{Radio broadcast 1h @ 8kHz}									& \multirow{-4}{*}{dic\_speech\_8k}													& \cellcolor[rgb]{0.80,0.27,0.27}						& \cellcolor[rgb]{0.80,0.27,0.27} \underline{Time :} 	6min									& \cellcolor[rgb]{0.80,0.27,0.27}\underline{Time :} 	23min 								& \cellcolor[rgb]{0.80,0.27,0.27}\underline{Time :} 167min	\\ 
+																			& \cellcolor[rgb]{0.35,0.60,0.80}				 									& \cellcolor[rgb]{0.85,0.70,0.25} \underline{nAtoms :} 1.18 M								& \cellcolor[rgb]{0.85,0.70,0.25} \underline{nAtoms :} 4.75 M 								& \cellcolor[rgb]{0.85,0.70,0.25} \underline{nAtoms :} 10.61 M 	\\
+																			& \cellcolor[rgb]{0.35,0.60,0.80} \multirow{-2}{*}{ dic\_speech\_8k\_short}						& \cellcolor[rgb]{0.85,0.70,0.25} \underline{Time :} 	1min									& \cellcolor[rgb]{0.85,0.70,0.25} \underline{Time :} 	4min 								& \cellcolor[rgb]{0.85,0.70,0.25} \underline{Time :} 10min	\\
+																			& \cellcolor[rgb]{0.35,0.50,0.80} 													& \cellcolor[rgb]{0.85,0.55,0.25} \underline{nAtoms :} 0.98 M								& \cellcolor[rgb]{0.85,0.55,0.25}\underline{nAtoms :} 5.49 M								& \cellcolor[rgb]{0.85,0.55,0.25}\underline{nAtoms :} 5.49 M	\\
+																			& \cellcolor[rgb]{0.35,0.50,0.80} \multirow{-2}{*}{ dic\_speech\_8k\_long}						& \cellcolor[rgb]{0.85,0.55,0.25} \underline{Time :} 	6min									& \cellcolor[rgb]{0.85,0.55,0.25}\underline{Time :} 	23min 								& \cellcolor[rgb]{0.85,0.55,0.25}\underline{Time :} 167min	\\ 
+																			& \cellcolor[rgb]{0.35,0.40,0.80} 													& \cellcolor[rgb]{0.85,0.35,0.25} \underline{nAtoms :} ??									& \cellcolor[rgb]{0.85,0.35,0.25}\underline{nAtoms :} ??									& \cellcolor[rgb]{0.85,0.35,0.25}\underline{nAtoms :} ??		\\
+	\multirow{-6}{2.5 cm}{Radio broadcast 1h @ 8kHz}									& \cellcolor[rgb]{0.35,0.40,0.80} \multirow{-2}{*}{ dic\_speech\_8k\_both}						& \cellcolor[rgb]{0.85,0.35,0.25} \underline{Time :} 	??									& \cellcolor[rgb]{0.85,0.35,0.25}\underline{Time :} 	??	 								& \cellcolor[rgb]{0.85,0.35,0.25}\underline{Time :} ??		\\ 
 	\hline
-																			&																			& \cellcolor[rgb]{0.85,0.55,0.25}Short					& \cellcolor[rgb]{0.85,0.55,0.25} \underline{nAtoms :} 1.32 M								& \cellcolor[rgb]{0.85,0.55,0.25} \underline{nAtoms :} 6.08 M 								& \cellcolor[rgb]{0.85,0.55,0.25} \underline{nAtoms :} 11,75 M	\\
-																			& 																			& \cellcolor[rgb]{0.85,0.55,0.25}						& \cellcolor[rgb]{0.85,0.55,0.25} \underline{Time :} 	3min									& \cellcolor[rgb]{0.85,0.55,0.25} \underline{Time :} 	5min 								& \cellcolor[rgb]{0.85,0.55,0.25} \underline{Time :} 15min	\\
-																			&	 																		& \cellcolor[rgb]{0.80,0.27,0.27}Long					& \cellcolor[rgb]{0.80,0.27,0.27} \underline{nAtoms :} 1.28 M								& \cellcolor[rgb]{0.80,0.27,0.27}\underline{nAtoms :} 7.82 M 								& \cellcolor[rgb]{0.80,0.27,0.27}\underline{nAtoms :} 14.14 M	\\
-	\multirow{-4}{2.5 cm}{Radio broadcast 1h @ 16kHz}									& \multirow{-4}{*}{dic\_speech\_16k}													& \cellcolor[rgb]{0.80,0.27,0.27}						& \cellcolor[rgb]{0.80,0.27,0.27} \underline{Time :} 	11min								& \cellcolor[rgb]{0.80,0.27,0.27}\underline{Time :} 	73min 								& \cellcolor[rgb]{0.80,0.27,0.27}\underline{Time :} 212min 	\\ 
+																			& \cellcolor[rgb]{0.35,0.60,0.80} 													& \cellcolor[rgb]{0.85,0.70,0.25} \underline{nAtoms :} 1.32 M								& \cellcolor[rgb]{0.85,0.70,0.25} \underline{nAtoms :} 6.08 M 								& \cellcolor[rgb]{0.85,0.70,0.25} \underline{nAtoms :} 11,75 M	\\
+																			& \cellcolor[rgb]{0.35,0.60,0.80} \multirow{-2}{*}{ dic\_speech\_16k\_short}					& \cellcolor[rgb]{0.85,0.70,0.25} \underline{Time :} 	3min									& \cellcolor[rgb]{0.85,0.70,0.25} \underline{Time :} 	5min 								& \cellcolor[rgb]{0.85,0.70,0.25} \underline{Time :} 15min	\\
+																			& \cellcolor[rgb]{0.35,0.50,0.80} 													& \cellcolor[rgb]{0.85,0.55,0.25} \underline{nAtoms :} 1.28 M								& \cellcolor[rgb]{0.85,0.55,0.25}\underline{nAtoms :} 7.82 M 								& \cellcolor[rgb]{0.85,0.55,0.25}\underline{nAtoms :} 14.14 M	\\
+																			& \cellcolor[rgb]{0.35,0.50,0.80} \multirow{-2}{*}{ dic\_speech\_16k\_long}					& \cellcolor[rgb]{0.85,0.55,0.25} \underline{Time :} 	11min								& \cellcolor[rgb]{0.85,0.55,0.25}\underline{Time :} 	73min 								& \cellcolor[rgb]{0.85,0.55,0.25}\underline{Time :} 212min 	\\ 
+																			& \cellcolor[rgb]{0.35,0.30,0.80} 													& \cellcolor[rgb]{0.85,0.35,0.25} \underline{nAtoms :} ??									& \cellcolor[rgb]{0.85,0.35,0.25}\underline{nAtoms :} ??	 								& \cellcolor[rgb]{0.85,0.35,0.25}\underline{nAtoms :} ??		\\
+	\multirow{-6}{2.5 cm}{Radio broadcast 1h @ 16kHz}									& \cellcolor[rgb]{0.35,0.30,0.80} \multirow{-2}{*}{ dic\_speech\_16k\_both}					& \cellcolor[rgb]{0.85,0.35,0.25} \underline{Time :} 	??									& \cellcolor[rgb]{0.85,0.35,0.25}\underline{Time :} 	??									& \cellcolor[rgb]{0.85,0.35,0.25}\underline{Time :} ??	 	\\ 
+	\hline		
+																			& \cellcolor[rgb]{0.35,0.60,0.80} 													& \cellcolor[rgb]{0.85,0.70,0.25} \underline{nAtoms :} 81 K								& \cellcolor[rgb]{0.85,0.70,0.25} \underline{nAtoms :} 544 K 								& \cellcolor[rgb]{0.85,0.70,0.25} \underline{nAtoms :} 1,81 M	\\
+																			& \cellcolor[rgb]{0.35,0.60,0.80} \multirow{-2}{*}{ dic\_music\_44k\_short}						& \cellcolor[rgb]{0.85,0.70,0.25} \underline{Time :} 	1min									& \cellcolor[rgb]{0.85,0.70,0.25} \underline{Time :} 	5min 								& \cellcolor[rgb]{0.85,0.70,0.25} \underline{Time :} 13min	\\
+																			& \cellcolor[rgb]{0.35,0.50,0.80} 													& \cellcolor[rgb]{0.85,0.55,0.25} \underline{nAtoms :} 69 K								& \cellcolor[rgb]{0.85,0.55,0.25}\underline{nAtoms :} 735 K 								& \cellcolor[rgb]{0.85,0.55,0.25}\underline{nAtoms :} 2.77 M	\\
+																			& \cellcolor[rgb]{0.35,0.50,0.80} \multirow{-2}{*}{ dic\_music\_44k\_long}						& \cellcolor[rgb]{0.85,0.55,0.25} \underline{Time :} 	5min									& \cellcolor[rgb]{0.85,0.55,0.25}\underline{Time :} 	54min 								& \cellcolor[rgb]{0.85,0.55,0.25}\underline{Time :} 201min	\\ 
+																			& \cellcolor[rgb]{0.35,0.40,0.80} 													& \cellcolor[rgb]{0.85,0.35,0.25} \underline{nAtoms :} ??									& \cellcolor[rgb]{0.85,0.35,0.25}\underline{nAtoms :} ??	 								& \cellcolor[rgb]{0.85,0.35,0.25}\underline{nAtoms :} ??		\\
+	\multirow{-6}{2.0 cm}{Music song 3min @ 44kHz}									& \cellcolor[rgb]{0.35,0.40,0.80} \multirow{-2}{*}{ dic\_music\_44k\_both}						& \cellcolor[rgb]{0.85,0.35,0.25} \underline{Time :} 	??									& \cellcolor[rgb]{0.85,0.35,0.25}\underline{Time :} 	??	 								& \cellcolor[rgb]{0.85,0.35,0.25}\underline{Time :} ??		\\ 
 	\hline
-																			& 																			& \cellcolor[rgb]{0.85,0.55,0.25}Short					& \cellcolor[rgb]{0.85,0.55,0.25} \underline{nAtoms :} 81 K								& \cellcolor[rgb]{0.85,0.55,0.25} \underline{nAtoms :} 544 K 								& \cellcolor[rgb]{0.85,0.55,0.25} \underline{nAtoms :} 1,81 M	\\
-																			& 																			& \cellcolor[rgb]{0.85,0.55,0.25}						& \cellcolor[rgb]{0.85,0.55,0.25} \underline{Time :} 	1min									& \cellcolor[rgb]{0.85,0.55,0.25} \underline{Time :} 	5min 								& \cellcolor[rgb]{0.85,0.55,0.25} \underline{Time :} 13min	\\
-																			&	 																		& \cellcolor[rgb]{0.80,0.27,0.27}Long					& \cellcolor[rgb]{0.80,0.27,0.27} \underline{nAtoms :} 69 K								& \cellcolor[rgb]{0.80,0.27,0.27}\underline{nAtoms :} 735 K 								& \cellcolor[rgb]{0.80,0.27,0.27}\underline{nAtoms :} 2.77 M	\\
-	\multirow{-4}{2.0 cm}{Music song 3min @ 44kHz}									& \multirow{-4}{*}{dic\_music\_44k}													& \cellcolor[rgb]{0.80,0.27,0.27}						& \cellcolor[rgb]{0.80,0.27,0.27} \underline{Time :} 	5min									& \cellcolor[rgb]{0.80,0.27,0.27}\underline{Time :} 	54min 								& \cellcolor[rgb]{0.80,0.27,0.27}\underline{Time :} 201min	\\ 
-	\hline
-\end{tabular}
-\end{scriptsize}
-
-\vspace{0.3 cm}
-
-MPTK is mainly developed and maintained within the METISS Research Group \linebreak
-(http://www.irisa.fr/metiss/) on audio signal processing, at the INRIA Research 
-Institute (http://www.irisa.fr or http://www.inria.fr/rennes) in Rennes, France.
+	\end{tabular}
+\end{center}
 
 %--------------------------------------------------------------
 % Section 1.2 : Reading this document
@@ -69,7 +68,9 @@ It is divided into two major sections :
 		\underline{\emph{For Mac users :}} Read chapter \ref{MptkForMac} to learn how to download \& install MPTK\\
 		$\mapsto$ You can skip to chapters \ref{MptkWithMatlab} \& \ref{MptkCmdLine} to understand the basic usage of MPTK
 	\item \textbf{\large Part \ref{usrMan} : Advanced User Manual}\\
+		Read chapter \ref{basicUndstd} to learn the basic understanding of MPTK\\
 		Read chapter \ref{DownInstSources} to learn how to pre-build, build \& install MPTK from the source files\\
+		Read chapter \ref{CMakeTrouble} to learn how to use CMake and the troubleshooting issues\\
 		Read chapters \ref{UseCmdLine} \& \ref{ListCmdLine} to learn how to use MPTK with command line tools\\
 		Read chapters \ref{UseMatlabFunc} \& \ref{ListMatlabFunc} to learn how to use MPTK within Matlab
 \end{my_itemize}

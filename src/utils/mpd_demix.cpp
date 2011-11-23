@@ -42,7 +42,6 @@
 
 const char* func = "mpd_demix";
 
-static const char *cvsid = "$Revision: 1112 $";
 /********************/
 /* Global constants */
 /********************/
@@ -420,7 +419,7 @@ int parse_args(int argc, char **argv)
 
 
         case 'V':
-          fprintf(stdout, "mpd_demix -- Matching Pursuit library version %s -- mpd_demix %s\n", VERSION, cvsid);
+          fprintf(stdout, "mpd_demix -- Matching Pursuit library version %s\n", VERSION);
           exit(0);
           break;
 

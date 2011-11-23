@@ -43,8 +43,6 @@
 #include "../plugin/base/harmonic_atom_plugin.h"
 
 
-static char *cvsid = "$Revision: 1112 $";
-
 char* func = "mpr";
 
 /********************/
@@ -240,7 +238,7 @@ int parse_args(int argc, char **argv)
 
 
         case 'V':
-          fprintf(stdout, "mpr -- Matching Pursuit library version %s -- mpr %s\n", VERSION, cvsid);
+          fprintf(stdout, "mpr -- Matching Pursuit library version %s\n", VERSION);
           exit(0);
           break;
 

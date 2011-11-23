@@ -1,18 +1,17 @@
 function [h,gh,hh,dh] = bookover( book, x, chan );
 
 % Usage :
-%   bookover(book,sig)
-%   bookover(book,sig,chan)
+%   bookover(book,signal)
+%   bookover(book,signal,chan)
 %
 % Synopsis :
 %   Overlays a book plot on a STFT spectrogram
 %
 % Detailed description :
-%   * bookover(book,sig) plots the given book over a STFT spectrogram of the given signal
-%     “sig” using the default channel (channel 1).
-%   * bookover(book,sig,chan) plots the given book over a STFT spectrogram of the given
-%     signal “sig”, for channel number “chan”. The book and/or the signal can be given as
-%     filenames (WAV format for the signal).
+%   * bookover(book,signal) plots the book over a STFT spectrogram of the signal using the 
+%     default channel (chan : 1).
+%   * bookover(book,signal,chan) plots the book over a STFT spectrogram of the signal, for channel 
+%     number “chan”. The book and/or the signal can be given as filenames (WAV format for the signal).
 %
 % Notes :
 %    bookover will resize the current axes to fit the spectrogram area.
