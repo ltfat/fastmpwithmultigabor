@@ -1,29 +1,30 @@
 # Locate PTHREAD library and include paths
 
 IF(UNIX)
-  IF(APPLE)
-    FIND_PATH(PTHREAD_INCLUDE_DIR pthread.h
-      /usr/include
-      /usr/local/include
-      /sw/include
-      /opt/local/include
-      )
-    FIND_LIBRARY(PTHREAD_LIBRARY_FILE pthread
-      /usr/lib
-      /usr/local/lib
-      /sw/lib
-      /opt/local/lib
-      )
-  ELSE(APPLE)
-    FIND_PATH(PTHREAD_INCLUDE_DIR pthread.h
-      /usr/include
-      /usr/local/include
-      )
-    FIND_LIBRARY(PTHREAD_LIBRARY_FILE pthread
-      /usr/lib
-      /usr/local/lib
-      )
-  ENDIF(APPLE)
+	IF(APPLE)
+		FIND_PATH(PTHREAD_INCLUDE_DIR pthread.h
+		${POSSIBLE_LIBRARY_PATH_1}/include
+		${POSSIBLE_LIBRARY_PATH_2}/include
+		${POSSIBLE_LIBRARY_PATH_3}/include
+		${POSSIBLE_LIBRARY_PATH_4}/include
+		)
+		FIND_LIBRARY(PTHREAD_LIBRARY_FILE pthread
+		${POSSIBLE_LIBRARY_PATH_1}/lib
+		${POSSIBLE_LIBRARY_PATH_2}/lib
+		${POSSIBLE_LIBRARY_PATH_3}/lib
+		${POSSIBLE_LIBRARY_PATH_4}/lib
+		)
+	ELSE(APPLE)
+		FIND_PATH(PTHREAD_INCLUDE_DIR pthread.h
+		${POSSIBLE_LIBRARY_PATH_1}/include
+		${POSSIBLE_LIBRARY_PATH_2}/include
+		)
+		FIND_LIBRARY(PTHREAD_LIBRARY_FILE pthread
+		${POSSIBLE_LIBRARY_PATH_1}/lib
+		${POSSIBLE_LIBRARY_PATH_2}/lib
+		)
+	ENDIF(APPLE)
+	GET_FILENAME_COMPONENT(PTHREAD_LIBRARY_FILE ${PTHREAD_LIBRARY_FILE} NAME)
 ELSE(UNIX)
 	IF(WIN32)
 		IF(CMAKE_CL_64)
@@ -39,8 +40,6 @@ ELSE(UNIX)
 		ENDIF(CMAKE_CL_64)
 	ENDIF(WIN32)
 ENDIF(UNIX)
-
-GET_FILENAME_COMPONENT(PTHREAD_LIBRARY_PATH ${PTHREAD_LIBRARY_FILE} PATH CACHE)
 
 SET (PTHREAD_FOUND 0)
 IF(PTHREAD_INCLUDE_DIR)

@@ -3,25 +3,25 @@
 IF(UNIX)
 	IF(APPLE)
 		FIND_PATH(FFTW3_INCLUDE_DIR fftw3.h
-		/usr/include
-		/usr/local/include
-		/sw/include
-		/opt/local/include
+		${POSSIBLE_LIBRARY_PATH_1}/include
+		${POSSIBLE_LIBRARY_PATH_2}/include
+		${POSSIBLE_LIBRARY_PATH_3}/include
+		${POSSIBLE_LIBRARY_PATH_4}/include
 		)
 		FIND_LIBRARY(FFTW3_LIBRARY_FILE NAMES libfftw3.a
-		/usr/lib
-		/usr/local/lib
-		/sw/lib
-		/opt/local/lib
+		${POSSIBLE_LIBRARY_PATH_1}/lib
+		${POSSIBLE_LIBRARY_PATH_2}/lib
+		${POSSIBLE_LIBRARY_PATH_3}/lib
+		${POSSIBLE_LIBRARY_PATH_4}/lib
 		)
 	ELSE(APPLE)
 		FIND_PATH(FFTW3_INCLUDE_DIR fftw3.h
-		/usr/include
-		/usr/local/include
+		${POSSIBLE_LIBRARY_PATH_1}/include
+		${POSSIBLE_LIBRARY_PATH_2}/include
 		)
 		FIND_LIBRARY(FFTW3_LIBRARY_FILE NAMES libfftw3.a
-		/usr/lib
-		/usr/local/lib
+		${POSSIBLE_LIBRARY_PATH_1}/lib
+		${POSSIBLE_LIBRARY_PATH_2}/lib
 		)
 	ENDIF(APPLE)
 ELSE(UNIX)
@@ -39,8 +39,6 @@ ELSE(UNIX)
 		ENDIF(CMAKE_CL_64)
 	ENDIF(WIN32)
 ENDIF(UNIX)
-
-GET_FILENAME_COMPONENT(FFTW3_LIBRARY_PATH ${FFTW3_LIBRARY_FILE} PATH CACHE)
 
 SET (FFTW3_INCLUDE_FOUND 0)
 IF(FFTW3_INCLUDE_DIR)

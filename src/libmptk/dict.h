@@ -421,6 +421,7 @@ class MP_Dict_c
      * \remark Ideally, the number of arithmetic operations is kept to a minimum.
      */
     MPTK_LIB_EXPORT int iterate_mp( MP_Book_c* book , MP_Signal_c* sigRecons );
+	  MPTK_LIB_EXPORT int iterate_cmp( MP_Book_c* book , MP_Signal_c* sigRecons, int atomIndex );
 
 
   };

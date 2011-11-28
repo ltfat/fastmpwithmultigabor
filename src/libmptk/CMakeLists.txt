@@ -65,6 +65,7 @@ SET(HEADER_FILE
 	${CMAKE_SOURCE_DIR}/src/libmptk/gp_pos_range_sub_book.h	
 	${CMAKE_SOURCE_DIR}/src/libmptk/double_index_book.h	
 	${CMAKE_SOURCE_DIR}/src/libmptk/gpd_core.h	
+	${CMAKE_SOURCE_DIR}/src/libmptk/cmpd_core.h	
 	)
 #
 #------------------------------------------------
@@ -138,6 +139,7 @@ MACRO(GET_MPTK_LIB_CPPSOURCE out)
 	${CMAKE_SOURCE_DIR}/src/libmptk/gp_pos_range_sub_book.cpp
 	${CMAKE_SOURCE_DIR}/src/libmptk/double_index_book.cpp
   	${CMAKE_SOURCE_DIR}/src/libmptk/gpd_core.cpp
+	${CMAKE_SOURCE_DIR}/src/libmptk/cmpd_core.cpp
 	${CMAKE_SOURCE_DIR}/src/libmptk/freq_atom_param.cpp
 	)
 
@@ -165,10 +167,10 @@ ENDIF(BUILD_SHARED_LIBS)
 #
 SET_TARGET_PROPERTIES(mptk PROPERTIES COMPILE_FLAGS "-DC_BUILDING_MPTK ${CMAKE_CXX_FLAGS}" OUTPUT_NAME "mptk")
 
-  IF(WIN32)
-  TARGET_LINK_LIBRARIES(mptk dsp_windows tinyxml base64 md5sum ${PTHREAD_LIBRARY_FILE} ${SNDFILE_LIBRARY_FILE} ${FFTW3_LIBRARY_FILE})
-  ELSE(WIN32)
-  TARGET_LINK_LIBRARIES(mptk dsp_windows dl tinyxml base64 md5sum ${PTHREAD_LIBRARY_FILE} ${SNDFILE_LIBRARY_FILE} ${FFTW3_LIBRARY_FILE})
+IF(WIN32)
+	TARGET_LINK_LIBRARIES(mptk dsp_windows tinyxml base64 md5sum ${PTHREAD_LIBRARY_FILE} ${SNDFILE_LIBRARY_FILE} ${FFTW3_LIBRARY_FILE})
+ELSE(WIN32)
+	TARGET_LINK_LIBRARIES(mptk dsp_windows dl tinyxml base64 md5sum ${PTHREAD_LIBRARY_FILE} ${SNDFILE_LIBRARY_FILE} ${FFTW3_LIBRARY_FILE})
 ENDIF(WIN32)
 #
 #------------------------------------------------

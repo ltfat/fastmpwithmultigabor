@@ -125,7 +125,7 @@ INSTALL(TARGETS
 )
 
 # List of mex files to be compiled and installed
-SET(MAT_EXECUTABLES getmptkinfo dictread dictwrite sigread sigwrite bookread bookwrite mprecons mpdecomp)
+SET(MAT_EXECUTABLES getmptkinfo dictread dictwrite sigread sigwrite bookread bookwrite mprecons mpdecomp cmpdecomp)
 SET(MAT_EXEC_TARGETS ${MAT_EXECUTABLES} PARENT_SCOPE)
 FOREACH(target ${MAT_EXECUTABLES})
    ADD_CUSTOM_TARGET(matlab_${target} 
@@ -145,7 +145,7 @@ FOREACH(target ${MAT_EXECUTABLES})
 			OUTPUT ${MPTK_MATLAB_OUTPUT_DIR}/${target}.${MEX_EXTENSION}
 			POST_BUILD
 			COMMAND   ${MATLAB_MEX_COMPILER} ${MATLAB_COMPILATION}
-			ARGS      -O -DHAVE_FFTW3 -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${LIBTINYXML_INCLUDE_DIR} -I/usr/include/ -I${MPTK_SOURCE_DIR} -I${LIBDSP_INCLUDE_DIR} -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${FFTW3_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/ -I${MPTK_MATLAB_SRC_DIR}/classes/ -I${MPTK_MATLAB_SRC_DIR}/experimental/classes/ -I${MPTK_SOURCE_DIR}/src/plugin/base/ -I${MPTK_SOURCE_DIR}/src/plugin/contrib/lam/ -outdir ${MPTK_MATLAB_OUTPUT_DIR} ${MPTK_MATLAB_SRC_DIR}/${target}.cpp  -L${LIBRARY_OUTPUT_PATH} -lmptk -lmptk4matlab
+			ARGS      -O -DHAVE_FFTW3 -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${LIBTINYXML_INCLUDE_DIR} -I/usr/include/ -I${MPTK_SOURCE_DIR} -I${LIBDSP_INCLUDE_DIR} -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${FFTW3_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/ -I${MPTK_MATLAB_SRC_DIR}/classes/ -I${MPTK_MATLAB_SRC_DIR}/experimental/classes/ -I${MPTK_SOURCE_DIR}/src/plugin/base/ -I${MPTK_SOURCE_DIR}/src/plugin/contrib/lam/ -outdir ${MPTK_MATLAB_OUTPUT_DIR} ${MPTK_MATLAB_SRC_DIR}/${target}.cpp -L${LIBRARY_OUTPUT_PATH} -lmptk -lmptk4matlab
    # FOR SAFETY, SHOULD USE FLAG -headerpad_max_install_names
 			COMMAND   install_name_tool -change ARGS ${LIBRARY_OUTPUT_PATH}/libmptk4matlab.dylib libmptk4matlab.dylib ${MPTK_MATLAB_OUTPUT_DIR}/${target}.${MEX_EXTENSION}
 			COMMAND   install_name_tool -change ARGS ${LIBRARY_OUTPUT_PATH}/libmptk.dylib libmptk.dylib ${MPTK_MATLAB_OUTPUT_DIR}/${target}.${MEX_EXTENSION}

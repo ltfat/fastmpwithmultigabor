@@ -62,7 +62,7 @@ class MP_Mpd_Core_c:public MP_Abstract_Core_c
     /********/
 
   public:
-  private:
+  protected:
     /* Manipulated objects */
     /*\brief The book to stock the atoms */
     MP_Book_c* book;
@@ -113,7 +113,7 @@ class MP_Mpd_Core_c:public MP_Abstract_Core_c
      */
     MPTK_LIB_EXPORT static MP_Mpd_Core_c* create( MP_Signal_c *setSignal, MP_Book_c *setBook, MP_Dict_c *setDict, MP_Signal_c* setApproximant );
 
-  private:
+  protected:
     /** \brief a private constructor */
     MP_Mpd_Core_c();
 

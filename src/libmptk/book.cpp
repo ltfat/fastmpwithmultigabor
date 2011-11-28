@@ -751,6 +751,69 @@ void MP_Book_c::reset( void ) {
 
 }
 
+/******************/
+/* Replace an atom */
+int MP_Book_c::replace( MP_Atom_c *newAtom, int atomIndex ) {
+	
+	//const char* func = "MP_Book_c::replace(index, *atom)";
+	unsigned long int newLen;
+	MP_Chan_t numChansAtom;
+	
+	/* Hook the passed atom */
+	atom[atomIndex] = newAtom;
+	
+	/* Set the number of channels to the max among all the atoms */
+	numChansAtom = newAtom->numChans;
+	if ( numChans < numChansAtom ) numChans = numChansAtom;
+	
+	/* Rectify the numSamples if needed */
+	newLen = newAtom->numSamples;
+	if ( numSamples < newLen ) numSamples = newLen;
+	
+	return( 1 ); 
+	
+	//	const char* func = "MP_Book_c::replace(*atom)";
+	//	unsigned long int newLen;
+	//	MP_Chan_t numChansAtom;
+	//	if( newAtom == NULL ) return( 0 );
+	//	/* Else: */
+	//	else {
+	//		
+	//		/* Re-allocate if the max storage capacity is attained for the list: */
+	//		if (numAtoms == maxNumAtoms) {
+	//			MP_Atom_c **tmp;
+	//			/* re-allocate the atom array */
+	//			if ( (tmp = (MP_Atom_c**) realloc( atom, (maxNumAtoms+MP_BOOK_GRANULARITY)*sizeof(MP_Atom_c*) )) == NULL ) {
+	//				mp_error_msg( func, "Can't allocate space for [%d] more atoms."
+	//							 " The book is left untouched, the passed atom is not saved.\n",
+	//							 MP_BOOK_GRANULARITY );
+	//				return( 0 );
+	//			}
+	//			else {
+	//				atom = tmp;
+	//				maxNumAtoms += MP_BOOK_GRANULARITY;
+	//			}
+	//		}
+	//	
+	//		/* Move up all the atoms*/
+	//		for (unsigned int i=0; i < numAtoms-1; i++ ) {
+	//			atom[i] = atom[i+1];
+	//		}
+	//		/* Append the passed atom */
+	//		atom[numAtoms-1] = newAtom;
+	//
+	//		/* Set the number of channels to the max among all the atoms */
+	//		numChansAtom = newAtom->numChans;
+	//		if ( numChans < numChansAtom ) numChans = numChansAtom;
+	//		
+	//		/* Rectify the numSamples if needed */
+	//		newLen = newAtom->numSamples;
+	//		if ( numSamples < newLen ) numSamples = newLen;
+//	
+//	}
+//	
+//	return( 1 );
+}
 
 /******************/
 /* Append an atom */

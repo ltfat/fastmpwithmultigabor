@@ -353,9 +353,15 @@ INCLUDE( ${MPTK_SOURCE_DIR}/CMake/FindExternalLibs.cmake )
 
 #Set option for building and linking:
 #Set directories for linker
-LINK_DIRECTORIES( ${PTHREAD_LIBRARY_PATH} 
-                  ${SNDFILE_LIBRARY_PATH} 
-                  ${FFTW3_LIBRARY_PATH})
+SET(POSSIBLE_LIBRARY_PATH_1 "/usr" CACHE INTERNAL "")
+SET(POSSIBLE_LIBRARY_PATH_2 "/usr/local" CACHE INTERNAL "")
+SET(POSSIBLE_LIBRARY_PATH_3 "/sw" CACHE INTERNAL "")
+SET(POSSIBLE_LIBRARY_PATH_4 "/opt/local" CACHE INTERNAL "")
+
+LINK_DIRECTORIES( "${POSSIBLE_LIBRARY_PATH_1}/lib"
+                  "${POSSIBLE_LIBRARY_PATH_2}/lib"
+                  "${POSSIBLE_LIBRARY_PATH_3}/lib"
+                  "${POSSIBLE_LIBRARY_PATH_4}/lib")
 #set the include directories paths for building
 INCLUDE_DIRECTORIES(/usr/include 
 		${MPTK_SOURCE_DIR}               	          # TO INCLUDE mp_system.h

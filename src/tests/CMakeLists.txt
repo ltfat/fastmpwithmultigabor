@@ -9,7 +9,7 @@
 FOREACH(test_target test_anywave test_fft test_messaging test_win test_parabolic_regression test_mp test_mask test_behaviour_in_noise test_convolution test_windowLen)
 	ADD_EXECUTABLE(${test_target} ${MPTK_SOURCE_DIR}/src/tests/${test_target}.cpp)
 	SET_TARGET_PROPERTIES(${test_target} PROPERTIES COMPILE_FLAGS "${CMAKE_CXX_FLAGS}")
-	TARGET_LINK_LIBRARIES(${test_target} mptk dsp_windows ${PTHREAD_LIBRARY_FILE} ${SNDFILE_LIBRARY_FILE} ${FFTW3_LIBRARY_FILE})
+	TARGET_LINK_LIBRARIES(${test_target} mptk dsp_windows)
 	ADD_DEPENDENCIES(${test_target} mptk)
 ENDFOREACH(test_target)
 

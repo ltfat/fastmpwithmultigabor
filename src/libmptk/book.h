@@ -157,6 +157,7 @@ class MP_Book_c
 	 * \remark \a numChans is set up if this is the first atom to be appended to the book,
 	 * otherwise, if the atom \a numChans does not match \a numChans, it is not appended.
 	 */
+	MPTK_LIB_EXPORT int replace( MP_Atom_c *newAtom, int atomIndex );
 	MPTK_LIB_EXPORT int append( MP_Atom_c *newAtom );
 	/** \brief append two books together 
 	 * \param newBook a reference to a book

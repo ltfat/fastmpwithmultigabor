@@ -30,7 +30,7 @@ ADD_SUBDIRECTORY (libgetopt)
 #------------------------------------------------
 # Build main executables      
 #------------------------------------------------
-SET(EXECUTABLES mpd mpd_demix mpr mpf mpcat mpview gpd)
+SET(EXECUTABLES mpd mpd_demix mpr mpf mpcat mpview gpd cmpd)
 SET(EXEC_TARGETS ${EXECUTABLES} PARENT_SCOPE)
 FOREACH(LoopTargets ${EXECUTABLES})
 	SET(${LoopTargets}_EXE_SOURCES
@@ -53,7 +53,7 @@ IF(BUILD_EXPERIMENTAL)
 			${MPTK_BINARY_DIR}/src/libmptk/mptk.h)
 		ADD_EXECUTABLE(${target} ${${target}_EXE_SOURCES})
 		SET_TARGET_PROPERTIES(${target} PROPERTIES COMPILE_FLAGS "${CMAKE_CXX_FLAGS}")
-		TARGET_LINK_LIBRARIES(${target} mptk dsp_windows getopt ${PTHREAD_LIBRARY_FILE} ${SNDFILE_LIBRARY_FILE} ${FFTW3_LIBRARY_FILE})
+		TARGET_LINK_LIBRARIES(${target} mptk dsp_windows getopt)
 	ENDFOREACH(target)
 ENDIF(BUILD_EXPERIMENTAL)
 

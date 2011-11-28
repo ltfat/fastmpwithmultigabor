@@ -245,4 +245,9 @@
 #include "gpd_core.h"
 # endif
 
+#cmakedefine HAVE_MPTK_CMPD_CORE_H 1
+# ifdef HAVE_MPTK_CMPD_CORE_H
+#include "cmpd_core.h"
+# endif
+
 #endif /* __mptk_h_ */
