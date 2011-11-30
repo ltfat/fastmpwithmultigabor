@@ -37,7 +37,6 @@
  */
 
 #include "mptk.h"
-#include <sys/time.h>
 #include <iostream>
 
 using namespace std;
