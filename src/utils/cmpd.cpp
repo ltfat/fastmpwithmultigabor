@@ -39,8 +39,6 @@
 #include <mptk.h>
 #include "libgetopt/getopt.h"
 
-static const char *cvsid = "$Revision: 1145 $";
-
 const char* func = "cmpd";
 
 
@@ -530,7 +528,7 @@ int parse_args(int argc, char **argv)
                 
                 
             case 'V':
-                fprintf(stdout, "cmpd -- Matching Pursuit library version %s -- mpd %s\n", VERSION, cvsid);
+                fprintf(stdout, "cmpd -- Matching Pursuit library version %s\n", VERSION);
                 exit(0);
                 break;
                 
