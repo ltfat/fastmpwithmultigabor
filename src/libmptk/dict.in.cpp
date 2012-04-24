@@ -1271,7 +1271,7 @@ MP_Real_t MP_Dict_c::update( void )
   return ( tempMax );
 }
 
-MP_Real_t MP_Dict_c::update( GP_Book_c* touchBook )
+MP_Real_t MP_Dict_c::update( GP_Block_Book_c* touchBook )
 {
 
   unsigned int k;
