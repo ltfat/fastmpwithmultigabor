@@ -208,7 +208,10 @@ unsigned short int MP_CMpd_Core_c::step() {
 				
 				// now replace atom in book
                 //gettimeofday(&startTime, NULL);
-				dict->iterate_cmp( book, approximant, j );
+                if (!holdatoms)
+                    dict->iterate_cmp( book, approximant, j );
+                else
+                    dict->iterate_cmphold( book, approximant, j);
                 /*
                 gettimeofday(&endTime, NULL);
                 tS = startTime.tv_sec*1000 + (startTime.tv_usec)/1000.0;
@@ -266,8 +269,8 @@ unsigned short int MP_CMpd_Core_c::step() {
   if ( residualEnergy < 0.0 ) state = ( state | MP_NEG_ENERGY_REACHED );
     
   if ( residualEnergy - residualEnergyBefore > 1e-15 ) {
-    mp_warning_msg( func, "Iteration [%lu] increases the energy of the residual ! Before: [%g] Now: [%g]\n",
-		    numIter, residualEnergyBefore, residualEnergy );
+    mp_warning_msg( func, "Iteration [%lu] increases the energy of the residual ! Before: [%g] Now: [%g] Diff [%g]\n",
+		    numIter, residualEnergyBefore, residualEnergy, residualEnergyBefore - residualEnergy );
     mp_warning_msg( func, "Last atom found is sent to stderr.\n" );
   }
 

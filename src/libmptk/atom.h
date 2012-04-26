@@ -158,6 +158,7 @@ class MP_Atom_c
 		 * Used by Gradient Pursuit
 		 */
 		unsigned int blockIdx;
+        unsigned long frameIdx, filterIdx;
 		MP_Dict_c* dict;
 
 	/***********/

@@ -48,23 +48,24 @@ void mexFunction(int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[])
 	//---------------------------
 	// 1) Check input arguments
 	//---------------------------
-	if (nrhs < 3 && ((nrhs % 2) == 0)) 
+// 	if (nrhs < 3 && ((nrhs % 2) == 0)) 
+  if (nrhs < 4) 
 	 {
-		 mexPrintf("!!! %s error -- bad number of input arguments %i pfiouu\n",mexFunctionName(),nrhs);
+		 mexPrintf("!!! %s error -- bad number of input arguments %i \n",mexFunctionName(),nrhs);
 		 mexPrintf("    see help %s\n",mexFunctionName());
 		 return;
 	 }
 	 // Signal argument
 	 if ( !mxIsNumeric(prhs[0]) ) 
 	 {
-		 mexPrintf("!!! %s error -- The 1st argument shoud be a signal matrix\n",mexFunctionName());
+		 mexPrintf("!!! %s error -- The 1st argument shoud be a signal vector\n",mexFunctionName());
 		 mexPrintf("    see help %s\n",mexFunctionName());
 		 return;        
 	 }
 	 // Sample rate argument
 	 if ( !mxIsNumeric(prhs[1]) ||  1!=mxGetNumberOfElements(prhs[1]) ) 
 	 {
-		 mexPrintf("!!! %s error -- The 2nd argument shoud be a scalar value\n",mexFunctionName());
+		 mexPrintf("!!! %s error -- The 2nd argument shoud be a sampling rate\n",mexFunctionName());
 		 mexPrintf("    see help %s\n",mexFunctionName());
 		 return;        
 	 }
@@ -75,25 +76,34 @@ void mexFunction(int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[])
 		 mexPrintf("    see help %s\n",mexFunctionName());
 		 return;        
 	 }
+   // numiterations
+	 if ( !mxIsNumeric(prhs[3]) && !mxIsChar(prhs[3])) 
+	 {
+		 mexPrintf("!!! %s error -- The 4rd argument shoud be the number of iterations\n",mexFunctionName());
+		 mexPrintf("    see help %s\n",mexFunctionName());
+		 return;        
+	 }
 
-	for(iIndex = 3 ; iIndex < nrhs ; iIndex+=2)
-	{
-		// String argument
-		if ( !mxIsChar(prhs[iIndex]) ) 
-		{
-			mexPrintf("!!! %s error -- The argument %i shoud be a string argument like '-n'\n",mexFunctionName(),iIndex);
-			mexPrintf("    see help %s\n",mexFunctionName());
-			return;        
-		}
-		// Value associated argument
-		if ( !mxIsNumeric(prhs[iIndex+1])) 
-		{
-			mexPrintf("!!! %s error -- The argument %i shoud be a scalar value\n",mexFunctionName(),iIndex);
-			mexPrintf("    see help %s\n",mexFunctionName());
-			return;        
-		}
-	}
+  // enforce string arguments with numerical
+// 	for(iIndex = 4 ; iIndex < nrhs ; iIndex+=2)
+// 	{
+// 		// String argument
+// 		if ( !mxIsChar(prhs[iIndex]) ) 
+// 		{
+// 			mexPrintf("!!! %s error -- The argument %i shoud be a string argument like '-n'\n",mexFunctionName(),iIndex);
+// 			mexPrintf("    see help %s\n",mexFunctionName());
+// 			return;        
+// 		}
+// 		// Value associated argument
+// 		if ( !mxIsNumeric(prhs[iIndex+1])) 
+// 		{
+// 			mexPrintf("!!! %s error -- The argument %i shoud be a scalar value\n",mexFunctionName(),iIndex);
+// 			mexPrintf("    see help %s\n",mexFunctionName());
+// 			return;        
+// 		}
+// 	}
 
+  
 	//---------------------------
 	// 2) Check output args
 	//--------------------------- 
@@ -152,6 +162,7 @@ void mexFunction(int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[])
 		return;
 	}
 
+  // Defaults
   num_cycles = 1;
   dB_cycle_improve = 0.001;
   num_augment = 1;
@@ -163,26 +174,33 @@ void mexFunction(int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[])
 	//--------------------------------------------
 	// 6) Read parameters
 	//--------------------------------------------
-	for(iIndex = 3; iIndex < nrhs; iIndex+=2)
-	{
-		if(!strcmp(mxArrayToString(prhs[iIndex]),"-n"))
-			{numIter = (unsigned long int) mxGetScalar(prhs[iIndex+1]); numIterSelected = true;}
-		else if(!strcmp(mxArrayToString(prhs[iIndex]),"-s"))
-			{setSnr = (float) mxGetScalar(prhs[iIndex+1]); setSnrSelected = true;}
+  numIter = (unsigned long int) mxGetScalar(prhs[3]);
+  
+  iIndex = 4;
+  while (iIndex < nrhs) 
+    {
+		if(!strcmp(mxArrayToString(prhs[iIndex]),"-s"))
+			{setSnr = (float) mxGetScalar(prhs[iIndex+1]); setSnrSelected = true; iIndex+=2;}
 		else if(!strcmp(mxArrayToString(prhs[iIndex]),"-L"))
-			{num_cycles = (unsigned long int) mxGetScalar(prhs[iIndex+1]); num_cyclesSelected = true;}
+			{num_cycles = (unsigned long int) mxGetScalar(prhs[iIndex+1]); num_cyclesSelected = true; iIndex+=2;}
 		else if(!strcmp(mxArrayToString(prhs[iIndex]),"-O"))
-			{dB_cycle_improve = (float)	mxGetScalar(prhs[iIndex+1]); dB_cycle_improveSelected = true;}
+			{dB_cycle_improve = (float)	mxGetScalar(prhs[iIndex+1]); dB_cycle_improveSelected = true; iIndex+=2;}
 		else if(!strcmp(mxArrayToString(prhs[iIndex]),"-K"))
-			{num_augment = (unsigned long int) mxGetScalar(prhs[iIndex+1]); num_augmentSelected = true;}
+			{num_augment = (unsigned long int) mxGetScalar(prhs[iIndex+1]); num_augmentSelected = true; iIndex+=2;}
 		else if(!strcmp(mxArrayToString(prhs[iIndex]),"-J"))
-			{dB_augment_improve = (float) mxGetScalar(prhs[iIndex+1]); dB_augment_improveSelected = true;}
+			{dB_augment_improve = (float) mxGetScalar(prhs[iIndex+1]); dB_augment_improveSelected = true; iIndex+=2;}
 		else if(!strcmp(mxArrayToString(prhs[iIndex]),"-M"))
-			{num_augment_no_cycle = (unsigned long int)	mxGetScalar(prhs[iIndex+1]); num_augment_no_cycleSelected = true;}
+			{num_augment_no_cycle = (unsigned long int)	mxGetScalar(prhs[iIndex+1]); num_augment_no_cycleSelected = true; iIndex+=2;}
 		else if(!strcmp(mxArrayToString(prhs[iIndex]),"-Q"))
-			{dB_augment_no_cycle = (float) mxGetScalar(prhs[iIndex+1]); dB_augment_no_cycleSelected = true;}
+			{dB_augment_no_cycle = (float) mxGetScalar(prhs[iIndex+1]); dB_augment_no_cycleSelected = true; iIndex+=2;}
 		else if(!strcmp(mxArrayToString(prhs[iIndex]),"-Z"))
-			{hold_flag = (bool)	mxGetScalar(prhs[iIndex+1]); hold_flagSelected = true;}
+			{hold_flag = true; iIndex+=1;}
+    else
+      {mexPrintf("Failed to interpret the arguments.\n");
+      // Clean the house
+      delete signal;
+      mexErrMsgTxt("Aborting");
+      return;}
 	}
 
 	//--------------------------------------------
@@ -220,7 +238,9 @@ void mexFunction(int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[])
 	cmpdCore->set_iter_condition( numIter );
 	if(setSnrSelected)
 		cmpdCore->set_snr_condition(setSnr);
-	cmpdCore->set_settings (num_cycles, dB_cycle_improve, num_augment, dB_augment_improve, num_augment_no_cycle, dB_augment_no_cycle, hold_flag);
+	cmpdCore->set_settings (num_cycles, dB_cycle_improve, num_augment, 
+          dB_augment_improve, num_augment_no_cycle, 
+          dB_augment_no_cycle, hold_flag);
 	cmpdCore->set_save_hit(ULONG_MAX,NULL,NULL,NULL);
 	cmpdCore->set_report_hit(reportHit);
 	// If decay wanted, 

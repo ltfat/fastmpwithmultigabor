@@ -1271,7 +1271,7 @@ MP_Real_t MP_Dict_c::update( void )
   return ( tempMax );
 }
 
-MP_Real_t MP_Dict_c::update( GP_Block_Book_c* touchBook )
+MP_Real_t MP_Dict_c::update( GP_Book_c* touchBook )
 {
 
   unsigned int k;
@@ -1412,6 +1412,8 @@ unsigned int MP_Dict_c::create_max_atom( MP_Atom_c** atom )
     }
 
   (*atom)->blockIdx=blockWithMaxIP;
+  (*atom)->frameIdx = frameIdx;
+  (*atom)->filterIdx = filterIdx;
   (*atom)->dict = this;
 
   return( numAtoms );
@@ -1532,7 +1534,7 @@ int MP_Dict_c::iterate_cmp( MP_Book_c *book , MP_Signal_c *sigRecons, int atomIn
 	
 	//----------- Part 2 -----------
 	// Create the max atom and store it in the book */
-	numAtoms = create_max_atom( &atom );
+    numAtoms = create_max_atom( &atom );
 	
 	if ( numAtoms == 0 )
 	{
@@ -1558,5 +1560,72 @@ int MP_Dict_c::iterate_cmp( MP_Book_c *book , MP_Signal_c *sigRecons, int atomIn
 		touch[chanIdx].len = atom->support[chanIdx].len;
 	}
 
+	return( 0 );
+}
+
+/******************************************/
+/* Perform one cyclic matching pursuit hold iteration */
+
+int MP_Dict_c::iterate_cmphold( MP_Book_c *book , MP_Signal_c *sigRecons, int atomIndex)
+{
+	const char		*func = "MP_Dict_c::iterate_cmphold(...)";
+	int 			chanIdx;
+	MP_Atom_c 		*atom;
+	unsigned int 	numAtoms;
+    unsigned int    blockIdx = book->atom[atomIndex]->blockIdx;
+    unsigned long int frameIdx = book->atom[atomIndex]->frameIdx;
+    unsigned long int filterIdx = book->atom[atomIndex]->filterIdx;
+	
+	// Check if a signal is present
+	if ( signal == NULL )
+	{
+		mp_error_msg( func, "There is no signal in the dictionary. You must plug or copy a signal before you can iterate.\n" );
+		return( 1 );
+	}
+	
+	// 1/ refresh the inner products
+	// 2/ create the max atom at the same frequency and time and store it
+	// 3/ substract it from the signal and add it to the approximant
+	
+	//----------- Part 1 -----------
+	// (Re)compute the inner products according to the current 'touch' indicating where the signal
+	// may have been changed after the last update of the inner products
+	update();
+	
+	//----------- Part 2 -----------
+	// Create the new atom and store it in the book
+//    std::cout << "blockIdx: " << blockIdx << " frameIdx: " << 
+//        frameIdx << " filterIdx: " << filterIdx << std::endl;
+    
+	numAtoms = block[blockIdx]->create_atom( &atom, frameIdx, filterIdx);
+	atom->blockIdx = blockIdx;
+    atom->frameIdx = frameIdx;
+    atom->filterIdx= filterIdx;
+    atom->dict = this;
+    
+	if ( numAtoms == 0 )
+	{
+		mp_error_msg( func, "The Matching Pursuit iteration failed. Dictionary, book and signal are left unchanged.\n" );
+		return( 1 );
+	}
+	
+	if ( book->replace( atom, atomIndex ) != 1 )
+	{
+		mp_error_msg( func, "Failed to replace the max atom to the book.\n" );
+		return( 1 );
+	}
+	
+	//----------- Part 3 -----------
+	// Substract the atom's waveform from the analyzed signal
+	atom->substract_add( signal , sigRecons );
+	
+	//----------- Part 4 -----------
+	// Keep track of the support where the signal has been modified
+	for ( chanIdx=0; chanIdx < atom->numChans; chanIdx++ )
+	{
+		touch[chanIdx].pos = atom->support[chanIdx].pos;
+		touch[chanIdx].len = atom->support[chanIdx].len;
+	}
+    
 	return( 0 );
 }
