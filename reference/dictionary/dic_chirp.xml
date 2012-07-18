@@ -7,42 +7,11 @@
         <param name="numFitPoints" value="1" />
         <param name="numIter" value="1" />
         <param name="type" value="chirp" />
+        <param name="chirpRateThreshold" value="0.5e-5" />
+        <param name="checkUnchirped" value="1" />    <!-- helps ensure stability; can tend to select unchirped atoms. set to 0 to deactivate. -->
         <param name="windowLen" value="1024" />
         <param name="windowShift" value="512" />
         <param name="windowopt" value="0" />
-        <param name="windowtype" value="hamgen" />
-    </block>
-    <block>
-        <param name="blockOffset" value="0" />
-        <param name="fftSize" value="1024" />
-        <param name="numFitPoints" value="1" />
-        <param name="numIter" value="1" />
-        <param name="type" value="chirp" />
-        <param name="windowLen" value="1024" />
-        <param name="windowShift" value="512" />
-        <param name="windowopt" value="0" />
-        <param name="windowtype" value="cosine" />
-    </block>
-    <block>
-        <param name="blockOffset" value="0" />
-        <param name="fftSize" value="1024" />
-        <param name="numFitPoints" value="1" />
-        <param name="numIter" value="1" />
-        <param name="type" value="chirp" />
-        <param name="windowLen" value="1024" />
-        <param name="windowShift" value="512" />
-        <param name="windowopt" value="0" />
-        <param name="windowtype" value="exponential" />
-    </block>
-    <block>
-        <param name="blockOffset" value="0" />
-        <param name="fftSize" value="1024" />
-        <param name="numFitPoints" value="1" />
-        <param name="numIter" value="1" />
-        <param name="type" value="chirp" />
-        <param name="windowLen" value="1024" />
-        <param name="windowShift" value="512" />
-        <param name="windowopt" value="0" />
-        <param name="windowtype" value="gauss" />
+        <param name="windowtype" value="gauss" />  <!-- other options: exponential, cosine, hamgen. gauss is recommended for chirp plugin. -->
     </block>
 </dict>

@@ -70,6 +70,12 @@ class MP_Chirp_Block_Plugin_c:public MP_Gabor_Block_Plugin_c
     /** \brief Number of iterations used to fit a parabolic logAmp/phase model */
     unsigned int numIter;
 
+    /** \brief maximum threshold for chirp-rate; if exceeded, unchirped atom is returned */
+    MP_Real_t chirpRateThreshold;
+
+    /** \brief whether to check the chirped against the un-chirped (if so, may return un-chirped in preference if it shows better correlation) */
+    unsigned int checkUnchirped;
+
   private :
     /* totNumFitPoints = 2*numFitPoints+1 */
     unsigned int totNumFitPoints;
@@ -146,6 +152,8 @@ class MP_Chirp_Block_Plugin_c:public MP_Gabor_Block_Plugin_c
      * \param setWindowOption optional shaping parameter of the windows
      * \param setNumFitPoints number of frequency points used on both sides of a local maximum to fit a chirp
      * \param setNumIter the number of iterations
+     * \param setChirpRateThreshold the maximum chirp-rate for an atom
+     * \param checkUnchirped whether to check chirped correlation against un-chirped
      * \param setBlockOffset the block offset
      * \return one upon success, zero otherwise
      *
@@ -162,6 +170,8 @@ class MP_Chirp_Block_Plugin_c:public MP_Gabor_Block_Plugin_c
                                  const double setWindowOption,
                                  const unsigned int setNumFitPoints,
                                  const unsigned int setNumIter,
+                                 const MP_Real_t setChirpRateThreshold,
+                                 const unsigned int checkUnchirped,
                                  const unsigned long int setBlockOffset );
 
     /** \brief an initializer for the parameters which ARE NOT related to the signal in a parameter map 
@@ -175,6 +185,8 @@ class MP_Chirp_Block_Plugin_c:public MP_Gabor_Block_Plugin_c
      * \param setWindowOption optional shaping parameter of the windows
      * \param setNumFitPoints number of frequency points used on both sides of a local maximum to fit a chirp
      * \param setNumIter the number of iterations
+     * \param setChirpRateThreshold the maximum chirp-rate for an atom
+     * \param checkUnchirped whether to check chirped correlation against un-chirped
      * \param setBlockOffset the block offset
      * \return one upon success, zero otherwise
      *
@@ -190,6 +202,8 @@ class MP_Chirp_Block_Plugin_c:public MP_Gabor_Block_Plugin_c
                                     const double setWindowOption,
                                     const unsigned int setNumFitPoints,
                                     const unsigned int setNumIter,
+                                    const MP_Real_t setChirpRateThreshold,
+                                    const unsigned int checkUnchirped,
                                     const unsigned long int setBlockOffset );
     
     /** \brief nullification of the signal-related parameters */

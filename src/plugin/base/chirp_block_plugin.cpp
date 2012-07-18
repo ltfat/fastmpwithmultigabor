@@ -66,6 +66,8 @@ MP_Block_c* MP_Chirp_Block_Plugin_c::create( MP_Signal_c *setSignal, map<string,
   double windowOption = 0.0;
   unsigned int numFitPoints = 0;
   unsigned int numIter = 0;
+  MP_Real_t chirpRateThreshold = 0.0;
+  unsigned int checkUnchirped = 0;
   double windowRate =0.0;
   unsigned long int blockOffset = 0;
   
@@ -147,6 +149,36 @@ MP_Block_c* MP_Chirp_Block_Plugin_c::create( MP_Signal_c *setSignal, map<string,
 	  else                     fftSize = filterLen;
     }
 
+  if ((*paramMap)["chirpRateThreshold"].size()>0)
+    {
+      /*Convert chirpRateThreshold*/
+      chirpRateThreshold=strtod((*paramMap)["chirpRateThreshold"].c_str(), &convertEnd);
+      if (*convertEnd != '\0')
+        {
+          mp_error_msg( func, "cannot convert parameter chirpRateThreshold into a double.\n" );
+          return( NULL );
+        }
+    }
+  else
+    {
+      chirpRateThreshold = 0.5e-5;
+    }
+
+  if ((*paramMap)["checkUnchirped"].size()>0)
+    {
+      /*Convert checkUnchirped*/
+      checkUnchirped=strtol((*paramMap)["checkUnchirped"].c_str(), &convertEnd, 10);
+      if (*convertEnd != '\0')
+        {
+          mp_error_msg( func, "cannot convert parameter checkUnchirped in unsigned int.\n" );
+          return( NULL );
+        }
+    }
+  else
+    {
+	checkUnchirped = 1;
+    }
+
   if ((*paramMap)["windowtype"].size()>0) windowType = window_type((*paramMap)["windowtype"].c_str());
   else  { mp_error_msg( func, "No parameter windowtype in the parameter map.\n" ); 
   return( NULL );
@@ -208,7 +240,7 @@ MP_Block_c* MP_Chirp_Block_Plugin_c::create( MP_Signal_c *setSignal, map<string,
 	 /* Set the block parameters (that are independent from the signal) */
   if ( newBlock->init_parameters( filterLen, filterShift, fftSize,
                                    windowType, windowOption ,
-                                  numFitPoints, numIter, blockOffset ) )
+                                  numFitPoints, numIter, chirpRateThreshold, checkUnchirped, blockOffset ) )
     {
       mp_error_msg( func, "Failed to initialize some block parameters in the new Chirp block.\n" );
       delete( newBlock );
@@ -218,7 +250,7 @@ MP_Block_c* MP_Chirp_Block_Plugin_c::create( MP_Signal_c *setSignal, map<string,
   /* Set the block parameter map (that are independent from the signal) */
    if ( newBlock->init_parameter_map( filterLen, filterShift, fftSize,
                                    windowType, windowOption ,
-                                  numFitPoints, numIter, blockOffset ) )
+                                  numFitPoints, numIter, chirpRateThreshold, checkUnchirped, blockOffset ) )
     {
       mp_error_msg( func, "Failed to initialize some block parameters in the new Chirp block map.\n" );
       delete( newBlock );
@@ -247,6 +279,8 @@ int MP_Chirp_Block_Plugin_c::init_parameters( const unsigned long int setFilterL
                                        const double setWindowOption,
                                        const unsigned int setNumFitPoints,
                                        const unsigned int setNumIter,
+                                       const MP_Real_t setChirpRateThreshold,
+                                       const unsigned int setCheckUnchirped,
                                        const unsigned long int setBlockOffset )
 {
 
@@ -267,6 +301,8 @@ int MP_Chirp_Block_Plugin_c::init_parameters( const unsigned long int setFilterL
   numFitPoints = setNumFitPoints;
   totNumFitPoints = 2*numFitPoints+1;
   numIter = setNumIter;
+  chirpRateThreshold = setChirpRateThreshold;
+  checkUnchirped = setCheckUnchirped;
 
   /* Allocate the chirp-specific buffers */
 
@@ -337,6 +373,8 @@ int MP_Chirp_Block_Plugin_c::init_parameter_map( const unsigned long int setFilt
     const double setWindowOption,
     const unsigned int setNumFitPoints,
     const unsigned int setNumIter,
+    const MP_Real_t setChirpRateThreshold,
+    const unsigned int setCheckUnchirped,
     const unsigned long int setBlockOffset )
 {
 
@@ -388,6 +426,18 @@ if (!(oss << setNumIter)) { mp_error_msg( func, "Cannot convert numIter in strin
       return( 1 );
       }
 (*parameterMap)["numIter"]= oss.str();
+oss.str("");
+if (!(oss << setChirpRateThreshold)) { mp_error_msg( func, "Cannot convert chirpRateThreshold in string for parameterMap.\n" 
+                     );
+      return( 1 );
+      }
+(*parameterMap)["chirpRateThreshold"]= oss.str();
+oss.str("");
+if (!(oss << checkUnchirped)) { mp_error_msg( func, "Cannot convert checkUnchirped in string for parameterMap.\n" 
+                     );
+      return( 1 );
+      }
+(*parameterMap)["checkUnchirped"]= oss.str();
 oss.str("");
 if (!(oss << setBlockOffset)) { mp_error_msg( func, "Cannot convert blockOffset in string for parameterMap.\n" 
                      );
@@ -445,7 +495,8 @@ MP_Chirp_Block_Plugin_c::MP_Chirp_Block_Plugin_c()
   numFitPoints = 0;
   totNumFitPoints = 0;
   numIter = 0;
-
+  chirpRateThreshold = 0.0;
+  checkUnchirped = 0;
   chirpRe = NULL;
   chirpIm = NULL;
 
@@ -646,10 +697,7 @@ unsigned int MP_Chirp_Block_Plugin_c::create_atom( MP_Atom_c **atom,
   deltaChirp = mu/(MP_PI*(lambda*lambda+mu*mu));
   chirprate += deltaChirp;
   /* BORK */
-  //#define MP_CHIRP_THRESH 1e-5
-#define MP_CHIRP_THRESH 0.5e-5
-  //#define MP_CHIRP_THRESH 0.2e-5
-  if ( fabs(chirprate) > MP_CHIRP_THRESH )
+  if ( fabs(chirprate) > chirpRateThreshold )
     {
       mp_debug_msg( MP_DEBUG_CREATE_ATOM, func,
                     "Chirp rate threshold hit ! chirp = %g , abs = %g."
@@ -739,23 +787,25 @@ unsigned int MP_Chirp_Block_Plugin_c::create_atom( MP_Atom_c **atom,
   /* TEST: if the correlation of the chirped atom is less than or equal to
      the correlation of the original unchirped one, it's a case where the chirp
      detection model is invalid => keep the unchirped one and exit. */
-  if (energy <= maxIPValue )
-    {
-      mp_debug_msg( MP_DEBUG_CREATE_ATOM, func,
-                    "At iteration 0 in the chirp estimation: the chirping model does not apply."
-                    " (Original IP: %g; Chirped IP: %g)"
-                    " Returning the original (un-chirped) Gabor atom.\n",
-                    maxIPValue, energy );
-      return( 1 );
-    }
-  else if (0==freqIdx || freqIdx==numFreqs-1)
-    {
-      mp_debug_msg( MP_DEBUG_CREATE_ATOM, func,
-                    "At iteration 0 in the chirp estimation: the chirping model does selects a zero frequency."
-                    " Returning the original (un-chirped) Gabor atom.\n");
-      return( 1 );
-    }
-
+  if (checkUnchirped != 0)
+  {
+    if (energy <= maxIPValue )
+      {
+        mp_debug_msg( MP_DEBUG_CREATE_ATOM, func,
+                      "At iteration 0 in the chirp estimation: the chirping model does not apply."
+                      " (Original IP: %g; Chirped IP: %g)"
+                      " Returning the original (un-chirped) Gabor atom.\n",
+                      maxIPValue, energy );
+        return( 1 );
+      }
+    else if (0==freqIdx || freqIdx==numFreqs-1)
+      {
+        mp_debug_msg( MP_DEBUG_CREATE_ATOM, func,
+                      "At iteration 0 in the chirp estimation: the chirping model does selects a zero frequency."
+                      " Returning the original (un-chirped) Gabor atom.\n");
+        return( 1 );
+      }
+  }
   mp_debug_msg( MP_DEBUG_CREATE_ATOM, func,
                 "iter  0 : New freqIdx = %lu.\n", freqIdx );
 
@@ -906,16 +956,19 @@ unsigned int MP_Chirp_Block_Plugin_c::create_atom( MP_Atom_c **atom,
       /* TEST: if the correlation of the chirped atom is less than or equal to
          the correlation of the original unchirped one, it's a case where the chirp
          detection model is invalid => keep the unchirped one and exit. */
-      if (energy <= maxIPValue )
-        {
-          mp_debug_msg( MP_DEBUG_CREATE_ATOM, func,
-                        "At iteration %2d in the chirp estimation: the chirping model ceases to apply."
-                        " (Original IP: %g; Chirped IP: %g)"
-                        " Returning an atom with the last valid chirprate.\n",
-                        iter, maxIPValue, energy );
-          chirprate = chirprateBefore;
-          break;
-        }
+    if (checkUnchirped != 0)
+    {
+        if (energy <= maxIPValue )
+          {
+            mp_debug_msg( MP_DEBUG_CREATE_ATOM, func,
+                          "At iteration %2d in the chirp estimation: the chirping model ceases to apply."
+                          " (Original IP: %g; Chirped IP: %g)"
+                          " Returning an atom with the last valid chirprate.\n",
+                          iter, maxIPValue, energy );
+            chirprate = chirprateBefore;
+            break;
+          }
+    }
 
       mp_debug_msg( MP_DEBUG_CREATE_ATOM, func,
                     "iter %2d : New freqIdx = %lu.\n", iter, freqIdx );
@@ -1030,6 +1083,8 @@ if ((*parameterMapType).empty()) {
 (*parameterMapType)["windowopt"] = "real";
 (*parameterMapType)["numFitPoints"] = "uint";
 (*parameterMapType)["numIter"] = "uint";
+(*parameterMapType)["chirpRateThreshold"] = "real";
+(*parameterMapType)["checkUnchirped"] = "uint";
 (*parameterMapType)["blockOffset"] = "ulong";
 (*parameterMapType)["windowRate"] = "real";
 
@@ -1051,6 +1106,8 @@ if ((*parameterMapInfo).empty()) {
 (*parameterMapInfo)["windowopt"] = "The optional window shape parameter (see the developper documentation oflibdsp_windows.h).";
 (*parameterMapInfo)["numFitPoints"] = "The number of frequency points used on both sides of a local frequency maximum to fit a chirp.";
 (*parameterMapInfo)["numIter"] = "The number of iterations done to fit a chirp.";
+(*parameterMapInfo)["chirpRateThreshold"] = "The maximum absolute chirp-rate (if fitting an atom goes beyond this, the un-chirped is returned).";
+(*parameterMapInfo)["checkUnchirped"] = "0 or 1, whether to check the chirped against the un-chirped (if so, may return un-chirped in preference if it shows better correlation).";
 (*parameterMapInfo)["blockOffset"] = "Offset between beginning of signal and beginning of first atom, in number of samples.";
 (*parameterMapInfo)["windowRate"] = "The shift between atoms on adjacent time frames, in proportion of the <windowLen>. For example, windowRate = 0.5 corresponds to half-overlapping signal windows.";
 
@@ -1074,6 +1131,8 @@ if ((*parameterMapDefault).empty()) {
 (*parameterMapDefault)["windowopt"] = "0";
 (*parameterMapDefault)["numFitPoints"] = "1";
 (*parameterMapDefault)["numIter"] = "1";
+(*parameterMapDefault)["chirpRateThreshold"] = "0.5e-5";
+(*parameterMapDefault)["checkUnchirped"] = "1";
 (*parameterMapDefault)["blockOffset"] = "0"; 
 (*parameterMapDefault)["windowRate"] = "0.5";
 }

@@ -1238,6 +1238,14 @@ pieces will therefore show up in stderr.
 	\item {\tt numIter (C)} 
 		\subitem (EXPERIMENTAL) Unsigned int value: number of iterations considered for the chirp 
 		optimization algorithm. Defaults to 1.
+	\item {\tt chirpRateThreshold (C)} 
+		\subitem (EXPERIMENTAL) Double value: maximum chirp-rate considered for the chirp 
+		optimization algorithm. Defaults to 0.5e-5.
+	\item {\tt checkUnchirped (C)} 
+		\subitem (EXPERIMENTAL) Unsigned int value: 0 or 1, whether to check the chirped against the un-chirped 
+		atom during the optimization (if so, may return un-chirped in preference if it shows better correlation).
+		This can help to ensure stability, but it may tend to select unchirped atoms more than desired.
+		Defaults to 1.
 	\item {\tt tableFileName (A)} 
 		\subitem String: filename of the table containing the waveforms (ex: /udd/toto/table.bin ). 
 		Note that there is no {"} around the string.
