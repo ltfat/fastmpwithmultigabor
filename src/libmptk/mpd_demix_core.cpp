@@ -486,7 +486,7 @@ unsigned short int MP_Mpd_demix_Core_c::step()
   if ( useStopAfterIter && (numIter >= stopAfterIter) )   state = ( state | MP_ITER_CONDITION_REACHED );
   if ( useStopAfterSnr  && (currentSnr >= stopAfterSnr) ) state = ( state | MP_SNR_CONDITION_REACHED );
   if ( residualEnergy < 0.0 ) state = ( state | MP_NEG_ENERGY_REACHED );
-  if ( residualEnergy >= residualEnergyBefore )
+  if ( residualEnergy > residualEnergyBefore )
     {
       mp_warning_msg( func, "Iteration [%lu] increases the energy of the residual ! Before: [%g] Now: [%g]\n",
                       numIter, residualEnergyBefore, residualEnergy );
