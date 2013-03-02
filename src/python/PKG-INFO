@@ -3,7 +3,7 @@ Name: pyMPTK
 Version: 0.1
 Summary: Python bindings for Matching Pursuit ToolKit
 Home-page: UNKNOWN
-Author: Emmanuel Ravelli
+Author: Emmanuel Ravelli and Dan Stowell
 Author-email: ravelli@lam.jussieu.fr
 License: UNKNOWN
 Description: UNKNOWN

@@ -1,168 +1,23 @@
-#include <Python.h>
-#include <structmember.h>
+// NB this define must come before the includes -- see http://mail.scipy.org/pipermail/numpy-discussion/2001-July/013060.html
+#define PY_ARRAY_UNIQUE_SYMBOL Py_Array_API_pymptk
+#include "pyMPTK.h"
 
-#define HAVE_FFTW3 1
+/**
+* Author: Dan Stowell
+* Description: This file defines the initialisation for the module etc, as well as the bits which get data in/out of PyArray format.
+*/
 
-#include "mptk.h"
-
-typedef struct {
-	PyObject_HEAD
-	MP_Book_c *book;
-	int numAtoms;
-	int numChans;
-	int numSamples;
-	int sampleRate;
-	PyObject *atomType;
-	PyObject *atomParams;
-} book;
-
-static void
-book_dealloc(book* self)
-{
-	self->ob_type->tp_free((PyObject*)self);
-}
-
-static PyObject *
-book_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
-{
-	/* Load the MPTK environment if not loaded */
-  MPTK_Env_c::get_env()->load_environment_if_needed("");
-	book *self;
-
-	self = (book *)type->tp_alloc(type, 0);
-	self->book = MP_Book_c::create();
-	self->numAtoms = 0;
-	self->numChans = 0;
-	self->numSamples = 0;
-	self->sampleRate = 0;
-	self->atomType = PyList_New(0);
-	self->atomParams = PyDict_New();
-
-	return (PyObject *)self;
-}
-
-static int
-book_init(book *self, PyObject *args, PyObject *kwds)
-{
-	return 0;
-}
-
-static PyObject *
-book_read(book* self, PyObject *args)
-{
-	char *filename;
-	int n,m;
-	PyObject *tmp,*len,*pos,*freq,*amp,*phase,*chirp;
-
-	if (!PyArg_ParseTuple(args, "s", &filename))
-		return NULL;
-
-	self->book->load( filename );
-
-	self->numAtoms = self->book->numAtoms;
-	self->numChans = self->book->numChans;
-	self->numSamples = self->book->numSamples;
-	self->sampleRate = self->book->sampleRate;
-	len = PyList_New(0);
-	pos = PyList_New(0);
-	freq = PyList_New(0);
-	amp = PyList_New(0);
-	phase = PyList_New(0);
-	chirp = PyList_New(0);
-	for ( n=0 ; n<self->numAtoms ; n++ ) {
-		PyList_Append( self->atomType, Py_BuildValue("s", self->book->atom[n]->type_name()));
-		tmp = PyList_New(0);
-		for ( m=0 ; m<self->numChans ; m++ ) {
-			if ( self->book->atom[n]->has_field(0) ) {
-				PyList_Append( tmp, Py_BuildValue("i", (int)self->book->atom[n]->get_field(0,m)));
-			}
-		}
-		PyList_Append( len, tmp);
-		tmp = PyList_New(0);
-		for ( m=0 ; m<self->numChans ; m++ ) {
-			if ( self->book->atom[n]->has_field(1) ) {
-				PyList_Append( tmp, Py_BuildValue("i", (int)self->book->atom[n]->get_field(1,m)));
-			}
-		}
-		PyList_Append( pos, tmp);
-		tmp = PyList_New(0);
-		for ( m=0 ; m<self->numChans ; m++ ) {
-			if ( self->book->atom[n]->has_field(2) ) {
-				PyList_Append( tmp, Py_BuildValue("d", self->book->atom[n]->get_field(2,m)));
-			}
-		}
-		PyList_Append( freq, tmp);
-		tmp = PyList_New(0);
-		for ( m=0 ; m<self->numChans ; m++ ) {
-			if ( self->book->atom[n]->has_field(3) ) {
-				PyList_Append( tmp, Py_BuildValue("d", self->book->atom[n]->get_field(3,m)));
-			}
-		}
-		PyList_Append( amp, tmp);
-		tmp = PyList_New(0);
-		for ( m=0 ; m<self->numChans ; m++ ) {
-			if ( self->book->atom[n]->has_field(4) ) {
-				PyList_Append( tmp, Py_BuildValue("d", self->book->atom[n]->get_field(4,m)));
-			}
-		}
-		PyList_Append( phase, tmp);
-		tmp = PyList_New(0);
-		for ( m=0 ; m<self->numChans ; m++ ) {
-			if ( self->book->atom[n]->has_field(5) ) {
-				PyList_Append( tmp, Py_BuildValue("d", self->book->atom[n]->get_field(5,m)));
-			}
-		}
-		PyList_Append( chirp, tmp);
-	}
-	PyDict_SetItemString(self->atomParams, "len", len);
-	PyDict_SetItemString(self->atomParams, "pos", pos);
-	PyDict_SetItemString(self->atomParams, "freq", freq);
-	PyDict_SetItemString(self->atomParams, "amp", amp);
-	PyDict_SetItemString(self->atomParams, "phase", phase);
-	PyDict_SetItemString(self->atomParams, "chirp", chirp);
-
-	return Py_BuildValue("i", 0);
-}
-
-static PyObject *
-book_short_info(book* self)
-{
-	self->book->short_info();
-
-	return Py_BuildValue("i", 0);
-}
-
-static PyMethodDef book_methods[] = {
-	{"read", (PyCFunction)book_read, METH_VARARGS,
-		"read a book file"
-		},
-	{"short_info", (PyCFunction)book_short_info, METH_NOARGS,
-		"print short info"
-		},
+static PyMethodDef module_methods[] = {
+	{"loadconfig", mptk_loadconfig, METH_VARARGS, "load MPTK config file from a specific path. do this BEFORE running decompose() etc."},
+	{"decompose" , (PyCFunction) mptk_decompose,  METH_VARARGS | METH_KEYWORDS, "decompose a signal into a 'book' and residual, using Matching Pursuit or related methods."},
 	{NULL}  /* Sentinel */
 };
 
-static PyMemberDef book_members[] = {
-	{"numAtoms", T_INT, offsetof(book, numAtoms), 0,
-		"number of atoms"},
-	{"numChans", T_INT, offsetof(book, numChans), 0,
-		"number of chanels"},
-	{"numSamples", T_INT, offsetof(book, numSamples), 0,
-		"number of samples"},
-	{"sampleRate", T_INT, offsetof(book, sampleRate), 0,
-		"sample rate"},
-	{"atomType", T_OBJECT_EX, offsetof(book, atomType), 0,
-		"atom type"},
-	{"atomParams", T_OBJECT_EX, offsetof(book, atomParams), 0,
-		"atom parameters"},
-	{NULL}  /* Sentinel */
-};
-
-static PyTypeObject bookType = {
+PyTypeObject bookType = {
     PyObject_HEAD_INIT(NULL)
     0,                         /*ob_size*/
-    "pyMPTK.book",             /*tp_name*/
-    sizeof(book),             /*tp_basicsize*/
+    "mptk.book",               /*tp_name*/
+    sizeof(BookObject),             /*tp_basicsize*/
     0,                         /*tp_itemsize*/
     (destructor)book_dealloc, /*tp_dealloc*/
     0,                         /*tp_print*/
@@ -200,27 +55,104 @@ static PyTypeObject bookType = {
     book_new,                 /* tp_new */
 };
 
-static PyMethodDef module_methods[] = {
-    {NULL}  /* Sentinel */
-};
+PyObject *
+mptk_loadconfig(PyObject *self, PyObject *args)
+{
+	const char *cfgpath;
+	if (!PyArg_ParseTuple(args, "s:mptk_loadconfig", &cfgpath))
+		return NULL;
+	//printf("mptk_loadconfig: parsed args\n");
+	int result = MPTK_Env_c::get_env()->load_environment(cfgpath);
+	//printf("mptk_loadconfig: done, result %i, about to return\n", result);
+	return Py_BuildValue("i", result);
+}
+
+
+// This method needs to stay in the same file as initmptk(), because of the use of PyArray_FromDims() interacts with import_array()
+PyArrayObject* mp_create_numpyarray_from_signal(MP_Signal_c *signal){
+	unsigned long int nspls = signal->numSamples;
+	unsigned      int nchans= signal->numChans;
+	printf("mp_create_numpyarray_from_signal(): %i samples, %i channels\n", nspls, nchans);
+	int dims[2];
+	dims[0] = nspls;
+	dims[1] = nchans;
+	PyArrayObject* nparray = (PyArrayObject *) PyArray_FromDims(2, dims, NPY_FLOAT);
+	float *signal_data = (float *)nparray->data;
+	// There may be a faster way. Can probably memcpy each individual channel, though possibly not the whole block
+	for (unsigned int channel=0; channel < nchans; ++channel) {
+		for (unsigned long int sample=0; sample < nspls; ++sample) {
+			signal_data[channel*nspls + sample] = signal->channel[channel][sample];
+		}
+	}
+	return nparray;
+}
+
+
+
+// This method needs to stay in the same file as initmptk(), because of the use of import_array()
+PyObject *
+mptk_decompose(PyObject *self, PyObject *args, PyObject *keywds)
+{
+	// book, residual, decay = mptk.decompose(sig, dictpath, samplerate, [ numiters=10, method='mp', getdecay=False ])
+	PyObject *pysignal; // note: do not touch the referencecount for this
+	PyArrayObject *numpysignal;
+	const char *dictpath;
+	int samplerate;
+	unsigned long int numiters=10;
+	const char *method="mp";
+	int getdecay=0;
+	const char *bookpath="";
+	static char *kwlist[] = {"signal", "dictpath", "samplerate", "numiters", "method", "getdecay", "bookpath", NULL};
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "Osi|ksis", kwlist,
+		&pysignal, &dictpath, &samplerate,
+		&numiters, &method, &getdecay, &bookpath))
+		return NULL;
+	//printf("mptk_decompose: parsed args\n");
+
+	// Now to get a usable numpy array from the opaque obj
+	// TODO: currently can only handle arrays with dtype=float32. Is there a way to automatically convert if needed?
+	numpysignal = (PyArrayObject*) PyArray_ContiguousFromObject(pysignal, PyArray_FLOAT, 2, 2); // 1D or 2D
+	if(numpysignal==NULL){
+		printf("mptk_decompose failed to get numpy array object\n"); // todo: proper error
+		return NULL;
+	}
+	// From this point on: remember to do Py_DECREF(numpysignal) if terminating early
+
+	// Here's where we call the heavy stuff
+	mptk_decompose_result result;
+	int intresult = mptk_decompose_body(numpysignal, dictpath, samplerate, numiters, method, getdecay==0, bookpath, result);
+
+	//printf("mptk_decompose: about to return\n");
+	Py_DECREF(numpysignal); // destroy the contig array
+	return Py_BuildValue("OOO", result.thebook, result.residual, Py_None); // TODO: return decay as third item
+}
+
+
 
 #ifndef PyMODINIT_FUNC	/* declarations for DLL import/export */
 #define PyMODINIT_FUNC void
 #endif
 PyMODINIT_FUNC
-initpyMPTK(void) 
+initmptk(void)
 {
     PyObject* m;
 
-    if (PyType_Ready(&bookType) < 0)
+    if (PyType_Ready(&bookType) < 0){
+        printf("not PyType_Ready(&bookType)\n");
         return;
+   }
 
-    m = Py_InitModule3("pyMPTK", module_methods,
-                       "Example module that creates an extension type.");
+    m = Py_InitModule3("mptk", module_methods,
+                       "MPTK - Matching Pursuit ToolKit - decompose and analyse signals.");
 
-    if (m == NULL)
+    if (m == NULL){
+        printf("Py_InitModule3(mptk) failed\n");
       return;
+    }
 
     Py_INCREF(&bookType);
     PyModule_AddObject(m, "book", (PyObject *)&bookType);
+
+    import_array(); // numpy init -- must be called after InitModule
+    //printf("Py_InitModule3(mptk) OK, and done import_array()\n");
 }
