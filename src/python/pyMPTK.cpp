@@ -63,7 +63,7 @@ mptk_loadconfig(PyObject *self, PyObject *args)
 	if (!PyArg_ParseTuple(args, "s:mptk_loadconfig", &cfgpath))
 		return NULL;
 	//printf("mptk_loadconfig: parsed args\n");
-	int result = MPTK_Env_c::get_env()->load_environment(cfgpath);
+	int result = MPTK_Env_c::get_env()->load_environment_if_needed(cfgpath);
 	//printf("mptk_loadconfig: done, result %i, about to return\n", result);
 	return Py_BuildValue("i", result);
 }
