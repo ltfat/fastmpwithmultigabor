@@ -5,13 +5,21 @@ extern PyTypeObject bookType;
 
 MP_Signal_c* mp_create_signal_from_numpyarray(const PyArrayObject *nparray){
 	unsigned long int nspls = nparray->dimensions[0];
-	unsigned      int nchans= nparray->dimensions[1];
+	unsigned      int nchans;
 	float *signal_data = (float *)nparray->data;
 	const char *func = "mp_create_signal_from_numpyarray()";
 	printf("%s - numpy array has %d channels, %d samples\n", func, (int)nchans, (int)nspls);
 
-	if(2 != nparray->nd) {
-		mp_error_msg(func,"input signal should be a numSamples x numChans matrix");
+	if(nparray->nd == 2){
+		nchans = nparray->dimensions[1];
+		if(nspls==1 && nchans>1){ // For user convenience, we can accommodate single-channel as row or as column
+			nchans = 1;
+			nspls  = nparray->dimensions[1];
+		}
+	} else if(nparray->nd == 1) {
+		nchans = 1;
+	} else {
+		mp_error_msg(func,"input signal should be a numpy array (1D or 2D), of shape (numSamples, numChans)");
 		return(NULL);
 	}
 
@@ -38,13 +46,11 @@ MP_Signal_c* mp_create_signal_from_numpyarray(const PyArrayObject *nparray){
 // The implementation of the main number-crunching calls goes here though.
 
 int
-mptk_decompose_body(const PyArrayObject *numpysignal, const char *dictpath, const int samplerate, const unsigned long int numiters, const char *method, const bool getdecay, const char* bookpath, mptk_decompose_result& result){
-	// book, residual, decay = mptk.decompose(sig, dictpath, samplerate, [ numiters=10, method='mp', getdecay=False ])
+mptk_decompose_body(const PyArrayObject *numpysignal, const char *dictpath, const int samplerate, const unsigned long int numiters, const float snr, const char *method, const bool getdecay, const char* bookpath, mptk_decompose_result& result){
+	// book, residual, decay = mptk.decompose(sig, dictpath, samplerate, [ snr=0.5, numiters=10, method='mp', getdecay=False, ... ])
 
 	////////////////////////////////////////////////////////////
 	// get signal in mem in appropriate format
-	// Q: can we do it in-place? to do this, we'd need to check if it was a numpy array, with the right float format, and the right matrix-ordering, error if not.
-	// TODO: check with MPTK crew, that in-place operation will not mangle the signal (it is not const)
 	MP_Signal_c *signal = mp_create_signal_from_numpyarray(numpysignal);
 	if(NULL==signal) {
 		printf("Failed to convert a signal from python to MPTK.\n");
@@ -56,7 +62,7 @@ mptk_decompose_body(const PyArrayObject *numpysignal, const char *dictpath, cons
 	// get dict in mem in appropriate format - we'll do it from file - easy
 	MP_Dict_c* dict = MP_Dict_c::init(dictpath);
 	if(NULL==dict) {
-		printf("Failed to convert a dict from Matlab to MPTK or to read it from file.\n");
+		printf("Failed to read dict from file.\n");
 		delete signal;
 		return 2;
 	}
@@ -83,7 +89,11 @@ mptk_decompose_body(const PyArrayObject *numpysignal, const char *dictpath, cons
 
 	unsigned long int reportHit = 10;  // To parameterize
 	// Set stopping condition
-	mpdCore->set_iter_condition( numiters );
+	if(numiters != 0){
+		mpdCore->set_iter_condition( numiters );
+	}else{
+		mpdCore->set_snr_condition( snr );
+	}
 	mpdCore->set_save_hit(ULONG_MAX, bookpath, NULL, NULL); // OR we could let the user specify paths to save to?
 	mpdCore->set_report_hit(reportHit);
 	if(getdecay) mpdCore->set_use_decay();
@@ -111,15 +121,18 @@ mptk_decompose_body(const PyArrayObject *numpysignal, const char *dictpath, cons
 
 	// create python book object, which will be returned
 	BookObject* thebook = (BookObject*)PyObject_CallObject((PyObject *) &bookType, NULL);
-	book_append_atoms_from_mpbook(thebook, mpbook);
+	pybook_from_mpbook(thebook, mpbook);
+	Py_INCREF(thebook); // TODO this may rescue us from losing data, or it may be a memory leak
 
 	result.thebook = thebook;
 	result.residual = mp_create_numpyarray_from_signal(signal); // residual is in here (i.e. the "signal" is updated in-place)
 
-	delete signal;
-	delete dict;
-	delete mpbook;
-	delete mpdCore;
+	printf("book stats: numChans %i, numSamples %il, sampleRate %il, numAtoms %i.\n", mpbook->numChans, mpbook->numSamples, mpbook->sampleRate, mpbook->numAtoms);
+
+//TMPDEAC	delete signal;
+//TMPDEAC	delete dict;
+	//NO! delete mpbook;
+//TMPDEAC	delete mpdCore;
 
 	return 0;
 }

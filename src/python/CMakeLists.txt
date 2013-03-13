@@ -10,12 +10,14 @@ IF(BUILD_PYTHON_FILES)
 		CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/python/pyMPTK.h        ${MPTK_BINARY_DIR}/src/python/pyMPTK.h        COPYONLY)
 		CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/python/pyMPTK.cpp      ${MPTK_BINARY_DIR}/src/python/pyMPTK.cpp      COPYONLY)
 		CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/python/pyMPTK_book.cpp ${MPTK_BINARY_DIR}/src/python/pyMPTK_book.cpp COPYONLY)
+		CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/python/pyMPTK_atom.cpp ${MPTK_BINARY_DIR}/src/python/pyMPTK_atom.cpp COPYONLY)
 		CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/python/pyMPTK_decompose.cpp ${MPTK_BINARY_DIR}/src/python/pyMPTK_decompose.cpp COPYONLY)
 		CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/python/setup.py ${MPTK_BINARY_DIR}/src/python/setup.py @ONLY)
 		ADD_CUSTOM_TARGET(python_file ALL echo
 			DEPENDS   ${MPTK_BINARY_DIR}/src/python/pyMPTK.h
 			DEPENDS   ${MPTK_BINARY_DIR}/src/python/pyMPTK.cpp
 			DEPENDS   ${MPTK_BINARY_DIR}/src/python/pyMPTK_book.cpp
+			DEPENDS   ${MPTK_BINARY_DIR}/src/python/pyMPTK_atom.cpp
 			DEPENDS   ${MPTK_BINARY_DIR}/src/python/pyMPTK_decompose.cpp
 		)
 		ADD_CUSTOM_COMMAND( 

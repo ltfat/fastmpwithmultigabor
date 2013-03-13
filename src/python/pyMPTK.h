@@ -33,8 +33,7 @@ void       book_dealloc(BookObject* self);
 PyObject * book_new(PyTypeObject *type, PyObject *args, PyObject *kwds);
 int        book_init(BookObject *self, PyObject *args, PyObject *kwds);
 PyObject * book_read(BookObject* self, PyObject *args);
-// This is intended only to be used by the internal functions which read from file or from memory. It doesn't ensure the self->book and book are in sync.
-int book_append_atoms_from_mpbook(BookObject* self, MP_Book_c *mpbook);
+int pybook_from_mpbook(BookObject* self, MP_Book_c *mpbook); // NB BookObject must have been created - see example in pymptk_decompose.cpp
 PyObject * book_short_info(BookObject* self);
 
 static PyMethodDef book_methods[] = {
@@ -56,10 +55,21 @@ PyObject * mptk_loadconfig(PyObject *self, PyObject *args);
 PyObject * mptk_decompose(PyObject *self, PyObject *args, PyObject *keywds);
 
 struct mptk_decompose_result { BookObject* thebook; PyArrayObject* residual; };
-int mptk_decompose_body(const PyArrayObject *numpysignal, const char *dictpath, const int samplerate, const unsigned long int numiters, const char *method, const bool getdecay, const char* bookpath, mptk_decompose_result& result);
+int mptk_decompose_body(const PyArrayObject *numpysignal, const char *dictpath, const int samplerate, const unsigned long int numiters, const float snr, const char *method, const bool getdecay, const char* bookpath, mptk_decompose_result& result);
+
+PyObject * mptk_reconstruct(PyObject *self, PyObject *args);
+
+////////////////////////////////////////////////////
+// Conversions between MPTK and Python datatypes
 
 MPTK_LIB_EXPORT extern PyArrayObject* mp_create_numpyarray_from_signal(MP_Signal_c *signal);
 MPTK_LIB_EXPORT extern MP_Signal_c*   mp_create_signal_from_numpyarray(const PyArrayObject *nparray);
+
+MPTK_LIB_EXPORT extern int pybook_from_mpbook(BookObject* pybook, MP_Book_c *mpbook);
+MPTK_LIB_EXPORT extern int mpbook_from_pybook(MP_Book_c *mpbook, BookObject* pybook);
+
+MPTK_LIB_EXPORT extern MP_Atom_c* mpatom_from_pyatom(PyDictObject* pyatom, MP_Chan_t numChans);
+MPTK_LIB_EXPORT extern PyObject*  pyatom_from_mpatom(MP_Atom_c* mpatom,    MP_Chan_t numChans);
 
 #endif
 

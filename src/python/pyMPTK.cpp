@@ -9,7 +9,8 @@
 
 static PyMethodDef module_methods[] = {
 	{"loadconfig", mptk_loadconfig, METH_VARARGS, "load MPTK config file from a specific path. do this BEFORE running decompose() etc."},
-	{"decompose" , (PyCFunction) mptk_decompose,  METH_VARARGS | METH_KEYWORDS, "decompose a signal into a 'book' and residual, using Matching Pursuit or related methods."},
+	{"decompose" , (PyCFunction) mptk_decompose,  METH_VARARGS | METH_KEYWORDS, "decompose a signal into a 'book' and residual, using Matching Pursuit or related methods.\n(book, residual, decay) = mptk.decompose(sig, dictpath, samplerate, [ snr=0.5, numiters=10, method='mp', getdecay=False, ... ])"},
+	{"reconstruct" , (PyCFunction) mptk_reconstruct,  METH_VARARGS, "mptk.reconstruct(book) -- turn a book back into a signal"},
 	{NULL}  /* Sentinel */
 };
 
@@ -93,25 +94,26 @@ PyArrayObject* mp_create_numpyarray_from_signal(MP_Signal_c *signal){
 PyObject *
 mptk_decompose(PyObject *self, PyObject *args, PyObject *keywds)
 {
-	// book, residual, decay = mptk.decompose(sig, dictpath, samplerate, [ numiters=10, method='mp', getdecay=False ])
+	// book, residual, decay = mptk.decompose(sig, dictpath, samplerate, [ snr=0.5, numiters=10, ... ])
 	PyObject *pysignal; // note: do not touch the referencecount for this
 	PyArrayObject *numpysignal;
 	const char *dictpath;
-	int samplerate;
-	unsigned long int numiters=10;
+	float samplerate;
+	unsigned long int numiters=0; // 0 is flag to use SNR not numiters
+	float snr=0.5f;
 	const char *method="mp";
 	int getdecay=0;
 	const char *bookpath="";
-	static char *kwlist[] = {"signal", "dictpath", "samplerate", "numiters", "method", "getdecay", "bookpath", NULL};
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "Osi|ksis", kwlist,
+	static char *kwlist[] = {"signal", "dictpath", "samplerate", "numiters", "snr", "method", "getdecay", "bookpath", NULL};
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "Osf|kfsis", kwlist,
 		&pysignal, &dictpath, &samplerate,
-		&numiters, &method, &getdecay, &bookpath))
+		&numiters, &snr, &method, &getdecay, &bookpath))
 		return NULL;
 	//printf("mptk_decompose: parsed args\n");
 
 	// Now to get a usable numpy array from the opaque obj
 	// TODO: currently can only handle arrays with dtype=float32. Is there a way to automatically convert if needed?
-	numpysignal = (PyArrayObject*) PyArray_ContiguousFromObject(pysignal, PyArray_FLOAT, 2, 2); // 1D or 2D
+	numpysignal = (PyArrayObject*) PyArray_ContiguousFromObject(pysignal, PyArray_FLOAT, 1, 2); // 1D or 2D
 	if(numpysignal==NULL){
 		printf("mptk_decompose failed to get numpy array object\n"); // todo: proper error
 		return NULL;
@@ -120,13 +122,58 @@ mptk_decompose(PyObject *self, PyObject *args, PyObject *keywds)
 
 	// Here's where we call the heavy stuff
 	mptk_decompose_result result;
-	int intresult = mptk_decompose_body(numpysignal, dictpath, samplerate, numiters, method, getdecay==0, bookpath, result);
+	int intresult = mptk_decompose_body(numpysignal, dictpath, (int)samplerate, numiters, snr, method, getdecay==0, bookpath, result);
 
 	//printf("mptk_decompose: about to return\n");
 	Py_DECREF(numpysignal); // destroy the contig array
 	return Py_BuildValue("OOO", result.thebook, result.residual, Py_None); // TODO: return decay as third item
 }
 
+// This method needs to stay in the same file as initmptk(), because of the use of import_array()
+PyObject *
+mptk_reconstruct(PyObject *self, PyObject *args)
+{
+	PyObject *pybookobj;
+	if (!PyArg_ParseTuple(args, "O", &pybookobj))
+		return NULL;
+	printf("mptk_reconstruct: parsed args\n");
+	BookObject *pybook = (BookObject*)pybookobj;
+	MP_Signal_c *sig;
+
+	printf("pybook stats: numChans %i, numSamples %i, sampleRate %i.\n", ((BookObject*)pybook)->numChans, ((BookObject*)pybook)->numSamples, ((BookObject*)pybook)->sampleRate);
+
+	// reconstruct the mpbook from our pybook
+	MP_Book_c *mpbook = MP_Book_c::create(pybook->numChans, pybook->numSamples, pybook->sampleRate);
+	if ( NULL == mpbook )  {
+	    printf("Failed to create a book object.\n" );
+	    return NULL;
+	}
+	printf("mpbook stats before mpbook_from_pybook: numChans %i, numSamples %i, sampleRate %i, numAtoms %i.\n", mpbook->numChans, mpbook->numSamples, mpbook->sampleRate, mpbook->numAtoms);
+	int res = mpbook_from_pybook(mpbook, pybook);
+	if ( res != 0 )  {
+	    printf("Failed to complete mpbook object from pybook.\n" );
+	    return NULL;
+	}
+	printf("mpbook stats after mpbook_from_pybook: numChans %i, numSamples %i, sampleRate %i, numAtoms %i.\n", mpbook->numChans, mpbook->numSamples, mpbook->sampleRate, mpbook->numAtoms);
+
+	// initialise an empty signal
+	sig = MP_Signal_c::init( mpbook->numChans, mpbook->numSamples, mpbook->sampleRate );
+	if ( sig == NULL ){
+		PyErr_SetString(PyExc_RuntimeError, "Can't make a new signal" );
+		return NULL;
+	}
+
+	// add all the atoms on:
+	if ( mpbook->substract_add( NULL, sig, NULL ) == 0 )
+	{
+		PyErr_SetString(PyExc_RuntimeError, "No atoms were found in the book to rebuild the signal" );
+		delete sig;
+		return NULL;
+	}
+
+	PyArrayObject* sigarray = mp_create_numpyarray_from_signal(sig);
+	return Py_BuildValue("O", sigarray);
+}
 
 
 #ifndef PyMODINIT_FUNC	/* declarations for DLL import/export */
