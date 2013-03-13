@@ -30,7 +30,7 @@ OPTION(BUILD_DEBUG "Enable MPTK Debug mode." OFF)
 # Allows Matlab MEX files :
 OPTION(BUILD_MATLAB_MEX_FILES "Enable building Matlab MEX files." ON)
 # Allows build python extension :
-OPTION(BUILD_PYTHON_FILES "Enable building python files." OFF)
+OPTION(BUILD_PYTHON_FILES "Enable building python files." ON)
 # Allows build experimental feature :
 OPTION(BUILD_EXPERIMENTAL "Enable building experimental files." OFF)
 # Allows build experimental feature :
