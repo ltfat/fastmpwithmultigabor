@@ -55,9 +55,11 @@ PyObject * mptk_loadconfig(PyObject *self, PyObject *args);
 PyObject * mptk_decompose(PyObject *self, PyObject *args, PyObject *keywds);
 
 struct mptk_decompose_result { BookObject* thebook; PyArrayObject* residual; };
-int mptk_decompose_body(const PyArrayObject *numpysignal, const char *dictpath, const int samplerate, const unsigned long int numiters, const float snr, const char *method, const bool getdecay, const char* bookpath, mptk_decompose_result& result);
+int mptk_decompose_body(const PyArrayObject *numpysignal, const char *dictpath, const int samplerate, const unsigned long int numiters, const float snr, const char *method, const char* decaypath, const char* bookpath, mptk_decompose_result& result);
 
 PyObject * mptk_reconstruct(PyObject *self, PyObject *args);
+
+PyObject * mptk_anywave_encode(PyObject *self, PyObject *args);
 
 ////////////////////////////////////////////////////
 // Conversions between MPTK and Python datatypes

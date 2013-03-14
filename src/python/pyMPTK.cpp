@@ -9,8 +9,9 @@
 
 static PyMethodDef module_methods[] = {
 	{"loadconfig", mptk_loadconfig, METH_VARARGS, "load MPTK config file from a specific path. do this BEFORE running decompose() etc."},
-	{"decompose" , (PyCFunction) mptk_decompose,  METH_VARARGS | METH_KEYWORDS, "decompose a signal into a 'book' and residual, using Matching Pursuit or related methods.\n(book, residual, decay) = mptk.decompose(sig, dictpath, samplerate, [ snr=0.5, numiters=10, method='mp', getdecay=False, ... ])"},
+	{"decompose" , (PyCFunction) mptk_decompose,  METH_VARARGS | METH_KEYWORDS, "decompose a signal into a 'book' and residual, using Matching Pursuit or related methods.\n(book, residual) = mptk.decompose(sig, dictpath, samplerate, [ snr=0.5, numiters=10, method='mp', decaypath=None, bookpath=None, ... ])"},
 	{"reconstruct" , (PyCFunction) mptk_reconstruct,  METH_VARARGS, "mptk.reconstruct(book) -- turn a book back into a signal"},
+	{"anywave_encode" , (PyCFunction) mptk_anywave_encode,  METH_VARARGS, "mptk.anywave_encode(signal) -- encode a signal as base64, for use in an xml dictionary"},
 	{NULL}  /* Sentinel */
 };
 
@@ -102,17 +103,16 @@ mptk_decompose(PyObject *self, PyObject *args, PyObject *keywds)
 	unsigned long int numiters=0; // 0 is flag to use SNR not numiters
 	float snr=0.5f;
 	const char *method="mp";
-	int getdecay=0;
+	const char *decaypath = "";
 	const char *bookpath="";
-	static char *kwlist[] = {"signal", "dictpath", "samplerate", "numiters", "snr", "method", "getdecay", "bookpath", NULL};
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "Osf|kfsis", kwlist,
+	static char *kwlist[] = {"signal", "dictpath", "samplerate", "numiters", "snr", "method", "decaypath", "bookpath", NULL};
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "Osf|kfsss", kwlist,
 		&pysignal, &dictpath, &samplerate,
-		&numiters, &snr, &method, &getdecay, &bookpath))
+		&numiters, &snr, &method, &decaypath, &bookpath))
 		return NULL;
 	//printf("mptk_decompose: parsed args\n");
 
 	// Now to get a usable numpy array from the opaque obj
-	// TODO: currently can only handle arrays with dtype=float32. Is there a way to automatically convert if needed?
 	numpysignal = (PyArrayObject*) PyArray_ContiguousFromObject(pysignal, PyArray_FLOAT, 1, 2); // 1D or 2D
 	if(numpysignal==NULL){
 		printf("mptk_decompose failed to get numpy array object\n"); // todo: proper error
@@ -122,11 +122,11 @@ mptk_decompose(PyObject *self, PyObject *args, PyObject *keywds)
 
 	// Here's where we call the heavy stuff
 	mptk_decompose_result result;
-	int intresult = mptk_decompose_body(numpysignal, dictpath, (int)samplerate, numiters, snr, method, getdecay==0, bookpath, result);
+	int intresult = mptk_decompose_body(numpysignal, dictpath, (int)samplerate, numiters, snr, method, decaypath, bookpath, result);
 
 	//printf("mptk_decompose: about to return\n");
 	Py_DECREF(numpysignal); // destroy the contig array
-	return Py_BuildValue("OOO", result.thebook, result.residual, Py_None); // TODO: return decay as third item
+	return Py_BuildValue("OO", result.thebook, result.residual);
 }
 
 // This method needs to stay in the same file as initmptk(), because of the use of import_array()
@@ -173,6 +173,45 @@ mptk_reconstruct(PyObject *self, PyObject *args)
 
 	PyArrayObject* sigarray = mp_create_numpyarray_from_signal(sig);
 	return Py_BuildValue("O", sigarray);
+}
+
+// This method needs to stay in the same file as initmptk(), because of the use of import_array()
+PyObject *
+mptk_anywave_encode(PyObject *self, PyObject *args)
+{
+	PyObject *pysigobj;
+	if (!PyArg_ParseTuple(args, "O", &pysigobj))
+		return NULL;
+	printf("mptk_anywave_encode: parsed args\n");
+	if (!(PyArray_Check(pysigobj) || PyList_Check(pysigobj))){
+		PyErr_SetString(PyExc_RuntimeError, "mptk_anywave_encode: must provide a list or ndarray\n");
+		return NULL;
+	}
+
+	// NOTE: here we demand data in double format (PyArray_DOUBLE) because this is the required format of data to be base64-encoded
+	PyArrayObject* numpysignal = (PyArrayObject*) PyArray_ContiguousFromObject(pysigobj, PyArray_DOUBLE, 1, 2); // 1D or 2D
+	if(numpysignal==NULL){
+		PyErr_SetString(PyExc_RuntimeError, "mptk_anywave_encode failed to get numpy array object\n");
+		return NULL;
+	}
+	// From this point on: remember to do Py_DECREF(numpysignal) if terminating early
+	size_t numvals = numpysignal->dimensions[0];
+	if(numpysignal->nd == 2){
+		numvals *= numpysignal->dimensions[1];
+	}
+	// TODO: I have not checked if multichannel data gives the right ordering, or if it needs to be transposed.
+	// TODO if the encoder doesn't care about (double*) we could avoid a cast
+	double* doubles = (double *)(numpysignal->data);
+
+	// to consider: we shouldn't need to create a new "table" every time, it might be handy to have a cached obj
+	MP_Anywave_Table_c *table = new MP_Anywave_Table_c();
+	string encodedstr = table->encodeBase64((char *)doubles, numvals * sizeof(double));
+	delete table;
+
+	PyObject* pyencodedstr = PyString_FromString(encodedstr.c_str());
+
+	Py_DECREF(numpysignal); // destroy the contig array
+	return Py_BuildValue("O", pyencodedstr);
 }
 
 

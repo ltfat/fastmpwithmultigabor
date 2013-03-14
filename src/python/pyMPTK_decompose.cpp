@@ -46,8 +46,8 @@ MP_Signal_c* mp_create_signal_from_numpyarray(const PyArrayObject *nparray){
 // The implementation of the main number-crunching calls goes here though.
 
 int
-mptk_decompose_body(const PyArrayObject *numpysignal, const char *dictpath, const int samplerate, const unsigned long int numiters, const float snr, const char *method, const bool getdecay, const char* bookpath, mptk_decompose_result& result){
-	// book, residual, decay = mptk.decompose(sig, dictpath, samplerate, [ snr=0.5, numiters=10, method='mp', getdecay=False, ... ])
+mptk_decompose_body(const PyArrayObject *numpysignal, const char *dictpath, const int samplerate, const unsigned long int numiters, const float snr, const char *method, const char* decaypath, const char* bookpath, mptk_decompose_result& result){
+	// book, residual = mptk.decompose(sig, dictpath, samplerate, [ snr=0.5, numiters=10, method='mp', ... ])
 
 	////////////////////////////////////////////////////////////
 	// get signal in mem in appropriate format
@@ -78,7 +78,20 @@ mptk_decompose_body(const PyArrayObject *numpysignal, const char *dictpath, cons
 	    delete dict;
 	    return 3;
 	}
-	MP_Mpd_Core_c *mpdCore =  MP_Mpd_Core_c::create( signal, mpbook, dict );
+	MP_Abstract_Core_c *mpdCore;
+	if(strstr(method, "")==0 || strstr(method, "mp")==0){
+		mpdCore =  MP_Mpd_Core_c::create( signal, mpbook, dict );
+	}else if(strstr(method, "cmp")==0){
+		mpdCore =  MP_CMpd_Core_c::create( signal, mpbook, dict );
+	//}else if(strstr(method, "gmp")==0){
+	//	mpdCore =  GPD_Core_c::create( signal, mpbook, dict );
+	}else{
+		printf("Unrecognised 'method' option '%s'. Recognised options are: mp, cmp, gmp\n");
+		delete signal;
+		delete dict;
+		delete mpbook;
+		return 5;
+	}
 	if ( NULL == mpdCore )  {
 	    printf("Failed to create a MPD core object.\n" );
 	    delete signal;
@@ -94,9 +107,15 @@ mptk_decompose_body(const PyArrayObject *numpysignal, const char *dictpath, cons
 	}else{
 		mpdCore->set_snr_condition( snr );
 	}
-	mpdCore->set_save_hit(ULONG_MAX, bookpath, NULL, NULL); // OR we could let the user specify paths to save to?
+	if(strstr(method, "")==0 || strstr(method, "mp")==0){
+		((MP_Mpd_Core_c*) mpdCore)->set_save_hit(ULONG_MAX, bookpath, NULL, decaypath);
+	}else if(strstr(method, "cmp")==0){
+		((MP_CMpd_Core_c*) mpdCore)->set_save_hit(ULONG_MAX, bookpath, NULL, decaypath);
+	}//else if(strstr(method, "gmp")==0){
+		// not same method... ((GPD_Core_c*) mpdCore)->set_save_hit(ULONG_MAX, bookpath, NULL, decaypath);
+	//}
 	mpdCore->set_report_hit(reportHit);
-	if(getdecay) mpdCore->set_use_decay();
+	if(decaypath != NULL) mpdCore->set_use_decay();
 
 	mpdCore->set_verbose();
 	// Display some information
@@ -122,17 +141,17 @@ mptk_decompose_body(const PyArrayObject *numpysignal, const char *dictpath, cons
 	// create python book object, which will be returned
 	BookObject* thebook = (BookObject*)PyObject_CallObject((PyObject *) &bookType, NULL);
 	pybook_from_mpbook(thebook, mpbook);
-	Py_INCREF(thebook); // TODO this may rescue us from losing data, or it may be a memory leak
+	//Py_INCREF(thebook); // TODO this may rescue us from losing data, or it may be a memory leak
 
 	result.thebook = thebook;
 	result.residual = mp_create_numpyarray_from_signal(signal); // residual is in here (i.e. the "signal" is updated in-place)
 
 	printf("book stats: numChans %i, numSamples %il, sampleRate %il, numAtoms %i.\n", mpbook->numChans, mpbook->numSamples, mpbook->sampleRate, mpbook->numAtoms);
 
-//TMPDEAC	delete signal;
-//TMPDEAC	delete dict;
+	delete signal;
+	delete dict;
 	//NO! delete mpbook;
-//TMPDEAC	delete mpdCore;
+	delete mpdCore;
 
 	return 0;
 }

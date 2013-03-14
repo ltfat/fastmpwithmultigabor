@@ -864,10 +864,6 @@ MP_Anywave_Table_c* MP_Anywave_Table_c::create_hilbert_dual( char* szkeyTableNam
 }
 
 
-//---------------------------------------------------------//
-// Function : create_hilbert_dual(name)
-// Usage	: Returns a new table copied from the internal table
-//---------------------------------------------------------//
 string MP_Anywave_Table_c::encodeBase64( char *szStorage, int iSizeToEncode)
 {
 	return base64_encode((const unsigned char *)szStorage,iSizeToEncode);
