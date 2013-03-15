@@ -46,6 +46,14 @@
 #ifndef __cmpd_core_h_
 #define __cmpd_core_h_
 
+// defaults, used by e.g. cpmd commmandline, and pymptk:
+#define MPD_DEFAULT_NUM_ITER   ULONG_MAX
+#define CMPD_DEFAULT_MAXNUM_CYCLES   1;
+#define CMPD_DEFAULT_MIN_CYCLEIMPROVEDB   0.001;
+#define CMPD_DEFAULT_MAXNUM_AUG_BEFORECYCLE   1;
+#define CMPD_DEFAULT_MAXNUM_AUG_BEFORECYCLE_DB   0;
+#define CMPD_DEFAULT_MAX_AUG_STOPCYCLE   ULONG_MAX;
+#define CMPD_DEFAULT_MAX_DB_STOPCYCLE   60.0;
 
 
 /***********************/
