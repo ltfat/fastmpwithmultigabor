@@ -79,14 +79,14 @@ mptk_decompose_body(const PyArrayObject *numpysignal, const char *dictpath, cons
 	    return 3;
 	}
 	MP_Abstract_Core_c *mpdCore;
-	if(strstr(method, "")==0 || strstr(method, "mp")==0){
+	if(strcmp(method, "")==0 || strcmp(method, "mp")==0){
 		mpdCore =  MP_Mpd_Core_c::create( signal, mpbook, dict );
-	}else if(strstr(method, "cmp")==0){
+	}else if(strcmp(method, "cmp")==0){
 		mpdCore =  MP_CMpd_Core_c::create( signal, mpbook, dict );
-	//}else if(strstr(method, "gmp")==0){
+	//}else if(strcmp(method, "gmp")==0){
 	//	mpdCore =  GPD_Core_c::create( signal, mpbook, dict );
 	}else{
-		printf("Unrecognised 'method' option '%s'. Recognised options are: mp, cmp, gmp\n");
+		printf("Unrecognised 'method' option '%s'. Recognised options are: mp, cmp, gmp\n", method);
 		delete signal;
 		delete dict;
 		delete mpbook;
@@ -107,11 +107,11 @@ mptk_decompose_body(const PyArrayObject *numpysignal, const char *dictpath, cons
 	}else{
 		mpdCore->set_snr_condition( snr );
 	}
-	if(strstr(method, "")==0 || strstr(method, "mp")==0){
+	if(strcmp(method, "")==0 || strcmp(method, "mp")==0){
 		((MP_Mpd_Core_c*) mpdCore)->set_save_hit(ULONG_MAX, bookpath, NULL, decaypath);
-	}else if(strstr(method, "cmp")==0){
+	}else if(strcmp(method, "cmp")==0){
 		((MP_CMpd_Core_c*) mpdCore)->set_save_hit(ULONG_MAX, bookpath, NULL, decaypath);
-	}//else if(strstr(method, "gmp")==0){
+	}//else if(strcmp(method, "gmp")==0){
 		// not same method... ((GPD_Core_c*) mpdCore)->set_save_hit(ULONG_MAX, bookpath, NULL, decaypath);
 	//}
 	mpdCore->set_report_hit(reportHit);
