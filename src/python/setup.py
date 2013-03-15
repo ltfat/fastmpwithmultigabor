@@ -6,6 +6,8 @@ inc_dir = ['/usr/include', '@MPTK_SOURCE_DIR@','@MPTK_SOURCE_DIR@/src/utils/libt
 
 lib =['@CMAKE_INSTALL_PREFIX@/lib/@LIB_MPTK_OUTPUT_NAME@','@CMAKE_INSTALL_PREFIX@/lib/dsp_windows']
 
+lib =['@CMAKE_INSTALL_PREFIX@/lib/@LIB_MPTK_OUTPUT_NAME@','@CMAKE_INSTALL_PREFIX@/lib/dsp_windows']
+
 setup (name = "mptk",
 	version = "0.1",
 	description = "Python bindings for Matching Pursuit ToolKit",

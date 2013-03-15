@@ -913,7 +913,8 @@ unsigned int MP_Gabor_Block_Plugin_c::create_atom( MP_Atom_c **atom,
         {
           real = (1.0 - reCorr)*re + imCorr*im;
           imag = (1.0 + reCorr)*im + imCorr*re;
-          amp   = 2.0 * sqrt( real*real + imag*imag );
+          //amp   = 2.0 * sqrt( real*real + imag*imag );
+          amp = sqrt( real*real + imag*imag ) * cstCorrel[freqIdx];
           phase = atan2( imag, real ); /* the result is between -M_PI and MP_PI */
         }
       /* When the atom and its conjugate are aligned, they should be real
