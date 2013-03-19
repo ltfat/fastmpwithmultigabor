@@ -36,13 +36,14 @@ PyObject * book_read(BookObject* self, PyObject *args);
 int pybook_from_mpbook(BookObject* self, MP_Book_c *mpbook); // NB BookObject must have been created - see example in pymptk_decompose.cpp
 PyObject * book_short_info(BookObject* self);
 
+PyObject * book_getstate(BookObject* self);
+PyObject * book_setstate(BookObject* self, PyObject *args);
+
 static PyMethodDef book_methods[] = {
-	{"read", (PyCFunction)book_read, METH_VARARGS,
-		"read a book file"
-		},
-	{"short_info", (PyCFunction)book_short_info, METH_NOARGS,
-		"print short info"
-		},
+	{"read",         (PyCFunction)book_read,       METH_VARARGS, "read a book file" },
+	{"short_info",   (PyCFunction)book_short_info, METH_NOARGS,  "print short info" },
+	{"__getstate__", (PyCFunction)book_getstate,   METH_NOARGS,  "method to get book's contents in a form that python can pickle" },
+	{"__setstate__", (PyCFunction)book_setstate,   METH_VARARGS, "method to restore a new book from python's pickled form" },
 	{NULL}  /* Sentinel */
 };
 

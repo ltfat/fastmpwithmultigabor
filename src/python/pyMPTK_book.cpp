@@ -139,3 +139,34 @@ book_short_info(BookObject* pybook)
 	return Py_BuildValue("i", 0);
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+// __getstate__ and __setstate__ are to make it possible for python to do copy.deepcopy() or pickle.*()
+// These two methods must be perfectly complementary.
+// We simply implement by serialising elements in alphabetical order into a tuple:
+//    ('atoms', 'numChans', 'numSamples', 'sampleRate')
+
+PyObject * book_getstate(BookObject* self){
+	return Py_BuildValue("Oiii", self->atoms, self->numChans, self->numSamples, self->sampleRate);
+}
+
+PyObject * book_setstate(BookObject* self, PyObject *args){
+	PyObject *atoms;
+	int numChans;
+	int numSamples;
+	int sampleRate;
+	if (!PyArg_ParseTuple(args, "(Oiii)", &atoms, &numChans, &numSamples, &sampleRate))
+		return NULL;
+
+	PyObject* methodname = PyString_FromString("extend");
+	PyObject* result = PyObject_CallMethodObjArgs(self->atoms, methodname, atoms, NULL);
+	if(result != NULL){
+		Py_DECREF(result);
+	}
+	Py_DECREF(methodname);
+
+	self->numChans = numChans;
+	self->numSamples = numSamples;
+	self->sampleRate = sampleRate;
+	Py_RETURN_NONE;
+}
+
