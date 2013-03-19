@@ -1,6 +1,9 @@
 # pyMPTK plot functions
 # Written by Dan Stowell, March 2013
 
+import matplotlib.pyplot as plt
+import matplotlib.cm as cm
+
 def __andmatcher(a,b):
 	return a and b
 
