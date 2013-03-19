@@ -15,6 +15,7 @@ IF(BUILD_PYTHON_FILES)
 		CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/python/pyMPTK_book.cpp ${MPTK_BINARY_DIR}/src/python/pyMPTK_book.cpp COPYONLY)
 		CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/python/pyMPTK_atom.cpp ${MPTK_BINARY_DIR}/src/python/pyMPTK_atom.cpp COPYONLY)
 		CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/python/pyMPTK_decompose.cpp ${MPTK_BINARY_DIR}/src/python/pyMPTK_decompose.cpp COPYONLY)
+		CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/python/mptkplot.py        ${MPTK_BINARY_DIR}/src/python/mptkplot.py        COPYONLY)
 		CONFIGURE_FILE(${MPTK_SOURCE_DIR}/src/python/setup.py ${MPTK_BINARY_DIR}/src/python/setup.py @ONLY)
 		ADD_CUSTOM_TARGET(python_file ALL echo
 			DEPENDS   ${MPTK_BINARY_DIR}/src/python/pyMPTK.h
