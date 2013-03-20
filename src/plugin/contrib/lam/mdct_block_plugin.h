@@ -206,7 +206,7 @@ public:
    */
   unsigned int create_atom( MP_Atom_c **atom,
 			    const unsigned long int frameIdx,
-			    const unsigned long int filterIdx );
+			    const unsigned long int filterIdx, MP_Dict_c* dict );
                 
   unsigned long int build_frame_waveform_corr(GP_Param_Book_c* frame, MP_Real_t* outBuffer);
 

@@ -53,9 +53,9 @@
 
 /************************/
 /* Factory function     */
-MP_Atom_c  * MP_Anywave_Atom_Plugin_c::anywave_atom_create_empty(void)
+MP_Atom_c  * MP_Anywave_Atom_Plugin_c::anywave_atom_create_empty(MP_Dict_c* dict)
 {
-	return new MP_Anywave_Atom_Plugin_c;
+	return new MP_Anywave_Atom_Plugin_c(dict);
 }
 
 /*************************/
@@ -66,7 +66,7 @@ MP_Atom_c* MP_Anywave_Atom_Plugin_c::create( FILE *fid, MP_Dict_c *dict, const c
 	MP_Anywave_Atom_Plugin_c* newAtom = NULL;
 
 	/* Instantiate and check */
-	newAtom = new MP_Anywave_Atom_Plugin_c();
+	newAtom = new MP_Anywave_Atom_Plugin_c(dict);
 	if ( newAtom == NULL )
     {
 		mp_error_msg( func, "Failed to create a new atom.\n" );
@@ -86,7 +86,7 @@ MP_Atom_c* MP_Anywave_Atom_Plugin_c::create( FILE *fid, MP_Dict_c *dict, const c
 
 /********************/
 /* Void constructor */
-MP_Anywave_Atom_Plugin_c::MP_Anywave_Atom_Plugin_c( void ):MP_Atom_c()
+MP_Anywave_Atom_Plugin_c::MP_Anywave_Atom_Plugin_c( MP_Dict_c* dict ):MP_Atom_c(dict)
 {
 	tableIdx = 0;
 	anywaveTable = NULL;
@@ -211,7 +211,7 @@ MP_Anywave_Atom_Plugin_c::~MP_Anywave_Atom_Plugin_c(){}
 /***************************/
 
 /* Test */
-bool MP_Anywave_Atom_Plugin_c::test( char* filename )
+bool MP_Anywave_Atom_Plugin_c::test( char* filename, MP_Dict_c* dict )
 {
 
 	unsigned long int sampleIdx;
@@ -225,14 +225,14 @@ bool MP_Anywave_Atom_Plugin_c::test( char* filename )
 
 	/* create an anywave atom corresponding to the first filter of the first table in the anywave server */
 	MP_Anywave_Atom_Plugin_c* atom = NULL;
-	MP_Atom_c* (*emptyAtomCreator)( void ) = MP_Atom_Factory_c::get_atom_factory()->get_empty_atom_creator("anywave");
+	MP_Atom_c* (*emptyAtomCreator)( MP_Dict_c* dict ) = MP_Atom_Factory_c::get_atom_factory()->get_empty_atom_creator("anywave");
 	if (NULL == emptyAtomCreator) 
 	{
 		mp_error_msg( "MP_Anywave_Atom_c::test", "Anywave atom is not registred in the atom factory" );
 		return( false );
 	}
   
-	if ( (atom =  (MP_Anywave_Atom_Plugin_c *)(*emptyAtomCreator)())  == NULL )
+	if ( (atom =  (MP_Anywave_Atom_Plugin_c *)(*emptyAtomCreator)(dict))  == NULL )
     {
 		mp_error_msg( "MP_Anywave_Atom_c::test", "Can't create a new Gabor atom in create_atom(). Returning NULL as the atom reference.\n" );
 		return( false );

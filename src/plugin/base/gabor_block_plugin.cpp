@@ -811,7 +811,7 @@ void MP_Gabor_Block_Plugin_c::update_frame(unsigned long int frameIdx,
 /* Output of the ith atom of the block */
 unsigned int MP_Gabor_Block_Plugin_c::create_atom( MP_Atom_c **atom,
     const unsigned long int frameIdx,
-    const unsigned long int freqIdx )
+    const unsigned long int freqIdx, MP_Dict_c* dict )
 {
 
   const char* func = "MP_Gabor_Block_c::create_atom(...)";
@@ -839,14 +839,14 @@ unsigned int MP_Gabor_Block_Plugin_c::create_atom( MP_Atom_c **atom,
 
   /* Allocate the atom */
   *atom = NULL;
-  MP_Atom_c* (*emptyAtomCreator)( void ) = MP_Atom_Factory_c::get_atom_factory()->get_empty_atom_creator("gabor");
+  MP_Atom_c* (*emptyAtomCreator)( MP_Dict_c* dict ) = MP_Atom_Factory_c::get_atom_factory()->get_empty_atom_creator("gabor");
   if (NULL == emptyAtomCreator)
     {
       mp_error_msg( func, "Gabor atom is not registred in the atom factory" );
       return( 0 );
     }
 
-  if ( (gatom =  (MP_Gabor_Atom_Plugin_c*)(*emptyAtomCreator)())  == NULL )
+  if ( (gatom =  (MP_Gabor_Atom_Plugin_c*)(*emptyAtomCreator)(dict))  == NULL )
     {
       mp_error_msg( func, "Can't create a new Gabor atom in create_atom()."
                     " Returning NULL as the atom reference.\n" );

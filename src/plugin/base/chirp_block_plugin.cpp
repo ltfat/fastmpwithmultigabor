@@ -572,7 +572,7 @@ int MP_Chirp_Block_Plugin_c::info( FILE* fid )
 /* Output of the ith atom of the block */
 unsigned int MP_Chirp_Block_Plugin_c::create_atom( MP_Atom_c **atom,
     const unsigned long int frameIdx,
-    const unsigned long int filterIdx )
+    const unsigned long int filterIdx, MP_Dict_c* dict )
 {
   const char* func = "MP_Chirp_Block_c::create_atom(...)";
   MP_Gabor_Atom_Plugin_c *gatom = NULL;
@@ -606,7 +606,7 @@ unsigned int MP_Chirp_Block_Plugin_c::create_atom( MP_Atom_c **atom,
   fftSize = (MP_Real_t)(fft->fftSize);
 
   /* Create the best Gabor atom with chirprate zero */
-  if ( ( MP_Gabor_Block_Plugin_c::create_atom( atom, frameIdx, filterIdx ) ) == 0 )
+  if ( ( MP_Gabor_Block_Plugin_c::create_atom( atom, frameIdx, filterIdx, dict ) ) == 0 )
     {
       mp_error_msg( func, "Can't create a new Gabor atom in create_atom()."
                     " Returning NULL as the atom reference.\n" );

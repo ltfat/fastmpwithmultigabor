@@ -115,7 +115,7 @@ public:
 	
 	/** \brief Specific factory function
 	 **/
-	static MP_Atom_c  * anywave_atom_create_empty(void);
+	static MP_Atom_c  * anywave_atom_create_empty(MP_Dict_c* dict);
 	
 	/** \brief File factory function
 	 *
@@ -143,14 +143,14 @@ public:
 	
 protected:
 	
-	/** \brief Default void constructor 
+	/** \brief Default constructor 
 	 *
 	 * set the amp array and anywaveTable to NULL, anywaveIdx and
 	 * tableIdx to zero, and the other members are initialized by the
 	 * default MP_Atom_c constructor.
 	 *
 	 **/
-	MP_Anywave_Atom_Plugin_c( void );
+	MP_Anywave_Atom_Plugin_c( MP_Dict_c* dict );
 	
 	
 	
@@ -194,7 +194,7 @@ public:
 	 *
 	 * \todo explain what is done
 	 **/
-	static bool test( char* filename );
+	static bool test( char* filename, MP_Dict_c* dict );
 	
 	/** \brief returns the type of the atom : "anywave"
 	 * \return the string "anywave"

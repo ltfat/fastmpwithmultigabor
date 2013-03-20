@@ -652,13 +652,13 @@ void MP_Harmonic_Block_Plugin_c::update_frame( unsigned long int frameIdx,
 /* Output of the ith atom of the block */
 unsigned int MP_Harmonic_Block_Plugin_c::create_atom( MP_Atom_c **atom,
     const unsigned long int frameIdx,
-    const unsigned long int filterIdx )
+    const unsigned long int filterIdx, MP_Dict_c* dict )
 {
 
   const char* func = "MP_Harmonic_Block_c::create_atom(...)";
 
   /* --- Return a Gabor atom when it is what filterIdx indicates */
-  if ( filterIdx < numFreqs ) return( MP_Gabor_Block_Plugin_c::create_atom( atom, frameIdx, filterIdx ) );
+  if ( filterIdx < numFreqs ) return( MP_Gabor_Block_Plugin_c::create_atom( atom, frameIdx, filterIdx, dict ) );
   /* --- Otherwise create the Harmonic atom :  */
   else
     {
@@ -695,14 +695,14 @@ unsigned int MP_Harmonic_Block_Plugin_c::create_atom( MP_Atom_c **atom,
 
       /* Allocate the atom */
       *atom = NULL;
-      MP_Atom_c* (*emptyAtomCreator)( void ) = MP_Atom_Factory_c::get_atom_factory()->get_empty_atom_creator("harmonic");
+      MP_Atom_c* (*emptyAtomCreator)( MP_Dict_c* dict ) = MP_Atom_Factory_c::get_atom_factory()->get_empty_atom_creator("harmonic");
       if (NULL == emptyAtomCreator)
         {
           mp_error_msg( func, "Harmonic atom is not registred in the atom factory" );
           return( 0 );
         }
 
-      if ( (hatom =  (MP_Harmonic_Atom_Plugin_c*)(*emptyAtomCreator)())  == NULL )
+      if ( (hatom =  (MP_Harmonic_Atom_Plugin_c*)(*emptyAtomCreator)(dict))  == NULL )
         {
           mp_error_msg( func, "Can't allocate a new Harmonic atom."
                         " Returning NULL as the atom reference.\n" );

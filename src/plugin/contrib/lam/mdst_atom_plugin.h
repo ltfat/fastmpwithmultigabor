@@ -83,7 +83,7 @@ public:
 
     /** \brief Factory function for empty atom
     */
-  static MP_Atom_c* mdst_atom_create_empty(void);
+  static MP_Atom_c* mdst_atom_create_empty(MP_Dict_c* dict);
 
   /** \brief A factory function that reads from a file
    *
@@ -98,7 +98,7 @@ public:
  protected:
 
   /* Void constructor */
-  MP_Mdst_Atom_Plugin_c( void );
+  MP_Mdst_Atom_Plugin_c( MP_Dict_c* dict );
 
 
 

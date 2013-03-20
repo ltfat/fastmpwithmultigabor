@@ -75,7 +75,7 @@ public:
 public:
 
   /* Specific empty factory function */
-  static MP_Atom_c  * constant_atom_create_empty(void);
+  static MP_Atom_c  * constant_atom_create_empty(MP_Dict_c* dict);
   /* Specific factory function */
   
    /* File factory function */
@@ -83,8 +83,8 @@ public:
 
 protected:
 
-  /* Void constructor */
-  MP_Constant_Atom_Plugin_c( void );
+  /* constructor */
+  MP_Constant_Atom_Plugin_c( MP_Dict_c* dict );
 
  
 

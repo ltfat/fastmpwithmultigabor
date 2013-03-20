@@ -1,6 +1,6 @@
 
 % Usage :
-%   signal = mprecons(book[,residual])
+%   signal = mprecons(book, dict[,residual])
 %
 % Synopsis :
 %   Reconstruct a signal “signal” from a “book”. An optional residual can be added, 
@@ -9,6 +9,7 @@
 %
 % Inputs : 
 %   book     : a book Matlab structure
+%   dict     : a dict Matlab structure
 %   residual : OPTIONAL a numSamples x numChans matrix, which dimensions should 
 %              match the fields book.numSamples, book.numChans
 %

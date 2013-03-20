@@ -56,7 +56,7 @@ using namespace std;
 
 /*************************/
 /* File factory function */
-MP_Atom_c* MP_Template_Atom_Plugin_c::create( FILE *fid, const char mode )
+MP_Atom_c* MP_Template_Atom_Plugin_c::create( FILE *fid, MP_Dict_c* dict, const char mode )
 {
 
   const char* func = "MP_Template_Atom_c::init(fid,mode)";
@@ -64,7 +64,7 @@ MP_Atom_c* MP_Template_Atom_Plugin_c::create( FILE *fid, const char mode )
 
 
   /* Instantiate and check */
-  newAtom = new MP_Template_Atom_Plugin_c();
+  newAtom = new MP_Template_Atom_Plugin_c(dict);
   if ( newAtom == NULL )
     {
       mp_error_msg( func, "Failed to create a new Template atom.\n" );
@@ -82,18 +82,16 @@ MP_Atom_c* MP_Template_Atom_Plugin_c::create( FILE *fid, const char mode )
   return( (MP_Atom_c*)newAtom );
 }
 
-MP_Atom_c* MP_Template_Atom_Plugin_c::template_atom_create_empty(void)
+MP_Atom_c* MP_Template_Atom_Plugin_c::template_atom_create_empty(MP_Dict_c* dict)
     {
 mp_error_msg( "MP_Template_Atom_Plugin_c::Template_atom_create_empty", "create a new Template atom.\n" );
-      return new MP_Template_Atom_Plugin_c;
+      return new MP_Template_Atom_Plugin_c(dict);
 
     }
 /********************/
 /* Void constructor */
-MP_Template_Atom_Plugin_c::MP_Template_Atom_Plugin_c( void )
-    :MP_Atom_c(){
-  mp_error_msg( "MP_Template_Atom_Plugin_c::MP_Template_Atom_Plugin_c", "create a new Template atom.\n" );  
-    }
+MP_Template_Atom_Plugin_c::MP_Template_Atom_Plugin_c( MP_Dict_c* dict ):MP_Atom_c(dict){
+}
 
 /********************/
 /* File reader      */

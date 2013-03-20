@@ -166,7 +166,7 @@ public:
    */
   unsigned int create_atom( MP_Atom_c **atom,
 			    const unsigned long int frameIdx,
-			    const unsigned long int filterIdx );
+			    const unsigned long int filterIdx, MP_Dict_c* dict );
 
    /** \brief Field a map with the parameter type of the block, the creation and destruction of the map is done by the calling method 
    *

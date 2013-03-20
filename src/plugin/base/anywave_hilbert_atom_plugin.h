@@ -106,12 +106,12 @@ class MP_Anywave_Hilbert_Atom_Plugin_c: public MP_Anywave_Atom_Plugin_c {
    * atomType, and hilbertTableIdx to zero
    *
    **/
-  MP_Anywave_Hilbert_Atom_Plugin_c( void );
+  MP_Anywave_Hilbert_Atom_Plugin_c( MP_Dict_c* dict );
 
 
   /** \brief Specific factory function
    **/
-   static MP_Atom_c* anywave_hilbert_atom_create_empty(void);
+   static MP_Atom_c* anywave_hilbert_atom_create_empty(MP_Dict_c* dict);
 
   /** \brief File constructor
    *

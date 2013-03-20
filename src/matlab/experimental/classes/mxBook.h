@@ -155,6 +155,6 @@ MPTK_LIB_EXPORT extern mxArray *mp_create_mxBook_from_book(MP_Book_c *book);
  * \param mxBook the Matlab structure
  * \return the created MTPK object, NULL in case of problem
  */
-MPTK_LIB_EXPORT extern MP_Book_c *mp_create_book_from_mxBook(const mxArray *mxBook);
+MPTK_LIB_EXPORT extern MP_Book_c *mp_create_book_from_mxBook(const mxArray *mxBook, MP_Dict_c *dict);
 
 

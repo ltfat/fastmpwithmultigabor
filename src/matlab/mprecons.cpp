@@ -30,6 +30,7 @@
 /*																			  */
 /* Inputs:																	  */
 /*  - book       : a book Matlab structure									  */
+/*  - dict       : a dict Matlab structure									  */
 /*  - residual   : an optional numSamples x numChans matrix, which dimensions */
 /*				   should match the fields book.numSamples, book.numChans	  */
 /*																			  */
@@ -42,13 +43,18 @@
 void mexFunction(int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[]) {
     
   // Check input arguments
-  if (nrhs<1 || nrhs>2) {
+  if (nrhs<2 || nrhs>3) {
     mexPrintf("!!! %s error -- bad number of input arguments\n",mexFunctionName());
     mexPrintf("    see help %s\n",mexFunctionName());
     return;
   }
   if ( !mxIsStruct(prhs[0])) {
     mexPrintf("!!! %s error -- The first argument shoud be a book structure\n",mexFunctionName());
+    mexPrintf("    see help %s\n",mexFunctionName());
+    return;        
+  }
+  if ( !mxIsStruct(prhs[1])) {
+    mexPrintf("!!! %s error -- The second argument shoud be a dict structure\n",mexFunctionName());
     mexPrintf("    see help %s\n",mexFunctionName());
     return;        
   }
@@ -63,28 +69,39 @@ void mexFunction(int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[]) {
   // Load the MPTK environment if not loaded
   InitMPTK4Matlab(mexFunctionName());
   
+  // Converting dictionary
+  const mxArray* mxDict = prhs[1];
+  MP_Dict_c *dict = mp_create_dict_from_mxDict(mxDict);
+  if(NULL==dict) {
+    mexPrintf("Failed to convert a dict from Matlab to MPTK.\n");
+    mexErrMsgTxt("Aborting");
+    return;
+  }
+
   // Load book object from Matlab structure
   const mxArray *mexBook = prhs[0];
-  MP_Book_c *book = mp_create_book_from_mxBook(mexBook);
+  MP_Book_c *book = mp_create_book_from_mxBook(mexBook, dict);
   if(NULL==book) {
     mexPrintf("Failed to convert a book from Matlab to MPTK.\n");
     mexErrMsgTxt("Aborting");
+    delete dict;
     return;
   }
 
  // Initializing output signal 
   MP_Signal_c *residual = NULL;
-  if(nrhs==1) {
+  if(nrhs==2) {
     residual = MP_Signal_c::init(book->numChans,book->numSamples,book->sampleRate );
   }
   else {
-    const mxArray* mxSignal = prhs[1];
+    const mxArray* mxSignal = prhs[2];
     residual = mp_create_signal_from_mxSignal(mxSignal);
   }
   if(NULL==residual) {
     mexPrintf("%s could not init or convert residual\n",mexFunctionName());
     // Clean the house
     delete book;
+    delete dict;
     mexErrMsgTxt("Aborting");
     return;
   }
@@ -92,6 +109,7 @@ void mexFunction(int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[]) {
   book->substract_add(NULL,residual,NULL);
   // Clean the house
   delete book;
+  delete dict;
 
   // Load residual object in Matlab structure
   mxArray *mxSignal = mp_create_mxSignal_from_signal(residual);

@@ -632,7 +632,7 @@ void MP_Mdct_Block_Plugin_c::update_frame (unsigned long int frameIdx,
 /* Output of the ith atom of the block */
 unsigned int MP_Mdct_Block_Plugin_c::create_atom (MP_Atom_c ** atom,
 		const unsigned long int frameIdx,
-		const unsigned long int freqIdx)
+		const unsigned long int freqIdx, MP_Dict_c* dict)
 {
 
 	const char *func = "MP_Mdct_Block_c::create_atom(...)";
@@ -655,14 +655,14 @@ unsigned int MP_Mdct_Block_Plugin_c::create_atom (MP_Atom_c ** atom,
 	}
 	/* Allocate the atom */
 	*atom = NULL;
-	MP_Atom_c *(*emptyAtomCreator) (void) =
+	MP_Atom_c *(*emptyAtomCreator) (MP_Dict_c* dict) =
 			MP_Atom_Factory_c::get_atom_factory ()->get_empty_atom_creator ("mdct");
 	if (NULL == emptyAtomCreator) {
 		mp_error_msg (func, "Mdct atom is not registred in the atom factory");
 		return (0);
 	}
 
-	if ((matom = (MP_Mdct_Atom_Plugin_c *) (*emptyAtomCreator) ()) == NULL) {
+	if ((matom = (MP_Mdct_Atom_Plugin_c *) (*emptyAtomCreator) (dict)) == NULL) {
 		mp_error_msg (func, "Can't create a new Mclt atom in create_atom()."
 				" Returning NULL as the atom reference.\n");
 		return (0);

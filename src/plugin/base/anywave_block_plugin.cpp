@@ -521,7 +521,8 @@ MP_Support_t MP_Anywave_Block_Plugin_c::update_ip( const MP_Support_t *touch, GP
 /* Output of the ith atom of the block */
 unsigned int MP_Anywave_Block_Plugin_c::create_atom( MP_Atom_c **atom,
     const unsigned long int frameIdx,
-    const unsigned long int filterIdx )
+    const unsigned long int filterIdx,
+    MP_Dict_c* dict )
 {
 
   const char* func = "MP_Anywave_Block_c::create_atom";
@@ -543,14 +544,14 @@ unsigned int MP_Anywave_Block_Plugin_c::create_atom( MP_Atom_c **atom,
 
   /* Allocate the atom */
   *atom = NULL;
-  MP_Atom_c* (*emptyAtomCreator)( void ) = MP_Atom_Factory_c::get_atom_factory()->get_empty_atom_creator("anywave");
+  MP_Atom_c* (*emptyAtomCreator)( MP_Dict_c* dict ) = MP_Atom_Factory_c::get_atom_factory()->get_empty_atom_creator("anywave");
   if (NULL == emptyAtomCreator)
     {
       mp_error_msg( func, "Anywave atom is not registred in the atom factory" );
       return( 0 );
     }
 
-  if ( (aatom =  (MP_Anywave_Atom_Plugin_c *)(*emptyAtomCreator)())  == NULL )
+  if ( (aatom =  (MP_Anywave_Atom_Plugin_c *)(*emptyAtomCreator)(dict))  == NULL )
     {
       mp_error_msg( func, "Can't create a new Anywave atom in create_atom()."
                     " Returning NULL as the atom reference.\n" );

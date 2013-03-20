@@ -238,7 +238,7 @@ public:
 	 *
 	 * \return 1 for success and 0 for failure
 	 **/
-	unsigned int create_atom( MP_Atom_c **atom, const unsigned long int frameIdx, const unsigned long int filterIdx );
+	unsigned int create_atom( MP_Atom_c **atom, const unsigned long int frameIdx, const unsigned long int filterIdx, MP_Dict_c* dict );
 	
 	/** \brief Set only for compatibility with inheritance-related
 	 * classes - Never used

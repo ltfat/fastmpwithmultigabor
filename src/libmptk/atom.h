@@ -169,8 +169,8 @@ class MP_Atom_c
 	/* CONSTRUCTORS/DESTRUCTOR */
 	/***************************/
 	protected:
-		/** \brief a constructor which initializes everything to zero or NULL */
-		MPTK_LIB_EXPORT MP_Atom_c( void );
+		/** \brief a constructor which initializes everything to zero or NULL, except the dict */
+		MPTK_LIB_EXPORT MP_Atom_c( MP_Dict_c* dict );
 		/** \brief File reader */
 		MPTK_LIB_EXPORT virtual int read( FILE *fid, const char mode );
 	public:

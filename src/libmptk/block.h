@@ -173,7 +173,7 @@ class MP_Block_c {
 		 * \param frameIdx the frame coordinate of the atom
 		 * \param filterIdx the position of the atom in the frame
 		 * \return the number of extracted atom */  
-		MPTK_LIB_EXPORT virtual unsigned int create_atom( MP_Atom_c** atom, const unsigned long int frameIdx, const unsigned long int filterIdx ) = 0;
+		MPTK_LIB_EXPORT virtual unsigned int create_atom( MP_Atom_c** atom, const unsigned long int frameIdx, const unsigned long int filterIdx, MP_Dict_c* dict ) = 0;
 		
 		MPTK_LIB_EXPORT map< string, string, mp_ltstring> * get_block_parameters_map();
  

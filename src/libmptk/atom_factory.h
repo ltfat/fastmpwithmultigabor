@@ -66,7 +66,7 @@ class MP_Atom_Factory_c
 	  /** \brief Hash map to store the atom name and the file creation atom method pointer */
 	map<const char*, MP_Atom_c*(*)(FILE *fid, MP_Dict_c *dict, const char mode),mp_ltstring> atom;
     /** \brief Hash map to store the atom name and the empty atom method pointer */
-	map<const char*, MP_Atom_c*(*)(void),mp_ltstring> atom_empty;
+	map<const char*, MP_Atom_c*(*)(MP_Dict_c* dict),mp_ltstring> atom_empty;
 
 
 
@@ -105,13 +105,13 @@ class MP_Atom_Factory_c
      *  \param createEmptyAtomFunctionPointer: a pointer on the function used to create an empty atom
      *  
      */
-   MPTK_LIB_EXPORT void register_new_atom_empty(const char* atomName, MP_Atom_c*(*createEmptyAtomFunctionPointer)(void));
+   MPTK_LIB_EXPORT void register_new_atom_empty(const char* atomName, MP_Atom_c*(*createEmptyAtomFunctionPointer)(MP_Dict_c* dict));
 
     /** \brief Accesor method to obtain the adress of a function to create empty atom
     *   \param atomName: name of the atom to create
     * \return a pointer on a method able to create an empty atom 
     */
-    MPTK_LIB_EXPORT MP_Atom_c*(*get_empty_atom_creator( const char* atomName ))(void);
+    MPTK_LIB_EXPORT MP_Atom_c*(*get_empty_atom_creator( const char* atomName ))(MP_Dict_c* dict);
 
     /** \brief Accesor method to obtain the adress of a function to create atom initialised from a file
      *   \param atomName: name of the atom to create

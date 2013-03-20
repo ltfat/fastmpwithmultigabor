@@ -101,7 +101,7 @@ public:
   /** \brief a void Factory function that allocates storage space
    */
 
-  static MP_Atom_c  * gabor_atom_create_empty(void);
+  static MP_Atom_c  * gabor_atom_create_empty(MP_Dict_c* dict);
   
   /** \brief A factory function that reads from a file
    *
@@ -116,7 +116,7 @@ public:
 protected:
 
   /** \brief Void constructor */
-  MP_Gabor_Atom_Plugin_c( void );
+  MP_Gabor_Atom_Plugin_c( MP_Dict_c* dict );
 
 
 

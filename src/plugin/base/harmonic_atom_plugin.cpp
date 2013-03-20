@@ -54,9 +54,9 @@ using namespace std;
 /*****************************/
 /* factory function empty */
 
-MP_Atom_c* MP_Harmonic_Atom_Plugin_c::harmonic_atom_create_empty (void)
+MP_Atom_c* MP_Harmonic_Atom_Plugin_c::harmonic_atom_create_empty (MP_Dict_c* dict)
 {
-  return new MP_Harmonic_Atom_Plugin_c;
+  return new MP_Harmonic_Atom_Plugin_c(dict);
 }
 
 /*************************/
@@ -69,15 +69,12 @@ MP_Atom_c* MP_Harmonic_Atom_Plugin_c::create( FILE *fid, MP_Dict_c *dict, const 
   MP_Harmonic_Atom_Plugin_c* newAtom = NULL;
 
   /* Instantiate and check */
-  newAtom = new MP_Harmonic_Atom_Plugin_c();
+  newAtom = new MP_Harmonic_Atom_Plugin_c(dict);
   if ( newAtom == NULL )
     {
       mp_error_msg( func, "Failed to create a new atom.\n" );
       return( NULL );
     }
-
-	if ( dict->numBlocks != 0 )
-		newAtom->dict = dict;
 
 	/* Read and check */
   if ( newAtom->read( fid, mode ) )
@@ -94,8 +91,7 @@ MP_Atom_c* MP_Harmonic_Atom_Plugin_c::create( FILE *fid, MP_Dict_c *dict, const 
 
 /********************/
 /* Void constructor */
-MP_Harmonic_Atom_Plugin_c::MP_Harmonic_Atom_Plugin_c( void )
-    :MP_Gabor_Atom_Plugin_c()
+MP_Harmonic_Atom_Plugin_c::MP_Harmonic_Atom_Plugin_c( MP_Dict_c* dict ):MP_Gabor_Atom_Plugin_c(dict)
 {
   numPartials         = 0;
   harmonicity         = NULL;
@@ -578,14 +574,14 @@ int MP_Harmonic_Atom_Plugin_c::add_to_tfmap( MP_TF_Map_c *tfmap, const char tfma
 
   if (gatom==NULL)
     { // first allocation of the gabor atom
-      MP_Atom_c* (*emptyAtomCreator)( void ) = MP_Atom_Factory_c::get_atom_factory()->get_empty_atom_creator("gabor");
+      MP_Atom_c* (*emptyAtomCreator)( MP_Dict_c* dict ) = MP_Atom_Factory_c::get_atom_factory()->get_empty_atom_creator("gabor");
       if (NULL == emptyAtomCreator)
         {
           mp_error_msg( func, "Gabor atom is not registred in the atom factory" );
           return( 0 );
         }
 
-      if ( (gatom =  (MP_Gabor_Atom_Plugin_c*)(*emptyAtomCreator)())  == NULL )
+      if ( (gatom =  (MP_Gabor_Atom_Plugin_c*)(*emptyAtomCreator)(dict))  == NULL )
         {
           mp_error_msg( func, "Can't create a new Gabor atom.\n" );
           return( 0 );
@@ -619,14 +615,14 @@ int MP_Harmonic_Atom_Plugin_c::add_to_tfmap( MP_TF_Map_c *tfmap, const char tfma
   else if ( nchans<numChans)
     { // reallocation if more channels are needed
       delete gatom;
-      MP_Atom_c* (*emptyAtomCreator)( void ) = MP_Atom_Factory_c::get_atom_factory()->get_empty_atom_creator("gabor");
+      MP_Atom_c* (*emptyAtomCreator)( MP_Dict_c* dict ) = MP_Atom_Factory_c::get_atom_factory()->get_empty_atom_creator("gabor");
       if (NULL == emptyAtomCreator)
         {
           mp_error_msg( func, "Gabor atom is not registred in the atom factory" );
           return( 0 );
         }
 
-      if ( (gatom =  (MP_Gabor_Atom_Plugin_c*)(*emptyAtomCreator)())  == NULL )
+      if ( (gatom =  (MP_Gabor_Atom_Plugin_c*)(*emptyAtomCreator)(dict))  == NULL )
         {
           mp_error_msg( func, "Can't create a new Gabor atom.\n" );
           return( 0 );

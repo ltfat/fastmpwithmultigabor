@@ -64,15 +64,12 @@ MP_Atom_c* MP_Constant_Atom_Plugin_c::create( FILE *fid, MP_Dict_c *dict, const 
 
 
   /* Instantiate and check */
-  newAtom = new MP_Constant_Atom_Plugin_c();
+  newAtom = new MP_Constant_Atom_Plugin_c(dict);
   if ( newAtom == NULL )
     {
       mp_error_msg( func, "Failed to create a new Constant atom.\n" );
       return( NULL );
     }
-
-  	if ( dict->numBlocks != 0 )
-		newAtom->dict = dict;
 
   /* Read and check */
   if ( newAtom->read( fid, mode ) )
@@ -85,16 +82,14 @@ MP_Atom_c* MP_Constant_Atom_Plugin_c::create( FILE *fid, MP_Dict_c *dict, const 
   return( (MP_Atom_c*)newAtom );
 }
 
-MP_Atom_c* MP_Constant_Atom_Plugin_c::constant_atom_create_empty(void)
+MP_Atom_c* MP_Constant_Atom_Plugin_c::constant_atom_create_empty( MP_Dict_c* dict )
 {
   // mp_error_msg( "MP_Constant_Atom_Plugin_c::constant_atom_create_empty", "create a new Constant atom.\n" );
-  return new MP_Constant_Atom_Plugin_c;  
+  return new MP_Constant_Atom_Plugin_c(dict);
 }
 /********************/
 /* Void constructor */
-MP_Constant_Atom_Plugin_c::MP_Constant_Atom_Plugin_c( void )
-  :MP_Atom_c(){
-  // mp_error_msg( "MP_Constant_Atom_Plugin_c::MP_Constant_Atom_Plugin_c", "create a new Constant atom.\n" );  
+MP_Constant_Atom_Plugin_c::MP_Constant_Atom_Plugin_c( MP_Dict_c* dict ):MP_Atom_c(dict){
 }
 
 /********************/

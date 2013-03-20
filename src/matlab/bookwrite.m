@@ -1,6 +1,6 @@
 
 % Usage : 
-%   bookwrite(book,filename[,writeMode]) 
+%   bookwrite(book, dict, filename[,writeMode]) 
 %
 % Synopsis:
 %   Exports a binary Matching Pursuit book file from Matlab, writes it under filename
@@ -8,6 +8,7 @@
 %
 % Input : 
 %   * book      : A book structure
+%   * dict     : a dict Matlab structure
 %   * filename  : The filename where to read the book
 %   * writeMode : OPTIONAL The book write mode ('binary' by default or 'txt')
 %

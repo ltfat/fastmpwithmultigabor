@@ -31,6 +31,7 @@
 /*																			  */
 /* Input :																	  */
 /*  - book     : a book structure with the following structure				  */
+/*  - dict     : a dict structure
 /*  - filename : the filename where to read the book						  */
 /*  - writeMode: optional, 'binary' (default) or 'txt'						  */
 /*																			  */
@@ -48,41 +49,46 @@ void mexFunction(int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[])
   InitMPTK4Matlab(mexFunctionName());
     
   // Check input arguments
-  if (nrhs < 2 || nrhs>3) {
+  if (nrhs < 3 || nrhs>4) {
     mexPrintf("!!! %s error -- bad number of input arguments\n",mexFunctionName());
     mexPrintf("    see help %s\n",mexFunctionName());
     return;
-  } 
+  }
   if ( !mxIsStruct(prhs[0])) {
     mexPrintf("!!! %s error -- first argument (book) should be a struct\n",mexFunctionName());
     mexPrintf("    see help %s\n",mexFunctionName());
     return;        
-  } 
-  if(nrhs>=2) {
-	if(!mxIsChar(prhs[1])) {
-		mexPrintf("!!! %s error -- second argument (fileName) should be a string\n",mexFunctionName());
+  }
+  if ( !mxIsStruct(prhs[1])) {
+    mexPrintf("!!! %s error -- second argument (dict) should be a struct\n",mexFunctionName());
+    mexPrintf("    see help %s\n",mexFunctionName());
+    return;
+  }
+  if(nrhs>=3) {
+	if(!mxIsChar(prhs[2])) {
+		mexPrintf("!!! %s error -- third argument (fileName) should be a string\n",mexFunctionName());
 		mexPrintf("    see help %s\n",mexFunctionName());
 		return;        
 	} else {
-		fileName = mxArrayToString(prhs[1]);
+		fileName = mxArrayToString(prhs[2]);
 		if (NULL==fileName) {
-			mexPrintf("%s error -- second argument (fileName) could not be retrieved from the input\n",mexFunctionName());
+			mexPrintf("%s error -- third argument (fileName) could not be retrieved from the input\n",mexFunctionName());
 			mexErrMsgTxt("Aborting");
 			return;
 		}
 	}
   }
-  if(nrhs==3) {
-	if(!mxIsChar(prhs[2])) {
-		mexPrintf("!!! %s error -- optional third argument (writeMode) should be a string\n",mexFunctionName());
+  if(nrhs>=4) {
+	if(!mxIsChar(prhs[3])) {
+		mexPrintf("!!! %s error -- optional fourth argument (writeMode) should be a string\n",mexFunctionName());
 		mexPrintf("    see help %s\n",mexFunctionName());
 		// Clean the house
 		mxFree(fileName);
 		return;        
 	} else {
-		writeModeName = mxArrayToString(prhs[2]);
+		writeModeName = mxArrayToString(prhs[3]);
 		if (NULL==writeModeName) {
-			mexPrintf("%s error -- the optional third argument writeMode could not be retrieved from the input\n",mexFunctionName());
+			mexPrintf("%s error -- the optional fourth argument writeMode could not be retrieved from the input\n",mexFunctionName());
 			mexErrMsgTxt("Aborting");
 			// Clean the house
 			mxFree(fileName);
@@ -117,15 +123,28 @@ void mexFunction(int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[])
     }
   }
 
+  // Converting dictionary
+  const mxArray* mxDict = prhs[1];
+  MP_Dict_c *dict = mp_create_dict_from_mxDict(mxDict);
+  if(NULL==dict) {
+    mexPrintf("Failed to convert a dict from Matlab to MPTK.\n");
+    mexErrMsgTxt("Aborting");
+    // Clean the house
+    mxFree(fileName);
+    mxFree(writeModeName);
+    return;
+  }
+
   // Load book object from Matlab structure
   const mxArray *mexBook = prhs[0];
-  MP_Book_c *book = mp_create_book_from_mxBook(mexBook);
+  MP_Book_c *book = mp_create_book_from_mxBook(mexBook, dict);
   if(NULL==book) {
     mexPrintf("Failed to convert a book from Matlab to MPTK.\n");
     mexErrMsgTxt("Aborting");
     // Clean the house
     mxFree(fileName);
     mxFree(writeModeName);
+    delete dict;
     return;
   }
   

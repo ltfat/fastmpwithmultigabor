@@ -1403,7 +1403,7 @@ unsigned int MP_Dict_c::create_max_atom( MP_Atom_c** atom )
                 blockWithMaxIP, frameIdx, filterIdx );
 
   /* 2) create it using the method of the block */
-  numAtoms = block[blockWithMaxIP]->create_atom( atom, frameIdx, filterIdx );
+  numAtoms = block[blockWithMaxIP]->create_atom( atom, frameIdx, filterIdx, this );
   if ( numAtoms == 0 )
     {
       mp_error_msg( func, "Failed to create the max atom from block[%ul].\n",
@@ -1435,7 +1435,7 @@ unsigned int MP_Dict_c::create_max_gp_atom( MP_Atom_c** atom )
                 blockWithMaxIP, frameIdx, filterIdx );
 
   /* 2) create it using the method of the block */
-  numAtoms = block[blockWithMaxIP]->create_atom( atom, frameIdx, filterIdx );
+  numAtoms = block[blockWithMaxIP]->create_atom( atom, frameIdx, filterIdx, this );
   if ( numAtoms == 0 )
     {
       mp_error_msg( func, "Failed to create the max atom from block[%ul].\n",
@@ -1597,7 +1597,7 @@ int MP_Dict_c::iterate_cmphold( MP_Book_c *book , MP_Signal_c *sigRecons, int at
 //    std::cout << "blockIdx: " << blockIdx << " frameIdx: " << 
 //        frameIdx << " filterIdx: " << filterIdx << std::endl;
     
-	numAtoms = block[blockIdx]->create_atom( &atom, frameIdx, filterIdx);
+	numAtoms = block[blockIdx]->create_atom( &atom, frameIdx, filterIdx, this );
 	atom->blockIdx = blockIdx;
     atom->frameIdx = frameIdx;
     atom->filterIdx= filterIdx;

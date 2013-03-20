@@ -53,7 +53,7 @@
 
 /********************/
 /* Void constructor */
-MP_Atom_c::MP_Atom_c( void ) {
+MP_Atom_c::MP_Atom_c( MP_Dict_c* argdict ) {
 	numChans = 0;
 	support = NULL;
 	numSamples = 0;
@@ -61,7 +61,7 @@ MP_Atom_c::MP_Atom_c( void ) {
 	corr = NULL;
 	totalChanLen = 0;
 	blockIdx = 0;
-	dict = dict->init();
+	dict = argdict;
 }
 
 

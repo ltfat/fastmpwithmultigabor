@@ -199,7 +199,7 @@ mxArray * atomGroup::outputMxStruct(mxArray * atom, unsigned int a) {
 
 }
  */
-MP_Atom_c *GetMP_Atom(const mxArray *mxBook,MP_Chan_t numChans,unsigned long int atomIdx) {
+MP_Atom_c *GetMP_Atom(const mxArray *mxBook,MP_Chan_t numChans,unsigned long int atomIdx, MP_Dict_c* dict) {
   const char *func = "mxBook::getMP_Atom";
   
   // Add index info to book structure
@@ -219,14 +219,14 @@ MP_Atom_c *GetMP_Atom(const mxArray *mxBook,MP_Chan_t numChans,unsigned long int
   string aType(mxArrayToString(mxType));
 
   // Get Atom creator method 
-  MP_Atom_c* (*emptyAtomCreator)( void ) = MP_Atom_Factory_c::get_atom_factory()->get_empty_atom_creator(aType.c_str());
+  MP_Atom_c* (*emptyAtomCreator)( MP_Dict_c* dict) = MP_Atom_Factory_c::get_atom_factory()->get_empty_atom_creator(aType.c_str());
   if (NULL == emptyAtomCreator)  {
       mp_error_msg(func,"-- unknown  MP_Atom_Factory_c method for atomType:%s\n",aType.c_str());
       return( NULL );
     }
   
   // Create empty atom 
-  MP_Atom_c *newAtom = (*emptyAtomCreator)();
+  MP_Atom_c *newAtom = (*emptyAtomCreator)(dict);
   if ( NULL==newAtom ) {
 	mp_error_msg(func,"-- could not create empty atom of type %s\n",aType.c_str());
 	return( NULL );
@@ -463,8 +463,8 @@ MP_Atom_c *GetMP_Atom(const mxArray *mxBook,MP_Chan_t numChans,unsigned long int
 
 
 // Conversion from MEX book array to MPTK book
-MP_Book_c *mp_create_book_from_mxBook(const mxArray *mxBook)  {
-	const char * func = "mp_create_book_from_mxBook(mxArray)";
+MP_Book_c *mp_create_book_from_mxBook(const mxArray *mxBook, MP_Dict_c *dict)  {
+	const char * func = "mp_create_book_from_mxBook(mxArray, MP_Dict_c *)";
 	mxArray *mxTmp,*mxIndex;
 	MP_Chan_t numChans;
 	int sampleRate;
@@ -493,7 +493,7 @@ MP_Book_c *mp_create_book_from_mxBook(const mxArray *mxBook)  {
 		if (*(mxGetPr(mxIndex) + a*indexSize + 3) != 0.0 ) { //Only keeps an atom if "selected".
 			//! add_atom
 			mp_debug_msg(MP_DEBUG_ABUNDANT,func," - Adding Atom [%ld] to book :",a);
-			MP_Atom_c * atom = GetMP_Atom(mxBook,numChans,a);      
+			MP_Atom_c * atom = GetMP_Atom(mxBook,numChans,a, dict);
 			if ( NULL==atom ) {
 				delete book;
 				mp_error_msg(func," GetMP_Atom returned NULL while adding Atom [%ld] to book :",a);

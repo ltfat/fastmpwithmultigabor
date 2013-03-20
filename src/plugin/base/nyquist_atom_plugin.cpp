@@ -52,10 +52,10 @@ using namespace std;
 
 /************************/
 /* Factory function     */
-MP_Atom_c* MP_Nyquist_Atom_Plugin_c::nyquist_atom_create_empty(void)
+MP_Atom_c* MP_Nyquist_Atom_Plugin_c::nyquist_atom_create_empty( MP_Dict_c* dict )
     {
 
-      return new MP_Nyquist_Atom_Plugin_c;
+      return new MP_Nyquist_Atom_Plugin_c(dict);
 
     }
 
@@ -70,15 +70,12 @@ MP_Atom_c* MP_Nyquist_Atom_Plugin_c::create( FILE *fid, MP_Dict_c *dict, const c
   MP_Nyquist_Atom_Plugin_c* newAtom = NULL;
 
   /* Instantiate and check */
-  newAtom = new MP_Nyquist_Atom_Plugin_c();
+  newAtom = new MP_Nyquist_Atom_Plugin_c(dict);
   if ( newAtom == NULL )
     {
       mp_error_msg( func, "Failed to create a new Nyquist atom.\n" );
       return( NULL );
     }
-
-  	if ( dict->numBlocks != 0 )
-		newAtom->dict = dict;
 
    /* Read and check */
   if ( newAtom->read( fid, mode ) ) {
@@ -92,8 +89,7 @@ MP_Atom_c* MP_Nyquist_Atom_Plugin_c::create( FILE *fid, MP_Dict_c *dict, const c
 
 /********************/
 /* Void constructor */
-MP_Nyquist_Atom_Plugin_c::MP_Nyquist_Atom_Plugin_c( void )
-    :MP_Atom_c()
+MP_Nyquist_Atom_Plugin_c::MP_Nyquist_Atom_Plugin_c( MP_Dict_c* dict ):MP_Atom_c(dict)
 {}
 
 /********************/

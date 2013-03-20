@@ -80,7 +80,7 @@ public:
 
   /* Specific empty factory function */
   
-  static MP_Atom_c  * nyquist_atom_create_empty(void);
+  static MP_Atom_c  * nyquist_atom_create_empty(MP_Dict_c* dict);
   
   /** \brief A factory function that reads from a file
    *
@@ -95,8 +95,8 @@ public:
   
 protected:
 
-  /* Void constructor */
-  MP_Nyquist_Atom_Plugin_c( void );
+  /* constructor */
+  MP_Nyquist_Atom_Plugin_c( MP_Dict_c* dict );
 
 
 
