@@ -58,7 +58,6 @@ MP_Atom_c::MP_Atom_c( MP_Dict_c* argdict ) {
 	support = NULL;
 	numSamples = 0;
 	 amp = NULL;
-    l2norm = NULL;
 	corr = NULL;
 	totalChanLen = 0;
 	blockIdx = 0;
@@ -96,12 +95,7 @@ int MP_Atom_c::alloc_atom_param( const MP_Chan_t setNumChans ) {
 		    " amp stays NULL.\n" );
     return( 1 );
   }
-    /* Allocate the amp array */
-    if ( (l2norm = (MP_Real_t*)calloc( numChans, sizeof(MP_Real_t)) ) == NULL ) {
-        mp_warning_msg( func, "Failed to allocate the l2norm array for a new atom;"
-                       " l2norm stays NULL.\n" );
-        return( 1 );
-    }
+
   /* Allocate the corr array */
    if ((corr = (MP_Real_t *) calloc(numChans, sizeof(MP_Real_t))) == NULL) {
 	  mp_warning_msg(func, "Failed to allocate the corr array for a new atom;"

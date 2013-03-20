@@ -143,11 +143,6 @@ class MP_Atom_c
 		 * Example : the amplitude on the first channel is amp[0] 
 		 */
 		MP_Real_t *amp;
-        /** \brief The ell_2-norm of the atom on each channel.
-         *
-         * Example : the ell_2-norm of the atom on the first channel is l2norm[0]
-         */
-        MP_Real_t *l2norm;
 		/** \brief The correlation of the atom with the current residual on each channel.
 		 *
 		 * Used by Gradient Pursuit 
