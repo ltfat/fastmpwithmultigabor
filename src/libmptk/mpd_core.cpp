@@ -347,7 +347,8 @@ unsigned short int MP_Mpd_Core_c::step() {
   dict->iterate_mp( book , approximant ); /* Note: if approximant is NULL, no computation will be performed on it. */
   residualEnergyBefore = residualEnergy;
   residualEnergy = (double)dict->signal->energy;
-  if ( useDecay ) decay.append( residualEnergy );
+  
+  if ( useDecay ) decay.append( residualEnergy );    
   numIter++;
   
   /* 2) Check for possible breakpoints: */

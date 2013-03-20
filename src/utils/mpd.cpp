@@ -633,7 +633,7 @@ int main( int argc, char **argv )
 	//------------------------------------------
 	if ( !MPD_QUIET ) 
 		mpdCore->set_report_hit( MPD_REPORT_HIT );
-	mpdCore->set_save_hit( MPD_SAVE_HIT, bookFileName, resFileName, decayFileName );
+        mpdCore->set_save_hit( MPD_SAVE_HIT, bookFileName, resFileName, decayFileName );
 	if ( MPD_USE_SNR ) 
 		mpdCore->set_snr_hit( MPD_SNR_HIT );
 	if ( MPD_VERBOSE ) 
