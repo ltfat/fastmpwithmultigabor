@@ -46,7 +46,7 @@ pybook_from_mpbook(BookObject* pybook, MP_Book_c *mpbook)
 	int numAtoms = mpbook->numAtoms;
 	int n;
 	if(PyList_Size(pybook->atoms) != 0){
-		printf("Attempted to load mpbook data into a pybook which is not empty.\n");
+		PyErr_SetString(PyExc_RuntimeError, "Attempted to load mpbook data into a pybook which is not empty.\n");
 		return 4;
 	}
 	if(pybook->numChans==0){
@@ -108,7 +108,6 @@ mpbook_from_pybook(MP_Book_c *mpbook, BookObject* pybook, MP_Dict_c* dict)
 		PyObject* obj = PyList_GetItem(pybook->atoms, (Py_ssize_t)i);
 		if(!PyDict_Check(obj)){
 			PyErr_SetString(PyExc_RuntimeError, "Error -- iterating atoms in book, found entry is not a dict\n");
-			printf("Error -- iterating atoms in book, found entry %i is not a dict\n", i);
 			return 1;
 		}
 		PyDictObject* pyatom = (PyDictObject*)obj;
@@ -117,7 +116,7 @@ mpbook_from_pybook(MP_Book_c *mpbook, BookObject* pybook, MP_Dict_c* dict)
 
 		if ( NULL==mpatom ) {
 			delete mpbook;
-			printf("mpatom_from_pyatom() returned NULL while adding Atom [%ld] to book\n", i);
+			PyErr_SetString(PyExc_RuntimeError, "mpatom_from_pyatom() returned NULL while adding an atom to book\n");
 			return(NULL);
 		} else {
 			mpbook->append( mpatom );
@@ -126,8 +125,6 @@ mpbook_from_pybook(MP_Book_c *mpbook, BookObject* pybook, MP_Dict_c* dict)
 
 	//mpbook->recheck_num_samples();
 	//mpbook->recheck_num_channels();
-
-	printf("mpbook_from_pybook - [%ld] atoms have been added to book.\n", mpbook->numAtoms);
 
 	return 0;
 }

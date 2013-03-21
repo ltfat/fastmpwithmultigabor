@@ -74,7 +74,7 @@ mptk_loadconfig(PyObject *self, PyObject *args)
 PyArrayObject* mp_create_numpyarray_from_signal(MP_Signal_c *signal){
 	unsigned long int nspls = signal->numSamples;
 	unsigned      int nchans= signal->numChans;
-	printf("mp_create_numpyarray_from_signal(): %i samples, %i channels\n", nspls, nchans);
+	//printf("mp_create_numpyarray_from_signal(): %i samples, %i channels\n", nspls, nchans);
 	int dims[2];
 	dims[0] = nspls;
 	dims[1] = nchans;
@@ -129,9 +129,9 @@ mptk_decompose(PyObject *self, PyObject *args, PyObject *keywds)
 	//printf("mptk_decompose: parsed args\n");
 
 	// Now to get a usable numpy array from the opaque obj
-	numpysignal = (PyArrayObject*) PyArray_ContiguousFromObject(pysignal, PyArray_FLOAT, 1, 2); // 1D or 2D
+	numpysignal = (PyArrayObject*) PyArray_ContiguousFromObject(pysignal, PyArray_DOUBLE, 1, 2); // 1D or 2D
 	if(numpysignal==NULL){
-		printf("mptk_decompose failed to get numpy array object\n"); // todo: proper error
+		PyErr_SetString(PyExc_RuntimeError, "mptk_decompose failed to get numpy array object\n");
 		return NULL;
 	}
 	// From this point on: remember to do Py_DECREF(numpysignal) if terminating early
@@ -156,32 +156,31 @@ mptk_reconstruct(PyObject *self, PyObject *args)
 	const char *dictpath;
 	if (!PyArg_ParseTuple(args, "Os", &pybookobj, &dictpath))
 		return NULL;
-	printf("mptk_reconstruct: parsed args\n");
 	BookObject *pybook = (BookObject*)pybookobj;
 	MP_Signal_c *sig;
 
-	printf("pybook stats: numChans %i, numSamples %i, sampleRate %i.\n", ((BookObject*)pybook)->numChans, ((BookObject*)pybook)->numSamples, ((BookObject*)pybook)->sampleRate);
+	//printf("pybook stats: numChans %i, numSamples %i, sampleRate %i.\n", ((BookObject*)pybook)->numChans, ((BookObject*)pybook)->numSamples, ((BookObject*)pybook)->sampleRate);
 
 	// get dict in mem in appropriate format - we'll do it from file - easy
 	MP_Dict_c* dict = MP_Dict_c::init(dictpath);
 	if(NULL==dict) {
-		printf("Failed to read dict from file.\n");
+		PyErr_SetString(PyExc_RuntimeError, "Failed to read dict from file.\n");
 		return NULL;
 	}
 
 	// reconstruct the mpbook from our pybook
 	MP_Book_c *mpbook = MP_Book_c::create(pybook->numChans, pybook->numSamples, pybook->sampleRate);
 	if ( NULL == mpbook )  {
-	    printf("Failed to create a book object.\n" );
+	    PyErr_SetString(PyExc_RuntimeError, "Failed to create a book object.\n" );
 	    return NULL;
 	}
-	printf("mpbook stats before mpbook_from_pybook: numChans %i, numSamples %i, sampleRate %i, numAtoms %i.\n", mpbook->numChans, mpbook->numSamples, mpbook->sampleRate, mpbook->numAtoms);
+	//printf("mpbook stats before mpbook_from_pybook: numChans %i, numSamples %i, sampleRate %i, numAtoms %i.\n", mpbook->numChans, mpbook->numSamples, mpbook->sampleRate, mpbook->numAtoms);
 	int res = mpbook_from_pybook(mpbook, pybook, dict);
 	if ( res != 0 )  {
-	    printf("Failed to complete mpbook object from pybook.\n" );
+	    PyErr_SetString(PyExc_RuntimeError, "Failed to complete mpbook object from pybook.\n" );
 	    return NULL;
 	}
-	printf("mpbook stats after mpbook_from_pybook: numChans %i, numSamples %i, sampleRate %i, numAtoms %i.\n", mpbook->numChans, mpbook->numSamples, mpbook->sampleRate, mpbook->numAtoms);
+	//printf("mpbook stats after mpbook_from_pybook: numChans %i, numSamples %i, sampleRate %i, numAtoms %i.\n", mpbook->numChans, mpbook->numSamples, mpbook->sampleRate, mpbook->numAtoms);
 
 	// initialise an empty signal
 	sig = MP_Signal_c::init( mpbook->numChans, mpbook->numSamples, mpbook->sampleRate );
@@ -209,7 +208,6 @@ mptk_anywave_encode(PyObject *self, PyObject *args)
 	PyObject *pysigobj;
 	if (!PyArg_ParseTuple(args, "O", &pysigobj))
 		return NULL;
-	printf("mptk_anywave_encode: parsed args\n");
 	if (!(PyArray_Check(pysigobj) || PyList_Check(pysigobj))){
 		PyErr_SetString(PyExc_RuntimeError, "mptk_anywave_encode: must provide a list or ndarray\n");
 		return NULL;

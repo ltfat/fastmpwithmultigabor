@@ -6,9 +6,9 @@ extern PyTypeObject bookType;
 MP_Signal_c* mp_create_signal_from_numpyarray(const PyArrayObject *nparray){
 	unsigned long int nspls = nparray->dimensions[0];
 	unsigned      int nchans;
-	float *signal_data = (float *)nparray->data;
+	double *signal_data = (double *)nparray->data;
 	const char *func = "mp_create_signal_from_numpyarray()";
-	printf("%s - numpy array has %d channels, %d samples\n", func, (int)nchans, (int)nspls);
+	//printf("%s - numpy array has %d channels, %d samples\n", func, (int)nchans, (int)nspls);
 
 	if(nparray->nd == 2){
 		nchans = nparray->dimensions[1];
@@ -61,7 +61,7 @@ int mptk_decompose_body(const PyArrayObject *numpysignal, const char *dictpath, 
 	// get signal in mem in appropriate format
 	MP_Signal_c *signal = mp_create_signal_from_numpyarray(numpysignal);
 	if(NULL==signal) {
-		printf("Failed to convert a signal from python to MPTK.\n");
+		PyErr_SetString(PyExc_RuntimeError, "Failed to convert a signal from python to MPTK.\n");
 		return 1;
 	}
 	signal->sampleRate = samplerate;
@@ -70,7 +70,7 @@ int mptk_decompose_body(const PyArrayObject *numpysignal, const char *dictpath, 
 	// get dict in mem in appropriate format - we'll do it from file - easy
 	MP_Dict_c* dict = MP_Dict_c::init(dictpath);
 	if(NULL==dict) {
-		printf("Failed to read dict from file.\n");
+		PyErr_SetString(PyExc_RuntimeError, "Failed to read dict from file path.\n");
 		delete signal;
 		return 2;
 	}
@@ -81,7 +81,7 @@ int mptk_decompose_body(const PyArrayObject *numpysignal, const char *dictpath, 
 	// Set up core and book obj
 	MP_Book_c *mpbook = MP_Book_c::create(signal->numChans, signal->numSamples, signal->sampleRate );
 	if ( NULL == mpbook )  {
-	    printf("Failed to create a book object.\n" );
+	    PyErr_SetString(PyExc_RuntimeError, "Failed to create a book object.\n" );
 	    delete signal;
 	    delete dict;
 	    return 3;
@@ -94,14 +94,14 @@ int mptk_decompose_body(const PyArrayObject *numpysignal, const char *dictpath, 
 	//}else if(strcmp(method, "gmp")==0){
 	//	mpdCore =  GPD_Core_c::create( signal, mpbook, dict );
 	}else{
-		printf("Unrecognised 'method' option '%s'. Recognised options are: mp, cmp, gmp\n", method);
+		PyErr_SetString(PyExc_RuntimeError, "Unrecognised 'method' option. Recognised options are: [mp, cmp]\n");
 		delete signal;
 		delete dict;
 		delete mpbook;
 		return 5;
 	}
 	if ( NULL == mpdCore )  {
-	    printf("Failed to create a MPD core object.\n" );
+	    PyErr_SetString(PyExc_RuntimeError, "Failed to create a MPD core object.\n" );
 	    delete signal;
 	    delete dict;
 	    delete mpbook;
@@ -130,12 +130,12 @@ int mptk_decompose_body(const PyArrayObject *numpysignal, const char *dictpath, 
 
 	mpdCore->set_verbose();
 	// Display some information
-	printf("The dictionary contains %d blocks\n",dict->numBlocks);
-	printf("The signal has:\n");
-	signal->info();
-	mpdCore->info_conditions();
-	printf("Initial signal energy is %g\n",mpdCore->get_initial_energy());
-	printf("Starting to iterate\n");
+	//printf("The dictionary contains %d blocks\n",dict->numBlocks);
+	//printf("The signal has:\n");
+	//signal->info();
+	//mpdCore->info_conditions();
+	//printf("Initial signal energy is %g\n",mpdCore->get_initial_energy());
+	//printf("Starting to iterate\n");
 
 	mpdCore->run();
 	mpdCore->info_state();
@@ -144,10 +144,8 @@ int mptk_decompose_body(const PyArrayObject *numpysignal, const char *dictpath, 
 
 	// Get results - book, residual, decay. as a first pass, maybe we should write the book to disk, return the residual, ignore the decay (useDecay=false).
 
-	// write book XML to disk.
-	if(bookpath!=NULL && bookpath[0] != NULL){
-		mpdCore->save_result();
-	}
+	// write book XML and/or decay data to disk.
+	mpdCore->save_result();
 
 	// create python book object, which will be returned
 	BookObject* thebook = (BookObject*)PyObject_CallObject((PyObject *) &bookType, NULL);
@@ -157,7 +155,7 @@ int mptk_decompose_body(const PyArrayObject *numpysignal, const char *dictpath, 
 	result.thebook = thebook;
 	result.residual = mp_create_numpyarray_from_signal(signal); // residual is in here (i.e. the "signal" is updated in-place)
 
-	printf("book stats: numChans %i, numSamples %il, sampleRate %il, numAtoms %i.\n", mpbook->numChans, mpbook->numSamples, mpbook->sampleRate, mpbook->numAtoms);
+	//printf("book stats: numChans %i, numSamples %il, sampleRate %il, numAtoms %i.\n", mpbook->numChans, mpbook->numSamples, mpbook->sampleRate, mpbook->numAtoms);
 
 	delete signal;
 	delete dict;
