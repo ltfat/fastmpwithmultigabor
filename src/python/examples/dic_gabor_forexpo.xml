@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<dict>
+    <libVersion>0.6.0</libVersion>
+    <block>
+        <param name="blockOffset" value="0" />
+        <param name="fftSize" value="1024" />
+        <param name="numFitPoints" value="1" />
+        <param name="numIter" value="1200" />
+        <param name="type" value="gabor" />
+        <param name="windowLen" value="1024" />
+        <param name="windowShift" value="128" />
+        <param name="windowopt" value="0" />
+        <param name="windowtype" value="gauss" />
+    </block>
+    <block>
+        <param name="blockOffset" value="0" />
+        <param name="fftSize" value="512" />
+        <param name="numFitPoints" value="1" />
+        <param name="numIter" value="1200" />
+        <param name="type" value="gabor" />
+        <param name="windowLen" value="512" />
+        <param name="windowShift" value="128" />
+        <param name="windowopt" value="0" />
+        <param name="windowtype" value="gauss" />
+    </block>
+    <block>
+        <param name="blockOffset" value="0" />
+        <param name="fftSize" value="256" />
+        <param name="numFitPoints" value="1" />
+        <param name="numIter" value="1200" />
+        <param name="type" value="gabor" />
+        <param name="windowLen" value="256" />
+        <param name="windowShift" value="128" />
+        <param name="windowopt" value="0" />
+        <param name="windowtype" value="gauss" />
+    </block>
+</dict>

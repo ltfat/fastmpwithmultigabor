@@ -92,11 +92,6 @@ mpbook_from_pybook(MP_Book_c *mpbook, BookObject* pybook, MP_Dict_c* dict)
 		PyErr_SetString(PyExc_RuntimeError, "Attempted to load data from a pybook into an mpbook which is not empty.\n");
 		return 3;
 	}
-	if(mpbook->maxNumAtoms < pynatoms){
-		PyErr_SetString(PyExc_RuntimeError, "Attempted to load too many atoms.\n");
-		printf("Attempted to load %i atoms from a pybook into an mpbook which can only hold %i atoms.\n", pynatoms, mpbook->maxNumAtoms);
-		return 2;
-	}
 
 
 	mpbook->numChans   = pybook->numChans;
@@ -119,7 +114,12 @@ mpbook_from_pybook(MP_Book_c *mpbook, BookObject* pybook, MP_Dict_c* dict)
 			PyErr_SetString(PyExc_RuntimeError, "mpatom_from_pyatom() returned NULL while adding an atom to book\n");
 			return(NULL);
 		} else {
-			mpbook->append( mpatom );
+			if(mpbook->append( mpatom ) != 1){
+				PyErr_SetString(PyExc_RuntimeError, "Attempted to load too many atoms.\n");
+				printf("Appending an atom from a pybook into an mpbook failed, probably due to out-of-memory issues. (py has %lu, mp has max of %lu.)\n",
+						pynatoms, mpbook->maxNumAtoms);
+				return 2;
+			}
 		}
 	}
 
