@@ -93,7 +93,8 @@ public:
    * \remark in MP_TEXT mode, NO enclosing XML tag &lt;atom type="*"&gt; ... &lt;/atom&gt; is looked for
    * \sa read_atom()
    */
-  static MP_Atom_c* create( FILE *fid, MP_Dict_c *dict, const char mode );
+  static MP_Atom_c* create_fromxml( TiXmlElement *xmlobj, MP_Dict_c *dict );
+  static MP_Atom_c* create_frombinary( FILE *fid, MP_Dict_c *dict );
   
  protected:
 
@@ -103,7 +104,8 @@ public:
 
 
   /** \brief File reader */
-  virtual int read( FILE *fid, const char mode );
+  virtual int init_fromxml(TiXmlElement* xmlobj);
+  virtual int init_frombinary( FILE *fid );
 
 public:
 

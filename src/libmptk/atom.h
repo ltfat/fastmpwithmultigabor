@@ -57,6 +57,7 @@
 #else
 	#include <inttypes.h>
 #endif
+#include "tinyxml.h"
 
 /***********************/
 /* CONSTANTS           */
@@ -171,8 +172,9 @@ class MP_Atom_c
 	protected:
 		/** \brief a constructor which initializes everything to zero or NULL, except the dict */
 		MPTK_LIB_EXPORT MP_Atom_c( MP_Dict_c* dict );
-		/** \brief File reader */
-		MPTK_LIB_EXPORT virtual int read( FILE *fid, const char mode );
+		/** \brief initialisers from data */
+		MPTK_LIB_EXPORT virtual int init_fromxml(TiXmlElement* xmlobj);
+		MPTK_LIB_EXPORT virtual int init_frombinary( FILE *fid );
 	public:
 		/** \brief a destructor of the class */
 		MPTK_LIB_EXPORT virtual ~MP_Atom_c();

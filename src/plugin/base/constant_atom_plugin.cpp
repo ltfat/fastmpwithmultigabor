@@ -56,12 +56,33 @@ using namespace std;
 
 /*************************/
 /* File factory function */
-MP_Atom_c* MP_Constant_Atom_Plugin_c::create( FILE *fid, MP_Dict_c *dict, const char mode )
+MP_Atom_c* MP_Constant_Atom_Plugin_c::create_fromxml( TiXmlElement *xmlobj, MP_Dict_c *dict)
 {
-
-  const char* func = "MP_Constant_Atom_c::init(fid,mode)";
+  const char* func = "MP_Constant_Atom_c::create_fromxml(fid,mode)";
   MP_Constant_Atom_Plugin_c* newAtom = NULL;
 
+  /* Instantiate and check */
+  newAtom = new MP_Constant_Atom_Plugin_c(dict);
+  if ( newAtom == NULL )
+    {
+      mp_error_msg( func, "Failed to create a new Constant atom.\n" );
+      return( NULL );
+    }
+
+	// Read and check
+	if ( newAtom->init_fromxml( xmlobj ) )
+	{
+		mp_error_msg( func, "Failed to read the new Constant atom.\n" );
+		delete( newAtom );
+		return( NULL );
+	}
+
+	return newAtom;
+}
+MP_Atom_c* MP_Constant_Atom_Plugin_c::create_frombinary( FILE *fid, MP_Dict_c *dict)
+{
+  const char* func = "MP_Constant_Atom_c::create_frombinary(fid,mode)";
+  MP_Constant_Atom_Plugin_c* newAtom = NULL;
 
   /* Instantiate and check */
   newAtom = new MP_Constant_Atom_Plugin_c(dict);
@@ -72,7 +93,7 @@ MP_Atom_c* MP_Constant_Atom_Plugin_c::create( FILE *fid, MP_Dict_c *dict, const 
     }
 
   /* Read and check */
-  if ( newAtom->read( fid, mode ) )
+  if ( newAtom->init_frombinary( fid ) )
     {
       mp_error_msg( func, "Failed read the new Constant atom.\n" );
       delete( newAtom );
@@ -94,13 +115,25 @@ MP_Constant_Atom_Plugin_c::MP_Constant_Atom_Plugin_c( MP_Dict_c* dict ):MP_Atom_
 
 /********************/
 /* File reader      */
-int MP_Constant_Atom_Plugin_c::read( FILE *fid, const char mode )
+int MP_Constant_Atom_Plugin_c::init_fromxml(TiXmlElement* xmlobj)
 {
-
   const char* func = "MP_Constant_Atom_c(file)";
 
   /* Go up one level */
-  if ( MP_Atom_c::read( fid, mode ) )
+  if ( MP_Atom_c::init_fromxml( xmlobj ) )
+    {
+      mp_error_msg( func, "Reading of Constant atom fails at the generic atom level.\n" );
+      return( 1 );
+    }
+
+  return 0;
+}
+int MP_Constant_Atom_Plugin_c::init_frombinary( FILE *fid )
+{
+  const char* func = "MP_Constant_Atom_c(file)";
+
+  /* Go up one level */
+  if ( MP_Atom_c::init_frombinary( fid ) )
     {
       mp_error_msg( func, "Reading of Constant atom fails at the generic atom level.\n" );
       return( 1 );
@@ -254,5 +287,5 @@ DLL_EXPORT void registry(void)
 {
 
   MP_Atom_Factory_c::get_atom_factory()->register_new_atom_empty("constant",&MP_Constant_Atom_Plugin_c::constant_atom_create_empty);
-  MP_Atom_Factory_c::get_atom_factory()->register_new_atom("constant",&MP_Constant_Atom_Plugin_c::create);
+  MP_Atom_Factory_c::get_atom_factory()->register_new_atom("constant",&MP_Constant_Atom_Plugin_c::create_fromxml,&MP_Constant_Atom_Plugin_c::create_frombinary);
 }

@@ -56,10 +56,9 @@ using namespace std;
 
 /*************************/
 /* File factory function */
-MP_Atom_c* MP_Template_Atom_Plugin_c::create( FILE *fid, MP_Dict_c* dict, const char mode )
+MP_Atom_c* MP_Template_Atom_Plugin_c::create_fromxml( TiXmlElement *xmlobj, MP_Dict_c *dict)
 {
-
-  const char* func = "MP_Template_Atom_c::init(fid,mode)";
+  const char* func = "MP_Template_Atom_c::create_fromxml(fid,mode)";
   MP_Template_Atom_Plugin_c* newAtom = NULL;
 
 
@@ -71,11 +70,28 @@ MP_Atom_c* MP_Template_Atom_Plugin_c::create( FILE *fid, MP_Dict_c* dict, const 
       return( NULL );
     }
 
-  /* Read and check */
-  if ( newAtom->read( fid, mode ) )
+	// Read and check
+	if ( newAtom->init_fromxml( xmlobj ) )
+	{
+		mp_error_msg( func, "Failed to read the new atom.\n" );
+		delete( newAtom );
+		return( NULL );
+	}
+
+	return newAtom;
+}
+MP_Atom_c* MP_Template_Atom_Plugin_c::create_frombinary( FILE *fid, MP_Dict_c *dict)
+{
+
+  const char* func = "MP_Template_Atom_c::create_frombinary(fid,mode)";
+  MP_Template_Atom_Plugin_c* newAtom = NULL;
+
+
+  /* Instantiate and check */
+  newAtom = new MP_Template_Atom_Plugin_c(dict);
+  if ( newAtom == NULL )
     {
-      mp_error_msg( func, "Failed read the new Template atom.\n" );
-      delete( newAtom );
+      mp_error_msg( func, "Failed to create a new Template atom.\n" );
       return( NULL );
     }
 
@@ -95,13 +111,28 @@ MP_Template_Atom_Plugin_c::MP_Template_Atom_Plugin_c( MP_Dict_c* dict ):MP_Atom_
 
 /********************/
 /* File reader      */
-int MP_Template_Atom_Plugin_c::read( FILE *fid, const char mode )
+int MP_Template_Atom_Plugin_c::init_fromxml(TiXmlElement* xmlobj)
 {
-
   const char* func = "MP_Template_Atom_c(file)";
 
   /* Go up one level */
-  if ( MP_Atom_c::read( fid, mode ) )
+  if ( MP_Atom_c::init_fromxml( xmlobj ) )
+    {
+      mp_error_msg( func, "Reading of Template atom fails at the generic atom level.\n" );
+      return( 1 );
+    }
+
+  // At THIS point you would implement reading your custom parameters from the xmlobj
+
+  return 0;
+}
+
+int MP_Template_Atom_Plugin_c::init_frombinary( FILE *fid )
+{
+  const char* func = "MP_Template_Atom_c(file)";
+
+  /* Go up one level */
+  if ( MP_Atom_c::init_frombinary( fid ) )
     {
       mp_error_msg( func, "Reading of Template atom fails at the generic atom level.\n" );
       return( 1 );
@@ -259,5 +290,5 @@ DLL_EXPORT void registry(void)
 {
 
   MP_Atom_Factory_c::get_atom_factory()->register_new_atom_empty("template",&MP_Template_Atom_Plugin_c::template_atom_create_empty);
-  MP_Atom_Factory_c::get_atom_factory()->register_new_atom("template",&MP_Template_Atom_Plugin_c::create);
+  MP_Atom_Factory_c::get_atom_factory()->register_new_atom("template",&MP_Template_Atom_Plugin_c::create_fromxml,&MP_Template_Atom_Plugin_c::create_frombinary);
 }

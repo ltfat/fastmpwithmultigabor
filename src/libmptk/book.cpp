@@ -97,104 +97,13 @@ MP_Book_c *newBook = NULL;
 /* Load from a stream, either in ascii or binary format */
 MP_Book_c* MP_Book_c::create( FILE *fid ) 
 {
-	const char* func = "MP_Book_c::create(fid)";
-	MP_Book_c *newBook = NULL;
-	unsigned int fidNumChans;
-	int fidSampleRate;
-	unsigned long int i, fidNumAtoms, fidNumSamples;
-	unsigned long int nRead = 0;
-	char mode;
-	char line[MP_MAX_STR_LEN];
-	char str[MP_MAX_STR_LEN];
-	MP_Atom_c* newAtom = NULL;
-	MP_Dict_c *dict = NULL;
-
-	// Read the format
-	if ( fgets( line,MP_MAX_STR_LEN,fid) == NULL ) 
-	{
-		mp_error_msg( func, "Cannot get the format line. This book will remain un-changed.\n" );
-		return( NULL );
-	}
-
-	// Try to determine the format
-	if (!strcmp( line, "txt\n" )) 
-		mode = MP_TEXT;
-	else if (!strcmp( line, "bin\n" ) ) 
-		mode = MP_BINARY;
-	else 
-	{
-		mp_error_msg( func, "The loaded book has an erroneous file format. This book will remain un-changed.\n" );
-		return( NULL );
-	}
-
-	// Read the header
-	if ( ( fgets( line,MP_MAX_STR_LEN,fid) == NULL ) || (sscanf( line, "<book nAtom=\"%lu\" numChans=\"%d\" numSamples=\"%lu\" sampleRate=\"%d\" libVersion=\"%[0-9a-z.]\">\n",&fidNumAtoms, &fidNumChans, &fidNumSamples, &fidSampleRate, str ) != 5 )) 
-	{
-		mp_error_msg( func, "Cannot scan the book header. This book will remain un-changed.\n" );
-	    return( NULL );
-	}
-	newBook = create( fidNumChans, fidNumSamples, fidSampleRate);
-	if ( newBook == NULL ) 
-	{
-		mp_error_msg( func, "Failed to create a new book.\n" );
-		return( NULL );
-	}
-
-	// Read the atoms
-	for ( i=0; i<fidNumAtoms; i++ ) 
-	{
-		// Try to read the atom header
-		switch ( mode ) 
-		{
-			case MP_TEXT:
-				if ( (  fgets( line, MP_MAX_STR_LEN, fid ) == NULL ) ||( sscanf( line, "\t<atom type=\"%[a-z]\">\n", str ) != 1 ) ) 
-					mp_error_msg( func, "Cannot scan the atom type (in text mode).\n");
-				break;
-			case MP_BINARY:
-				if ( (  fgets( line, MP_MAX_STR_LEN, fid ) == NULL ) ||( sscanf( line, "%[a-z]\n", str ) != 1 ) )
-					mp_error_msg( func, "Cannot scan the atom type (in binary mode).\n");
-				break;
-			default:
-				mp_error_msg( func, "Unknown read mode in read_atom().\n");
-				break;
-		}
-	
-	// Scan the hash map to get the create function of the atom
-	MP_Atom_c* (*createAtom)( FILE *fid, MP_Dict_c *dict, const char mode ) = MP_Atom_Factory_c::get_atom_factory()->get_atom_creator( str );
-	// Scan the hash map to get the create function of the atom
-	if ( NULL != createAtom ) 
-		// Create the the atom
-		newAtom = (*createAtom)(fid,dict,mode);
-	else 
-		mp_error_msg( func, "Cannot read atoms of type '%s'\n",str);
-  
-	if ( NULL == newAtom )  
-		mp_error_msg( func, "Failed to create an atom of type[%s].\n", str);
-
-  /* In text mode... */
-  if ( mode == MP_TEXT ) {
-    /* ... try to read the closing atom tag */
-    if ( ( fgets( line, MP_MAX_STR_LEN, fid ) == NULL ) ||
-	 ( strcmp( line, "\t</atom>\n" ) ) ) {
-      mp_error_msg( func, "Failed to read the </atom> tag.\n");
-      if ( newAtom ) newAtom = NULL ;
-    }
+  const char* func = "MP_Book_c::create(fid)";
+  MP_Book_c *newBook = create();
+  if(!newBook->load(fid, false))
+  {
+    mp_error_msg( func, "Created new book, but failed to load data into it.\n" );
+    return( NULL );
   }
-       
-    if ( newAtom == NULL ) mp_warning_msg( func, "Failed to read an atom. This atom will be skipped.\n");
-    /* If the atom is OK, add it */
-    else { newBook->append( newAtom ); nRead++; }
-  }
-  
-  /* Read the terminating </book> tag */
-  if ( ( fgets( line, MP_MAX_STR_LEN, fid ) == NULL ) ||
-       ( strcmp( line, "</book>\n" ) ) ) {
-    mp_warning_msg( func, "Could not find the </book> tag."
-		    " (%lu atoms added, %lu atoms expected.)\n",
-		    nRead, fidNumAtoms );
-  return( NULL );
-  }
-
   return( newBook );
 }
 /***********************/
@@ -246,7 +155,7 @@ unsigned long int MP_Book_c::printDict( const char *fName, FILE *fid, unsigned l
 		if(fName)
 			this->atom[0]->dict->print(fName); 
 		else if(fid)
-			this->atom[0]->dict->print(fid);
+			this->atom[0]->dict->print(fid, false);
 		else
 		{
 			mp_error_msg( func, "Error writing the dict file.\n" );
@@ -285,22 +194,21 @@ unsigned long int MP_Book_c::printBook( FILE *fid , const char mode, MP_Mask_c* 
 				nAtom++;
 	}
 
-	// print the book format
+	// Print the book header, inc format
+	const char* formatString;
 	switch(mode)
 	{
 		case MP_TEXT:
-			fprintf( fid, "txt\n" );
+			formatString = "txt";
 			break;
 		case MP_BINARY:
-			fprintf( fid, "bin\n" );
+			formatString = "bin";
 			break;
 		default:
 			mp_error_msg( func, "Unknown write mode.\n" );
 			return 0;
 	}
-
-	// Print the book header
-	fprintf( fid, "<book nAtom=\"%lu\" numChans=\"%d\" numSamples=\"%lu\" sampleRate=\"%d\" libVersion=\"%s\">\n", nAtom, numChans, numSamples, sampleRate, VERSION );
+	fprintf( fid, "<book nAtom=\"%lu\" numChans=\"%d\" numSamples=\"%lu\" sampleRate=\"%d\" libVersion=\"%s\" format=\"%s\">\n", nAtom, numChans, numSamples, sampleRate, VERSION, formatString );
 
 	// Print the atoms
 	if ( mask == NULL ) 
@@ -375,17 +283,13 @@ unsigned long int MP_Book_c::print( const char *fName , const char mode, MP_Mask
 	FILE				*fid;
 	unsigned long int	nAtom = 0;
 
-	printDict( fName, NULL, nAtomRead);
-
-	if ( ( fid = fopen( fName, "ab" ) ) == NULL ) 
+	if ( ( fid = fopen( fName, "wb" ) ) == NULL ) 
 	{
 		mp_error_msg( "MP_Book_c::print(fname,mask)","Could not open file %s to print a book.\n", fName );
 		return( 0 );
 	}
-  
-	nAtom = printBook( fid, mode, mask );
+	nAtom = print( fid, mode, mask, nAtomRead );
 	fclose( fid );
-
 	return ( nAtom );
 }
 
@@ -394,8 +298,11 @@ unsigned long int MP_Book_c::print( const char *fName , const char mode, MP_Mask
 unsigned long int MP_Book_c::print( FILE *fid , const char mode, MP_Mask_c* mask, unsigned long int *nAtomRead) 
 {
 	unsigned long int	nAtom = 0;
+	fprintf( fid, "<?xml version=\"1.0\" encoding=\"ISO-8859-1\" ?>\n"); 
+	fprintf( fid, "<mptkbook formatVersion=\"1\">\n"); 
 	printDict( NULL, fid, nAtomRead);
 	nAtom = printBook( fid, mode, mask );
+	fprintf( fid, "</mptkbook>\n"); 
 	return ( nAtom );
 }
 
@@ -415,97 +322,207 @@ unsigned long int MP_Book_c::print( const char *fName, const char mode ) {
 
 /********************************************************/
 /* Load from a stream, either in ascii or binary format */
-unsigned long int MP_Book_c::load( FILE *fid ) 
+unsigned long int MP_Book_c::load( FILE *fid )
+{
+	return load(fid, true);
+}
+unsigned long int MP_Book_c::load( FILE *fid, bool withDict )
 {
 	const char				*func = "MP_Book_c::load(fid)";
+	int formatVersion; // Different variations of the XML stream format
 	unsigned int			fidNumChans;
 	int						fidSampleRate;
 	unsigned long int		i, fidNumAtoms, fidNumSamples;
 	unsigned long int		nRead = 0;
 	char					mode;
 	char					line[MP_MAX_STR_LEN];
+	memset(line, 0, MP_MAX_STR_LEN);
 	char					str[MP_MAX_STR_LEN];
+	memset(str, 0, MP_MAX_STR_LEN);
 	MP_Atom_c				*newAtom = NULL;
 	MP_Dict_c				*dict;
 
-	// Retrieve the dictionary
-	if((dict = MP_Dict_c::init( fid )) == NULL)
-    {
-		mp_error_msg( func, "Failed to create a dictionary from XML stdin.\n");
-		// TODO LIB2RER DICT
-		return  1;
-	}
-	
-	if ( fgets( line,MP_MAX_STR_LEN,fid) == NULL ) 
+	// xml declaration
+	if ( fgets( line,MP_MAX_STR_LEN,fid) == NULL )
 	{
-		mp_error_msg( func, "Cannot get the format line. This book will remain un-changed.\n" );
-		return 0;	
-	}
-
-	if(!strcmp(line,"bin\n"))
-		mode = MP_BINARY;
-	if(!strcmp(line,"txt\n"))
-		mode = MP_TEXT;
-
-	// Read the header
-	if ( ( fgets( line,MP_MAX_STR_LEN,fid) == NULL ) || (sscanf( line, "<book nAtom=\"%lu\" numChans=\"%d\" numSamples=\"%lu\" sampleRate=\"%d\" libVersion=\"%[0-9a-z.]\">\n", &fidNumAtoms, &fidNumChans, &fidNumSamples, &fidSampleRate, str ) != 5 )) 
-	{
-		mp_error_msg( func, "Cannot scan the book header. This book will remain un-changed.\n" );
+		mp_error_msg( func, "Cannot scan the first line of the mptkbook. This book will remain un-changed.\n" );
 		return( 0 );
 	}
-	// Read the atoms
-	for ( i=0; i<fidNumAtoms; i++ )
+	if(strstr(line, "<?xml version=\"1.0\" encoding=\"ISO-8859-1\" ?>")==NULL){
+		printf("%s -- warning, first line is not the expected XML declaration\n");
+	}
+	// check if the <mptkbook> tag is present -- if so, read libversion -- if not, rewind the stream (!) and drop back to the old ways
+	if ( fgets( line,MP_MAX_STR_LEN,fid) == NULL )
 	{
-		switch ( mode )
+		mp_error_msg( func, "Cannot scan the second line of the mptkbook. This book will remain un-changed.\n" );
+		return( 0 );
+	}
+	if (sscanf( line, "<mptkbook formatVersion=\"%i\">\n", &formatVersion ) != 1 )
+	{
+		// Not an error - but we must rewind the stream and drop back to the old ways
+		formatVersion = 0;
+		rewind(fid);
+	}
+
+	if(withDict){
+		// Retrieve the dictionary
+		if((dict = MP_Dict_c::init( fid )) == NULL)
 		{
-			case MP_TEXT:
-				if ( (  fgets( line, MP_MAX_STR_LEN, fid ) == NULL ) ||( sscanf( line, "\t<atom type=\"%[a-z]\">\n", str ) != 1 ) )
-				{
-					mp_error_msg( func, "Cannot scan the atom type (in text mode).\n");
-					return 0;
-				}
-				break;
-				
-			case MP_BINARY:
-				if ( (  fgets( line, MP_MAX_STR_LEN, fid ) == NULL ) ||( sscanf( line, "%[a-z]\n", str ) != 1 ) ) 
-				{
-					mp_error_msg( func, "Cannot scan the atom type (in binary mode).\n");
-					return 0;
-				}
-				break;
-			default:
-				mp_error_msg( func, "Unknown read mode in read_atom().\n");
-				return 0;
+			mp_error_msg( func, "Failed to create a dictionary from XML stdin.\n");
+			// TODO LIB2RER DICT
+			return  1;
 		}
-		
-		// Scan the hash map to get the create function of the atom
-		MP_Atom_c* (*createAtom)( FILE *fid, MP_Dict_c *dict, const char mode ) = MP_Atom_Factory_c::get_atom_factory()->get_atom_creator( str );
-		// Scan the hash map to get the create function of the atom
-		if ( NULL != createAtom )
-			// Create the the atom
-			newAtom = (*createAtom)(fid,dict,mode);
-		else 
-			mp_error_msg( func, "Cannot read atoms of type '%s'\n",str);
-	  
-		// In text mode...
-		if ( mode == MP_TEXT ) 
-		{
-			// ... try to read the closing atom tag
-			if ( ( fgets( line, MP_MAX_STR_LEN, fid ) == NULL ) ||( strcmp( line, "\t</atom>\n" ) ) ) 
+	}	
+
+	char fidFormatStr[3];
+	switch(formatVersion){
+		case 1:
+			// Read the header
+			if ( ( fgets( line,MP_MAX_STR_LEN,fid) == NULL ) || (sscanf( line, "<book nAtom=\"%lu\" numChans=\"%d\" numSamples=\"%lu\" sampleRate=\"%d\" libVersion=\"%[0-9a-z.]\" format=\"%[0-9a-z.]\">\n", &fidNumAtoms, &fidNumChans, &fidNumSamples, &fidSampleRate, str, fidFormatStr ) != 6 )) 
 			{
-				mp_error_msg( func, "Failed to read the </atom> tag.\n");
-				if ( newAtom ) newAtom = NULL ;
+				mp_error_msg( func, "Cannot scan the book header. This book will remain un-changed.\n" );
+				return( 0 );
+			}
+			if(!strcmp(fidFormatStr,"bin"))
+				mode = MP_BINARY;
+			else if(!strcmp(fidFormatStr,"txt"))
+				mode = MP_TEXT;
+			else
+			{
+				mp_error_msg( func, "Unknown format string \"%s\". This book will remain un-changed.\n", fidFormatStr );
+				return 0;	
+			}
+			break;
+		case 0:
+			if ( fgets( line,MP_MAX_STR_LEN,fid) == NULL ) 
+			{
+				mp_error_msg( func, "Cannot get the format line. This book will remain un-changed.\n" );
+				return 0;	
+			}
+			if(!strcmp(line,"bin\n"))
+				mode = MP_BINARY;
+			if(!strcmp(line,"txt\n"))
+				mode = MP_TEXT;
+			// Read the header
+			if ( ( fgets( line,MP_MAX_STR_LEN,fid) == NULL ) || (sscanf( line, "<book nAtom=\"%lu\" numChans=\"%d\" numSamples=\"%lu\" sampleRate=\"%d\" libVersion=\"%[0-9a-z.]\">\n", &fidNumAtoms, &fidNumChans, &fidNumSamples, &fidSampleRate, str ) != 5 )) 
+			{
+				mp_error_msg( func, "Cannot scan the book header. This book will remain un-changed.\n" );
+				return( 0 );
+			}
+			break;
+		default:
+			mp_error_msg( func, "Unknown <mptkbook> formatVersion: %i\n", formatVersion);
+			return 1;
+			break;
+	}
+
+
+	// Read the atoms
+	if ( mode == MP_TEXT){  // using if rather than switch, so can declare variables inside
+		MP_Atom_c* (*createAtomFromXml)( TiXmlElement *xmlobj, MP_Dict_c *dict);
+		// read some xml into memory
+		size_t xmlBufSize = 100000;
+		char szBuffer[xmlBufSize];
+		size_t bytesremain;
+		// Reset the buffer for each atom
+		bytesremain = xmlBufSize;
+		memset(szBuffer, 0, xmlBufSize);
+		do
+		{
+			// Then attempt to read one <atom>...</atom> block
+			if ( fgets( line, MP_MAX_STR_LEN, fid) == NULL ) 
+			{
+				mp_error_msg( func, "Error reading XML data from file.\n" );
+				return 0;
+			}
+			if ( strlen(line) > bytesremain )
+			{
+				mp_error_msg( func, "XML data for <atom> is larger than the in-memory buffer (size %lu bytes), cannot load.\n", xmlBufSize);
+				return 0;
+			}
+			strcat(szBuffer,line);
+			bytesremain -= strlen(line);
+
+			// If we've ended an atom, then parse the atom xml
+			// NB this is still not quite "proper" XML parsing, since wants </atom> on own line, but streaming is important
+			if(strstr(line,"</atom>")){
+				TiXmlDocument doc;
+				if (!doc.Parse(szBuffer))
+				{
+					mp_error_msg( func, "Error while loading the XML <atom> data into tinyxml:\n");
+					mp_error_msg( func, "Error ID: %u .\n", doc.ErrorId() );
+					mp_error_msg( func, "Error description: %s .\n", doc.ErrorDesc());
+					return  0;
+				}
+				// Get a handle on the document
+				TiXmlHandle hdl(&doc);
+				// Get a handle on the tag "atom"
+				TiXmlElement *atomElement = hdl.FirstChildElement("atom").Element();
+				if (atomElement == NULL)
+				{
+					mp_error_msg( func, "Error, cannot find the xml property :\"atom\".\n");
+					return 0;
+				}
+
+				const char* str_type = atomElement->Attribute("type");
+				if(str_type == NULL){
+					mp_error_msg( func, "Cannot find 'type' attribute in the <atom> XML.\n" );
+					return 0;
+				}
+				// Scan the hash map to get the create function of the atom
+				createAtomFromXml = MP_Atom_Factory_c::get_atom_factory()->get_atom_fromxml_creator( str_type );
+				// Scan the hash map to get the create function of the atom
+				if ( NULL != createAtomFromXml ){
+					// Create the the atom
+					newAtom = (*createAtomFromXml)(atomElement, dict);
+				}else{
+					mp_error_msg( func, "Cannot read atoms of type '%s'\n",str_type);
+				}
+				if ( newAtom == NULL )  
+					mp_error_msg( func, "Failed to create an atom of type[%s].\n", str);
+				else 
+				{ 
+					append( newAtom ); 
+					++nRead;
+				}
+				// Reset the text buffer for each atom
+				bytesremain = xmlBufSize;
+				memset(szBuffer, 0, xmlBufSize);
 			}
 		}
-		
-		if ( newAtom == NULL )  
-			mp_error_msg( func, "Failed to create an atom of type[%s].\n", str);
-		else 
-		{ 
-			append( newAtom ); 
-			nRead++; 
+		while(strstr(line,"</book>") == 0);  // NB this is still not quite "proper" XML parsing, since wants </book> on own line, but streaming is important
+
+	} else if ( mode == MP_BINARY){
+		MP_Atom_c* (*createAtomFromBinary)( FILE *fid, MP_Dict_c *dict);
+		for ( i=0; i<fidNumAtoms; i++ )
+		{
+			if ( (  fgets( line, MP_MAX_STR_LEN, fid ) == NULL ) ||( sscanf( line, "%[a-z]\n", str ) != 1 ) ) 
+			{
+				mp_error_msg( func, "Cannot scan the atom type (in binary mode).\n");
+				return 0;
+			}
+			// Scan the hash map to get the create function of the atom
+			createAtomFromBinary = MP_Atom_Factory_c::get_atom_factory()->get_atom_frombinary_creator( str );
+			// Scan the hash map to get the create function of the atom
+			if ( NULL != createAtomFromBinary) 
+				// Create the the atom
+				newAtom = (*createAtomFromBinary)(fid, dict);
+			else 
+				mp_error_msg( func, "Cannot read atoms of type '%s'\n",str);
+	
+			if ( newAtom == NULL )  
+				mp_error_msg( func, "Failed to create an atom of type[%s].\n", str);
+			else 
+			{ 
+				append( newAtom ); 
+				++nRead;
+			}
 		}
+	}else{
+		mp_error_msg( func, "Unknown read mode in read_atom().\n");
+		return 0;
 	}
+
 	// Check the global data fields
 	if ( numChans != fidNumChans ) 
 		mp_warning_msg( func, "The book object contains a number of channels [%i] different from the one read in the stream [%i].\n",numChans, fidNumChans );
@@ -528,10 +545,6 @@ unsigned long int MP_Book_c::load( FILE *fid )
 
 	sampleRate = fidSampleRate;
 
-	// Read the terminating </book> tag
-	if ( ( fgets( line, MP_MAX_STR_LEN, fid ) == NULL ) || ( strcmp( line, "</book>\n" ) ) )
-		mp_warning_msg( func, "Could not find the </book> tag. (%lu atoms added, %lu atoms expected.)\n", nRead, fidNumAtoms );
-	
   return( nRead );
 }
 
@@ -542,133 +555,13 @@ unsigned long int MP_Book_c::load( const char *fName )
 {
 	const char				*func = "MP_Book_c::load(const char *fName)";
 	FILE					*fid;
-	unsigned int			fidNumChans;
-	int						fidSampleRate;
-	unsigned long int		i, fidNumAtoms, fidNumSamples;
-	unsigned long int		nRead = 0;
-	char					mode;
-	char					line[MP_MAX_STR_LEN];
-	char					str[MP_MAX_STR_LEN];
-	MP_Atom_c				*newAtom = NULL;
-	MP_Dict_c				*dict = NULL;
-
-	// Retrieve the dictionary
-	if((dict = MP_Dict_c::init( fName )) == NULL)
-    {
-		mp_error_msg( func, "Failed to create a dictionary from XML file [%s].\n", fName );
-		// TODO LIB2RER DICT
-		return  1;
-	}
-
 	// Open the book file
 	if ( ( fid = fopen(fName,"rb") ) == NULL ) 
 	{
-		mp_error_msg( func,"Could not open file %s to scan for a book.\n", fName );
+		mp_error_msg( func,"Could not open file %s.\n", fName );
 		return( 0 );
 	}
-	
-  	// Go to the book part (squeeze the dict part)
-	do
-	{
-		if ( fgets( line,MP_MAX_STR_LEN,fid) == NULL ) 
-		{
-			mp_error_msg( func, "Cannot get the format line. This book will remain un-changed.\n" );
-			return 0;	
-		}
-	}
-	while(strcmp(line,"bin\n") && strcmp(line,"txt\n"));
-
-	if(!strcmp(line,"bin\n"))
-		mode = MP_BINARY;
-	if(!strcmp(line,"txt\n"))
-		mode = MP_TEXT;
-
-	// Read the header
-	if ( ( fgets( line,MP_MAX_STR_LEN,fid) == NULL ) || (sscanf( line, "<book nAtom=\"%lu\" numChans=\"%d\" numSamples=\"%lu\" sampleRate=\"%d\" libVersion=\"%[0-9a-z.]\">\n", &fidNumAtoms, &fidNumChans, &fidNumSamples, &fidSampleRate, str ) != 5 )) 
-	{
-		mp_error_msg( func, "Cannot scan the book header. This book will remain un-changed.\n" );
-		return( 0 );
-	}
-
-	// Read the atoms
-	for ( i=0; i<fidNumAtoms; i++ )
-	{
-		switch ( mode ) 
-		{
-			case MP_TEXT:
-				if ( (  fgets( line, MP_MAX_STR_LEN, fid ) == NULL ) ||( sscanf( line, "\t<atom type=\"%[a-z]\">\n", str ) != 1 ) )
-				{
-					mp_error_msg( func, "Cannot scan the atom type (in text mode).\n");
-					return 0;
-				}
-				break;
-
-			case MP_BINARY:
-				if ( (  fgets( line, MP_MAX_STR_LEN, fid ) == NULL ) ||( sscanf( line, "%[a-z]\n", str ) != 1 ) ) 
-				{
-					mp_error_msg( func, "Cannot scan the atom type (in binary mode).\n");
-					return 0;
-				}
-				break;
-			default:
-				mp_error_msg( func, "Unknown read mode in read_atom().\n");
-				return 0;
-		}
-
-		// Scan the hash map to get the create function of the atom
-		MP_Atom_c* (*createAtom)( FILE *fid, MP_Dict_c *dict, const char mode ) = MP_Atom_Factory_c::get_atom_factory()->get_atom_creator( str );
-		// Scan the hash map to get the create function of the atom
-		if ( NULL != createAtom )
-			// Create the the atom
-			newAtom = (*createAtom)(fid,dict,mode);
-		else 
-			mp_error_msg( func, "Cannot read atoms of type '%s'\n",str);
-	  
-		// In text mode...
-		if ( mode == MP_TEXT ) 
-		{
-			// ... try to read the closing atom tag
-			if ( ( fgets( line, MP_MAX_STR_LEN, fid ) == NULL ) ||( strcmp( line, "\t</atom>\n" ) ) ) 
-			{
-				mp_error_msg( func, "Failed to read the </atom> tag.\n");
-				if ( newAtom ) newAtom = NULL ;
-			}
-		}
-
-		if ( newAtom == NULL )  
-			mp_error_msg( func, "Failed to create an atom of type[%s].\n", str);
-		else 
-		{ 
-			append( newAtom ); 
-			nRead++; 
-		}
-	}
-	// Check the global data fields
-	if ( numChans != fidNumChans ) 
-		mp_warning_msg( func, "The book object contains a number of channels [%i] different from the one read in the stream [%i].\n",numChans, fidNumChans );
-
-	if ( numSamples != fidNumSamples ) 
-	{
-		mp_warning_msg( func, "The book object contains a number of samples [%lu] different from the one read in the stream [%lu].\n",numSamples, fidNumSamples );
-		if(numSamples < fidNumSamples) 
-		{
-			mp_warning_msg(func, "The book.numSamples has been set to match the stream numSamples\n");
-			mp_warning_msg(func, "This is a new behaviour in MPTK 0.5.6 which will become standard\n");
-			numSamples = fidNumSamples;		
-		} 
-		else 
-			mp_error_msg(func,"This is very weired, please check your book file\n");
-	}
-
-	if ( (sampleRate != 0) && (sampleRate != fidSampleRate) ) 
-		mp_warning_msg( func, "The book object contains a sample rate [%i] different from the one read in the stream [%i]. Keeping the new sample rate [%i].\n",sampleRate, fidSampleRate, fidSampleRate );
-
-	sampleRate = fidSampleRate;
-
-	// Read the terminating </book> tag
-	if ( ( fgets( line, MP_MAX_STR_LEN, fid ) == NULL ) || ( strcmp( line, "</book>\n" ) ) )
-		mp_warning_msg( func, "Could not find the </book> tag. (%lu atoms added, %lu atoms expected.)\n", nRead, fidNumAtoms );
-	
+	unsigned long int nRead =  load( fid );
 	fclose( fid );
 	return( nRead );
 }
@@ -770,49 +663,7 @@ int MP_Book_c::replace( MP_Atom_c *newAtom, int atomIndex ) {
 	newLen = newAtom->numSamples;
 	if ( numSamples < newLen ) numSamples = newLen;
 	
-	return( 1 ); 
-	
-	//	const char* func = "MP_Book_c::replace(*atom)";
-	//	unsigned long int newLen;
-	//	MP_Chan_t numChansAtom;
-	//	if( newAtom == NULL ) return( 0 );
-	//	/* Else: */
-	//	else {
-	//		
-	//		/* Re-allocate if the max storage capacity is attained for the list: */
-	//		if (numAtoms == maxNumAtoms) {
-	//			MP_Atom_c **tmp;
-	//			/* re-allocate the atom array */
-	//			if ( (tmp = (MP_Atom_c**) realloc( atom, (maxNumAtoms+MP_BOOK_GRANULARITY)*sizeof(MP_Atom_c*) )) == NULL ) {
-	//				mp_error_msg( func, "Can't allocate space for [%d] more atoms."
-	//							 " The book is left untouched, the passed atom is not saved.\n",
-	//							 MP_BOOK_GRANULARITY );
-	//				return( 0 );
-	//			}
-	//			else {
-	//				atom = tmp;
-	//				maxNumAtoms += MP_BOOK_GRANULARITY;
-	//			}
-	//		}
-	//	
-	//		/* Move up all the atoms*/
-	//		for (unsigned int i=0; i < numAtoms-1; i++ ) {
-	//			atom[i] = atom[i+1];
-	//		}
-	//		/* Append the passed atom */
-	//		atom[numAtoms-1] = newAtom;
-	//
-	//		/* Set the number of channels to the max among all the atoms */
-	//		numChansAtom = newAtom->numChans;
-	//		if ( numChans < numChansAtom ) numChans = numChansAtom;
-	//		
-	//		/* Rectify the numSamples if needed */
-	//		newLen = newAtom->numSamples;
-	//		if ( numSamples < newLen ) numSamples = newLen;
-//	
-//	}
-//	
-//	return( 1 );
+	return( 1 ); 	
 }
 
 /******************/
@@ -862,22 +713,18 @@ int MP_Book_c::append( MP_Atom_c *newAtom ) {
 /******************/
 /* Append an atom */
 unsigned long int MP_Book_c::append( MP_Book_c *newBook ) {
-	
-const char* func = "MP_Book_c::append(*book)";
-unsigned long int nAppend = 0;
-if (is_compatible_with(newBook)){
-for (unsigned long int i = 0 ; i< newBook->numAtoms; i++){
-     if (append( newBook->atom[i] ) ) nAppend++;
-     
-     
-}
-
-return (nAppend);}
-else {mp_error_msg( func, "Books have not the same parameters  "
-		       );
-	
-	 return (0);}
-
+	const char* func = "MP_Book_c::append(*book)";
+	unsigned long int nAppend = 0;
+	if (is_compatible_with(newBook)){
+		for (unsigned long int i = 0 ; i< newBook->numAtoms; i++){
+			if (append( newBook->atom[i] ) ) nAppend++;
+		}
+		return (nAppend);
+	}
+	else {
+		mp_error_msg( func, "Books do not have the same parameters - not appending.\n");
+		return (0);
+	}
 }
 
 /***********************************/
@@ -933,64 +780,6 @@ unsigned long int MP_Book_c::substract_add( MP_Signal_c *sigSub, MP_Signal_c *si
   return( n );
 }
 
-/***********************************************/
-/* Build the sum of (some) atoms into a signal */
-/*unsigned long int MP_Book_c::build_waveform( MP_Signal_c *sig, MP_Mask_c* mask ) {
-  const char *func = "MP_Book_c::build_waveform";
-  unsigned long int i;
-  unsigned long int n = 0;
-  
-  // check input
-  if (NULL==sig) {
-	mp_error_msg(func,"The signal is NULL.");
-	return 0;
-  }
-  
-  // allocate the signal at the right size
-  if (sig->init_parameters( numChans, numSamples, sampleRate ) )
-	{
-      mp_error_msg( func, "Failed to perform the internal allocations for the reconstructed signal.\n" );
-      return 0;
-    }
-
-
-  // add the atom waveforms
-  if (mask == NULL) {
-    for (i = 0; i < numAtoms; i++) {
-      atom[i]->substract_add( NULL, sig );
-      n++;
-	// #ifndef NDEBUG
-	// display a 'progress bar'
-	// fprintf( stderr, "\r%2d %%\t [%lu]\t [%lu / %lu]",
-	//(int)(100*(float)i/(float)numAtoms), n, i, numAtoms );
-	//#endif
-	// TODO: make a "progress bar" generic + text function
-	//in mp_messaging.{h,cpp}
-    }
-  }
-  else {
-    for (i = 0; i < numAtoms; i++) {
-      if ( mask->sieve[i] ) {
-	atom[i]->substract_add( NULL, sig );
-	n++;
-	  // #ifndef NDEBUG
-	  // display a 'progress bar'
-	  // fprintf( stderr, "\r%2d %%\t [%lu]\t [%lu / %lu]",
-	  //   (int)(100*(float)i/(float)numAtoms), n, i, numAtoms );
-	  //   #endif
-      }
-    }
-  }
-
-	// #ifndef NDEBUG
-	// terminate the display of the 'progress bar'
-	// fprintf( stderr, "\r%2d %%\t [%lu]\t [%lu / %lu]\n",
-	//    (int)(100*(float)i/(float)numAtoms), n, i, numAtoms );
-	//  #endif
-
-  return( n );
-}
-*/
 /******************************************************/
 /* Adds the sum of the pseudo Wigner-Ville distributions
    of some atoms to a time-frequency map */

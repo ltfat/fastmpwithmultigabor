@@ -238,7 +238,7 @@ int MP_Dict_c::parse_xml_file(TiXmlDocument doc)
 	// Get a handle on the tags "dict"
 	elementDict = hdl.FirstChildElement("dict").Element();
 	if (elementDict == NULL)
-    {
+	{
 		mp_error_msg( func, "Error, cannot find the xml property :\"dict\".\n");
 		return -1;
 	}
@@ -251,7 +251,7 @@ int MP_Dict_c::parse_xml_file(TiXmlDocument doc)
 	// Get a handle on the tags "libVersion"
 	elementVersion = handleDict.FirstChildElement("libVersion").Element();
 	if (elementVersion == NULL)
-    {
+	{
 		mp_error_msg( func, "Error, cannot find the xml property :\"libVersion\".\n");
 		return -1;
 	}
@@ -336,27 +336,36 @@ int MP_Dict_c::load_xml_file(FILE *fid)
 {
 	const char		*func = "MP_Dict_c::load_xml_file(FILE *fid)";
 	char			line[MP_MAX_STR_LEN];
-	char			szBuffer[10000];
+	memset(line, 0, MP_MAX_STR_LEN);
+	size_t xmlBufSize = 100000;
+	char			szBuffer[xmlBufSize];
+	memset(szBuffer, 0, xmlBufSize);
 	TiXmlDocument	doc;
  
+	size_t bytesremain = xmlBufSize;
 	do
 	{
 		if ( fgets( line,MP_MAX_STR_LEN,fid) == NULL ) 
 		{
-			mp_error_msg( func, "Cannot get the format line. This book will remain un-changed.\n" );
+			mp_error_msg( func, "Cannot read dictionary XML data from the file.\n" );
+			return 0;
+		}
+		if(bytesremain < strlen(line)){
+			mp_error_msg( func, "Cannot read dictionary XML data from the file - too large for internal buffer of %lu bytes.\n", xmlBufSize);
 			return 0;	
 		}
 		strcat(szBuffer,line);
+		bytesremain -= strlen(line);
 	}
 	while(strcmp(line,"</dict>\n"));
 	
 	if (!doc.Parse(szBuffer))
-    {
+	{
 		mp_error_msg( func, "Error while loading the stdin dictionary.\n");
 		mp_error_msg( func, "Error ID: %u .\n", doc.ErrorId() );
 		mp_error_msg( func, "Error description: %s .\n", doc.ErrorDesc());
 		return  0;
-    }
+	}
 	else 
 		return parse_xml_file(doc);
 }
@@ -446,6 +455,10 @@ int MP_Dict_c::print( const char *fName )
 /**********************/
 /* Printing to a file */
 bool MP_Dict_c::print( FILE *fid )
+{
+	print(fid, true);    
+}
+bool MP_Dict_c::print( FILE *fid, bool withXmlDecl )
 {    
 	const char	*func = "MP_Dict_c::print( FILE *fid )";
 	map< string, string, mp_ltstring>* paramMap = NULL; 
@@ -458,8 +471,10 @@ bool MP_Dict_c::print( FILE *fid )
 	TiXmlElement *root;
 
 	// Declaring the header
-	decl = new TiXmlDeclaration( "1.0", "ISO-8859-1", "" );  
-	doc.LinkEndChild( decl );  
+	if(withXmlDecl){
+		decl = new TiXmlDeclaration( "1.0", "ISO-8859-1", "" );  
+		doc.LinkEndChild( decl );
+	}
 
 	// Declaring the "dict" tag
 	root = new TiXmlElement( "dict" );  

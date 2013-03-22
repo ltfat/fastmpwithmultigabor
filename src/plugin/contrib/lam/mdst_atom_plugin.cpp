@@ -63,10 +63,33 @@ MP_Atom_c* MP_Mdst_Atom_Plugin_c::mdst_atom_create_empty(MP_Dict_c* dict)
 
 /*************************/
 /* File factory function */
-MP_Atom_c* MP_Mdst_Atom_Plugin_c::create( FILE *fid, MP_Dict_c *dict, const char mode )
+MP_Atom_c* MP_Mdst_Atom_Plugin_c::create_fromxml( TiXmlElement *xmlobj, MP_Dict_c *dict)
 {
+  const char* func = "MP_Mdst_Atom_c::create_fromxml(fid,mode)";
 
-  const char* func = "MP_Mdst_Atom_c::init(fid,mode)";
+  MP_Mdst_Atom_Plugin_c* newAtom = NULL;
+
+  /* Instantiate and check */
+  newAtom = new MP_Mdst_Atom_Plugin_c(dict);
+  if ( newAtom == NULL )
+    {
+      mp_error_msg( func, "Failed to create a new atom.\n" );
+      return( NULL );
+    }
+
+	// Read and check
+	if ( newAtom->init_fromxml( xmlobj ) )
+	{
+		mp_error_msg( func, "Failed to read the new MDST atom.\n" );
+		delete( newAtom );
+		return( NULL );
+	}
+
+	return newAtom;
+}
+MP_Atom_c* MP_Mdst_Atom_Plugin_c::create_frombinary( FILE *fid, MP_Dict_c *dict)
+{
+  const char* func = "MP_Mdst_Atom_c::create_frombinary(fid,mode)";
 
   MP_Mdst_Atom_Plugin_c* newAtom = NULL;
 
@@ -79,7 +102,7 @@ MP_Atom_c* MP_Mdst_Atom_Plugin_c::create( FILE *fid, MP_Dict_c *dict, const char
     }
 
   /* Read and check */
-  if ( newAtom->read( fid, mode ) )
+  if ( newAtom->init_frombinary( fid ) )
     {
       mp_error_msg( func, "Failed to read the new MDST atom.\n" );
       delete( newAtom );
@@ -102,60 +125,73 @@ MP_Mdst_Atom_Plugin_c::MP_Mdst_Atom_Plugin_c( MP_Dict_c* dict ):MP_Atom_c(dict)
 
 /********************/
 /* File reader      */
-int MP_Mdst_Atom_Plugin_c::read( FILE *fid, const char mode )
+int MP_Mdst_Atom_Plugin_c::init_fromxml(TiXmlElement* xmlobj)
 {
+  const char* func = "MP_Mdst_Atom_c::MP_Mdst_Atom_c(fid,mode)";
 
+  /* Go up one level */
+  if ( MP_Atom_c::init_fromxml( xmlobj ) )
+    {
+      mp_error_msg( func, "Reading of MDST atom fails at the generic atom level.\n" );
+      return( 1 );
+    }
+
+  /* NOTE: no local alloc needed here because no vectors are used at this level. */
+
+  /* Then read this level's info */
+  // Iterate children and discover:
+  TiXmlNode* kid = 0;
+  TiXmlElement* kidel;
+  const char* datatext;
+  while((kid = xmlobj->IterateChildren(kid))){
+    kidel = kid->ToElement();
+    if(kidel != NULL){
+      // window[type=x][opt=x]
+      if(strcmp(kidel->Value(), "window")==0){
+        datatext = kidel->Attribute("type");
+        if(datatext != NULL){
+	  windowType=window_type(datatext);
+        }
+        datatext = kidel->Attribute("opt");
+        if(datatext != NULL){
+	  windowOption = strtod(datatext, NULL);
+        }
+      }
+      // par[type=freq]
+      if((strcmp(kidel->Value(), "par")==0) && (strcmp(kidel->Attribute("type"), "freq")==0)){
+        datatext = kidel->GetText();
+        if(datatext != NULL){
+	  freq = strtod(datatext, NULL);
+        }
+      }
+    }
+  }
+
+  if(windowType == DSP_UNKNOWN_WIN){
+    mp_error_msg( func, "Failed to read the window type and/or option in a MDST atom structure.\n");
+    return( 1 );
+  }
+
+  return 0;
+}
+
+int MP_Mdst_Atom_Plugin_c::init_frombinary( FILE *fid )
+{
   const char* func = "MP_Mdst_Atom_c::MP_Mdst_Atom_c(fid,mode)";
   char line[MP_MAX_STR_LEN];
   char str[MP_MAX_STR_LEN];
   double fidFreq;
 
   /* Go up one level */
-  if ( MP_Atom_c::read( fid, mode ) )
+  if ( MP_Atom_c::init_frombinary( fid ) )
     {
       mp_error_msg( func, "Reading of MDST atom fails at the generic atom level.\n" );
       return( 1 );
     }
 
-  /* Alloc at local level */
-  /* if ( local_alloc( numChans ) ) {
-    mp_error_msg( func, "Allocation of MDST atom failed at the local level.\n" );
-    return( 1 );
-    }*/
   /* NOTE: no local alloc needed here because no vectors are used at this level. */
 
   /* Then read this level's info */
-  switch ( mode )
-    {
-
-    case MP_TEXT:
-      /* Read the window type */
-      if ( ( fgets( line, MP_MAX_STR_LEN, fid ) == NULL ) ||
-           ( sscanf( line, "\t\t<window type=\"%[a-z]\" opt=\"%lg\"></window>\n", str, &windowOption ) != 2 ) )
-        {
-          mp_error_msg( func, "Failed to read the window type and/or option in a Mdst atom structure.\n");
-          windowType = DSP_UNKNOWN_WIN;
-          return( 1 );
-        }
-      else
-        {
-          /* Convert the window type string */
-          windowType = window_type( str );
-        }
-      /* freq */
-      if ( ( fgets( str, MP_MAX_STR_LEN, fid ) == NULL  ) ||
-           ( sscanf( str, "\t\t<par type=\"freq\">%lg</par>\n", &fidFreq ) != 1 ) )
-        {
-          mp_error_msg( func, "Cannot scan freq.\n" );
-          return( 1 );
-        }
-      else
-        {
-          freq = (MP_Real_t)fidFreq;
-        }
-      break;
-
-    case MP_BINARY:
       /* Try to read the atom window */
       if ( ( fgets( line, MP_MAX_STR_LEN, fid ) == NULL ) ||
            ( sscanf( line, "%[a-z]\n", str ) != 1 ) )
@@ -183,14 +219,6 @@ int MP_Mdst_Atom_Plugin_c::read( FILE *fid, const char mode )
           freq = 0.0;
           return( 1 );
         }
-      break;
-
-    default:
-      mp_error_msg( func, "Unknown read mode met in MP_Mdst_Atom_c( fid , mode )." );
-      return( 1 );
-      break;
-    }
-
   return( 0 );
 }
 
@@ -544,5 +572,5 @@ MP_Real_t MP_Mdst_Atom_Plugin_c::get_field( int field, MP_Chan_t chanIdx )
 DLL_EXPORT void registry(void)
 {
   MP_Atom_Factory_c::get_atom_factory()->register_new_atom_empty("mdst",&MP_Mdst_Atom_Plugin_c::mdst_atom_create_empty);
-  MP_Atom_Factory_c::get_atom_factory()->register_new_atom("mdst",&MP_Mdst_Atom_Plugin_c::create);
+  MP_Atom_Factory_c::get_atom_factory()->register_new_atom("mdst",&MP_Mdst_Atom_Plugin_c::create_fromxml,&MP_Mdst_Atom_Plugin_c::create_frombinary);
 }

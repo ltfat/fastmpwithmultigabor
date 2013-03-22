@@ -60,26 +60,49 @@ MP_Atom_c  * MP_Anywave_Atom_Plugin_c::anywave_atom_create_empty(MP_Dict_c* dict
 
 /*************************/
 /* File factory function */
-MP_Atom_c* MP_Anywave_Atom_Plugin_c::create( FILE *fid, MP_Dict_c *dict, const char mode )
+MP_Atom_c* MP_Anywave_Atom_Plugin_c::create_fromxml( TiXmlElement *xmlobj, MP_Dict_c *dict)
 {
-	const char* func = "MP_Anywave_Atom_c::init(fid,mode)";
+	const char* func = "MP_Anywave_Atom_c::create_fromxml(fid,dict)";
 	MP_Anywave_Atom_Plugin_c* newAtom = NULL;
 
 	/* Instantiate and check */
 	newAtom = new MP_Anywave_Atom_Plugin_c(dict);
 	if ( newAtom == NULL )
-    {
+	{
 		mp_error_msg( func, "Failed to create a new atom.\n" );
 		return( NULL );
-    }
+	}
 
-	/* Read and check */
-	if ( newAtom->read( fid, mode ) )
-    {
+	// Read and check
+	if ( newAtom->init_fromxml( xmlobj ) )
+	{
 		mp_error_msg( func, "Failed to read the new Anywave atom.\n" );
 		delete( newAtom );
 		return( NULL );
-    }
+	}
+
+	return newAtom;
+}
+MP_Atom_c* MP_Anywave_Atom_Plugin_c::create_frombinary( FILE *fid, MP_Dict_c *dict)
+{
+	const char* func = "MP_Anywave_Atom_c::create_frombinary(fid,dict)";
+	MP_Anywave_Atom_Plugin_c* newAtom = NULL;
+
+	/* Instantiate and check */
+	newAtom = new MP_Anywave_Atom_Plugin_c(dict);
+	if ( newAtom == NULL )
+	{
+		mp_error_msg( func, "Failed to create a new atom.\n" );
+		return( NULL );
+	}
+
+	/* Read and check */
+	if ( newAtom->init_frombinary( fid ) )
+	{
+		mp_error_msg( func, "Failed to read the new Anywave atom.\n" );
+		delete( newAtom );
+		return( NULL );
+	}
 	return( (MP_Atom_c*)newAtom );
 }
 
@@ -95,107 +118,125 @@ MP_Anywave_Atom_Plugin_c::MP_Anywave_Atom_Plugin_c( MP_Dict_c* dict ):MP_Atom_c(
 
 /********************/
 /* File reader      */
-int MP_Anywave_Atom_Plugin_c::read( FILE *fid, const char mode )
+int MP_Anywave_Atom_Plugin_c::init_fromxml(TiXmlElement* xmlobj)
+{
+	const char* func = "MP_Anywave_Atom_c::read(fid,mode)";
+	char str[MP_MAX_STR_LEN] = "";
+
+	// Go up one level
+	if ( MP_Atom_c::init_fromxml( xmlobj ) )
+	{
+		mp_error_msg( func, "Reading of Anywave atom fails at the generic atom level.\n" );
+		return 1;
+	}
+
+	// Iterate children and discover:
+	TiXmlNode* kid = 0;
+	TiXmlElement* kidel;
+	const char* datatext;
+	while((kid = xmlobj->IterateChildren("par", kid))){
+		kidel = kid->ToElement();
+		if(kidel != NULL){
+			// par[type=filename] contains string (put it in "str")
+			if((strcmp(kidel->Value(), "par")==0) && (strcmp(kidel->Attribute("type"), "filename")==0)){
+				datatext = kidel->GetText();
+				if(datatext != NULL){
+					strncpy(str, datatext, MP_MAX_STR_LEN-1);
+				}
+			}
+			// par[type=blockIdx] contains int
+			if((strcmp(kidel->Value(), "par")==0) && (strcmp(kidel->Attribute("type"), "blockIdx")==0)){
+				datatext = kidel->GetText();
+				if(datatext != NULL){
+				  blockIdx = strtol(datatext, NULL, 0);
+				}
+			}
+			// par[type=filterIdx] contains long
+			if((strcmp(kidel->Value(), "par")==0) && (strcmp(kidel->Attribute("type"), "filterIdx")==0)){
+				datatext = kidel->GetText();
+				if(datatext != NULL){
+				  anywaveIdx = strtol(datatext, NULL, 0);
+				}
+			}
+		}
+	}
+
+	if(!strcmp(str,""))
+	{
+		// Creation of a param map using the datas of the block "blockIdx"
+		map<string, string, mp_ltstring> *paramMap;
+		paramMap = dict->block[blockIdx]->get_block_parameters_map();
+		tableIdx = MPTK_Server_c::get_anywave_server()->add( paramMap );
+		anywaveTable = MPTK_Server_c::get_anywave_server()->tables[tableIdx];
+	}
+	else
+	{
+		// if the table corresponding to filename is already in the anywave server, update tableIdx and anywaveTable. If not, add the table and update tableIdx and anywaveTable
+		tableIdx = MPTK_Server_c::get_anywave_server()->add( str );
+		anywaveTable = MPTK_Server_c::get_anywave_server()->tables[tableIdx];
+	}
+
+	if ( anywaveIdx >= anywaveTable->numFilters )
+	{
+		mp_error_msg( "MP_Anywave_Atom_c::MP_Anywave_Atom_c","Anywave index is bigger than the number of anywaves in the table.\n");
+		return 1;
+	}
+
+	return 0;
+}
+
+int MP_Anywave_Atom_Plugin_c::init_frombinary( FILE *fid)
 {
 	const char* func = "MP_Anywave_Atom_c::read(fid,mode)";
 	char line[MP_MAX_STR_LEN];
 	char str[MP_MAX_STR_LEN];
 
 	// Go up one level
-	if ( MP_Atom_c::read( fid, mode ) )
-    {
+	if ( MP_Atom_c::init_frombinary( fid ) )
+	{
 		mp_error_msg( func, "Reading of Anywave atom fails at the generic atom level.\n" );
 		return 1;
-    }
+	}
 
 	// Read at the local level
-	switch ( mode )
-    {
-		case MP_TEXT:
-			// Read the filename
-			if ( ( fgets( line, MP_MAX_STR_LEN, fid ) == NULL ) || ( read_filename_txt(line,"\t\t<par type=\"filename\">%s",str) == false ) )
-			{
-				mp_error_msg( "MP_Anywave_Atom_c::MP_Anywave_Atom_c","Failed to read the filename.\n");
-				return 1;
-			}
-			// Try to read the block index of the atom
-			if ( ( fgets( line, MP_MAX_STR_LEN, fid ) == NULL ) || ( sscanf( line, "\t\t<par type=\"blockIdx\">%u</par>\n", &blockIdx ) != 1 ) )
-			{
-				mp_error_msg( "MP_Anywave_Atom_c::MP_Anywave_Atom_c","Failed to scan the block index.\n");
-				return 1;
-			}
-			if(!strcmp(str,""))
-			{
-				// Creation of a param map using the datas of the block "blockIdx"
-				map<string, string, mp_ltstring> *paramMap;
-				paramMap = dict->block[blockIdx]->get_block_parameters_map();
-				tableIdx = MPTK_Server_c::get_anywave_server()->add( paramMap );
-				anywaveTable = MPTK_Server_c::get_anywave_server()->tables[tableIdx];
-			}
-			else
-			{
-				// if the table corresponding to filename is already in the anywave server, update tableIdx and anywaveTable. If not, add the table and update tableIdx and anywaveTable
-				tableIdx = MPTK_Server_c::get_anywave_server()->add( str );
-				anywaveTable = MPTK_Server_c::get_anywave_server()->tables[tableIdx];
-			}
-
-			// Read the anywave number
-			if ( ( fgets( line, MP_MAX_STR_LEN, fid ) == NULL ) || ( sscanf( line, "\t\t<par type=\"filterIdx\">%lu</par>\n", &anywaveIdx ) != 1 ) )
-			{
-				mp_error_msg( "MP_Anywave_Atom_c::MP_Anywave_Atom_c", "Failed to read the anywave number.\n");
-				return 1;
-			}
-			else if ( anywaveIdx >= anywaveTable->numFilters )
-			{
-				mp_error_msg( "MP_Anywave_Atom_c::MP_Anywave_Atom_c","Anywave index is bigger than the number of anywaves in the table.\n");
-				return 1;
-			}
-			break;
-
-		case MP_BINARY:
-			// Try to read the filename
-			if ( read_filename_bin( fid, str ) == false )
-			{
-				mp_error_msg( "MP_Anywave_Atom_c::MP_Anywave_Atom_c","Failed to scan the atom's table filename.\n");
-				return 1;
-			}
-			
-			// Try to read the block index of the atom
-			if ( mp_fread( &blockIdx, sizeof(unsigned long int), 1, fid ) != 1 )
-			{
-				mp_error_msg( "MP_Anywave_Atom_c::MP_Anywave_Atom_c","Failed to scan the block index.\n");
-				return 1;
-			}
-				
-			if(!strcmp(str,""))
-			{
-				// Creation of a param map using the datas of the block "blockIdx"
-				map<string, string, mp_ltstring> *paramMap;
-				paramMap = dict->block[blockIdx]->get_block_parameters_map();
-				tableIdx = MPTK_Server_c::get_anywave_server()->add( paramMap );
-				anywaveTable = MPTK_Server_c::get_anywave_server()->tables[tableIdx];
-			}
-			else
-			{
-				// if the table corresponding to filename is already in the anywave server, update tableIdx and anywaveTable. If not, add the table and update tableIdx and anywaveTable
-				tableIdx = MPTK_Server_c::get_anywave_server()->add( str );
-				anywaveTable = MPTK_Server_c::get_anywave_server()->tables[tableIdx];
-			}
-			// Try to read the anywave number
-			if ( mp_fread( &anywaveIdx, sizeof(long int), 1, fid ) != 1 )
-			{
-				mp_error_msg( "MP_Anywave_Atom_c::MP_Anywave_Atom_c","Failed to scan the atom number.\n");
-				return 1;
-			}
-			else if (anywaveIdx >= anywaveTable->numFilters )
-			{
-				mp_error_msg( "MP_Anywave_Atom_c::MP_Anywave_Atom_c","Anywave index is bigger than the number of anywaves in the table.\n");
-				return 1;
-			}
-			break;
-		default:
-			mp_error_msg( "MP_Anywave_Atom_c::MP_Anywave_Atom_c","Unknown read mode met in MP_Anywave_Atom_c( fid , mode )." );
-			break;
+	// Try to read the filename
+	if ( read_filename_bin( fid, str ) == false )
+	{
+		mp_error_msg( "MP_Anywave_Atom_c::MP_Anywave_Atom_c","Failed to scan the atom's table filename.\n");
+		return 1;
+	}
+	
+	// Try to read the block index of the atom
+	if ( mp_fread( &blockIdx, sizeof(unsigned long int), 1, fid ) != 1 )
+	{
+		mp_error_msg( "MP_Anywave_Atom_c::MP_Anywave_Atom_c","Failed to scan the block index.\n");
+		return 1;
+	}
+		
+	if(!strcmp(str,""))
+	{
+		// Creation of a param map using the datas of the block "blockIdx"
+		map<string, string, mp_ltstring> *paramMap;
+		paramMap = dict->block[blockIdx]->get_block_parameters_map();
+		tableIdx = MPTK_Server_c::get_anywave_server()->add( paramMap );
+		anywaveTable = MPTK_Server_c::get_anywave_server()->tables[tableIdx];
+	}
+	else
+	{
+		// if the table corresponding to filename is already in the anywave server, update tableIdx and anywaveTable. If not, add the table and update tableIdx and anywaveTable
+		tableIdx = MPTK_Server_c::get_anywave_server()->add( str );
+		anywaveTable = MPTK_Server_c::get_anywave_server()->tables[tableIdx];
+	}
+	// Try to read the anywave number
+	if ( mp_fread( &anywaveIdx, sizeof(long int), 1, fid ) != 1 )
+	{
+		mp_error_msg( "MP_Anywave_Atom_c::MP_Anywave_Atom_c","Failed to scan the atom number.\n");
+		return 1;
+	}
+	else if (anywaveIdx >= anywaveTable->numFilters )
+	{
+		mp_error_msg( "MP_Anywave_Atom_c::MP_Anywave_Atom_c","Anywave index is bigger than the number of anywaves in the table.\n");
+		return 1;
 	}
 	return 0;
 }

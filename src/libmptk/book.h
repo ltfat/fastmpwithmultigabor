@@ -96,6 +96,7 @@ class MP_Book_c
 	protected:
 		/* NULL constructor */
 		MP_Book_c();
+		unsigned long int load( FILE *fid, bool withDict );
 	public:
 		/* Destructor */
 		MPTK_LIB_EXPORT virtual ~MP_Book_c();

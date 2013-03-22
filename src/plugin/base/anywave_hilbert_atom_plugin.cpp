@@ -67,27 +67,49 @@ MP_Atom_c  * MP_Anywave_Hilbert_Atom_Plugin_c::anywave_hilbert_atom_create_empty
 
 /*************************/
 /* File factory function */
-MP_Atom_c* MP_Anywave_Hilbert_Atom_Plugin_c::create( FILE *fid, MP_Dict_c *dict, const char mode )
-{
-	const char* func = "MP_Anywave_Hilbert_Atom_c::init(fid,mode)";
+MP_Atom_c* MP_Anywave_Hilbert_Atom_Plugin_c::create_fromxml( TiXmlElement *xmlobj, MP_Dict_c *dict){
+	const char* func = "MP_Anywave_Atom_c::create_fromxml(fid,dict)";
 
 	MP_Anywave_Hilbert_Atom_Plugin_c* newAtom = NULL;
 
 	// Instantiate and check
 	newAtom = new MP_Anywave_Hilbert_Atom_Plugin_c(dict);
 	if ( newAtom == NULL )
-    {
+	{
 		mp_error_msg( func, "Failed to create a new atom.\n" );
 		return( NULL );
-    }
+	}
 
 	// Read and check
-	if ( newAtom->read( fid, mode ) )
-    {
+	if ( newAtom->init_fromxml( xmlobj ) )
+	{
 		mp_error_msg( func, "Failed to read the new Anywave atom.\n" );
 		delete( newAtom );
 		return( NULL );
-    }
+	}
+
+	return newAtom;
+}
+MP_Atom_c* MP_Anywave_Hilbert_Atom_Plugin_c::create_frombinary( FILE *fid, MP_Dict_c *dict){
+	const char* func = "MP_Anywave_Atom_c::create_frombinary(fid,dict)";
+
+	MP_Anywave_Hilbert_Atom_Plugin_c* newAtom = NULL;
+
+	// Instantiate and check
+	newAtom = new MP_Anywave_Hilbert_Atom_Plugin_c(dict);
+	if ( newAtom == NULL )
+	{
+		mp_error_msg( func, "Failed to create a new atom.\n" );
+		return( NULL );
+	}
+
+	// Read and check
+	if ( newAtom->init_frombinary( fid ) )
+	{
+		mp_error_msg( func, "Failed to read the new Anywave atom.\n" );
+		delete( newAtom );
+		return( NULL );
+	}
 	return( (MP_Atom_c*)newAtom );
 }
 
@@ -238,7 +260,96 @@ int MP_Anywave_Hilbert_Atom_Plugin_c::init_tables( void )
 
 /********************/
 /* File reader      */
-int MP_Anywave_Hilbert_Atom_Plugin_c::read( FILE *fid, const char mode )
+int MP_Anywave_Hilbert_Atom_Plugin_c::init_fromxml(TiXmlElement* xmlobj)
+{
+ const char *func = "MP_Anywave_Hilbert_Atom_c::read";
+
+  /* Go up one level */
+  if ( MP_Anywave_Atom_Plugin_c::init_fromxml( xmlobj ) )
+    {
+      mp_error_msg( func, "Allocation of Anywave Hilbert atom failed at the Anywave atom level.\n" );
+      return( 1 );
+    }
+
+  /* init tables */
+  if ( init_tables() )
+    {
+      return(1);
+    }
+
+  /* Allocate and initialize */
+  if ( init_parts() )
+    {
+      return(1);
+    }
+
+  /* Try to read the param */
+  // First we iterate over kids named anywavePar, then we do a nested loop inside those for par[type=hilbertPart] and par[type=realPart]
+  TiXmlNode* kid = 0;
+  TiXmlElement* kidel;
+  const char* datatext;
+  int count_anywavePar=0, count_real=0, count_hilb=0;
+  while((kid = xmlobj->IterateChildren("anywavePar", kid))){
+    kidel = kid->ToElement();
+    if(kidel != NULL){
+        ++count_anywavePar;
+
+        // Get the channel, and check bounds (could cause bad mem writes otherwise)
+	datatext = kidel->Attribute("chan");
+        long chan = strtol(datatext, NULL, 0);
+        if((chan<0) || (chan >= numChans)){
+            mp_error_msg( func, "Found a <anywavePar> tag with channel number %i, which is outside the channel range for this atom [0,%i).\n", chan, numChans);
+            return( 1 );
+        }
+        // Now we must scan the subkids and process them
+        TiXmlNode* anywaveParkid = 0;
+        TiXmlElement* anywaveParkidel;
+        while((anywaveParkid = kidel->IterateChildren("par", anywaveParkid))){
+          anywaveParkidel = anywaveParkid->ToElement();
+          if(anywaveParkidel != NULL){
+
+            //      if item is par[type=realPart] then store that
+            if(strcmp(anywaveParkidel->Attribute("type"), "realPart")==0){
+              ++count_real;
+              // Get the partial, and check bounds (could cause bad mem writes otherwise)
+              datatext = anywaveParkidel->GetText();
+              realPart[chan] = strtod(datatext, NULL);
+            }
+
+            //      if item is par[type=hilbertPart] then store that
+            if(strcmp(anywaveParkidel->Attribute("type"), "hilbertPart")==0){
+              ++count_hilb;
+              // Get the partial, and check bounds (could cause bad mem writes otherwise)
+              datatext = anywaveParkidel->GetText();
+              hilbertPart[chan] = strtod(datatext, NULL);
+            }
+
+          }
+        } // end iteration over anywavePar kids
+    }
+  }
+
+  // Finally check counts
+  if(count_anywavePar != numChans){
+    mp_error_msg( func, "Scanned an atom with %i chans, but failed to get that number of 'anywavePar' elements (%i).\n",
+		numChans, count_anywavePar);
+    return( 1 );
+  }
+  if(count_real != numChans){
+    mp_error_msg( func, "Scanned an atom with %i chans, but failed to get that number of 'anywavePar->realPart' elements (%i).\n",
+		numChans, count_real);
+    return( 1 );
+  }
+  if(count_hilb != numChans){
+    mp_error_msg( func, "Scanned an atom with %i chans, but failed to get that number of 'anywavePar->hilbertPart' elements (%i).\n",
+		numChans, count_hilb);
+    return( 1 );
+  }
+
+  return 0;
+}
+
+int MP_Anywave_Hilbert_Atom_Plugin_c::init_frombinary(FILE* fid)
 {
  const char *func = "MP_Anywave_Hilbert_Atom_c::read";
   double fidParam;
@@ -248,7 +359,7 @@ int MP_Anywave_Hilbert_Atom_Plugin_c::read( FILE *fid, const char mode )
   char* str;
 
   /* Go up one level */
-  if ( MP_Anywave_Atom_Plugin_c::read( fid, mode ) )
+  if ( MP_Anywave_Atom_Plugin_c::init_frombinary(fid) )
     {
       mp_error_msg( func, "Allocation of Anywave Hilbert atom failed at the Anywave atom level.\n" );
       return( 1 );
@@ -273,65 +384,6 @@ int MP_Anywave_Hilbert_Atom_Plugin_c::read( FILE *fid, const char mode )
     }
 
   /* Try to read the param */
-  switch (mode )
-    {
-
-    case MP_TEXT:
-
-      for (chanIdx = 0;
-           chanIdx < numChans;
-           chanIdx ++)
-        {
-          /* Opening tag */
-          if ( ( fgets( str, MP_MAX_STR_LEN, fid ) == NULL  ) ||
-               ( sscanf( str, "\t\t<anywavePar chan=\"%hu\">\n", &readChanIdx ) != 1 ) )
-            {
-              mp_error_msg( "MP_Anywave_Hilbert_Atom_c::MP_Anywave_Hilbert_Atom_c()","Cannot scan channel index in atom.\n" );
-              return(1);
-            }
-          else if ( readChanIdx != chanIdx )
-            {
-              mp_error_msg( "MP_Anywave_Hilbert_Atom_c::MP_Anywave_Hilbert_Atom_c()","Potential shuffle in the parameters"
-                            " of an anywave atom. (Index \"%hu\" read, \"%hu\" expected.)\n",
-                            readChanIdx, chanIdx );
-              return(1);
-            }
-
-          /* real part */
-          if ( ( fgets( str, MP_MAX_STR_LEN, fid ) == NULL  ) ||
-               ( sscanf( str, "\t\t\t<par type=\"realPart\">%lg</par>\n", &fidParam ) != 1 ) )
-            {
-              mp_error_msg( "MP_Anywave_Hilbert_Atom_c::MP_Anywave_Hilbert_Atom_c()","Cannot scan real part on channel %u.\n", chanIdx );
-              return(1);
-            }
-          else
-            {
-              *(realPart + chanIdx) = (MP_Real_t)fidParam;
-            }
-          /* hilbert part */
-          if ( ( fgets( str, MP_MAX_STR_LEN, fid ) == NULL  ) ||
-               ( sscanf( str, "\t\t\t<par type=\"hilbertPart\">%lg</par>\n", &fidParam ) != 1 ) )
-            {
-              mp_error_msg( "MP_Anywave_Hilbert_Atom_c::MP_Anywave_Hilbert_Atom_c()","Cannot scan hilbert part on channel %u.\n", chanIdx );
-              return(1);
-            }
-          else
-            {
-              *(hilbertPart + chanIdx) = (MP_Real_t)fidParam;
-            }
-          /* Closing tag */
-          if ( ( fgets( str, MP_MAX_STR_LEN, fid ) == NULL  ) ||
-               ( strcmp( str , "\t\t</anywavePar>\n" ) ) )
-            {
-              mp_error_msg( "MP_Anywave_Hilbert_Atom_c::MP_Anywave_Hilbert_Atom_c()","Cannot scan the closing parameter tag"
-                            " in anywave atom, channel %hu.\n", chanIdx );
-              return(1);
-            }
-        }
-      break;
-
-    case MP_BINARY:
-
       /* Try to read the real part */
       if ( mp_fread( realPart,   sizeof(MP_Real_t), numChans, fid ) != (size_t)numChans )
         {
@@ -358,11 +410,6 @@ int MP_Anywave_Hilbert_Atom_Plugin_c::read( FILE *fid, const char mode )
             }
           return(1);
         }
-      break;
-
-    default:
-      break;
-    }
 
   return(0);
 }
@@ -594,8 +641,7 @@ MP_Real_t MP_Anywave_Hilbert_Atom_Plugin_c::get_field( int field , MP_Chan_t cha
 DLL_EXPORT void registry(void)
 {
   MP_Atom_Factory_c::get_atom_factory()->register_new_atom_empty("anywave",&MP_Anywave_Atom_Plugin_c::anywave_atom_create_empty);
-  MP_Atom_Factory_c::get_atom_factory()->register_new_atom("anywave",&MP_Anywave_Atom_Plugin_c::create);
+  MP_Atom_Factory_c::get_atom_factory()->register_new_atom("anywave",&MP_Anywave_Atom_Plugin_c::create_fromxml,&MP_Anywave_Atom_Plugin_c::create_frombinary);
   MP_Atom_Factory_c::get_atom_factory()->register_new_atom_empty("anywavehilbert",&MP_Anywave_Hilbert_Atom_Plugin_c::anywave_hilbert_atom_create_empty);
-  MP_Atom_Factory_c::get_atom_factory()->register_new_atom("anywavehilbert",&MP_Anywave_Hilbert_Atom_Plugin_c::create);
- 
+  MP_Atom_Factory_c::get_atom_factory()->register_new_atom("anywavehilbert",&MP_Anywave_Hilbert_Atom_Plugin_c::create_fromxml,&MP_Anywave_Hilbert_Atom_Plugin_c::create_frombinary); 
 }

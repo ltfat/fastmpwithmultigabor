@@ -61,11 +61,9 @@ MP_Atom_c* MP_Harmonic_Atom_Plugin_c::harmonic_atom_create_empty (MP_Dict_c* dic
 
 /*************************/
 /* File factory function */
-MP_Atom_c* MP_Harmonic_Atom_Plugin_c::create( FILE *fid, MP_Dict_c *dict, const char mode )
+MP_Atom_c* MP_Harmonic_Atom_Plugin_c::create_fromxml( TiXmlElement *xmlobj, MP_Dict_c *dict)
 {
-
-  const char* func = "MP_Harmonic_Atom_c::init(fid,mode)";
-
+  const char* func = "MP_Harmonic_Atom_c::create_fromxml(fid,mode)";
   MP_Harmonic_Atom_Plugin_c* newAtom = NULL;
 
   /* Instantiate and check */
@@ -76,8 +74,31 @@ MP_Atom_c* MP_Harmonic_Atom_Plugin_c::create( FILE *fid, MP_Dict_c *dict, const 
       return( NULL );
     }
 
-	/* Read and check */
-  if ( newAtom->read( fid, mode ) )
+	// Read and check
+	if ( newAtom->init_fromxml( xmlobj ) )
+	{
+		mp_error_msg( func, "Failed to read the new Harmonic atom.\n" );
+		delete( newAtom );
+		return( NULL );
+	}
+
+	return newAtom;
+}
+MP_Atom_c* MP_Harmonic_Atom_Plugin_c::create_frombinary( FILE *fid, MP_Dict_c *dict)
+{
+  const char* func = "MP_Harmonic_Atom_c::create_frombinary(fid,mode)";
+  MP_Harmonic_Atom_Plugin_c* newAtom = NULL;
+
+  /* Instantiate and check */
+  newAtom = new MP_Harmonic_Atom_Plugin_c(dict);
+  if ( newAtom == NULL )
+    {
+      mp_error_msg( func, "Failed to create a new atom.\n" );
+      return( NULL );
+    }
+
+  /* Read and check */
+  if ( newAtom->init_frombinary( fid ) )
     {
       mp_error_msg( func, "Failed to read the new Harmonic atom.\n" );
       delete( newAtom );
@@ -170,9 +191,141 @@ int MP_Harmonic_Atom_Plugin_c::alloc_harmonic_atom_param( MP_Chan_t setNumChans,
 
 /********************/
 /* File reader      */
-int MP_Harmonic_Atom_Plugin_c::read( FILE *fid, const char mode )
+int MP_Harmonic_Atom_Plugin_c::init_fromxml(TiXmlElement* xmlobj)
 {
+  const char* func = "MP_Harmonic_Atom_c::read(fid,mode)";
 
+  /* Go up one level */
+  if ( MP_Gabor_Atom_Plugin_c::init_fromxml( xmlobj ) )
+    {
+      mp_error_msg( func, "Reading of Harmonic atom fails at the Gabor atom level.\n" );
+      return( 1 );
+    }
+
+  /* Read at local level */
+  // First, MONOPHONIC FEATURES
+  // Iterate children and discover:
+  TiXmlNode* kid = 0;
+  TiXmlElement* kidel;
+  const char* datatext;
+  while((kid = xmlobj->IterateChildren(kid))){
+    kidel = kid->ToElement();
+    if(kidel != NULL){
+      // par[type=numPartials]
+      if((strcmp(kidel->Value(), "par")==0) && (strcmp(kidel->Attribute("type"), "numPartials")==0)){
+        datatext = kidel->GetText();
+        if(datatext != NULL){
+	  numPartials = strtol(datatext, NULL, 0);
+        }
+      }
+    }
+  }
+  if (numPartials <=1)
+  {
+          mp_error_msg( func, "Failed to read the number of partials (in text mode).\n");
+          return( 1 );
+  }
+
+  /* Alloc at local level */
+  if (alloc_harmonic_atom_param( numChans, numPartials ) )
+  {
+      mp_error_msg( func, "Allocation of Harmonic atom failed at the local level.\n" );
+      return( 1 );
+  }
+
+  /* Try to read the harmonicity, partialAmp and partialPhase */
+  // Then, MULTICHANNEL FEATURES
+  // Iterate children and:
+  kid = 0;
+  int count_harm=0, count_pamp=0, count_pphase=0;
+  while((kid = xmlobj->IterateChildren(kid))){
+    kidel = kid->ToElement();
+    if(kidel != NULL){
+
+      //      if item is par[type=harmonicity][partial=x] then store that
+      if((strcmp(kidel->Value(), "par")==0) && (strcmp(kidel->Attribute("type"), "harmonicity")==0)){
+        ++count_harm;
+        // Get the partial, and check bounds (could cause bad mem writes otherwise)
+	datatext = kidel->Attribute("partial");
+        long partial = strtol(datatext, NULL, 0);
+        if((partial<0) || (partial >= numPartials)){
+            mp_error_msg( func, "Found a <par type='harmonicity'> tag with partial number %i, which is outside the range for this atom [0,%i).\n", partial, numPartials);
+            return( 1 );
+        }
+	datatext = kidel->GetText();
+	harmonicity[partial] = strtod(datatext, NULL);
+      }
+
+      //      if item is harmo_gaborPar[chan=x] then scan that -- it contains the traditional gabor parameter pairs (amp, phase) PER PARTIAL as children
+      if(strcmp(kidel->Value(), "harmo_gaborPar")==0){
+        // Get the channel, and check bounds (could cause bad mem writes otherwise)
+	datatext = kidel->Attribute("chan");
+        long chan = strtol(datatext, NULL, 0);
+        if((chan<0) || (chan >= numChans)){
+            mp_error_msg( func, "Found a <harmo_gaborPar> tag with channel number %i, which is outside the channel range for this atom [0,%i).\n", chan, numChans);
+            return( 1 );
+        }
+        // Now we must scan the harmo kids and process them
+        TiXmlNode* harmokid = 0;
+        TiXmlElement* harmokidel;
+        while((harmokid = kidel->IterateChildren(harmokid))){
+          harmokidel = harmokid->ToElement();
+          if(harmokidel != NULL){
+            //      if item is par[type=amp][partial=x] then store that
+            if((strcmp(harmokidel->Value(), "par")==0) && (strcmp(harmokidel->Attribute("type"), "amp")==0)){
+              ++count_pamp;
+              // Get the partial, and check bounds (could cause bad mem writes otherwise)
+	      datatext = harmokidel->Attribute("partial");
+              long partial = strtol(datatext, NULL, 0);
+              if((partial<0) || (partial >= numPartials)){
+                  mp_error_msg( func, "Found a <par type='amp'> tag with partial number %i, which is outside the range for this atom [0,%i).\n", partial, numPartials);
+                  return( 1 );
+              }
+              datatext = harmokidel->GetText();
+              partialAmp[chan][partial] = strtod(datatext, NULL);
+            }
+
+            //      if item is par[type=phase][partial=x] then store that
+            if((strcmp(harmokidel->Value(), "par")==0) && (strcmp(harmokidel->Attribute("type"), "phase")==0)){
+              ++count_pphase;
+              // Get the partial, and check bounds (could cause bad mem writes otherwise)
+	      datatext = harmokidel->Attribute("partial");
+              long partial = strtol(datatext, NULL, 0);
+              if((partial<0) || (partial >= numPartials)){
+                  mp_error_msg( func, "Found a <par type='phase'> tag with partial number %i, which is outside the range for this atom [0,%i).\n", partial, numPartials);
+                  return( 1 );
+              }
+              datatext = harmokidel->GetText();
+              partialPhase[chan][partial] = strtod(datatext, NULL);
+            }
+          }
+        } // end iteration over harmo_gaborPar kids
+      } // end harmo_gaborPar
+    }
+  }
+
+  // Finally check counts -- harmonicity one per partial, the others one per partial-times-channel
+  if(count_harm != numPartials){
+    mp_error_msg( func, "Scanned an atom with %i partials, but failed to get that number of 'harmonicity' values (%i).\n",
+		numPartials, count_harm);
+    return( 1 );
+  }
+  if(count_pamp != numPartials * numChans){
+    mp_error_msg( func, "Scanned an atom with %i partials and %i channels, but failed to get that number of partial 'amp' values (%i).\n",
+		numPartials, numChans, count_pamp);
+    return( 1 );
+  }
+  if(count_pphase != numPartials * numChans){
+    mp_error_msg( func, "Scanned an atom with %i partials and %i channels, but failed to get that number of partial 'phase' values (%i).\n",
+		numPartials, numChans, count_pphase);
+    return( 1 );
+  }
+
+  return 0;
+}
+
+int MP_Harmonic_Atom_Plugin_c::init_frombinary( FILE *fid )
+{
   const char* func = "MP_Harmonic_Atom_c::read(fid,mode)";
   char line[MP_MAX_STR_LEN];
   char str[MP_MAX_STR_LEN];
@@ -181,28 +334,13 @@ int MP_Harmonic_Atom_Plugin_c::read( FILE *fid, const char mode )
   unsigned int j, jRead;
 
   /* Go up one level */
-  if ( MP_Gabor_Atom_Plugin_c::read( fid, mode ) )
+  if ( MP_Gabor_Atom_Plugin_c::init_frombinary( fid ) )
     {
       mp_error_msg( func, "Reading of Harmonic atom fails at the Gabor atom level.\n" );
       return( 1 );
     }
 
   /* Read at local level */
-  switch ( mode )
-    {
-
-    case MP_TEXT:
-      /* Read the numPartials */
-      if ( ( fgets( line, MP_MAX_STR_LEN, fid ) == NULL ) ||
-           ( sscanf( line, "\t\t<par type=\"numPartials\">%u</par>\n", &numPartials ) != 1 ) ||
-           (numPartials <=1) )
-        {
-          mp_error_msg( func, "Failed to read the number of partials (in text mode).\n");
-          return( 1 );
-        }
-      break;
-
-    case MP_BINARY:
       /* Read the number of partials */
       if ( ( mp_fread( &numPartials,  sizeof(unsigned int), 1, fid ) != 1) ||
            (numPartials <=1) )
@@ -210,14 +348,6 @@ int MP_Harmonic_Atom_Plugin_c::read( FILE *fid, const char mode )
           mp_error_msg( func, "Failed to read the number of partials (in binary mode).\n");
           return( 1 );
         }
-
-      break;
-
-    default:
-      mp_error_msg( func, "Unknown read mode met in MP_Harmonic_Atom_c( fid , mode )." );
-      return( 1 );
-      break;
-    }
 
   /* Alloc at local level */
   if (alloc_harmonic_atom_param( numChans, numPartials ) )
@@ -227,85 +357,6 @@ int MP_Harmonic_Atom_Plugin_c::read( FILE *fid, const char mode )
     }
 
   /* Try to read the harmonicity, partialAmp and partialPhase */
-  switch (mode )
-    {
-
-    case MP_TEXT:
-      /* Read the harmonicity for each partial */
-      for (j=0; j < numPartials; j++)
-        {
-          if ( ( fgets( line, MP_MAX_STR_LEN, fid ) == NULL  ) ||
-               ( sscanf( line, "\t\t<par type=\"harmonicity\" partial=\"%u\">%lg</par>\n",
-                         &jRead,&fidHarmonicity ) != 2 ) ||
-               ( jRead != j ))
-            {
-              mp_warning_msg( func, "Cannot scan harmonicity for partial [%u].\n",j );
-            }
-          else *(harmonicity+j) = (MP_Real_t)fidHarmonicity;
-        }
-
-      for (i = 0; i<numChans; i++)
-        {
-          /* Opening tag */
-          if ( ( fgets( line, MP_MAX_STR_LEN, fid ) == NULL  ) ||
-               ( sscanf( line, "\t\t<harmo_gaborPar chan=\"%d\">\n", &iRead ) != 1 ) )
-            {
-              mp_warning_msg( func, "Cannot scan channel index in atom.\n" );
-            }
-          else if ( iRead != i )
-            {
-              mp_warning_msg( func, "Potential shuffle in the parameters"
-                              " of a gabor atom. (Index \"%u\" read, \"%u\" expected.)\n",
-                              iRead, i );
-            }
-
-          else for (j = 0; j < numPartials; j++)
-              {
-                /* partialAmp */
-                if ( ( fgets( line, MP_MAX_STR_LEN, fid ) == NULL  ) ||
-                     ( sscanf( line, "\t\t<par type=\"amp\" partial=\"%u\">%lg</par>\n", &jRead, &fidAmp ) != 2 ) )
-                  {
-                    mp_warning_msg( func, "Cannot scan amp on channel %u and partial %u.\n", i, j );
-                  }
-                else if (jRead != j)
-                  {
-                    mp_warning_msg( func, "Potential shuffle in the parameters"
-                                    " of a harmonic gabor atom. (Partial Index \"%u\" read, \"%u\" expected.)\n",
-                                    jRead, j );
-                  }
-                else
-                  {
-                    partialAmp[i][j] = (MP_Real_t)fidAmp;
-                  }
-
-                /* phase */
-                if ( ( fgets( line, MP_MAX_STR_LEN, fid ) == NULL  ) ||
-                     ( sscanf( line, "\t\t<par type=\"phase\" partial=\"%u\">%lg</par>\n", &jRead, &fidPhase ) != 2 ) )
-                  {
-                    mp_warning_msg( func, "Cannot scan phase on channel %u and partial %u.\n", i, j );
-                  }
-                else if (jRead != j)
-                  {
-                    mp_warning_msg( func, "Potential shuffle in the parameters"
-                                    " of a harmonic gabor atom. (Partial Index \"%u\" read, \"%u\" expected.)\n",
-                                    jRead, j );
-                  }
-                else
-                  {
-                    partialPhase[i][j] = (MP_Real_t)fidPhase;
-                  }
-              }
-          /* Closing tag */
-          if ( ( fgets( str, MP_MAX_STR_LEN, fid ) == NULL  ) ||
-               ( strcmp( str , "\t\t</harmo_gaborPar>\n" ) ) )
-            {
-              mp_warning_msg( func, "Cannot scan the closing parameter tag"
-                              " in harmonic gabor atom, channel %u.\n", i );
-            }
-        }
-      break;
-
-    case MP_BINARY:
       /* Try to read the harmonicity, partialAmp, partialPhase */
       if ( mp_fread( harmonicity,   sizeof(MP_Real_t), numPartials, fid ) != (size_t)numPartials )
         {
@@ -335,11 +386,6 @@ int MP_Harmonic_Atom_Plugin_c::read( FILE *fid, const char mode )
                 }
             }
         }
-      break;
-
-    default: /* This case is never reached */
-      break;
-    }
 
   return( 0 );
 }

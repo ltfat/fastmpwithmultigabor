@@ -63,10 +63,32 @@ MP_Atom_c* MP_Gabor_Atom_Plugin_c::gabor_atom_create_empty(MP_Dict_c* dict)
 
 /**************************/
 /* File factory function */
-MP_Atom_c* MP_Gabor_Atom_Plugin_c::create( FILE *fid, MP_Dict_c *dict, const char mode )
+MP_Atom_c* MP_Gabor_Atom_Plugin_c::create_fromxml( TiXmlElement *xmlobj, MP_Dict_c *dict)
 {
+  const char* func = "MP_Gabor_Atom_c::create_fromxml(fid,mode)";
+  MP_Gabor_Atom_Plugin_c* newAtom = NULL;
 
-  const char* func = "MP_Gabor_Atom_c::init(fid,mode)";
+  /* Instantiate and check */
+  newAtom = new MP_Gabor_Atom_Plugin_c(dict);
+  if ( newAtom == NULL )
+    {
+      mp_error_msg( func, "Failed to create a new atom.\n" );
+      return( NULL );
+    }
+
+	// Read and check
+	if ( newAtom->init_fromxml( xmlobj ) )
+	{
+		mp_error_msg( func, "Failed to read the new Gabor atom.\n" );
+		delete( newAtom );
+		return( NULL );
+	}
+
+	return newAtom;
+}
+MP_Atom_c* MP_Gabor_Atom_Plugin_c::create_frombinary( FILE *fid, MP_Dict_c *dict)
+{
+  const char* func = "MP_Gabor_Atom_c::create_frombinary(fid,mode)";
   MP_Gabor_Atom_Plugin_c* newAtom = NULL;
 
   /* Instantiate and check */
@@ -78,7 +100,7 @@ MP_Atom_c* MP_Gabor_Atom_Plugin_c::create( FILE *fid, MP_Dict_c *dict, const cha
     }
 
   /* Read and check */
-  if ( newAtom->read( fid, mode ) )
+  if ( newAtom->init_frombinary( fid ) )
     {
       mp_error_msg( func, "Failed to read the new Gabor atom.\n" );
       delete( newAtom );
@@ -119,16 +141,12 @@ int MP_Gabor_Atom_Plugin_c::alloc_gabor_atom_param( const MP_Chan_t setNumChans 
 
 /********************/
 /* File reader      */
-int MP_Gabor_Atom_Plugin_c::read( FILE *fid, const char mode )
+int MP_Gabor_Atom_Plugin_c::init_fromxml(TiXmlElement* xmlobj)
 {
-
   const char* func = "MP_Gabor_Atom_c::read(fid,mode)";
-  char line[MP_MAX_STR_LEN];
-  char str[MP_MAX_STR_LEN];
-  double fidFreq,fidChirp,fidPhase;
-  MP_Chan_t i, iRead;
+
   /* Go up one level */
-  if ( MP_Atom_c::read( fid, mode ) )
+  if ( MP_Atom_c::init_fromxml( xmlobj ) )
     {
       mp_error_msg( func, "Reading of Gabor atom fails at the generic atom level.\n" );
       return( 1 );
@@ -142,68 +160,107 @@ int MP_Gabor_Atom_Plugin_c::read( FILE *fid, const char mode )
     }
 
   /* Then read this level's info */
-  switch ( mode )
+
+  // First, MONOPHONIC FEATURES
+  // Iterate children and discover:
+  TiXmlNode* kid = 0;
+  TiXmlElement* kidel;
+  const char* datatext;
+  while((kid = xmlobj->IterateChildren(kid))){
+    kidel = kid->ToElement();
+    if(kidel != NULL){
+      // window[type=x][opt=x]
+      if(strcmp(kidel->Value(), "window")==0){
+        datatext = kidel->Attribute("type");
+        if(datatext != NULL){
+	  windowType = window_type(datatext);
+        }
+        else{ mp_error_msg(func, "datatext==NULL in window[type]\n"); return 1; }
+        datatext = kidel->Attribute("opt");
+        if(datatext != NULL){
+	  windowOption = strtod(datatext, NULL);
+        }
+        else{ mp_error_msg(func, "datatext==NULL in window[opt]\n"); return 1; }
+      }
+      // par[type=freq]
+      if((strcmp(kidel->Value(), "par")==0) && (strcmp(kidel->Attribute("type"), "freq")==0)){
+        datatext = kidel->GetText();
+        if(datatext != NULL){
+	  freq = strtod(datatext, NULL);
+        }
+        else{ mp_error_msg(func, "datatext==NULL in freq\n"); return 1; }
+      }
+      // par[type=chirp]
+      if((strcmp(kidel->Value(), "par")==0) && (strcmp(kidel->Attribute("type"), "chirp")==0)){
+        datatext = kidel->GetText();
+        if(datatext != NULL){
+	  chirp = strtod(datatext, NULL);
+        }
+        else{ mp_error_msg(func, "datatext==NULL in chirp\n"); return 1; }
+      }
+    }
+  }
+
+  if(windowType == DSP_UNKNOWN_WIN){
+    mp_error_msg( func, "Failed to read the window type and/or option in a Gabor atom structure.\n");
+    return( 1 );
+  }
+
+  // Then, MULTICHANNEL FEATURES
+  // Iterate children and:
+  //      if item is par[type=phase][chan=x] then store that
+  kid = 0;
+  int count_phase=0;
+  while((kid = xmlobj->IterateChildren("par", kid))){
+    kidel = kid->ToElement();
+    if(kidel != NULL){
+      //      if item is par[type=phase][chan=x] then store that
+      if((strcmp(kidel->Value(), "par")==0) && (strcmp(kidel->Attribute("type"), "phase")==0)){
+        ++count_phase;
+        // Get the channel, and check bounds (could cause bad mem writes otherwise)
+	datatext = kidel->Attribute("chan");
+        long chan = strtol(datatext, NULL, 0);
+        if((chan<0) || (chan >= numChans)){
+            mp_error_msg( func, "Found a <par type='amp'> tag with channel number %i, which is outside the channel range for this atom [0,%i).\n", chan, numChans);
+            return( 1 );
+        }
+	datatext = kidel->GetText();
+	phase[chan] = strtod(datatext, NULL);
+      }
+    }
+  }
+
+  if(count_phase != numChans){
+    mp_error_msg( func, "Scanned an atom with %i channels, but failed to get that number of 'phase' values (%i).\n",
+		numChans, count_phase);
+    return( 1 );
+  }
+
+  return 0;
+}
+
+int MP_Gabor_Atom_Plugin_c::init_frombinary( FILE *fid )
+{
+  const char* func = "MP_Gabor_Atom_c::read(fid,mode)";
+  char line[MP_MAX_STR_LEN];
+  char str[MP_MAX_STR_LEN];
+  double fidFreq,fidChirp,fidPhase;
+  MP_Chan_t i, iRead;
+  /* Go up one level */
+  if ( MP_Atom_c::init_frombinary( fid ) )
     {
+      mp_error_msg( func, "Reading of Gabor atom fails at the generic atom level.\n" );
+      return( 1 );
+    }
 
-    case MP_TEXT:
+  /* Alloc at local level */
+  if ( MP_Gabor_Atom_Plugin_c::alloc_gabor_atom_param( numChans ) )
+    {
+      mp_error_msg( func, "Allocation of Gabor atom failed at the local level.\n" );
+      return( 1 );
+    }
 
-      /* Window type and option */
-      if ( ( fgets( line, MP_MAX_STR_LEN, fid ) == NULL ) ||
-           ( sscanf( line, "\t\t<window type=\"%[a-z]\" opt=\"%lg\"></window>\n", str, &windowOption ) != 2 ) )
-        {
-          mp_error_msg( func, "Failed to read the window type and/or option in a Gabor atom structure.\n");
-          return( 1 );
-        }
-      else
-        {
-          /* Convert the window type string */
-          windowType = window_type( str );
-        }
-      /* freq */
-      if ( ( fgets( str, MP_MAX_STR_LEN, fid ) == NULL  ) ||
-           ( sscanf( str, "\t\t<par type=\"freq\">%lg</par>\n", &fidFreq ) != 1 ) )
-        {
-          mp_error_msg( func, "Cannot scan freq.\n" );
-          return( 1 );
-        }
-      else
-        {
-          freq = (MP_Real_t)fidFreq;
-        }
-      /* chirp */
-      if ( ( fgets( str, MP_MAX_STR_LEN, fid ) == NULL  ) ||
-           ( sscanf( str, "\t\t<par type=\"chirp\">%lg</par>\n", &fidChirp ) != 1 ) )
-        {
-          mp_error_msg( func, "Cannot scan chirp.\n" );
-          return( 1 );
-        }
-      else
-        {
-          chirp = (MP_Real_t)fidChirp;
-        }
-      /* phase */
-      for (i = 0; i<numChans; i++)
-        {
-
-          if ( ( fgets( str, MP_MAX_STR_LEN, fid ) == NULL  ) ||
-               ( sscanf( str, "\t\t<par type=\"phase\" chan=\"%hu\">%lg</par>\n", &iRead,&fidPhase ) != 2 ) )
-            {
-              mp_error_msg( func, "Cannot scan the phase on channel %hu.\n", i );
-              return( 1 );
-
-            }
-          else *(phase+i) = (MP_Real_t)fidPhase;
-
-          if ( iRead != i )
-            {
-              mp_warning_msg( func, "Potential shuffle in the phases"
-                              " of a Gabor atom. (Index \"%hu\" read, \"%hu\" expected.)\n",
-                              iRead, i );
-            }
-        }
-      break;
-
-    case MP_BINARY:
+  /* Then read this level's info */
       /* Window type */
       if ( ( fgets( line, MP_MAX_STR_LEN, fid ) == NULL ) ||
            ( sscanf( line, "%[a-z]\n", str ) != 1 ) )
@@ -238,13 +295,6 @@ int MP_Gabor_Atom_Plugin_c::read( FILE *fid, const char mode )
           mp_error_msg( func, "Failed to read the phase array.\n" );
           return( 1 );
         }
-      break;
-
-    default:
-      mp_error_msg( func, "Unknown mode in file reader.\n");
-      return( 1 );
-      break;
-    }
 
   return( 0 );
 }
@@ -731,8 +781,9 @@ DLL_EXPORT void registry(void)
   const char *func = "registry (gabor_atom_plugin.cpp)";
   mp_debug_msg( MP_DEBUG_FUNC_ENTER, func, "Entering\n" );
   MP_Atom_Factory_c::get_atom_factory()->register_new_atom_empty("gabor",&MP_Gabor_Atom_Plugin_c::gabor_atom_create_empty);
-  MP_Atom_Factory_c::get_atom_factory()->register_new_atom("gabor",&MP_Gabor_Atom_Plugin_c::create);
+  MP_Atom_Factory_c::get_atom_factory()->register_new_atom("gabor",&MP_Gabor_Atom_Plugin_c::create_fromxml,&MP_Gabor_Atom_Plugin_c::create_frombinary);
   MP_Atom_Factory_c::get_atom_factory()->register_new_atom_empty("harmonic",&MP_Harmonic_Atom_Plugin_c::harmonic_atom_create_empty);
-  MP_Atom_Factory_c::get_atom_factory()->register_new_atom("harmonic",&MP_Harmonic_Atom_Plugin_c::create);
+  MP_Atom_Factory_c::get_atom_factory()->register_new_atom("harmonic",&MP_Harmonic_Atom_Plugin_c::create_fromxml,&MP_Harmonic_Atom_Plugin_c::create_frombinary);
   mp_debug_msg( MP_DEBUG_FUNC_EXIT, func, "Leaving\n" );
 }
+
