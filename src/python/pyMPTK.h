@@ -22,10 +22,10 @@ typedef struct {
 } BookObject;
 
 static PyMemberDef book_members[] = {
-	{"numChans",   T_INT,       offsetof(BookObject, numChans),   0, "number of chanels"},
-	{"numSamples", T_INT,       offsetof(BookObject, numSamples), 0, "number of samples"},
-	{"sampleRate", T_INT,       offsetof(BookObject, sampleRate), 0, "sample rate"},
-	{"atoms",      T_OBJECT_EX, offsetof(BookObject, atoms),      0, "list of atoms (each a dict)"},
+	{"numChans",   T_INT,       offsetof(BookObject, numChans),   0, "number of channels in the original signal (and so, in all atoms)"},
+	{"numSamples", T_INT,       offsetof(BookObject, numSamples), 0, "number of samples in the original signal"},
+	{"sampleRate", T_INT,       offsetof(BookObject, sampleRate), 0, "sample rate in the original signal (and so, in all atoms)"},
+	{"atoms",      T_OBJECT_EX, offsetof(BookObject, atoms),      0, "list of atoms (each a dict, containing some 'mono' features and some 'multichannel' features)"},
 	{NULL}  /* Sentinel */
 };
 
@@ -40,10 +40,10 @@ PyObject * book_getstate(BookObject* self);
 PyObject * book_setstate(BookObject* self, PyObject *args);
 
 static PyMethodDef book_methods[] = {
-	{"read",         (PyCFunction)book_read,       METH_VARARGS, "read a book file" },
-	{"short_info",   (PyCFunction)book_short_info, METH_NOARGS,  "print short info" },
-	{"__getstate__", (PyCFunction)book_getstate,   METH_NOARGS,  "method to get book's contents in a form that python can pickle" },
-	{"__setstate__", (PyCFunction)book_setstate,   METH_VARARGS, "method to restore a new book from python's pickled form" },
+	{"read",         (PyCFunction)book_read,       METH_VARARGS, "read(filename) - read a book file" },
+	{"short_info",   (PyCFunction)book_short_info, METH_NOARGS,  "short_info() - print short info" },
+	{"__getstate__", (PyCFunction)book_getstate,   METH_NOARGS,  "utility method to get book's contents in a form that python can pickle" },
+	{"__setstate__", (PyCFunction)book_setstate,   METH_VARARGS, "utility method to restore a new book from python's pickled form" },
 	{NULL}  /* Sentinel */
 };
 

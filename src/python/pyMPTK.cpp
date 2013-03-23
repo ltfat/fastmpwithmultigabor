@@ -7,9 +7,20 @@
 * Description: This file defines the initialisation for the module etc, as well as the bits which get data in/out of PyArray format.
 */
 
+// The following two lists must be kept in sync, please
+static const char *mptk_decompose_kwlist[] = {"signal", "dictpath", "samplerate", "numiters", "snr", "method", "decaypath", "bookpath", 
+		"cmpd_maxnum_cycles", "cpmd_min_cycleimprovedb", "cpmd_maxnum_aug_beforecycle", 
+		"cpmd_maxnum_aug_beforecycle_db", "cpmd_max_aud_stopcycle", "cpmd_max_db_stopcycle", "cpmd_hold",
+			NULL};
+static const char *mptk_decompose_kwstring = "decompose a signal into a 'book' and residual, using Matching Pursuit or related methods.\nThe first three args are compulsory, the rest optional:\n(book, residual) = mptk.decompose("
+                                              "signal, dictpath, samplerate\n[, numiters, snr, method, decaypath, bookpath"
+		"cmpd_maxnum_cycles, cpmd_min_cycleimprovedb, cpmd_maxnum_aug_beforecycle"
+		"cpmd_maxnum_aug_beforecycle_db, cpmd_max_aud_stopcycle, cpmd_max_db_stopcycle, cpmd_hold"
+		"])";
+
 static PyMethodDef module_methods[] = {
 	{"loadconfig", mptk_loadconfig, METH_VARARGS, "load MPTK config file from a specific path. do this BEFORE running decompose() etc."},
-	{"decompose" , (PyCFunction) mptk_decompose,  METH_VARARGS | METH_KEYWORDS, "decompose a signal into a 'book' and residual, using Matching Pursuit or related methods.\n(book, residual) = mptk.decompose(sig, dictpath, samplerate, [ snr=0.5, numiters=10, method='mp', decaypath=None, bookpath=None, ... ])"},
+	{"decompose" , (PyCFunction) mptk_decompose,  METH_VARARGS | METH_KEYWORDS, mptk_decompose_kwstring },
 	{"reconstruct" , (PyCFunction) mptk_reconstruct,  METH_VARARGS, "mptk.reconstruct(book, dictpath) -- turn a book back into a signal"},
 	{"anywave_encode" , (PyCFunction) mptk_anywave_encode,  METH_VARARGS, "mptk.anywave_encode(signal) -- encode a signal as base64, for use in an xml dictionary"},
 	{NULL}  /* Sentinel */
@@ -37,7 +48,7 @@ PyTypeObject bookType = {
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /*tp_flags*/
-    "book objects",           /* tp_doc */
+    "A 'book' in MPTK is a list of atoms, the result of performing a sparse decomposition on a signal. It is produced by mptk.decompose(), and used by mptk.reconstruct(). The main data structure in this object is the 'atoms' list.",           /* tp_doc */
     0,		               /* tp_traverse */
     0,		               /* tp_clear */
     0,		               /* tp_richcompare */
@@ -115,11 +126,7 @@ mptk_decompose(PyObject *self, PyObject *args, PyObject *keywds)
 	double            cpmd_max_db_stopcycle          = CMPD_DEFAULT_MAX_DB_STOPCYCLE;
 	int               cmpd_hold = 0;
 
-	static char *kwlist[] = {"signal", "dictpath", "samplerate", "numiters", "snr", "method", "decaypath", "bookpath", 
-		"cmpd_maxnum_cycles", "cpmd_min_cycleimprovedb", "cpmd_maxnum_aug_beforecycle", 
-		"cpmd_maxnum_aug_beforecycle_db", "cpmd_max_aud_stopcycle", "cpmd_max_db_stopcycle", "cpmd_hold",
-			NULL};
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "Osf|kfsssifififi", kwlist,
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "Osf|kfsssifififi", (char**)mptk_decompose_kwlist,
 		&pysignal, &dictpath, &samplerate,
 		&numiters, &snr, &method, &decaypath, &bookpath,
 		&cmpd_maxnum_cycles, &cpmd_min_cycleimprovedb, &cpmd_maxnum_aug_beforecycle,

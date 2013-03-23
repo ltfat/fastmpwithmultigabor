@@ -1,5 +1,21 @@
 INCLUDE(FindLATEX)
 
+IF(BUILD_PYTHON_FILES)
+	# TODO this currently only works when pyMPTK is *installed* - we want to be able to run it even on first build
+	FOREACH(OnePythonModule mptk mptkplot)
+		EXECUTE_PROCESS(
+			OUTPUT_FILE 	${MPTK_BINARY_DIR}/doc/userman/TempPythonUsage.tex
+			COMMAND 	python -c "import ${OnePythonModule}; help(${OnePythonModule})"
+			RESULT_VARIABLE rv
+		)
+		FILE(READ ${MPTK_BINARY_DIR}/doc/userman/TempPythonUsage.tex TEMPUSAGE)
+		STRING(REPLACE "_" "\\_" TEMPUSAGE "${TEMPUSAGE}")
+		FILE(WRITE ${MPTK_BINARY_DIR}/doc/userman/CommandUsage/Python_${OnePythonModule}_Usage.tex "\\fontsize{8}{10}\\begin{alltt}")
+		FILE(APPEND ${MPTK_BINARY_DIR}/doc/userman/CommandUsage/Python_${OnePythonModule}_Usage.tex "${TEMPUSAGE}")
+		FILE(APPEND ${MPTK_BINARY_DIR}/doc/userman/CommandUsage/Python_${OnePythonModule}_Usage.tex "\\end{alltt}\\normalsize")
+	ENDFOREACH()
+ENDIF(BUILD_PYTHON_FILES)
+
 FOREACH(loopTargets ${EXEC_TARGETS})
 	IF(${loopTargets} STREQUAL "mpd")
 		EXECUTE_PROCESS(
