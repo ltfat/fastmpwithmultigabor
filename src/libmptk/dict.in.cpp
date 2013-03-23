@@ -62,10 +62,10 @@ MP_Dict_c* MP_Dict_c::init(  const char *dictFileName )
 	// Instantiate and check
 	newDict = new MP_Dict_c();
 	if ( newDict == NULL )
-    {
+	{
 		mp_error_msg( func, "Failed to create a new dictionary.\n" );
 		return( NULL );
-    }
+	}
 	
 	// Add some blocks read from the dict file
 	newDict->add_blocks( dictFileName );
@@ -73,12 +73,12 @@ MP_Dict_c* MP_Dict_c::init(  const char *dictFileName )
 	// It is then necessary to run a dict.copy_signal(sig)
 	// or a dict.plug_signal(sig) to actually use the dictionary.
 	if ( newDict->numBlocks == 0 )
-    {
+	{
 		mp_error_msg( func, "The dictionary scanned from file [%s] contains no recognized blocks.\n",dictFileName );
 		if ( newDict ) 
 			delete( newDict );
 		return( NULL );
-    }
+	}
 
 	return( newDict );
 }
@@ -91,10 +91,10 @@ MP_Dict_c* MP_Dict_c::init(FILE *fid )
 	// Instantiate and check
 	newDict = new MP_Dict_c();
 	if ( newDict == NULL )
-    {
+	{
 		mp_error_msg( func, "Failed to create a new dictionary.\n" );
 		return( NULL );
-    }
+	}
 	
 	// Add some blocks read from the dict file
 	newDict->add_blocks( fid );
@@ -102,12 +102,12 @@ MP_Dict_c* MP_Dict_c::init(FILE *fid )
 	// It is then necessary to run a dict.copy_signal(sig)
 	// or a dict.plug_signal(sig) to actually use the dictionary.
 	if ( newDict->numBlocks == 0 )
-    {
+	{
 		mp_error_msg( func, "The dictionary scanned from stdin contains no recognized blocks.\n");
 		if ( newDict ) 
 			delete( newDict );
 		return( NULL );
-    }
+	}
 	
 	return( newDict );
 }
@@ -441,12 +441,12 @@ int MP_Dict_c::print( const char *fName )
 	{
 		mp_error_msg( func,"Could not open file %s to write a dictionary\n",fName );
 		return 1;
-    }
+	}
 	if(!print(fid))
 	{
 		mp_error_msg( func,"Could not write the dictionary datas into the file %s\n",fName );
 		return 1;
-    }
+	}
 
 	fclose ( fid );  
 	return 0;
@@ -456,17 +456,13 @@ int MP_Dict_c::print( const char *fName )
 /* Printing to a file */
 bool MP_Dict_c::print( FILE *fid )
 {
-	print(fid, true);    
+	return print(fid, true);    
 }
 bool MP_Dict_c::print( FILE *fid, bool withXmlDecl )
 {    
 	const char	*func = "MP_Dict_c::print( FILE *fid )";
-	map< string, string, mp_ltstring>* paramMap = NULL; 
-	map< string, string, mp_ltstring>::iterator iter; 	
 	TiXmlDocument doc;
 	TiXmlElement* version;
-	TiXmlElement* blockElement;
-	TiXmlElement* paramElement;
 	TiXmlDeclaration* decl;  
 	TiXmlElement *root;
 
@@ -476,18 +472,38 @@ bool MP_Dict_c::print( FILE *fid, bool withXmlDecl )
 		doc.LinkEndChild( decl );
 	}
 
-	// Declaring the "dict" tag
+	// Declaring the root "dict" tag
 	root = new TiXmlElement( "dict" );  
 	doc.LinkEndChild( root ); 
-	 
-	// Declaring the "libversion" tag
 	version = new TiXmlElement( "libVersion" );  
 	version->LinkEndChild( new TiXmlText( VERSION ));
 	root->LinkEndChild(version);
 	
+	if(!appendBlocksToXml( root ))
+	{  
+		mp_error_msg( func, "dict failed to append its blocks to XML in memory\n");
+		return false;
+	}
+	if (!doc.SaveFile( fid ))
+	{ 
+		mp_error_msg( func,"Could not save the file\n");
+		return false;
+	}
+	return true;
+}
+
+// Appends this dict's atoms to an xml document
+bool MP_Dict_c::appendBlocksToXml( TiXmlElement* root )
+{
+	const char	*func = "MP_Dict_c::appendBlocksToXml( TiXmlElement* root )";
+	map< string, string, mp_ltstring>::iterator iter; 	
+	map< string, string, mp_ltstring>* paramMap = NULL; 
+	TiXmlElement* blockElement;
+	TiXmlElement* paramElement;
+
 	// Declaring all the "block" tags
 	for ( unsigned int i = 0; i < numBlocks; i++ )
-    { 
+	{
 		blockElement = new TiXmlElement( "block" ); 
 		root->LinkEndChild(blockElement);
 		paramMap = block[i]->get_block_parameters_map();
@@ -504,65 +520,6 @@ bool MP_Dict_c::print( FILE *fid, bool withXmlDecl )
 		else 
 		{  
 			mp_error_msg( func,"paramMap illformed for block number %u \n",i);
-			return false;
-		}
-	} 
-	if (!doc.SaveFile( fid ))
-	{ 
-		mp_error_msg( func,"Could not save the file\n");
-		return false;
-	}
-	return true;
-}
-
-/**********************/
-/* Printing to a file */
-bool MP_Dict_c::printMultiDict( const char *fName )
-{    
-    TiXmlDocument	doc;
-	TiXmlHandle		handleDict = NULL;
-	TiXmlElement	*elementDict = NULL;
-	TiXmlElement	*elementBlock = NULL;
-	TiXmlElement	*paramElement = NULL;
-	map< string, string, mp_ltstring>* paramMap = NULL; 
-	map< string, string, mp_ltstring>::iterator iter; 	
-	bool			loadOkay;
-	
-	loadOkay = doc.LoadFile(fName);
-
-    if ( loadOkay )
-    {
-		// Get a handle on the document
-		TiXmlHandle hdl(&doc);
-		
-		// Get a handle on the tags "dict"
-		elementDict = hdl.FirstChildElement("dict").Element();
-		if (elementDict == NULL)
-		{
-			mp_error_msg( "Test", "Error, cannot find the xml property :\"dict\".\n");
-			return false;
-		}
-
-		// Declaring all the "block" tags
-		for ( unsigned int i = 0; i < numBlocks; i++ )
-		{ 
-			elementBlock = new TiXmlElement( "block" ); 
-			elementDict->LinkEndChild(elementBlock);
-			paramMap = block[i]->get_block_parameters_map();
-			if (paramMap) 
-			{
-				for( iter = (*paramMap).begin(); iter != (*paramMap).end(); iter++ ) 
-				{
-					paramElement = new TiXmlElement( "param" ); 
-					elementBlock->LinkEndChild(paramElement);
-					paramElement->SetAttribute("name", iter->first.c_str());
-					paramElement->SetAttribute("value", iter->second.c_str());
-				}
-			} 
-		}
-		if (!doc.SaveFile( fName ))
-		{ 
-			mp_error_msg( "Test","Could not save the file\n");
 			return false;
 		}
 	}

@@ -725,14 +725,14 @@ int main( int argc, char **argv )
 	{
 		if ( !strcmp( bookYesName, "-" ) ) 
 		{
-			n = book->print( stdout, MP_TEXT, maskYes, NULL);
+			n = book->print( stdout, MP_TEXT, maskYes);
 			fflush( stdout );
 			if ( MPF_VERBOSE ) 
 				mp_info_msg( func, "[%lu] atoms were written to stdout.\n", n );
 		}
 		else 
 		{
-			n = book->print( bookYesName, MP_BINARY, maskYes, NULL);
+			n = book->print( bookYesName, MP_BINARY, maskYes);
 			if ( MPF_VERBOSE ) 
 				mp_info_msg( func, "[%lu] atoms were written to file [%s].\n", n, bookYesName );
 		}
@@ -742,7 +742,7 @@ int main( int argc, char **argv )
 	if ( bookNoName ) 
 	{
 		/* Write the book */
-		n = book->print( bookNoName, MP_BINARY, maskNo, NULL);
+		n = book->print( bookNoName, MP_BINARY, maskNo);
 		/* Report */
 		if ( MPF_VERBOSE ) 
 			mp_info_msg( func, "[%lu] atoms were written to file [%s].\n", n, bookNoName );
