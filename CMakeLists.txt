@@ -462,7 +462,7 @@ INSTALL(FILES ${MPTK_BINARY_DIR}/install/path.xml DESTINATION mptk)
 # Project provides "INSTALL" and "PACKAGE" target 
 
 #In order to make a release:
-#Set the release number in this file
+#Set the release number in the file "version/buildversion.cmake"
 #Make a tag with the number of the release
 #Use Unix make to make a source release with command "make package_source"
 #Upload the archive on the INRIA GForge MPTK project using the files admin page

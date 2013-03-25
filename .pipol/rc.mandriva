@@ -27,6 +27,10 @@ echo "Installation de la librairie libsndfile..."
 echo "---------------------------------------------------"
 smart install -y -qq libsndfile1-dev
 echo "---------------------------------------------------"
+echo "Installation de la python stuff..."
+echo "---------------------------------------------------"
+smart install -y -qq python-dev python-numpy python-matplotlib
+echo "---------------------------------------------------"
 echo "Installation de la librairie fftw3..."
 echo "---------------------------------------------------"
 smart install -y -qq libfftw3-dev

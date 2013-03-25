@@ -31,6 +31,10 @@ echo "Installation de la librairie fftw3..."
 echo "---------------------------------------------------"
 apt-get install -y -qq libfftw3-dev
 echo "---------------------------------------------------"
+echo "Installation de la python stuff..."
+echo "---------------------------------------------------"
+apt-get install -y -qq python-dev python-numpy python-matplotlib
+echo "---------------------------------------------------"
 echo "Installation de la librairie rpm..."
 echo "---------------------------------------------------"
 apt-get install -y -qq rpm

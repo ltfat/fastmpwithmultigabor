@@ -11,6 +11,7 @@ Emmanuel Ravelli	<ravelli@lam.jussieu.fr>
 Sylvain Lesage		<slesage@irisa.fr>
 Stefan Strahl		<stefan.strahl@uni-oldenburg.de>
 Boris Mailhe		<boris.mailhe@irisa.fr>
+Dan Stowell		<dan.stowell@eecs.qmul.ac.uk>
 ------------
 Software engineering:
 ------------

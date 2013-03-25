@@ -32,6 +32,10 @@ echo "---------------------------------------------------"
 yum -y -qq install fftw-devel
 yum -y -qq install fftw-static
 echo "---------------------------------------------------"
+echo "Installation de la python stuff..."
+echo "---------------------------------------------------"
+yum -y -qq install python numpy python-matplotlib
+echo "---------------------------------------------------"
 echo "Installation de la librairie rpm..."
 echo "---------------------------------------------------"
 yum -y -qq install rpm
