@@ -12,9 +12,10 @@ static const char *mptk_decompose_kwlist[] = {"signal", "dictpath", "samplerate"
 		"cmpd_maxnum_cycles", "cpmd_min_cycleimprovedb", "cpmd_maxnum_aug_beforecycle", 
 		"cpmd_maxnum_aug_beforecycle_db", "cpmd_max_aud_stopcycle", "cpmd_max_db_stopcycle", "cpmd_hold",
 			NULL};
-static const char *mptk_decompose_kwstring = "decompose a signal into a 'book' and residual, using Matching Pursuit or related methods.\nThe first three args are compulsory, the rest optional:\n(book, residual) = mptk.decompose("
-                                              "signal, dictpath, samplerate\n[, numiters, snr, method, decaypath, bookpath"
-		"cmpd_maxnum_cycles, cpmd_min_cycleimprovedb, cpmd_maxnum_aug_beforecycle"
+static const char *mptk_decompose_kwstring = "decompose a signal into a 'book' and residual, using Matching Pursuit or related methods.\nThe first three args are compulsory, the rest optional:"
+		"\n(book, residual) = mptk.decompose("
+                                              "signal, dictpath, samplerate\n[, numiters, snr, method, decaypath, bookpath,\n"
+		"cmpd_maxnum_cycles, cpmd_min_cycleimprovedb, cpmd_maxnum_aug_beforecycle,\n"
 		"cpmd_maxnum_aug_beforecycle_db, cpmd_max_aud_stopcycle, cpmd_max_db_stopcycle, cpmd_hold"
 		"])";
 
@@ -48,7 +49,7 @@ PyTypeObject bookType = {
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /*tp_flags*/
-    "A 'book' in MPTK is a list of atoms, the result of performing a sparse decomposition on a signal. It is produced by mptk.decompose(), and used by mptk.reconstruct(). The main data structure in this object is the 'atoms' list.",           /* tp_doc */
+    "A 'book' in MPTK is a list of atoms, the result of performing a sparse decomposition on a signal.\nIt is produced by mptk.decompose(), and used by mptk.reconstruct().\nThe main data structure in this object is the 'atoms' list.",           /* tp_doc */
     0,		               /* tp_traverse */
     0,		               /* tp_clear */
     0,		               /* tp_richcompare */

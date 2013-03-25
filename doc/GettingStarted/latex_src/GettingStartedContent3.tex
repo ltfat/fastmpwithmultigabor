@@ -36,6 +36,12 @@ The ``sudo''  command may ask you to input administrator password :
 \begin{my_itemize}
 	\item Libsndfile (tested with version 1.0.23) pre compiled library
 	\item FFTW (tested with version 3.2.2) pre compiled library
+        \item Optional, but required to enable the Python wrapper pyMPTK:
+        \begin{my_itemize}
+                       \item Python (tested with version 2.7)
+                       \item NumPy (tested with version 1.5)
+                       \item Matplotlib (tested with version 1.0)
+        \end{my_itemize}
 \end{my_itemize}
 
 \noindent You can see below some examples about how to download those libraries using terminal: 
@@ -60,6 +66,12 @@ The ``sudo''  command may ask you to input administrator password :
 \noindent \emph{\underline{Hint :} We suggest to use the ``port'' command from MacPorts because the command 
 ``+universal'' allows to retrieve libraries which are compatible with both system architectures (32 bits and 64 bits). 
 The package is available at http://www.macports.org/install.php}
+
+For the Python requirements, note that the core Python programming language is pre-installed on all Macs.
+However, there are different ways to get a full Python install with the numerical and plotting libraries included,
+We recommend you consult the information at \texttt{http://new.scipy.org/download.html} -- some users have had good
+experiences with the Enthought distribution, some using Macports (as above) or Homebrew.
+
 
 %--------------------------------------------------------------
 % Section 4.3 : Installing MPTK

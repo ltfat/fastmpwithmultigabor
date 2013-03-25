@@ -12,6 +12,7 @@ IF(LATEX_COMPILER)
 	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/doc/GettingStarted/latex_src/GettingStartedContent5.tex ${MPTK_BINARY_DIR}/doc/GettingStarted/GettingStartedContent5.tex COPYONLY)
 	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/doc/GettingStarted/latex_src/GettingStartedContent6.tex ${MPTK_BINARY_DIR}/doc/GettingStarted/GettingStartedContent6.tex COPYONLY)
 	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/doc/GettingStarted/latex_src/GettingStartedContent7.tex ${MPTK_BINARY_DIR}/doc/GettingStarted/GettingStartedContent7.tex COPYONLY)
+	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/doc/GettingStarted/latex_src/GettingStartedContentPython.tex ${MPTK_BINARY_DIR}/doc/GettingStarted/GettingStartedContentPython.tex COPYONLY)
 
 	# Copying images
 	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/doc/GettingStarted/latex_src/Images/EnvironmentConfiguration.eps ${MPTK_BINARY_DIR}/doc/GettingStarted/Images/EnvironmentConfiguration.eps COPYONLY)

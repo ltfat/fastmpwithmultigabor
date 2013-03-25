@@ -44,43 +44,49 @@ The ``sudo'' command may ask you to input administrator password :
 \begin{my_itemize}
 	\item Libsndfile (tested with version 1.0.23) pre compiled library
 	\item FFTW (tested with version 3.2.2) pre compiled library
+	\item Optional, but required to enable the Python wrapper pyMPTK:
+	\begin{my_itemize}
+		\item Python (tested with version 2.7)
+		\item NumPy (tested with version 1.5)
+		\item Matplotlib (tested with version 1.0)
+	\end{my_itemize}
 \end{my_itemize}
 
 \noindent \emph{You can see below some examples about how to download those libraries using terminal :}
 
 \vspace{0.3 cm}
 
-\begin{tabular}{|c|c|c|}
+\begin{tabular}{|l|}
 	\hline
-	\rowcolor[gray]{0.35} \textcolor{white}{\emph{Ubuntu}} &  \textcolor{white}{\emph{Fedora}} &  \textcolor{white}{\emph{Mandriva}} \\
-	\hline \hline
-		\begin{tiny}
-			\emph{sudo apt-get install -y -qq libsndfile1-dev}
-		\end{tiny}
-		 & 
-		 \begin{tiny}
-		 	\emph{sudo yum -y -qq install libsndfile-devel}
-		\end{tiny}
-		& 
-		\begin{tiny}
-			\emph{sudo smart install -y -qq libsndfile1-dev}
-		\end{tiny} \\
-		\begin{tiny}
-			\emph{sudo apt-get install -y -qq libfftw3-dev}
-		\end{tiny}
-		 & 
-		 \begin{tiny}
-		 	\emph{sudo yum -y -qq install fftw-devel}
-		\end{tiny}
-		& 
-		\begin{tiny}
-			\emph{sudo smart install -y -qq libfftw3-dev}
-		\end{tiny} \\
-		& 
-		\begin{tiny}
-			\emph{sudo yum -y -qq install fftw-static}
-		\end{tiny}
-		& \\
+	\rowcolor[gray]{0.35} \textcolor{white}{\emph{Ubuntu}} \\
+		\texttt{
+			\emph{sudo apt-get install libsndfile1-dev libfftw3-dev}
+		}
+	\\
+		\texttt{
+			\emph{sudo apt-get install python-dev python-numpy python-matplotlib}
+		}
+	\\
+	\hline
+	\rowcolor[gray]{0.35} \textcolor{white}{\emph{Fedora}} \\
+		 \texttt{
+		 	\emph{sudo yum install libsndfile-devel fftw-devel fftw-static}
+		}
+	\\
+		 \texttt{
+		 	\emph{sudo yum install python numpy python-matplotlib}
+		}
+	\\
+	\hline
+	\rowcolor[gray]{0.35} \textcolor{white}{\emph{Mandriva}} \\
+		\texttt{
+			\emph{sudo smart install libsndfile1-dev libfftw3-dev}
+		}
+	\\
+		\texttt{
+			\emph{sudo smart install python-dev python-numpy python-matplotlib}
+		}
+	\\
 	\hline
 \end{tabular}
 

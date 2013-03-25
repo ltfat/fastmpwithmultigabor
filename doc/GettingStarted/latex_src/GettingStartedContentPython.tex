@@ -1,0 +1,40 @@
+\chapter{MPTK from within Python \label{GettingStartedPython}}
+
+The functionality of MPTK can be used from within Python using the 
+MPTK Python wrapper (sometimes known as ``pyMPTK''). It enables you to:
+%
+\begin{my_itemize}
+\item decompose signals using MP or CMP, with a variety of atom types
+\item reconstruct signals from books, including ones manipulated/generated from within python
+\item plot convenient representations of an analysis (such as a plot of chirped atoms)
+\end{my_itemize}
+%
+Some MPTK features are not currently present in pyMPTK:
+\begin{my_itemize}
+\item Creating dictionary objects/files directly
+\item Some decomposition methods: GMP, LoCOMP
+\end{my_itemize}
+
+pyMPTK uses the ``NumPy'' numerical package for Python as well as Python itself.
+For system requirements please see the installation sections earlier in this guide.
+
+\section{Quick guide}
+Quick summary of the API:
+
+\begin{alltt}
+	import mptk
+	mptk.\textbf{loadconfig}(configpath)
+	(book, residual) = mptk.\textbf{decompose}(signal, dictpath, samplerate)
+	signal\_remade    = mptk.\textbf{reconstruct}(book, dictpath)
+
+	import mptkplot
+	mptkplot.\textbf{plot\_chirped}(book, samplerate)
+\end{alltt}
+%
+Remember the ``loadconfig'' command mentioned above -- it is needed for MPTK
+to know where its plugins etc are located.
+
+For further examples, please look in the ``python'' folder in your MPTK install path, for some example scripts.
+Or after running \texttt{import mptk}, use the command \texttt{help(mptk)}
+(the contents of that help are included later in this manual, Section \ref{UsePythonFunc}).
+
