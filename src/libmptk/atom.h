@@ -144,6 +144,9 @@ class MP_Atom_c
 		 * Example : the amplitude on the first channel is amp[0] 
 		 */
 		MP_Real_t *amp;
+		/** \brief amplitude buffer to cache the values if they need to be temporarilly overwritten
+		*/
+		MP_Real_t *ampCache;
 		/** \brief The correlation of the atom with the current residual on each channel.
 		 *
 		 * Used by Gradient Pursuit 

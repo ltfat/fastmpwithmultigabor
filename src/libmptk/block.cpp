@@ -130,11 +130,19 @@ int MP_Block_c::plug_signal( MP_Signal_c *setSignal )
 		maxIPValue = -1.0;
 		maxIPFrameIdx = 0;
 
-		/* Temporary buffer */
-		outBufferTemp = new MP_Real_t[filterLen*s->numChans];
-		if (!outBufferTemp){
+		/* Temporary buffers */
+		atomBufferTemp = new MP_Real_t[filterLen*s->numChans];
+		if (!atomBufferTemp){
 			mp_error_msg( func, "Can't allocate an array of [%lu] MP_Real_t elements"
-					"for the storage of outBufferTemp.\n", filterLen*s->numChans );
+					"for the storage of atomBufferTemp.\n", filterLen*s->numChans );
+			nullify_signal();
+			return( 1 );
+		}
+
+		frameBufferTemp = new MP_Real_t[filterLen*s->numChans];
+		if (!frameBufferTemp){
+			mp_error_msg( func, "Can't allocate an array of [%lu] MP_Real_t elements"
+					"for the storage of frameBufferTemp.\n", filterLen*s->numChans );
 			nullify_signal();
 			return( 1 );
 		}
@@ -298,9 +306,13 @@ void MP_Block_c::nullify_signal( void )
 		free( elevFrameSpace );
 		elevFrameSpace = NULL;
 	}
-	if (outBufferTemp){
-		delete []outBufferTemp;
-		outBufferTemp = NULL;
+	if (frameBufferTemp){
+		delete []frameBufferTemp;
+		frameBufferTemp = NULL;
+	}
+	if (atomBufferTemp){
+		delete []atomBufferTemp;
+		atomBufferTemp = NULL;
 	}
 }
 
@@ -323,7 +335,8 @@ MP_Block_c::MP_Block_c( void )
 	elevatorFrame = NULL;
 	elevFrameSpace = NULL;
 	parameterMap = NULL;
-	outBufferTemp = NULL;
+	frameBufferTemp = NULL;
+	atomBufferTemp = NULL;
 
 }
 
@@ -341,7 +354,8 @@ MP_Block_c::~MP_Block_c()
 	if ( elevSpace )         free( elevSpace );
 	if ( elevatorFrame )     free( elevatorFrame );
 	if ( elevFrameSpace )    free( elevFrameSpace );
-	if ( outBufferTemp ) 	   delete []outBufferTemp;
+	if ( frameBufferTemp )   delete []frameBufferTemp;
+	if ( atomBufferTemp )    delete []atomBufferTemp;
 	if (  parameterMap ){
 		while( !(*parameterMap).empty() ) {
 			(*parameterMap).erase( (*parameterMap).begin() );
@@ -758,14 +772,14 @@ unsigned long int MP_Block_c::build_subbook_waveform_amp(GP_Book_c* thisBook, MP
 	for (*iter = thisBook->begin(); *iter != thisBook->end(); iter->go_to_next_frame())
 	{
 		thisFrame = iter->get_frame();
-		build_frame_waveform_amp(thisFrame, outBufferTemp);
+		build_frame_waveform_amp(thisFrame, frameBufferTemp);
 
 		base = thisFrame->pos - thisFirstPosition;
 		for (MP_Chan_t c = 0; c < s->numChans; c++){
 			unsigned long int outOffset = c*size;
 			unsigned long int tmpOffset = c*filterLen;
 			for (unsigned long int t = 0; t < filterLen; t++)
-				outBuffer[t+outOffset+base] += outBufferTemp[t+tmpOffset];
+				outBuffer[t+outOffset+base] += frameBufferTemp[t+tmpOffset];
 		}
 	}
 
@@ -792,21 +806,21 @@ unsigned long int MP_Block_c::build_subbook_waveform_corr(GP_Book_c* thisBook, M
 
 	size = thisPosition-thisFirstPosition+filterLen;
 
-	// Mise ï¿½ 0 du buffer
+	// Mise ˆ 0 du buffer
 	memset(outBuffer, 0, size*s->numChans*sizeof(MP_Real_t));
 
-	// Parcours du book pour rï¿½cupï¿½rer les frames
+	// Parcours du book pour rŽcupŽrer les frames
 	for (iter = thisBook->begin().copy();*iter != thisBook->end(); iter->go_to_next_frame())
 	{
 		thisFrame = iter->get_frame();
-		build_frame_waveform_corr(thisFrame, outBufferTemp);
+		build_frame_waveform_corr(thisFrame, frameBufferTemp);
 
 		base = thisFrame->pos - thisFirstPosition;
 		for (MP_Chan_t c = 0; c < s->numChans; c++){
 			outOffset = c*size;
 			tmpOffset = c*filterLen;
 			for (t = 0; t < filterLen; t++)
-				outBuffer[t+outOffset+base] += outBufferTemp[t+tmpOffset];
+				outBuffer[t+outOffset+base] += frameBufferTemp[t+tmpOffset];
 		}
 	}
 
@@ -818,12 +832,16 @@ unsigned long int MP_Block_c::build_subbook_waveform_corr(GP_Book_c* thisBook, M
 unsigned long int MP_Block_c::build_frame_waveform_amp(GP_Param_Book_c* thisFrame, MP_Real_t *outBuffer )
 {
 	GP_Param_Book_Iterator_c iter;
+
+	// Mise ˆ 0 du buffer
+	memset(outBuffer, 0, filterLen*s->numChans*sizeof(MP_Real_t));
+
 	// Parcours de la frame pour reconstruction
 	for (iter = thisFrame->begin(); iter != thisFrame->end(); ++iter)	
 	{
-		build_atom_waveform_amp(&*iter,outBufferTemp);
+		build_atom_waveform_amp(&*iter,atomBufferTemp);
 		for(unsigned int iIndex = 0; iIndex != filterLen*s->numChans; iIndex++)
-			outBuffer[iIndex] += outBufferTemp[iIndex];
+			outBuffer[iIndex] += atomBufferTemp[iIndex];
 	}
 
 	return filterLen;
@@ -831,13 +849,18 @@ unsigned long int MP_Block_c::build_frame_waveform_amp(GP_Param_Book_c* thisFram
 
 unsigned long int MP_Block_c::build_frame_waveform_corr(GP_Param_Book_c* thisFrame, MP_Real_t *outBuffer )
 {
+
 	GP_Param_Book_Iterator_c iter;
+
+	// Mise ˆ 0 du buffer
+	memset(outBuffer, 0, filterLen*s->numChans*sizeof(MP_Real_t));
+
 	// Parcours de la frame pour reconstruction
 	for (iter = thisFrame->begin(); iter != thisFrame->end(); ++iter)	
 	{
-		build_atom_waveform_corr(&*iter,outBufferTemp);
+		build_atom_waveform_corr(&*iter,atomBufferTemp);
 		for(unsigned int iIndex = 0; iIndex != filterLen*s->numChans; iIndex++)
-			outBuffer[iIndex] += outBufferTemp[iIndex];
+			outBuffer[iIndex] += atomBufferTemp[iIndex];
 	}
 
 	return filterLen;
@@ -851,24 +874,12 @@ unsigned long int MP_Block_c::build_atom_waveform_amp(MP_Atom_c *thisAtom,MP_Rea
 
 unsigned long int MP_Block_c::build_atom_waveform_corr(MP_Atom_c *thisAtom,MP_Real_t *outBuffer )
 {
-	thisAtom->build_waveform_norm(outBuffer);
-	// Parcours du tableau outBuffer pour effectuer le calcul de corrï¿½lation
-	for (int c = 0; c < s->numChans; c++){
-		unsigned long int offset = c*filterLen;
-		for (unsigned int iIndex = 0; iIndex < filterLen; iIndex++)
-			outBuffer[iIndex+offset] = outBuffer[iIndex+offset]*thisAtom->corr[c];
-	}
+	thisAtom->build_waveform_corr(outBuffer);
 	return filterLen;
 }
 
 unsigned long int MP_Block_c::build_atom_waveform_norm(MP_Atom_c *thisAtom,MP_Real_t *outBuffer )
 {
-	thisAtom->build_waveform(outBuffer);
-	// Parcours du tableau outBuffer pour effectuer le calcul de norme
-	for (int c = 0; c < s->numChans; c++){
-		unsigned long int offset = c*filterLen;
-		for (unsigned int iIndex = 0; iIndex < filterLen; iIndex++)
-			outBuffer[iIndex+offset] = outBuffer[iIndex+offset]/thisAtom->amp[c];
-	}
+	thisAtom->build_waveform_norm(outBuffer);
 	return filterLen;
 }

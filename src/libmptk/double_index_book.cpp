@@ -153,7 +153,7 @@ GP_Pos_Range_Sub_Book_c* GP_Double_Index_Book_c::get_neighbours (MP_Atom_c* atom
       begin -= (dict->maxFilterLen - 1);
     else
       begin = 0;
-    end += (atom->support->len -1);
+    end += (atom->support->len);
     
     return sortBook->get_range_book(begin, end);
 }

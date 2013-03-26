@@ -410,13 +410,16 @@ unsigned short int GPD_Core_c::step()
 		enCorr = 0;
 		enGrad = 0;
 
-		for (iter = touchBook->begin(); iter !=touchBook->end(); ++iter)
+		for (iter = touchBook->begin(); iter !=touchBook->end(); ++iter){
 			enCorr = enCorr + (iter->corr[c])*(iter->corr[c]);
+			mp_debug_msg(MP_DEBUG_MPD_LOOP, func, "Correlation = %f\n", iter->corr[c]);
+		}
 
 		for (t = 0; t <gradSupport.len; t++)
 			enGrad = enGrad + gradient[t+offset]*gradient[t+offset];
 
 		alpha = enCorr/enGrad;
+		mp_debug_msg(MP_DEBUG_MPD_LOOP, func, "enCorr = %f\tenGrad = %f\talpha = %f\n", enCorr, enGrad, alpha);
 
 		// dump the gradient
 //

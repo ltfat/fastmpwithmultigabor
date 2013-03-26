@@ -342,7 +342,64 @@ void MP_Nyquist_Block_Plugin_c::update_frame(unsigned long int frameIdx,
         {
           ip -= *pAmp;
         }
-      sum += ip;
+      sum += ip*ip;
+    }
+  *maxCorr = sum/filterLen;
+  *maxFilterIdx = 0;
+}
+
+void MP_Nyquist_Block_Plugin_c::update_frame(unsigned long int frameIdx,
+                                      MP_Real_t *maxCorr,
+                                      unsigned long int *maxFilterIdx,
+                                      GP_Param_Book_c* touchBook)
+{
+  double sum = 0.0;
+  double ip;
+  MP_Real_t* pAmp;
+  unsigned long int t;
+  unsigned long int inShift;
+
+  int chanIdx;
+  int numChans;
+  GP_Param_Book_Iterator_c iter;
+
+  if (!touchBook){
+	  update_frame(frameIdx, maxCorr, maxFilterIdx);
+	  return;
+  }
+
+  assert( s != NULL );
+  numChans = s->numChans;
+  assert( maxCorr != NULL );
+  assert( maxFilterIdx != NULL );
+
+  iter = touchBook->begin();
+
+  inShift = frameIdx*filterShift + blockOffset;
+
+  /*----*/
+  /* Fill the mag array: */
+  for ( chanIdx = 0; chanIdx < numChans; chanIdx++ )
+    {
+
+      assert( s->channel[chanIdx] + inShift + filterLen <= s->channel[0] + s->numSamples );
+
+      ip = 0.0;
+      for (t = 0, pAmp = s->channel[chanIdx] + inShift;
+           t < filterLen;
+           t+=2, pAmp+=2)
+        {
+          ip += *pAmp;
+        }
+      for (t = 1, pAmp = s->channel[chanIdx] + inShift + 1;
+           t < filterLen;
+           t+=2, pAmp+=2)
+        {
+          ip -= *pAmp;
+        }
+      if (iter != touchBook->end())
+    	  iter->corr[chanIdx] = ip/sqrt(filterLen);
+      sum += ip*ip;
     }
   *maxCorr = sum/filterLen;
   *maxFilterIdx = 0;

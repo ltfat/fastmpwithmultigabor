@@ -142,6 +142,10 @@ public:
 			     MP_Real_t *maxCorr, 
 			     unsigned long int *maxFilterIdx ); 
 
+  virtual void update_frame( unsigned long int frameIdx,
+  			     MP_Real_t *maxCorr,
+  			     unsigned long int *maxFilterIdx,
+  			     GP_Param_Book_c* touchBook);
   /** \brief Creates a new constant atom corresponding to (frameIdx,filterIdx)
    * \todo   Describe how the atom is determined here.
    */

@@ -123,7 +123,12 @@ public:
    */
   virtual void update_frame( unsigned long int frameIdx, 
 			     MP_Real_t *maxCorr, 
-			     unsigned long int *maxFilterIdx ); 
+			     unsigned long int *maxFilterIdx );
+
+  virtual void update_frame( unsigned long int frameIdx,
+  			     MP_Real_t *maxCorr,
+  			     unsigned long int *maxFilterIdx,
+  			     GP_Param_Book_c* touchBook);
 
   /** \brief Creates a new dirac atom corresponding to (frameIdx,filterIdx)
    * \todo   Describe how the atom is determined here.
