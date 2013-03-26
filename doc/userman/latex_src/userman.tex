@@ -1467,7 +1467,12 @@ An example of a generalized MCLT dictionnary is:
 The book files can be used either as a binary or XML files. They are divided into 
 two different parts. The first part (xml style) includes all the different dictionaries used during 
 the decomposition. The second part (xml or binary style) represents the differents atom
-founded during the decomposition.
+found during the decomposition.
+
+If you use XML format, then the whole file will be a valid XML file.
+If you use binary format, then the dict is still written as XML, but the book data
+is currently written in a raw binary format -- this is more compact than XML but
+cannot be processed by ordinary XML tools.
 
 %--------------------------------------------------------------
 % Section 10.1 : General rules
@@ -1476,10 +1481,12 @@ founded during the decomposition.
 A book should include, in the following order:
 \begin{my_enumerate}
 	\item An optional XML declaration line;
-	\item A dictionary XML structure (see section \ref{GenRules})
-	\item A `bin' or `txt' string refering to the following book structure
-	\item A book opening tag (including mandatory parameters)
-	\item A book closing tag.
+	\item The opening ``mptkbook'' tag
+	\item A ``dict'' dictionary XML structure (see section \ref{GenRules})
+	\item A ``book'' opening tag (plus mandatory attributes, including the  format=``bin'' or format=``txt'' string specifying how the following book structure is formatted)
+	\item Zero or more atoms, declared in XML or binary format as appropriate
+	\item A ``book'' closing tag
+	\item The closing ``mptkbook'' tag
 \end{my_enumerate}
 
 Any text included after the book closing tag will be ignored. Blank
@@ -1496,6 +1503,8 @@ pieces will therefore show up in stderr.
 	\begin{alltt}
 		\emph{<?xml version="1.0" encoding="ISO-8859-1"?>}
 		          The XML declaration line.
+		\emph{<mptkbook></mptkbook>}
+		          The opening and closing tags for the entire MPTK book file, containing a <dict> and a <book>.
 		\emph{<dict>List of blocks</dict>}
 		          The opening and closing tags for the dictionary. Anything coming after the </dict> tag 
 		          will be ignored by the parser.
@@ -1516,13 +1525,12 @@ pieces will therefore show up in stderr.
 		          using the <block uses="PROPERTIES_NAME">List of block parameters </block> syntax. 
 		          The block parameters defined in the block list override the parameters from 
 		          PROPERTIES_NAME block properties.	
-		\emph{`bin' or `txt' string}
-		          A string describing if the following book structure is in binary format or in text (XML) format
-		\emph{<book nAtom=``x'' numChans=``x'' numSamples=``x'' sampleRate="x" libVersion="x.x.x">}
+		\emph{<book nAtom=``x'' numChans=``x'' numSamples=``x'' sampleRate="x" libVersion="x.x.x" format=``bin|txt''>}
 		          The book opening tag. It includes the number of atoms founded, the number of channels of 
 		          the signal, the number of samples and the sample rate asked by the user and the library version
+		          and the format string describing if the following book structure is in binary format or in text (XML) format
 		\emph{xwA&=<?#_8zk*Ž?gabor}
-                            An atom datas. It includes the binary datas (``xwA...'') and the name of the type of the atom used
+		          An atom datas. It includes the binary datas (``xwA...'') and the name of the type of the atom used
 		\emph{</book>}
                             The book closing tag.
 	\end{alltt}
