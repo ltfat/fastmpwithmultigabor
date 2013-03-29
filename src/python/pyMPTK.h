@@ -57,6 +57,7 @@ PyObject * mptk_decompose(PyObject *self, PyObject *args, PyObject *keywds);
 
 struct mptk_decompose_result { BookObject* thebook; PyArrayObject* residual; };
 int mptk_decompose_body(const PyArrayObject *numpysignal, const char *dictpath, const int samplerate, const unsigned long int numiters, const float snr, const char *method, const char* decaypath, const char* bookpath,
+        unsigned long int reportEvery,
 	unsigned long int cmpd_maxnum_cycles,
 	double            cpmd_min_cycleimprovedb,
 	unsigned long int cpmd_maxnum_aug_beforecycle,

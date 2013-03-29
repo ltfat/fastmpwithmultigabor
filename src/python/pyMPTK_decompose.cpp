@@ -46,6 +46,7 @@ MP_Signal_c* mp_create_signal_from_numpyarray(const PyArrayObject *nparray){
 // The implementation of the main number-crunching calls goes here though.
 
 int mptk_decompose_body(const PyArrayObject *numpysignal, const char *dictpath, const int samplerate, const unsigned long int numiters, const float snr, const char *method, const char* decaypath, const char* bookpath,
+	unsigned long int reportEvery,
 	unsigned long int cmpd_maxnum_cycles,
 	double            cpmd_min_cycleimprovedb,
 	unsigned long int cpmd_maxnum_aug_beforecycle,
@@ -108,7 +109,6 @@ int mptk_decompose_body(const PyArrayObject *numpysignal, const char *dictpath, 
 	    return 4;
 	}
 
-	unsigned long int reportHit = 10;  // To parameterize
 	// Set stopping condition
 	if(numiters != 0){
 		mpdCore->set_iter_condition( numiters );
@@ -125,7 +125,7 @@ int mptk_decompose_body(const PyArrayObject *numpysignal, const char *dictpath, 
 	}//else if(strcmp(method, "gmp")==0){
 		// not same method... ((GPD_Core_c*) mpdCore)->set_save_hit(ULONG_MAX, bookpath, NULL, decaypath);
 	//}
-	mpdCore->set_report_hit(reportHit);
+	mpdCore->set_report_hit(reportEvery);
 	if(decaypath != NULL) mpdCore->set_use_decay();
 
 	mpdCore->set_verbose();

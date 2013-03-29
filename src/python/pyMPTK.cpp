@@ -8,13 +8,13 @@
 */
 
 // The following two lists must be kept in sync, please
-static const char *mptk_decompose_kwlist[] = {"signal", "dictpath", "samplerate", "numiters", "snr", "method", "decaypath", "bookpath", 
+static const char *mptk_decompose_kwlist[] = {"signal", "dictpath", "samplerate", "numiters", "snr", "method", "decaypath", "bookpath", "reportevery",
 		"cmpd_maxnum_cycles", "cpmd_min_cycleimprovedb", "cpmd_maxnum_aug_beforecycle", 
 		"cpmd_maxnum_aug_beforecycle_db", "cpmd_max_aud_stopcycle", "cpmd_max_db_stopcycle", "cpmd_hold",
 			NULL};
 static const char *mptk_decompose_kwstring = "decompose a signal into a 'book' and residual, using Matching Pursuit or related methods.\nThe first three args are compulsory, the rest optional:"
 		"\n(book, residual) = mptk.decompose("
-                                              "signal, dictpath, samplerate\n[, numiters, snr, method, decaypath, bookpath,\n"
+                                              "signal, dictpath, samplerate\n[, numiters, snr, method, decaypath, bookpath, reportevery,\n"
 		"cmpd_maxnum_cycles, cpmd_min_cycleimprovedb, cpmd_maxnum_aug_beforecycle,\n"
 		"cpmd_maxnum_aug_beforecycle_db, cpmd_max_aud_stopcycle, cpmd_max_db_stopcycle, cpmd_hold"
 		"])";
@@ -117,6 +117,7 @@ mptk_decompose(PyObject *self, PyObject *args, PyObject *keywds)
 	const char *method="mp";
 	const char *decaypath = "";
 	const char *bookpath="";
+	unsigned long int reportevery=10;
 
 	// CMP's special options
 	unsigned long int cmpd_maxnum_cycles             = CMPD_DEFAULT_MAXNUM_CYCLES;
@@ -127,9 +128,9 @@ mptk_decompose(PyObject *self, PyObject *args, PyObject *keywds)
 	double            cpmd_max_db_stopcycle          = CMPD_DEFAULT_MAX_DB_STOPCYCLE;
 	int               cmpd_hold = 0;
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "Osf|kfsssifififi", (char**)mptk_decompose_kwlist,
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "Osf|kfsssiifififi", (char**)mptk_decompose_kwlist,
 		&pysignal, &dictpath, &samplerate,
-		&numiters, &snr, &method, &decaypath, &bookpath,
+		&numiters, &snr, &method, &decaypath, &bookpath, &reportevery,
 		&cmpd_maxnum_cycles, &cpmd_min_cycleimprovedb, &cpmd_maxnum_aug_beforecycle,
 		&cpmd_maxnum_aug_beforecycle_db, &cpmd_max_aud_stopcycle, &cpmd_max_db_stopcycle, &cmpd_hold
 		))
@@ -146,7 +147,7 @@ mptk_decompose(PyObject *self, PyObject *args, PyObject *keywds)
 
 	// Here's where we call the heavy stuff
 	mptk_decompose_result result;
-	int intresult = mptk_decompose_body(numpysignal, dictpath, (int)samplerate, numiters, snr, method, decaypath, bookpath, 
+	int intresult = mptk_decompose_body(numpysignal, dictpath, (int)samplerate, numiters, snr, method, decaypath, bookpath, reportevery,
 		cmpd_maxnum_cycles, cpmd_min_cycleimprovedb, cpmd_maxnum_aug_beforecycle,
 		cpmd_maxnum_aug_beforecycle_db, cpmd_max_aud_stopcycle, cpmd_max_db_stopcycle, cmpd_hold,
 		result);
