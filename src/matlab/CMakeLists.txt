@@ -76,6 +76,15 @@ FOREACH(matscriptfile ${MATTOOLBAR})
    INSTALL(FILES ${MPTK_MATLAB_OUTPUT_DIR}/${matscriptfile} DESTINATION ${MPTK_MATLAB_INSTALL_DIR})
 ENDFOREACH(matscriptfile)
 
+#SET(MAT_LATEX_UTILS latexdoc_block_xmltags)
+#SET(MATSCRIPT_LATEX ${MAT_LATEX_UTILS} PARENT_SCOPE)
+#FOREACH(matscriptfile ${MAT_LATEX_UTILS})
+#   # Copy the script
+#   CONFIGURE_FILE(${MPTK_MATLAB_SRC_DIR}/scripts/${matscriptfile} ${MPTK_MATLAB_OUTPUT_DIR}/${matscriptfile} COPYONLY)
+#   # Set rule to install it
+#   INSTALL(FILES ${MPTK_MATLAB_OUTPUT_DIR}/${matscriptfile} DESTINATION ${MPTK_MATLAB_INSTALL_DIR})
+#ENDFOREACH(matscriptfile)
+
 IF(BUILD_MATLAB_MEX_FILES_EXPERIMENTAL)
 # List of experimental script files to be copied and installed
 FOREACH(scriptfile createrandomdictionary.m create_synthetic_data.m savetable.m tableread.m test_anywave.m test_mpd_demix.m)

@@ -17,12 +17,14 @@ IF(BUILD_PYTHON_FILES)
 ENDIF(BUILD_PYTHON_FILES)
 
 FOREACH(loopTargets ${EXEC_TARGETS})
+        # Get the version number. We need to get it only once, this will be with the MPD command
 	IF(${loopTargets} STREQUAL "mpd")
 		EXECUTE_PROCESS(
 			OUTPUT_FILE 	${MPTK_BINARY_DIR}/doc/userman/TempVersionUsage.tex
 			COMMAND 		${loopTargets} -V
 			RESULT_VARIABLE rv
 		)
+
 		FILE(READ ${MPTK_BINARY_DIR}/doc/userman/TempVersionUsage.tex VERSIONUSAGE)
 		STRING(FIND ${VERSIONUSAGE} "version" VERSIONPOSITION)
 		MATH(EXPR VERSIONFINALPOSITION ${VERSIONPOSITION}+8)
@@ -31,6 +33,7 @@ FOREACH(loopTargets ${EXEC_TARGETS})
 		STRING(SUBSTRING ${VERSIONUSAGE} ${VERSIONFINALPOSITION} ${ENDVERSIONLENGTH} VERSIONFINALUSAGE)
 		FILE(WRITE ${MPTK_BINARY_DIR}/doc/userman/CommandUsage/MPTKVersion.tex "${VERSIONFINALUSAGE}")
 	ENDIF(${loopTargets} STREQUAL "mpd")
+        # Get the usage for all command lines
 	EXECUTE_PROCESS(
 		OUTPUT_FILE 	${MPTK_BINARY_DIR}/doc/userman/TempCmdUsage.tex
 		COMMAND 	${loopTargets}
@@ -43,15 +46,18 @@ FOREACH(loopTargets ${EXEC_TARGETS})
 ENDFOREACH(loopTargets)
 
 IF(MATLAB_ROOT)
+        # WARNING: the 'matlab' command needs to be in the path for this to work propertly. TODO: This should be fixed with proper path setting from FindMatlab.cmake ? 
+        # Get usage for each Matlab executable target
 	FOREACH(MatLoopTargets ${MAT_EXEC_TARGETS})
 		IF(NOT EXISTS ${MPTK_BINARY_DIR}/doc/userman/CommandUsage/${MatLoopTargets}_Usage.tex)
 			EXECUTE_PROCESS(
-				OUTPUT_FILE 	${MPTK_BINARY_DIR}/doc/userman/TempCmdUsage.tex
-				COMMAND 	matlab -nosplash -nojvm -nodesktop -r "help ${MPTK_SOURCE_DIR}/src/matlab/${MatLoopTargets}.m,exit"
+				OUTPUT_FILE 	${MPTK_BINARY_DIR}/doc/userman/TempMatlabCmdUsage.tex
+				COMMAND 	matlab -nosplash -nojvm -nodesktop -r "help ${MPTK_SOURCE_DIR}/src/matlab/${MatLoopTargets}.m,exit" > ${MPTK_BINARY_DIR}/doc/userman/TempMatlabCmdUsage.tex
 				RESULT_VARIABLE rv
 			)
+
 			# Getting the "Usage" offset
-			FILE(READ ${MPTK_BINARY_DIR}/doc/userman/TempCmdUsage.tex TEMPUSAGE)
+			FILE(READ ${MPTK_BINARY_DIR}/doc/userman/TempMatlabCmdUsage.tex TEMPUSAGE)
 			STRING( FIND ${TEMPUSAGE} "Usage" POSITION)
 			STRING(LENGTH ${TEMPUSAGE} LENGTH)
 			MATH(EXPR ENDLENGTH ${LENGTH}-${POSITION}-8)
@@ -66,6 +72,7 @@ IF(MATLAB_ROOT)
 		ENDIF(NOT EXISTS ${MPTK_BINARY_DIR}/doc/userman/CommandUsage/${MatLoopTargets}_Usage.tex)
 	ENDFOREACH(MatLoopTargets)
 
+        # Get usage for each Matlab script
 	FOREACH(MatScriptTargets ${MATSCRIPT_EXEC})
 		IF(NOT EXISTS ${MPTK_BINARY_DIR}/doc/userman/CommandUsage/${MatScriptTargets}_Usage.tex)
 			EXECUTE_PROCESS(
@@ -88,6 +95,29 @@ IF(MATLAB_ROOT)
 			ENDIF(NOT ${POSITION} STREQUAL "-1")
 		ENDIF(NOT EXISTS ${MPTK_BINARY_DIR}/doc/userman/CommandUsage/${MatScriptTargets}_Usage.tex)
 	ENDFOREACH(MatScriptTargets)
+
+SET(MatScriptTargets latexdoc_block_xmltags)
+#	FOREACH(MatScriptTargets ${MATSCRIPT_LATEX})
+		IF(NOT EXISTS ${MPTK_BINARY_DIR}/doc/userman/CommandUsage/DictXMLUsage.tex)
+			EXECUTE_PROCESS(
+				OUTPUT_FILE 	${MPTK_BINARY_DIR}/doc/userman/TempDictXMLUsage.tex
+				COMMAND 	matlab -nosplash -nojvm -nodesktop -r "cd('${MPTK_SOURCE_DIR}/src/matlab/scripts');${MatScriptTargets},exit"
+				RESULT_VARIABLE rv
+			)
+			# Getting the "\begin{itemize}" offset
+			FILE(READ ${MPTK_BINARY_DIR}/doc/userman/TempDictXMLUsage.tex TEMPUSAGE)
+			STRING( FIND ${TEMPUSAGE} "\begin{itemize}" POSITION)
+			STRING(LENGTH ${TEMPUSAGE} LENGTH)
+			MATH(EXPR ENDLENGTH ${LENGTH}-${POSITION}-8)
+			STRING(SUBSTRING ${TEMPUSAGE} ${POSITION} ${ENDLENGTH} LOLUSAGE)
+			IF(NOT ${POSITION} STREQUAL "-1")
+				FILE(APPEND ${MPTK_BINARY_DIR}/doc/userman/CommandUsage/DictXMLUsage.tex "${LOLUSAGE}")
+			ELSE(NOT ${POSITION} STREQUAL "-1")
+				MESSAGE("<<<<<<<<<<<<<<< Error, no \"\begin{itemize}\" tag has been found >>>>>>>>>>>>")
+			ENDIF(NOT ${POSITION} STREQUAL "-1")
+		ENDIF(NOT EXISTS ${MPTK_BINARY_DIR}/doc/userman/CommandUsage/DictXMLUsage.tex)
+#	ENDFOREACH(MatScriptTargets)
+
 ENDIF(MATLAB_ROOT)
 
 IF(LATEX_COMPILER)
@@ -126,7 +156,7 @@ IF(LATEX_COMPILER)
 			COMMENT   "Latex (first pass)"
 		)
 		ADD_CUSTOM_COMMAND(
-			OUTPUT    ${MPTK_BINARY_DIR}/doc/userman/userman.bbl
+			OUTPUT    ${MPTK_BINARY_DIR}/doc/userman/userman.bbl ${MPTK_BINARY_DIR}/doc/userman/userman.blg
 			DEPENDS   ${MPTK_BINARY_DIR}/doc/userman/userman.aux
 			COMMAND   ${BIBTEX_COMPILER}
 			ARGS      -terse ${MPTK_BINARY_DIR}/doc/userman/userman

@@ -978,12 +978,12 @@ void MP_Gabor_Block_Plugin_c::get_parameters_info_map(map< string, string, mp_lt
 	const char * func = "void MP_Gabor_Block_Plugin_c::get_parameters_info_map()";
 
 	if ((*parameterMapInfo).empty()) {
-		(*parameterMapInfo)["type"] = "'gabor' blocks generate 'gabor' atoms with a zero chirprate. You can combine several 'gabor' blocks at different scales (windowLen) and with different shapes (windowtype) to obtain a multiscale Gabor dictionary. If you set windowLen to be the size of the analyzed signal and windowtype to be 'rect', you will get the Fourier dictionary.";
-		(*parameterMapInfo)["windowLen"] = "The common length of the atoms (which is the length of the signal window), in number of samples.";
+		(*parameterMapInfo)["type"] = "Gabor blocks generate 'gabor' atoms with a zero chirprate. One can combine several 'gabor' blocks at different scales (windowLen) and with different shapes (windowtype) to obtain a multiscale Gabor dictionary. Setting windowLen to be the size of the analyzed signal and windowtype to be 'rect' yields the Fourier dictionary.";
+		(*parameterMapInfo)["windowLen"] = "The common length of the atoms (which is the length of the analysis window), in number of samples.";
 		(*parameterMapInfo)["windowShift"] = "The shift between atoms on adjacent time frames, in number of samples. It MUST be at least one.";
 		(*parameterMapInfo)["fftSize"] = "The size of the FFT, including the effect of zero padding. It MUST be and EVEN integer, at least as large as <windowLen>. It determines the number of discrete frequencies of the collection of Gabor atoms associated with a Gabor block, which is (fftSize/2)+1.";
 		(*parameterMapInfo)["windowtype"] = "The window type, which determines its shape. Examples include 'gauss', 'rect', 'hamming' (see the developper documentation of libdsp_windows.h). A related parameter is <windowopt>.";
-		(*parameterMapInfo)["windowopt"] = "The optional window shape parameter (see the developper documentation oflibdsp_windows.h).";
+		(*parameterMapInfo)["windowopt"] = "The optional window shape parameter (see the developper documentation of libdsp_windows.h).";
 		(*parameterMapInfo)["blockOffset"] = "Offset between beginning of signal and beginning of first atom, in number of samples.";
 		(*parameterMapInfo)["windowRate"] = "The shift between atoms on adjacent time frames, in proportion of the <windowLen>. For example, windowRate = 0.5 corresponds to half-overlapping signal windows.";
 		
