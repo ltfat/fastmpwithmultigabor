@@ -1,2 +1,46 @@
-mptk INFO -- mpf - Out of the [1268] original atoms, [38] atoms satisfy the required properties.
-mptk INFO -- mpf - Out of the [1268] original atoms, [1230] atoms DO NOT satisfy the required properties.
+mptk WARNING -- MP_Atom_c::satisfies(...) - Unknown field. Returning TRUE.
+mptk WARNING -- MP_Atom_c::satisfies(...) - Unknown field. Returning TRUE.
+mptk WARNING -- MP_Atom_c::satisfies(...) - Unknown field. Returning TRUE.
+mptk WARNING -- MP_Atom_c::satisfies(...) - Unknown field. Returning TRUE.
+mptk WARNING -- MP_Atom_c::satisfies(...) - Unknown field. Returning TRUE.
+mptk WARNING -- MP_Atom_c::satisfies(...) - Unknown field. Returning TRUE.
+mptk WARNING -- MP_Atom_c::satisfies(...) - Unknown field. Returning TRUE.
+mptk WARNING -- MP_Atom_c::satisfies(...) - Unknown field. Returning TRUE.
+mptk WARNING -- MP_Atom_c::satisfies(...) - Unknown field. Returning TRUE.
+mptk WARNING -- MP_Atom_c::satisfies(...) - Unknown field. Returning TRUE.
+mptk WARNING -- MP_Atom_c::satisfies(...) - Unknown field. Returning TRUE.
+mptk WARNING -- MP_Atom_c::satisfies(...) - Unknown field. Returning TRUE.
+mptk WARNING -- MP_Atom_c::satisfies(...) - Unknown field. Returning TRUE.
+mptk WARNING -- MP_Atom_c::satisfies(...) - Unknown field. Returning TRUE.
+mptk WARNING -- MP_Atom_c::satisfies(...) - Unknown field. Returning TRUE.
+mptk WARNING -- MP_Atom_c::satisfies(...) - Unknown field. Returning TRUE.
+mptk WARNING -- MP_Atom_c::satisfies(...) - Unknown field. Returning TRUE.
+mptk WARNING -- MP_Atom_c::satisfies(...) - Unknown field. Returning TRUE.
+mptk WARNING -- MP_Atom_c::satisfies(...) - Unknown field. Returning TRUE.
+mptk WARNING -- MP_Atom_c::satisfies(...) - Unknown field. Returning TRUE.
+mptk WARNING -- MP_Atom_c::satisfies(...) - Unknown field. Returning TRUE.
+mptk WARNING -- MP_Atom_c::satisfies(...) - Unknown field. Returning TRUE.
+mptk WARNING -- MP_Atom_c::satisfies(...) - Unknown field. Returning TRUE.
+mptk WARNING -- MP_Atom_c::satisfies(...) - Unknown field. Returning TRUE.
+mptk WARNING -- MP_Atom_c::satisfies(...) - Unknown field. Returning TRUE.
+mptk WARNING -- MP_Atom_c::satisfies(...) - Unknown field. Returning TRUE.
+mptk WARNING -- MP_Atom_c::satisfies(...) - Unknown field. Returning TRUE.
+mptk WARNING -- MP_Atom_c::satisfies(...) - Unknown field. Returning TRUE.
+mptk WARNING -- MP_Atom_c::satisfies(...) - Unknown field. Returning TRUE.
+mptk WARNING -- MP_Atom_c::satisfies(...) - Unknown field. Returning TRUE.
+mptk WARNING -- MP_Atom_c::satisfies(...) - Unknown field. Returning TRUE.
+mptk WARNING -- MP_Atom_c::satisfies(...) - Unknown field. Returning TRUE.
+mptk WARNING -- MP_Atom_c::satisfies(...) - Unknown field. Returning TRUE.
+mptk WARNING -- MP_Atom_c::satisfies(...) - Unknown field. Returning TRUE.
+mptk WARNING -- MP_Atom_c::satisfies(...) - Unknown field. Returning TRUE.
+mptk WARNING -- MP_Atom_c::satisfies(...) - Unknown field. Returning TRUE.
+mptk WARNING -- MP_Atom_c::satisfies(...) - Unknown field. Returning TRUE.
+mptk WARNING -- MP_Atom_c::satisfies(...) - Unknown field. Returning TRUE.
+mptk WARNING -- MP_Atom_c::satisfies(...) - Unknown field. Returning TRUE.
+mptk WARNING -- MP_Atom_c::satisfies(...) - Unknown field. Returning TRUE.
+mptk WARNING -- MP_Atom_c::satisfies(...) - Unknown field. Returning TRUE.
+mptk WARNING -- MP_Atom_c::satisfies(...) - Unknown field. Returning TRUE.
+mptk WARNING -- MP_Atom_c::satisfies(...) - Unknown field. Returning TRUE.
+mptk WARNING -- MP_Atom_c::satisfies(...) - Unknown field. Returning TRUE.
+mptk INFO -- mpf - Out of the [1036] original atoms, [33] atoms satisfy the required properties.
+mptk INFO -- mpf - Out of the [1036] original atoms, [1003] atoms DO NOT satisfy the required properties.

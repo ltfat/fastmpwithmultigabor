@@ -1,6 +1,5 @@
-The Matching Pursuit Tool Kit (MPTK) provides a fast implementation of the Matching Pursuit algorithm
-for the sparse decomposition of multichannel audio signals. It comprises a library, standalone utilities
-and wrappers for Matlab and Python enabling you to use MPTK directly and plot its results.
+The Matching Pursuit Tool Kit (MPTK) provides a fast implementation of the Matching Pursuit algorithm for the sparse decomposition of multichannel audio signals. 
+It comprises a library, standalone utilities and wrappers for Matlab and Python enabling you to use MPTK directly and plot its results.
 
 What is MPTK ?
 MPTK provides an implementation of Matching Pursuit which is:
@@ -10,8 +9,7 @@ MPTK provides an implementation of Matching Pursuit which is:
     * FLEXIBLE: multi-channel, various signal input formats, flexible syntax to describe the dictionaries => reproducible results, cleaner experiments.
     * OPEN: modular architecture => add your own atoms ! Free distribution under the GPL.
 
-MPTK is mainly developed and maintained within the METISS Research Group (http://www.irisa.fr/metiss/home_html-fr) on audio signal processing,
-at the IRISA Research Institute (http://www.irisa.fr/home_html) in Rennes, France. 
+MPTK is mainly developed and maintained within the PANAMA Research Group (http://www.irisa.fr/panama) on audio signal processing, at the IRISA Research Institute (http://www.irisa.fr) in Rennes, France. 
 
 To build MPTK yo will need some packages:
 -Libsndfile: at least version 1.0.11 

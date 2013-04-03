@@ -79,7 +79,7 @@ void usage( void )
 {
 	fprintf( stdout, " \n" );
 	fprintf( stdout, " Usage:\n" );
-	fprintf( stdout, "     mpcat (book1.bin|-) (book2.bin|-) ... (bookN.bin|-) (bookOut.bin|-)\n" );
+	fprintf( stdout, "     mpcat [options] (book1.bin|-) (book2.bin|-) ... (bookN.bin|-) (bookOut.bin|-)\n" );
 	fprintf( stdout, " \n" );
 	fprintf( stdout, " Synopsis:\n" );
 	fprintf( stdout, "     Concatenates the N books book1.bin...bookN.bin into the book file bookOut.bin.\n" );
@@ -236,7 +236,7 @@ int main( int argc, char **argv )
 	while ( optind < (argc-1) )
 	{
 		bookInFileName = argv[optind++];
-		mp_debug_msg(MP_DEBUG_GENERAL, func, "Read book file name [%s] for book number [%d].\n",bookInFileName, numBooks );
+		mp_debug_msg(MP_DEBUG_GENERAL, func, "Read book file name [%s] for book number [%lu].\n",bookInFileName, numBooks );
 
 		if(numBooks >= maxNumBooks){
 			mp_error_msg( func, "Number of books (%i) is greater than the fixed limit (%i).\n", numBooks, maxNumBooks);
@@ -271,14 +271,14 @@ int main( int argc, char **argv )
 		{
 			if ( !MPC_QUIET ) 
 			{
-				fprintf ( stderr, "mpcat warning -- Can't read atoms for book number [%d] from file [%s]. I'm skipping this book.\n",numBooks, bookInFileName );
+				fprintf ( stderr, "mpcat warning -- Can't read atoms for book number [%lu] from file [%s]. I'm skipping this book.\n",numBooks, bookInFileName );
 				fflush( stderr );
 			}
 		}
 		nAtomRead += allBooks[numBooks]->numAtoms;
 
 		if ( MPC_VERBOSE ) 
-			fprintf ( stderr, "mpcat msg -- Loaded [%lu] atoms for book number [%d] from file [%s].\n", allBooks[numBooks]->numAtoms, numBooks, bookInFileName );
+			fprintf ( stderr, "mpcat msg -- Loaded [%lu] atoms for book number [%lu] from file [%s].\n", allBooks[numBooks]->numAtoms, numBooks, bookInFileName );
 		++numBooks; // this must come at end of loop since used for indexing
 	}
 
