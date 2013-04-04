@@ -60,7 +60,7 @@
 %--------------------------------------------------------------
 \begin{document}
 \newcommand{\documentVersion}{1.0}
-
+\newcommand{\devteam}{PANAMA}
 %--------------------------------------------------------------
 % Title page
 %--------------------------------------------------------------
@@ -68,7 +68,7 @@
 \begin{titlepage}
 	\begin{center}
 		\includegraphics[width=0.7\textwidth]{Images/logo.eps}\\[1cm]    
-		\textsc{\Large METISS Team}\\[0.5cm]
+		\textsc{\Large \devteam\ Team}\\[0.5cm]
 		% Title
 		\HRule \\[0.4cm]
 		{\huge \bfseries The Matching Pursuit Tool Kit\\[1cm] 
@@ -105,7 +105,6 @@
 \thispagestyle{empty}
 \setcounter{page}{0}
 \null
-\newpage
 
 %--------------------------------------------------------------
 % Table of contents
@@ -123,14 +122,15 @@
 %--------------------------------------------------------------
 \part{Getting Started \label{getSrtd}}
 \clearpage
-\vspace*{\stretch{1}}
-\begin{center}
-	\noindent \emph{\textbf{Abstract} \\~~\\~~This part of the document describes how to begin with Matching
+
+
+	\noindent \textbf{Abstract} \\~~\\~~
+        \input{shortdescription.tex}
+	
+        ~This part of the document describes how to begin with Matching
 	Pursuit Tool Kit. It provides informations about how to simply download, install and configure this library on 
 	every architecture from a released binary file. It also describes, in the case that the user have installed Matlab,
-	the basic functions available and their usage.}
-\end{center}
-\vspace*{\stretch{1}}
+	the basic functions available and their usage.
 
 \input{usermanIntro}
 \input{MPTK4Windows}
@@ -1544,7 +1544,7 @@ pieces will therefore show up in stderr.
 		          The book opening tag. It includes the number of atoms founded, the number of channels of 
 		          the signal, the number of samples and the sample rate asked by the user and the library version
 		          and the format string describing if the following book structure is in binary format or in text (XML) format
-		\emph{xwA&=<?#_8zk*Ž?gabor}
+		\emph{xwA&=<?#_8zk*ÂŽ?gabor}
 		          An atom datas. It includes the binary datas (``xwA...'') and the name of the type of the atom used
 		\emph{</book>}
                             The book closing tag.

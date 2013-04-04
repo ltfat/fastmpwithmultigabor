@@ -130,7 +130,7 @@ IF(LATEX_COMPILER)
 	ENDFOREACH(file)
 
 	# Copying tex
-	SET(texdocs MPTK4Windows.tex MPTK4Linux.tex MPTK4OSX.tex MPTK4Matlab.tex MPTK4Python.tex MPTK4CmdLine.tex MPTKSourceInstall.tex MPTKHelp.tex userman.tex usermanIntro.tex biblio_MP.bib atom.ps plonk.ps)
+	SET(texdocs shortdescription.tex MPTK4Windows.tex MPTK4Linux.tex MPTK4OSX.tex MPTK4Matlab.tex MPTK4Python.tex MPTK4CmdLine.tex MPTKSourceInstall.tex MPTKHelp.tex userman.tex usermanIntro.tex biblio_MP.bib atom.ps plonk.ps)
 	FOREACH(file ${texdocs})
 		CONFIGURE_FILE(${MPTK_SOURCE_DIR}/doc/userman/latex_src/${file} ${MPTK_BINARY_DIR}/doc/userman/${file} COPYONLY)
 	ENDFOREACH(file)
