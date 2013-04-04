@@ -2,10 +2,8 @@
 % tags used to describe blocks in dictionary description files
 
 % Set path and environment variables to run getmptkinfo
-addpath /usr/local/mptk/matlab/
-setenv('MPTK_CONFIG_FILENAME','/usr/local/mptk/path.xml')
-%addpath @CMAKE_INSTALL_PREFIX@/mptk/matlab/
-%setenv('MPTK_CONFIG_FILENAME','@MPTK_CONFIG_FILENAME@')
+addpath @CMAKE_INSTALL_PREFIX@/mptk/matlab/
+setenv('MPTK_CONFIG_FILENAME','@CMAKE_INSTALL_PREFIX@/mptk/path.xml')
 
 % Load information using a call to MPTK
 info    = getmptkinfo;
@@ -14,13 +12,11 @@ nblocks = length(blocks);
 
 % Begin the latex string with a marker
 strglob = 'BEGINCONTENT';
-%strglob = [strglob '\begin{itemize}'];
 % Loop on all block types
 for n=1:nblocks
    block = blocks(n);
     % Get the block and its number of parameters
    np = length(block.parameters);
-%strloc = ['\item[$\bullet$] Blocks of type: \texttt{' block.type '}\\'];
    strloc = ['\section{Tags for blocks of type: \texttt{' block.type '}}'];
 
     % Find the index of the generic 'name' and'blockOffset' parameters
@@ -66,8 +62,8 @@ for n=1:nblocks
    strloc= [strloc '\end{itemize}'];
    strglob = [strglob strloc];
 end
-%strglob = [strglob '\end{itemize}'];
 
+% Replace underscores and < and > for proper latex compliance
 strglob = strrep(strglob,'_','\_');
 strglob = strrep(strglob,'<','$<$');
 strglob = strrep(strglob,'>','$>$');
