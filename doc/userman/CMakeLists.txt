@@ -124,31 +124,16 @@ ENDIF(MATLAB_ROOT)
 
 IF(LATEX_COMPILER)
 	# Copying images
-	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/doc/userman/latex_src/Images/WindowsCmake.eps ${MPTK_BINARY_DIR}/doc/userman/Images/WindowsCmake.eps COPYONLY)
-	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/doc/userman/latex_src/Images/tree.eps ${MPTK_BINARY_DIR}/doc/userman/Images/tree.eps COPYONLY)
-	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/doc/userman/latex_src/Images/mpcycle.eps ${MPTK_BINARY_DIR}/doc/userman/Images/mpcycle.eps COPYONLY)
-	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/doc/userman/latex_src/Images/VisualStudioCmake.eps ${MPTK_BINARY_DIR}/doc/userman/Images/VisualStudioCmake.eps COPYONLY)
-	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/doc/userman/latex_src/Images/WindowsCmake2.eps ${MPTK_BINARY_DIR}/doc/userman/Images/WindowsCmake2.eps COPYONLY)
-	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/doc/userman/latex_src/Images/FailedCmake.eps ${MPTK_BINARY_DIR}/doc/userman/Images/FailedCmake.eps COPYONLY)
-	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/doc/userman/latex_src/Images/bookeditPage.eps ${MPTK_BINARY_DIR}/doc/userman/Images/bookeditPage.eps COPYONLY)
-	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/doc/userman/latex_src/Images/bookeditToolbar.eps ${MPTK_BINARY_DIR}/doc/userman/Images/bookeditToolbar.eps COPYONLY)
-	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/doc/userman/latex_src/Images/bookeditFileToolbar.eps ${MPTK_BINARY_DIR}/doc/userman/Images/bookeditFileToolbar.eps COPYONLY)
-	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/doc/userman/latex_src/Images/bookeditEditToolbar.eps ${MPTK_BINARY_DIR}/doc/userman/Images/bookeditEditToolbar.eps COPYONLY)
-	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/doc/userman/latex_src/Images/bookeditTransformToolbar.eps ${MPTK_BINARY_DIR}/doc/userman/Images/bookeditTransformToolbar.eps COPYONLY)
-	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/doc/userman/latex_src/Images/cTestReport.eps ${MPTK_BINARY_DIR}/doc/userman/Images/cTestReport.eps COPYONLY)
-	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/doc/userman/latex_src/Images/logo.eps ${MPTK_BINARY_DIR}/doc/userman/Images/logo.eps COPYONLY)
-	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/doc/userman/latex_src/Images/UnixCMakeGUI.eps ${MPTK_BINARY_DIR}/doc/userman/Images/UnixCMakeGUI.eps COPYONLY)
-	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/doc/userman/latex_src/Images/WindowsCMakeGUI.eps ${MPTK_BINARY_DIR}/doc/userman/Images/WindowsCMakeGUI.eps COPYONLY)
-	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/doc/userman/latex_src/Images/MatlabPathSelect.eps ${MPTK_BINARY_DIR}/doc/userman/Images/MatlabPathSelect.eps COPYONLY)
+	SET(IMAGES CommandPrompt.eps EnvironmentConfiguration.eps FailedCmake.eps MacLicence.eps MacPathSelection.eps MatlabPathSelect.eps PathSelection.eps UnixCMakeGUI.eps VisualStudioCmake.eps WindowsCMakeGUI.eps WindowsCmake.eps WindowsCmake2.eps WindowsLicence.eps bookeditEditToolbar.eps bookeditFileToolbar.eps bookeditPage.eps bookeditToolbar.eps bookeditTransformToolbar.eps cTestReport.eps logo.eps mpcycle.eps tree.eps)
+	FOREACH(file ${IMAGES})
+		CONFIGURE_FILE(${MPTK_SOURCE_DIR}/doc/userman/latex_src/Images/${file} ${MPTK_BINARY_DIR}/doc/userman/Images/${file} COPYONLY)
+	ENDFOREACH(file)
 
 	# Copying tex
-	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/doc/userman/latex_src/userman.tex ${MPTK_BINARY_DIR}/doc/userman/userman.tex COPYONLY)
-	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/doc/userman/latex_src/usermanIntro.tex ${MPTK_BINARY_DIR}/doc/userman/usermanIntro.tex COPYONLY)
-
-	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/doc/userman/latex_src/biblio_MP.bib ${MPTK_BINARY_DIR}/doc/userman/biblio_MP.bib COPYONLY)
-	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/doc/userman/latex_src/atom.ps ${MPTK_BINARY_DIR}/doc/userman/atom.ps COPYONLY)
-	CONFIGURE_FILE(${MPTK_SOURCE_DIR}/doc/userman/latex_src/plonk.ps ${MPTK_BINARY_DIR}/doc/userman/plonk.ps COPYONLY)
-
+	SET(texdocs MPTK4Windows.tex MPTK4Linux.tex MPTK4OSX.tex MPTK4Matlab.tex MPTK4Python.tex MPTK4CmdLine.tex MPTKSourceInstall.tex MPTKHelp.tex userman.tex usermanIntro.tex biblio_MP.bib atom.ps plonk.ps)
+	FOREACH(file ${texdocs})
+		CONFIGURE_FILE(${MPTK_SOURCE_DIR}/doc/userman/latex_src/${file} ${MPTK_BINARY_DIR}/doc/userman/${file} COPYONLY)
+	ENDFOREACH(file)
 	IF(BIBTEX_COMPILER) 
 		ADD_CUSTOM_COMMAND(
 			OUTPUT    ${MPTK_BINARY_DIR}/doc/userman/userman.aux

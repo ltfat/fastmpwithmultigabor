@@ -37,12 +37,6 @@
 \newcommand{\myinput}[1]{}
 
 %--------------------------------------------------------------
-% Modifying the relative paths
-%--------------------------------------------------------------
-\newcommand{\relativePath}{../GettingStarted/}
-\newcommand{\relativeImagePath}{../GettingStarted/Images/}
-
-%--------------------------------------------------------------
 % Adding the packages
 %--------------------------------------------------------------
 \usepackage{a4wide}
@@ -139,7 +133,24 @@
 \vspace*{\stretch{1}}
 
 \input{usermanIntro}
-\input{../GettingStarted/GettingStartedContent}
+\input{MPTK4Windows}
+\input{MPTK4Linux}
+\input{MPTK4OSX}
+
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+% Part 2 : Using  MPTK
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+\mypart{Using MPTK}
+
+\input{MPTK4Matlab}
+\input{MPTK4Python}
+\input{MPTK4CmdLine}
+\myinput{MPTKSourceInstall}
+\input{MPTKHelp}
 
 \cleardoublepage
 %--------------------------------------------------------------
@@ -1533,7 +1544,7 @@ pieces will therefore show up in stderr.
 		          The book opening tag. It includes the number of atoms founded, the number of channels of 
 		          the signal, the number of samples and the sample rate asked by the user and the library version
 		          and the format string describing if the following book structure is in binary format or in text (XML) format
-		\emph{xwA&=<?#_8zk*ÂŽ?gabor}
+		\emph{xwA&=<?#_8zk*Ž?gabor}
 		          An atom datas. It includes the binary datas (``xwA...'') and the name of the type of the atom used
 		\emph{</book>}
                             The book closing tag.
