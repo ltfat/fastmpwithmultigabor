@@ -106,7 +106,7 @@ SET(MatScriptTargets latexdoc_block_xmltags)
 			)
 			# Getting the "\begin{itemize}" offset
 			FILE(READ ${MPTK_BINARY_DIR}/doc/userman/TempDictXMLUsage.tex TEMPUSAGE)
-			STRING( FIND ${TEMPUSAGE} "\begin{itemize}" POSITION)
+			STRING( FIND ${TEMPUSAGE} "\\begin{itemize}" POSITION)
 			STRING(LENGTH ${TEMPUSAGE} LENGTH)
 			MATH(EXPR ENDLENGTH ${LENGTH}-${POSITION}-8)
 			STRING(SUBSTRING ${TEMPUSAGE} ${POSITION} ${ENDLENGTH} LOLUSAGE)
