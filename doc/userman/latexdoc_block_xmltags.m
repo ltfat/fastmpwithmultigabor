@@ -1,20 +1,29 @@
 % Script to automatically generate latex code documenting the various XML
 % tags used to describe blocks in dictionary description files
 
-
+% Set path and environment variables to run getmptkinfo
 addpath /usr/local/mptk/matlab/
 setenv('MPTK_CONFIG_FILENAME','/usr/local/mptk/path.xml')
+%addpath @CMAKE_INSTALL_PREFIX@/mptk/matlab/
+%setenv('MPTK_CONFIG_FILENAME','@MPTK_CONFIG_FILENAME@')
 
+% Load information using a call to MPTK
 info    = getmptkinfo;
 blocks  = info.blocks;
 nblocks = length(blocks);
-strglob = '\begin{itemize}';
 
+% Begin the latex string with a marker
+strglob = 'BEGINCONTENT';
+%strglob = [strglob '\begin{itemize}'];
+% Loop on all block types
 for n=1:nblocks
    block = blocks(n);
+    % Get the block and its number of parameters
    np = length(block.parameters);
-   strloc = ['\item[$\bullet$] Blocks of type: \texttt{' block.type '}\\'];
-   % Find the index of the generic 'name' and'blockOffset' parameter
+%strloc = ['\item[$\bullet$] Blocks of type: \texttt{' block.type '}\\'];
+   strloc = ['\section{Tags for blocks of type: \texttt{' block.type '}}'];
+
+    % Find the index of the generic 'name' and'blockOffset' parameters
    if exist('pbo','var')
        clear pbo
    end
@@ -26,7 +35,7 @@ for n=1:nblocks
            pbo   = p;
        end
    end
-   % Order parameters by type / blockOffset / other
+% Order parameters: 1: type; 2: blockOffset; then the other parameters
    if exist('pbo','var')
        paramlist = find((1:np)~=ptype & (1:np)~=pbo);
        paramlist = [ptype pbo paramlist];
@@ -35,14 +44,15 @@ for n=1:nblocks
        paramlist = [ptype paramlist];
    end
  
-   % Provide general description of block
+   % Write general description of block
    parameter = block.parameters(ptype);
    strloc = [strloc '{\em ' parameter.info '}\\'];
 
-   
+   % Writing the list of all parameters
    strloc = [strloc '\begin{itemize}'];
    for p=paramlist
       parameter = block.parameters(p);
+% Special treatment for the type parameter
       if p==ptype
           strloc = [strloc '\item[] ' '\texttt{<param name="' parameter.name '" value="' block.type '">}\\']; 
       else
@@ -56,7 +66,7 @@ for n=1:nblocks
    strloc= [strloc '\end{itemize}'];
    strglob = [strglob strloc];
 end
-strglob = [strglob '\end{itemize}'];
+%strglob = [strglob '\end{itemize}'];
 
 strglob = strrep(strglob,'_','\_');
 strglob = strrep(strglob,'<','$<$');

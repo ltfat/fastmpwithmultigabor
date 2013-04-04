@@ -46,16 +46,17 @@ FOREACH(loopTargets ${EXEC_TARGETS})
 ENDFOREACH(loopTargets)
 
 IF(MATLAB_ROOT)
+# TODO: check this works for Windows as well as 
+SET(MATLAB_CMD ${MATLAB_ROOT}/bin/matlab)
         # WARNING: the 'matlab' command needs to be in the path for this to work propertly. TODO: This should be fixed with proper path setting from FindMatlab.cmake ? 
         # Get usage for each Matlab executable target
 	FOREACH(MatLoopTargets ${MAT_EXEC_TARGETS})
 		IF(NOT EXISTS ${MPTK_BINARY_DIR}/doc/userman/CommandUsage/${MatLoopTargets}_Usage.tex)
 			EXECUTE_PROCESS(
 				OUTPUT_FILE 	${MPTK_BINARY_DIR}/doc/userman/TempMatlabCmdUsage.tex
-				COMMAND 	matlab -nosplash -nojvm -nodesktop -r "help ${MPTK_SOURCE_DIR}/src/matlab/${MatLoopTargets}.m,exit" > ${MPTK_BINARY_DIR}/doc/userman/TempMatlabCmdUsage.tex
+				COMMAND 	${MATLAB_CMD} -nosplash -nojvm -nodesktop -r "help ${MPTK_SOURCE_DIR}/src/matlab/${MatLoopTargets}.m,exit" > ${MPTK_BINARY_DIR}/doc/userman/TempMatlabCmdUsage.tex
 				RESULT_VARIABLE rv
 			)
-
 			# Getting the "Usage" offset
 			FILE(READ ${MPTK_BINARY_DIR}/doc/userman/TempMatlabCmdUsage.tex TEMPUSAGE)
 			STRING( FIND ${TEMPUSAGE} "Usage" POSITION)
@@ -77,7 +78,7 @@ IF(MATLAB_ROOT)
 		IF(NOT EXISTS ${MPTK_BINARY_DIR}/doc/userman/CommandUsage/${MatScriptTargets}_Usage.tex)
 			EXECUTE_PROCESS(
 				OUTPUT_FILE 	${MPTK_BINARY_DIR}/doc/userman/TempCmdUsage.tex
-				COMMAND 	matlab -nosplash -nojvm -nodesktop -r "help ${MPTK_SOURCE_DIR}/src/matlab/scripts/${MatScriptTargets}.m,exit"
+				COMMAND 	${MATLAB_CMD} -nosplash -nojvm -nodesktop -r "help ${MPTK_SOURCE_DIR}/src/matlab/scripts/${MatScriptTargets}.m,exit"
 				RESULT_VARIABLE rv
 			)
 			# Getting the "Usage" offset
@@ -97,16 +98,19 @@ IF(MATLAB_ROOT)
 	ENDFOREACH(MatScriptTargets)
 
 SET(MatScriptTargets latexdoc_block_xmltags)
-#	FOREACH(MatScriptTargets ${MATSCRIPT_LATEX})
-		IF(NOT EXISTS ${MPTK_BINARY_DIR}/doc/userman/CommandUsage/DictXMLUsage.tex)
+		     IF(NOT EXISTS ${MPTK_BINARY_DIR}/doc/userman/CommandUsage/DictXMLUsage.tex)
+# REPLACE ENVIRONMENT VARIABLES IN script (TODO: make sure this works even when first compiling MPTK. For the moment it may rely on the fact that MPTK has been installed)
+			 CONFIGURE_FILE(${MPTK_SOURCE_DIR}/doc/userman/${MatScriptTargets}.m.in ${MPTK_BINARY_DIR}/doc/userman/${MatScriptTargets}.m @ONLY)
+# RUN MATLAB TO APPLY SCRIPT AND GET DICT XML TAGS DOCUMENTATION
 			EXECUTE_PROCESS(
 				OUTPUT_FILE 	${MPTK_BINARY_DIR}/doc/userman/TempDictXMLUsage.tex
-				COMMAND 	matlab -nosplash -nojvm -nodesktop -r "cd('${MPTK_SOURCE_DIR}/src/matlab/scripts');${MatScriptTargets},exit"
+				COMMAND 	${MATLAB_CMD} -nosplash -nojvm -nodesktop -r "cd('${MPTK_BINARY_DIR}/doc/userman');${MatScriptTargets},exit"
 				RESULT_VARIABLE rv
 			)
-			# Getting the "\begin{itemize}" offset
+			# Getting the "BEGINCONTENT" offset
 			FILE(READ ${MPTK_BINARY_DIR}/doc/userman/TempDictXMLUsage.tex TEMPUSAGE)
-			STRING( FIND ${TEMPUSAGE} "\\begin{itemize}" POSITION)
+			STRING( FIND ${TEMPUSAGE} "BEGINCONTENT" TMPPOSITION)
+                        MATH(EXPR POSITION ${TMPPOSITION}+12)
 			STRING(LENGTH ${TEMPUSAGE} LENGTH)
 			MATH(EXPR ENDLENGTH ${LENGTH}-${POSITION}-8)
 			STRING(SUBSTRING ${TEMPUSAGE} ${POSITION} ${ENDLENGTH} LOLUSAGE)
@@ -116,8 +120,6 @@ SET(MatScriptTargets latexdoc_block_xmltags)
 				MESSAGE("<<<<<<<<<<<<<<< Error, no \"\begin{itemize}\" tag has been found >>>>>>>>>>>>")
 			ENDIF(NOT ${POSITION} STREQUAL "-1")
 		ENDIF(NOT EXISTS ${MPTK_BINARY_DIR}/doc/userman/CommandUsage/DictXMLUsage.tex)
-#	ENDFOREACH(MatScriptTargets)
-
 ENDIF(MATLAB_ROOT)
 
 IF(LATEX_COMPILER)
