@@ -1,13 +1,17 @@
 INCLUDE(FindLATEX)
 
 IF(BUILD_PYTHON_FILES)
+	#TODO : make sure that the python command is set correctly and corresponds to an install where matplotlib is found correctly. This should probably be done in FindPython.cmake
+	SET(PYTHON_CMD /opt/local/bin/python2.7)
 	# TODO this currently only works when pyMPTK is *installed* - we want to be able to run it even on first build
 	FOREACH(OnePythonModule mptk mptkplot)
 		EXECUTE_PROCESS(
 			OUTPUT_FILE 	${MPTK_BINARY_DIR}/doc/userman/TempPythonUsage.tex
-			COMMAND 	python -c "import ${OnePythonModule}; help(${OnePythonModule})"
+			COMMAND 	${PYTHON_CMD} -c "import ${OnePythonModule}; help(${OnePythonModule})"
 			RESULT_VARIABLE rv
 		)
+MESSAGE("python -c \"import ${OnePythonModule}; help(${OnePythonModule})\"")
+
 		FILE(READ ${MPTK_BINARY_DIR}/doc/userman/TempPythonUsage.tex TEMPUSAGE)
 		STRING(REPLACE "_" "\\_" TEMPUSAGE "${TEMPUSAGE}")
 		FILE(WRITE ${MPTK_BINARY_DIR}/doc/userman/CommandUsage/Python_${OnePythonModule}_Usage.tex "\\fontsize{8}{10}\\begin{alltt}")
@@ -48,7 +52,6 @@ ENDFOREACH(loopTargets)
 IF(MATLAB_ROOT)
 # TODO: check this works for Windows as well as 
 SET(MATLAB_CMD ${MATLAB_ROOT}/bin/matlab)
-        # WARNING: the 'matlab' command needs to be in the path for this to work propertly. TODO: This should be fixed with proper path setting from FindMatlab.cmake ? 
         # Get usage for each Matlab executable target
 	FOREACH(MatLoopTargets ${MAT_EXEC_TARGETS})
 		IF(NOT EXISTS ${MPTK_BINARY_DIR}/doc/userman/CommandUsage/${MatLoopTargets}_Usage.tex)
