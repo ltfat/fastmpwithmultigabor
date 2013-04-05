@@ -883,3 +883,26 @@ unsigned long int MP_Block_c::build_atom_waveform_norm(MP_Atom_c *thisAtom,MP_Re
 	thisAtom->build_waveform_norm(outBuffer);
 	return filterLen;
 }
+
+
+bool	MP_Block_c::write_to_xml_element(TiXmlElement * blockElement) {
+  const char	*func = "MP_Block_c::write_to_xml_element( TiXmlElement* blockElement )";
+  map< string, string, mp_ltstring>::iterator iter; 	
+  map< string, string, mp_ltstring>* paramMap = NULL; 
+  TiXmlElement* paramElement;
+
+  paramMap = get_block_parameters_map();
+  if (NULL==paramMap) 
+    {
+      mp_error_msg( func, "Cannot form paramMap");
+      return false;
+    }
+  for( iter = (*paramMap).begin(); iter != (*paramMap).end(); iter++ ) 
+    {
+      paramElement = new TiXmlElement( "param" ); 
+      blockElement->LinkEndChild(paramElement);
+      paramElement->SetAttribute("name", iter->first.c_str());
+      paramElement->SetAttribute("value", iter->second.c_str());
+    }
+  return true;
+} 

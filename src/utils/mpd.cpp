@@ -545,7 +545,7 @@ int main( int argc, char **argv )
 	if ( !MPD_QUIET ) 
 		mp_info_msg( func, "(In the following, spurious output of dictionary pieces would be a symptom of parsing errors.)\n" );
 
-	dict = MP_Dict_c::init((MPD_USE_RELATIVEDICT)?newDictFileName:dictFileName );
+	dict = MP_Dict_c::read_from_xml_file((MPD_USE_RELATIVEDICT)?newDictFileName:dictFileName );
 	if ( dict == NULL )
     {
 		mp_error_msg( func, "Failed to create a dictionary from XML file [%s].\n", (MPD_USE_RELATIVEDICT)?newDictFileName:dictFileName );

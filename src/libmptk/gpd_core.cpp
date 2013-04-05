@@ -743,11 +743,11 @@ void GPD_Core_c::set_save_hit( const unsigned long int setSaveHit, const char* s
 }
 
 void GPD_Core_c::addCustomBlockToDictionary(map<string, string, mp_ltstring>* setPropertyMap){
-	dict->create_block(dict->signal , setPropertyMap);
+	dict->add_block_from_property_map(dict->signal , setPropertyMap);
 }
 
 bool GPD_Core_c::save_dict( const char* dictName ){
-	if (dict) { dict->print(dictName);
+	if (dict) { dict->write_to_xml_file(dictName);
 	return true;
 	} else return false;
 }

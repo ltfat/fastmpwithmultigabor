@@ -109,7 +109,7 @@ int main( int argc, char ** argv ) {
 	strAppDirectory = string(refdir);
 	strAppDirectory += "/dictionary/dic_test.xml";
   
-	dico = MP_Dict_c::init( strAppDirectory.c_str());
+	dico = MP_Dict_c::read_from_xml_file( strAppDirectory.c_str());
 	if ( dico == NULL )
 	{
 		mp_error_msg( func, "Failed to create a dictionary from XML file [%s].\n", strAppDirectory.c_str() );

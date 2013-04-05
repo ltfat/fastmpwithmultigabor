@@ -77,7 +77,7 @@ void mexFunction(int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[])
 		return;
 	}
 	// Try to load the dictionary
-	MP_Dict_c *dict = MP_Dict_c::init(fileName);
+	MP_Dict_c *dict = MP_Dict_c::read_from_xml_file(fileName);
 	if (NULL==dict) 
 	{
 		mexPrintf("Failed to create a dictionary from XML file [%s].\n", fileName);

@@ -1107,7 +1107,7 @@ if ((*parameterMapInfo).empty()) {
 (*parameterMapInfo)["numFitPoints"] = "The number of frequency points used on both sides of a local frequency maximum to fit a chirp.";
 (*parameterMapInfo)["numIter"] = "The number of iterations done to fit a chirp.";
 (*parameterMapInfo)["chirpRateThreshold"] = "The maximum absolute chirp-rate (if fitting an atom goes beyond this, the un-chirped is returned).";
-(*parameterMapInfo)["checkUnchirped"] = "0 or 1, whether to check the chirped against the un-chirped (if so, may return un-chirped in preference if it shows better correlation).";
+(*parameterMapInfo)["checkUnchirped"] = "0 or 1, whether to check the chirped against the un-chirped (if so, may return un-chirped in preference if it shows better correlation). This can help to ensure stability, but it may tend to select unchirped atoms more than desired.";
 (*parameterMapInfo)["blockOffset"] = "Offset between beginning of signal and beginning of first atom, in number of samples.";
 (*parameterMapInfo)["windowRate"] = "The shift between atoms on adjacent time frames, in proportion of the <windowLen>. For example, windowRate = 0.5 corresponds to half-overlapping signal windows.";
 

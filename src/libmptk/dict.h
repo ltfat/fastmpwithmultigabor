@@ -168,8 +168,16 @@ class MP_Dict_c
      * It is mandatory to call dict.copy_signal( signal ) or
      * dict.plug_signal( signal ) before starting to iterate.
      */
-	  MPTK_LIB_EXPORT static MP_Dict_c* init( const char* dictFileName );
-	  MPTK_LIB_EXPORT static MP_Dict_c* init(FILE *fid);
+	  MPTK_LIB_EXPORT static MP_Dict_c* read_from_xml_file( const char* dictFileName );
+    /** \brief Factory function which reads the dictionary from a file
+     *
+     * \param fid A readable file descriptor where XML description of the dictionary will be read.
+     *
+     * WARNING: this function does not set a signal in the dictionary.
+     * It is mandatory to call dict.copy_signal( signal ) or
+     * dict.plug_signal( signal ) before starting to iterate.
+     */
+	  MPTK_LIB_EXPORT static MP_Dict_c* read_from_xml_file(FILE *fid);
 
     /** \brief Factory function which creates an empty dictionary.
      *
@@ -194,45 +202,52 @@ class MP_Dict_c
     /* I/O METHODS             */
     /***************************/
 
-    /** \brief Load an dictionary file in xml format using
-    * tiny XML library.
-    *
-    *  \param fName A string containing the file name
-    * \return an error number
-    */
-	  MPTK_LIB_EXPORT int load_xml_file(const char* fName);
-	  MPTK_LIB_EXPORT int load_xml_file(FILE *fid);
+    /** \brief Add blocks to a dictionary by loading them from an XML file.
+     *
+     * \param fName A string containing the file name
+     * \return the number of added/loaded blocks
+     */
+	  MPTK_LIB_EXPORT int add_blocks_from_xml_file(const char* fName);
+    /** \brief Add blocks to a dictionary by loading them from an XML file.
+     *
+     * \param fid A readable file descriptor
+     * \return the number of added/loaded blocks
+     */
+	  MPTK_LIB_EXPORT int add_blocks_from_xml_file(FILE *fid);
     
-    /** \brief Parse dictionary in xml format using
-    * tiny XML library.
+    /** \brief Add blocks to a dictionary by loading them from a TinyXML doc.
     *
     *  \param doc A TiXmlDocument
-    *  \return an error number
+     * \return the number of added/loaded blocks
     */
-	  MPTK_LIB_EXPORT int parse_xml_file(TiXmlDocument doc);
+	  MPTK_LIB_EXPORT int add_blocks_from_xml_doc(TiXmlDocument doc);
 
-    /** \brief Print the dictionary structure to a file, in an xml form which can be used by add_blocks()
+    /** \brief Writes the dictionary description to an xml file
      *
      * \param fName A string containing the xml file name.
      * \return zero if succed.
      */
-    MPTK_LIB_EXPORT int print( const char *fName );
-	MPTK_LIB_EXPORT bool print(FILE *fid);
-	MPTK_LIB_EXPORT bool print(FILE *fid, bool withXmlDecl);
-	MPTK_LIB_EXPORT bool appendBlocksToXml( TiXmlElement* root );
+    MPTK_LIB_EXPORT int write_to_xml_file( const char *fName );
+    /** \brief Writes the dictionary description to an xml file
+     *
+     * \param fid A writable file descriptor
+     * \return true if succeed, false otherwise.
+     */
+	MPTK_LIB_EXPORT bool write_to_xml_file(FILE *fid);
+    /** \brief Writes the dictionary description to an xml file
+     *
+     * \param fid A writable file descriptor
+     * \param withXmlDecl true if XML declaration (ISO-8859 ...) to be included, false otherwise  
+     * \return true if succeed, false otherwise.
+     */
+	MPTK_LIB_EXPORT bool write_to_xml_file(FILE *fid, bool withXmlDecl);
 
-    /** \brief Add a few blocks which structure is determined by the dictionary structure file
-      * \param fName a dictionary structure file name where the structure is read from
-      * \return the number of added blocks
-      */
-	  MPTK_LIB_EXPORT int add_blocks( const char *fName );
-	  MPTK_LIB_EXPORT int add_blocks( FILE *fid );
-    
-       /** \brief Add a few blocks which structure is determined by the dictionary structure file
-      * \param doc a dictionary structure file in xml where the structure is read from
-      * \return the number of added blocks
-      */
-    MPTK_LIB_EXPORT int add_blocks( TiXmlDocument doc );
+    /** \brief Append's the dictionary block descriptions to an xml root structure
+     *
+     * \param root The root of TiXML tree  
+     * \return true if succeed, false otherwise.
+     */
+	MPTK_LIB_EXPORT bool append_blocks_to_xml_root( TiXmlElement* root );
 
     /** \brief Add a block to a dictionary
      *
@@ -279,7 +294,7 @@ class MP_Dict_c
     *
     * \return the number of created block
     */
-    MPTK_LIB_EXPORT int create_block(MP_Signal_c* setSignal , map<string, string, mp_ltstring>* setPropertyMap);
+    MPTK_LIB_EXPORT int add_block_from_property_map(MP_Signal_c* setSignal , map<string, string, mp_ltstring>* setPropertyMap);
     
     /** \brief Parse the xml block and create it using eventually a map of properties stocked in the properties map
     *

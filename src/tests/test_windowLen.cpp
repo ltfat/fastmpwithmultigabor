@@ -121,7 +121,7 @@ int main( int argc, char ** argv )
 	// 4) Loading the dictionary
 	//----------------------------------------
 	mp_info_msg(func,"Step 2 : Loading the dictionary...\n");
-	dict = MP_Dict_c::init(szDictFile);
+	dict = MP_Dict_c::read_from_xml_file(szDictFile);
 	if ( dict == NULL )
     {
 		mp_error_msg( func, "Failed to create a dictionary from XML file [%s].\n", szDictFile);

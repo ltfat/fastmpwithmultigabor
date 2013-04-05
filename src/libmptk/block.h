@@ -151,6 +151,12 @@ class MP_Block_c {
 		/** \brief Get the number of atoms of the block */
 		MPTK_LIB_EXPORT virtual unsigned long int num_atoms( void );
 
+
+		/** \brief Writes the block description to an XML element to be included in a dictionary description file
+		 * \param TiXmlElement an XML element
+		 * \return true if writing was OK, false otherwise.*/
+		MPTK_LIB_EXPORT bool	write_to_xml_element(TiXmlElement * blockElement);
+
 		/** \brief update the inner products with a minimum number of arithmetic operations and indicates which frames have been updated.
 		 * \param touch Multi-channel support (i.e., array[s->numChans] of MP_Support_t) that identifies which part of each channel of the signal
 		 * is different from what it was when the block was last updated, so as to update only the IP at places where they might have been touched.

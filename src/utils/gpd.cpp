@@ -513,7 +513,7 @@ int main( int argc, char **argv )
   
                                   " would be a symptom of parsing errors.)\n" );
 
-  dict = MP_Dict_c::init( dictFileName );
+  dict = MP_Dict_c::read_from_xml_file( dictFileName );
   cout << "Dictionary loaded" << endl;
   if ( dict == NULL )
   {

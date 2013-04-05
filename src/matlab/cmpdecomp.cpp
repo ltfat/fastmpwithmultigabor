@@ -149,7 +149,7 @@ void mexFunction(int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[])
 			mexErrMsgTxt("Aborting");
 			return;
 		}
-		dict = MP_Dict_c::init(fileName);
+		dict = MP_Dict_c::read_from_xml_file(fileName);
 		// Clean the filename
 		mxFree(fileName);
 	}

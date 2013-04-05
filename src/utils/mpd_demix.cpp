@@ -733,7 +733,7 @@ for (unsigned int j =0; j <mixer->numSources; j++)
             }
           if ( dictFileNameList[p] != NULL )
             { 
-             dictArray->at(p)->add_blocks( dictFileNameList[p] );
+             dictArray->at(p)->add_blocks_from_xml_file( dictFileNameList[p] );
             }
           /* If no file name is given, use the following default dictionnary: */
           else { 

@@ -254,3 +254,38 @@ void MP_Block_Factory_c::get_registered_block_names( char **blockNames ){
 int MP_Block_Factory_c::get_block_size( void ){
 	return (int)MP_Block_Factory_c::block.size();
 }	 
+
+
+/* Creates a block */
+MP_Block_c* MP_Block_Factory_c::create_block(MP_Signal_c *setSignal, map<string, string, mp_ltstring> * paramMap ) {
+  const char* func = "MP_Block_Factory_c::create_block(MP_Signal_c *setSignal, map<string, string, mp_ltstring> * paramMap )";
+  MP_Block_c* newBlock = NULL;
+  MP_Block_c* (*blockCreator)( MP_Signal_c *setSignal, map<string, string, mp_ltstring> * paramMap ) = NULL;
+
+  // Find the appropriate block creator
+
+  blockCreator = MP_Block_Factory_c::get_block_factory()->get_block_creator((*paramMap)["type"].c_str());
+  if (NULL == blockCreator)
+    {
+      mp_error_msg( func, "The %s block is not registred in the block factory.\n",(*paramMap)["type"].c_str());
+      return (NULL);
+    }
+  // Create the block 
+  newBlock =  blockCreator(setSignal, paramMap);
+  return(newBlock);
+}
+
+/* Creates a block */
+MP_Block_c* MP_Block_Factory_c::create_default_block(MP_Signal_c *setSignal, const char *type) {
+  const char* func = "MP_Block_Factory_c::create_default_block(MP_Signal_c *setSignal, char *type)";
+
+  if ( NULL == type ) {
+    mp_error_msg( func, "No block type specified");
+    return (NULL);
+      }
+  map<string, string, mp_ltstring>* localDefaultMap = new map<string, string, mp_ltstring>();
+  MP_Block_Factory_c::get_block_factory()->get_block_default_map(type)(localDefaultMap);
+  MP_Block_c* newBlock = create_block(setSignal,localDefaultMap);
+  if (localDefaultMap) delete(localDefaultMap);
+  return(newBlock);
+}

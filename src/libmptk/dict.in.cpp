@@ -54,9 +54,9 @@
 /**********************************************/
 /* Initialization from a dictionary file name */
 
-MP_Dict_c* MP_Dict_c::init(  const char *dictFileName )
+MP_Dict_c* MP_Dict_c::read_from_xml_file(  const char *dictFileName )
 {
-	const char* func = "MP_Dict_c::init(dictFileName)";
+	const char* func = "MP_Dict_c::read_from_xml_file(dictFileName)";
 	MP_Dict_c *newDict = NULL;
 
 	// Instantiate and check
@@ -68,8 +68,8 @@ MP_Dict_c* MP_Dict_c::init(  const char *dictFileName )
 	}
 	
 	// Add some blocks read from the dict file
-	newDict->add_blocks( dictFileName );
-	// Note: with a NULL signal, add_blocks will build all the signal-independent parts of the blocks. 
+	newDict->add_blocks_from_xml_file( dictFileName );
+	// Note: with a NULL signal, add_blocks_from_xml_file will build all the signal-independent parts of the blocks. 
 	// It is then necessary to run a dict.copy_signal(sig)
 	// or a dict.plug_signal(sig) to actually use the dictionary.
 	if ( newDict->numBlocks == 0 )
@@ -83,9 +83,9 @@ MP_Dict_c* MP_Dict_c::init(  const char *dictFileName )
 	return( newDict );
 }
 
-MP_Dict_c* MP_Dict_c::init(FILE *fid )
+MP_Dict_c* MP_Dict_c::read_from_xml_file(FILE *fid )
 {
-	const char* func = "MP_Dict_c::init(fid)";
+	const char* func = "MP_Dict_c::read_from_xml_file(fid)";
 	MP_Dict_c *newDict = NULL;
 	
 	// Instantiate and check
@@ -97,8 +97,8 @@ MP_Dict_c* MP_Dict_c::init(FILE *fid )
 	}
 	
 	// Add some blocks read from the dict file
-	newDict->add_blocks( fid );
-	// Note: with a NULL signal, add_blocks will build all the signal-independent parts of the blocks. 
+	newDict->add_blocks_from_xml_file( fid );
+	// Note: with a NULL signal, add_blocks_from_xml_file will build all the signal-independent parts of the blocks. 
 	// It is then necessary to run a dict.copy_signal(sig)
 	// or a dict.plug_signal(sig) to actually use the dictionary.
 	if ( newDict->numBlocks == 0 )
@@ -219,18 +219,18 @@ MP_Dict_c::~MP_Dict_c()
 /***************************/
 /*************************************************************************/
 /* Parse the described blocks of a dictionary   */
-int MP_Dict_c::parse_xml_file(TiXmlDocument doc)
+int MP_Dict_c::add_blocks_from_xml_doc(TiXmlDocument doc)
 {
-	const char		*func = "MP_Dict_c::parse_xml_file(TiXmlDocument doc)";
-	TiXmlNode		*nodeBlockProperties = NULL;
-	TiXmlNode		*nodeBlock = NULL;
+	const char	*func = "MP_Dict_c::add_blocks_from_xml_doc(TiXmlDocument doc)";
+	TiXmlNode	*nodeBlockProperties = NULL;
+	TiXmlNode	*nodeBlock = NULL;
 	TiXmlElement	*elementDict = NULL;
 	TiXmlElement	*elementVersion = NULL;
-	TiXmlHandle		handleDict = NULL;
+	TiXmlHandle	handleDict = NULL;
 	map<string, PropertiesMap, mp_ltstring> *propertyMap = new map<string, PropertiesMap, mp_ltstring>();
-	int				count = 0;
-	int				finalcount = 0;
-	string			libVersion;
+	int		count = 0;
+	int		finalcount = 0;
+	string		libVersion;
   
 	// Get a handle on the document
 	TiXmlHandle hdl(&doc);
@@ -281,9 +281,9 @@ int MP_Dict_c::parse_xml_file(TiXmlDocument doc)
 		mp_debug_msg( MP_DEBUG_CONSTRUCTION, func,"No properties tag for block.\n" );
 	}
 
-	//---------------------------------
-	// 3) Retrieving the block if exist
-	//---------------------------------
+	//-------------------------------------------------
+	// 3) Retrieving the block XML description if exist
+	//-------------------------------------------------
 	nodeBlock = handleDict.FirstChild("block").ToNode();
 	if (nodeBlock != NULL)
     {
@@ -313,9 +313,9 @@ int MP_Dict_c::parse_xml_file(TiXmlDocument doc)
 
 /*************************************************************************/
 /* Load a dictionary file in xml format and parse the described blocks   */
-int MP_Dict_c::load_xml_file(const char* fName)
+int MP_Dict_c::add_blocks_from_xml_file(const char* fName)
 {
-  const char* func = "MP_Dict_c::load_xml_file(const char* fName)";
+  const char* func = "MP_Dict_c::add_blocks_from_xml_file(const char* fName)";
   TiXmlDocument doc;
 
   if (!doc.LoadFile(fName))
@@ -326,15 +326,28 @@ int MP_Dict_c::load_xml_file(const char* fName)
       return  0;
     }
 
-  else return parse_xml_file(doc);
+  else return add_blocks_from_xml_doc(doc);
 
 }
+/*int MP_Dict_c::add_blocks_from_xml_file(FILE* fid)
+{
+  const char* func = "MP_Dict_c::add_blocks_from_xml_file(FILE* fid)";
+  TiXmlDocument doc;
+  if (!doc.LoadFile(fid))
+    {
+      mp_error_msg( func, "Error while loading the dictionary from FILE * [%p].\n", fid );
+      mp_error_msg( func, "Error ID: %u .\n", doc.ErrorId() );
+      mp_error_msg( func, "Error description: %s .\n", doc.ErrorDesc());
+      return  0;
+    }
+  else return add_blocks_from_xml_doc(doc);
+  }*/
 
 /*************************************************************************/
 /* Load a dictionary file in xml format and parse the described blocks   */
-int MP_Dict_c::load_xml_file(FILE *fid)
+int MP_Dict_c::add_blocks_from_xml_file(FILE *fid)
 {
-	const char		*func = "MP_Dict_c::load_xml_file(FILE *fid)";
+	const char		*func = "MP_Dict_c::add_blocks_from_xml_file(FILE *fid)";
 	char			line[MP_MAX_STR_LEN];
 	memset(line, 0, MP_MAX_STR_LEN);
 	size_t xmlBufSize = 100000;
@@ -367,8 +380,9 @@ int MP_Dict_c::load_xml_file(FILE *fid)
 		return  0;
 	}
 	else 
-		return parse_xml_file(doc);
+		return add_blocks_from_xml_doc(doc);
 }
+
 
 /******************************/
 /* Addition of a single block */
@@ -407,34 +421,11 @@ int MP_Dict_c::add_block( MP_Block_c *newBlock )
 
 }
 
-/************************/
-/* Scanning from a file */
-
-int MP_Dict_c::add_blocks( const char *fName )
-{
-  return(  load_xml_file(fName) );
-}
-
-/************************/
-/* Scanning from a file */
-
-int MP_Dict_c::add_blocks(FILE *fid)
-{
-	return(load_xml_file(fid) );
-}
-
-/************************/
-/* Scanning from a tinyXML doc*/
-int MP_Dict_c::add_blocks( TiXmlDocument doc )
-{
-  return(MP_Dict_c::parse_xml_file(doc));
-}
-
 /**********************/
 /* Printing to a file */
-int MP_Dict_c::print( const char *fName )
+int MP_Dict_c::write_to_xml_file( const char *fName )
 {    
-	const char	*func = "MP_Dict_c::print( const char *fName )";
+	const char	*func = "MP_Dict_c::write_to_xml_file( const char *fName )";
 	FILE		*fid;
 
 	if((fid = fopen(fName,"w")) == NULL)
@@ -442,7 +433,7 @@ int MP_Dict_c::print( const char *fName )
 		mp_error_msg( func,"Could not open file %s to write a dictionary\n",fName );
 		return 1;
 	}
-	if(!print(fid))
+	if(!write_to_xml_file(fid))
 	{
 		mp_error_msg( func,"Could not write the dictionary datas into the file %s\n",fName );
 		return 1;
@@ -454,13 +445,14 @@ int MP_Dict_c::print( const char *fName )
 
 /**********************/
 /* Printing to a file */
-bool MP_Dict_c::print( FILE *fid )
+bool MP_Dict_c::write_to_xml_file( FILE *fid )
 {
-	return print(fid, true);    
+	return write_to_xml_file(fid, true);    
 }
-bool MP_Dict_c::print( FILE *fid, bool withXmlDecl )
+
+bool MP_Dict_c::write_to_xml_file( FILE *fid, bool withXmlDecl )
 {    
-	const char	*func = "MP_Dict_c::print( FILE *fid )";
+	const char	*func = "MP_Dict_c::write_to_xml_file( FILE *fid )";
 	TiXmlDocument doc;
 	TiXmlElement* version;
 	TiXmlDeclaration* decl;  
@@ -479,7 +471,7 @@ bool MP_Dict_c::print( FILE *fid, bool withXmlDecl )
 	version->LinkEndChild( new TiXmlText( VERSION ));
 	root->LinkEndChild(version);
 	
-	if(!appendBlocksToXml( root ))
+	if(!append_blocks_to_xml_root( root ))
 	{  
 		mp_error_msg( func, "dict failed to append its blocks to XML in memory\n");
 		return false;
@@ -492,65 +484,31 @@ bool MP_Dict_c::print( FILE *fid, bool withXmlDecl )
 	return true;
 }
 
-// Appends this dict's atoms to an xml document
-bool MP_Dict_c::appendBlocksToXml( TiXmlElement* root )
-{
-	const char	*func = "MP_Dict_c::appendBlocksToXml( TiXmlElement* root )";
-	map< string, string, mp_ltstring>::iterator iter; 	
-	map< string, string, mp_ltstring>* paramMap = NULL; 
-	TiXmlElement* blockElement;
-	TiXmlElement* paramElement;
 
+// Appends this dict's blocks to an xml root
+bool MP_Dict_c::append_blocks_to_xml_root( TiXmlElement* root )
+{
+	const char	*func = "MP_Dict_c::append_blocks_to_xml_root( TiXmlElement* root )";
+	TiXmlElement* blockElement;
 	// Declaring all the "block" tags
 	for ( unsigned int i = 0; i < numBlocks; i++ )
-	{
+	  {
 		blockElement = new TiXmlElement( "block" ); 
 		root->LinkEndChild(blockElement);
-		paramMap = block[i]->get_block_parameters_map();
-		if (paramMap) 
-		{
-			for( iter = (*paramMap).begin(); iter != (*paramMap).end(); iter++ ) 
-			{
-  				paramElement = new TiXmlElement( "param" ); 
-  				blockElement->LinkEndChild(paramElement);
-  				paramElement->SetAttribute("name", iter->first.c_str());
-				paramElement->SetAttribute("value", iter->second.c_str());
-			}
-		} 
-		else 
-		{  
-			mp_error_msg( func,"paramMap illformed for block number %u \n",i);
-			return false;
-		}
-	}
+		if (false==(block[i]->write_to_xml_element(blockElement)))
+		  {
+		    mp_error_msg(func, "Cannot append block %u to XML root\n",i);
+		    return false;
+		  }
+	  } 
 	return true;
 }
 
 int MP_Dict_c::add_default_block( const char* blockName ){
 	const char* func = "MP_Dict_c::add_default_block( const char* blockName )";
-	 MP_Block_c *newBlock = NULL;
-	 if (NULL == blockName ) {   mp_error_msg( func, "No block name specified" );
-              return 0;
-	 }
-	map<string, string, mp_ltstring>* localDefaultMap = new map<string, string, mp_ltstring>();
-	MP_Block_Factory_c::get_block_factory()->get_block_default_map(blockName)(localDefaultMap);
-	
-	          /*call the block creator*/
-          MP_Block_c* (*blockCreator)( MP_Signal_c *setSignal, map<string, string, mp_ltstring> * paramMap ) = NULL;
-          blockCreator = MP_Block_Factory_c::get_block_factory()->get_block_creator(blockName);
-
-          if (NULL == blockCreator)
-            {
-              mp_error_msg( func, "The %s block type is not registred in the atom factory.\n", blockName );
-              if (localDefaultMap) delete(localDefaultMap);
-              return 0;
-            }
-            
-          /*Create a new block*/  
-          newBlock =  blockCreator(signal, localDefaultMap);
-
-          /*Test if new block is NULL*/ 
-          if (NULL != newBlock)
+	MP_Block_c *newBlock = MP_Block_Factory_c::create_default_block(signal,blockName);
+	/*Test if new block is NULL*/ 
+	if (NULL != newBlock)
             {
               /*Test if new block has been added*/ 
               if ( add_block( newBlock ) != 1 )
@@ -559,11 +517,9 @@ int MP_Dict_c::add_default_block( const char* blockName ){
                                   " Proceeding with the remaining blocks.\n",
                                    blockName
                                 );
-              if (localDefaultMap) delete(localDefaultMap);
-              return 0;
+                      return 0;
                 }
-              if (localDefaultMap) delete(localDefaultMap);
-              return 1;
+                      return 1;
             }
           else
             {
@@ -571,11 +527,11 @@ int MP_Dict_c::add_default_block( const char* blockName ){
                               " Proceeding with the remaining blocks.\n",
                                blockName
                             );
-              if (localDefaultMap) delete(localDefaultMap);              
-              return 0;
+	      return 0;
             }
 
 }
+
 
 /***************************/
 /* MISC METHODS            */
@@ -644,27 +600,10 @@ bool MP_Dict_c::parse_property(TiXmlNode * pParent, map<string, PropertiesMap, m
 }
 
 /*Create a block*/
-int MP_Dict_c::create_block(MP_Signal_c * setSignal , map<string, string, mp_ltstring> * setPropertyMap)
+int MP_Dict_c::add_block_from_property_map(MP_Signal_c * setSignal , map<string, string, mp_ltstring> * setPropertyMap)
 {
-	const char* func = "MP_Dict_c::create_block(MP_signal_c * setSignal , map<string, PropertiesMap, mp_ltstring> *setPropertyMap)";
-	MP_Block_c *newBlock = NULL;
-	// Call the block creator
-	MP_Block_c* (*blockCreator)( MP_Signal_c *setSignal, map<string, string, mp_ltstring> * paramMap ) = NULL;
-	blockCreator = MP_Block_Factory_c::get_block_factory()->get_block_creator((*setPropertyMap)["type"].c_str());
-
-	if (NULL == setPropertyMap)
-	{
-		mp_error_msg( func, "The %s block type is not registred in the atom factory.\n",(*setPropertyMap)["type"].c_str() );
-		delete(setPropertyMap);
-		return 0;
-	}
-	if (NULL == blockCreator)
-	{
-		mp_error_msg( func, "The %s block creator is not type is not registred in the block factory.\n",(*setPropertyMap)["type"].c_str() );
-		return 0;
-	}
-	//Create a new block
-	newBlock =  blockCreator(setSignal, setPropertyMap);
+       const char* func = "MP_Dict_c::add_block_from_property_map(MP_Signal_c * setSignal , map<string, string, mp_ltstring> * setPropertyMap)";
+       MP_Block_c *newBlock = MP_Block_Factory_c::create_block(signal,setPropertyMap);
 
 	// Test if new block is NULL
 	if (NULL != newBlock)
@@ -673,16 +612,13 @@ int MP_Dict_c::create_block(MP_Signal_c * setSignal , map<string, string, mp_lts
 		if ( add_block( newBlock ) != 1 )
 		{
 			mp_warning_msg( func, "Failed to add the block of type %s . Proceeding with the remaining blocks.\n", (*setPropertyMap)["type"].c_str());
-			delete(setPropertyMap);
 			return 0;
 		}               
-		delete(setPropertyMap);          
 		return 1;
 	}
 	else
 	{
 		mp_warning_msg( func, "Failed to add the block of type %s . Proceeding with the remaining blocks.\n",(*setPropertyMap)["type"].c_str());
-		delete(setPropertyMap);              
 		return 0;
 	}
 }
@@ -771,7 +707,7 @@ int MP_Dict_c::parse_block(TiXmlNode * pParent, map<string, PropertiesMap, mp_lt
 		// Create the block with parameter defines by uses tag
 		if ((*blockMap)["type"].c_str() != 0)
         {
-			count+=  create_block(signal , blockMap);
+			count+=  add_block_from_property_map(signal , blockMap);
 			if (count == 0)  
 				mp_error_msg( func, "Cannot create block.\n");
 			return count;
@@ -788,8 +724,7 @@ int MP_Dict_c::parse_block(TiXmlNode * pParent, map<string, PropertiesMap, mp_lt
 /*Parse the varparam list of a block and create each associate blocks*/
 int MP_Dict_c::parse_param_list(map<string, list<string>, mp_ltstring> setVarParam , map<string, string, mp_ltstring> *setPropertyMap)
 {
-  const char* func = "MP_Dict_c::parse_param_list(TiXmlNode * pParent, map<const char*, PropertiesMap, mp_ltstring> *setPropertyMap)";
-  MP_Block_c *newBlock = NULL;
+  const char* func = "MP_Dict_c::parse_param_list(map<string, list<string>, mp_ltstring> setVarParam , map<string, string, mp_ltstring> *setPropertyMap)";
   int count = 0;
 
   /*Make a copy of the blockMap*/
@@ -818,31 +753,15 @@ int MP_Dict_c::parse_param_list(map<string, list<string>, mp_ltstring> setVarPar
 
       if ((*blockMapLocal)["type"].c_str() != 0)
         {
-          /* Call the block creator*/
-          MP_Block_c* (*blockCreator)( MP_Signal_c *setSignal, map<string, string, mp_ltstring> * paramMap ) = NULL;
-          blockCreator = MP_Block_Factory_c::get_block_factory()->get_block_creator((*blockMapLocal)["type"].c_str());
-
-          if (NULL == blockCreator)
-            {
-              mp_error_msg( func, "The %s block is not registred in the atom factory.\n",(*blockMapLocal)["type"].c_str() );
-              return 0;
-            }
-          /* Create the block */
-          newBlock =  blockCreator(signal, blockMapLocal);
-          if (NULL != newBlock)
-            {
-
-              if ( add_block( newBlock ) != 1 )
-                {
-                  mp_warning_msg( func, "Failed to add the  block."
-                                  " Proceeding with the remaining blocks.\n"
-                                );
-                  delete(blockMapLocal);
-                  return 0;
-                }
-                 delete(blockMapLocal);
-                 return ++count;
-            }
+	  if ( 1 != add_block_from_property_map(signal,blockMapLocal) ) {
+	    mp_warning_msg( func, "Failed to add the  block."
+			    " Proceeding with the remaining blocks.\n"
+			    );
+	    delete(blockMapLocal);
+	    return 0;
+	  }
+	  delete(blockMapLocal);
+	  return ++count;
         }
       else
         {
@@ -871,7 +790,7 @@ bool MP_Dict_c::test( char* signalFileName, char* dicoFileName )
   fprintf( stdout, "\n-- Entering MP_Dict_c::test \n" );
   fflush( stdout );
 
-  MP_Dict_c* dictionary = MP_Dict_c::init( dicoFileName );
+  MP_Dict_c* dictionary = MP_Dict_c::read_from_xml_file( dicoFileName );
   if (dictionary == NULL)
     {
       return(false);

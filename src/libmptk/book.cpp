@@ -154,9 +154,9 @@ unsigned long int MP_Book_c::printDict( const char *fName, FILE *fid)
 	}
 
 	if(fName)
-		this->atom[0]->dict->print(fName); 
+		this->atom[0]->dict->write_to_xml_file(fName); 
 	else if(fid)
-		this->atom[0]->dict->print(fid, false);
+		this->atom[0]->dict->write_to_xml_file(fid, false);
 	else
 	{
 		mp_error_msg( func, "Error writing the dict file - both fName and fid are null.\n" );
@@ -345,7 +345,7 @@ unsigned long int MP_Book_c::load( FILE *fid, bool withDict )
 
 	if(withDict){
 		// Retrieve the dictionary
-		if((dict = MP_Dict_c::init( fid )) == NULL)
+		if((dict = MP_Dict_c::read_from_xml_file( fid )) == NULL)
 		{
 			mp_error_msg( func, "Failed to create a dictionary from XML stdin.\n");
 			// TODO LIB2RER DICT
@@ -359,7 +359,7 @@ unsigned long int MP_Book_c::load( FILE *fid, bool withDict )
 			// Read the header
 			if ( ( fgets( line,MP_MAX_STR_LEN,fid) == NULL ) || (sscanf( line, "<book nAtom=\"%lu\" numChans=\"%d\" numSamples=\"%lu\" sampleRate=\"%d\" libVersion=\"%[0-9a-z.]\" format=\"%[0-9a-z.]\">\n", &fidNumAtoms, &fidNumChans, &fidNumSamples, &fidSampleRate, str, fidFormatStr ) != 6 )) 
 			{
-				printf(line);
+			        printf("%s",line);
 				mp_error_msg( func, "Cannot scan the book header. This book will remain un-changed.\n" );
 				return( 0 );
 			}

@@ -102,6 +102,21 @@ class MP_Block_Factory_c
     /***************************/
 
   public:
+    /** \brief Creates a block given a signal to plug it in, the type of block, and the parameter map to describe it
+     *
+     * \param setSignal A signal to plug to the block
+     * \param paramMap the parameter map specifying the details of the block
+     * \return the newly created block if succesful
+     */
+    MPTK_LIB_EXPORT static MP_Block_c* create_block(MP_Signal_c *setSignal, map<string, string, mp_ltstring> * paramMap );
+    /** \brief Creates a block given a signal to plug it in, the type of block, and the parameter map to describe it
+     *
+     * \param setSignal A signal to plug to the block
+     * \param type A string indicating the type of block to create
+     * \param paramMap the parameter map specifying the details of the block
+     * \return the newly created block if succesful
+     */
+    MPTK_LIB_EXPORT static MP_Block_c* create_default_block(MP_Signal_c *setSignal, const char *type);
     /** \brief Method to register a new block with blockName
     *   \param blockName : name of the block to create
     *   \param createBlockFunctionPointer : a pointer on the function used to create an block with a parameter map

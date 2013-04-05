@@ -1193,8 +1193,7 @@ The parser will send any text it can't match to stderr with a error message:
 in the event of syntax errors in a dictionary, some dictionary
 pieces will therefore show up in stderr.
 
-
-\subsubsection{Valid tags}
+\section{Valid tags}
 \begin{scriptsize}
 	\begin{alltt}
 		\emph{<?xml version="1.0" encoding="ISO-8859-1"?>}
@@ -1222,69 +1221,7 @@ pieces will therefore show up in stderr.
 	\end{alltt}
 \end{scriptsize}
 
-%\clearpage
-
-\section{Tags for the various blocks available in MPTK}
-\input{CommandUsage/DictXMLUsage}
-
-\section{Obsolete section}
-\noindent The parameters list for block types (\textbf{G}abor, \textbf{H}armonic, \textbf{C}hirp, \textbf{A}nywave, \textbf{C}onsTant, \textbf{N}yquist):
-\begin{my_itemize}
-	\item {\tt windowLen (G,H,C,CT,N)} 
-		\subitem Unsigned long int value: The atom length (i.e., the window length in the STFT)
-	\item {\tt windowShift (G,H,C,A,CT,N)}
-		\subitem Unsigned long int value: The atom shift (i.e., the window shift in the STFT)
-	\item {\tt windowRate (G,H,C)}
-		\subitem Double value between 0 and 1: An other way to specify the window shift, as a proportion 
-		of the {\tt windowLen}.  If both are present, {\tt windowShift} has precedence over {\tt windowRate}
-	\item {\tt fftSize (G,H,C)}
-		\subitem Unsigned long value: The frequency resolution in terms of FFT size. It has to be greater 
-		or equal to {\tt windowLen} if {\tt windowLen} is even, or $\geq$\verb2(windowLen+1)2 if \verb+windowLen+ 
-		is odd. If absent, defaults to \verb+windowLen+ (or \verb2windowLen+12).
-	\item  {\tt blockOffset (G,H,C,CT,N)} 
-		\subitem Unsigned long value: the block Offset, (i.e. the position of the first frame
-		If absent, defaults to 0
-	\item {\tt windowtype (G,H,C,CT,N)}
-		\subitem The window specification to be included among the block parameters
-    	\item {\tt windowopt (G,H,C,CT,N)} 
-		\subitem The optional parameter for window type parameter :
-		\begin{my_itemize}
-			\item Used for:  hamgen, gauss, exponential
-			\item Not used for:  rectangle, triangle, cosine, hanning, hamming, blackman, flattop, fof
-		\end{my_itemize}
-		The meaning of the optional parameter varies according to the window type
-	\item {\tt f0Min (H)} 
-		\subitem Double value: minimum frequency (in Hz) from which the fundamental frequency 
-		of the harmonic atoms is searched. Defaults to the first non-null FFT frequency
-	\item {\tt f0Max (H)} 
-		\subitem Double value: maximum frequency (in Hz) at which the fundamental frequency 
-		of the harmonic atoms is searched. Defaults to the Nyquist frequency of the considered signal
-	\item {\tt numPartials (H)} 
-		\subitem Unsigned int value: number of partials considered when tracking the harmonic atoms
-	\item {\tt numFitPoints (C)} 
-		\subitem (EXPERIMENTAL) Unsigned int value: number of polynomial fitting points considered 
-		for the chirp optimization algorithm. Defaults to 1.
-	\item {\tt numIter (C)} 
-		\subitem (EXPERIMENTAL) Unsigned int value: number of iterations considered for the chirp 
-		optimization algorithm. Defaults to 1.
-	\item {\tt chirpRateThreshold (C)} 
-		\subitem (EXPERIMENTAL) Double value: maximum chirp-rate considered for the chirp 
-		optimization algorithm. Defaults to 0.5e-5.
-	\item {\tt checkUnchirped (C)} 
-		\subitem (EXPERIMENTAL) Unsigned int value: 0 or 1, whether to check the chirped against the un-chirped 
-		atom during the optimization (if so, may return un-chirped in preference if it shows better correlation).
-		This can help to ensure stability, but it may tend to select unchirped atoms more than desired.
-		Defaults to 1.
-	\item {\tt tableFileName (A)} 
-		\subitem String: filename of the table containing the waveforms (ex: /udd/toto/table.bin ). 
-		Note that there is no {"} around the string.
-\end{my_itemize}
-
-\noindent \emph{Note :} The {\tt dirac} blocks don't need any parameter (they just match signal samples).
-
-\clearpage
-
-\subsubsection{Example}
+\section{Example}
 \begin{tiny}
 	\begin{alltt}
 	          <?xml version="1.0" encoding="ISO-8859-1"?>                      \emph{\textcolor{cyan}{:The optional XML declaration line.}}
@@ -1322,10 +1259,31 @@ pieces will therefore show up in stderr.
 	\end{alltt}
 \end{tiny}
 
+
+%\clearpage
+
+%% Tags for the various blocks available in MPTK
+\input{CommandUsage/DictXMLUsage}
+
+\section{Deprecated section}
+\noindent The parameters list for block types (\textbf{G}abor, \textbf{H}armonic, \textbf{C}hirp, \textbf{A}nywave, \textbf{C}onsTant, \textbf{N}yquist):
+\begin{my_itemize}
+	\item {\tt fftSize (G,H,C)}
+		\subitem Unsigned long value: The frequency resolution in terms of FFT size. It has to be greater 
+		or equal to {\tt windowLen} if {\tt windowLen} is even, or $\geq$\verb2(windowLen+1)2 if \verb+windowLen+ 
+		is odd. If absent, defaults to \verb+windowLen+ (or \verb2windowLen+12).
+	\item {\tt f0Min (H)} 
+		\subitem Double value: minimum frequency (in Hz) from which the fundamental frequency 
+		of the harmonic atoms is searched. Defaults to the first non-null FFT frequency
+	\item {\tt f0Max (H)} 
+		\subitem Double value: maximum frequency (in Hz) at which the fundamental frequency 
+		of the harmonic atoms is searched. Defaults to the Nyquist frequency of the considered signal
+\end{my_itemize}
+
 %--------------------------------------------------------------
 % Section 9.2 : Anywave table
 %--------------------------------------------------------------
-\section{Anywave table}
+\subsection{Anywave table}
 
 Waveforms need have been loaded before using anywave atoms. That's the
 difference between parametric atoms, such as Dirac, Gabor, ... and anywave
@@ -1387,7 +1345,7 @@ waveforms: {\center |w1c1|w1c2|w2c1|w2c2|w3c1|w3c2|w4c1|w4c2| }
 %--------------------------------------------------------------
 % Section 9.3 : MDCT/MDST/MCLT
 %--------------------------------------------------------------
-\section{MDCT/MDST/MCLT}
+\subsection{MDCT/MDST/MCLT}
 
 \subsubsection{Definition}
 The Modified Discrete Cosine Transform (MDCT) and the Modified Discrete Sine Transform (MDST) are two 
@@ -1544,7 +1502,7 @@ pieces will therefore show up in stderr.
 		          The book opening tag. It includes the number of atoms founded, the number of channels of 
 		          the signal, the number of samples and the sample rate asked by the user and the library version
 		          and the format string describing if the following book structure is in binary format or in text (XML) format
-		\emph{xwA&=<?#_8zk*ÂŽ?gabor}
+		\emph{xwA&=<?#_8zk*Ž?gabor}
 		          An atom datas. It includes the binary datas (``xwA...'') and the name of the type of the atom used
 		\emph{</book>}
                             The book closing tag.

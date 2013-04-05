@@ -108,7 +108,7 @@ void mexFunction(int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[])
 	// If a filename was provided, we need to try to write to file
 	if(NULL!=fileName) 
 	{
-		if (dict->print(fileName)) 
+		if (dict->write_to_xml_file(fileName)) 
 		{
 			mexPrintf("%s error -- the dictionary could not be written to file %s\n",mexFunctionName(),fileName);
 			// Clean the house

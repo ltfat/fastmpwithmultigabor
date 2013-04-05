@@ -313,7 +313,7 @@ int main( int argc, char **argv )
 	root->LinkEndChild(version);
 	
 	for(int i=0; i<numBooks; ++i){
-		if(!allBooks[i]->atom[0]->dict->appendBlocksToXml( root ))
+		if(!allBooks[i]->atom[0]->dict->append_blocks_to_xml_root( root ))
 		{
 			mp_error_msg( func, "dict failed to append its blocks to XML in memory\n");
 			//assert(false);
