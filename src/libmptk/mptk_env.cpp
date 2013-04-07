@@ -343,7 +343,7 @@ bool MPTK_Env_c::load_environment(const char * name )
 	if (dll->load_dll()) 
 	{
 	  vector< string >* blockNameVector = new vector< string >();
-	  MP_Block_Factory_c::get_block_factory()->get_registered_block_name( blockNameVector );
+	  MP_Block_Factory_c::get_registered_block_name( blockNameVector );
 	  if(0==blockNameVector->size()) 
 	  {
 	    mp_error_msg( func, "No block type was loaded, even though plugins were found in the dll_directory '%s' specified by the configuration file '%s'\n", MPTK_Env_c::get_env()->get_config_path("dll_directory") , path);
@@ -352,7 +352,7 @@ bool MPTK_Env_c::load_environment(const char * name )
 	    return false;
 	  }
 	  vector< string >* atomNameVector = new vector< string >();
-	  MP_Atom_Factory_c::get_atom_factory()->get_registered_atom_name( atomNameVector );
+	  MP_Atom_Factory_c::get_registered_atom_name( atomNameVector );
 	  if(0==atomNameVector->size()) 
 	  {
 	    mp_error_msg( func, "No atom type was loaded, even though plugins were found in the dll_directory specified by the configuration file\n" );

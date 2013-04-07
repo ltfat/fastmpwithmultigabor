@@ -86,14 +86,14 @@ void mexFunction(int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[]) {
     }
     
 	// Retrievement of the atoms, blocks and path informations
-	int iAtomSize = MP_Atom_Factory_c::get_atom_factory()->get_atom_size();
-	int iBlockSize = MP_Block_Factory_c::get_block_factory()->get_block_size();
+	int iAtomSize = MP_Atom_Factory_c::get_atom_size();
+	int iBlockSize = MP_Block_Factory_c::get_block_size();
 	int iPathSize = MPTK_Env_c::get_env()->get_path_size();
 	char **szAtomNames = (char **)malloc(iAtomSize*sizeof(char *));
 	char **szBlockNames = (char **)malloc(iBlockSize*sizeof(char *));
 	char **szPathNames = (char **)malloc(iPathSize*sizeof(char *));
-	MP_Atom_Factory_c::get_atom_factory()->get_registered_atom_names(szAtomNames);
-	MP_Block_Factory_c::get_block_factory()->get_registered_block_names(szBlockNames);
+	MP_Atom_Factory_c::get_registered_atom_names(szAtomNames);
+	MP_Block_Factory_c::get_registered_block_names(szBlockNames);
 	MPTK_Env_c::get_env()->get_registered_path_names( szPathNames );
 	
 	// Pushing informations into the vectors
@@ -175,18 +175,18 @@ void mexFunction(int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[]) {
 		map<string, string, mp_ltstring>* typeMap     = new map<string, string, mp_ltstring>();
 		map<string, string, mp_ltstring>* infoMap     = new map<string, string, mp_ltstring>();
 		// Gets the information for all blocks
-		int iBlockInfoSize = MP_Block_Factory_c::get_block_factory()->get_block_info_size(blockNameVector->at(i).c_str()); 
-		int iBlockDefaultSize = MP_Block_Factory_c::get_block_factory()->get_block_default_size(blockNameVector->at(i).c_str()); 
-		int iBlockTypeSize = MP_Block_Factory_c::get_block_factory()->get_block_type_size(blockNameVector->at(i).c_str()); 
+		int iBlockInfoSize = MP_Block_Factory_c::get_block_info_size(blockNameVector->at(i).c_str()); 
+		int iBlockDefaultSize = MP_Block_Factory_c::get_block_default_size(blockNameVector->at(i).c_str()); 
+		int iBlockTypeSize = MP_Block_Factory_c::get_block_type_size(blockNameVector->at(i).c_str()); 
 		char **szInfoMapFirst = (char **)malloc(iBlockInfoSize*sizeof(char *));
 		char **szInfoMapSecond = (char **)malloc(iBlockInfoSize*sizeof(char *));
 		char **szDefaultMapFirst = (char **)malloc(iBlockDefaultSize*sizeof(char *));
 		char **szDefaultMapSecond = (char **)malloc(iBlockDefaultSize*sizeof(char *));
 		char **szTypeMapFirst = (char **)malloc(iBlockTypeSize*sizeof(char *));
 		char **szTypeMapSecond = (char **)malloc(iBlockTypeSize*sizeof(char *));
-		MP_Block_Factory_c::get_block_factory()->get_block_default_maps(blockNameVector->at(i).c_str(), szDefaultMapFirst, szDefaultMapSecond);
-		MP_Block_Factory_c::get_block_factory()->get_block_info_maps(blockNameVector->at(i).c_str(), szInfoMapFirst, szInfoMapSecond);
-		MP_Block_Factory_c::get_block_factory()->get_block_type_maps(blockNameVector->at(i).c_str(), szTypeMapFirst, szTypeMapSecond);
+		MP_Block_Factory_c::get_block_default_maps(blockNameVector->at(i).c_str(), szDefaultMapFirst, szDefaultMapSecond);
+		MP_Block_Factory_c::get_block_info_maps(blockNameVector->at(i).c_str(), szInfoMapFirst, szInfoMapSecond);
+		MP_Block_Factory_c::get_block_type_maps(blockNameVector->at(i).c_str(), szTypeMapFirst, szTypeMapSecond);
 		for (iIndex = 0; iIndex < iBlockInfoSize; iIndex++)
 			(*infoMap)[szInfoMapFirst[iIndex]] = szInfoMapSecond[iIndex];
 		for (iIndex = 0; iIndex < iBlockDefaultSize; iIndex++)

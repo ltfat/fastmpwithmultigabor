@@ -450,7 +450,7 @@ unsigned long int MP_Book_c::load( FILE *fid, bool withDict )
 					return 0;
 				}
 				// Scan the hash map to get the create function of the atom
-				createAtomFromXml = MP_Atom_Factory_c::get_atom_factory()->get_atom_fromxml_creator( str_type );
+				createAtomFromXml = MP_Atom_Factory_c::get_atom_fromxml_creator( str_type );
 				// Scan the hash map to get the create function of the atom
 				if ( NULL != createAtomFromXml ){
 					// Create the the atom
@@ -482,7 +482,7 @@ unsigned long int MP_Book_c::load( FILE *fid, bool withDict )
 				return 0;
 			}
 			// Scan the hash map to get the create function of the atom
-			createAtomFromBinary = MP_Atom_Factory_c::get_atom_factory()->get_atom_frombinary_creator( str );
+			createAtomFromBinary = MP_Atom_Factory_c::get_atom_frombinary_creator( str );
 			// Scan the hash map to get the create function of the atom
 			if ( NULL != createAtomFromBinary) 
 				// Create the the atom

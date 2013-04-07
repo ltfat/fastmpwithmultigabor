@@ -431,7 +431,7 @@ unsigned int MP_Nyquist_Block_Plugin_c::create_atom( MP_Atom_c **atom,
 
   /* Allocate the atom */
   *atom = NULL;
-  MP_Atom_c* (*emptyAtomCreator)( MP_Dict_c* dict ) = MP_Atom_Factory_c::get_atom_factory()->get_empty_atom_creator("nyquist");
+  MP_Atom_c* (*emptyAtomCreator)( MP_Dict_c* dict ) = MP_Atom_Factory_c::get_empty_atom_creator("nyquist");
     if (NULL == emptyAtomCreator)
     {
       mp_error_msg( func, "Nyquist atom is not registred in the atom factory" );
@@ -543,5 +543,5 @@ if ((*parameterMapDefault).empty()) {
 
 DLL_EXPORT void registry(void)
 {
-  MP_Block_Factory_c::get_block_factory()->register_new_block( "nyquist", &MP_Nyquist_Block_Plugin_c::create, &MP_Nyquist_Block_Plugin_c::get_parameters_type_map, &MP_Nyquist_Block_Plugin_c::get_parameters_info_map, &MP_Nyquist_Block_Plugin_c::get_parameters_default_map );
+  MP_Block_Factory_c::register_new_block( "nyquist", &MP_Nyquist_Block_Plugin_c::create, &MP_Nyquist_Block_Plugin_c::get_parameters_type_map, &MP_Nyquist_Block_Plugin_c::get_parameters_info_map, &MP_Nyquist_Block_Plugin_c::get_parameters_default_map );
 }

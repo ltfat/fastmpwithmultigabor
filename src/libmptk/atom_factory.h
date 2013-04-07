@@ -83,10 +83,10 @@ class MP_Atom_Factory_c
     /** \brief Public destructor  */
     MPTK_LIB_EXPORT virtual ~MP_Atom_Factory_c();
 
+  private:
     /** \brief Method to get the MP_Atom_Factory_c singleton*/
     MPTK_LIB_EXPORT static MP_Atom_Factory_c * get_atom_factory();
 
-  private:
     /** \brief Private constructor*/
     MP_Atom_Factory_c();
 
@@ -100,7 +100,7 @@ class MP_Atom_Factory_c
      *  \param atomName: name of the atom to register
      *  \param createAtomFunctionPointer: a pointer on the function used to create an atom from a file
      */
-   MPTK_LIB_EXPORT void register_new_atom(const char* atomName,
+   MPTK_LIB_EXPORT static void register_new_atom(const char* atomName,
 		MP_Atom_c*(*atomFromXMLFunctionPointer)(TiXmlElement* xmlobj, MP_Dict_c *dict),
 		MP_Atom_c*(*atomFromBinaryFunctionPointer)(FILE *fid, MP_Dict_c *dict)
 		);
@@ -110,32 +110,32 @@ class MP_Atom_Factory_c
      *  \param createEmptyAtomFunctionPointer: a pointer on the function used to create an empty atom
      *  
      */
-   MPTK_LIB_EXPORT void register_new_atom_empty(const char* atomName, MP_Atom_c*(*createEmptyAtomFunctionPointer)(MP_Dict_c* dict));
+   MPTK_LIB_EXPORT static void register_new_atom_empty(const char* atomName, MP_Atom_c*(*createEmptyAtomFunctionPointer)(MP_Dict_c* dict));
 
     /** \brief Accesor method to obtain the adress of a function to create empty atom
     *   \param atomName: name of the atom to create
     * \return a pointer on a method able to create an empty atom 
     */
-    MPTK_LIB_EXPORT MP_Atom_c*(*get_empty_atom_creator( const char* atomName ))(MP_Dict_c* dict);
+    MPTK_LIB_EXPORT static MP_Atom_c*(*get_empty_atom_creator( const char* atomName ))(MP_Dict_c* dict);
 
     /** \brief Accesor method to obtain the adress of a function to create atom initialised from an XML file
      *   \param atomName: name of the atom to create
      *   \return a pointer on a method able to create an atom from a file
     */
-    MPTK_LIB_EXPORT MP_Atom_c*(*get_atom_fromxml_creator( const char* atomName ))(TiXmlElement* xmlobj, MP_Dict_c *dict);
+    MPTK_LIB_EXPORT static MP_Atom_c*(*get_atom_fromxml_creator( const char* atomName ))(TiXmlElement* xmlobj, MP_Dict_c *dict);
 
     /** \brief Accesor method to obtain the adress of a function to create atom initialised from a binary file
      *   \param atomName: name of the atom to create
      *   \return a pointer on a method able to create an atom from a file
     */
-    MPTK_LIB_EXPORT MP_Atom_c*(*get_atom_frombinary_creator( const char* atomName ))(FILE *fid, MP_Dict_c *dict);
+    MPTK_LIB_EXPORT static MP_Atom_c*(*get_atom_frombinary_creator( const char* atomName ))(FILE *fid, MP_Dict_c *dict);
 
     /** \brief Method to fill a vector with the name of all the atoms registred in the atom factory
     *   \param nameVector : pointer on the vector which has to be fill with the name of blocks 
     */
-    MPTK_LIB_EXPORT void get_registered_atom_name(vector< string >* nameVector);
-	MPTK_LIB_EXPORT	void get_registered_atom_names( char **atomNames );
-	MPTK_LIB_EXPORT	int get_atom_size( void );
+    MPTK_LIB_EXPORT static void get_registered_atom_name(vector< string >* nameVector);
+	MPTK_LIB_EXPORT	static void get_registered_atom_names( char **atomNames );
+	MPTK_LIB_EXPORT	static int get_atom_size( void );
   };
 #endif /*ATOM_FACTORY_H_*/
 

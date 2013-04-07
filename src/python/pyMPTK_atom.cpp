@@ -70,7 +70,7 @@ MP_Atom_c* mpatom_from_pyatom(PyDictObject* pyatom, MP_Chan_t numChans, MP_Dict_
 
 
 	// Get Atom creator method 
-	MP_Atom_c* (*emptyAtomCreator)( MP_Dict_c* dict) = MP_Atom_Factory_c::get_atom_factory()->get_empty_atom_creator(typestr);
+	MP_Atom_c* (*emptyAtomCreator)( MP_Dict_c* dict) = MP_Atom_Factory_c::get_empty_atom_creator(typestr);
 	if (NULL == emptyAtomCreator)	{
 			printf("-- unknown	MP_Atom_Factory_c method for atomType:%s\n", typestr);
 			return( NULL );

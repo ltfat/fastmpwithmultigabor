@@ -620,7 +620,7 @@ int MP_Harmonic_Atom_Plugin_c::add_to_tfmap( MP_TF_Map_c *tfmap, const char tfma
 
   if (gatom==NULL)
     { // first allocation of the gabor atom
-      MP_Atom_c* (*emptyAtomCreator)( MP_Dict_c* dict ) = MP_Atom_Factory_c::get_atom_factory()->get_empty_atom_creator("gabor");
+      MP_Atom_c* (*emptyAtomCreator)( MP_Dict_c* dict ) = MP_Atom_Factory_c::get_empty_atom_creator("gabor");
       if (NULL == emptyAtomCreator)
         {
           mp_error_msg( func, "Gabor atom is not registred in the atom factory" );
@@ -661,7 +661,7 @@ int MP_Harmonic_Atom_Plugin_c::add_to_tfmap( MP_TF_Map_c *tfmap, const char tfma
   else if ( nchans<numChans)
     { // reallocation if more channels are needed
       delete gatom;
-      MP_Atom_c* (*emptyAtomCreator)( MP_Dict_c* dict ) = MP_Atom_Factory_c::get_atom_factory()->get_empty_atom_creator("gabor");
+      MP_Atom_c* (*emptyAtomCreator)( MP_Dict_c* dict ) = MP_Atom_Factory_c::get_empty_atom_creator("gabor");
       if (NULL == emptyAtomCreator)
         {
           mp_error_msg( func, "Gabor atom is not registred in the atom factory" );

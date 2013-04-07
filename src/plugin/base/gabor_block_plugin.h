@@ -229,18 +229,18 @@ public:
 			    const unsigned long int frameIdx,
 			    const unsigned long int filterIdx, MP_Dict_c* dict );
 
-   /** \brief Field a map with the parameter type of the block, the creation and destruction of the map is done by the calling method 
+   /** \brief Fills a map with the parameter type of the block, the creation and destruction of the map is done by the calling method 
    *
    * \param parameterMapType the map to fill .
    */
   static void get_parameters_type_map(map< string, string, mp_ltstring>* parameterMapType);
-   /** \brief Field a map with the parameter type of the block, the creation and destruction of the map is done by the calling method 
+   /** \brief Fills a map with the parameter type of the block, the creation and destruction of the map is done by the calling method 
    *
    *
    * \param parameterMapInfo the map to fill.
    */
   static void get_parameters_info_map(map< string, string, mp_ltstring>* parameterMapInfo);
-   /** \brief Field a map with the parameter type of the block, the creation and destruction of the map is done by the calling method 
+   /** \brief Fills a map with the parameter type of the block, the creation and destruction of the map is done by the calling method 
    *
    *
    * \param parameterMapDefault the map to fill.

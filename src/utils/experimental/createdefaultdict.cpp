@@ -69,7 +69,7 @@ int main(int argc, char **argv)
   // Affiche la liste des Blocks
   mp_info_msg( func,"The following Block types have been successfully loaded:\n");
   vector< string >* nameVector = new vector< string >();
-  MP_Block_Factory_c::get_block_factory()->get_registered_block_name( nameVector );
+  MP_Block_Factory_c::get_registered_block_name( nameVector );
   for (unsigned int i= 0; i < nameVector->size(); i++)
     {
       cout << "block " << i << ":" << nameVector->at(i) << endl;
@@ -103,11 +103,11 @@ int main(int argc, char **argv)
 	
 	MP_Block_c *newBlock = NULL;
 	map<string, string, mp_ltstring>* defaultMap = new map<string, string, mp_ltstring>();
-	MP_Block_Factory_c::get_block_factory()->get_block_default_map(nameVector->at(i).c_str())(defaultMap);
+	MP_Block_Factory_c::get_block_default_map(nameVector->at(i).c_str())(defaultMap);
 	
 	/*call the block creator*/
 	MP_Block_c* (*blockCreator)( MP_Signal_c *setSignal, map<string, string, mp_ltstring> * paramMap ) = NULL;
-	blockCreator = MP_Block_Factory_c::get_block_factory()->get_block_creator(nameVector->at(i).c_str());
+	blockCreator = MP_Block_Factory_c::get_block_creator(nameVector->at(i).c_str());
 	
 	if (NULL == blockCreator)
 	  {

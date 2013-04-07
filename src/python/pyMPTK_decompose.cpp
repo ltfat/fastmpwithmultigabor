@@ -69,7 +69,7 @@ int mptk_decompose_body(const PyArrayObject *numpysignal, const char *dictpath, 
 
 	////////////////////////////////////////////////////////////
 	// get dict in mem in appropriate format - we'll do it from file - easy
-	MP_Dict_c* dict = MP_Dict_c::init(dictpath);
+	MP_Dict_c* dict = MP_Dict_c::read_from_xml_file(dictpath);
 	if(NULL==dict) {
 		PyErr_SetString(PyExc_RuntimeError, "Failed to read dict from file path.\n");
 		delete signal;

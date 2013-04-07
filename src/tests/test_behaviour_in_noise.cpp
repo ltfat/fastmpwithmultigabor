@@ -88,7 +88,7 @@ int main( int argc, char ** argv )
 	}
 
 	/* Get registered block */
-	MP_Block_Factory_c::get_block_factory()->get_registered_block_name(nameBlockVector);
+	MP_Block_Factory_c::get_registered_block_name(nameBlockVector);
 
 	dictArray = new  std::vector<MP_Dict_c*>(nameBlockVector->size());
 	for (unsigned int n=0; n < nameBlockVector->size(); n++)

@@ -656,7 +656,7 @@ unsigned int MP_Mdct_Block_Plugin_c::create_atom (MP_Atom_c ** atom,
 	/* Allocate the atom */
 	*atom = NULL;
 	MP_Atom_c *(*emptyAtomCreator) (MP_Dict_c* dict) =
-			MP_Atom_Factory_c::get_atom_factory ()->get_empty_atom_creator ("mdct");
+			MP_Atom_Factory_c::get_empty_atom_creator ("mdct");
 	if (NULL == emptyAtomCreator) {
 		mp_error_msg (func, "Mdct atom is not registred in the atom factory");
 		return (0);
@@ -974,7 +974,7 @@ DLL_EXPORT void
 registry (void)
 
 {
-	MP_Block_Factory_c::get_block_factory ()->register_new_block ("mdct",
+	MP_Block_Factory_c::register_new_block ("mdct",
 			&MP_Mdct_Block_Plugin_c::
 			create,
 			&MP_Mdct_Block_Plugin_c::

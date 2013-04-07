@@ -171,7 +171,7 @@ mptk_reconstruct(PyObject *self, PyObject *args)
 	//printf("pybook stats: numChans %i, numSamples %i, sampleRate %i.\n", ((BookObject*)pybook)->numChans, ((BookObject*)pybook)->numSamples, ((BookObject*)pybook)->sampleRate);
 
 	// get dict in mem in appropriate format - we'll do it from file - easy
-	MP_Dict_c* dict = MP_Dict_c::init(dictpath);
+	MP_Dict_c* dict = MP_Dict_c::read_from_xml_file(dictpath);
 	if(NULL==dict) {
 		PyErr_SetString(PyExc_RuntimeError, "Failed to read dict from file.\n");
 		return NULL;

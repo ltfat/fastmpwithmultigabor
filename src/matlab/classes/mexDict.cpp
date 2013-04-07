@@ -82,6 +82,7 @@ mxArray * mp_create_mxDict_from_dict(MP_Dict_c *dict)
 		map<string, string, mp_ltstring>::const_iterator iter;
 		for ( iter = (*paramMap).begin(); iter != (*paramMap).end(); iter++ ) 
 		{
+		  // TODO: we shouldn't need to know what fields are possible in the first place
 			if(!strcmp(iter->first.c_str(),"data"))
 			{
 				// Adding the table Field		
@@ -99,6 +100,8 @@ mxArray * mp_create_mxDict_from_dict(MP_Dict_c *dict)
 			{
 				// Add the field
 				mxAddField(mxBlock,iter->first.c_str());
+				// TODO: Here should query the type of the field to set it appropriately!
+
 				// Set the field value
 				mxArray *mxTmp = mxCreateString(iter->second.c_str());
 				if(NULL==mxTmp) 
@@ -109,6 +112,7 @@ mxArray * mp_create_mxDict_from_dict(MP_Dict_c *dict)
 				}
 				mxSetField(mxBlock,0,iter->first.c_str(),mxTmp);
 				// If the paramMap contains a file link to xml, then go search it !
+		  // TODO: we shouldn't need to know what fields are possible in the first place
 				if(!strcmp(iter->first.c_str(),"tableFileName"))
 				{
 					// Adding the table Field		
@@ -282,7 +286,7 @@ MP_Dict_c * mp_create_dict_from_mxDict(const mxArray *mxDict)
     
 		// Retrieve the block creator
 		MP_Block_c* (*blockCreator)( MP_Signal_c *setSignal, map<string, string, mp_ltstring> * paramMap ) = NULL;
-		blockCreator = MP_Block_Factory_c::get_block_factory()->get_block_creator((*paramMap)["type"].c_str());
+		blockCreator = MP_Block_Factory_c::get_block_creator((*paramMap)["type"].c_str());
 		if (NULL == blockCreator) 
 		{
 			mp_error_msg(func,"the block factory does not contain type %s of dict.block{%d}\n",(*paramMap)["type"].c_str(),i+1);

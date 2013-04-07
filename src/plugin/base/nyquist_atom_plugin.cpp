@@ -297,6 +297,6 @@ MP_Real_t MP_Nyquist_Atom_Plugin_c::get_field( int field , MP_Chan_t chanIdx )
 
 DLL_EXPORT void registry(void)
 {
-  MP_Atom_Factory_c::get_atom_factory()->register_new_atom_empty("nyquist",&MP_Nyquist_Atom_Plugin_c::nyquist_atom_create_empty);
-  MP_Atom_Factory_c::get_atom_factory()->register_new_atom("nyquist",&MP_Nyquist_Atom_Plugin_c::create_fromxml,&MP_Nyquist_Atom_Plugin_c::create_frombinary);
+  MP_Atom_Factory_c::register_new_atom_empty("nyquist",&MP_Nyquist_Atom_Plugin_c::nyquist_atom_create_empty);
+  MP_Atom_Factory_c::register_new_atom("nyquist",&MP_Nyquist_Atom_Plugin_c::create_fromxml,&MP_Nyquist_Atom_Plugin_c::create_frombinary);
 }

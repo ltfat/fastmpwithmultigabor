@@ -780,10 +780,10 @@ DLL_EXPORT void registry(void)
 {
   const char *func = "registry (gabor_atom_plugin.cpp)";
   mp_debug_msg( MP_DEBUG_FUNC_ENTER, func, "Entering\n" );
-  MP_Atom_Factory_c::get_atom_factory()->register_new_atom_empty("gabor",&MP_Gabor_Atom_Plugin_c::gabor_atom_create_empty);
-  MP_Atom_Factory_c::get_atom_factory()->register_new_atom("gabor",&MP_Gabor_Atom_Plugin_c::create_fromxml,&MP_Gabor_Atom_Plugin_c::create_frombinary);
-  MP_Atom_Factory_c::get_atom_factory()->register_new_atom_empty("harmonic",&MP_Harmonic_Atom_Plugin_c::harmonic_atom_create_empty);
-  MP_Atom_Factory_c::get_atom_factory()->register_new_atom("harmonic",&MP_Harmonic_Atom_Plugin_c::create_fromxml,&MP_Harmonic_Atom_Plugin_c::create_frombinary);
+  MP_Atom_Factory_c::register_new_atom_empty("gabor",&MP_Gabor_Atom_Plugin_c::gabor_atom_create_empty);
+  MP_Atom_Factory_c::register_new_atom("gabor",&MP_Gabor_Atom_Plugin_c::create_fromxml,&MP_Gabor_Atom_Plugin_c::create_frombinary);
+  MP_Atom_Factory_c::register_new_atom_empty("harmonic",&MP_Harmonic_Atom_Plugin_c::harmonic_atom_create_empty);
+  MP_Atom_Factory_c::register_new_atom("harmonic",&MP_Harmonic_Atom_Plugin_c::create_fromxml,&MP_Harmonic_Atom_Plugin_c::create_frombinary);
   mp_debug_msg( MP_DEBUG_FUNC_EXIT, func, "Leaving\n" );
 }
 

@@ -219,7 +219,7 @@ MP_Atom_c *GetMP_Atom(const mxArray *mxBook,MP_Chan_t numChans,unsigned long int
   string aType(mxArrayToString(mxType));
 
   // Get Atom creator method 
-  MP_Atom_c* (*emptyAtomCreator)( MP_Dict_c* dict) = MP_Atom_Factory_c::get_atom_factory()->get_empty_atom_creator(aType.c_str());
+  MP_Atom_c* (*emptyAtomCreator)( MP_Dict_c* dict) = MP_Atom_Factory_c::get_empty_atom_creator(aType.c_str());
   if (NULL == emptyAtomCreator)  {
       mp_error_msg(func,"-- unknown  MP_Atom_Factory_c method for atomType:%s\n",aType.c_str());
       return( NULL );

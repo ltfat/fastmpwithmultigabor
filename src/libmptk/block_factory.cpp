@@ -90,10 +90,10 @@ void (*fillBlockMapDefaultFunctionPointer)(map< string, string, mp_ltstring> * p
   if ((NULL!=blockName)&&(NULL == MP_Block_Factory_c::get_block_factory()->block[blockName]))
     {
         mp_debug_msg( MP_DEBUG_CONSTRUCTION, func, "Registering block [%s].\n",blockName );
-      MP_Block_Factory_c::block[blockName] = createBlockFunctionPointer;
-      MP_Block_Factory_c::blockType[blockName] = fillBlockMapTypeFunctionPointer;
-      MP_Block_Factory_c::blockInfo[blockName] = fillBlockMapInfoFunctionPointer;
-      MP_Block_Factory_c::blockDefault[blockName]= fillBlockMapDefaultFunctionPointer;
+      MP_Block_Factory_c::get_block_factory()->block[blockName] = createBlockFunctionPointer;
+      MP_Block_Factory_c::get_block_factory()->blockType[blockName] = fillBlockMapTypeFunctionPointer;
+      MP_Block_Factory_c::get_block_factory()->blockInfo[blockName] = fillBlockMapInfoFunctionPointer;
+      MP_Block_Factory_c::get_block_factory()->blockDefault[blockName]= fillBlockMapDefaultFunctionPointer;
     }
   else {
     mp_debug_msg( MP_DEBUG_CONSTRUCTION, func, "Warning: trying to register block [%s] which is NULL or already registered.\n",blockName );
@@ -227,7 +227,7 @@ int MP_Block_Factory_c::get_block_default_size( const char* blockName )
 void MP_Block_Factory_c::get_registered_block_name( vector< string >* nameVector ){
 	const char *func = "MP_Block_Factory_c::get_registered_block_name()";
 	map<const char*, MP_Block_c*(*)(MP_Signal_c *s, map<string, string, mp_ltstring> *paramMap),mp_ltstring>::iterator iter;
-	for( iter = MP_Block_Factory_c::block.begin(); iter != MP_Block_Factory_c::block.end(); iter++ ) {
+	for( iter = MP_Block_Factory_c::get_block_factory()->block.begin(); iter != MP_Block_Factory_c::get_block_factory()->block.end(); iter++ ) {
 		if(NULL!=iter->first) {
 			nameVector->push_back(string(iter->first));
 		} else {
@@ -241,7 +241,7 @@ void MP_Block_Factory_c::get_registered_block_names( char **blockNames ){
 	int iIndex = 0;
 	const char *func = "MP_Block_Factory_c::get_registered_block_name()";
 	map<const char*, MP_Block_c*(*)(MP_Signal_c *s, map<string, string, mp_ltstring> *paramMap),mp_ltstring>::iterator iter;
-	for( iter = MP_Block_Factory_c::block.begin(); iter != MP_Block_Factory_c::block.end(); iter++ ) {
+	for( iter = MP_Block_Factory_c::get_block_factory()->block.begin(); iter != MP_Block_Factory_c::get_block_factory()->block.end(); iter++ ) {
 		if(NULL!=iter->first) {
 			blockNames[iIndex++]=(char *)iter->first;
 		} else {
@@ -252,7 +252,7 @@ void MP_Block_Factory_c::get_registered_block_names( char **blockNames ){
 
 /* Returns the size of the atom vector */
 int MP_Block_Factory_c::get_block_size( void ){
-	return (int)MP_Block_Factory_c::block.size();
+	return (int)MP_Block_Factory_c::get_block_factory()->block.size();
 }	 
 
 
