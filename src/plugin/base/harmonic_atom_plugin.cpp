@@ -327,11 +327,11 @@ int MP_Harmonic_Atom_Plugin_c::init_fromxml(TiXmlElement* xmlobj)
 int MP_Harmonic_Atom_Plugin_c::init_frombinary( FILE *fid )
 {
   const char* func = "MP_Harmonic_Atom_c::read(fid,mode)";
-  char line[MP_MAX_STR_LEN];
-  char str[MP_MAX_STR_LEN];
-  double fidHarmonicity,fidAmp,fidPhase;
-  unsigned int i, iRead;
-  unsigned int j, jRead;
+  //char line[MP_MAX_STR_LEN];
+  //char str[MP_MAX_STR_LEN];
+  //  double fidHarmonicity, fidAmp,fidPhase;
+    unsigned int i; //, iRead;
+    unsigned int j; //, jRead;
 
   /* Go up one level */
   if ( MP_Gabor_Atom_Plugin_c::init_frombinary( fid ) )

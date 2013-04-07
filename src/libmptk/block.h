@@ -210,7 +210,6 @@ class MP_Block_c {
 //        virtual MP_Real_t test(){return MP_PI;}
 //        virtual MP_Real_t fft_test(){return MP_PI;}
 //        virtual MP_Real_t check_corr(MP_Atom_c*){return MP_PI;}
-        
 };
 
 

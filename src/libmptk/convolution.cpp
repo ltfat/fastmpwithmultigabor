@@ -444,7 +444,7 @@ void MP_Convolution_Fastest_c::initialize(void) {
 	  methods[MP_ANYWAVE_COMPUTE_FFT]->compute_IP( signal, currSignalLen, 0, &output );
 	}
 #ifndef NDEBUG
-	fprintf(stderr,"\nmplib DEBUG -- ~MP_Anywave_Table_c --   Estimating how many runs to perform : TIME:%lu (Clocks Per Second=%lu) - number of runs=%lu",clock()-fftTime_0,CLOCKS_PER_SEC,i);
+	fprintf(stderr,"\nmplib DEBUG -- ~MP_Anywave_Table_c --   Estimating how many runs to perform : TIME:%lu (Clocks Per Second=%u) - number of runs=%lu",clock()-fftTime_0,CLOCKS_PER_SEC,i);
 	fflush(stderr);
 #endif
 	if (i > 30) {

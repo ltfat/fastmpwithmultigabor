@@ -188,7 +188,7 @@ int MP_Anywave_Atom_Plugin_c::init_fromxml(TiXmlElement* xmlobj)
 int MP_Anywave_Atom_Plugin_c::init_frombinary( FILE *fid)
 {
 	const char* func = "MP_Anywave_Atom_c::read(fid,mode)";
-	char line[MP_MAX_STR_LEN];
+	//char line[MP_MAX_STR_LEN];
 	char str[MP_MAX_STR_LEN];
 
 	// Go up one level

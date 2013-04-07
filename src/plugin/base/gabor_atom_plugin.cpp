@@ -244,8 +244,8 @@ int MP_Gabor_Atom_Plugin_c::init_frombinary( FILE *fid )
   const char* func = "MP_Gabor_Atom_c::read(fid,mode)";
   char line[MP_MAX_STR_LEN];
   char str[MP_MAX_STR_LEN];
-  double fidFreq,fidChirp,fidPhase;
-  MP_Chan_t i, iRead;
+  //double fidFreq,fidChirp,fidPhase;
+  //MP_Chan_t i, iRead;
   /* Go up one level */
   if ( MP_Atom_c::init_frombinary( fid ) )
     {

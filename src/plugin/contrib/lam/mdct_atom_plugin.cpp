@@ -125,7 +125,7 @@ MP_Mdct_Atom_Plugin_c::MP_Mdct_Atom_Plugin_c( MP_Dict_c* dict ):MP_Atom_c(dict)
 int MP_Mdct_Atom_Plugin_c::init_fromxml(TiXmlElement* xmlobj)
 {
 	const char* func = "MP_Mdct_Atom_Plugin_c::read(fid,mode)";
-	char str[MP_MAX_STR_LEN];
+	//char str[MP_MAX_STR_LEN];
 
 	/* Go up one level */
 	if ( MP_Atom_c::init_fromxml( xmlobj ) )

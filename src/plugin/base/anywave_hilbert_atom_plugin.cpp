@@ -352,8 +352,8 @@ int MP_Anywave_Hilbert_Atom_Plugin_c::init_fromxml(TiXmlElement* xmlobj)
 int MP_Anywave_Hilbert_Atom_Plugin_c::init_frombinary(FILE* fid)
 {
  const char *func = "MP_Anywave_Hilbert_Atom_c::read";
-  double fidParam;
-  unsigned short int readChanIdx, chanIdx;
+  //double fidParam;
+  //unsigned short int readChanIdx, chanIdx;
   MP_Real_t* pParam;
   MP_Real_t* pParamEnd;
   char* str;

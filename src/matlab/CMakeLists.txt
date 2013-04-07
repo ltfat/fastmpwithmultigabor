@@ -154,17 +154,17 @@ FOREACH(target ${MAT_EXECUTABLES})
 			OUTPUT ${MPTK_MATLAB_OUTPUT_DIR}/${target}.${MEX_EXTENSION}
 			POST_BUILD
 			COMMAND   ${MATLAB_MEX_COMPILER} ${MATLAB_COMPILATION}
-			ARGS      -O -DHAVE_FFTW3 -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${LIBTINYXML_INCLUDE_DIR} -I/usr/include/ -I${MPTK_SOURCE_DIR} -I${LIBDSP_INCLUDE_DIR} -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${FFTW3_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/ -I${MPTK_MATLAB_SRC_DIR}/classes/ -I${MPTK_MATLAB_SRC_DIR}/experimental/classes/ -I${MPTK_SOURCE_DIR}/src/plugin/base/ -I${MPTK_SOURCE_DIR}/src/plugin/contrib/lam/ -outdir ${MPTK_MATLAB_OUTPUT_DIR} ${MPTK_MATLAB_SRC_DIR}/${target}.cpp -L${LIBRARY_OUTPUT_PATH} -lmptk -lmptk4matlab
+			ARGS      -v -largeArrayDims -O -DHAVE_FFTW3 -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${LIBTINYXML_INCLUDE_DIR} -I/usr/include/ -I${MPTK_SOURCE_DIR} -I${LIBDSP_INCLUDE_DIR} -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${FFTW3_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/ -I${MPTK_MATLAB_SRC_DIR}/classes/ -I${MPTK_MATLAB_SRC_DIR}/experimental/classes/ -I${MPTK_SOURCE_DIR}/src/plugin/base/ -I${MPTK_SOURCE_DIR}/src/plugin/contrib/lam/ -outdir ${MPTK_MATLAB_OUTPUT_DIR} ${MPTK_MATLAB_SRC_DIR}/${target}.cpp -L${MPTK_LIB_DIR} -lmptk -lmptk4matlab
    # FOR SAFETY, SHOULD USE FLAG -headerpad_max_install_names
-			COMMAND   install_name_tool -change ARGS ${LIBRARY_OUTPUT_PATH}/libmptk4matlab.dylib libmptk4matlab.dylib ${MPTK_MATLAB_OUTPUT_DIR}/${target}.${MEX_EXTENSION}
-			COMMAND   install_name_tool -change ARGS ${LIBRARY_OUTPUT_PATH}/libmptk.dylib libmptk.dylib ${MPTK_MATLAB_OUTPUT_DIR}/${target}.${MEX_EXTENSION}
+			COMMAND   install_name_tool -change ARGS ${MPTK_LIB_DIR}/libmptk4matlab.dylib libmptk4matlab.dylib ${MPTK_MATLAB_OUTPUT_DIR}/${target}.${MEX_EXTENSION}
+			COMMAND   install_name_tool -change ARGS ${MPTK_LIB_DIR}/libmptk.dylib libmptk.dylib ${MPTK_MATLAB_OUTPUT_DIR}/${target}.${MEX_EXTENSION}
 			COMMENT   "MEX")
 		ELSE(APPLE)
 			ADD_CUSTOM_COMMAND(
 			OUTPUT ${MPTK_MATLAB_OUTPUT_DIR}/${target}.${MEX_EXTENSION}
 			POST_BUILD
 			COMMAND   ${MATLAB_MEX_COMPILER} ${MATLAB_COMPILATION}
-			ARGS      -O -DHAVE_FFTW3 -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${LIBTINYXML_INCLUDE_DIR} -I/usr/include/ -I${MPTK_SOURCE_DIR} -I${LIBDSP_INCLUDE_DIR} -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${FFTW3_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/ -I${MPTK_MATLAB_SRC_DIR}/classes/ -I${MPTK_MATLAB_SRC_DIR}/experimental/classes/ -I${MPTK_SOURCE_DIR}/src/plugin/base/ -I${MPTK_SOURCE_DIR}/src/plugin/contrib/lam/ -outdir ${MPTK_MATLAB_OUTPUT_DIR} ${MPTK_MATLAB_SRC_DIR}/${target}.cpp  -L${LIBRARY_OUTPUT_PATH} -lmptk -lmptk4matlab
+			ARGS      -O -DHAVE_FFTW3 -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${LIBTINYXML_INCLUDE_DIR} -I/usr/include/ -I${MPTK_SOURCE_DIR} -I${LIBDSP_INCLUDE_DIR} -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${FFTW3_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/ -I${MPTK_MATLAB_SRC_DIR}/classes/ -I${MPTK_MATLAB_SRC_DIR}/experimental/classes/ -I${MPTK_SOURCE_DIR}/src/plugin/base/ -I${MPTK_SOURCE_DIR}/src/plugin/contrib/lam/ -outdir ${MPTK_MATLAB_OUTPUT_DIR} ${MPTK_MATLAB_SRC_DIR}/${target}.cpp  -L${MPTK_LIB_DIR} -lmptk -lmptk4matlab
    # FOR SAFETY, SHOULD USE FLAG -headerpad_max_install_names
 			COMMENT   "MEX")
 		ENDIF(APPLE)
@@ -173,7 +173,7 @@ FOREACH(target ${MAT_EXECUTABLES})
           OUTPUT ${MPTK_MATLAB_OUTPUT_DIR}/${target}.${MEX_EXTENSION}
           POST_BUILD
           COMMAND   ${MATLAB_MEX_COMPILER} ${MATLAB_COMPILATION}
-          ARGS      -O -DHAVE_FFTW3 -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${LIBTINYXML_INCLUDE_DIR} -I${MPTK_SOURCE_DIR} -I${LIBDSP_INCLUDE_DIR} -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${FFTW3_INCLUDE_DIR} -I${PTHREAD_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/ -I${MPTK_MATLAB_SRC_DIR}/classes/ -I${MPTK_MATLAB_SRC_DIR}/experimental/classes/ -I${MPTK_SOURCE_DIR}/src/plugin/base/ -I${MPTK_SOURCE_DIR}/src/plugin/contrib/lam/ -L${LIBRARY_OUTPUT_PATH} -L${MPTK_LIB_DIR} -outdir ${MPTK_MATLAB_OUTPUT_DIR} ${MPTK_MATLAB_SRC_DIR}/${target}.cpp -lmptk -lmptk4matlab
+          ARGS      -O -DHAVE_FFTW3 -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${LIBTINYXML_INCLUDE_DIR} -I${MPTK_SOURCE_DIR} -I${LIBDSP_INCLUDE_DIR} -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${FFTW3_INCLUDE_DIR} -I${PTHREAD_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/ -I${MPTK_MATLAB_SRC_DIR}/classes/ -I${MPTK_MATLAB_SRC_DIR}/experimental/classes/ -I${MPTK_SOURCE_DIR}/src/plugin/base/ -I${MPTK_SOURCE_DIR}/src/plugin/contrib/lam/ -L${MPTK_LIB_DIR} -L${MPTK_LIB_DIR} -outdir ${MPTK_MATLAB_OUTPUT_DIR} ${MPTK_MATLAB_SRC_DIR}/${target}.cpp -lmptk -lmptk4matlab
           COMMENT   "MEX")
    ENDIF(UNIX)
    
@@ -277,7 +277,7 @@ FOREACH(target mextest)
    OUTPUT ${MPTK_MATLAB_OUTPUT_DIR}/${target}.${MEX_EXTENSION}
    POST_BUILD
    COMMAND   ${MATLAB_MEX_COMPILER} -v
-   ARGS      -O -DHAVE_FFTW3 -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${LIBTINYXML_INCLUDE_DIR} -I/usr/include/ -I${MPTK_SOURCE_DIR} -I${LIBDSP_INCLUDE_DIR} -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${MPTK_MATLAB_SRC_DIR}/experimental/classes/ -I${MPTK_MATLAB_SRC_DIR}/classes/ -I${FFTW3_INCLUDE_DIR} -I${PTHREAD_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/  -I${MPTK_SOURCE_DIR}/src/plugin/base/ -I${MPTK_SOURCE_DIR}/src/plugin/contrib/lam/ -outdir ${MPTK_MATLAB_OUTPUT_DIR} ${MPTK_MATLAB_SRC_DIR}/experimental/${target}.cpp  -L${LIBRARY_OUTPUT_PATH} -L${MPTK_LIB_DIR} -lmptk -lmptk4matlab
+   ARGS      -O -DHAVE_FFTW3 -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${LIBTINYXML_INCLUDE_DIR} -I/usr/include/ -I${MPTK_SOURCE_DIR} -I${LIBDSP_INCLUDE_DIR} -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${MPTK_MATLAB_SRC_DIR}/experimental/classes/ -I${MPTK_MATLAB_SRC_DIR}/classes/ -I${FFTW3_INCLUDE_DIR} -I${PTHREAD_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/  -I${MPTK_SOURCE_DIR}/src/plugin/base/ -I${MPTK_SOURCE_DIR}/src/plugin/contrib/lam/ -outdir ${MPTK_MATLAB_OUTPUT_DIR} ${MPTK_MATLAB_SRC_DIR}/experimental/${target}.cpp  -L${MPTK_LIB_DIR} -L${MPTK_LIB_DIR} -lmptk -lmptk4matlab
    COMMENT   "MEX")
 
   # Copy the MEX-wrapper

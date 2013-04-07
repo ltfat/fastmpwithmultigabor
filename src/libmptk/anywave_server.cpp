@@ -266,7 +266,7 @@ unsigned long int MP_Anywave_Server_c::add( map<string, string, mp_ltstring> *pa
 			// Encode the datas into base64 string
 			(*paramMap)["data"] = table->encodeBase64((char *)(*paramMap)["doubledata"].c_str(),(*paramMap)["doubledata"].size());
 
-	// Transform the filename string into mp5 checksum
+	// Transform the filename string into md5 checksum
 	encodeMd5((char *)(*paramMap)["data"].c_str(), (*paramMap)["data"].size(), szkeyTableName);
 
 	// Search if the table exists */

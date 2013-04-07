@@ -695,7 +695,7 @@ int MP_Book_c::append( MP_Atom_c *newAtom ) {
 unsigned long int MP_Book_c::append( MP_Book_c *newBook ) {
 	const char* func = "MP_Book_c::append(*book)";
 	unsigned long int nAppend = 0;
-	MP_Dict_c* newBookDict = newBook->atom[0]->dict;
+//	MP_Dict_c* newBookDict = newBook->atom[0]->dict;
 	if (is_compatible_with(newBook)){
 /* ??? is this the right idea?
 		// append the dictionary
