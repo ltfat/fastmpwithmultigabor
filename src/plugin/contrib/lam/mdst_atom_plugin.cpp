@@ -180,7 +180,7 @@ int MP_Mdst_Atom_Plugin_c::init_frombinary( FILE *fid )
   const char* func = "MP_Mdst_Atom_c::MP_Mdst_Atom_c(fid,mode)";
   char line[MP_MAX_STR_LEN];
   char str[MP_MAX_STR_LEN];
-  double fidFreq;
+  //double fidFreq;
 
   /* Go up one level */
   if ( MP_Atom_c::init_frombinary( fid ) )

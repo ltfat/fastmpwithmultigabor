@@ -330,6 +330,15 @@ ELSE(EXECUTABLE_OUTPUT_PATH)
 	SET(EXECUTABLE_OUTPUT_PATH "${MPTK_BINARY_DIR}/bin/" CACHE PATH "Single output directory for building all executables.")
 ENDIF(EXECUTABLE_OUTPUT_PATH)
 
+#-----------------
+#setting lib path
+#-----------------
+IF(LIBRARY_OUTPUT_PATH)
+ELSE(LIBRARY_OUTPUT_PATH)
+	SET(LIBRARY_OUTPUT_PATH "${MPTK_BINARY_DIR}/lib/" CACHE PATH "Single output directory for building all libraries.")
+ENDIF(LIBRARY_OUTPUT_PATH)
+
+
 ##############################################################################
 # FINDING EXTERNAL LIBRARIES
 ##############################################################################
@@ -346,10 +355,22 @@ INCLUDE( ${MPTK_SOURCE_DIR}/CMake/FindExternalLibs.cmake )
 
 #Set option for building and linking:
 #Set directories for linker
-SET(POSSIBLE_LIBRARY_PATH_1 "/usr" CACHE INTERNAL "")
-SET(POSSIBLE_LIBRARY_PATH_2 "/usr/local" CACHE INTERNAL "")
-SET(POSSIBLE_LIBRARY_PATH_3 "/sw" CACHE INTERNAL "")
-SET(POSSIBLE_LIBRARY_PATH_4 "/opt/local" CACHE INTERNAL "")
+IF (EXISTS "/usr")
+   SET(POSSIBLE_LIBRARY_PATH_1 "/usr" CACHE INTERNAL "")
+ENDIF(EXISTS "/usr")
+
+IF (EXISTS "/usr/local")
+   SET(POSSIBLE_LIBRARY_PATH_2 "/usr/local" CACHE INTERNAL "")
+ENDIF (EXISTS "/usr/local")
+
+IF (EXISTS "/sw")
+   SET(POSSIBLE_LIBRARY_PATH_3 "/sw" CACHE INTERNAL "")
+ENDIF (EXISTS "/sw")
+
+IF (EXISTS "/opt/local")
+   SET(POSSIBLE_LIBRARY_PATH_4 "/opt/local" CACHE INTERNAL "")
+ENDIF (EXISTS "/opt/local")
+
 
 LINK_DIRECTORIES( "${POSSIBLE_LIBRARY_PATH_1}/lib"
                   "${POSSIBLE_LIBRARY_PATH_2}/lib"

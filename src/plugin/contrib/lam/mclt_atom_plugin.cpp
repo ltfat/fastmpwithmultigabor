@@ -234,8 +234,8 @@ int MP_Mclt_Atom_Plugin_c::init_frombinary( FILE *fid )
   const char* func = "MP_Mclt_Atom_c::MP_Mclt_Atom_c(fid,mode)";
   char line[MP_MAX_STR_LEN];
   char str[MP_MAX_STR_LEN];
-  double fidFreq,fidPhase;
-  unsigned int i, iRead;
+  //double fidFreq,fidPhase;
+    unsigned int i;//, iRead;
 
   /* Go up one level */
   if ( MP_Atom_c::init_frombinary( fid ) )

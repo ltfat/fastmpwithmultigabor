@@ -10,7 +10,7 @@ IF(BUILD_PYTHON_FILES)
 			COMMAND 	${PYTHON_CMD} -c "import ${OnePythonModule}; help(${OnePythonModule})"
 			RESULT_VARIABLE rv
 		)
-MESSAGE("python -c \"import ${OnePythonModule}; help(${OnePythonModule})\"")
+#MESSAGE("python -c \"import ${OnePythonModule}; help(${OnePythonModule})\"")
 
 		FILE(READ ${MPTK_BINARY_DIR}/doc/userman/TempPythonUsage.tex TEMPUSAGE)
 		STRING(REPLACE "_" "\\_" TEMPUSAGE "${TEMPUSAGE}")

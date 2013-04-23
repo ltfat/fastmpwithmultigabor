@@ -31,7 +31,7 @@
 /*																			  */
 /* Input :																	  */
 /*  - book     : a book structure with the following structure				  */
-/*  - dict     : a dict structure
+/*  - dict     : a dict structure                                             */
 /*  - filename : the filename where to read the book						  */
 /*  - writeMode: optional, 'binary' (default) or 'txt'						  */
 /*																			  */
