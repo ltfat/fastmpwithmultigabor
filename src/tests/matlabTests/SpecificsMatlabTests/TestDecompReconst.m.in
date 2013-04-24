@@ -65,7 +65,7 @@ end
 
 disp('2) Reconstruction of the signal...');
 try
-	sigrec = mprecons(book);
+	sigrec = mprecons(book, dict);
 catch err
 	disp('Error during the "mprecons" test')
 	exit;

@@ -43,7 +43,7 @@ catch err
 end
 
 try
-	dictwrite(dicttest,'@MPTK_BINARY_DIR@/current/@MPTK_DEFAULT_GABORDICT_FILENAME@.bis')
+	dictwrite(dicttest,'@MPTK_TMP_PATH@/@MPTK_DEFAULT_GABORDICT_FILENAME@.bis')
 catch err
 	disp('Error during the "dictwrite" test')
 	exit;
