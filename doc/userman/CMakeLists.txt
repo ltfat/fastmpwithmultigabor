@@ -1,13 +1,13 @@
 INCLUDE(FindLATEX)
 
 IF(BUILD_PYTHON_FILES)
-	#TODO : make sure that the python command is set correctly and corresponds to an install where matplotlib is found correctly. This should probably be done in FindPython.cmake
-	SET(PYTHON_CMD /opt/local/bin/python2.7)
+	#TODO : make sure that the python command is set correctly and corresponds to an install where matplotlib is found correctly. This should already be done in FindPython.cmake
+	# SET(PYTHON_EXECUTABLE /opt/local/bin/python2.7)
 	# TODO this currently only works when pyMPTK is *installed* - we want to be able to run it even on first build
 	FOREACH(OnePythonModule mptk mptkplot)
 		EXECUTE_PROCESS(
 			OUTPUT_FILE 	${MPTK_BINARY_DIR}/doc/userman/TempPythonUsage.tex
-			COMMAND 	${PYTHON_CMD} -c "import ${OnePythonModule}; help(${OnePythonModule})"
+			COMMAND 	${PYTHON_EXECUTABLE} -c "import ${OnePythonModule}; help(${OnePythonModule})"
 			RESULT_VARIABLE rv
 		)
 #MESSAGE("python -c \"import ${OnePythonModule}; help(${OnePythonModule})\"")
