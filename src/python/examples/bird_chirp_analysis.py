@@ -26,8 +26,8 @@ import mptkplot
 # USER SETTINGS:
 
 dictpaths = {
-	'chirp': "%s/dic_chirp_forexpo.xml" % os.path.dirname(__file__),
-	'gabor': "%s/dic_gabor_forexpo.xml" % os.path.dirname(__file__),
+	'chirp': "%s/dic_chirp_forexpo.xml" % os.path.dirname(os.path.realpath(__file__)),
+	'gabor': "%s/dic_gabor_forexpo.xml" % os.path.dirname(os.path.realpath(__file__)),
 	}
 
 # Output folder - by default we'll output to the current working directory
