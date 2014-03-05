@@ -11,8 +11,11 @@ ELSE(WIN32)
 ENDIF(WIN32)
 
 FIND_PROGRAM(CTEST_SVN_COMMAND NAMES svn)
-SET (CTEST_SVN_CHECKOUT  "${CTEST_SVN_COMMAND} checkout --username anonsvn --password anonsvn https://scm.gforge.inria.fr/svn/mptk/trunk \"${CTEST_SOURCE_DIRECTORY}\"")
-SET (CTEST_CHECKOUT_COMMAND "${CTEST_SVN_CHECKOUT}")
+
+if(NOT EXISTS "${CTEST_SOURCE_DIRECTORY}")
+	SET (CTEST_SVN_CHECKOUT  "${CTEST_SVN_COMMAND} checkout --username anonsvn --password anonsvn https://scm.gforge.inria.fr/svn/mptk/trunk \"${CTEST_SOURCE_DIRECTORY}\"")
+	SET (CTEST_CHECKOUT_COMMAND "${CTEST_SVN_CHECKOUT}")
+endif(NOT EXISTS "${CTEST_SOURCE_DIRECTORY}")
 
 site_name(CTEST_SITE)
 set(CTEST_BUILD_NAME "${CMAKE_SYSTEM}_${CMAKE_HOST_SYSTEM_PROCESSOR}")
