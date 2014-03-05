@@ -350,7 +350,7 @@ int MP_Dict_c::add_blocks_from_xml_file(FILE *fid)
 	const char		*func = "MP_Dict_c::add_blocks_from_xml_file(FILE *fid)";
 	char			line[MP_MAX_STR_LEN];
 	memset(line, 0, MP_MAX_STR_LEN);
-	size_t xmlBufSize = 100000;
+	const size_t xmlBufSize = 100000;
 	char			szBuffer[xmlBufSize];
 	memset(szBuffer, 0, xmlBufSize);
 	TiXmlDocument	doc;

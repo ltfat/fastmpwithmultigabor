@@ -125,13 +125,13 @@ class MP_CMpd_Core_c:public MP_Mpd_Core_c
                       int inputmax_iter_stopcycle, float inputmax_dB_stopcycle, int inputCMPD_HOLD ) {
       //  cout << inputnum_cycles << "\n";
 	  num_cycles =  inputnum_cycles;
-      min_cycleimprovedB = pow(10.0,inputmin_cycleimprovedB/10.0);
+      min_cycleimprovedB = (float) pow(10.0,inputmin_cycleimprovedB/10.0);
       max_iter_beforecycle = inputmax_iter_beforecycle;
-      min_dB_beforecycle = pow(10.0,inputmin_dB_beforecycle/10.0);
+      min_dB_beforecycle = (float) pow(10.0,inputmin_dB_beforecycle/10.0);
       max_iter_stopcycle = inputmax_iter_stopcycle;
-      max_dB_stopcycle = pow(10.0,inputmax_dB_stopcycle/10.0);
+      max_dB_stopcycle = (float) pow(10.0,inputmax_dB_stopcycle/10.0);
       itersincelastcycle = 0;
-      residualEnergyAfterCycle = ULONG_MAX;
+      residualEnergyAfterCycle = (float) ULONG_MAX;
       holdatoms = inputCMPD_HOLD;
 	}
 	  

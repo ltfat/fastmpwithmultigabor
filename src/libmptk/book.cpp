@@ -401,7 +401,7 @@ unsigned long int MP_Book_c::load( FILE *fid, bool withDict )
 	if ( mode == MP_TEXT){  // using if rather than switch, so can declare variables inside
 		MP_Atom_c* (*createAtomFromXml)( TiXmlElement *xmlobj, MP_Dict_c *dict);
 		// read some xml into memory
-		size_t xmlBufSize = 100000;
+		const size_t xmlBufSize = 100000;
 		char szBuffer[xmlBufSize];
 		size_t bytesremain;
 		// Reset the buffer for each atom
