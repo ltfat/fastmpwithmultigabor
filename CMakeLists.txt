@@ -491,6 +491,10 @@ INSTALL(FILES ${MPTK_BINARY_DIR}/install/path.xml DESTINATION mptk)
 ##############################################################################
 # CPACK RULES
 ##############################################################################
+# By default, do not warn when built on machines using only VS Express:
+IF(NOT DEFINED CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS)
+	SET(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS ON)
+ENDIF(NOT DEFINED CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS)
 INCLUDE(InstallRequiredSystemLibraries)
 SET(CPACK_SET_DESTDIR "ON")
 SET(CPACK_PACKAGE_RELOCATABLE "FALSE")
