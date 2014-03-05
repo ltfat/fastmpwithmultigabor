@@ -14,7 +14,6 @@ FIND_PROGRAM(CTEST_SVN_COMMAND NAMES svn)
 SET (CTEST_SVN_CHECKOUT  "${CTEST_SVN_COMMAND} checkout --username anonsvn --password anonsvn https://scm.gforge.inria.fr/svn/mptk/trunk \"${CTEST_SOURCE_DIRECTORY}\"")
 SET (CTEST_CHECKOUT_COMMAND "${CTEST_SVN_CHECKOUT}")
 
-
 site_name(CTEST_SITE)
 set(CTEST_BUILD_NAME "${CMAKE_SYSTEM}_${CMAKE_HOST_SYSTEM_PROCESSOR}")
 
@@ -24,6 +23,14 @@ SET (CTEST_START_WITH_EMPTY_BINARY_DIRECTORY TRUE)
 
 CTEST_START("Continuous")
 CTEST_UPDATE(RETURN_VALUE res)
+IF(res EQUAL -1) 
+	RETURN()
+ENDIF(res EQUAL -1)
+##  run build and test for continuous integration model only if there was a new update
+IF(res EQUAL 0)
+	RETURN()
+ENDIF(res EQUAL 0)
+
 CTEST_CONFIGURE(OPTIONS "-DDASH_TESTING=ON -DBUILD_COVERAGE=ON -G \"${CTEST_CMAKE_GENERATOR}\"")
 CTEST_BUILD()
 CTEST_TEST()
