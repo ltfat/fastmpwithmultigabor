@@ -398,7 +398,7 @@ void MP_Nyquist_Block_Plugin_c::update_frame(unsigned long int frameIdx,
           ip -= *pAmp;
         }
       if (iter != touchBook->end())
-    	  iter->corr[chanIdx] = ip/sqrt(filterLen);
+    	  iter->corr[chanIdx] = ip/sqrt((double)filterLen);
       sum += ip*ip;
     }
   *maxCorr = sum/filterLen;
