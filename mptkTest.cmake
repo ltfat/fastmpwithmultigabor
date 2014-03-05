@@ -15,14 +15,8 @@ SET (CTEST_SVN_CHECKOUT  "${CTEST_SVN_COMMAND} checkout --username anonsvn --pas
 SET (CTEST_CHECKOUT_COMMAND "${CTEST_SVN_CHECKOUT}")
 
 
-
-set(bitness 32)
-if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-  set(bitness 64)
-endif(CMAKE_SIZEOF_VOID_P EQUAL 8)
-
 site_name(CTEST_SITE)
-set(CTEST_BUILD_NAME "${CMAKE_SYSTEM}_${bitness}bits")
+set(CTEST_BUILD_NAME "${CMAKE_SYSTEM}_${CMAKE_HOST_SYSTEM_PROCESSOR}")
 
 
 
