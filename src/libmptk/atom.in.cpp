@@ -218,6 +218,7 @@ int MP_Atom_c::init_frombinary( FILE *fid ) {
 	const char *func = "MP_Atom_c::init_frombinary( FILE *fid )";
 	int nItem = 0;
 
+	MP_Chan_t i;
 	unsigned long int val;
 
 	/* Read numChans */
@@ -338,7 +339,7 @@ unsigned long int MP_Atom_c::get_pos( void )const{
  */
 
 MP_Atom_Param_c* MP_Atom_c::get_atom_param( void )const{
-	//const char* funcName = "MP_Atom_c::get_atom_param( void )";
+	const char* funcName = "MP_Atom_c::get_atom_param( void )";
 	return new MP_Atom_Param_c();
 }
 
@@ -356,7 +357,7 @@ void MP_Atom_c::substract_add( MP_Signal_c *sigSub, MP_Signal_c *sigAdd ) {
 	const char *func = "MP_Atom_c::substract_add(...)";
 
 	// Will initialize allocated_totalChanLen with the first value with which this function is called
-	//static unsigned long int allocated_totalChanLen = 0;
+	static unsigned long int allocated_totalChanLen = 0;
 	static MP_Real_t *totalBuffer=NULL;
 
 	// Check that the addition / substraction can take place :
@@ -379,7 +380,7 @@ void MP_Atom_c::substract_add( MP_Signal_c *sigSub, MP_Signal_c *sigAdd ) {
 		mp_error_msg(func,"Could not allocate buffer. Returning without any addition or subtraction.\n" );
 		return;
 	}
-	//allocated_totalChanLen = totalChanLen;
+	allocated_totalChanLen = totalChanLen;
 	// build the atom waveform
 	build_waveform(totalBuffer);
 
