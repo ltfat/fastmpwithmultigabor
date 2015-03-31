@@ -6,9 +6,8 @@ py_modules = ['mptkplot']
 
 inc_dir = ['/usr/include', '@MPTK_SOURCE_DIR@','@MPTK_SOURCE_DIR@/src/utils/libtinyxml', '@MPTK_SOURCE_DIR@/src/libmptk/', '@MPTK_BINARY_DIR@' , '@MPTK_BINARY_DIR@/src/libmptk/', '@LIBDSP_INCLUDE_DIR@','@FFTW3_INCLUDE_DIR@', '@SNDFILE_INCLUDE_DIR@', '@NUMPY_INCLUDE_DIRS@']
 
-lib =['@CMAKE_INSTALL_PREFIX@/lib/@LIB_MPTK_OUTPUT_NAME@','@CMAKE_INSTALL_PREFIX@/lib/dsp_windows']
 
-lib =['@CMAKE_INSTALL_PREFIX@/lib/@LIB_MPTK_OUTPUT_NAME@','@CMAKE_INSTALL_PREFIX@/lib/dsp_windows']
+lib =['@LIB_MPTK_OUTPUT_NAME@','dsp_windows']
 
 setup (name = "mptk",
 	version = "0.1",
