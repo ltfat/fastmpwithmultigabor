@@ -2089,7 +2089,7 @@ void MP_Convolution_FFT_c::compute_max_IP( MP_Signal_c* s, unsigned long int inp
 
   unsigned long int sliceIdx;
 
-  unsigned long int numFrames;
+  //unsigned long int numFrames;
   unsigned long int frameIdx;
 
   unsigned long int numFramesAdd;
@@ -2149,7 +2149,7 @@ void MP_Convolution_FFT_c::compute_max_IP( MP_Signal_c* s, unsigned long int inp
     mp_error_msg( "MP_Convolution_FFT_c::compute_IP", "inputLen [%lu] is equal to the max for an unsigned long int [%lu]. Cannot initialize the number of slices. Exiting from compute_IP()\n", inputLen, MP_MAX_UNSIGNED_LONG_INT );
     return;
   }
-  numFrames = ((inputLen - anywaveTable->filterLen)/filterShift) + 1;
+  //numFrames = ((inputLen - anywaveTable->filterLen)/filterShift) + 1;
   numSlices = ( inputLen / anywaveTable->filterLen ) + 1;
 
   pAmp = ampOutput;
@@ -2375,7 +2375,7 @@ void MP_Convolution_FFT_c::compute_max_IP( MP_Signal_c* s, unsigned long int inp
 	
 	unsigned long int sliceIdx;
 	
-	unsigned long int numFrames;
+	//unsigned long int numFrames;
 	unsigned long int frameIdx;
 	
 	unsigned long int numFramesAdd;
@@ -2443,7 +2443,7 @@ void MP_Convolution_FFT_c::compute_max_IP( MP_Signal_c* s, unsigned long int inp
 		mp_error_msg( "MP_Convolution_FFT_c::compute_IP", "inputLen [%lu] is equal to the max for an unsigned long int [%lu]. Cannot initialize the number of slices. Exiting from compute_IP()\n", inputLen, MP_MAX_UNSIGNED_LONG_INT );
 		return;
 	}
-	numFrames = ((inputLen - anywaveTable->filterLen)/filterShift) + 1;
+	//numFrames = ((inputLen - anywaveTable->filterLen)/filterShift) + 1;
 	numSlices = ( inputLen / anywaveTable->filterLen ) + 1;
 	
 	pAmp = ampOutput;
@@ -2703,7 +2703,7 @@ void MP_Convolution_FFT_c::compute_max_hilbert_IP( MP_Signal_c* s, unsigned long
 
   unsigned long int sliceIdx;
 
-  unsigned long int numFrames;
+//  unsigned long int numFrames;
   unsigned long int frameIdx;
 
   unsigned long int numFramesAdd;
@@ -2779,7 +2779,7 @@ void MP_Convolution_FFT_c::compute_max_hilbert_IP( MP_Signal_c* s, unsigned long
     mp_error_msg( "MP_Convolution_FFT_c::compute_IP", "inputLen [%lu] is equal to the max for an unsigned long int [%lu]. Cannot initialize the number of slices. Exiting from compute_IP()\n", inputLen, MP_MAX_UNSIGNED_LONG_INT );
     return;
   }
-  numFrames = ((inputLen - anywaveTable->filterLen)/filterShift) + 1;
+  //numFrames = ((inputLen - anywaveTable->filterLen)/filterShift) + 1;
   numSlices = ( inputLen / anywaveTable->filterLen ) + 1;
 
   pAmp = ampOutput;
