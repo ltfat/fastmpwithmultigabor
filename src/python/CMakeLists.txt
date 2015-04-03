@@ -27,6 +27,7 @@ IF(BUILD_PYTHON_FILES)
 			DEPENDS   ${MPTK_BINARY_DIR}/src/python/pyMPTK_book.cpp
 			DEPENDS   ${MPTK_BINARY_DIR}/src/python/pyMPTK_atom.cpp
 			DEPENDS   ${MPTK_BINARY_DIR}/src/python/pyMPTK_decompose.cpp
+			DEPENDS   mptk
 		)
 		ADD_CUSTOM_COMMAND( 
 		    TARGET    python_file 
