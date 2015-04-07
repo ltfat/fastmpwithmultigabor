@@ -95,7 +95,7 @@ PyArrayObject* mp_create_numpyarray_from_signal(MP_Signal_c *signal){
 	// There may be a faster way. Can probably memcpy each individual channel, though possibly not the whole block
 	for (unsigned int channel=0; channel < nchans; ++channel) {
 		for (unsigned long int sample=0; sample < nspls; ++sample) {
-			signal_data[channel*nspls + sample] = signal->channel[channel][sample];
+			signal_data[channel*nspls + sample] = (float) signal->channel[channel][sample];
 		}
 	}
 	return nparray;

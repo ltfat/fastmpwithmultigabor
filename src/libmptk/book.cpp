@@ -319,7 +319,7 @@ unsigned long int MP_Book_c::load( FILE *fid, bool withDict )
 	char					str[MP_MAX_STR_LEN];
 	memset(str, 0, MP_MAX_STR_LEN);
 	MP_Atom_c				*newAtom = NULL;
-	MP_Dict_c				*dict;
+    MP_Dict_c				*dict = NULL;
 
 	// xml declaration
 	if ( fgets( line,MP_MAX_STR_LEN,fid) == NULL )
@@ -836,7 +836,7 @@ MP_Bool_t MP_Book_c::can_append( FILE * fid ){
   unsigned int fidNumChans;
   int fidSampleRate;
   unsigned long int fidNumAtoms, fidNumSamples;
-  char mode;
+  //char mode;
   char line[MP_MAX_STR_LEN];
   char str[MP_MAX_STR_LEN];
     /* Read the format */
@@ -847,8 +847,8 @@ MP_Bool_t MP_Book_c::can_append( FILE * fid ){
   }
 
   /* Try to determine the format */
-  if      ( !strcmp( line, "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n" ) ) mode = MP_TEXT;
-  else if ( !strcmp( line, "bin\n" ) ) mode = MP_BINARY;
+  if      ( !strcmp( line, "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n" ) ) ; //mode = MP_TEXT;
+  else if ( !strcmp( line, "bin\n" ) ) ; //mode = MP_BINARY;
   else {
     mp_error_msg( func, "The loaded book has an erroneous file format."
 		  " This book will remain un-changed.\n" );

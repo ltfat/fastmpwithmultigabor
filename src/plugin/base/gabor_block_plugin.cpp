@@ -823,7 +823,10 @@ unsigned int MP_Gabor_Block_Plugin_c::create_atom( MP_Atom_c **atom,
   /* Parameters for the atom waveform : */
   double re, im;
   double amp, phase;
-  double reCorr, imCorr, sqCorr;
+  double reCorr, imCorr;
+  #ifndef NDEBUG
+  double  sqCorr;
+  #endif
   double real, imag, energy;
   /* Misc: */
   int chanIdx;
@@ -904,8 +907,10 @@ unsigned int MP_Gabor_Block_Plugin_c::create_atom( MP_Atom_c **atom,
       energy = re*re + im*im;
       reCorr = reCorrel[freqIdx];
       imCorr = imCorrel[freqIdx];
+#ifndef NDEBUG
       sqCorr = sqCorrel[freqIdx];
       assert( sqCorr <= 1.0 );
+#endif
 
       /* Cf. explanations about complex2amp_and_phase() in general.h */
       //if ( (freqIdx != 0) && ( (freqIdx+1) < numFreqs ) ) { /* CHECK WITH REMI */

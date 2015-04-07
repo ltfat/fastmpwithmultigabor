@@ -418,7 +418,7 @@ void MP_Gabor_Atom_Plugin_c::build_waveform( MP_Real_t *outBuffer )
 
   MP_Real_t *window = NULL;
   MP_Real_t *atomBuffer = NULL;
-  unsigned long int windowCenter = 0;
+  /*unsigned long int windowCenter = 0;*/
   /* Parameters for the atom waveform : */
   MP_Chan_t chanIdx;
   unsigned int t;
@@ -436,7 +436,7 @@ void MP_Gabor_Atom_Plugin_c::build_waveform( MP_Real_t *outBuffer )
       len = support[chanIdx].len;
 
       /** make the window */
-      windowCenter = MPTK_Server_c::get_win_server()->get_window( &window, len, windowType, windowOption );
+      /*windowCenter = */ MPTK_Server_c::get_win_server()->get_window( &window, len, windowType, windowOption );
       assert( window != NULL );
 
       /* Dereference the arguments once and for all */

@@ -120,7 +120,7 @@ int mptk_decompose_body(const PyArrayObject *numpysignal, const char *dictpath, 
 	}else if(strcmp(method, "cmp")==0){
 		((MP_CMpd_Core_c*) mpdCore)->set_save_hit(ULONG_MAX, bookpath, NULL, decaypath);
 		((MP_CMpd_Core_c*) mpdCore)->set_settings( 		cmpd_maxnum_cycles, cpmd_min_cycleimprovedb, cpmd_maxnum_aug_beforecycle,
-		cpmd_maxnum_aug_beforecycle_db, cpmd_max_aud_stopcycle, cpmd_max_db_stopcycle, cmpd_hold > 0 );
+        (float) cpmd_maxnum_aug_beforecycle_db, cpmd_max_aud_stopcycle, (float)cpmd_max_db_stopcycle, cmpd_hold > 0 );
 
 	}//else if(strcmp(method, "gmp")==0){
 		// not same method... ((GPD_Core_c*) mpdCore)->set_save_hit(ULONG_MAX, bookpath, NULL, decaypath);

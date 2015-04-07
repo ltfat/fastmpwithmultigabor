@@ -409,7 +409,7 @@ MP_Support_t MP_Anywave_Hilbert_Block_Plugin_c::update_ip( const MP_Support_t *t
   unsigned long int tmpFromFrame, tmpToFrame;
   unsigned long int fromSample;
   unsigned long int toSample;
-  unsigned long int tmp;
+  //unsigned long int tmp;
   unsigned long int signalLen;
   unsigned long int numTouchedFrames;
 
@@ -454,9 +454,9 @@ MP_Support_t MP_Anywave_Hilbert_Block_Plugin_c::update_ip( const MP_Support_t *t
     {
       /* Initialize fromFrame and toFrame using the support on channel 0 */
     if (blockOffset>touch[0].pos) {
-      tmp = 0;
+      ; //tmp = 0;
      } else {
-      tmp = touch[0].pos-blockOffset;
+      ; //tmp = touch[0].pos-blockOffset;
      }
       fromFrame = len2numFrames( touch[0].pos, filterLen, filterShift );
 
@@ -467,9 +467,9 @@ MP_Support_t MP_Anywave_Hilbert_Block_Plugin_c::update_ip( const MP_Support_t *t
       /* Adjust fromFrame and toFrame with respect to supports on the subsequent channels */
       for ( chanIdx = 1; chanIdx < s->numChans; chanIdx++ )
         {  if (blockOffset>touch[chanIdx].pos) {
-        tmp = 0;
+        ;// tmp = 0;
       } else {
-        tmp = touch[chanIdx].pos-blockOffset;
+        ;// tmp = touch[chanIdx].pos-blockOffset;
       }
           tmpFromFrame = len2numFrames( touch[chanIdx].pos, filterLen, filterShift );
           if ( tmpFromFrame < fromFrame ) fromFrame = tmpFromFrame;

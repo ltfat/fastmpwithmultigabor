@@ -226,7 +226,7 @@ unsigned short int MP_CMpd_Core_c::step() {
                 TotalstartTime.tv_sec*1000 - (TotalstartTime.tv_usec)/1000.0 << std::endl;
             */
 			
-			residualEnergyAfterCycle = (double) dict->signal->energy;
+			residualEnergyAfterCycle = (float) dict->signal->energy;
 			
             //cout << min_cycleimprovedB << " <? " << lastResidualEnergyAfterCycle/residualEnergyWithinCycleBefore << "\n";
 			if (residualEnergyBeforeCycle/residualEnergyAfterCycle < min_cycleimprovedB) break;

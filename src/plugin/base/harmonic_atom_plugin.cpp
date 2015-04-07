@@ -237,7 +237,7 @@ int MP_Harmonic_Atom_Plugin_c::init_fromxml(TiXmlElement* xmlobj)
   // Then, MULTICHANNEL FEATURES
   // Iterate children and:
   kid = 0;
-  int count_harm=0, count_pamp=0, count_pphase=0;
+  unsigned int count_harm=0, count_pamp=0, count_pphase=0;
   while((kid = xmlobj->IterateChildren(kid))){
     kidel = kid->ToElement();
     if(kidel != NULL){
@@ -530,7 +530,7 @@ void MP_Harmonic_Atom_Plugin_c::build_waveform( MP_Real_t *outBuffer )
 
   MP_Real_t *window;
   MP_Real_t *atomBuffer;
-  unsigned long int windowCenter = 0;
+  /*unsigned long int windowCenter = 0;*/
   /* Parameters for the atom waveform : */
   MP_Chan_t chanIdx;
   unsigned int t;
@@ -553,7 +553,7 @@ void MP_Harmonic_Atom_Plugin_c::build_waveform( MP_Real_t *outBuffer )
       len = support[chanIdx].len;
 
       /* Make the window */
-      windowCenter = MPTK_Server_c::get_win_server()->get_window( &window, len, windowType, windowOption );
+      /*windowCenter = */ MPTK_Server_c::get_win_server()->get_window( &window, len, windowType, windowOption );
       assert( window != NULL );
 
       /* Dereference the arguments once and for all */
