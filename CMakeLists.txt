@@ -52,6 +52,12 @@ ENDIF(UNIX)
 # Choose a default CMAKE_INSTALL_PREFIX on Windows.  CMake 2.2 and
 # above already choose a good default, so force a change only if the
 # current value looks like the CMake 2.0 default.
+
+
+IF (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+    SET(CMAKE_INSTALL_PREFIX "${CMAKE_SOURCE_DIR}/output" CACHE STRING "default install path" FORCE )
+ENDIF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+
 IF(UNIX)
 	SET(BATCHEXT ".sh")
 	SET(MPTK_USER_LOCAL_PATH $ENV{HOME}/local/bin)

@@ -22,10 +22,10 @@ typedef struct {
 } BookObject;
 
 static PyMemberDef book_members[] = {
-	{"numChans",   T_INT,       offsetof(BookObject, numChans),   0, "number of channels in the original signal (and so, in all atoms)"},
-	{"numSamples", T_INT,       offsetof(BookObject, numSamples), 0, "number of samples in the original signal"},
-	{"sampleRate", T_INT,       offsetof(BookObject, sampleRate), 0, "sample rate in the original signal (and so, in all atoms)"},
-	{"atoms",      T_OBJECT_EX, offsetof(BookObject, atoms),      0, "list of atoms (each a dict, containing some 'mono' features and some 'multichannel' features)"},
+	{const_cast<char*>("numChans"),   T_INT,       offsetof(BookObject, numChans),   0, const_cast<char*>("number of channels in the original signal (and so, in all atoms)")},
+	{const_cast<char*>("numSamples"), T_INT,       offsetof(BookObject, numSamples), 0, const_cast<char*>("number of samples in the original signal")},
+	{const_cast<char*>("sampleRate"), T_INT,       offsetof(BookObject, sampleRate), 0, const_cast<char*>("sample rate in the original signal (and so, in all atoms)")},
+	{const_cast<char*>("atoms"),      T_OBJECT_EX, offsetof(BookObject, atoms),      0, const_cast<char*>("list of atoms (each a dict, containing some 'mono' features and some 'multichannel' features)")},
 	{NULL}  /* Sentinel */
 };
 

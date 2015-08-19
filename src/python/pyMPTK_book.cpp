@@ -56,7 +56,7 @@ pybook_from_mpbook(BookObject* pybook, MP_Book_c *mpbook)
 	}
 	if(pybook->numSamples==0){
 		pybook->numSamples = mpbook->numSamples;
-	}else if(pybook->numSamples != mpbook->numSamples ){
+	}else if((unsigned long int)pybook->numSamples != mpbook->numSamples ){
 		return 2;
 	}
 	if(pybook->sampleRate==0){
@@ -112,7 +112,8 @@ mpbook_from_pybook(MP_Book_c *mpbook, BookObject* pybook, MP_Dict_c* dict)
 		if ( NULL==mpatom ) {
 			delete mpbook;
 			PyErr_SetString(PyExc_RuntimeError, "mpatom_from_pyatom() returned NULL while adding an atom to book\n");
-			return(NULL);
+			//return(NULL);
+			return 5;
 		} else {
 			if(mpbook->append( mpatom ) != 1){
 				PyErr_SetString(PyExc_RuntimeError, "Attempted to load too many atoms.\n");

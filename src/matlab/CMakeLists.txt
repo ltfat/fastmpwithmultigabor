@@ -57,6 +57,7 @@ FOREACH(file GettingStarted.m)
     INSTALL(FILES ${MPTK_BINARY_DIR}/install/mptk/matlab/${file} DESTINATION ${MPTK_MATLAB_INSTALL_DIR})
 ENDFOREACH(file)
 
+
 # List of stable script files to be copied and installed
 SET(MATSCRIPT bookover bookplot mpview bookedit dictcreate_gui)
 SET(MATSCRIPT_EXEC ${MATSCRIPT} PARENT_SCOPE)
@@ -164,9 +165,29 @@ FOREACH(target ${MAT_EXECUTABLES})
 			OUTPUT ${MPTK_MATLAB_OUTPUT_DIR}/${target}.${MEX_EXTENSION}
 			POST_BUILD
 			COMMAND   ${MATLAB_MEX_COMPILER} ${MATLAB_COMPILATION}
-			ARGS      -O -DHAVE_FFTW3 -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${LIBTINYXML_INCLUDE_DIR} -I/usr/include/ -I${MPTK_SOURCE_DIR} -I${LIBDSP_INCLUDE_DIR} -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${FFTW3_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/ -I${MPTK_MATLAB_SRC_DIR}/classes/ -I${MPTK_MATLAB_SRC_DIR}/experimental/classes/ -I${MPTK_SOURCE_DIR}/src/plugin/base/ -I${MPTK_SOURCE_DIR}/src/plugin/contrib/lam/ -outdir ${MPTK_MATLAB_OUTPUT_DIR} ${MPTK_MATLAB_SRC_DIR}/${target}.cpp  -L${MPTK_LIB_DIR} -lmptk -lmptk4matlab
+			ARGS -O -DHAVE_FFTW3 -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${LIBTINYXML_INCLUDE_DIR} -I/usr/include/ -I${MPTK_SOURCE_DIR} -I${LIBDSP_INCLUDE_DIR} -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${FFTW3_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/ -I${MPTK_MATLAB_SRC_DIR}/classes/ -I${MPTK_MATLAB_SRC_DIR}/experimental/classes/ -I${MPTK_SOURCE_DIR}/src/plugin/base/ -I${MPTK_SOURCE_DIR}/src/plugin/contrib/lam/ -outdir ${MPTK_MATLAB_OUTPUT_DIR} ${MPTK_MATLAB_SRC_DIR}/${target}.cpp  -L${MPTK_LIB_DIR} -lmptk -lmptk4matlab
    # FOR SAFETY, SHOULD USE FLAG -headerpad_max_install_names
 			COMMENT   "MEX")
+			
+			#g++ equivalent of Matlab mex command
+			#ADD_CUSTOM_COMMAND(
+			#OUTPUT ${MPTK_MATLAB_OUTPUT_DIR}/${target}.${MEX_EXTENSION}
+			#POST_BUILD
+
+			#COMMAND g++ -c -DHAVE_FFTW3  -DMX_COMPAT_32   -D_GNU_SOURCE -DMATLAB_MEX_FILE  -ansi -fexceptions -fPIC -fno-omit-frame-pointer -pthread -O3 -DNDEBUG
+			#ARGS -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${LIBTINYXML_INCLUDE_DIR} -I/usr/include/ -I${MPTK_SOURCE_DIR} -I${LIBDSP_INCLUDE_DIR} -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${FFTW3_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/ -I${MPTK_MATLAB_SRC_DIR}/classes/ -I${MPTK_MATLAB_SRC_DIR}/experimental/classes/ -I${MPTK_SOURCE_DIR}/src/plugin/base/ -I${MPTK_SOURCE_DIR}/src/plugin/contrib/lam/ ${MPTK_MATLAB_SRC_DIR}/${target}.cpp -o ${MPTK_MATLAB_SRC_DIR}/${target}.o
+
+			##COMMAND g++ -pthread -Wl,--no-undefined  -shared -O3 
+			##ARGS -Wl,--version-script,${MATLAB_ROOT}/extern/lib/glnxa64/mexFunction.map ${MPTK_MATLAB_SRC_DIR}/${target}.o /usr/lib64/libstdc++.so -lmptk -lmptk4matlab -L/usr/lib64 -Wl,-rpath-link,${MATLAB_ROOT}/bin/glnxa64 -L${MATLAB_ROOT}/bin/glnxa64 -lmx -lmex -lmat -lm -lstdc++ -o ${MPTK_MATLAB_OUTPUT_DIR}/${target}.${MEX_EXTENSION}
+			#COMMAND g++ -v -pthread -Wl,--no-undefined  -shared -O3 
+			#ARGS -Wl,--version-script,${MATLAB_ROOT}/extern/lib/glnxa64/mexFunction.map ${MPTK_MATLAB_SRC_DIR}/${target}.o /usr/lib64/libstdc++.so /usr/lib64/libm.so -lmptk -lmptk4matlab -L/usr/lib64 -L${MPTK_LIB_DIR} -L${MATLAB_ROOT}/bin/glnxa64 -lmx -lmex -lmat  -o ${MPTK_MATLAB_OUTPUT_DIR}/${target}.${MEX_EXTENSION}
+
+			#COMMAND rm -f
+			#ARGS ${MPTK_MATLAB_SRC_DIR}/${target}.o
+	
+   # FOR SAFETY, SHOULD USE FLAG -headerpad_max_install_names
+			#COMMENT   "MEX")
+
 		ENDIF(APPLE)
 	ELSE(UNIX)
           ADD_CUSTOM_COMMAND(
@@ -182,6 +203,15 @@ FOREACH(target ${MAT_EXECUTABLES})
     INSTALL(FILES ${MPTK_MATLAB_OUTPUT_DIR}/${target}.${MEX_EXTENSION} ${MPTK_MATLAB_OUTPUT_DIR}/${target}.m DESTINATION ${MPTK_MATLAB_INSTALL_DIR})
 
 ENDFOREACH(target)
+
+## $MATLAB_ROOT/sys/os/glnxa64 won't be added to LD_LIBRARY_PATH (in Matlab)
+#SET(FICHIER_TMP_MATLAB ${MATLAB_ROOT}/bin/matlab)
+#EXECUTE_PROCESS(
+#	COMMAND chmod u+w ${FICHIER_TMP_MATLAB}
+#	COMMAND "sed" "-i" "s/LD_LIBRARY_PATH=$LDPATH_MATLAB:$LD_LIBRARY_PATH.*/LD_LIBRARY_PATH=$LD_LIBRARY_PATH/" ${FICHIER_TMP_MATLAB}
+#	COMMAND chmod u-w ${FICHIER_TMP_MATLAB}
+#)
+
 
 #Install mandatory dll for windows
 IF( CMAKE_CXX_COMPILER STREQUAL "cl")

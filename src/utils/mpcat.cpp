@@ -312,7 +312,7 @@ int main( int argc, char **argv )
 	version->LinkEndChild( new TiXmlText( VERSION ));
 	root->LinkEndChild(version);
 	
-	for(int i=0; i<numBooks; ++i){
+	for(size_t i=0; i<numBooks; ++i){
 		if(!allBooks[i]->atom[0]->dict->append_blocks_to_xml_root( root ))
 		{
 			mp_error_msg( func, "dict failed to append its blocks to XML in memory\n");
@@ -333,9 +333,9 @@ int main( int argc, char **argv )
 		return ERR_WRITE;
 	}
 	// Write all atoms
-	for(int i=0; i<numBooks; ++i){
+	for(size_t i=0; i<numBooks; ++i){
 		if((allBooks[i]->printBook_atoms(fid, mode, NULL, nAtomRead))==0){
-			fprintf ( stderr, "mpcat error -- could not write book number %i\n", i);
+			fprintf ( stderr, "mpcat error -- could not write book number %lu\n",(unsigned long int) i);
 			return ERR_WRITE;
 		}
 	}
@@ -356,7 +356,7 @@ int main( int argc, char **argv )
 		fprintf( stderr, "mpcat msg -- The resulting book contains [%lu] atoms.\n", nAtomRead );
 
 	// Clean the house
-	for(int i=0; i<numBooks; ++i){
+	for(size_t i=0; i<numBooks; ++i){
 		delete allBooks[i];
 	}
 	delete( allBooks );
