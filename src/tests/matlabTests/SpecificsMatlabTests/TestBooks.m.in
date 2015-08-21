@@ -38,13 +38,13 @@ end
 try
 	booktest = bookread('@MPTK_BINARY_DIR@/mptk/reference/@MPTK_EXAMPLE_BOOK_FILENAME@')
 catch err
-	disp('Error during the "bookread" test')
+	disp(['Error during the "bookread" test : ' err.message])
 	exit;
 end
 
 try
 	bookwrite(booktest,'@MPTK_BINARY_DIR@/mptk/reference/@MPTK_EXAMPLE_BOOK_WRITE_FILENAME@')
 catch err
-	disp('Error during the "bookwrite" test')
+	disp(['Error during the "bookwrite" test : ' err.message])
 	exit;
 end
