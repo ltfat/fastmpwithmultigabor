@@ -30,15 +30,20 @@ disp('   Test : runAllMatlabTests  ');
 disp('*****************************');
 
 disp('... Redirection of the path to installation directory...')
-dir4cd = '@CMAKE_INSTALL_PREFIX@/mptk/matlab';
-if exist(dir4cd,'dir')
-	cd(dir4cd); 
-else
-	disp(sprintf('Error using cd\nCannot CD to %s (Name is nonexistent or not a directory).',dir4cd));
-	return;
+try
+	cd('@CMAKE_INSTALL_PREFIX@/mptk/matlab'); 
+catch err
+	disp(['Error during cd : %s' err.message]);
+	disp('2')
+	exit;
 end
+
 disp('... Adding the environment path variable MPTK_CONFIG_FILENAME...')
 setenv('MPTK_CONFIG_FILENAME','@CMAKE_INSTALL_PREFIX@/mptk/path.xml')
+
+disp('... Modifying the environment path variable LD_LIBRARY_PATH ...')
+setenv('LD_LIBRARY_PATH',[getenv('LD_LIBRARY_PATH') ':@CMAKE_INSTALL_PREFIX@/lib']);
+disp(['in Matlab, LD_LIBRARY_PATH=' getenv('LD_LIBRARY_PATH') ])
 
 disp('... Searching for the Matlab test files...');
 if exist('@MPTK_BINARY_DIR@/bin/matlabTests/SpecificsMatlabTests/') == 0
