@@ -54,9 +54,16 @@ ENDIF(UNIX)
 # current value looks like the CMake 2.0 default.
 
 
+MESSAGE("ooooooooooooooooooo in ~/mptk2/trunk/CMakeList.txt : CMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX} ")
+
 IF (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
     SET(CMAKE_INSTALL_PREFIX "${CMAKE_SOURCE_DIR}/output" CACHE STRING "default install path" FORCE )
 ENDIF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+
+MESSAGE("ooooooooooooooooooo in ~/mptk2/trunk/CMakeList.txt : CMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX} ")
+MESSAGE("ooooooooooooooooooo in ~/mptk2/trunk/CMakeList.txt : MPTK_BINARY_DIR=${MPTK_BINARY_DIR} ")
+MESSAGE("ooooooooooooooooooo in ~/mptk2/trunk/CMakeList.txt : MPTK_SOURCE_DIR=${MPTK_SOURCE_DIR} ")
+
 
 IF(UNIX)
 	SET(BATCHEXT ".sh")
@@ -646,9 +653,12 @@ IF(BUILD_TESTING)
 	#-------------------------------
 	FOREACH(defaultDict ${dictcountInstall})
 		GET_FILENAME_COMPONENT(DICT_FILE_NAME ${defaultDict} NAME_WE)
-		ADD_TEST(INSTALL_MPD_${DICT_FILE_NAME}, ${CMAKE_INSTALL_PREFIX}/bin/mpd -C ${CMAKE_INSTALL_PREFIX}/mptk/path.xml -D ${defaultDict} -n 10 ${MPTK_REFERENCE_PATH}/signal/glockenspiel.wav ${MPTK_TMP_PATH}/test_mpd${DICT_FILE_NAME}.bin)
-		ADD_TEST(INSTALL_GPD_${DICT_FILE_NAME}, ${CMAKE_INSTALL_PREFIX}/bin/gpd -C ${CMAKE_INSTALL_PREFIX}/mptk/path.xml -D ${defaultDict} -n 10 ${MPTK_REFERENCE_PATH}/signal/glockenspiel.wav ${MPTK_TMP_PATH}/test_gpd${DICT_FILE_NAME}.bin)
-		ADD_TEST(INSTALL_MPR_${DICT_FILE_NAME}, ${CMAKE_INSTALL_PREFIX}/bin/mpr -C ${CMAKE_INSTALL_PREFIX}/mptk/path.xml  ${MPTK_TMP_PATH}/test_mpd${DICT_FILE_NAME}.bin ${MPTK_TMP_PATH}/test_mpr${DICT_FILE_NAME}.wav)
+		#ADD_TEST(INSTALL_MPD_${DICT_FILE_NAME}, ${CMAKE_INSTALL_PREFIX}/bin/mpd -C ${CMAKE_INSTALL_PREFIX}/mptk/path.xml -D ${defaultDict} -n 10 ${MPTK_REFERENCE_PATH}/signal/glockenspiel.wav ${MPTK_TMP_PATH}/test_mpd${DICT_FILE_NAME}.bin)
+		ADD_TEST(INSTALL_MPD_${DICT_FILE_NAME}, ${MPTK_BINARY_DIR}/bin/mpd -C ${MPTK_BINARY_DIR}/mptk/path.xml -D ${defaultDict} -n 10 ${MPTK_REFERENCE_PATH}/signal/glockenspiel.wav ${MPTK_TMP_PATH}/test_mpd${DICT_FILE_NAME}.bin)
+		#ADD_TEST(INSTALL_GPD_${DICT_FILE_NAME}, ${CMAKE_INSTALL_PREFIX}/bin/gpd -C ${CMAKE_INSTALL_PREFIX}/mptk/path.xml -D ${defaultDict} -n 10 ${MPTK_REFERENCE_PATH}/signal/glockenspiel.wav ${MPTK_TMP_PATH}/test_gpd${DICT_FILE_NAME}.bin)
+		ADD_TEST(INSTALL_GPD_${DICT_FILE_NAME}, ${MPTK_BINARY_DIR}/bin/gpd -C ${MPTK_BINARY_DIR}/mptk/path.xml -D ${defaultDict} -n 10 ${MPTK_REFERENCE_PATH}/signal/glockenspiel.wav ${MPTK_TMP_PATH}/test_gpd${DICT_FILE_NAME}.bin)
+		#ADD_TEST(INSTALL_MPR_${DICT_FILE_NAME}, ${CMAKE_INSTALL_PREFIX}/bin/mpr -C ${CMAKE_INSTALL_PREFIX}/mptk/path.xml  ${MPTK_TMP_PATH}/test_mpd${DICT_FILE_NAME}.bin ${MPTK_TMP_PATH}/test_mpr${DICT_FILE_NAME}.wav)
+		ADD_TEST(INSTALL_MPR_${DICT_FILE_NAME}, ${MPTK_BINARY_DIR}/bin/mpr -C ${MPTK_BINARY_DIR}/mptk/path.xml  ${MPTK_TMP_PATH}/test_mpd${DICT_FILE_NAME}.bin ${MPTK_TMP_PATH}/test_mpr${DICT_FILE_NAME}.wav)
 	ENDFOREACH(defaultDict)
 	ADD_TEST(INSTALL_MPD_DEMIX, ${CMAKE_INSTALL_PREFIX}/bin/mpd_demix -C ${CMAKE_INSTALL_PREFIX}/mptk/path.xml -D ${MPTK_DEFAULT_DICT_LIST_FILE} -M ${MPTK_DEFAULT_MIXER_FILE} -n 10 ${MPTK_EXAMPLE_STEREOSIGNAL_FILE} ${MPTK_TMP_PATH}/test_demix.bin)	
 	ADD_TEST(INSTALL_MPF, ${CMAKE_INSTALL_PREFIX}/bin/mpf -C ${CMAKE_INSTALL_PREFIX}/mptk/path.xml --Freq=[0:110] --len=[0:256] ${MPTK_EXAMPLE_BOOK_FILE} ${MPTK_TMP_PATH}/test_mpf_bookYes.bin ${MPTK_TMP_PATH}/test_mpf_bookNo.bin)

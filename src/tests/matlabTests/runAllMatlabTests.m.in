@@ -30,8 +30,13 @@ disp('   Test : runAllMatlabTests  ');
 disp('*****************************');
 
 disp('... Redirection of the path to installation directory...')
-cd @CMAKE_INSTALL_PREFIX@/mptk/matlab/
-
+dir4cd = '@CMAKE_INSTALL_PREFIX@/mptk/matlab';
+if exist(dir4cd,'dir')
+	cd(dir4cd); 
+else
+	disp(sprintf('Error using cd\nCannot CD to %s (Name is nonexistent or not a directory).',dir4cd));
+	return;
+end
 disp('... Adding the environment path variable MPTK_CONFIG_FILENAME...')
 setenv('MPTK_CONFIG_FILENAME','@CMAKE_INSTALL_PREFIX@/mptk/path.xml')
 

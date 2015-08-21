@@ -161,32 +161,32 @@ FOREACH(target ${MAT_EXECUTABLES})
 			COMMAND   install_name_tool -change ARGS ${MPTK_LIB_DIR}/libmptk.dylib libmptk.dylib ${MPTK_MATLAB_OUTPUT_DIR}/${target}.${MEX_EXTENSION}
 			COMMENT   "MEX")
 		ELSE(APPLE)
-			ADD_CUSTOM_COMMAND(
-			OUTPUT ${MPTK_MATLAB_OUTPUT_DIR}/${target}.${MEX_EXTENSION}
-			POST_BUILD
-			COMMAND   ${MATLAB_MEX_COMPILER} ${MATLAB_COMPILATION}
-			ARGS -O -DHAVE_FFTW3 -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${LIBTINYXML_INCLUDE_DIR} -I/usr/include/ -I${MPTK_SOURCE_DIR} -I${LIBDSP_INCLUDE_DIR} -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${FFTW3_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/ -I${MPTK_MATLAB_SRC_DIR}/classes/ -I${MPTK_MATLAB_SRC_DIR}/experimental/classes/ -I${MPTK_SOURCE_DIR}/src/plugin/base/ -I${MPTK_SOURCE_DIR}/src/plugin/contrib/lam/ -outdir ${MPTK_MATLAB_OUTPUT_DIR} ${MPTK_MATLAB_SRC_DIR}/${target}.cpp  -L${MPTK_LIB_DIR} -lmptk -lmptk4matlab
-   # FOR SAFETY, SHOULD USE FLAG -headerpad_max_install_names
-			COMMENT   "MEX")
-			
-			#g++ equivalent of Matlab mex command
 			#ADD_CUSTOM_COMMAND(
 			#OUTPUT ${MPTK_MATLAB_OUTPUT_DIR}/${target}.${MEX_EXTENSION}
 			#POST_BUILD
-
-			#COMMAND g++ -c -DHAVE_FFTW3  -DMX_COMPAT_32   -D_GNU_SOURCE -DMATLAB_MEX_FILE  -ansi -fexceptions -fPIC -fno-omit-frame-pointer -pthread -O3 -DNDEBUG
-			#ARGS -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${LIBTINYXML_INCLUDE_DIR} -I/usr/include/ -I${MPTK_SOURCE_DIR} -I${LIBDSP_INCLUDE_DIR} -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${FFTW3_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/ -I${MPTK_MATLAB_SRC_DIR}/classes/ -I${MPTK_MATLAB_SRC_DIR}/experimental/classes/ -I${MPTK_SOURCE_DIR}/src/plugin/base/ -I${MPTK_SOURCE_DIR}/src/plugin/contrib/lam/ ${MPTK_MATLAB_SRC_DIR}/${target}.cpp -o ${MPTK_MATLAB_SRC_DIR}/${target}.o
-
-			##COMMAND g++ -pthread -Wl,--no-undefined  -shared -O3 
-			##ARGS -Wl,--version-script,${MATLAB_ROOT}/extern/lib/glnxa64/mexFunction.map ${MPTK_MATLAB_SRC_DIR}/${target}.o /usr/lib64/libstdc++.so -lmptk -lmptk4matlab -L/usr/lib64 -Wl,-rpath-link,${MATLAB_ROOT}/bin/glnxa64 -L${MATLAB_ROOT}/bin/glnxa64 -lmx -lmex -lmat -lm -lstdc++ -o ${MPTK_MATLAB_OUTPUT_DIR}/${target}.${MEX_EXTENSION}
-			#COMMAND g++ -v -pthread -Wl,--no-undefined  -shared -O3 
-			#ARGS -Wl,--version-script,${MATLAB_ROOT}/extern/lib/glnxa64/mexFunction.map ${MPTK_MATLAB_SRC_DIR}/${target}.o /usr/lib64/libstdc++.so /usr/lib64/libm.so -lmptk -lmptk4matlab -L/usr/lib64 -L${MPTK_LIB_DIR} -L${MATLAB_ROOT}/bin/glnxa64 -lmx -lmex -lmat  -o ${MPTK_MATLAB_OUTPUT_DIR}/${target}.${MEX_EXTENSION}
-
-			#COMMAND rm -f
-			#ARGS ${MPTK_MATLAB_SRC_DIR}/${target}.o
-	
+			#COMMAND   ${MATLAB_MEX_COMPILER} ${MATLAB_COMPILATION}
+			#ARGS -O -DHAVE_FFTW3 -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${LIBTINYXML_INCLUDE_DIR} -I/usr/include/ -I${MPTK_SOURCE_DIR} -I${LIBDSP_INCLUDE_DIR} -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${FFTW3_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/ -I${MPTK_MATLAB_SRC_DIR}/classes/ -I${MPTK_MATLAB_SRC_DIR}/experimental/classes/ -I${MPTK_SOURCE_DIR}/src/plugin/base/ -I${MPTK_SOURCE_DIR}/src/plugin/contrib/lam/ -outdir ${MPTK_MATLAB_OUTPUT_DIR} ${MPTK_MATLAB_SRC_DIR}/${target}.cpp  -L${MPTK_LIB_DIR} -lmptk -lmptk4matlab
    # FOR SAFETY, SHOULD USE FLAG -headerpad_max_install_names
 			#COMMENT   "MEX")
+			
+			#g++ equivalent of Matlab mex command
+			ADD_CUSTOM_COMMAND(
+			OUTPUT ${MPTK_MATLAB_OUTPUT_DIR}/${target}.${MEX_EXTENSION}
+			POST_BUILD
+
+			COMMAND ${CMAKE_CXX_COMPILER} 
+			ARGS -c -DHAVE_FFTW3 -D_GNU_SOURCE -DMATLAB_MEX_FILE  -ansi -fexceptions -fPIC -fno-omit-frame-pointer -pthread -O3 -DNDEBUG -I${MATLAB_INCLUDE_DIR} -I${MPTK_BINARY_DIR} -I${LIBTINYXML_INCLUDE_DIR} -I/usr/include/ -I${MPTK_SOURCE_DIR} -I${LIBDSP_INCLUDE_DIR} -I${MPTK_SOURCE_DIR}/src/libmptk/ -I${FFTW3_INCLUDE_DIR} -I${MPTK_BINARY_DIR}/src/libmptk/ -I${MPTK_MATLAB_SRC_DIR}/classes/ -I${MPTK_MATLAB_SRC_DIR}/experimental/classes/ -I${MPTK_SOURCE_DIR}/src/plugin/base/ -I${MPTK_SOURCE_DIR}/src/plugin/contrib/lam/ ${MPTK_MATLAB_SRC_DIR}/${target}.cpp -o ${MPTK_MATLAB_SRC_DIR}/${target}.o
+
+			#COMMAND ${CMAKE_CXX_COMPILER} 
+			#ARGS -pthread -Wl,--no-undefined  -shared -O3 -Wl,--version-script,${MATLAB_ROOT}/extern/lib/glnxa64/mexFunction.map ${MPTK_MATLAB_SRC_DIR}/${target}.o /usr/lib64/libstdc++.so -lmptk -lmptk4matlab -L/usr/lib64 -Wl,-rpath-link,${MATLAB_ROOT}/bin/glnxa64 -L${MATLAB_ROOT}/bin/glnxa64 -lmx -lmex -lmat -lm -lstdc++ -o ${MPTK_MATLAB_OUTPUT_DIR}/${target}.${MEX_EXTENSION}
+			COMMAND ${CMAKE_CXX_COMPILER}
+			ARGS  -v -pthread -Wl,--no-undefined  -shared -O3 -Wl,--version-script,${MATLAB_ROOT}/extern/lib/glnxa64/mexFunction.map ${MPTK_MATLAB_SRC_DIR}/${target}.o -L${MPTK_LIB_DIR} -lmptk -lmptk4matlab -L${MATLAB_ROOT}/bin/glnxa64 -lmx -lmex -lmat -lstdc++ -lm -o ${MPTK_MATLAB_OUTPUT_DIR}/${target}.${MEX_EXTENSION}
+
+			COMMAND rm 
+			ARGS -f ${MPTK_MATLAB_SRC_DIR}/${target}.o
+	
+   # FOR SAFETY, SHOULD USE FLAG -headerpad_max_install_names
+			OMMENT   "MEX")
 
 		ENDIF(APPLE)
 	ELSE(UNIX)
