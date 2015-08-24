@@ -194,6 +194,13 @@ SET(MPTK_REFERENCE_PATH ${MPTK_BINARY_DIR}/mptk/reference)
 SET(MPTK_REFERENCE_PATH_INSTALL ${CMAKE_INSTALL_PREFIX}/mptk/reference)
 
 ##############################################################################
+#Define and create directory for python install
+##############################################################################
+SET(MPTK_PYTHON_INSTALL_PATH "${CMAKE_INSTALL_PREFIX}/python" CACHE INTERNAL "Python installing path" )
+FILE(MAKE_DIRECTORY ${MPTK_PYTHON_INSTALL_PATH})	
+
+
+##############################################################################
 #Define temporary directory
 ##############################################################################
 IF(UNIX)

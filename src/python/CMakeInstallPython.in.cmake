@@ -9,5 +9,5 @@ ENDIF(WIN32)
 
 # Run python on setup.py to install the python modules.
 EXEC_PROGRAM( "@PYTHON_EXECUTABLE@" "@MPTK_BINARY_DIR@/src/python/" ARGS
-  "setup.py" "install" )
+  "setup.py" "install" "--prefix=@MPTK_PYTHON_INSTALL_PATH@" )
 
