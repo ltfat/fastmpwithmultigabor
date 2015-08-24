@@ -32,6 +32,7 @@ disp('----------------------------------------------');
 disp('... Verifying the presence of the book example...');
 if exist('@MPTK_BINARY_DIR@/mptk/reference/@MPTK_EXAMPLE_BOOK_FILENAME@') == 0
 	disp('Error : The following book example file does not exist : @MPTK_BINARY_DIR@/mptk/reference/@MPTK_EXAMPLE_BOOK_FILENAME@')
+    disp('201')
 	exit;
 end
 
@@ -39,6 +40,7 @@ try
 	booktest = bookread('@MPTK_BINARY_DIR@/mptk/reference/@MPTK_EXAMPLE_BOOK_FILENAME@')
 catch err
 	disp(['Error during the "bookread" test : ' err.message])
+    disp('202')
 	exit;
 end
 
@@ -46,6 +48,7 @@ try
 	dict = dictread('@MPTK_BINARY_DIR@/mptk/reference/dictionary/@MPTK_DEFAULT_GABORDICT_FILENAME@')
 catch err
 	disp(['Error during the "dictread" test : ' err.message])
+    disp('203')
 	exit;
 end
 
@@ -54,5 +57,6 @@ try
 	bookwrite(booktest,dict,'@MPTK_BINARY_DIR@/mptk/reference/@MPTK_EXAMPLE_BOOK_WRITE_FILENAME@')
 catch err
 	disp(['Error during the "bookwrite" test : ' err.message])
+    disp('204')
 	exit;
 end

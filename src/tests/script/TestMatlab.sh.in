@@ -60,6 +60,7 @@ fi
 
 # If it's ok then run Matlab
 echo "Running \"$matlabpath/bin/matlab -nosplash -nojvm -nodesktop -r \"\"run $matlabTestspath/runAllMatlabTests.m,exit\"\" > log_test.log\""
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:@CMAKE_INSTALL_PREFIX@/lib
 $matlabpath/bin/matlab -nosplash -nojvm -nodesktop -r "run $matlabTestspath/runAllMatlabTests.m,exit" > log_test.log
 
 testFinal=$(cat log_test.log | tail -2 | head -1)

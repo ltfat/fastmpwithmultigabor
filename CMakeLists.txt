@@ -197,12 +197,13 @@ SET(MPTK_REFERENCE_PATH_INSTALL ${CMAKE_INSTALL_PREFIX}/mptk/reference)
 #Define temporary directory
 ##############################################################################
 IF(UNIX)
-	SET(MPTK_TMP_PATH /tmp)
+	SET(MPTK_TMP_PATH "${MPTK_SOURCE_DIR}/tmp")
 ELSE(UNIX)
 	IF(WIN32)
-		SET(MPTK_TMP_PATH C:/Temp)
+		SET(MPTK_TMP_PATH "${MPTK_SOURCE_DIR}/Temp")
 	ENDIF(WIN32)
 ENDIF(UNIX)
+FILE(MAKE_DIRECTORY ${MPTK_TMP_PATH})	
 
 ##############################################################################
 # Setting DEFAULT REFERENCE FILES
