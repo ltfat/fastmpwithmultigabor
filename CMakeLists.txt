@@ -54,15 +54,11 @@ ENDIF(UNIX)
 # current value looks like the CMake 2.0 default.
 
 
-MESSAGE("ooooooooooooooooooo in ~/mptk2/trunk/CMakeList.txt : CMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX} ")
 
 IF (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
     SET(CMAKE_INSTALL_PREFIX "${CMAKE_SOURCE_DIR}/output" CACHE STRING "default install path" FORCE )
 ENDIF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 
-MESSAGE("ooooooooooooooooooo in ~/mptk2/trunk/CMakeList.txt : CMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX} ")
-MESSAGE("ooooooooooooooooooo in ~/mptk2/trunk/CMakeList.txt : MPTK_BINARY_DIR=${MPTK_BINARY_DIR} ")
-MESSAGE("ooooooooooooooooooo in ~/mptk2/trunk/CMakeList.txt : MPTK_SOURCE_DIR=${MPTK_SOURCE_DIR} ")
 
 
 IF(UNIX)

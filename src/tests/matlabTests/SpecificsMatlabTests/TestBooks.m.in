@@ -42,8 +42,16 @@ catch err
 	exit;
 end
 
+try 
+	dict = dictread('@MPTK_BINARY_DIR@/mptk/reference/dictionary/@MPTK_DEFAULT_GABORDICT_FILENAME@')
+catch err
+	disp(['Error during the "dictread" test : ' err.message])
+	exit;
+end
+
+
 try
-	bookwrite(booktest,'@MPTK_BINARY_DIR@/mptk/reference/@MPTK_EXAMPLE_BOOK_WRITE_FILENAME@')
+	bookwrite(booktest,dict,'@MPTK_BINARY_DIR@/mptk/reference/@MPTK_EXAMPLE_BOOK_WRITE_FILENAME@')
 catch err
 	disp(['Error during the "bookwrite" test : ' err.message])
 	exit;
