@@ -34,7 +34,7 @@ try
 	cd('@CMAKE_INSTALL_PREFIX@/mptk/matlab'); 
 catch err
 	disp(['Error during cd : %s' err.message]);
-	disp('2')
+	fprintf('2\n ');
 	exit;
 end
 
@@ -48,13 +48,13 @@ setenv('MPTK_CONFIG_FILENAME','@CMAKE_INSTALL_PREFIX@/mptk/path.xml')
 disp('... Searching for the Matlab test files...');
 if exist('@MPTK_BINARY_DIR@/bin/matlabTests/SpecificsMatlabTests/') == 0
 	disp('Error : The path of Matlab test files does not exist : @MPTK_BINARY_DIR@/bin/matlabTests/SpecificsMatlabTests/')
-	disp('3')
+	fprintf('3\n ');
 	exit;
 end
 TestFiles = what('@MPTK_BINARY_DIR@/bin/matlabTests/SpecificsMatlabTests/');
 if isempty(TestFiles.m) == 1
 	disp(sprintf('Error : There is no Matlab M file under this path : %s',TestFiles.path))
-	disp('4')
+	fprintf('4\n ');
 	exit;
 end
 addpath(TestFiles.path)
@@ -64,9 +64,9 @@ for iIndex = 1:length(TestFiles.m)
 		eval(TestFileWithoutExt)
 	catch err
 		disp(sprintf('Error during the test of : %s',TestFiles.m{iIndex}))
-		disp('1')
+		fprintf('1\n ');
 		exit;
 	end
 end
 
-disp('0')
+fprintf('0\n ');

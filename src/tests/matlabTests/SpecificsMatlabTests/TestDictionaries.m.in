@@ -32,7 +32,7 @@ disp('-----------------------------------------------------');
 disp('... Verifying the presence of the dictionary example...');
 if exist('@MPTK_BINARY_DIR@/mptk/reference/dictionary/@MPTK_DEFAULT_GABORDICT_FILENAME@') == 0
 	disp('Error : The following dictionary example file does not exist : @MPTK_BINARY_DIR@/mptk/reference/dictionary/@MPTK_DEFAULT_GABORDICT_FILENAME@')
-    disp('401')
+    fprintf('401\n ');
 	exit;
 end
 
@@ -40,7 +40,7 @@ try
 	dicttest = dictread('@MPTK_BINARY_DIR@/mptk/reference/dictionary/@MPTK_DEFAULT_GABORDICT_FILENAME@')
 catch err
 	disp(['Error during the "dictread" test : ' err.message])
-    disp('402')
+    fprintf('402\n ');
 	exit;
 end
 
@@ -48,6 +48,6 @@ try
 	dictwrite(dicttest,'@MPTK_TMP_PATH@/@MPTK_DEFAULT_GABORDICT_FILENAME@.bis')
 catch err
 	disp(['Error during the "dictwrite" test : ' err.message])
-    disp('403')
+    fprintf('403\n ');
 	exit;
 end

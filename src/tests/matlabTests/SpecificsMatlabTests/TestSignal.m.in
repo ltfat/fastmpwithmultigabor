@@ -32,7 +32,7 @@ disp('--------------------------------------');
 disp('... Verifying the presence of the signal example...');
 if exist('@MPTK_BINARY_DIR@/mptk/reference/@MPTK_EXAMPLE_SIGNAL_FILENAME@') == 0
 	disp('Error : The following signal example file does not exist : @MPTK_BINARY_DIR@/mptk/reference/@MPTK_EXAMPLE_SIGNAL_FILENAME@')
-    disp('501');
+    fprintf('501\n ');
 	exit;
 end
 
@@ -40,7 +40,7 @@ try
 	[sigtest Rate] = sigread('@MPTK_BINARY_DIR@/mptk/reference/@MPTK_EXAMPLE_SIGNAL_FILENAME@');
 catch err
 	disp(['Error during the "sigread" test : ' err.message])
-    disp('502');
+    fprintf('502\n ');
 	exit;
 end
 
@@ -48,6 +48,6 @@ try
 	sigwrite(sigtest,'@MPTK_BINARY_DIR@/mptk/reference/@MPTK_EXAMPLE_SIGNAL_WRITE_FILENAME@',Rate)
 catch err
 	disp(['Error during the "sigwrite" test : ' err.message])
-    disp('503');
+    fprintf('503\n ');
 	exit;
 end
