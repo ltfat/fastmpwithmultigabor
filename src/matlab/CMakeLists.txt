@@ -186,7 +186,7 @@ FOREACH(target ${MAT_EXECUTABLES})
 			ARGS  "-v" "-pthread" "-Wl,--no-undefined"  "-shared" "-O3" "-Wl,--version-script,${MATLAB_ROOT}/extern/lib/glnxa64/mexFunction.map" 
 			"${MPTK_MATLAB_SRC_DIR}/${target}.o" 
 			"-L${MPTK_LIB_DIR}" "-lmptk" "-lmptk4matlab" "-L${MATLAB_ROOT}/bin/glnxa64" "-lmx" "-lmex" "-lmat" "-lstdc++" "-lm" 
-			#"-Wl,-rpath=${MPTK_LIB_DIR}"
+			"-Wl,-rpath=${MPTK_LIB_DIR}"
 			"-o" "${MPTK_MATLAB_OUTPUT_DIR}/${target}.${MEX_EXTENSION}"
 
 			COMMAND rm 
