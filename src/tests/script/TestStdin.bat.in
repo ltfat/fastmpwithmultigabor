@@ -34,16 +34,23 @@
 ::##   $Revision: 505 $
 ::##
 
+
+
 set binarypath=@MPTK_BINARY_DIR@
-set binpath=@MPTK_BINARY_DIR@\bin
+set binarypath=%binarypath:/=\%
+set binpath=@MPTK_BINARY_DIR@\bin\@MPTK_DEBUG_RELEASE@
+set binpath=%binpath:/=\%
 set currentpath=@MPTK_BINARY_DIR@\current
+set currentpath=%currentpath:/=\%
 set mptkpath=@MPTK_BINARY_DIR@\mptk
+set mptkpath=%mptkpath:/=\%
 set refbinpath=@MPTK_BINARY_DIR@\mptk\reference
+set refbinpath=%refbinpath:/=\%
 set refsourcepath=@MPTK_SOURCE_DIR@\src\tests\ref
+set refsourcepath=%refsourcepath:/=\%
 
 cd %binarypath%
 mkdir current
-
 
 ::#
 ::# check mpd & mpr
@@ -54,22 +61,21 @@ echo #       checking mpd & mpr with stdin         #
 echo #                                             #
 echo ===============================================
 
-if exist %binpath%\mpd
-	echo The executable file named mpd is located under : %binpath%\mpd
-else
-	echo You should probably build mpd before running the tests...
-	exit 1		
-fi
-if exist %binpath%\mpr
-	echo The executable file named mpd is located under : %binpath%\mpr
-else
-	echo You should probably build mpr before running the tests...
-	exit 1		
-fi
+if exist %binpath%\mpd.exe (
+	echo The executable file named mpd is located under : %binpath%\mpd.exe
+) else (
+	echo You should probably build mpd before running the tests... && exit 1
+)		
+
+if exist %binpath%\mpr.exe (
+	echo The executable file named mpd is located under : %binpath%\mpr.exe
+) else (
+	echo You should probably build mpr before running the tests... && exit 1)		
 
 echo --------------------------------------------------------------
 echo  mpd command to create a book and export it into stdin for mpr
 echo --------------------------------------------------------------
 
 %binpath%\mpd  -C %mptkpath%\path.xml -D %refbinpath%\dictionary\dic_gabor_two_scales.xml -n 10 %refbinpath%\signal\glockenspiel.wav - | %binpath%\mpr -C %mptkpath%\path.xml - %currentpath%\test_mpdmpr_bin_stdin.wav
+
 
