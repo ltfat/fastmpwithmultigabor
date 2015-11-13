@@ -629,10 +629,7 @@ IF(BUILD_TESTING)
 	ADD_TEST(SCRATCH_MESSAGE, ${MPTK_BINARY_DIR}/bin/test_messaging)
 	ADD_TEST(SCRATCH_PARABOLIC_REGRESSION, ${MPTK_BINARY_DIR}/bin/test_parabolic_regression)
 	ADD_TEST(SCRATCH_TEST_MP, ${MPTK_BINARY_DIR}/bin/test_mp  ${MPTK_BINARY_DIR}/mptk/path.xml)
-	# delete this IF test when TestStdin.bat.in will be OK
-	IF(NOT WIN32)
-		ADD_TEST(SCRATCH_STDIN, ${MPTK_BINARY_DIR}/bin/script/TestStdin${BATCHEXT})
-	ENDIF(NOT WIN32)
+	ADD_TEST(SCRATCH_STDIN, ${MPTK_BINARY_DIR}/bin/script/TestStdin${BATCHEXT})
 
 	#-------------------------------
 	# Compilation test
@@ -681,3 +678,4 @@ IF(BUILD_TESTING)
 	ENDIF(NOT PIPOL_IMAGE)
 ENDIF(BUILD_TESTING)
 
+INCLUDE (CPack)
