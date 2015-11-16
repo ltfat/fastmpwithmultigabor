@@ -671,10 +671,7 @@ IF(BUILD_TESTING)
 	# Matlab test
 	#-------------------------------
 	IF(NOT PIPOL_IMAGE)
-		# delete this IF test when TestMatlab.bat.in will be OK
-		IF(NOT WIN32)
-			ADD_TEST(MATLABGETMPTKINFO,  ${MPTK_BINARY_DIR}/bin/script/TestMatlab${BATCHEXT})
-		ENDIF(NOT WIN32)
+		ADD_TEST(MATLABGETMPTKINFO,  ${MPTK_BINARY_DIR}/bin/script/TestMatlab${BATCHEXT})
 	ENDIF(NOT PIPOL_IMAGE)
 ENDIF(BUILD_TESTING)
 
