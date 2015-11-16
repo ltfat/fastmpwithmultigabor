@@ -34,13 +34,13 @@
 ::##   $Revision: 505 $
 ::##
 
-set installpath=@EXECUTABLE_OUTPUT_PATH@
+set installpath="@EXECUTABLE_OUTPUT_PATH@"
 set installpath=%installpath:/=\%
-set matlabpath=@MATLAB_ROOT@
+set matlabpath="@MATLAB_ROOT@"
 set matlabpath=%matlabpath:/=\%
-set mptkpath=@MPTK_BINARY_DIR@\mptk
+set mptkpath="@MPTK_BINARY_DIR@\mptk"
 set mptkpath=%mptkpath:/=\%
-set installlib=@CMAKE_INSTALL_PREFIX@/lib
+set installlib="@CMAKE_INSTALL_PREFIX@\lib"
 set installlib=%installlib:/=\%
 
 echo "===================================="
