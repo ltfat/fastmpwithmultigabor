@@ -1,46 +1,71 @@
-#!/bin/bash
-#
-#############################################################################
-##                                                                         ##
-##                               TestMatlab.sh                             ##
-##                                                                         ##
-##                      Matching Pursuit Testing Suite                     ##
-##                                                                         ##
-## Rémi Gribonval                                                          ##
-## Sacha Krstulovic                                        Mon Feb 21 2005 ##
-## ----------------------------------------------------------------------- ##
-##                                                                         ##
-##  Copyright (C) 2005 IRISA                                               ##
-##                                                                         ##
-##  This program is free software; you can redistribute it and/or modify   ##
-##  it under the terms of the GNU General Public License as published by   ##
-##  the Free Software Foundation; either version 2, or (at your option)    ##
-##  any later version.                                                     ##
-##                                                                         ##
-##  This program is distributed in the hope that it will be useful,        ##
-##  but WITHOUT ANY WARRANTY; without even the implied warranty of         ##
-##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          ##
-##  GNU General Public License for more details.                           ##
-##                                                                         ##
-##  You should have received a copy of the GNU General Public License      ##
-##  along with this program; if not, write to the Free Software            ##
-##  Foundation, Inc., 59 Temple Place - Suite 330,                         ##
-##  Boston, MA 02111-1307, USA.                                            ##
-##                                                                         ##
-#############################################################################
-## 
-## SVN log:
-##
-##   $Author: rleboulc $
-##   $Date: 2010-11-23 16:17:29 +0100 (Mon, 20 Feb 2006) $
-##   $Revision: 505 $
-##
+::#############################################################################
+::##                                                                         ##
+::##                               TestMatlab.sh                             ##
+::##                                                                         ##
+::##                      Matching Pursuit Testing Suite                     ##
+::##                                                                         ##
+::## RÃ©mi Gribonval                                                          ##
+::## Sacha Krstulovic                                        Mon Feb 21 2005 ##
+::## ----------------------------------------------------------------------- ##
+::##                                                                         ##
+::##  Copyright (C) 2005 IRISA                                               ##
+::##                                                                         ##
+::##  This program is free software; you can redistribute it and/or modify   ##
+::##  it under the terms of the GNU General Public License as published by   ##
+::##  the Free Software Foundation; either version 2, or (at your option)    ##
+::##  any later version.                                                     ##
+::##                                                                         ##
+::##  This program is distributed in the hope that it will be useful,        ##
+::##  but WITHOUT ANY WARRANTY; without even the implied warranty of         ##
+::##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          ##
+::##  GNU General Public License for more details.                           ##
+::##                                                                         ##
+::##  You should have received a copy of the GNU General Public License      ##
+::##  along with this program; if not, write to the Free Software            ##
+::##  Foundation, Inc., 59 Temple Place - Suite 330,                         ##
+::##  Boston, MA 02111-1307, USA.                                            ##
+::##                                                                         ##
+::#############################################################################
+::## 
+::## SVN log:
+::##
+::##   $Author: rleboulc $
+::##   $Date: 2010-11-23 16:17:29 +0100 (Mon, 20 Feb 2006) $
+::##   $Revision: 505 $
+::##
 
-installpath=@EXECUTABLE_OUTPUT_PATH@
-matlabpath=@MATLAB_ROOT@
+set installpath=@EXECUTABLE_OUTPUT_PATH@
+set installpath=%installpath:/=\%
+set matlabpath=@MATLAB_ROOT@
+set matlabpath=%matlabpath:/=\%
+set mptkpath=@MPTK_BINARY_DIR@\mptk
+set mptkpath=%mptkpath:/=\%
+set installlib=@CMAKE_INSTALL_PREFIX@/lib
+set installlib=%installlib:/=\%
 
-echo "####################################"
+echo "===================================="
 echo "          Launching Matlab          "
-echo "####################################"
-$matlabpath/bin/matlab -nosplash -nojvm -nodesktop -r "$installpath/script/TestMatlab,exit"
+echo "===================================="
+
+:: Search if Matlab exists
+if exist %matlabpath%\bin\matlab.exe (
+	echo Searching Matlab under "%matlabpath%\bin\matlab.exe"... Ok !
+) else (
+	echo Searching Matlab under "%matlabpath%\bin\matlab.exe"... Failed ! Execution aborted && exit 1
+)	
+
+:: Search if the Matlab file exists
+if exist %matlabTestspath%\runAllMatlabTests.m (
+	echo Searching Matlab m file under "%matlabTestspath%\runAllMatlabTests.m"... Ok !
+) else (
+	echo Searching Matlab m file under "%matlabTestspath%\runAllMatlabTests.m"... Failed ! Execution aborted && exit 1
+)
+set PATH=%PATH%;%installlib%
+set MPTK_CONFIG_FILENAME=%mptkpath%\path.xml
+cd %matlabTestspath%
+:: If it's ok then run Matlab
+echo Running : %matlabpath%\bin\matlab.exe -wait -nosplash modeOption -nodesktop -r  -noFigureWindows -minimize "run %matlabTestspath%\runAllMatlabTests.m;exit"
+%matlabpath%\bin\matlab.exe -wait -nosplash modeOption -nodesktop -r  -noFigureWindows -minimize "run %matlabTestspath%\runAllMatlabTests.m;exit" > log_test.log
+
+
 
