@@ -4,7 +4,7 @@
 ::##                                                                         ##
 ::##                      Matching Pursuit Testing Suite                     ##
 ::##                                                                         ##
-::## RÃ©mi Gribonval                                                          ##
+::## RÃƒÂ©mi Gribonval                                                          ##
 ::## Sacha Krstulovic                                        Mon Feb 21 2005 ##
 ::## ----------------------------------------------------------------------- ##
 ::##                                                                         ##
@@ -34,8 +34,8 @@
 ::##   $Revision: 505 $
 ::##
 
-set installpath="@EXECUTABLE_OUTPUT_PATH@"
-set installpath=%installpath:/=\%
+set matlaballtest="@MPTK_MATLABALLTEST_PATH@"
+set matlaballtest=%matlaballtest:/=\%
 set matlabpath="@MATLAB_ROOT@"
 set matlabpath=%matlabpath:/=\%
 set mptkpath="@MPTK_BINARY_DIR@\mptk"
@@ -49,23 +49,25 @@ echo "===================================="
 
 :: Search if Matlab exists
 if exist %matlabpath%\bin\matlab.exe (
-	echo Searching Matlab under "%matlabpath%\bin\matlab.exe"... Ok !
+	echo Searching Matlab under %matlabpath%\bin\matlab.exe... Ok !
 ) else (
-	echo Searching Matlab under "%matlabpath%\bin\matlab.exe"... Failed ! Execution aborted && exit 1
+	echo Searching Matlab under %matlabpath%\bin\matlab.exe... Failed ! Execution aborted && exit 1
 )	
 
 :: Search if the Matlab file exists
-if exist %matlabTestspath%\runAllMatlabTests.m (
-	echo Searching Matlab m file under "%matlabTestspath%\runAllMatlabTests.m"... Ok !
+if exist %matlaballtest%\runAllMatlabTests.m (
+	echo Searching Matlab m file under %matlaballtest%\runAllMatlabTests.m... Ok !
 ) else (
-	echo Searching Matlab m file under "%matlabTestspath%\runAllMatlabTests.m"... Failed ! Execution aborted && exit 1
+	echo Searching Matlab m file under %matlaballtest%\runAllMatlabTests.m... Failed ! Execution aborted && exit 1
 )
 set PATH=%PATH%;%installlib%
 set MPTK_CONFIG_FILENAME=%mptkpath%\path.xml
-cd %matlabTestspath%
+cd %matlaballtest%
 :: If it's ok then run Matlab
-echo Running : %matlabpath%\bin\matlab.exe -wait -nosplash modeOption -nodesktop -r  -noFigureWindows -minimize "run %matlabTestspath%\runAllMatlabTests.m;exit"
-%matlabpath%\bin\matlab.exe -wait -nosplash modeOption -nodesktop -r  -noFigureWindows -minimize "run %matlabTestspath%\runAllMatlabTests.m;exit" > log_test.log
+echo Running : %matlabpath%\bin\matlab.exe -wait -nosplash modeOption -nodesktop -noFigureWindows -r "runAllMatlabTests;exit"
+%matlabpath%\bin\matlab.exe -wait -nosplash modeOption -nodesktop -noFigureWindows -r "runAllMatlabTests;exit" > log_test.log
+
+
 
 
 
