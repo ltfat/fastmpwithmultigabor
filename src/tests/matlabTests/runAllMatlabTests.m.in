@@ -51,13 +51,28 @@ if exist('@MPTK_BINARY_DIR@/bin/matlabTests/SpecificsMatlabTests/') == 0
 	fprintf('3\n ');
 	exit;
 end
-TestFiles = what('@MPTK_BINARY_DIR@/bin/matlabTests/SpecificsMatlabTests/');
-if isempty(TestFiles.m) == 1
-	disp(sprintf('Error : There is no Matlab M file under this path : %s',TestFiles.path))
-	fprintf('4\n ');
+try
+	TestFiles = what('@MPTK_BINARY_DIR@/bin/matlabTests/SpecificsMatlabTests/');
+	if isempty(TestFiles.m) == 1
+		disp(sprintf('Error : There is no Matlab M file under this path : %s',TestFiles.path))
+		fprintf('4\n ');
+		exit;
+	end
+catch err
+	disp(['Error during what : %s' err.message]);
+	fprintf('5\n ');
 	exit;
 end
-addpath(TestFiles.path)
+
+try
+	addpath(TestFiles.path)
+catch err
+	disp(['Error during addpath : %s' err.message]);
+	fprintf('6\n ');
+	exit;
+end
+	
+
 for iIndex = 1:length(TestFiles.m)
 	try
 		[useless,TestFileWithoutExt] = fileparts(TestFiles.m{iIndex});
