@@ -36,17 +36,17 @@
 ##   $Revision: 505 $
 ##
 
-matlabpath=@MATLAB_ROOT@
+pathmatlab=@MATLAB_ROOT@
 matlabTestspath=@MPTK_MATLABALLTEST_PATH@
 
 echo "####################################"
 echo "          Launching Matlab          "
 echo "####################################"
 # Search if Matlab exists
-if [ -f "$matlabpath/bin/matlab" ]; then
-	echo "Searching Matlab under \"$matlabpath/bin/matlab\"... Ok !"
+if [ -f "$pathmatlab/bin/matlab" ]; then
+	echo "Searching Matlab under \"$pathmatlab/bin/matlab\"... Ok !"
 else
-	echo "Searching Matlab under \"$matlabpath/bin/matlab\"... Failed ! Execution aborted"
+	echo "Searching Matlab under \"$pathmatlab/bin/matlab\"... Failed ! Execution aborted"
 	exit 1		
 fi
 
@@ -58,11 +58,14 @@ else
 	exit 1		
 fi
 
-# If it's ok then run Matlab
-echo "Running \"$matlabpath/bin/matlab -nosplash -nojvm -nodesktop -r \"\"run $matlabTestspath/runAllMatlabTests.m,exit\"\" > log_test.log\""
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:@CMAKE_INSTALL_PREFIX@/lib
-$matlabpath/bin/matlab -nosplash -nojvm -nodesktop -r "run $matlabTestspath/runAllMatlabTests.m,exit" > log_test.log
+cd $matlabTestspath
 
+# If it's ok then run Matlab
+echo "Running \"$pathmatlab/bin/matlab -nosplash -nojvm -nodesktop -r \"\"run runAllMatlabTests.m;exit\"\" > log_test.log\""
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:@CMAKE_INSTALL_PREFIX@/lib
+$pathmatlab/bin/matlab -nosplash -nojvm -nodesktop -r "run runAllMatlabTests.m;exit" -logfile log_test.log
+
+# check if an error occured
 testFinal=$(cat log_test.log | tail -2 | head -1)
 echo "####################################"
 echo "      Testing Matlab Execution      "

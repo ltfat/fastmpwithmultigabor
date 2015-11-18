@@ -34,10 +34,10 @@
 ::##   $Revision: 505 $
 ::##
 
-set matlaballtest="@MPTK_MATLABALLTEST_PATH@"
-set matlaballtest=%matlaballtest:/=\%
-set matlabpath="@MATLAB_ROOT@"
-set matlabpath=%matlabpath:/=\%
+set matlabTestspath="@MPTK_MATLABALLTEST_PATH@"
+set matlabTestspath=%matlabTestspath:/=\%
+set pathmatlab="@MATLAB_ROOT@"
+set pathmatlab=%pathmatlab:/=\%
 set mptkpath="@MPTK_BINARY_DIR@\mptk"
 set mptkpath=%mptkpath:/=\%
 set installlib="@CMAKE_INSTALL_PREFIX@\lib"
@@ -48,26 +48,28 @@ echo "          Launching Matlab          "
 echo "===================================="
 
 :: Search if Matlab exists
-if exist %matlabpath%\bin\matlab.exe (
-	echo Searching Matlab under %matlabpath%\bin\matlab.exe... Ok !
+if exist %pathmatlab%\bin\matlab.exe (
+	echo Searching Matlab under %pathmatlab%\bin\matlab.exe... Ok !
 ) else (
-	echo Searching Matlab under %matlabpath%\bin\matlab.exe... Failed ! Execution aborted && exit 1
+	echo Searching Matlab under %pathmatlab%\bin\matlab.exe... Failed ! Execution aborted && exit 1
 )	
 
 :: Search if the Matlab file exists
-if exist %matlaballtest%\runAllMatlabTests.m (
-	echo Searching Matlab m file under %matlaballtest%\runAllMatlabTests.m... Ok !
+if exist %matlabTestspath%\runAllMatlabTests.m (
+	echo Searching Matlab m file under %matlabTestspath%\runAllMatlabTests.m... Ok !
 ) else (
-	echo Searching Matlab m file under %matlaballtest%\runAllMatlabTests.m... Failed ! Execution aborted && exit 1
+	echo Searching Matlab m file under %matlabTestspath%\runAllMatlabTests.m... Failed ! Execution aborted && exit 1
 )
 set PATH=%PATH%;%installlib%
 set MPTK_CONFIG_FILENAME=%mptkpath%\path.xml
-cd %matlaballtest%
+cd %matlabTestspath%
+
 :: If it's ok then run Matlab
-echo Running : %matlabpath%\bin\matlab.exe -wait -nosplash modeOption -nodesktop -noFigureWindows -r "runAllMatlabTests;exit"
-%matlabpath%\bin\matlab.exe -wait -nosplash modeOption -nodesktop -noFigureWindows -r "runAllMatlabTests;exit" > log_test.log
+echo Running : %pathmatlab%\bin\matlab.exe -wait -nosplash modeOption -nodesktop -noFigureWindows -r "run runAllMatlabTests.m;exit"
+%pathmatlab%\bin\matlab.exe -wait -nosplash -nodesktop -noFigureWindows -r "run runAllMatlabTests.m;exit" -logfile log_test.log
 
 
+:: check if an error occured
 
 
 
