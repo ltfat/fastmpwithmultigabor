@@ -31,15 +31,15 @@ disp('---------------------------------------------------');
 
 disp('... Verifying the presence of the signal example...');
 if exist('@MPTK_BINARY_DIR@/mptk/reference/@MPTK_EXAMPLE_SIGNAL_FILENAME@') == 0
-	disp('Error : The following signal example file does not exist : @MPTK_BINARY_DIR@/mptk/reference/@MPTK_EXAMPLE_SIGNAL_FILENAME@')
-    fprintf('301\n ');
+	fprintf('Error : The following signal example file does not exist : %s\n',strrep('@MPTK_BINARY_DIR@/mptk/reference/@MPTK_EXAMPLE_SIGNAL_FILENAME@','\','\\'));
+	fprintf('301\n ');
 	exit;
 end
 
 disp('... Verifying the presence of the dictionary example...');
 if exist('@MPTK_BINARY_DIR@/mptk/reference/dictionary/@MPTK_DEFAULT_GABORDICT_FILENAME@') == 0
-	disp('Error : The following dictionary example file does not exist : @MPTK_BINARY_DIR@/mptk/reference/dictionary/@MPTK_DEFAULT_GABORDICT_FILENAME@')
-    fprintf('302\n ');
+	fprintf('Error : The following dictionary example file does not exist : %s\n', strrep('@MPTK_BINARY_DIR@/mptk/reference/dictionary/@MPTK_DEFAULT_GABORDICT_FILENAME@','\','\\'));
+	fprintf('302\n ');
 	exit;
 end
 
@@ -47,24 +47,24 @@ disp('1) Decomposition of the signal...');
 try
 	[sig sampleRate] = sigread('@MPTK_BINARY_DIR@/mptk/reference/@MPTK_EXAMPLE_SIGNAL_FILENAME@');
 catch err
-	disp(['Error during the "sigread" test : ' err.message])
-    fprintf('303\n ');
+	fprintf('Error during the "sigread" test : %s\n', strrep(err.message,'\','\\'));
+	fprintf('303\n ');
 	exit;
 end
 
 try
 	dict = dictread('@MPTK_BINARY_DIR@/mptk/reference/dictionary/@MPTK_DEFAULT_GABORDICT_FILENAME@')
 catch err
-	disp(['Error during the "dictread" test : ' err.message])
-    fprintf('304\n ');
+	fprintf('Error during the "dictread" test : %s\n', strrep(err.message,'\','\\'));
+	fprintf('304\n ');
 	exit;
 end
 
 try
     [book residual decay] = mpdecomp(sig,sampleRate,dict,100);
 catch err
-	disp(['Error during the "mpdecomp" test : ' err.message])
-    fprintf('305\n ');
+	fprintf('Error during the "mpdecomp" test : %s\n', strrep(err.message,'\','\\'));
+	fprintf('305\n ');
 	exit;
 end
 
@@ -72,15 +72,15 @@ disp('2) Reconstruction of the signal...');
 try
 	sigrec = mprecons(book, dict);
 catch err
-	disp(['Error during the "mprecons" test : ' err.message])
-    fprintf('306\n ');
+	fprintf('Error during the "mprecons" test : %s\n', strrep(err.message,'\','\\'));
+	fprintf('306\n ');
 	exit;
 end
 
 try
 	sigwrite(sigrec,'@MPTK_BINARY_DIR@/mptk/reference/@MPTK_EXAMPLE_SIGNAL_RECONST_FILENAME@',sampleRate)
 catch err
-	disp(['Error during the "sigwrite" test : ' err.message])
-    fprintf('307\n ');
+	fprintf('Error during the "sigwrite" test : %s\n', strrep(err.message,'\','\\') );
+	fprintf('307\n ');
 	exit;
 end

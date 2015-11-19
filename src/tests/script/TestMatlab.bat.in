@@ -51,25 +51,43 @@ echo "===================================="
 if exist %pathmatlab%\bin\matlab.exe (
 	echo Searching Matlab under %pathmatlab%\bin\matlab.exe... Ok !
 ) else (
-	echo Searching Matlab under %pathmatlab%\bin\matlab.exe... Failed ! Execution aborted && exit 1
+	echo Searching Matlab under %pathmatlab%\bin\matlab.exe... Failed ! Execution aborted
+	exit /b 1
 )	
 
 :: Search if the Matlab file exists
 if exist %matlabTestspath%\runAllMatlabTests.m (
 	echo Searching Matlab m file under %matlabTestspath%\runAllMatlabTests.m... Ok !
 ) else (
-	echo Searching Matlab m file under %matlabTestspath%\runAllMatlabTests.m... Failed ! Execution aborted && exit 1
+	echo Searching Matlab m file under %matlabTestspath%\runAllMatlabTests.m... Failed ! Execution aborted
+	exit /b 1
 )
 set PATH=%PATH%;%installlib%
 set MPTK_CONFIG_FILENAME=%mptkpath%\path.xml
 cd %matlabTestspath%
 
 :: If it's ok then run Matlab
-echo Running : %pathmatlab%\bin\matlab.exe -wait -nosplash modeOption -nodesktop -noFigureWindows -r "run runAllMatlabTests.m;exit"
+echo Running : %pathmatlab%\bin\matlab.exe -wait -nosplash -nodesktop -noFigureWindows -r "run runAllMatlabTests.m;exit"-logfile log_test.log
 %pathmatlab%\bin\matlab.exe -wait -nosplash -nodesktop -noFigureWindows -r "run runAllMatlabTests.m;exit" -logfile log_test.log
 
 
 :: check if an error occured
+set LINES=0
+for /f "delims==" %%I in (log_test.log) do (
+    set /a LINES=LINES+1
+)
 
+:: Print the last 10 lines
+set /a LINES=LINES-2
+more +%LINES% <log_test.log > log_test_tmp.log
+set /p texte=< log_test_tmp.log
+set /a val=%texte%
+
+if "%val%"=="0" (
+	echo matlabtest_getmptkinfo -- test -- Test passed successfully.
+) else (
+	echo matlabtest_getmptkinfo -- test -- ERROR during the test
+	exit /b 1
+)
 
 
