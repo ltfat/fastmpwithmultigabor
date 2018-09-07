@@ -1,3 +1,7 @@
+Forked for the purpose of adding timing to the mpd utility.
+
+--------------------------------------------------------------------------------------------------------
+
 The Matching Pursuit Tool Kit (MPTK) provides a fast implementation of the Matching Pursuit algorithm
 for the sparse decomposition of multichannel audio signals. It comprises a library, standalone utilities
 and wrappers for Matlab and Python enabling you to use MPTK directly and plot its results.
