@@ -18,7 +18,7 @@ OPTION(BUILD_EXECUTABLE "Build executable." ON)
 # Allows building of shared libraries:
 OPTION(BUILD_SHARED_LIBS "Build shared libraries." ON)
 # Enable testing:
-OPTION(BUILD_TESTING "Build Tests" ON) 
+OPTION(BUILD_TESTING "Build Tests" OFF) 
 #Allows generating the doc:
 OPTION(BUILD_DOCUMENTATION "Generating the doxygen documentation." OFF)
 # Allows multithreading:
@@ -28,9 +28,9 @@ OPTION(BUILD_VERBOSE "Enable verbose option when compile (-v)." ON)
 # Allows MPTK Debug:
 OPTION(BUILD_DEBUG "Enable MPTK Debug mode." OFF)
 # Allows Matlab MEX files :
-OPTION(BUILD_MATLAB_MEX_FILES "Enable building Matlab MEX files." ON)
+OPTION(BUILD_MATLAB_MEX_FILES "Enable building Matlab MEX files." OFF)
 # Allows build python extension :
-OPTION(BUILD_PYTHON_FILES "Enable building python files." ON)
+OPTION(BUILD_PYTHON_FILES "Enable building python files." OFF)
 # Allows build experimental feature :
 OPTION(BUILD_EXPERIMENTAL "Enable building experimental files." OFF)
 # Allows build experimental feature :
@@ -159,18 +159,18 @@ ELSE(WIN32)
 	IF(BUILD_DEBUG) 
 		# Case of debug mode
 		IF (BUILD_VERBOSE)
-			ADD_DEFINITIONS(-g -O3 -Wall -pipe -v ${COVERAGE_FLAGS})
+			ADD_DEFINITIONS(-g -Wall -pipe -v ${COVERAGE_FLAGS})
 		ELSE(BUILD_VERBOSE)
-			ADD_DEFINITIONS(-g -O3 -quiet -pipe ${COVERAGE_FLAGS})
+			ADD_DEFINITIONS(-g -quiet -pipe ${COVERAGE_FLAGS})
 		ENDIF(BUILD_VERBOSE)
 		# Add debug mode for mex files
 		SET(MATLAB_COMPILATION "-g")		
 	ELSE(BUILD_DEBUG)
 		# Case of release mode
 		IF (BUILD_VERBOSE)
-			ADD_DEFINITIONS( -O3 -Wall -pipe -v -DNDEBUG ${COVERAGE_FLAGS})
+			ADD_DEFINITIONS( -Ofast -Wall -pipe -v -DNDEBUG ${COVERAGE_FLAGS})
 		ELSE(BUILD_VERBOSE)
-			ADD_DEFINITIONS( -O3 -quiet -pipe -DNDEBUG ${COVERAGE_FLAGS})
+			ADD_DEFINITIONS( -Ofast -quiet -pipe -DNDEBUG ${COVERAGE_FLAGS})
 		ENDIF(BUILD_VERBOSE)
 		# Add debug mode for mex files
 		SET(MATLAB_COMPILATION "-v")		
