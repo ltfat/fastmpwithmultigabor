@@ -37,6 +37,9 @@
 
 #include <mptk.h>
 #include "libgetopt/getopt.h"
+#include <chrono>
+#include <iomanip>
+typedef std::chrono::high_resolution_clock Clock;
 
 const char* func = "mpd";
 
@@ -660,7 +663,21 @@ int main( int argc, char **argv )
 		mp_info_msg( func, "The initial signal energy is : %g\n", mpdCore->get_initial_energy() );
 		mp_info_msg( func, "STARTING TO ITERATE\n" );
     }
+
+    auto t1 = Clock::now();
 	mpdCore->run();
+    auto t2 = Clock::now();
+    int elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
+    std::cout << "ELAPSEDS = "
+              << std::fixed << std::setprecision(2) << elapsed_ms/1000.0 << std::endl;
+    //           // << " ms" << std::endl;
+
+    unsigned long int numIter = mpdCore->get_num_iter();
+    std::cout << "PERITUS = " << 
+              std::fixed << std::setprecision(2)
+              << ( 1000.0*elapsed_ms/((double)numIter));
+	// mp_info_msg( func, "Per iter duration: %2.3f us\n", 1000.0*elapsed_ms/((double)numIter)  );
+
 
 	if ( !MPD_QUIET ) 
 		if(mpdCore->info_state() == false)
