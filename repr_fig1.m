@@ -1,6 +1,8 @@
 function repr_fig1
-do_export = 0;
+% This script reproduces Figure 1 from the manuscript.
+%
 
+do_export = 0;
 
 tol = 1e-4;
 L = 10*2048;
