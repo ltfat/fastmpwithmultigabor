@@ -1,6 +1,6 @@
 #/bin/bash
 
-# Install fftw3
+# Install fftw3, sndfile, pthreads
 
 # Setup and compile mptk
 (cd mptk && cmake .  && make -j8)
