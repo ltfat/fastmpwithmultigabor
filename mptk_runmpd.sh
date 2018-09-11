@@ -1,5 +1,5 @@
 #!/bin/bash
-export MPTK_CONFIG_FILENAME=/home/susnak/dev/mptk/mptk/path.xml
+export MPTK_CONFIG_FILENAME=./mptk/mptk/path.xml
 SNR=60
 MAXIT=200000
 
@@ -39,7 +39,6 @@ cat tmpdict.xml
 ./mptk/bin/mpd --nIter=${MAXIT} -d tmpdict.xml -s $SNR $FILE ${bname}.bin ${bname}_rec.wav  > tmpfile.dat 
 sed 's/ /'"${M}"' /' tmpfile.dat >> mptk_${bname}_${SHIFT}.dat
 echo '' >>  mptk_${bname}_${SHIFT}.dat
-done
 done
 done
 
