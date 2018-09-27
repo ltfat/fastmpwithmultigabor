@@ -159,18 +159,18 @@ ELSE(WIN32)
 	IF(BUILD_DEBUG) 
 		# Case of debug mode
 		IF (BUILD_VERBOSE)
-			ADD_DEFINITIONS(-g -Wall -pipe -v ${COVERAGE_FLAGS})
+			ADD_DEFINITIONS(-g -std=c++11 -Wall -pipe -v ${COVERAGE_FLAGS})
 		ELSE(BUILD_VERBOSE)
-			ADD_DEFINITIONS(-g -pipe ${COVERAGE_FLAGS})
+			ADD_DEFINITIONS(-g -std=c++11 -pipe ${COVERAGE_FLAGS})
 		ENDIF(BUILD_VERBOSE)
 		# Add debug mode for mex files
 		SET(MATLAB_COMPILATION "-g")		
 	ELSE(BUILD_DEBUG)
 		# Case of release mode
 		IF (BUILD_VERBOSE)
-			ADD_DEFINITIONS( -Ofast -Wall -pipe -v -DNDEBUG ${COVERAGE_FLAGS})
+			ADD_DEFINITIONS( -Ofast -std=c++11 -Wall -pipe -v -DNDEBUG ${COVERAGE_FLAGS})
 		ELSE(BUILD_VERBOSE)
-			ADD_DEFINITIONS( -Ofast -pipe -DNDEBUG ${COVERAGE_FLAGS})
+			ADD_DEFINITIONS( -Ofast -std=c++11 -pipe -DNDEBUG ${COVERAGE_FLAGS})
 		ENDIF(BUILD_VERBOSE)
 		# Add debug mode for mex files
 		SET(MATLAB_COMPILATION "-v")		
