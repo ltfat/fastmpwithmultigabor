@@ -23,11 +23,11 @@ do
     done
     echo '</dict>' >> tmpdict.xml
 
-    #Run MPTK's mpd
+    echo 'Running MPTK's mpd'
     ./mptk/bin/mpd -d tmpdict.xml -q \
         --nIter=${MAXIT} -s $SNR $FILE ${bname}.bin ${bname}_rec_mptk.wav
 
-    #Run libltfat's mpd
+    echo 'Running libltfat's mpd'
     ./libltfat/examples/multigabormp/multigabormpd \
         -i $FILE --maxit=$MAXIT -s $SNR -o ${bname}_rec_prop.wav \
         -d $dictstr

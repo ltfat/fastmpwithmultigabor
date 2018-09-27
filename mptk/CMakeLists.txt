@@ -24,7 +24,7 @@ OPTION(BUILD_DOCUMENTATION "Generating the doxygen documentation." OFF)
 # Allows multithreading:
 OPTION(BUILD_MULTITHREAD "Enable multithread." OFF)
 # Allows verbose:
-OPTION(BUILD_VERBOSE "Enable verbose option when compile (-v)." ON)
+OPTION(BUILD_VERBOSE "Enable verbose option when compile (-v)." OFF)
 # Allows MPTK Debug:
 OPTION(BUILD_DEBUG "Enable MPTK Debug mode." OFF)
 # Allows Matlab MEX files :
