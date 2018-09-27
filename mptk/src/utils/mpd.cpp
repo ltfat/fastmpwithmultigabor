@@ -647,7 +647,7 @@ int main( int argc, char **argv )
 	//-----------------------
 	// Initial report
 	//-----------------------
-	if ( !MPD_QUIET )
+	//if ( !MPD_QUIET )
     {
 		mp_info_msg( func, "-------------------------\n" );
 		mp_info_msg( func, "Starting Matching Pursuit on signal [%s] with dictionary [%s].\n", sndFileName, (MPD_USE_RELATIVEDICT)?newDictFileName:dictFileName );
@@ -675,7 +675,8 @@ int main( int argc, char **argv )
     unsigned long int numIter = mpdCore->get_num_iter();
     std::cout << "PERITUS = " << 
               std::fixed << std::setprecision(2)
-              << ( 1000.0*elapsed_ms/((double)numIter));
+              << ( 1000.0*elapsed_ms/((double)numIter))
+              << std::endl;
 	// mp_info_msg( func, "Per iter duration: %2.3f us\n", 1000.0*elapsed_ms/((double)numIter)  );
 
 
@@ -690,7 +691,7 @@ int main( int argc, char **argv )
 	/**************************************************/
 	/* FINAL SAVES AND CLEANUP                        */
 	/**************************************************/
-	if ( !MPD_QUIET )
+	// if ( !MPD_QUIET )
     {
 		mp_info_msg( func, "------------------------\n" );
 		mp_info_msg( func, "MATCHING PURSUIT RESULTS:\n" );

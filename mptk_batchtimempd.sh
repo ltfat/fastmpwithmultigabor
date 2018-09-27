@@ -1,4 +1,6 @@
 #!/bin/bash
+./setup.sh
+
 export MPTK_CONFIG_FILENAME=./mptk/mptk/path.xml
 SNR=60
 MAXIT=200000

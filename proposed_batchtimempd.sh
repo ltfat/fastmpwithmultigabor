@@ -1,4 +1,6 @@
 #!/bin/bash
+./setup.sh
+
 SNR=60
 MAXIT=200000
 
