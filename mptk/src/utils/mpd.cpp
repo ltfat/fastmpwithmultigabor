@@ -668,15 +668,15 @@ int main( int argc, char **argv )
 	mpdCore->run();
     auto t2 = Clock::now();
     int elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
-    std::cout << "ELAPSEDS = "
-              << std::fixed << std::setprecision(2) << elapsed_ms/1000.0 << std::endl;
-    //           // << " ms" << std::endl;
+    std::cout << "MP DURATION  "
+              << std::fixed << std::setprecision(2) << elapsed_ms/1000.0
+              << " s" << std::endl;
 
     unsigned long int numIter = mpdCore->get_num_iter();
-    std::cout << "PERITUS = " << 
+    std::cout << "AVG. IT. DURATION " << 
               std::fixed << std::setprecision(2)
               << ( 1000.0*elapsed_ms/((double)numIter))
-              << std::endl;
+              << " us" << std::endl;
 	// mp_info_msg( func, "Per iter duration: %2.3f us\n", 1000.0*elapsed_ms/((double)numIter)  );
 
 
