@@ -4,6 +4,7 @@
 export MPTK_CONFIG_FILENAME=./mptk/mptk/path.xml
 SNR=60
 MAXIT=200000
+g=blackman
 
 for FILE in 39ch1.wav
 do
@@ -18,7 +19,7 @@ do
         do
             a=$(( $M/$SHIFT )) 
             dictstr+=blackman,$a,$M:
-            cat blocktemp.xml | sed 's/%M/'"${M}"'/g' | sed 's/%a/'"${a}"'/g' >> tmpdict.xml
+            cat blocktemp.xml | sed 's/%M/'"${M}"'/g' | sed 's/%a/'"${a}"'/g' | sed 's/%g/'"${g}"'/g' >> tmpdict.xml
         done
         echo '</dict>' >> tmpdict.xml
         echo $dictstr >> mptk5_${bname}_${SHIFT}.dat
@@ -34,7 +35,7 @@ do
         do
             echo '<?xml version="1.0" encoding="ISO-8859-1"?> <dict> <libVersion>0.2</libVersion>' > tmpdict.xml
             a=$(( $M/$SHIFT )) 
-            cat blocktemp.xml | sed 's/%M/'"${M}"'/g' | sed 's/%a/'"${a}"'/g' >> tmpdict.xml
+            cat blocktemp.xml | sed 's/%M/'"${M}"'/g' | sed 's/%a/'"${a}"'/g' | sed 's/%g/'"${g}"'/g' >> tmpdict.xml
             echo '</dict>' >> tmpdict.xml
             cat tmpdict.xml
             dictstr=blackman,$a,$M

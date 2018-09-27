@@ -647,7 +647,7 @@ int main( int argc, char **argv )
 	//-----------------------
 	// Initial report
 	//-----------------------
-	//if ( !MPD_QUIET )
+	if ( !MPD_QUIET )
     {
 		mp_info_msg( func, "-------------------------\n" );
 		mp_info_msg( func, "Starting Matching Pursuit on signal [%s] with dictionary [%s].\n", sndFileName, (MPD_USE_RELATIVEDICT)?newDictFileName:dictFileName );

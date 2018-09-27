@@ -4,6 +4,6 @@
    <param name="fftSize" value="%M" />
    <param name="windowLen" value="%M" />
    <param name="windowShift" value="%a" />
-   <param name="windowtype" value="blackman" />
+   <param name="windowtype" value="%g" />
    <param name="windowopt" value="0" />
 </block>
