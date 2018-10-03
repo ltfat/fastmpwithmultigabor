@@ -16,8 +16,11 @@ MAXIT=200000
 # Stopping SNR
 SNR=60
 # (Multi-)Gabor dictionary definition in the format: window1,a1,M1:window2,a2,M2...
-dictstr=blackman,512,2048
-#dictstr=blackman,512,2048:blackman,2048,8192
+dictstr=$1
+if [ "$dictstr" == "" ]; then
+    dictstr=blackman,512,2048
+    #dictstr=blackman,512,2048:blackman,2048,8192
+fi
 
 # Create a temporary dict xml for MPTK
 echo '<?xml version="1.0" encoding="ISO-8859-1"?> <dict> <libVersion>0.2</libVersion>' > tmpdict.xml
@@ -37,6 +40,12 @@ do
     bname=(`basename ${FILE%%.*}`)
 
 
+    echo "------------------------File--------------------------------------------"
+    echo $FILE
+    echo "------------------------------------------------------------------------"
+    echo "------------------------Dictionary--------------------------------------"
+    echo $dictstr
+    echo "------------------------------------------------------------------------"
     echo "------------------------Running MPTK's mpd------------------------------"
     ./mptk/bin/mpd -d tmpdict.xml -q \
         --nIter=${MAXIT} -s $SNR $FILE ${bname}.bin ${bname}_res_mptk.wav
