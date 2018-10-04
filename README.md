@@ -13,13 +13,15 @@ The provided bash scripts will obviously only work on Linux.
 * batch_run_comparison.sh -- Runs a batch comparision as presented in Section V in the paper.
 
 A snippet from the run.sh output:
->------------------------Running MPTK's mpd------------------------------
->MP DURATION  3.88 s  <---- MP decomposition runtime
-> ...
->------------------------Running libltfat's mpd--------------------------
->INIT DURATION: 114 ms
->DURATION: 914 ms <---- MP decomposition runtime
->SYN DURATION: 84 ms
+```
+------------------------Running MPTK's mpd------------------------------
+MP DURATION  3.88 s  <---- MP decomposition runtime
+ ...
+------------------------Running libltfat's mpd--------------------------
+INIT DURATION: 114 ms
+DURATION: 914 ms <---- MP decomposition runtime
+SYN DURATION: 84 ms
+```
 
 ## Requirements
 
