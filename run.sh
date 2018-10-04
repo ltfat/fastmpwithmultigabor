@@ -12,7 +12,7 @@ export MPTK_CONFIG_FILENAME=./mptk/mptk/path.xml
 # Array of wav files to be decomposed
 FILES=39ch1.wav
 # Maximum number of iterations
-MAXIT=200000
+MAXIT=180000
 # Stopping SNR
 SNR=60
 # (Multi-)Gabor dictionary definition in the format: window1,a1,M1:window2,a2,M2...
